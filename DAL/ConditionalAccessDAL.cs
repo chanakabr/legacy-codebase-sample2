@@ -2943,5 +2943,41 @@ namespace DAL
 
             return sp.ExecuteReturnValue<int>();
         }
+
+        public static DataTable GetDomainExistingRecordingsByRecordID(int groupID, long domainID, long recordID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetDomainExistingRecordingsByRecordID");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@DomainID", domainID);
+            sp.AddParameter("@RecordID", recordID);
+
+            DataTable dt = sp.Execute();
+
+            return dt;
+        }
+
+        public static bool CancelRecording(int groupID, long recordID, long domainID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelRecording");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@DomainID", domainID);
+            sp.AddParameter("@RecordID", recordID);
+
+            return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static DataTable GetExistingRecordingsByRecordingID(int groupID, long recordID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetExistingRecordingsByRecordingID");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);            
+            sp.AddParameter("@RecordID", recordID);
+            DataTable dt = sp.Execute();
+
+            return dt;
+
+        }
     }
 }

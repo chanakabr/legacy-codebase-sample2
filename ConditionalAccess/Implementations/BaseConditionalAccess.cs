@@ -17123,6 +17123,122 @@ namespace ConditionalAccess
             return recording;
         }
 
+        public Recording CancelRecord(string userID, long domainID, long recordID)
+        {
+            Recording recording = new Recording() { Id = recordID };
+            try
+            {
+                ConditionalAccess.TvinciDomains.Domain domain;
+                ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userID, ref domainID, out domain);
+
+                if (validationStatus.Code != (int)eResponseStatus.OK)
+                {
+                    log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}", domainID, userID);
+                    recording.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
+                    return recording;
+                }
+
+                // user is OK - see if user sign to recordID
+                recording = ValidateRecordID(domainID, recordID);
+                if (recording == null || recording.Status == null || recording.Status.Code != (int)eResponseStatus.OK)
+                {
+                    log.DebugFormat("recording status not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", recordID, domainID, userID, recording != null ? recording.ToString(): string.Empty);
+                    recording = new Recording()
+                    {
+                         Id = recordID,
+                        Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingNotFound, eResponseStatus.RecordingNotFound.ToString())
+                    };
+
+                    return recording;
+                }
+
+                if (recording.Id == 0 || !Utils.IsValidRecordingStatusForCancel(recording.RecordingStatus))
+                {
+                    log.DebugFormat("Recording ID is 0 or RecordingStatus not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", recordID, domainID, userID, recording.ToString());
+                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotValid, recording.RecordingStatus.ToString());
+                }
+                else
+                {
+                   // delete recording id from domian
+                    bool res = ConditionalAccessDAL.CancelRecording(m_nGroupID, recordID, domainID);
+                    if (res)
+                    {
+                        recording.RecordingStatus = TstvRecordingStatus.Canceled;
+                        recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
+                    // if no other users assign to this record id - ask adapter to cancel
+                    DataTable dt = ConditionalAccessDAL.GetExistingRecordingsByRecordingID(m_nGroupID, recordID);
+                    if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                    {                        
+                        var currentStatus = RecordingsManager.Instance.CancelRecording(m_nGroupID,  ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "epg_id",0));                     
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("Exception at Record. ");
+                sb.Append(String.Concat("userID: ", userID));
+                sb.Append(String.Concat(", recordID: ", recordID));
+                sb.Append(String.Concat(", Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
+
+                log.Error(sb.ToString(), ex);
+            }
+
+            return recording;
+        }
+
+        private Recording ValidateRecordID(long domainID, long recordID)
+        {
+            Recording recording = null;
+            try
+            {
+                DataTable dt = ConditionalAccessDAL.GetDomainExistingRecordingsByRecordID(m_nGroupID, domainID, recordID);
+                if (dt != null && dt.Rows != null && dt.Rows[0] != null)
+                {
+                    DataRow dr = dt.Rows[0];
+                    long recordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "recording_id", 0);
+                    if (recordingId > 0)
+                    {
+                        long domainRecordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "id", 0);
+                        long epgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "epg_id", 0);
+                        int recordingState = ODBCWrapper.Utils.GetIntSafeVal(dr, "recording_state");
+
+                        recording = new Recording();
+                        recording.Id = recordingId;
+                        recording.EpgId = epgId;
+                        if (Enum.IsDefined(typeof(TstvRecordingStatus), recordingState))
+                        {
+                            recording.RecordingStatus = (TstvRecordingStatus)recordingState;
+                            recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        }
+                        else
+                        {
+                            recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "recording status not valid");
+                        }
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("Exception at ValidateRecordEpg. ");
+                sb.Append(String.Concat("domainID: ", domainID));
+                sb.Append(String.Concat(", recordID: ", recordID));               
+                sb.Append(String.Concat("Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
+
+                log.Error(sb.ToString(), ex);
+
+                recording = new Recording();
+                recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to ValidateRecordEpg");
+            }
+            return recording;
+        }
+
         public RecordingResponse QueryRecords(string userID, List<long> epgIDs, ref long domainID, bool isAggregative)
         {
             RecordingResponse response = new RecordingResponse();
@@ -17896,6 +18012,6 @@ namespace ConditionalAccess
             }
 
             return response;
-        }
+        }       
     }
 }

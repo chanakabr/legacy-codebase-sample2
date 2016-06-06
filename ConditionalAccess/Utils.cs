@@ -4270,6 +4270,29 @@ namespace ConditionalAccess
             return res;
         }
 
+        internal static bool IsValidRecordingStatusForCancel(TstvRecordingStatus recordingStatus)
+        {
+            bool res = false;
+            switch (recordingStatus)
+            {
+                case TstvRecordingStatus.Recording:                
+                case TstvRecordingStatus.Scheduled:
+                    res = true;
+                    break;
+                
+                case TstvRecordingStatus.Recorded:
+                case TstvRecordingStatus.Deleted:
+                case TstvRecordingStatus.Failed:
+                case TstvRecordingStatus.Canceled:
+                default:
+                    res = false;
+                    break;
+            }
+
+            return res;
+        }
+
+
         internal static List<int> GetGroupEnforcedServices(int groupID)
         {
             List<int> services;
