@@ -237,6 +237,10 @@ namespace Catalog
             {
                 return new MediaSearchExternalRequest((MediaSearchExternalRequest)this.m_oBaseRequest);
             }
+            if (m_oBaseRequest is CountryRequest)
+            {
+                return (CountryRequest)m_oBaseRequest;
+            }
 
             return null;
         }
