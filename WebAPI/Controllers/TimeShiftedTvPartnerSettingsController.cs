@@ -44,8 +44,7 @@ namespace WebAPI.Controllers
         /// Configure the account’s time-shifted TV settings (catch-up and C-DVR, Trick-play, Start-over)
         /// </summary>
         /// <returns></returns>
-        /// <remarks>Possible status codes: BadRequest = 500003, TimeShiftedTvPartnerSettingsNotSent = 5023, TimeShiftedTvPartnerSettingsNegativeBufferSent = 5024,
-        ///  TimeShiftedTvPartnerSettingsNegativePaddingSent = 5026</remarks>   
+        /// <remarks>Possible status codes: BadRequest = 500003, TimeShiftedTvPartnerSettingsNotSent = 5023, TimeShiftedTvPartnerSettingsNegativeBufferSent = 5024</remarks>   
         [Route("update"), HttpPost]
         [ApiAuthorize]
         public bool Update(KalturaTimeShiftedTvPartnerSettings settings)
@@ -56,7 +55,19 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
-                // call client                
+                // validate paddingBeforeProgramStarts
+                if (settings.PaddingBeforeProgramStarts.HasValue && settings.PaddingBeforeProgramStarts.Value < 0)
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "paddingBeforeProgramStarts can not be negative");
+                }
+
+                // validate paddingAfterProgramEnds
+                if (settings.PaddingAfterProgramEnds.HasValue && settings.PaddingAfterProgramEnds.Value < 0)
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "paddingAfterProgramEnds can not be negative");
+                }
+
+                // call client
                 response = ClientsManager.ApiClient().UpdateTimeShiftedTvPartnerSettings(groupId, settings);
             }
             catch (ClientException ex)
