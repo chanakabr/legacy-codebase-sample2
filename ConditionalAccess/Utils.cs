@@ -4697,8 +4697,8 @@ namespace ConditionalAccess
             {
                 foreach (Recording recording in recordingsResponse.Recordings)
                 {
-                    recording.EpgStartDate.AddSeconds((-1) * paddingBeforeProgramStarted);
-                    recording.EpgEndDate.AddSeconds(paddingAfterProgramEnded);
+                    recording.EpgStartDate = recording.EpgStartDate.AddSeconds((-1) * paddingBeforeProgramStarted);
+                    recording.EpgEndDate = recording.EpgEndDate.AddSeconds(paddingAfterProgramEnded);
                 }
             }
         }
