@@ -44,7 +44,8 @@ namespace WebAPI.Controllers
         /// Configure the account’s time-shifted TV settings (catch-up and C-DVR, Trick-play, Start-over)
         /// </summary>
         /// <returns></returns>
-        /// <remarks>Possible status codes: BadRequest = 500003, TimeShiftedTvPartnerSettingsNotSent = 5023, TimeShiftedTvPartnerSettingsNegativeBufferSent = 5024</remarks>   
+        /// <remarks>Possible status codes: BadRequest = 500003, TimeShiftedTvPartnerSettingsNotSent = 5023, TimeShiftedTvPartnerSettingsNegativeBufferSent = 5024,
+        ///  TimeShiftedTvPartnerSettingsNegativePaddingSent = 5026</remarks>   
         [Route("update"), HttpPost]
         [ApiAuthorize]
         public bool Update(KalturaTimeShiftedTvPartnerSettings settings)
