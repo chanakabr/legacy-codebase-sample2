@@ -7981,6 +7981,11 @@ namespace ConditionalAccess
                         //Get all user bundle entitlements
                         Utils.InitializeUsersBundles(domainID, m_nGroupID, allUsersInDomain, sPricingUsername, sPricingPassword, userEntitlements.userBundleEntitlements);
                     }
+                    // set sUserGUID to empty for Utils.GetMediaFileFinalPrice logic
+                    else
+                    {
+                        sUserGUID = string.Empty;
+                    }
 
                     // set max amount of concurrent tasks
                     int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
