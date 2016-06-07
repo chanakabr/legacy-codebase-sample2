@@ -1,0 +1,265 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using ElasticSearch.Common;
+using ElasticsearchTasksCommon;
+using Catalog;
+using ApiObjects.SearchObjects;
+using ElasticSearch.Searcher;
+using GroupsCacheManager;
+using System.Data;
+using System.Threading.Tasks;
+using KLogMonitor;
+using System.Reflection;
+using ApiObjects.Response;
+
+namespace ElasticSearchHandler.IndexBuilders
+{
+    public class ChannelIndexBuilder : AbstractIndexBuilder
+    {
+        private static readonly string MEDIA = "media";
+        private static readonly string PERCOLATOR = "_percolator";
+
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        public ChannelIndexBuilder(int groupID)
+            : base(groupID)
+        {
+
+        }
+
+        #region Interface Methods
+
+        public override bool BuildIndex()
+        {
+            bool result = false;
+
+            // get index name
+            string indexName = ElasticSearchTaskUtils.GetMediaGroupAliasStr(groupId);
+
+            // make sure the index exists - if not build the index
+            if (api.IndexExists(indexName))
+            {
+                GroupManager groupManager = new GroupManager();
+                Group group = groupManager.GetGroup(groupId);
+
+                if (group == null)
+                {
+                    log.ErrorFormat("Could not load group {0} in media index builder", groupId);
+                    return false;
+                }
+                try
+                {
+                    // get current indexed channels
+                    ESMatchAllQuery matchAllQuery = new ESMatchAllQuery();
+                    string query = matchAllQuery.ToString();
+                    string searchResults = api.Search(indexName, PERCOLATOR, ref query);
+
+                    List<string> currentChannelIds = ElasticSearch.Common.Utils.GetDocumentIds(searchResults);
+
+                    // insert / update new channels
+                    result = BuildChannelQueries(groupId, api, group.channelIDs, indexName);
+
+                    // remove old deleted channels
+                    List<ESBulkRequestObj<string>> bulkList = new List<ESBulkRequestObj<string>>();
+                    int sizeOfBulk = 500;
+
+                    int id = 0;
+                    foreach (var channelId in currentChannelIds)
+                    {
+                        if (int.TryParse(channelId, out id) && !group.channelIDs.Contains(id))
+                        {
+                            bulkList.Add(new ESBulkRequestObj<string>()
+                            {
+                                docID = channelId,
+                                index = indexName,
+                                type = PERCOLATOR,
+                                Operation = eOperation.delete
+                            });
+
+                            if (bulkList.Count >= sizeOfBulk)
+                            {
+                                Task<List<ESBulkRequestObj<string>>> t = Task<List<ESBulkRequestObj<string>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(bulkList));
+                                t.Wait();
+                                bulkList = new List<ESBulkRequestObj<string>>();
+                            }
+                        }
+                    }
+
+                    if (bulkList.Count > 0)
+                    {
+                        Task<List<ESBulkRequestObj<string>>> t = Task<List<ESBulkRequestObj<string>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(bulkList));
+                        t.Wait();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Error while rebuilding channels in index for group = {0}", groupId, ex);
+                    return false;
+                }
+            }
+            else
+            {
+                // TODO: Ira decide
+                return new MediaIndexBuilder(groupId).BuildIndex();
+            }
+
+            return true;
+        }
+
+        #endregion
+
+        public static bool BuildChannelQueries(int groupId, ElasticSearchApi api, HashSet<int> channelIds, string newIndexName)
+        {
+            if (channelIds != null)
+            {
+                log.Info(string.Format("Start indexing channels. total channels={0}", channelIds.Count));
+
+                List<KeyValuePair<int, string>> channelRequests = new List<KeyValuePair<int, string>>();
+                try
+                {
+                    GroupManager groupManager = new GroupManager();
+                    groupManager.RemoveGroup(groupId);
+
+                    List<Channel> allChannels = groupManager.GetChannels(channelIds.ToList(), groupId);
+
+                    ESMediaQueryBuilder mediaQueryParser = new ESMediaQueryBuilder()
+                    {
+                        QueryType = eQueryType.EXACT
+                    };
+                    var unifiedQueryBuilder = new ESUnifiedQueryBuilder(null, groupId);
+
+                    foreach (Channel currentChannel in allChannels)
+                    {
+                        if (currentChannel == null || currentChannel.m_nIsActive != 1)
+                            continue;
+
+                        string channelQuery = string.Empty;
+
+                        if (currentChannel.m_nChannelTypeID == (int)ChannelType.KSQL)
+                        {
+                            try
+                            {
+                                // If there is at least 1 media type, build its definitions
+                                if (currentChannel.m_nMediaType != null &&
+                                    currentChannel.m_nMediaType.Count(type => type != Channel.EPG_ASSET_TYPE) > 0)
+                                {
+                                    UnifiedSearchDefinitions definitions = ElasticsearchTasksCommon.Utils.BuildSearchDefinitions(currentChannel, true);
+
+                                    unifiedQueryBuilder.SearchDefinitions = definitions;
+                                    channelQuery = unifiedQueryBuilder.BuildSearchQueryString();
+                                }
+                            }
+                            catch (KalturaException ex)
+                            {
+                                log.ErrorFormat("Tried to index an invalid KSQL Channel. ID = {0}, message = {1}", currentChannel.m_nChannelID, ex.Message, ex);
+                            }
+                            catch (Exception ex)
+                            {
+                                throw ex;
+                            }
+                        }
+                        else
+                        {
+                            mediaQueryParser.m_nGroupID = currentChannel.m_nGroupID;
+                            MediaSearchObj mediaSearchObject = BuildBaseChannelSearchObject(currentChannel);
+
+                            mediaQueryParser.oSearchObject = mediaSearchObject;
+                            channelQuery = mediaQueryParser.BuildSearchQueryString(true);
+                        }
+
+                        if (!string.IsNullOrEmpty(channelQuery))
+                        {
+                            channelRequests.Add(new KeyValuePair<int, string>(currentChannel.m_nChannelID, channelQuery));
+
+                            if (channelRequests.Count > 50)
+                            {
+                                api.CreateBulkIndexRequest("_percolator", newIndexName, channelRequests);
+                                channelRequests.Clear();
+                            }
+                        }
+                    }
+
+                    if (channelRequests.Count > 0)
+                    {
+                        api.CreateBulkIndexRequest("_percolator", newIndexName, channelRequests);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error(string.Format("Caught exception while indexing channels. Ex={0};Stack={1}", ex.Message, ex.StackTrace));
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static ApiObjects.SearchObjects.MediaSearchObj BuildBaseChannelSearchObject(Channel channel)
+        {
+            ApiObjects.SearchObjects.MediaSearchObj searchObject = new ApiObjects.SearchObjects.MediaSearchObj();
+            searchObject.m_nGroupId = channel.m_nGroupID;
+            searchObject.m_bExact = true;
+            searchObject.m_eCutWith = channel.m_eCutWith;
+            searchObject.m_sMediaTypes = string.Join(";", channel.m_nMediaType.Select(type => type.ToString()));
+            searchObject.m_sPermittedWatchRules = ElasticsearchTasksCommon.Utils.GetPermittedWatchRules(channel.m_nGroupID);
+            searchObject.m_oOrder = new ApiObjects.SearchObjects.OrderObj();
+
+            searchObject.m_bUseStartDate = false;
+            searchObject.m_bUseFinalEndDate = false;
+
+            CopySearchValuesToSearchObjects(ref searchObject, channel.m_eCutWith, channel.m_lChannelTags);
+            return searchObject;
+        }
+
+        private static void CopySearchValuesToSearchObjects(ref ApiObjects.SearchObjects.MediaSearchObj searchObject,
+           ApiObjects.SearchObjects.CutWith cutWith, List<ApiObjects.SearchObjects.SearchValue> channelSearchValues)
+        {
+            List<ApiObjects.SearchObjects.SearchValue> m_dAnd = new List<ApiObjects.SearchObjects.SearchValue>();
+            List<ApiObjects.SearchObjects.SearchValue> m_dOr = new List<ApiObjects.SearchObjects.SearchValue>();
+
+            ApiObjects.SearchObjects.SearchValue search = new ApiObjects.SearchObjects.SearchValue();
+            if (channelSearchValues != null && channelSearchValues.Count > 0)
+            {
+                foreach (ApiObjects.SearchObjects.SearchValue searchValue in channelSearchValues)
+                {
+                    if (!string.IsNullOrEmpty(searchValue.m_sKey))
+                    {
+                        search = new ApiObjects.SearchObjects.SearchValue();
+                        search.m_sKey = searchValue.m_sKey;
+                        search.m_lValue = searchValue.m_lValue;
+                        search.m_sKeyPrefix = searchValue.m_sKeyPrefix;
+                        search.m_eInnerCutWith = searchValue.m_eInnerCutWith;
+
+                        switch (cutWith)
+                        {
+                            case ApiObjects.SearchObjects.CutWith.OR:
+                                {
+                                    m_dOr.Add(search);
+                                    break;
+                                }
+                            case ApiObjects.SearchObjects.CutWith.AND:
+                                {
+                                    m_dAnd.Add(search);
+                                    break;
+                                }
+                            default:
+                                break;
+                        }
+                    }
+                }
+            }
+
+            if (m_dOr.Count > 0)
+            {
+                searchObject.m_dOr = m_dOr;
+            }
+
+            if (m_dAnd.Count > 0)
+            {
+                searchObject.m_dAnd = m_dAnd;
+            }
+        }
+    }
+}

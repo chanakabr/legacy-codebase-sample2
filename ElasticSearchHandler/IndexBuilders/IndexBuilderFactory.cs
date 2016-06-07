@@ -14,8 +14,10 @@ namespace ElasticSearchHandler.IndexBuilders
             switch (eType)
             {
                 case ApiObjects.eObjectType.Media:
-                case ApiObjects.eObjectType.Channel:
                     result = new MediaIndexBuilder(nGroupID);
+                    break;
+                case ApiObjects.eObjectType.Channel:
+                    result = new ChannelIndexBuilder(nGroupID);
                     break;
                 case ApiObjects.eObjectType.EPG:
                     result = new EpgIndexBuilder(nGroupID);
