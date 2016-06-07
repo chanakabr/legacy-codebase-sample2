@@ -2117,5 +2117,20 @@ namespace DAL
 
             return null;
         }
+
+        public static DataTable GetCountryById(int id)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetCountry");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@id", id);
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                return ds.Tables[0];
+            }
+
+            return null;
+        }
     }     
 }
