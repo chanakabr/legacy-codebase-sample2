@@ -4183,8 +4183,8 @@ namespace ConditionalAccess
                     int recordingScheduleWindow = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_schedule_window", -1);
                     long paddingAfterProgramEnds = ODBCWrapper.Utils.GetLongSafeVal(dr, "padding_after_program_ends", 0);
                     long paddingBeforeProgramStarts = ODBCWrapper.Utils.GetLongSafeVal(dr, "padding_before_program_starts", 0);
-                    int protectionPeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_period", -1);
-                    int protectionQuotaPercentage = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_quota_percentage", -1);
+                    int protectionPeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_period", 90);
+                    int protectionQuotaPercentage = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_quota_percentage", 25);
 
                     if (catchup > -1 && cdvr > -1 && startOver > -1 && trickPlay > -1 && catchUpBuffer > -1 && trickPlayBuffer > -1 && recordingScheduleWindow > -1)
                     {
