@@ -19,7 +19,7 @@ namespace ElasticSearchHandler
 
             try
             {
-                log.InfoFormat("starting elasticsearch request. data={0}", data);
+                log.DebugFormat("starting elasticsearch request. data={0}", data);
 
                 ElasticSearchRequest request = JsonConvert.DeserializeObject<ElasticSearchRequest>(data);
 

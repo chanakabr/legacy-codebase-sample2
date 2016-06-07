@@ -22,7 +22,7 @@ namespace UpdateCacheHandler
 
             try
             {
-                log.InfoFormat("starting update cache task. data={0}", data);
+                log.DebugFormat("starting update cache task. data={0}", data);
 
                 UpdateCacheRequest request = JsonConvert.DeserializeObject<UpdateCacheRequest>(data);
 

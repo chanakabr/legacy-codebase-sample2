@@ -19,7 +19,7 @@ namespace ESIndexUpdateHandler
 
             try
             {
-                log.InfoFormat("starting update request. data={0}", data);
+                log.DebugFormat("starting update request. data={0}", data);
 
                 DocsUpdateRequest request = JsonConvert.DeserializeObject<DocsUpdateRequest>(data);
 

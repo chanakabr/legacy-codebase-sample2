@@ -27,7 +27,7 @@ namespace InitiateNotificationActionHandler
 
             try
             {
-                log.InfoFormat("starting User Notification request. data={0}", data);
+                log.DebugFormat("starting User Notification request. data={0}", data);
 
                 InitiateNotificationActionRequest request = JsonConvert.DeserializeObject<InitiateNotificationActionRequest>(data);
 

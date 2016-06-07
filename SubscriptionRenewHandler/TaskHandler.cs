@@ -22,7 +22,7 @@ namespace SubscriptionRenewHandler
 
             try
             {
-                log.InfoFormat("Renew subscription request. data={0}", data);
+                log.DebugFormat("Renew subscription request. data={0}", data);
 
                 SubscriptionRenewRequest request = JsonConvert.DeserializeObject<SubscriptionRenewRequest>(data);
 
