@@ -117,6 +117,16 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
         dr_paddingBeforeProgramStarts.SetDefault(0);
         theRecord.AddRecord(dr_paddingAfterProgramEnds);
 
+        DataRecordShortIntField dr_protectionPeriod = new DataRecordShortIntField(true, 9, 9, 0);
+        dr_protectionPeriod.Initialize("Record Protection Period", "adm_table_header_nbg", "FormInput", "protection_period", false);
+        dr_protectionPeriod.SetDefault(90);
+        theRecord.AddRecord(dr_protectionPeriod);
+
+        DataRecordShortIntField dr_protectionQuotaPercentage = new DataRecordShortIntField(true, 9, 9, 10, 100);
+        dr_protectionQuotaPercentage.Initialize("Record Protection Quota Percentage", "adm_table_header_nbg", "FormInput", "protection_quota_percentage", false);
+        dr_protectionQuotaPercentage.SetDefault(25);
+        theRecord.AddRecord(dr_protectionQuotaPercentage);
+
         DataRecordDropDownField dr_adapters = new DataRecordDropDownField("time_shifted_tv_settings", "adapter_id", "id", "", null, 60, true);
         string sQuery = "select name as txt,id as id from conditionalAccess..cdvr_adapters where status=1 and is_active=1 and group_id=" + groupID;
         dr_adapters.SetSelectsQuery(sQuery);
