@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using KLogMonitor;
+using Newtonsoft.Json.Linq;
 
 namespace ElasticSearch.Common
 {
@@ -142,6 +143,36 @@ namespace ElasticSearch.Common
         public static string GetGroupStatisticsIndex(int nParentGroupId)
         {
             return string.Concat(nParentGroupId, "_statistics");
+        }
+
+        public static List<string> GetDocumentIds(string originalString)
+        {
+            List<string> result = new List<string>();
+
+            try
+            {
+                var jsonObj = JObject.Parse(originalString);
+
+                if (jsonObj != null)
+                {
+                    JToken tempToken;
+                    int totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
+
+                    if (totalItems > 0)
+                    {
+                        foreach (var item in jsonObj.SelectToken("hits.hits"))
+                        {
+                            result.Add(((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error - " + string.Format("Json Deserialization failed for ElasticSearch search request. Execption={0}", ex.Message), ex);
+            }
+
+            return result;
         }
     }
 }

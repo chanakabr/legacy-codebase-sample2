@@ -2226,7 +2226,7 @@ namespace Catalog
 
                 string searchResults = api.Search(index, type, ref query);
 
-                List<string> documents = GetDocumentIds(searchResults);
+                List<string> documents = ElasticSearch.Common.Utils.GetDocumentIds(searchResults);
 
                 List<ESBulkRequestObj<string>> lBulkObj = new List<ESBulkRequestObj<string>>();           
                 int sizeOfBulk = 500;
@@ -2263,36 +2263,6 @@ namespace Catalog
             }
 
             return status;
-        }
-
-        private static List<string> GetDocumentIds(string originalString)
-        {
-            List<string> result = new List<string>();
-
-            try
-            {
-                var jsonObj = JObject.Parse(originalString);
-
-                if (jsonObj != null)
-                {
-                    JToken tempToken;
-                    int totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
-
-                    if (totalItems > 0)
-                    {
-                        foreach (var item in jsonObj.SelectToken("hits.hits"))
-                        {
-                            result.Add(((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken));
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error("Error - " + string.Format("Json Deserialization failed for ElasticSearch search request. Execption={0}", ex.Message), ex);
-            }
-
-            return result;
         }
     }
 
