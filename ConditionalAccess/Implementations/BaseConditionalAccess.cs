@@ -17909,5 +17909,68 @@ namespace ConditionalAccess
 
             return response;
         }
+
+        public Recording ProtectRecord(string userID, ref long domainID, long recordID)
+        {
+            Recording response = new Recording() { Id = recordID };
+            try
+            {
+                ConditionalAccess.TvinciDomains.Domain domain;
+                ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userID, ref domainID, out domain);
+
+                if (validationStatus.Code != (int)eResponseStatus.OK)
+                {
+                    log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}", domainID, userID);
+                    response.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
+                    return response;
+                }
+
+                // use liat's ValidateRecordID
+
+                // use liat's IsValidRecordingStatusForDelete (modify to DeleteOrProtect) OR check if recordingStatus = recorded                          
+
+                // get domains/account quota
+                int availableQuotaMinutes = Utils.GetQuota(this.m_nGroupID, domainID);
+
+                // check users remaining protection Quota 
+                TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+                if (accountSettings == null || !accountSettings.ProtectionQuotaPercentage.HasValue)
+                {
+                    log.DebugFormat("Failed getting account protection quota percentage, DomainID: {0}, UserID: {1}", domainID, userID);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    return response;
+                }
+                
+                int availableProtectionMinutes =  (int)((availableQuotaMinutes * accountSettings.ProtectionQuotaPercentage.Value) / 100);
+                ApiObjects.Response.Status protectionQuotaStatus = QuotaManager.Instance.CheckQuotaByAvailableMinutes(m_nGroupID, domainID, availableProtectionMinutes, new List<Recording>() { response }, false);
+
+                if (protectionQuotaStatus == null || protectionQuotaStatus.Code != (int)eResponseStatus.OK)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.DomainExceededProtectionQuota, eResponseStatus.DomainExceededProtectionQuota.ToString());
+                    return response;
+                }
+
+                // update last availability date on domains_recordings + write/update on a new table that the recording (with the REAL recording ID) is protected and until what date
+
+                // return recording
+                
+                // needed?
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                
+            }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("Exception at ProtectRecord. ");
+                sb.Append(String.Concat("userID: ", userID));
+                sb.Append(String.Concat("recordID: ", recordID));
+                sb.Append(String.Concat("Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
+
+                log.Error(sb.ToString(), ex);
+            }
+
+            return response;
+        }
     }
 }
