@@ -565,6 +565,8 @@
           <s:element minOccurs="1" maxOccurs="1" name="RecordingScheduleWindow" nillable="true" type="s:long" />
           <s:element minOccurs="1" maxOccurs="1" name="PaddingAfterProgramEnds" nillable="true" type="s:long" />
           <s:element minOccurs="1" maxOccurs="1" name="PaddingBeforeProgramStarts" nillable="true" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="ProtectionPeriod" nillable="true" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="ProtectionQuotaPercentage" nillable="true" type="s:int" />
         </s:sequence>
       </s:complexType>
       <s:element name="UpdateTimeShiftedTvPartnerSettings">

@@ -100,5 +100,21 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "paddingAfterProgramEnds", IsNullable = true)]
         public long? PaddingAfterProgramEnds { get; set; }
 
+        /// <summary>
+        /// Specify the time in days that a recording should be protected. Start time begin at protection request.
+        /// </summary>
+        [DataMember(Name = "protectionPeriod")]
+        [JsonProperty("protectionPeriod")]
+        [XmlElement(ElementName = "protectionPeriod", IsNullable = true)]
+        public int? ProtectionPeriod { get; set; }
+
+        /// <summary>
+        /// Indicates how long (in seconds) after the program ends the recording will end
+        /// </summary>
+        [DataMember(Name = "protectionQuotaPercentage")]
+        [JsonProperty("protectionQuotaPercentage")]
+        [XmlElement(ElementName = "protectionQuotaPercentage", IsNullable = true)]
+        public int? ProtectionQuotaPercentage { get; set; }
+
     }
 }

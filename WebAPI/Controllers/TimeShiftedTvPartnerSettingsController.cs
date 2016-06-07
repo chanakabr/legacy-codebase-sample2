@@ -67,6 +67,18 @@ namespace WebAPI.Controllers
                     throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "paddingAfterProgramEnds can not be negative");
                 }
 
+                // validate protectionPeriod
+                if (settings.ProtectionPeriod.HasValue && settings.ProtectionPeriod.Value < 0)
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "protectionPeriod can not be negative");
+                }
+
+                // validate protectionQuotaPercentage
+                if (settings.ProtectionQuotaPercentage.HasValue && (settings.ProtectionQuotaPercentage.Value < 10 || settings.ProtectionQuotaPercentage.Value > 100))
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "protectionQuotaPercentage must be between 10 and 100");
+                }
+
                 // call client
                 response = ClientsManager.ApiClient().UpdateTimeShiftedTvPartnerSettings(groupId, settings);
             }

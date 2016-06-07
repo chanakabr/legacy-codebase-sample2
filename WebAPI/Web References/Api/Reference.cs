@@ -14232,6 +14232,10 @@ namespace WebAPI.Api {
         
         private System.Nullable<long> paddingBeforeProgramStartsField;
         
+        private System.Nullable<int> protectionPeriodField;
+        
+        private System.Nullable<int> protectionQuotaPercentageField;
+        
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
         public System.Nullable<bool> IsCatchUpEnabled {
@@ -14339,6 +14343,28 @@ namespace WebAPI.Api {
             }
             set {
                 this.paddingBeforeProgramStartsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<int> ProtectionPeriod {
+            get {
+                return this.protectionPeriodField;
+            }
+            set {
+                this.protectionPeriodField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<int> ProtectionQuotaPercentage {
+            get {
+                return this.protectionQuotaPercentageField;
+            }
+            set {
+                this.protectionQuotaPercentageField = value;
             }
         }
     }
