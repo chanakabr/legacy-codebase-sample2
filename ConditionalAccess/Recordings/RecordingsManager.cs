@@ -657,9 +657,17 @@ namespace Recordings
         public Recording GetRecording(int groupId, long recordingId)
         {
             Recording recording = ConditionalAccessDAL.GetRecordingByRecordingId(recordingId);
-
-            recording.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-
+            if (recording != null)
+            {
+                recording.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            else
+            {
+                recording = new Recording()
+                {
+                    Status = new Status((int)eResponseStatus.RecordingNotFound, eResponseStatus.RecordingNotFound.ToString())
+                };
+            }
             return recording;
         }
 

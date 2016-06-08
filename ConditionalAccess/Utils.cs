@@ -4270,27 +4270,7 @@ namespace ConditionalAccess
             return res;
         }
 
-        internal static bool IsValidRecordingStatusForCancel(TstvRecordingStatus recordingStatus)
-        {
-            bool res = false;
-            switch (recordingStatus)
-            {
-                case TstvRecordingStatus.Recording:                
-                case TstvRecordingStatus.Scheduled:
-                    res = true;
-                    break;
-                
-                case TstvRecordingStatus.Recorded:
-                case TstvRecordingStatus.Deleted:
-                case TstvRecordingStatus.Failed:
-                case TstvRecordingStatus.Canceled:
-                default:
-                    res = false;
-                    break;
-            }
-
-            return res;
-        }
+       
 
 
         internal static List<int> GetGroupEnforcedServices(int groupID)
@@ -4710,7 +4690,7 @@ namespace ConditionalAccess
             return adapterResponse;
         }
 
-        internal static bool IsValidRecordingStatusForDelete(TstvRecordingStatus recordingStatus)
+        private static bool IsValidRecordingStatusForDelete(TstvRecordingStatus recordingStatus)
         {
             bool res = false;
             switch (recordingStatus)
@@ -4730,6 +4710,42 @@ namespace ConditionalAccess
             }
 
             return res;
+        }
+
+        private static bool IsValidRecordingStatusForCancel(TstvRecordingStatus recordingStatus)
+        {
+            bool res = false;
+            switch (recordingStatus)
+            {
+                case TstvRecordingStatus.Recording:
+                case TstvRecordingStatus.Scheduled:
+                    res = true;
+                    break;
+
+                case TstvRecordingStatus.Recorded:
+                case TstvRecordingStatus.Deleted:
+                case TstvRecordingStatus.Failed:
+                case TstvRecordingStatus.Canceled:
+                default:
+                    res = false;
+                    break;
+            }
+
+            return res;
+        }
+
+        internal static bool IsValidRecordingStatus(TstvRecordingStatus recordStatus, TstvRecordingStatus tstvRecordingStatus)
+        {
+            switch (tstvRecordingStatus)
+            {
+                case TstvRecordingStatus.Canceled:
+                    return IsValidRecordingStatusForCancel(recordStatus);
+                case TstvRecordingStatus.Deleted:
+                    return IsValidRecordingStatusForDelete(recordStatus);
+                default:
+                   return false;
+            }
+            return false;
         }
     }
 }
