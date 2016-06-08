@@ -337,6 +337,7 @@
     <Compile Include="SearchObjects\ISearcher.cs" />
     <Compile Include="SearchObjects\MediaObj.cs" />
     <Compile Include="SearchObjects\MediaSearchObj.cs" />
+    <Compile Include="SearchObjects\ParentalRulesTags.cs" />
     <Compile Include="SearchObjects\SearchResult.cs" />
     <Compile Include="SearchObjects\SearchResultsObj.cs" />
     <Compile Include="SearchObjects\UnifiedSearchDefinitions.cs" />
