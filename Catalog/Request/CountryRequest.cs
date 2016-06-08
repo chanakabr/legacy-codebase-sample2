@@ -11,12 +11,16 @@ using Tvinci.Core.DAL;
 using System.Data;
 using DAL;
 using ApiObjects.Response;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Catalog.Request
 {
     [DataContract]
     public class CountryRequest : BaseRequest, IRequestImp
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         [DataMember]
         public string Ip { get; set; }
 
@@ -31,7 +35,16 @@ namespace Catalog.Request
             CountryRequest request = (CountryRequest)oBaseRequest;
             CountryResponse response = new CountryResponse();
 
-            int countryId = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(Ip);
+            int countryId = 0;
+            try
+            {
+                countryId = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(Ip);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while getting ip to country from ES. ip = {0}", Ip, ex);
+            }
+
 
             if (countryId != 0)
             {
