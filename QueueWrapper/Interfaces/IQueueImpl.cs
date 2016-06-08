@@ -12,5 +12,11 @@ namespace QueueWrapper
         T Dequeue<T>(string queueName, out string ackId);
 
         bool Ack(string queueName, string ackId);
+
+        bool IsQueueExist(string name);
+
+        bool AddQueue(string name, string routingKey);
+
+        bool DeleteQueue(string name);
     }
 }

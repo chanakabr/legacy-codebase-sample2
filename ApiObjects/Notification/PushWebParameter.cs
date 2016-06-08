@@ -1,0 +1,24 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ApiObjects.Notification
+{
+    public class PushWebParameter
+    {
+        public long AnnouncementId { get; set; }
+        public string Token { get; set; }
+
+        public PushWebParameter()
+        {
+        }
+
+        public PushWebParameter(long id, string token)
+        {
+            AnnouncementId = id;
+            Token = token;
+        }
+    }
+}

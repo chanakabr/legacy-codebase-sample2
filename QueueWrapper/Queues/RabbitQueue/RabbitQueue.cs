@@ -153,7 +153,7 @@ namespace QueueWrapper
         public virtual bool Ack(string sQueueName, string sAckId)
         {
             bool bResult = false;
-
+            
             RabbitConfigurationData configData = CreateRabbitConfigurationData();
             if (configData != null)
             {
@@ -162,6 +162,48 @@ namespace QueueWrapper
             }
 
             return bResult;
+        }
+
+        public virtual bool IsQueueExist(string name)
+        {
+            RabbitConfigurationData configData = CreateRabbitConfigurationData();
+
+            if (configData != null)
+            {
+                configData.QueueName = name;
+
+                return RabbitConnection.Instance.IsQueueExist(configData);
+            }
+
+            return false;
+        }
+
+        public virtual bool AddQueue(string name, string routingKey)
+        {
+            RabbitConfigurationData configData = CreateRabbitConfigurationData();
+
+            if (configData != null)
+            {
+                configData.QueueName = name;
+                configData.RoutingKey = routingKey;
+                return RabbitConnection.Instance.AddQueue(configData);
+            }
+
+            return false;
+        }
+
+        public virtual bool DeleteQueue(string name)
+        {
+            RabbitConfigurationData configData = CreateRabbitConfigurationData();
+
+            if (configData != null)
+            {
+                configData.QueueName = name;
+                configData.RoutingKey = routingKey;
+                return RabbitConnection.Instance.DeleteQueue(configData);
+            }
+
+            return false;
         }
 
         private void ReadRabbitParameters()
