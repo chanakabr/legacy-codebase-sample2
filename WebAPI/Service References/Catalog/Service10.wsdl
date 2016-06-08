@@ -111,6 +111,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="UpdateEpgChannelIndex">
+      <soap12:operation soapAction="urn:Iservice/UpdateEpgChannelIndex" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="RebuildIndex">
       <soap12:operation soapAction="urn:Iservice/RebuildIndex" style="document" />
       <wsdl:input>
@@ -131,6 +140,24 @@
     </wsdl:operation>
     <wsdl:operation name="GetGroup">
       <soap12:operation soapAction="urn:Iservice/GetGroup" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateRecordingsIndex">
+      <soap12:operation soapAction="urn:Iservice/UpdateRecordingsIndex" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RebuildEpgChannel">
+      <soap12:operation soapAction="urn:Iservice/RebuildEpgChannel" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>

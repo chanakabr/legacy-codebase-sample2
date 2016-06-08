@@ -1147,5 +1147,37 @@ namespace WebAPI.Clients
             return result;
         }
 
+        internal KalturaCountry GetCountryByIp(int groupId, string ip)
+        {
+            KalturaCountry result = null;
+            CountryRequest request = new CountryRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter(),
+                m_nGroupID = groupId,
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                Ip = ip
+            };
+
+            CountryResponse response = null;
+            if (CatalogUtils.GetBaseResponse(CatalogClientModule, request, out response) && response != null && response.Status != null)
+            {
+                if (response.Status.Code == (int)StatusCode.OK)
+                {
+                    result = Mapper.Map<KalturaCountry>(response.Country);
+                }
+                else
+                {
+                    throw new ClientException(response.Status.Code, response.Status.Message);
+                }
+            }
+            else
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            return result;
+        }
     }
 }

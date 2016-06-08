@@ -19,7 +19,7 @@ namespace WebAPI.Models.Notification
         /// <summary>
         /// message
         /// </summary>
-        [DataMember(Name = "mesnamesage")]
+        [DataMember(Name = "name")]
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
         public string Name { get; set; }

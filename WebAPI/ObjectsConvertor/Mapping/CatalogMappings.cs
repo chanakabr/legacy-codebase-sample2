@@ -159,6 +159,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<UnifiedSearchResult, WebAPI.Models.Catalog.KalturaSlimAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertAssetType(src.AssetType)));
+
+            // Country
+            Mapper.CreateMap<Catalog.Country, WebAPI.Models.Users.KalturaCountry>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nObjecrtIDField))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sCountryNameField))
+                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.m_sCountryCodeField));
+
         }
 
         //eAssetTypes to KalturaAssetType
