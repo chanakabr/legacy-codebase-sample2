@@ -17174,8 +17174,8 @@ namespace ConditionalAccess
                     }
                     else
                     {
-                        recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to perform cancel");
-                        log.ErrorFormat("fail to perform cancel recordingId = {0}, domainRecordingID = {1}", recording.Id, domainRecordingID);
+                        recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to perform cancel or delete");
+                        log.ErrorFormat("fail to perform cancel or delete recordingId = {0}, domainRecordingID = {1}, tstvRecordingStatus = {2}", recording.Id, domainRecordingID, tstvRecordingStatus.ToString());
                     }
                 }
                 recording.Id = domainRecordingID;
