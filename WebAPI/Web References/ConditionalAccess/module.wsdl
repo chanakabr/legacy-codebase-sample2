@@ -2971,9 +2971,9 @@
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="userID" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="domainID" type="s:long" />
-            <s:element minOccurs="1" maxOccurs="1" name="recordingID" type="s:long" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="recordingId" type="s:long" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -2989,8 +2989,8 @@
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="userID" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="domainID" type="s:long" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:long" />
             <s:element minOccurs="1" maxOccurs="1" name="recordingId" type="s:long" />
           </s:sequence>
         </s:complexType>
@@ -5483,9 +5483,9 @@
   <wsdl:message name="CancelRecordHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="userID" type="s:string" />
-    <wsdl:part name="domainID" type="s:string" />
-    <wsdl:part name="recordingID" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+    <wsdl:part name="recordingId" type="s:string" />
   </wsdl:message>
   <wsdl:message name="CancelRecordHttpPostOut">
     <wsdl:part name="Body" element="tns:Recording" />
@@ -5493,8 +5493,8 @@
   <wsdl:message name="DeleteRecordHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="userID" type="s:string" />
-    <wsdl:part name="domainID" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
     <wsdl:part name="recordingId" type="s:string" />
   </wsdl:message>
   <wsdl:message name="DeleteRecordHttpPostOut">
