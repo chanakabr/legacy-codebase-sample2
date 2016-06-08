@@ -590,6 +590,9 @@
           <s:element minOccurs="1" maxOccurs="1" name="EpgEndDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="Type" type="tns:RecordingType" />
           <s:element minOccurs="1" maxOccurs="1" name="GetStatusRetries" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="ViewableUntilDate" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="CreateDate" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="UpdateDate" type="s:dateTime" />
         </s:sequence>
       </s:complexType>
       <s:simpleType name="TstvRecordingStatus">

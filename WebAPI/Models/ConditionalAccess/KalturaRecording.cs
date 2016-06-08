@@ -45,6 +45,30 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlElement(ElementName = "type")]
         public KalturaRecordingType Type { get; set; }
 
+        /// <summary>
+        /// Specifies until when the recording is available for viewing. Date and time represented as epoch.
+        /// </summary>
+        [DataMember(Name = "viewableUntilDate")]
+        [JsonProperty("viewableUntilDate")]
+        [XmlElement(ElementName = "viewableUntilDate")]
+        public long ViewableUntilDate { get; set; }
+
+        /// <summary>
+        /// Specifies when was the recording created. Date and time represented as epoch.
+        /// </summary>
+        [DataMember(Name = "createDate")]
+        [JsonProperty("createDate")]
+        [XmlElement(ElementName = "createDate")]
+        public long CreateDate { get; set; }
+
+        /// <summary>
+        /// Specifies when was the recording last updated. Date and time represented as epoch.
+        /// </summary>
+        [DataMember(Name = "updateDate")]
+        [JsonProperty("updateDate")]
+        [XmlElement(ElementName = "updateDate")]
+        public long UpdateDate { get; set; }
+
     }
 
 }

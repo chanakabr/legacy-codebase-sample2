@@ -10296,6 +10296,12 @@ namespace WebAPI.ConditionalAccess {
         
         private int getStatusRetriesField;
         
+        private System.DateTime viewableUntilDateField;
+        
+        private System.DateTime createDateField;
+        
+        private System.DateTime updateDateField;
+        
         /// <remarks/>
         public Status Status {
             get {
@@ -10393,6 +10399,36 @@ namespace WebAPI.ConditionalAccess {
             }
             set {
                 this.getStatusRetriesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime ViewableUntilDate {
+            get {
+                return this.viewableUntilDateField;
+            }
+            set {
+                this.viewableUntilDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime CreateDate {
+            get {
+                return this.createDateField;
+            }
+            set {
+                this.createDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime UpdateDate {
+            get {
+                return this.updateDateField;
+            }
+            set {
+                this.updateDateField = value;
             }
         }
     }

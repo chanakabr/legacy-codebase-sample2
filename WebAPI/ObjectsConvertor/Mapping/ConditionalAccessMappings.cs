@@ -224,14 +224,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.EpgId, opt => opt.MapFrom(src => src.AssetId))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.RecordingStatus, opt => opt.MapFrom(src => ConvertKalturaRecordingStatus(src.Status)))
-               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertKalturaRecordingType(src.Type)));
+               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertKalturaRecordingType(src.Type)))
+               .ForMember(dest => dest.ViewableUntilDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.ViewableUntilDate)))
+               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.CreateDate)))
+               .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.UpdateDate)));
 
             // Recording to KalturaRecording
             Mapper.CreateMap<WebAPI.ConditionalAccess.Recording, KalturaRecording>()
                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.EpgId))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertTstvRecordingStatus(src.RecordingStatus)))
-               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertRecordingType(src.Type)));
+               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertRecordingType(src.Type)))
+               .ForMember(dest => dest.ViewableUntilDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.ViewableUntilDate)))
+               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.CreateDate)))
+               .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.UpdateDate)));
 
             #endregion
 
