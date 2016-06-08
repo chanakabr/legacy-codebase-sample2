@@ -53,8 +53,15 @@ namespace ElasticSearchHandler.IndexBuilders
                 {
                     // get current indexed channels
                     ESMatchAllQuery matchAllQuery = new ESMatchAllQuery();
-                    string query = matchAllQuery.ToString();
-                    string searchResults = api.Search(indexName, PERCOLATOR, ref query);
+                    FilteredQuery filteredQuery = new FilteredQuery()
+                    {
+                        Query = matchAllQuery
+                    };
+
+                    string query = filteredQuery.ToString();
+
+                    // TODO: make sure it's the index name and not the alias
+                    string searchResults = api.Search(PERCOLATOR, indexName, ref query);
 
                     List<string> currentChannelIds = ElasticSearch.Common.Utils.GetDocumentIds(searchResults);
 
@@ -73,8 +80,8 @@ namespace ElasticSearchHandler.IndexBuilders
                             bulkList.Add(new ESBulkRequestObj<string>()
                             {
                                 docID = channelId,
-                                index = indexName,
-                                type = PERCOLATOR,
+                                index = PERCOLATOR,
+                                type = indexName,
                                 Operation = eOperation.delete
                             });
 
@@ -171,6 +178,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                         if (!string.IsNullOrEmpty(channelQuery))
                         {
+
                             channelRequests.Add(new KeyValuePair<int, string>(currentChannel.m_nChannelID, channelQuery));
 
                             if (channelRequests.Count > 50)
