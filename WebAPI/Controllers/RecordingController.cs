@@ -167,8 +167,8 @@ namespace WebAPI.Controllers
         }
 
 
-        /// <summary>
-        /// Returns recording cancel object by internal identifier
+        /// <summary>        
+        /// Cancel a previously requested recording. Cancel recording can be called for recording in status Scheduled or Recording Only 
         /// </summary>
         /// <param name="id">Recording identifier</param>
         /// <returns></returns>
@@ -187,6 +187,34 @@ namespace WebAPI.Controllers
                 long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
                 // call client                
                 response = ClientsManager.ConditionalAccessClient().CancelRecord(groupId, userId, domainId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
+
+        /// <summary>        
+        /// Delete one or more user recording(s). Delete recording can be called only for recordings in status Recorded
+        /// </summary>
+        /// <param name="id">Recording identifier</param>
+        /// <returns></returns>
+        /// <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+        /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043 </remarks>
+        [Route("delete"), HttpPost]
+        [ApiAuthorize]
+        public KalturaRecording Delete(long id)
+        {
+            KalturaRecording response = null;
+
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
+                long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                // call client                
+                response = ClientsManager.ConditionalAccessClient().DeleteRecord(groupId, userId, domainId, id);
             }
             catch (ClientException ex)
             {
