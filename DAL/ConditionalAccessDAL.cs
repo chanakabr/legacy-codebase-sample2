@@ -2944,49 +2944,46 @@ namespace DAL
             return sp.ExecuteReturnValue<int>();
         }
 
-        public static DataTable GetDomainExistingRecordingsByRecordID(int groupID, long domainID, long recordID)
+        public static DataTable GetDomainExistingRecordingsByRecordID(long domainID, long recordingID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetDomainExistingRecordingsByRecordID");
-            sp.SetConnectionKey("CONNECTION_STRING");
-            sp.AddParameter("@GroupID", groupID);
+            sp.SetConnectionKey("CONNECTION_STRING");            
             sp.AddParameter("@DomainID", domainID);
-            sp.AddParameter("@RecordID", recordID);
+            sp.AddParameter("@RecordID", recordingID);
 
             DataTable dt = sp.Execute();
 
             return dt;
         }
 
-        public static bool CancelRecording(int groupID, long recordID, long domainID)
+        public static bool CancelRecording(long recordingID, long domainID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelRecording");
             sp.SetConnectionKey("CONNECTION_STRING");
-            sp.AddParameter("@GroupID", groupID);
             sp.AddParameter("@DomainID", domainID);
-            sp.AddParameter("@RecordID", recordID);
+            sp.AddParameter("@RecordID", recordingID);
 
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static DataTable GetExistingRecordingsByRecordingID(int groupID, long recordID)
+        public static DataTable GetExistingRecordingsByRecordingID(int groupID, long extRecordID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetExistingRecordingsByRecordingID");
             sp.SetConnectionKey("CONNECTION_STRING");
-            sp.AddParameter("@GroupID", groupID);            
-            sp.AddParameter("@RecordID", recordID);
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@RecordID", extRecordID);
             DataTable dt = sp.Execute();
 
             return dt;
 
         }
 
-        public static bool DeleteRecording(int groupID, long recordID, long domainID)
+        public static bool DeleteRecording(long recordingID, long domainID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteRecording");
             sp.SetConnectionKey("CONNECTION_STRING");
-            sp.AddParameter("@GroupID", groupID);
             sp.AddParameter("@DomainID", domainID);
-            sp.AddParameter("@RecordID", recordID);
+            sp.AddParameter("@RecordID", recordingID);
 
             return sp.ExecuteReturnValue<bool>();
         }

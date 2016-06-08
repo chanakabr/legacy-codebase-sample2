@@ -17139,7 +17139,8 @@ namespace ConditionalAccess
                 }
 
                 // user is OK - see if user sign to recordID
-                recording = ValidateRecordID(domainID, recordingID);
+                long extRecordingID = 0;
+                recording = ValidateRecordID(domainID, recordingID, out extRecordingID);
                 if (recording == null || recording.Status == null || recording.Status.Code != (int)eResponseStatus.OK)
                 {
                     log.DebugFormat("recording status not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", recordingID, domainID, userID, recording != null ? recording.ToString(): string.Empty);
@@ -17160,14 +17161,14 @@ namespace ConditionalAccess
                 else
                 {
                    // delete recording id from domian
-                    bool res = ConditionalAccessDAL.CancelRecording(m_nGroupID, recordingID, domainID);
+                    bool res = ConditionalAccessDAL.CancelRecording(recordingID, domainID);
                     if (res)
                     {
                         recording.RecordingStatus = TstvRecordingStatus.Canceled;
                         recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
                     // if no other users assign to this record id - ask adapter to cancel
-                    DataTable dt = ConditionalAccessDAL.GetExistingRecordingsByRecordingID(m_nGroupID, recordingID);
+                    DataTable dt = ConditionalAccessDAL.GetExistingRecordingsByRecordingID(m_nGroupID, extRecordingID);
                     if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                     {
                         if ((ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "countUsers", 0)) == 0)
@@ -17210,7 +17211,8 @@ namespace ConditionalAccess
                 }
 
                 // user is OK - see if user sign to recordID
-                recording = ValidateRecordID(domainID, recordingID);
+                 long extRecordingID = 0;
+                recording = ValidateRecordID(domainID, recordingID, out extRecordingID);
                 if (recording == null || recording.Status == null || recording.Status.Code != (int)eResponseStatus.OK)
                 {
                     log.DebugFormat("recording status not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", recordingID, domainID, userID, recording != null ? recording.ToString() : string.Empty);
@@ -17231,14 +17233,14 @@ namespace ConditionalAccess
                 else
                 {
                     // delete recording id from domian
-                    bool res = ConditionalAccessDAL.DeleteRecording(m_nGroupID, recordingID, domainID);
+                    bool res = ConditionalAccessDAL.DeleteRecording(recordingID, domainID);
                     if (res)
                     {
                         recording.RecordingStatus = TstvRecordingStatus.Deleted;
                         recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
                     // if no other users assign to this record id - ask adapter to cancel
-                    DataTable dt = ConditionalAccessDAL.GetExistingRecordingsByRecordingID(m_nGroupID, recordingID);
+                    DataTable dt = ConditionalAccessDAL.GetExistingRecordingsByRecordingID(m_nGroupID, extRecordingID);
                     if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                     {
                         if ((ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "countUsers", 0)) == 0)
@@ -17264,16 +17266,17 @@ namespace ConditionalAccess
             return recording;
         }
 
-        private Recording ValidateRecordID(long domainID, long domainRecordingID)
+        private Recording ValidateRecordID(long domainID, long domainRecordingID, out long recordingId)
         {
             Recording recording = new Recording();
+            recordingId = 0;
             try
             {
-                DataTable dt = ConditionalAccessDAL.GetDomainExistingRecordingsByRecordID(m_nGroupID, domainID, domainRecordingID);
+                DataTable dt = ConditionalAccessDAL.GetDomainExistingRecordingsByRecordID(domainID, domainRecordingID);
                 if (dt != null && dt.Rows != null && dt.Rows[0] != null)
                 {
                     DataRow dr = dt.Rows[0];
-                    long recordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "recording_id", 0);
+                    recordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "recording_id", 0);
                     if (recordingId > 0)
                     {                        
                         long epgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "epg_id", 0);
