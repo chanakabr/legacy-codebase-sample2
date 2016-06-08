@@ -128,8 +128,7 @@ namespace Recordings
             return response;
         }
 
-        internal Status CheckQuotaByTotalMinutes(int groupId, long householdId, int totalMinutes, bool isAggregative,
-            List<Recording> newRecordings, List<Recording> currentRecordings)
+        internal Status CheckQuotaByTotalMinutes(int groupId, long householdId, int totalMinutes, bool isAggregative, List<Recording> newRecordings, List<Recording> currentRecordings)
         {
             Status status = new Status((int)eResponseStatus.OK);
             bool shouldContinue = true;

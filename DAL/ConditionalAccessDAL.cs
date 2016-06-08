@@ -7,11 +7,15 @@ using ODBCWrapper;
 using ApiObjects;
 using System.Text.RegularExpressions;
 using ApiObjects.TimeShiftedTv;
+using KLogMonitor;
+using System.Reflection;
 
 namespace DAL
 {
     public class ConditionalAccessDAL
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public static DataTable Get_MediaFileByProductCode(int nGroupID, string sProductCode)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MediaFileByProductCode");
@@ -2944,16 +2948,21 @@ namespace DAL
             return sp.ExecuteReturnValue<int>();
         }
 
-        public static DataTable GetDomainExistingRecordingsByRecordID(long domainID, long recordingID)
+        public static DataRow GetDomainExistingRecordingsByRecordID(long domainID, long recordingID)
         {
+            DataRow dr = null;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetDomainExistingRecordingsByRecordID");
             sp.SetConnectionKey("CONNECTION_STRING");            
             sp.AddParameter("@DomainID", domainID);
             sp.AddParameter("@RecordID", recordingID);
 
             DataTable dt = sp.Execute();
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                dr = dt.Rows[0];
+            }
 
-            return dt;
+            return dr;
         }
 
         public static bool CancelRecording(long recordingID)
@@ -2984,6 +2993,49 @@ namespace DAL
             sp.AddParameter("@RecordID", recordingID);
 
             return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static List<long> GetDomainProtectedRecordings(int groupID, long domainID)
+        {
+            List<long> recordingIds = null;
+            ODBCWrapper.StoredProcedure spGetDomainProtectedRecordings = new ODBCWrapper.StoredProcedure("GetDomainProtectedRecordings");
+            spGetDomainProtectedRecordings.SetConnectionKey("CONNECTION_STRING");
+            spGetDomainProtectedRecordings.AddParameter("@GroupID", groupID);
+            spGetDomainProtectedRecordings.AddParameter("@DomainID", domainID);
+
+            DataTable dt = spGetDomainProtectedRecordings.Execute();
+            if (dt != null && dt.Rows != null)
+            {
+                recordingIds = new List<long>();
+                foreach (DataRow dr in dt.Rows)
+                {
+                    long recordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID");
+                    recordingIds.Add(recordingID);
+                }
+            }
+
+            return recordingIds;
+        }
+
+        public static bool ProtectRecording(long recordingId, DateTime viewableUntilDate)
+        {
+            bool isProtected = false;
+            try
+            {
+                ODBCWrapper.StoredProcedure spProtectRecording = new ODBCWrapper.StoredProcedure("ProtectRecording");
+                spProtectRecording.SetConnectionKey("CONNECTION_STRING");
+                spProtectRecording.AddParameter("@ID", recordingId);
+                spProtectRecording.AddParameter("@ViewableUntilDate", viewableUntilDate);
+
+                isProtected = spProtectRecording.ExecuteReturnValue<bool>();
+            }
+
+            catch (Exception ex)
+            {
+                log.Error("Failed protecting recording when running the stored procedure: ProtectRecording", ex);
+            }
+
+            return isProtected;
         }
     }
 }

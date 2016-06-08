@@ -12,7 +12,7 @@ namespace ApiObjects.TimeShiftedTv
         
         public ApiObjects.Response.Status Status { get; set; }
 
-        public long Id { get; set; }
+        public long Id { get; set; }        
 
         public long EpgId { get; set; }
 

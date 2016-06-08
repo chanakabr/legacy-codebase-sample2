@@ -4536,7 +4536,18 @@ namespace ConditionalAccess
                             {                                
                                 long epgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID", 0);
                                 existingRecording.Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
-
+                                existingRecording.CreateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
+                                existingRecording.UpdateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE");
+                                int is_protected = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_protected", 0);
+                                if (is_protected == 1)
+                                {
+                                    existingRecording.IsProtected = true;
+                                }
+                                else
+                                {
+                                    existingRecording.IsProtected = false;
+                                }
+                                
                                 if (dr["VIEWABLE_UNTIL_DATE"] != DBNull.Value)
                                 {
                                     existingRecording.ViewableUntilDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "VIEWABLE_UNTIL_DATE");
@@ -4719,9 +4730,7 @@ namespace ConditionalAccess
                 }
             }
         }
-
-             
-
+            
         internal static bool IsValidRecordingStatus(TstvRecordingStatus recordStatus, List<TstvRecordingStatus> RecordingStatus)
         {
             if (RecordingStatus.Contains(recordStatus))
@@ -4729,6 +4738,25 @@ namespace ConditionalAccess
                 return true;
             }
             return false;
+        }
+
+        internal static Dictionary<long, Recording> GetDomainProtectedRecordings(int groupID, long domainID)
+        {
+            Dictionary<long, Recording> recordingIdToRecordingMap = null;
+            List<long> recordingIds = ConditionalAccessDAL.GetDomainProtectedRecordings(groupID, domainID);
+            if (recordingIds != null)
+            {
+                List<Recording> recordings = Recordings.RecordingsManager.Instance.GetRecordings(groupID, recordingIds);
+                foreach (Recording record in recordings)
+                {
+                    if (!recordingIdToRecordingMap.ContainsKey(record.Id))
+                    {
+                        recordingIdToRecordingMap.Add(record.Id, record);
+                    }
+                }
+            }
+
+            return recordingIdToRecordingMap;
         }
     }
 }

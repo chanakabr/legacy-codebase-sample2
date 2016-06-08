@@ -3417,7 +3417,7 @@ namespace DAL
 
             catch (Exception ex)
             {
-                log.Error("Failed getting TimeShiftedTvPartnerSettings when running the stored procedure: GetTimeShiftedTvPartnerSettings", ex);
+                log.Error("Failed updateing TimeShiftedTvPartnerSettings when running the stored procedure: UpdateTimeShiftedTvPartnerSettings", ex);
             }
 
             return isUpdated;
