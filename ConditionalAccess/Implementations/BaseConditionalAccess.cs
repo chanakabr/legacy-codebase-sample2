@@ -17145,39 +17145,50 @@ namespace ConditionalAccess
                     log.DebugFormat("recording status not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", domainRecordingID, domainID, userID, recording != null ? recording.ToString() : string.Empty);
                     return recording;
                 }
-                if (!Utils.IsValidRecordingStatus(recording.RecordingStatus, tstvRecordingStatus))
+                List<TstvRecordingStatus> RecordingStatus;
+                switch (tstvRecordingStatus)
                 {
-                    log.DebugFormat("Recording ID is 0 or RecordingStatus not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", domainRecordingID, domainID, userID, recording.ToString());
-                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotValid, recording.RecordingStatus.ToString());
+                    case TstvRecordingStatus.Canceled:
+                        RecordingStatus = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recording, TstvRecordingStatus.Scheduled };
+                        if (!Utils.IsValidRecordingStatus(recording.RecordingStatus, RecordingStatus))
+                        {
+                            log.DebugFormat("Recording ID is 0 or RecordingStatus not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", domainRecordingID, domainID, userID, recording.ToString());
+                            recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotValid, recording.RecordingStatus.ToString());
+                        }
+                        else
+                        {
+                            res = ConditionalAccessDAL.CancelRecording(domainRecordingID);  // delete recording id from domian                             
+                        }
+                        break;
+                    case TstvRecordingStatus.Deleted:
+                        RecordingStatus = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recorded };
+                        if (!Utils.IsValidRecordingStatus(recording.RecordingStatus, RecordingStatus))
+                        {
+                            log.DebugFormat("Recording ID is 0 or RecordingStatus not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", domainRecordingID, domainID, userID, recording.ToString());
+                            recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotValid, recording.RecordingStatus.ToString());
+                        }
+                        else
+                        {
+                            res = ConditionalAccessDAL.DeleteRecording(domainRecordingID);
+                        }
+                        break;
+                    default:
+                        break;
                 }
 
-                else
-                {                   
-                    switch (tstvRecordingStatus)
-                    {                        
-                        case TstvRecordingStatus.Canceled:
-                             res = ConditionalAccessDAL.CancelRecording(domainRecordingID);  // delete recording id from domian                             
-                            break;
-                        case TstvRecordingStatus.Deleted:
-                            res = ConditionalAccessDAL.DeleteRecording(domainRecordingID);
-                            break;
-                        default:
-                            break;
-                    }                
-                   
-                    if (res)
-                    {
-                        recording.RecordingStatus = tstvRecordingStatus;
-                        recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                        // if no other users assign to this record id - ask adapter to cancel
-                        CancelRecording(recording);
-                    }
-                    else
-                    {
-                        recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to perform cancel or delete");
-                        log.ErrorFormat("fail to perform cancel or delete recordingId = {0}, domainRecordingID = {1}, tstvRecordingStatus = {2}", recording.Id, domainRecordingID, tstvRecordingStatus.ToString());
-                    }
+                if (res)
+                {
+                    recording.RecordingStatus = tstvRecordingStatus;
+                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    // if no other users assign to this record id - ask adapter to cancel
+                    CancelRecording(recording);
                 }
+                else
+                {
+                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to perform cancel or delete");
+                    log.ErrorFormat("fail to perform cancel or delete recordingId = {0}, domainRecordingID = {1}, tstvRecordingStatus = {2}", recording.Id, domainRecordingID, tstvRecordingStatus.ToString());
+                }
+
                 recording.Id = domainRecordingID;
             }
             catch (Exception ex)

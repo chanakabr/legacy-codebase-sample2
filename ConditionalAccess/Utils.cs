@@ -4690,60 +4690,13 @@ namespace ConditionalAccess
             return adapterResponse;
         }
 
-        private static bool IsValidRecordingStatusForDelete(TstvRecordingStatus recordingStatus)
+             
+
+        internal static bool IsValidRecordingStatus(TstvRecordingStatus recordStatus, List<TstvRecordingStatus> RecordingStatus)
         {
-            bool res = false;
-            switch (recordingStatus)
+            if (RecordingStatus.Contains(recordStatus))
             {
-                case TstvRecordingStatus.Recorded:                
-                    res = true;
-                    break;
-
-                case TstvRecordingStatus.Recording:
-                case TstvRecordingStatus.Scheduled:
-                case TstvRecordingStatus.Deleted:
-                case TstvRecordingStatus.Failed:
-                case TstvRecordingStatus.Canceled:
-                default:
-                    res = false;
-                    break;
-            }
-
-            return res;
-        }
-
-        private static bool IsValidRecordingStatusForCancel(TstvRecordingStatus recordingStatus)
-        {
-            bool res = false;
-            switch (recordingStatus)
-            {
-                case TstvRecordingStatus.Recording:
-                case TstvRecordingStatus.Scheduled:
-                    res = true;
-                    break;
-
-                case TstvRecordingStatus.Recorded:
-                case TstvRecordingStatus.Deleted:
-                case TstvRecordingStatus.Failed:
-                case TstvRecordingStatus.Canceled:
-                default:
-                    res = false;
-                    break;
-            }
-
-            return res;
-        }
-
-        internal static bool IsValidRecordingStatus(TstvRecordingStatus recordStatus, TstvRecordingStatus tstvRecordingStatus)
-        {
-            switch (tstvRecordingStatus)
-            {
-                case TstvRecordingStatus.Canceled:
-                    return IsValidRecordingStatusForCancel(recordStatus);
-                case TstvRecordingStatus.Deleted:
-                    return IsValidRecordingStatusForDelete(recordStatus);
-                default:
-                   return false;
+                return true;
             }
             return false;
         }
