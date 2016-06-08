@@ -10,15 +10,20 @@ namespace TVinciShared
     {
         private const int BLOCK_SIZE = 16;
 
-        public static byte[] AesEncrypt(string secretForSigning, byte[] text)
+        public static byte[] AesEncrypt(string secretForSigning, byte[] text, byte[] iv = null)
         {
             // Key
             byte[] hashedKey = HashSHA1(secretForSigning);
             byte[] keyBytes = new byte[BLOCK_SIZE];
             Array.Copy(hashedKey, 0, keyBytes, 0, BLOCK_SIZE);
-
+            
             //IV
-            byte[] ivBytes = new byte[BLOCK_SIZE];
+            byte[] ivBytes;
+
+            if (iv != null)
+                ivBytes = iv;
+            else
+                ivBytes = new byte[BLOCK_SIZE];
 
             // Text
             int textSize = ((text.Length + BLOCK_SIZE - 1) / BLOCK_SIZE) * BLOCK_SIZE;
