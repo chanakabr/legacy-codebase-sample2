@@ -17128,6 +17128,7 @@ namespace ConditionalAccess
             Recording recording = new Recording();
             try
             {
+                bool res = false;
                 ConditionalAccess.TvinciDomains.Domain domain;
                 ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userID, ref domainID, out domain);
 
@@ -17151,8 +17152,7 @@ namespace ConditionalAccess
                 }
 
                 else
-                {
-                    bool res = false;
+                {                   
                     switch (tstvRecordingStatus)
                     {                        
                         case TstvRecordingStatus.Canceled:
