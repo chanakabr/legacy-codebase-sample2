@@ -21,6 +21,7 @@ namespace ApiObjects.TimeShiftedTv
         public long? PaddingBeforeProgramStarts { get; set; }
         public int? ProtectionPeriod { get; set; }
         public int? ProtectionQuotaPercentage { get; set; }
+        public int? LifetimePeroid { get; set; }
 
         public TimeShiftedTvPartnerSettings()
         {

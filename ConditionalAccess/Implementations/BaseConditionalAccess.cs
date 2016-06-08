@@ -17192,7 +17192,7 @@ namespace ConditionalAccess
                 }
 
                 // validate epgs entitlement and add to response
-                ValidateEpgForRecording(userID, domainID, ref response, epgs, validEpgsForRecording);
+                ValidateEpgForRecording(userID, domainID, ref response, epgs, validEpgsForRecording, accountSettings);
 
                 // update recordings start\end dates with padding
                 if ((accountSettings.PaddingBeforeProgramStarts.HasValue && accountSettings.PaddingBeforeProgramStarts.Value > 0)
@@ -17202,8 +17202,6 @@ namespace ConditionalAccess
                 }
 
                 int totalMinutes = Utils.GetQuota(this.m_nGroupID, domainID);
-
-                int quotaManagerModelId = domain.m_nQuotaModuleID;
 
                 List<TstvRecordingStatus> recordingStatuses = new List<TstvRecordingStatus>()
                 {
@@ -17255,7 +17253,8 @@ namespace ConditionalAccess
             return response;
         }
 
-        private void ValidateEpgForRecording(string userID, long domainID, ref RecordingResponse response, List<EPGChannelProgrammeObject> epgs, Dictionary<long, bool> validEpgsForRecording)
+        private void ValidateEpgForRecording(string userID, long domainID, ref RecordingResponse response, List<EPGChannelProgrammeObject> epgs,
+                                             Dictionary<long, bool> validEpgsForRecording, TimeShiftedTvPartnerSettings accountSettings)
         {
             if (validEpgsForRecording != null && validEpgsForRecording.Count > 0)
             {
@@ -17299,7 +17298,7 @@ namespace ConditionalAccess
                         }
                         if (validEpgObjectForRecordingMap != null && validEpgObjectForRecordingMap.Count > 0)
                         {
-                            List<Recording> recordings = Utils.CheckDomainExistingRecording(m_nGroupID, userID, domainID, validEpgObjectForRecordingMap);
+                            List<Recording> recordings = Utils.CheckDomainExistingRecording(m_nGroupID, userID, domainID, validEpgObjectForRecordingMap, accountSettings);
                             response.Recordings.AddRange(recordings);
                         }
                     }

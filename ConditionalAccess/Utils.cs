@@ -4490,7 +4490,8 @@ namespace ConditionalAccess
             return response;
         }
 
-        internal static List<Recording> CheckDomainExistingRecording(int groupId, string userID, long domainID, Dictionary<long, EPGChannelProgrammeObject> validEpgObjectForRecordingMap)
+        internal static List<Recording> CheckDomainExistingRecording(int groupId, string userID, long domainID, Dictionary<long, EPGChannelProgrammeObject> validEpgObjectForRecordingMap,
+                                                                     TimeShiftedTvPartnerSettings accountSettings)
         {            
             Dictionary<long, Recording> responseDictionary = new Dictionary<long,Recording>();
             foreach (long epgId in validEpgObjectForRecordingMap.Keys)
@@ -4530,12 +4531,25 @@ namespace ConditionalAccess
                         long recordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID", 0);
                         if (recordingId > 0)
                         {
-                            long domainRecordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
-                            long epgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID", 0);
                             Recording existingRecording = Recordings.RecordingsManager.Instance.GetRecording(groupId, recordingId);
                             if (existingRecording != null && existingRecording.Status != null && existingRecording.Status.Code == (int)eResponseStatus.OK && existingRecording.Id > 0)
-                            {
-                                existingRecording.Id = domainRecordingId;
+                            {                                
+                                long epgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID", 0);
+                                existingRecording.Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
+
+                                if (dr["VIEWABLE_UNTIL_DATE"] != DBNull.Value)
+                                {
+                                    existingRecording.ViewableUntilDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "VIEWABLE_UNTIL_DATE");
+                                }
+                                else if (accountSettings.LifetimePeroid.HasValue)
+                                {
+                                    existingRecording.ViewableUntilDate = existingRecording.EpgStartDate.AddDays(accountSettings.LifetimePeroid.Value);
+                                }
+                                else
+                                {
+                                    log.ErrorFormat("No lifetime period defined for the account {0}", groupId);
+                                }
+
                                 responseDictionary[epgId] = existingRecording;
                             }
                         }
