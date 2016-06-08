@@ -10,15 +10,17 @@ namespace ApiObjects.Notification
     {
         public long AnnouncementId { get; set; }
         public string Token { get; set; }
+        public string Url { get; set; }
 
         public PushWebParameter()
         {
         }
 
-        public PushWebParameter(long id, string token)
+        public PushWebParameter(long id, string token, string url)
         {
             AnnouncementId = id;
             Token = token;
+            Url = url;
         }
     }
 }
