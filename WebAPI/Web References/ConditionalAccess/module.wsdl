@@ -590,6 +590,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="EpgEndDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="Type" type="tns:RecordingType" />
           <s:element minOccurs="1" maxOccurs="1" name="GetStatusRetries" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsProtected" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="ViewableUntilDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="CreateDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="UpdateDate" type="s:dateTime" />
@@ -612,6 +613,42 @@
           <s:enumeration value="Series" />
         </s:restriction>
       </s:simpleType>
+      <s:element name="CancelRecord">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="recordingId" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CancelRecordResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CancelRecordResult" type="tns:Recording" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteRecord">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="recordingId" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteRecordResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteRecordResult" type="tns:Recording" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="RecordRetry">
         <s:complexType>
           <s:sequence>
@@ -3624,6 +3661,18 @@
   <wsdl:message name="RecordSoapOut">
     <wsdl:part name="parameters" element="tns:RecordResponse" />
   </wsdl:message>
+  <wsdl:message name="CancelRecordSoapIn">
+    <wsdl:part name="parameters" element="tns:CancelRecord" />
+  </wsdl:message>
+  <wsdl:message name="CancelRecordSoapOut">
+    <wsdl:part name="parameters" element="tns:CancelRecordResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteRecordSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteRecord" />
+  </wsdl:message>
+  <wsdl:message name="DeleteRecordSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteRecordResponse" />
+  </wsdl:message>
   <wsdl:message name="RecordRetrySoapIn">
     <wsdl:part name="parameters" element="tns:RecordRetry" />
   </wsdl:message>
@@ -4359,6 +4408,26 @@
     <wsdl:part name="epgID" type="s:string" />
   </wsdl:message>
   <wsdl:message name="RecordHttpPostOut">
+    <wsdl:part name="Body" element="tns:Recording" />
+  </wsdl:message>
+  <wsdl:message name="CancelRecordHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+    <wsdl:part name="recordingId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CancelRecordHttpPostOut">
+    <wsdl:part name="Body" element="tns:Recording" />
+  </wsdl:message>
+  <wsdl:message name="DeleteRecordHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+    <wsdl:part name="recordingId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DeleteRecordHttpPostOut">
     <wsdl:part name="Body" element="tns:Recording" />
   </wsdl:message>
   <wsdl:message name="RecordRetryHttpPostIn">
@@ -5570,6 +5639,14 @@
       <wsdl:input message="tns:RecordSoapIn" />
       <wsdl:output message="tns:RecordSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="CancelRecord">
+      <wsdl:input message="tns:CancelRecordSoapIn" />
+      <wsdl:output message="tns:CancelRecordSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteRecord">
+      <wsdl:input message="tns:DeleteRecordSoapIn" />
+      <wsdl:output message="tns:DeleteRecordSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="RecordRetry">
       <wsdl:input message="tns:RecordRetrySoapIn" />
       <wsdl:output message="tns:RecordRetrySoapOut" />
@@ -6011,6 +6088,14 @@
     <wsdl:operation name="Record">
       <wsdl:input message="tns:RecordHttpPostIn" />
       <wsdl:output message="tns:RecordHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CancelRecord">
+      <wsdl:input message="tns:CancelRecordHttpPostIn" />
+      <wsdl:output message="tns:CancelRecordHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteRecord">
+      <wsdl:input message="tns:DeleteRecordHttpPostIn" />
+      <wsdl:output message="tns:DeleteRecordHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="RecordRetry">
       <wsdl:input message="tns:RecordRetryHttpPostIn" />
@@ -6518,6 +6603,24 @@
     </wsdl:operation>
     <wsdl:operation name="Record">
       <soap:operation soapAction="http://ca.tvinci.com/Record" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CancelRecord">
+      <soap:operation soapAction="http://ca.tvinci.com/CancelRecord" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteRecord">
+      <soap:operation soapAction="http://ca.tvinci.com/DeleteRecord" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -7545,6 +7648,24 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="CancelRecord">
+      <soap12:operation soapAction="http://ca.tvinci.com/CancelRecord" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteRecord">
+      <soap12:operation soapAction="http://ca.tvinci.com/DeleteRecord" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="RecordRetry">
       <soap12:operation soapAction="http://ca.tvinci.com/RecordRetry" style="document" />
       <wsdl:input>
@@ -8538,6 +8659,24 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="CancelRecord">
+      <http:operation location="/CancelRecord" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteRecord">
+      <http:operation location="/DeleteRecord" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="RecordRetry">
       <http:operation location="/RecordRetry" />
       <wsdl:input>
@@ -9324,13 +9463,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://localhost/ws_conditionalaccess/module.asmx" />
+      <soap:address location="http://localhost/WS_ConditionalAccess/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://localhost/ws_conditionalaccess/module.asmx" />
+      <soap12:address location="http://localhost/WS_ConditionalAccess/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://localhost/ws_conditionalaccess/module.asmx" />
+      <http:address location="http://localhost/WS_ConditionalAccess/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
