@@ -58,7 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IPToCountryIndexBuilder.cs" />
-    <Compile Include="Service References\NotificationWS\Reference.cs">
+    <Compile Include="Service References\ws_notifications\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
@@ -119,61 +119,61 @@
     <None Include="Properties\DataSources\ApiObjects.Response.IdListResponse.datasource" />
     <None Include="Properties\DataSources\ApiObjects.Response.IdsResponse.datasource" />
     <None Include="Properties\DataSources\ApiObjects.Response.Status.datasource" />
-    <None Include="Service References\NotificationWS\NotificationService.wsdl" />
-    <None Include="Service References\NotificationWS\NotificationService.xsd">
+    <None Include="Service References\ws_notifications\NotificationService.wsdl" />
+    <None Include="Service References\ws_notifications\NotificationService.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\NotificationWS\NotificationService1.xsd">
+    <None Include="Service References\ws_notifications\NotificationService1.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\NotificationWS\NotificationService2.xsd">
+    <None Include="Service References\ws_notifications\NotificationService2.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\NotificationWS\NotificationService3.xsd">
+    <None Include="Service References\ws_notifications\NotificationService3.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\NotificationWS\NotificationService4.xsd">
+    <None Include="Service References\ws_notifications\NotificationService4.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\NotificationWS\NotificationService5.xsd">
+    <None Include="Service References\ws_notifications\NotificationService5.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\NotificationWS\NotificationService6.xsd">
+    <None Include="Service References\ws_notifications\NotificationService6.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\NotificationWS\NotificationService7.xsd">
+    <None Include="Service References\ws_notifications\NotificationService7.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\NotificationWS\NotificationService8.xsd">
+    <None Include="Service References\ws_notifications\NotificationService8.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\NotificationWS\SetupTaskHandler.NotificationWS.AddMessageAnnouncementResponse.datasource">
+    <None Include="Service References\ws_notifications\SetupTaskHandler.ws_notifications.AddMessageAnnouncementResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\NotificationWS\SetupTaskHandler.NotificationWS.GetAllMessageAnnouncementsResponse.datasource">
+    <None Include="Service References\ws_notifications\SetupTaskHandler.ws_notifications.GetAllMessageAnnouncementsResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\NotificationWS\SetupTaskHandler.NotificationWS.GetUserFollowsResponse.datasource">
+    <None Include="Service References\ws_notifications\SetupTaskHandler.ws_notifications.GetUserFollowsResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\NotificationWS\SetupTaskHandler.NotificationWS.NotificationMessage.datasource">
+    <None Include="Service References\ws_notifications\SetupTaskHandler.ws_notifications.NotificationMessage.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadataStorage Include="Service References\NotificationWS\" />
+    <WCFMetadataStorage Include="Service References\ws_notifications\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\NotificationWS\NotificationService.disco" />
+    <None Include="Service References\ws_notifications\NotificationService.disco" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\NotificationWS\configuration91.svcinfo" />
+    <None Include="Service References\ws_notifications\configuration91.svcinfo" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\NotificationWS\configuration.svcinfo" />
+    <None Include="Service References\ws_notifications\configuration.svcinfo" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\NotificationWS\Reference.svcmap">
+    <None Include="Service References\ws_notifications\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>

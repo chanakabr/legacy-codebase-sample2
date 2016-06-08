@@ -42,7 +42,7 @@ namespace SetupTaskHandler
 
                         //Call Notifications WCF service
                         string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("ws_notifications");
-                        using (NotificationWS.NotificationServiceClient service = new NotificationWS.NotificationServiceClient())
+                        using (ws_notifications.NotificationServiceClient service = new ws_notifications.NotificationServiceClient())
                         {
                             if (!string.IsNullOrEmpty(sWSURL))
                                 service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
