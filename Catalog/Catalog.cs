@@ -1021,7 +1021,7 @@ namespace Catalog
         /// <returns></returns>
         internal static UnifiedSearchDefinitions BuildUnifiedSearchObject(UnifiedSearchRequest request)
         {
-            UnifiedSearchDefinitionsCache definitionsCache = new UnifiedSearchDefinitionsCache();
+            UnifiedSearchDefinitionsBuilder definitionsCache = new UnifiedSearchDefinitionsBuilder();
 
             UnifiedSearchDefinitions definitions = definitionsCache.GetDefinitions(request);
 
@@ -1032,7 +1032,7 @@ namespace Catalog
             return definitions;
         }
 
-        private static void GetParentalRulesTags(int groupId, string siteGuid,
+        internal static void GetParentalRulesTags(int groupId, string siteGuid,
             out Dictionary<string, List<string>> mediaTags, out Dictionary<string, List<string>> epgTags)
         {
             mediaTags = new Dictionary<string, List<string>>();
@@ -5743,6 +5743,8 @@ namespace Catalog
         private static void TreatLeaf(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions,
             Group group, BooleanPhraseNode node, Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping)
         {
+            bool shouldUseCache = WS_Utils.GetTcmBoolValue("Use_Search_Cache");
+
             // initialize maximum nGram member only once - when this is negative it is still not set
             if (maxNGram < 0)
             {
@@ -5864,8 +5866,20 @@ namespace Catalog
                         {
                             if (mediaParentalRulesTags == null || epgParentalRulesTags == null)
                             {
-                                Catalog.GetParentalRulesTags(request.m_nGroupID, request.m_sSiteGuid,
-                                    out mediaParentalRulesTags, out epgParentalRulesTags);
+                                if (shouldUseCache)
+                                {
+                                    var parentalRulesTags = ParentalRulesTagsCache.Instance().GetParentalRulesTags(request.m_nGroupID, request.m_sSiteGuid);
+
+                                    if (parentalRulesTags != null)
+                                    {
+                                        mediaParentalRulesTags = parentalRulesTags.mediaTags;
+                                        epgParentalRulesTags = parentalRulesTags.epgTags;
+                                    }
+                                }
+                                else
+                                {
+                                    Catalog.GetParentalRulesTags(request.m_nGroupID, request.m_sSiteGuid, out mediaParentalRulesTags, out epgParentalRulesTags);
+                                }
                             }
 
                             List<BooleanPhraseNode> newMediaNodes = new List<BooleanPhraseNode>();
@@ -6291,7 +6305,7 @@ namespace Catalog
 
                 if (definitions.entitlementSearchDefinitions != null)
                 {
-                    UnifiedSearchDefinitionsCache.BuildEntitlementSearchDefinitions(definitions, request, request.order, group.m_nParentGroupID, group);
+                    UnifiedSearchDefinitionsBuilder.BuildEntitlementSearchDefinitions(definitions, request, request.order, group.m_nParentGroupID, group);
                 }
 
                 if (initialTree != null)
