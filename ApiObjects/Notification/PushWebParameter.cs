@@ -9,7 +9,7 @@ namespace ApiObjects.Notification
     public class PushWebParameter
     {
         public long AnnouncementId { get; set; }
-        public string Token { get; set; }
+        public string Key { get; set; }
         public string Url { get; set; }
 
         public PushWebParameter()
@@ -19,7 +19,7 @@ namespace ApiObjects.Notification
         public PushWebParameter(long id, string token, string url)
         {
             AnnouncementId = id;
-            Token = token;
+            Key = token;
             Url = url;
         }
     }
