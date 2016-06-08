@@ -4272,7 +4272,7 @@ namespace ConditionalAccess
 
             return res;
         }
-
+               
         internal static List<int> GetGroupEnforcedServices(int groupID)
         {
             List<int> services;
@@ -4701,6 +4701,17 @@ namespace ConditionalAccess
                     recording.EpgEndDate = recording.EpgEndDate.AddSeconds(paddingAfterProgramEnded);
                 }
             }
+        }
+
+             
+
+        internal static bool IsValidRecordingStatus(TstvRecordingStatus recordStatus, List<TstvRecordingStatus> RecordingStatus)
+        {
+            if (RecordingStatus.Contains(recordStatus))
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

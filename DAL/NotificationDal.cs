@@ -1139,7 +1139,8 @@ namespace DAL
                             FollowReference = ODBCWrapper.Utils.GetSafeStr(row, "follow_reference"),
                             AutomaticIssueFollowNotification = automaticIssueFollowNotification,
                             RecipientsType = Enum.IsDefined(typeof(eAnnouncementRecipientsType), recipientType) ? (eAnnouncementRecipientsType)recipientType : eAnnouncementRecipientsType.All,
-                            LastMessageSentDateSec = lastMessageSentDateSec
+                            LastMessageSentDateSec = lastMessageSentDateSec,
+                            QueueName = ODBCWrapper.Utils.GetSafeStr(row, "queue_name")
                         };
 
                         result.Add(dbAnnouncement);
@@ -1906,7 +1907,7 @@ namespace DAL
             return null;
         }
 
-        public static bool UpdateAnnouncement(int groupId, int announcementId, bool? automaticSending, DateTime? lastMessageSentDate = null)
+        public static bool UpdateAnnouncement(int groupId, int announcementId, bool? automaticSending, DateTime? lastMessageSentDate = null, string queueName = null)
         {
             int rowCount = 0;
             try
@@ -1922,6 +1923,9 @@ namespace DAL
 
                 if (lastMessageSentDate.HasValue)
                     sp.AddParameter("@lastMessageSentDateSec", lastMessageSentDate.Value);
+
+                if (!string.IsNullOrEmpty(queueName))
+                    sp.AddParameter("@queueName", queueName);
 
                 rowCount = sp.ExecuteReturnValue<int>();
             }

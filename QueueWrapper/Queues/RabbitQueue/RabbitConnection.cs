@@ -310,6 +310,86 @@ namespace QueueWrapper
             return sMessage;
         }
 
+        public bool IsQueueExist(RabbitConfigurationData configData)
+        {
+            try
+            {
+                if (this.GetInstance(configData, QueueAction.Ack) && this.m_Connection != null && this.m_Model != null)
+                {
+                    var res = this.m_Model.QueueDeclarePassive(configData.QueueName);
+                    return res != null;
+                }
+
+                return false;
+            }
+            catch (Exception ex) { return false; }
+            finally
+            {
+                Close();
+            }
+        }
+
+        public bool AddQueue(RabbitConfigurationData configData)
+        {
+            if (IsQueueExist(configData))
+            {
+                log.Error("AddQueue: Error, queue already exists!");
+                return false;
+            }
+
+            try
+            {
+                if (this.GetInstance(configData, QueueAction.Ack) && this.m_Connection != null && this.m_Model != null)
+                {
+                    QueueDeclareOk res = this.m_Model.QueueDeclare(configData.QueueName, true, false, false, null);
+                    this.m_Model.QueueBind(configData.QueueName, "scheduled_tasks", configData.RoutingKey);
+                    
+                    return res != null && res.QueueName == configData.QueueName;
+                }
+
+                return false;
+            }
+            catch (Exception ex) 
+            {
+                log.Error("AddQueue: Error - " + ex);
+                return false; 
+            }
+            finally
+            {
+                Close();
+            }
+        }
+
+        public bool DeleteQueue(RabbitConfigurationData configData)
+        {
+            if (!IsQueueExist(configData))
+            {
+                log.Error("DeleteQueue: Error, queue doesn't exist!");
+                return false;
+            }
+
+            try
+            {
+                if (this.GetInstance(configData, QueueAction.Ack) && this.m_Connection != null && this.m_Model != null)
+                {
+                    this.m_Model.QueueDelete(configData.QueueName);
+
+                    return true;
+                }
+
+                return false;
+            }
+            catch (Exception ex) 
+            {
+                log.Error("DeleteQueue: Error - " + ex);
+                return false; 
+            }
+            finally
+            {
+                Close();
+            }
+        }
+
         #endregion
 
         #region Private Methods

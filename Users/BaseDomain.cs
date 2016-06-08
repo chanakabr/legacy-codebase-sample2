@@ -1157,17 +1157,26 @@ namespace Users
             {
                 if (oDomain != null && oDomain.m_nDomainID == nDomainID)
                 {
-                    foreach (int pendingUser in oDomain.m_PendingUsersIDs)
+                    if (oDomain.m_PendingUsersIDs != null)
                     {
-                        users.Add(pendingUser * (-1));
+                        foreach (int pendingUser in oDomain.m_PendingUsersIDs)
+                        {
+                            users.Add(pendingUser * (-1));
+                        }
                     }
 
-                    foreach (int user in oDomain.m_DefaultUsersIDs)
+                    if (oDomain.m_DefaultUsersIDs != null)
                     {
-                        users.Add(user);
+                        foreach (int user in oDomain.m_DefaultUsersIDs)
+                        {
+                            users.Add(user);
+                        }
                     }
 
-                    users.AddRange(oDomain.m_UsersIDs);
+                    if (oDomain.m_UsersIDs != null)
+                    {
+                        users.AddRange(oDomain.m_UsersIDs);
+                    }
 
                     return true;
                 }

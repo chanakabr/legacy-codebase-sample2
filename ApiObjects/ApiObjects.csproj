@@ -129,6 +129,8 @@
     <Compile Include="Notification\NotificationPartnerSettings.cs" />
     <Compile Include="Notification\NotificationPartnerSettingsResponse.cs" />
     <Compile Include="Notification\NotificationSettingsResponse.cs" />
+    <Compile Include="Notification\PushWebParameter.cs" />
+    <Compile Include="Notification\PushWebParametersResponse.cs" />
     <Compile Include="Notification\UserDevice.cs" />
     <Compile Include="Notification\UserFollowSettings.cs" />
     <Compile Include="Notification\UserNotification.cs" />
@@ -172,6 +174,7 @@
     <Compile Include="OSSAdapter\OSSAdapterEntitlementsResponse.cs" />
     <Compile Include="PlayCycle\UserPlayCycle.cs" />
     <Compile Include="PurchaseSessionIdResponse.cs" />
+    <Compile Include="QueueObjects\MessageAnnouncementFullData.cs" />
     <Compile Include="QueueObjects\ImageUploadData.cs" />
     <Compile Include="QueueObjects\ExportTaskData.cs" />
     <Compile Include="QueueObjects\MessageAnnouncementData.cs" />
@@ -334,6 +337,7 @@
     <Compile Include="SearchObjects\ISearcher.cs" />
     <Compile Include="SearchObjects\MediaObj.cs" />
     <Compile Include="SearchObjects\MediaSearchObj.cs" />
+    <Compile Include="SearchObjects\ParentalRulesTags.cs" />
     <Compile Include="SearchObjects\SearchResult.cs" />
     <Compile Include="SearchObjects\SearchResultsObj.cs" />
     <Compile Include="SearchObjects\UnifiedSearchDefinitions.cs" />

@@ -134,6 +134,8 @@
     <Compile Include="AdProvider.cs" />
     <Compile Include="Attributes\LogTopicAttribute.cs" />
     <Compile Include="BaseObject.cs" />
+    <Compile Include="Cache\EntitlementDefinitionsCache.cs" />
+    <Compile Include="Cache\ParentalRulesTagsCache.cs" />
     <Compile Include="EntitledAssetsUtils.cs" />
     <Compile Include="LinearChannelSettings.cs" />
     <Compile Include="PicData.cs" />
@@ -270,7 +272,7 @@
     <Compile Include="Request\UnifiedSearchRequest.cs" />
     <Compile Include="Response\UnifiedSearchResponse.cs" />
     <Compile Include="Request\UserSocialMediasRequest.cs" />
-    <Compile Include="UnifiedSearchDefinitionsCache.cs" />
+    <Compile Include="UnifiedSearchDefinitionsBuilder.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="Web References\ws_api\Reference.cs">
       <AutoGen>True</AutoGen>
