@@ -17128,26 +17128,26 @@ namespace ConditionalAccess
             return recording;
         }
         
-        public Recording CancelOrDeleteRecord(string userID, long domainID, long domainRecordingID, TstvRecordingStatus tstvRecordingStatus)
+        public Recording CancelOrDeleteRecord(string userId, long domainId, long domainRecordingId, TstvRecordingStatus tstvRecordingStatus)
         {
             Recording recording = new Recording();
             try
             {
                 bool res = false;
                 ConditionalAccess.TvinciDomains.Domain domain;
-                ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userID, ref domainID, out domain);
+                ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userId, ref domainId, out domain);
 
                 if (validationStatus.Code != (int)eResponseStatus.OK)
                 {
-                    log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}", domainID, userID);
+                    log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}", domainId, userId);
                     recording.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
                     return recording;
                 }
                 // user is OK - see if user sign to recordID
-                recording = ValidateRecordID(domainID, domainRecordingID);
+                recording = ValidateRecordID(domainId, domainRecordingId);
                 if (recording.Status.Code != (int)eResponseStatus.OK)
                 {
-                    log.DebugFormat("recording status not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", domainRecordingID, domainID, userID, recording != null ? recording.ToString() : string.Empty);
+                    log.DebugFormat("recording status not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", domainRecordingId, domainId, userId, recording != null ? recording.ToString() : string.Empty);
                     return recording;
                 }
                 List<TstvRecordingStatus> RecordingStatus;
@@ -17157,24 +17157,24 @@ namespace ConditionalAccess
                         RecordingStatus = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recording, TstvRecordingStatus.Scheduled };
                         if (!Utils.IsValidRecordingStatus(recording.RecordingStatus, RecordingStatus))
                         {
-                            log.DebugFormat("Recording ID is 0 or RecordingStatus not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", domainRecordingID, domainID, userID, recording.ToString());
+                            log.DebugFormat("Recording ID is 0 or RecordingStatus not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", domainRecordingId, domainId, userId, recording.ToString());
                             recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotValid, recording.RecordingStatus.ToString());
                         }
                         else
                         {
-                            res = ConditionalAccessDAL.CancelRecording(domainRecordingID);  // delete recording id from domian                             
+                            res = ConditionalAccessDAL.CancelRecording(domainRecordingId);  // delete recording id from domian                             
                         }
                         break;
                     case TstvRecordingStatus.Deleted:
                         RecordingStatus = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recorded };
                         if (!Utils.IsValidRecordingStatus(recording.RecordingStatus, RecordingStatus))
                         {
-                            log.DebugFormat("Recording ID is 0 or RecordingStatus not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", domainRecordingID, domainID, userID, recording.ToString());
+                            log.DebugFormat("Recording ID is 0 or RecordingStatus not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", domainRecordingId, domainId, userId, recording.ToString());
                             recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotValid, recording.RecordingStatus.ToString());
                         }
                         else
                         {
-                            res = ConditionalAccessDAL.DeleteRecording(domainRecordingID);
+                            res = ConditionalAccessDAL.DeleteRecording(domainRecordingId);
                         }
                         break;
                     default:
@@ -17191,16 +17191,16 @@ namespace ConditionalAccess
                 else
                 {
                     recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to perform cancel or delete");
-                    log.ErrorFormat("fail to perform cancel or delete recordingId = {0}, domainRecordingID = {1}, tstvRecordingStatus = {2}", recording.Id, domainRecordingID, tstvRecordingStatus.ToString());
+                    log.ErrorFormat("fail to perform cancel or delete recordingId = {0}, domainRecordingID = {1}, tstvRecordingStatus = {2}", recording.Id, domainRecordingId, tstvRecordingStatus.ToString());
                 }
 
-                recording.Id = domainRecordingID;
+                recording.Id = domainRecordingId;
             }
             catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder("Exception at CancelOrDeleteRecord. ");
-                sb.Append(String.Concat("userID: ", userID));
-                sb.Append(String.Concat(", recordID: ", domainRecordingID));
+                sb.Append(String.Concat("userID: ", userId));
+                sb.Append(String.Concat(", recordID: ", domainRecordingId));
                 sb.Append(String.Concat(", Ex Msg: ", ex.Message));
                 sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
