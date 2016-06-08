@@ -114,6 +114,7 @@ namespace ApiObjects.Response
         RecordingFailed = 3040,
         PaymentMethodIsUsedByHousehold = 3041,
         DomainExceededQuota = 3042,
+        RecordingStatusNotValid = 3043,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,
