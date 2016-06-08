@@ -63,4 +63,12 @@ namespace ApiObjects.SearchObjects
         [DataMember]
         public List<int> epgChannelIds;
     }
+
+    public enum eEntitlementSearchType
+    {
+        None,
+        Free,
+        Entitled,
+        Both
+    }
 }
