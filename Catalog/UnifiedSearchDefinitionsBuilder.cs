@@ -14,30 +14,28 @@ using System.Reflection;
 
 namespace Catalog
 {
-    public class UnifiedSearchDefinitionsCache : BaseCacheHelper<UnifiedSearchDefinitions>
+    public class UnifiedSearchDefinitionsBuilder
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private bool shouldUseCache = false;
 
         #region Ctor
 
-        public UnifiedSearchDefinitionsCache()
-            : base()
+        public UnifiedSearchDefinitionsBuilder()
         {
-            this.OnErrorOccurred += UnifiedSearchDefinitionsCache_OnErrorOccurred;
+            shouldUseCache = WS_Utils.GetTcmBoolValue("Use_Search_Cache");
         }
 
         #endregion
 
-        #region Override Methods
-        
-        protected override UnifiedSearchDefinitions BuildValue(params object[] parameters)
+        #region Public Methods
+
+        public UnifiedSearchDefinitions GetDefinitions(UnifiedSearchRequest request)
         {
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
 
             try
             {
-                UnifiedSearchRequest request = parameters[0] as UnifiedSearchRequest;
-
                 CatalogCache catalogCache = CatalogCache.Instance();
                 int parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
 
@@ -153,42 +151,40 @@ namespace Catalog
                     out definitions.parentMediaTypes, out definitions.associationTags,
                     definitions.mediaTypes, definitions.mediaTypes.Count == 0, groupManager);
 
-                #region Personal Filters
-
-                //if (request.personalFilters != null)
-                //{
-                //    // Get geo block rules that the user is allowed to watch
-                //    if (request.personalFilters.Contains(ePersonalFilter.GeoBlockRules))
-                //    {
-                //        if (geoBlockRules == null)
-                //        {
-                //            geoBlockRules = GetGeoBlockRules(request.m_nGroupID, request.m_sUserIP);
-                //        }
-
-                //        definitions.geoBlockRules = geoBlockRules;
-                //    }
-
-                //    // Get parental rules tags that user is NOT allowed to see
-                //    if (request.personalFilters.Contains(ePersonalFilter.ParentalRules))
-                //    {
-                //        if (mediaParentalRulesTags == null || epgParentalRulesTags == null)
-                //        {
-                //            Catalog.GetParentalRulesTags(request.m_nGroupID, request.m_sSiteGuid,
-                //                out mediaParentalRulesTags, out epgParentalRulesTags);
-                //        }
-
-                //        definitions.mediaParentalRulesTags = mediaParentalRulesTags;
-                //        definitions.epgParentalRulesTags = epgParentalRulesTags;
-                //    }
-                //}
-
-                #endregion
-
                 #region Search by entitlement
 
                 if (definitions.entitlementSearchDefinitions != null)
                 {
-                    BuildEntitlementSearchDefinitions(definitions, request, request.order, parentGroupID, group);
+                    eEntitlementSearchType type = eEntitlementSearchType.None;
+
+                    if (definitions.entitlementSearchDefinitions.shouldGetFreeAssets)
+                    {
+                        if (definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets)
+                        {
+                            type = eEntitlementSearchType.Both;
+                        }
+                        else
+                        {
+                            type = eEntitlementSearchType.Free;
+                        }
+                    }
+                    else if (definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets)
+                    {
+                        type = eEntitlementSearchType.Entitled;
+                    }
+
+                    if (type != eEntitlementSearchType.None)
+                    {
+                        if (shouldUseCache)
+                        {
+                            definitions.entitlementSearchDefinitions =
+                                EntitlementDefinitionsCache.Instance().GetEntitlementSearchDefinitions(definitions, request, request.order, parentGroupID, group, type);
+                        }
+                        else
+                        {
+                            BuildEntitlementSearchDefinitions(definitions, request, request.order, parentGroupID, group);
+                        }
+                    }
                 }
 
                 #endregion
@@ -225,42 +221,6 @@ namespace Catalog
             }
 
             return definitions;
-        }
-
-        #endregion
-
-        #region Public Methods
-
-        public UnifiedSearchDefinitions GetDefinitions(UnifiedSearchRequest request)
-        {
-            UnifiedSearchDefinitions result = null;
-            string cacheKey =
-                    string.Format("{0}_{1}_{2}_{3}",
-                    this.version, "Search_Definitions", request.m_sSiteGuid, request.requestId);
-
-            // Make sure every time that cache time is 10 minutes
-            this.cacheTime = 10;
-
-            // if no request Id - simply build the value and return it
-            if (string.IsNullOrEmpty(request.requestId))
-            {
-                result = this.BuildValue(request);
-            }
-            // If this is first page - build value
-            else if (request.m_nPageIndex == 0)
-            {
-                result = this.BuildValue(request);
-
-                this.cacheService.Set(cacheKey, new CachingProvider.BaseModuleCache(result), cacheTime);
-            }
-            else
-            {
-                string mutexName = string.Concat("Search Definitions GID_", request.m_nGroupID);
-                
-                result = this.Get(cacheKey, mutexName, request);
-            }
-
-            return result;
         }
 
         public static void BuildEntitlementSearchDefinitions(UnifiedSearchDefinitions definitions,
@@ -380,20 +340,5 @@ namespace Catalog
 
         #endregion
 
-        #region Event Handling
-
-        /// <summary>
-        /// Throw upwards the kaltura exception - to maintain the status code
-        /// </summary>
-        /// <param name="ex"></param>
-        private void UnifiedSearchDefinitionsCache_OnErrorOccurred(Exception ex)
-        {
-            if (ex is KalturaException)
-            {
-                throw ex;
-            }
-        }
-
-        #endregion
     }
 }
