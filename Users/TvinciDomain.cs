@@ -24,13 +24,13 @@ namespace Users
         //Override Methods - get domainID from DB
         public override int GetDomainIDByCoGuid(string coGuid)
         {
-            int domainID = DAL.DomainDal.GetDomainIDByCoGuid(coGuid);
+            int domainID = DAL.DomainDal.GetDomainIDByCoGuid(coGuid, m_nGroupID);
 
             return domainID;
         }
 
         //Override Methods - get domainID from DB - then - try to get it from Cache
-        public override DomainResponseObject GetDomainByCoGuid(string coGuid, int nGroupID)
+        public override DomainResponseObject GetDomainByCoGuid(string coGuid)
         {
             // Create new response
             DomainResponseObject oDomainResponseObject;
@@ -46,7 +46,7 @@ namespace Users
 
             // get domain by domain id from Cache 
             DomainsCache oDomainCache = DomainsCache.Instance();
-            Domain domain = oDomainCache.GetDomain(nDomainID, nGroupID);
+            Domain domain = oDomainCache.GetDomain(nDomainID, m_nGroupID);
             oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.OK);
 
             return oDomainResponseObject;
