@@ -54,6 +54,14 @@ namespace WebAPI.Models.ConditionalAccess
         public long ViewableUntilDate { get; set; }
 
         /// <summary>
+        /// Specifies whether or not the recording is protected
+        /// </summary>
+        [DataMember(Name = "isProtected")]
+        [JsonProperty("isProtected")]
+        [XmlElement(ElementName = "isProtected")]
+        public bool IsProtected { get; set; }
+
+        /// <summary>
         /// Specifies when was the recording created. Date and time represented as epoch.
         /// </summary>
         [DataMember(Name = "createDate")]
