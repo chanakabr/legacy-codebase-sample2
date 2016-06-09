@@ -75,7 +75,7 @@ namespace Users
                 {
 
                     UserResponseObject user = usersImplementation.GetUserByUsername(username, m_nGroupID);
-                    DomainResponseObject domain = domainImplementation.GetDomainByCoGuid(kdgLoginResp.CustomerAccountNumber);
+                    DomainResponseObject domain = domainImplementation.GetDomainByCoGuid(kdgLoginResp.CustomerAccountNumber, m_nGroupID);
 
                     //Domain co_guid exists
                     if (domain.m_oDomainResponseStatus == DomainResponseStatus.OK)
