@@ -117,5 +117,46 @@ namespace TVinciShared
                 }
             }).Reverse().ToArray();
         }
+
+        public static string EncryptRJ256(string key, string iv, string text)
+        {
+            var encoding = new UTF8Encoding();
+            var Key = encoding.GetBytes(key);
+            var IV = encoding.GetBytes(iv);
+            byte[] encrypted;
+
+            using (var rj = new RijndaelManaged())
+            {
+                try
+                {
+                    rj.Padding = PaddingMode.PKCS7;
+                    rj.Mode = CipherMode.CBC;
+                    rj.KeySize = 128;
+                    rj.BlockSize = 128;
+                    rj.Key = Key;
+                    rj.IV = IV;
+
+                    var ms = new MemoryStream();
+
+                    using (var cs = new CryptoStream(ms, rj.CreateEncryptor(Key, IV), CryptoStreamMode.Write))
+                    {
+                        using (var sr = new StreamWriter(cs))
+                        {
+                            sr.Write(text);
+                            sr.Flush();
+                            cs.FlushFinalBlock();
+                        }
+                        encrypted = ms.ToArray();
+                    }
+                }
+                finally
+                {
+                    rj.Clear();
+                }
+            }
+
+            return BitConverter.ToString(encrypted).Replace("-", "").ToLower();
+        }
+
     }
 }
