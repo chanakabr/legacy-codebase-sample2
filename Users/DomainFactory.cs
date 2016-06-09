@@ -88,7 +88,7 @@ namespace Users
             if (!string.IsNullOrEmpty(sCoGuid))
             {
                 //Check if CoGuid already exists
-                int nDomainID = DAL.DomainDal.GetDomainIDByCoGuid(sCoGuid);
+                int nDomainID = DAL.DomainDal.GetDomainIDByCoGuid(sCoGuid, nGroupID);
 
                 if (nDomainID > 0)
                 {
