@@ -448,7 +448,7 @@ namespace Users
             return DomainDal.GetDomainIDByCoGuid(coGuid, m_nGroupID);
         }
 
-        public virtual DomainResponseObject GetDomainByCoGuid(string coGuid)
+        public virtual DomainResponseObject GetDomainByCoGuid(string coGuid, int nGroupID)
         {
             DomainResponseObject oDomainResponseObject;
 

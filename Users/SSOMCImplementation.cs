@@ -169,7 +169,7 @@ namespace Users
 
                 if (domainImpl != null)
                 {
-                    DomainResponseObject domain = domainImpl.GetDomainByCoGuid(sDomainCoGuid);
+                    DomainResponseObject domain = domainImpl.GetDomainByCoGuid(sDomainCoGuid, m_nGroupID);
 
                     // domain by coguid found
                     if (domain != null && domain.m_oDomainResponseStatus == DomainResponseStatus.OK)
