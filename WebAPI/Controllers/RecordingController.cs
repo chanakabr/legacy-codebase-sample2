@@ -51,7 +51,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024,
         /// ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034, ProgramCdvrNotEnabled = 3035,
-        /// ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3038, DomainExceededQuota = 3042, InvalidAssetId = 4024</remarks>
+        /// ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3038, ExceededQuota = 3042, InvalidAssetId = 4024</remarks>
         [Route("getContext"), HttpPost]
         [ApiAuthorize]
         [WebAPI.Managers.Schema.ValidationException(WebAPI.Managers.Schema.SchemaValidationType.ACTION_NAME)]
@@ -92,7 +92,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
         /// UserWithNoDomain = 2024, ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034,
         /// ProgramCdvrNotEnabled = 3035, ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3038,
-        /// DomainExceededQuota = 3042, InvalidAssetId = 4024</remarks>
+        /// ExceededQuota = 3042, InvalidAssetId = 4024</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
         public KalturaRecording Add(KalturaRecording recording)
