@@ -4555,9 +4555,9 @@ namespace ConditionalAccess
                                 {
                                     existingRecording.ViewableUntilDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "VIEWABLE_UNTIL_DATE");
                                 }
-                                else if (accountSettings.RecordingLifetimePeroid.HasValue)
+                                else if (accountSettings.RecordingLifetimePeriod.HasValue)
                                 {
-                                    existingRecording.ViewableUntilDate = existingRecording.EpgStartDate.AddDays(accountSettings.RecordingLifetimePeroid.Value);
+                                    existingRecording.ViewableUntilDate = existingRecording.EpgStartDate.AddDays(accountSettings.RecordingLifetimePeriod.Value);
                                 }
                                 else
                                 {

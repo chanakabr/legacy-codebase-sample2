@@ -17266,9 +17266,9 @@ namespace ConditionalAccess
                             else
                             {
                                 TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
-                                if (accountSettings.RecordingLifetimePeroid.HasValue)
+                                if (accountSettings.RecordingLifetimePeriod.HasValue)
                                 {
-                                    recording.ViewableUntilDate = recording.EpgStartDate.AddDays(accountSettings.RecordingLifetimePeroid.Value);
+                                    recording.ViewableUntilDate = recording.EpgStartDate.AddDays(accountSettings.RecordingLifetimePeriod.Value);
                                 }
                                 else
                                 {
