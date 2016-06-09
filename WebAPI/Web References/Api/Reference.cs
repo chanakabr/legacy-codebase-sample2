@@ -14222,6 +14222,8 @@ namespace WebAPI.Api {
         
         private System.Nullable<bool> isRecordingScheduleWindowEnabledField;
         
+        private System.Nullable<bool> isProtectionEnabledField;
+        
         private System.Nullable<long> catchUpBufferLengthField;
         
         private System.Nullable<long> trickPlayBufferLengthField;
@@ -14235,6 +14237,10 @@ namespace WebAPI.Api {
         private System.Nullable<int> protectionPeriodField;
         
         private System.Nullable<int> protectionQuotaPercentageField;
+        
+        private System.Nullable<int> recordingLifetimePeriodField;
+        
+        private System.Nullable<int> cleanupNoticePeroidField;
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
@@ -14288,6 +14294,17 @@ namespace WebAPI.Api {
             }
             set {
                 this.isRecordingScheduleWindowEnabledField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<bool> IsProtectionEnabled {
+            get {
+                return this.isProtectionEnabledField;
+            }
+            set {
+                this.isProtectionEnabledField = value;
             }
         }
         
@@ -14365,6 +14382,28 @@ namespace WebAPI.Api {
             }
             set {
                 this.protectionQuotaPercentageField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<int> RecordingLifetimePeriod {
+            get {
+                return this.recordingLifetimePeriodField;
+            }
+            set {
+                this.recordingLifetimePeriodField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<int> CleanupNoticePeroid {
+            get {
+                return this.cleanupNoticePeroidField;
+            }
+            set {
+                this.cleanupNoticePeroidField = value;
             }
         }
     }

@@ -68,15 +68,15 @@ namespace WebAPI.Controllers
                 }
 
                 // validate protectionPeriod
-                if (settings.ProtectionPeriod.HasValue && settings.ProtectionPeriod.Value < 0)
+                if (settings.ProtectionPeriod.HasValue && settings.ProtectionPeriod.Value <= 0)
                 {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "protectionPeriod can not be negative");
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "protectionPeriod must be above 0");
                 }
 
                 // validate protectionQuotaPercentage
-                if (settings.ProtectionQuotaPercentage.HasValue && (settings.ProtectionQuotaPercentage.Value < 10 || settings.ProtectionQuotaPercentage.Value > 100))
+                if (settings.ProtectionQuotaPercentage.HasValue && (settings.ProtectionQuotaPercentage.Value < 1 || settings.ProtectionQuotaPercentage.Value > 100))
                 {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "protectionQuotaPercentage must be between 10 and 100");
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "protectionQuotaPercentage must be between 1 and 100");
                 }
 
                 // call client
