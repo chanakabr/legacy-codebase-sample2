@@ -30,7 +30,7 @@ namespace Users
         }
 
         //Override Methods - get domainID from DB - then - try to get it from Cache
-        public override DomainResponseObject GetDomainByCoGuid(string coGuid)
+        public override DomainResponseObject GetDomainByCoGuid(string coGuid, int nGroupID)
         {
             // Create new response
             DomainResponseObject oDomainResponseObject;
