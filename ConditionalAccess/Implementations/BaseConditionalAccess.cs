@@ -17159,6 +17159,8 @@ namespace ConditionalAccess
                         {
                             log.DebugFormat("Recording ID is 0 or RecordingStatus not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", domainRecordingId, domainId, userId, recording.ToString());
                             recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotValid, recording.RecordingStatus.ToString());
+                            recording.Id = domainRecordingId;
+                            return recording;
                         }
                         else
                         {
@@ -17171,6 +17173,8 @@ namespace ConditionalAccess
                         {
                             log.DebugFormat("Recording ID is 0 or RecordingStatus not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", domainRecordingId, domainId, userId, recording.ToString());
                             recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotValid, recording.RecordingStatus.ToString());
+                            recording.Id = domainRecordingId;
+                            return recording;
                         }
                         else
                         {
@@ -17180,7 +17184,6 @@ namespace ConditionalAccess
                     default:
                         break;
                 }
-
                 if (res)
                 {
                     recording.RecordingStatus = tstvRecordingStatus;

@@ -41,7 +41,7 @@ namespace Users
             }                
 
             //Check if CoGuid already exists
-            int nDomainID = DomainDal.GetDomainIDByCoGuid(sCoGuid);
+            int nDomainID = DomainDal.GetDomainIDByCoGuid(sCoGuid, m_nGroupID);
 
             if (nDomainID > 0)
             {

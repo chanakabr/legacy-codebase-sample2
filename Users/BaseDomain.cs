@@ -445,7 +445,7 @@ namespace Users
 
         public virtual int GetDomainIDByCoGuid(string coGuid)
         {
-            return DomainDal.GetDomainIDByCoGuid(coGuid);
+            return DomainDal.GetDomainIDByCoGuid(coGuid, m_nGroupID);
         }
 
         public virtual DomainResponseObject GetDomainByCoGuid(string coGuid, int nGroupID)
@@ -461,7 +461,7 @@ namespace Users
                 return oDomainResponseObject;
             }
 
-            Domain domain = DomainInitializer(nGroupID, nDomainID, true);
+            Domain domain = DomainInitializer(m_nGroupID, nDomainID, true);
 
             oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.OK);
 
