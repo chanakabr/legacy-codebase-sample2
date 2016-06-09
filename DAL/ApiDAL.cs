@@ -3409,15 +3409,18 @@ namespace DAL
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@EnableRecordingScheduleWindow", settings.IsRecordingScheduleWindowEnabled);
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@PaddingBeforeProgramStarts", settings.PaddingBeforeProgramStarts);
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@PaddingAfterProgramEnds", settings.PaddingAfterProgramEnds);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@AllowProtection", settings.IsProtectionEnabled);
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@ProtectionPeriod", settings.ProtectionPeriod);
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@ProtectionQuotaPercentage", settings.ProtectionQuotaPercentage);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@RecordingLifetimePeriod", settings.RecordingLifetimePeroid);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@CleanupNoticePeriod", settings.CleanupNoticePeroid);
 
                 isUpdated = spUpdateTimeShiftedTvPartnerSettings.ExecuteReturnValue<bool>();
             }
 
             catch (Exception ex)
             {
-                log.Error("Failed updateing TimeShiftedTvPartnerSettings when running the stored procedure: UpdateTimeShiftedTvPartnerSettings", ex);
+                log.Error("Failed updating TimeShiftedTvPartnerSettings when running the stored procedure: UpdateTimeShiftedTvPartnerSettings", ex);
             }
 
             return isUpdated;

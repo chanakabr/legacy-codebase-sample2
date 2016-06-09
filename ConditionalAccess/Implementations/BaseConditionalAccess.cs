@@ -17266,9 +17266,9 @@ namespace ConditionalAccess
                             else
                             {
                                 TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
-                                if (accountSettings.LifetimePeroid.HasValue)
+                                if (accountSettings.RecordingLifetimePeroid.HasValue)
                                 {
-                                    recording.ViewableUntilDate = recording.EpgStartDate.AddDays(accountSettings.LifetimePeroid.Value);
+                                    recording.ViewableUntilDate = recording.EpgStartDate.AddDays(accountSettings.RecordingLifetimePeroid.Value);
                                 }
                                 else
                                 {
@@ -18110,7 +18110,7 @@ namespace ConditionalAccess
                 if (recording.RecordingStatus != TstvRecordingStatus.Recorded)
                 {
                     log.DebugFormat("RecordingStatus is not valid for protection, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", recordID, domainID, userID, recording.ToString());
-                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotValid, recording.RecordingStatus.ToString());
+                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotValid, "Protection failed, only recording in status Recorded can be protected");
                 }             
 
                 // Get domains quota
