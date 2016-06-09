@@ -4186,7 +4186,7 @@ namespace ConditionalAccess
                     int protection = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_protection", -1);
                     int protectionPeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_period", 90);
                     int protectionQuotaPercentage = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_quota_percentage", 25);
-                    int recordingLifetimePeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_period", 182);
+                    int recordingLifetimePeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "recording_lifetime_period", 182);
                     int cleanupNoticePeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "cleanup_notice_period", 7);
 
                     if (catchup > -1 && cdvr > -1 && startOver > -1 && trickPlay > -1 && catchUpBuffer > -1 && trickPlayBuffer > -1 && recordingScheduleWindow > -1 && protection > -1)

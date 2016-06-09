@@ -3412,7 +3412,7 @@ namespace DAL
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@AllowProtection", settings.IsProtectionEnabled);
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@ProtectionPeriod", settings.ProtectionPeriod);
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@ProtectionQuotaPercentage", settings.ProtectionQuotaPercentage);
-                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@RecordingLifetimePeriod", settings.RecordingLifetimePeroid);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@RecordingLifetimePeriod", settings.RecordingLifetimePeriod);
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@CleanupNoticePeriod", settings.CleanupNoticePeroid);
 
                 isUpdated = spUpdateTimeShiftedTvPartnerSettings.ExecuteReturnValue<bool>();

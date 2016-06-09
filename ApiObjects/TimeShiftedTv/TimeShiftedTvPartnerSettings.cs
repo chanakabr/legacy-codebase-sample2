@@ -22,7 +22,7 @@ namespace ApiObjects.TimeShiftedTv
         public long? PaddingBeforeProgramStarts { get; set; }
         public int? ProtectionPeriod { get; set; }
         public int? ProtectionQuotaPercentage { get; set; }
-        public int? RecordingLifetimePeroid { get; set; }
+        public int? RecordingLifetimePeriod { get; set; }
         public int? CleanupNoticePeroid { get; set; }
 
         public TimeShiftedTvPartnerSettings()
@@ -46,7 +46,7 @@ namespace ApiObjects.TimeShiftedTv
             this.IsProtectionEnabled = IsProtectionEnabled;
             this.ProtectionPeriod = protectionPeriod;
             this.ProtectionQuotaPercentage = protectionQuotaPercentage;
-            this.RecordingLifetimePeroid = recordingLifetimePeroid;
+            this.RecordingLifetimePeriod = recordingLifetimePeroid;
             this.CleanupNoticePeroid = cleanupNoticePeroid;
         }
 
@@ -66,7 +66,7 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("IsProtectionEnabled: {0}, ", IsProtectionEnabled.HasValue ? IsProtectionEnabled.Value.ToString() : "Null"));
             sb.Append(string.Format("ProtectionPeriod: {0}, ", ProtectionPeriod.HasValue ? ProtectionPeriod.Value.ToString() : "Null"));
             sb.Append(string.Format("ProtectionQuotaPercentage: {0}, ", ProtectionQuotaPercentage.HasValue ? ProtectionQuotaPercentage.Value.ToString() : "Null"));
-            sb.Append(string.Format("RecordingLifetimePeroid: {0}, ", RecordingLifetimePeroid.HasValue ? RecordingLifetimePeroid.Value.ToString() : "Null"));
+            sb.Append(string.Format("RecordingLifetimePeroid: {0}, ", RecordingLifetimePeriod.HasValue ? RecordingLifetimePeriod.Value.ToString() : "Null"));
             sb.Append(string.Format("CleanupNoticePeroid: {0}, ", CleanupNoticePeroid.HasValue ? CleanupNoticePeroid.Value.ToString() : "Null"));
                         
             return sb.ToString();
