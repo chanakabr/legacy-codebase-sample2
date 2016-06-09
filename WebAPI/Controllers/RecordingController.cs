@@ -33,7 +33,7 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().GetRecording(groupId, domainId, id);
+                response = ClientsManager.ConditionalAccessClient().GetRecord(groupId, domainId, id);
             }
             catch (ClientException ex)
             {
@@ -51,7 +51,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024,
         /// ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034, ProgramCdvrNotEnabled = 3035,
-        /// ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3038, InvalidAssetId = 4024</remarks>
+        /// ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3038, DomainExceededQuota = 3042, InvalidAssetId = 4024</remarks>
         [Route("getContext"), HttpPost]
         [ApiAuthorize]
         [WebAPI.Managers.Schema.ValidationException(WebAPI.Managers.Schema.SchemaValidationType.ACTION_NAME)]
@@ -91,7 +91,8 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
         /// UserWithNoDomain = 2024, ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034,
-        /// ProgramCdvrNotEnabled = 3035, ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3038, InvalidAssetId = 4024</remarks>
+        /// ProgramCdvrNotEnabled = 3035, ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3038,
+        /// DomainExceededQuota = 3042, InvalidAssetId = 4024</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
         public KalturaRecording Add(KalturaRecording recording)
@@ -225,7 +226,32 @@ namespace WebAPI.Controllers
             return response;
         }
 
+        /// <summary>
+        /// Protects an existing recording from the cleanup process for the defined protection period
+        /// </summary>
+        /// <param name="id">Recording identifier</param>
+        /// <returns></returns>
+        /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024,
+        /// RecordingNotFound = 3039, RecordingStatusNotValid = 3043, DomainExceededProtectionQuota = 3044</remarks>     
+        [Route("get"), HttpPost]
+        [ApiAuthorize]
+        public KalturaRecording Protect(long id)
+        {
+            KalturaRecording response = null;
 
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
+                // call client                
+                response = ClientsManager.ConditionalAccessClient().ProtectRecord(groupId, userId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
 
     }
 }

@@ -1120,7 +1120,7 @@ namespace WebAPI.Clients
             return adapter;
         }
 
-        internal KalturaRecording GetRecording(int groupID, long domainID, long recordingID)
+        internal KalturaRecording GetRecord(int groupID, long domainID, long recordingID)
         {
             KalturaRecording recording = null;
             RecordingResponse response = null;
@@ -1451,6 +1451,46 @@ namespace WebAPI.Clients
                 {
                     // fire request
                     response = ConditionalAccess.DeleteRecord(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, domainID, id);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            // convert response
+            recording = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaRecording>(response);
+
+            return recording;
+        }
+
+        internal KalturaRecording ProtectRecord(int groupID, string userID, long recordingID)
+        {
+            KalturaRecording recording = null;
+            Recording response = null;
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupID);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = ConditionalAccess.ProtectRecord(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, recordingID);
                 }
             }
             catch (Exception ex)

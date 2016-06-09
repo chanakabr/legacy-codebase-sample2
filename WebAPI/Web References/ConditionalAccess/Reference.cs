@@ -88,6 +88,8 @@ namespace WebAPI.ConditionalAccess {
         
         private System.Threading.SendOrPostCallback RemovePaymentMethodHouseholdPaymentGatewayOperationCompleted;
         
+        private System.Threading.SendOrPostCallback ProtectRecordOperationCompleted;
+        
         private System.Threading.SendOrPostCallback GetUserPermittedItemsOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetDomainPermittedItemsOperationCompleted;
@@ -384,6 +386,9 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         public event RemovePaymentMethodHouseholdPaymentGatewayCompletedEventHandler RemovePaymentMethodHouseholdPaymentGatewayCompleted;
+        
+        /// <remarks/>
+        public event ProtectRecordCompletedEventHandler ProtectRecordCompleted;
         
         /// <remarks/>
         public event GetUserPermittedItemsCompletedEventHandler GetUserPermittedItemsCompleted;
@@ -1789,6 +1794,41 @@ namespace WebAPI.ConditionalAccess {
             if ((this.RemovePaymentMethodHouseholdPaymentGatewayCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.RemovePaymentMethodHouseholdPaymentGatewayCompleted(this, new RemovePaymentMethodHouseholdPaymentGatewayCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/ProtectRecord", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Recording ProtectRecord(string sWSUserName, string sWSPassword, string userID, long recordID) {
+            object[] results = this.Invoke("ProtectRecord", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userID,
+                        recordID});
+            return ((Recording)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void ProtectRecordAsync(string sWSUserName, string sWSPassword, string userID, long recordID) {
+            this.ProtectRecordAsync(sWSUserName, sWSPassword, userID, recordID, null);
+        }
+        
+        /// <remarks/>
+        public void ProtectRecordAsync(string sWSUserName, string sWSPassword, string userID, long recordID, object userState) {
+            if ((this.ProtectRecordOperationCompleted == null)) {
+                this.ProtectRecordOperationCompleted = new System.Threading.SendOrPostCallback(this.OnProtectRecordOperationCompleted);
+            }
+            this.InvokeAsync("ProtectRecord", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userID,
+                        recordID}, this.ProtectRecordOperationCompleted, userState);
+        }
+        
+        private void OnProtectRecordOperationCompleted(object arg) {
+            if ((this.ProtectRecordCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.ProtectRecordCompleted(this, new ProtectRecordCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -12165,6 +12205,32 @@ namespace WebAPI.ConditionalAccess {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void ProtectRecordCompletedEventHandler(object sender, ProtectRecordCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class ProtectRecordCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal ProtectRecordCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Recording Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Recording)(this.results[0]));
             }
         }
     }
