@@ -1,0 +1,36 @@
+﻿using Newtonsoft.Json;
+using System;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+
+namespace WebAPI.Models.Notification
+{
+    [Serializable]
+    public class KalturaPushWebParameters
+    {
+        /// <summary>
+        /// Announcement Id
+        /// </summary>
+        [DataMember(Name = "announcementId")]
+        [JsonProperty("announcementId")]
+        [XmlElement(ElementName = "announcementId")]
+        public long AnnouncementId { get; set; }
+
+        /// <summary>
+        /// Key
+        /// </summary>
+        [DataMember(Name = "key")]
+        [JsonProperty("key")]
+        [XmlElement(ElementName = "key")]
+        public string Key { get; set; }
+
+        /// <summary>
+        /// URL
+        /// </summary>
+        [DataMember(Name = "url")]
+        [JsonProperty("url")]
+        [XmlElement(ElementName = "url")]
+        public string Url { get; set; }
+
+    }
+}

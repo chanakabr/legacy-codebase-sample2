@@ -1236,6 +1236,9 @@
     <Content Include="Service References\Notifications\WebAPI.Notifications.NotificationCleanupResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
+    <Content Include="Service References\Notifications\WebAPI.Notifications.PushWebParametersResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
     <None Include="Web References\Api\api.disco" />
     <Content Include="Web References\Billing\AdyenBillingDetail.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -1965,6 +1968,7 @@
     <Compile Include="Models\API\KalturaUserRole.cs" />
     <Compile Include="Models\General\KalturaValue.cs" />
     <Compile Include="Models\KalturaPlayerAssetData.cs" />
+    <Compile Include="Models\Notification\KalturaPushWebParametersResponse.cs" />
     <Compile Include="Models\Notification\KalturaInboxMessageTypeHolder.cs" />
     <Compile Include="Models\Notification\KalturaInboxMessageResponse.cs" />
     <Compile Include="Models\Notification\KalturaAnnouncement.cs" />
@@ -1984,6 +1988,7 @@
     <Compile Include="Models\Notification\KalturaPartnerNotificationSettings.cs" />
     <Compile Include="Models\Notification\KalturaPersonalFollowFeed.cs" />
     <Compile Include="Models\Notification\KalturaPersonalFollowFeedResponse.cs" />
+    <Compile Include="Models\Notification\KalturaPushWebParameters.cs" />
     <Compile Include="Models\Notification\KalturaTopic.cs">
       <SubType>Code</SubType>
     </Compile>

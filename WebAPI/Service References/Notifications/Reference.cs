@@ -2859,6 +2859,9 @@ namespace WebAPI.Notifications {
         private string NameField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string QueueNameField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private WebAPI.Notifications.eAnnouncementRecipientsType RecipientsTypeField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -2966,6 +2969,19 @@ namespace WebAPI.Notifications {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
+        public string QueueName {
+            get {
+                return this.QueueNameField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.QueueNameField, value) != true)) {
+                    this.QueueNameField = value;
+                    this.RaisePropertyChanged("QueueName");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public WebAPI.Notifications.eAnnouncementRecipientsType RecipientsType {
             get {
                 return this.RecipientsTypeField;
@@ -3048,6 +3064,144 @@ namespace WebAPI.Notifications {
                 if ((object.ReferenceEquals(this.StatusField, value) != true)) {
                     this.StatusField = value;
                     this.RaisePropertyChanged("Status");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="PushWebParametersResponse", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification")]
+    [System.SerializableAttribute()]
+    public partial class PushWebParametersResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<WebAPI.Notifications.PushWebParameter> ItemsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Notifications.Status StatusField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<WebAPI.Notifications.PushWebParameter> Items {
+            get {
+                return this.ItemsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.ItemsField, value) != true)) {
+                    this.ItemsField = value;
+                    this.RaisePropertyChanged("Items");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Notifications.Status Status {
+            get {
+                return this.StatusField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.StatusField, value) != true)) {
+                    this.StatusField = value;
+                    this.RaisePropertyChanged("Status");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="PushWebParameter", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification")]
+    [System.SerializableAttribute()]
+    public partial class PushWebParameter : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private long AnnouncementIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string KeyField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string UrlField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long AnnouncementId {
+            get {
+                return this.AnnouncementIdField;
+            }
+            set {
+                if ((this.AnnouncementIdField.Equals(value) != true)) {
+                    this.AnnouncementIdField = value;
+                    this.RaisePropertyChanged("AnnouncementId");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Key {
+            get {
+                return this.KeyField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.KeyField, value) != true)) {
+                    this.KeyField = value;
+                    this.RaisePropertyChanged("Key");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Url {
+            get {
+                return this.UrlField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.UrlField, value) != true)) {
+                    this.UrlField = value;
+                    this.RaisePropertyChanged("Url");
                 }
             }
         }
@@ -3297,6 +3451,12 @@ namespace WebAPI.Notifications {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetNotificationLastCleanupDate", ReplyAction="http://tempuri.org/INotificationService/GetNotificationLastCleanupDateResponse")]
         System.Threading.Tasks.Task<WebAPI.Notifications.NotificationCleanupResponse> GetNotificationLastCleanupDateAsync(string sWSUserName, string sWSPassword);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetPushWebParams", ReplyAction="http://tempuri.org/INotificationService/GetPushWebParamsResponse")]
+        WebAPI.Notifications.PushWebParametersResponse GetPushWebParams(string sWSUserName, string sWSPassword, System.Collections.Generic.List<int> announcementIds, string hash, string ip);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetPushWebParams", ReplyAction="http://tempuri.org/INotificationService/GetPushWebParamsResponse")]
+        System.Threading.Tasks.Task<WebAPI.Notifications.PushWebParametersResponse> GetPushWebParamsAsync(string sWSUserName, string sWSPassword, System.Collections.Generic.List<int> announcementIds, string hash, string ip);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -3628,6 +3788,14 @@ namespace WebAPI.Notifications {
         
         public System.Threading.Tasks.Task<WebAPI.Notifications.NotificationCleanupResponse> GetNotificationLastCleanupDateAsync(string sWSUserName, string sWSPassword) {
             return base.Channel.GetNotificationLastCleanupDateAsync(sWSUserName, sWSPassword);
+        }
+        
+        public WebAPI.Notifications.PushWebParametersResponse GetPushWebParams(string sWSUserName, string sWSPassword, System.Collections.Generic.List<int> announcementIds, string hash, string ip) {
+            return base.Channel.GetPushWebParams(sWSUserName, sWSPassword, announcementIds, hash, ip);
+        }
+        
+        public System.Threading.Tasks.Task<WebAPI.Notifications.PushWebParametersResponse> GetPushWebParamsAsync(string sWSUserName, string sWSPassword, System.Collections.Generic.List<int> announcementIds, string hash, string ip) {
+            return base.Channel.GetPushWebParamsAsync(sWSUserName, sWSPassword, announcementIds, hash, ip);
         }
     }
 }
