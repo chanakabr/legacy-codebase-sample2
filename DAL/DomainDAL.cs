@@ -1084,7 +1084,7 @@ namespace DAL
             return res;
         }
 
-        public static int GetDomainIDByCoGuid(string coGuid)
+        public static int GetDomainIDByCoGuid(string coGuid, int groupId)
         {
             int nDomainID = 0;
             try
@@ -1093,6 +1093,8 @@ namespace DAL
                 selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 selectQuery += "select ID from domains WITH (nolock) where Status = 1 and Is_Active = 1 and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CoGuid", "=", coGuid);
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupId);
                 if (selectQuery.Execute("query", true) != null)
                 {
                     int nCount = selectQuery.Table("query").DefaultView.Count;
