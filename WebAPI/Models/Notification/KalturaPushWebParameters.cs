@@ -2,11 +2,12 @@
 using System;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Notification
 {
     [Serializable]
-    public class KalturaPushWebParameters
+    public class KalturaPushWebParameters : KalturaOTTObject
     {
         /// <summary>
         /// Announcement Id
