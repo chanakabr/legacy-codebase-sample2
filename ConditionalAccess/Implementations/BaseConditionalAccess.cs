@@ -18131,7 +18131,7 @@ namespace ConditionalAccess
                 if (protectionQuotaStatus == null || protectionQuotaStatus.Code != (int)eResponseStatus.OK)
                 {
                     log.DebugFormat("Domain Exceeded Protection Quota, DomainID: {0}, UserID: {1}, recordID: {2}", domainID, userID, recordID);
-                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.DomainExceededProtectionQuota, eResponseStatus.DomainExceededProtectionQuota.ToString());
+                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExceededProtectionQuota, eResponseStatus.ExceededProtectionQuota.ToString());
                     return recording;
                 }
 
@@ -18144,7 +18144,7 @@ namespace ConditionalAccess
                 }
 
                 // Update is_protected and viewableUntilDate on domains_recordings
-                if (!ConditionalAccessDAL.ProtectRecording(recording.Id, recording.ViewableUntilDate.AddDays(accountSettings.ProtectionPeriod.Value)))
+                if (!ConditionalAccessDAL.ProtectRecording(recording.Id, DateTime.UtcNow.AddDays(accountSettings.ProtectionPeriod.Value)))
                 {
                     log.DebugFormat("Failed updating recording protection details on DB, DomainID: {0}, UserID: {1}, recordID: {2}", domainID, userID, recordID);
                     recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
