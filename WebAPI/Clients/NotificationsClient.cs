@@ -789,8 +789,8 @@ namespace WebAPI.Clients
             if (typeIn == null || typeIn.Count == 0)
             {
                 typeIn = new List<KalturaInboxMessageTypeHolder>();
-                typeIn.Add( new KalturaInboxMessageTypeHolder(){ type =  KalturaInboxMessageType.Followed});
-                typeIn.Add( new KalturaInboxMessageTypeHolder(){ type =  KalturaInboxMessageType.SystemAnnouncement});
+                typeIn.Add(new KalturaInboxMessageTypeHolder() { type = KalturaInboxMessageType.Followed });
+                typeIn.Add(new KalturaInboxMessageTypeHolder() { type = KalturaInboxMessageType.SystemAnnouncement });
             }
 
             List<eMessageCategory> convertedtypeIn = typeIn.Select(x => NotificationMapping.ConvertInboxMessageType(x)).ToList();
@@ -885,7 +885,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.GetInboxMessage(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password,userId, id);
+                    response = Notification.GetInboxMessage(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, id);
                 }
             }
             catch (Exception ex)
@@ -906,7 +906,7 @@ namespace WebAPI.Clients
 
             if (response.InboxMessages != null && response.InboxMessages.Count > 0)
             {
-                result = AutoMapper.Mapper.Map<KalturaInboxMessage>(response.InboxMessages[0]);                
+                result = AutoMapper.Mapper.Map<KalturaInboxMessage>(response.InboxMessages[0]);
             }
 
             return result;
@@ -916,7 +916,7 @@ namespace WebAPI.Clients
         {
             Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
-           
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -1104,6 +1104,48 @@ namespace WebAPI.Clients
             }
 
             return response.LastCleanupDate;
+        }
+
+        internal KalturaPushWebParametersResponse GetPushWebParams(int groupId, List<int> announcementIds, string hash, string ip)
+        {
+            PushWebParametersResponse response = null;
+            List<KalturaPushWebParameters> result = null;
+            KalturaPushWebParametersResponse ret = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Notification.GetPushWebParams(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, announcementIds, hash, ip);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetPushWebParams.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Items != null && response.Items.Count > 0)
+            {
+                result = Mapper.Map<List<KalturaPushWebParameters>>(response.Items);
+                ret = new KalturaPushWebParametersResponse() { PushWebParameters = result, TotalCount = result.Count };
+            }
+            else
+                ret = new KalturaPushWebParametersResponse();
+
+            return ret;
         }
     }
 }

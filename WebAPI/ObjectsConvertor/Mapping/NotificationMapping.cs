@@ -140,6 +140,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.LastMessageSentDateSec, opt => opt.MapFrom(src => src.LastMessageSentDateSec))
                  .ForMember(dest => dest.AutomaticIssueFollowNotification, opt => opt.MapFrom(src => ConvertAutomaticIssueNotification(src.AutomaticIssueNotification)))
                  ;
+
+            //PushWebParameter to KalturaPushWebParameters
+            Mapper.CreateMap<PushWebParameter, KalturaPushWebParameters>()
+                 .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
+                 .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.Key))
+                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
+                 ;
         }
 
 
