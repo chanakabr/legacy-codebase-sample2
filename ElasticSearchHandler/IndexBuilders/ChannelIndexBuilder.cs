@@ -60,13 +60,14 @@ namespace ElasticSearchHandler.IndexBuilders
 
                     string query = filteredQuery.ToString();
 
-                    // TODO: make sure it's the index name and not the alias
                     string searchResults = api.Search(PERCOLATOR, indexName, ref query);
 
                     List<string> currentChannelIds = ElasticSearch.Common.Utils.GetDocumentIds(searchResults);
+                    
+                    HashSet<string> channelsToRemove;
 
                     // insert / update new channels
-                    result = BuildChannelQueries(groupId, api, group.channelIDs, indexName);
+                    result = BuildChannelQueries(groupId, api, group.channelIDs, indexName, out channelsToRemove);
 
                     // remove old deleted channels
                     List<ESBulkRequestObj<string>> bulkList = new List<ESBulkRequestObj<string>>();
@@ -75,8 +76,11 @@ namespace ElasticSearchHandler.IndexBuilders
                     int id = 0;
                     foreach (var channelId in currentChannelIds)
                     {
-                        if (int.TryParse(channelId, out id) && !group.channelIDs.Contains(id))
+                        // channel is not in groups channel anymore / channel with empty query / channel id is not int - must be garbage
+                        if ((int.TryParse(channelId, out id) && !group.channelIDs.Contains(id)) || id == 0 || channelsToRemove.Contains(channelId))
                         {
+                            log.DebugFormat("Removing channel from percolator - channelId = {0}", channelId);
+
                             bulkList.Add(new ESBulkRequestObj<string>()
                             {
                                 docID = channelId,
@@ -117,13 +121,16 @@ namespace ElasticSearchHandler.IndexBuilders
 
         #endregion
 
-        public static bool BuildChannelQueries(int groupId, ElasticSearchApi api, HashSet<int> channelIds, string newIndexName)
+        public static bool BuildChannelQueries(int groupId, ElasticSearchApi api, HashSet<int> channelIds, string newIndexName, out HashSet<string> channelsToRemove)
         {
+            channelsToRemove = new HashSet<string>();
+
             if (channelIds != null)
             {
                 log.Info(string.Format("Start indexing channels. total channels={0}", channelIds.Count));
 
                 List<KeyValuePair<int, string>> channelRequests = new List<KeyValuePair<int, string>>();
+
                 try
                 {
                     GroupManager groupManager = new GroupManager();
@@ -148,15 +155,10 @@ namespace ElasticSearchHandler.IndexBuilders
                         {
                             try
                             {
-                                // If there is at least 1 media type, build its definitions
-                                if (currentChannel.m_nMediaType != null &&
-                                    currentChannel.m_nMediaType.Count(type => type != Channel.EPG_ASSET_TYPE) > 0)
-                                {
-                                    UnifiedSearchDefinitions definitions = ElasticsearchTasksCommon.Utils.BuildSearchDefinitions(currentChannel, true);
+                                UnifiedSearchDefinitions definitions = ElasticsearchTasksCommon.Utils.BuildSearchDefinitions(currentChannel, true);
 
-                                    unifiedQueryBuilder.SearchDefinitions = definitions;
-                                    channelQuery = unifiedQueryBuilder.BuildSearchQueryString();
-                                }
+                                unifiedQueryBuilder.SearchDefinitions = definitions;
+                                channelQuery = unifiedQueryBuilder.BuildSearchQueryString();
                             }
                             catch (KalturaException ex)
                             {
@@ -169,6 +171,7 @@ namespace ElasticSearchHandler.IndexBuilders
                         }
                         else
                         {
+
                             mediaQueryParser.m_nGroupID = currentChannel.m_nGroupID;
                             MediaSearchObj mediaSearchObject = BuildBaseChannelSearchObject(currentChannel);
 
@@ -178,6 +181,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                         if (!string.IsNullOrEmpty(channelQuery))
                         {
+                            log.DebugFormat("Adding channel to percolator - channelId = {0}", currentChannel.m_nChannelID);
 
                             channelRequests.Add(new KeyValuePair<int, string>(currentChannel.m_nChannelID, channelQuery));
 
@@ -186,6 +190,11 @@ namespace ElasticSearchHandler.IndexBuilders
                                 api.CreateBulkIndexRequest("_percolator", newIndexName, channelRequests);
                                 channelRequests.Clear();
                             }
+                        }
+                        else
+                        {
+                            log.DebugFormat("channel with empty query will be removed from percolator - channelId = {0}", currentChannel.m_nChannelID);
+                            channelsToRemove.Add(currentChannel.m_nChannelID.ToString());
                         }
                     }
 
