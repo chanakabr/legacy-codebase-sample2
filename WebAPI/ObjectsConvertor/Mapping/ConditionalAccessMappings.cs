@@ -224,9 +224,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.EpgId, opt => opt.MapFrom(src => src.AssetId))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.RecordingStatus, opt => opt.MapFrom(src => ConvertKalturaRecordingStatus(src.Status)))
-               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertKalturaRecordingType(src.Type)))
-               .ForMember(dest => dest.IsProtected, opt => opt.MapFrom(src => src.IsProtected))
-               .ForMember(dest => dest.ViewableUntilDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.ViewableUntilDate)))
+               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertKalturaRecordingType(src.Type)))               
+               .ForMember(dest => dest.ViewableUntilDate, opt => opt.MapFrom(src => src.ViewableUntilDate))
                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.CreateDate)))
                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.UpdateDate)));
 
@@ -236,8 +235,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertTstvRecordingStatus(src.RecordingStatus)))
                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertRecordingType(src.Type)))
-               .ForMember(dest => dest.IsProtected, opt => opt.MapFrom(src => src.IsProtected))
-               .ForMember(dest => dest.ViewableUntilDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.ViewableUntilDate)))
+               .ForMember(dest => dest.IsProtected, opt => opt.MapFrom(src => IsRecordingProtected(src.ProtectedUntilDate)))
+               .ForMember(dest => dest.ViewableUntilDate, opt => opt.MapFrom(src => src.ViewableUntilDate))
                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.CreateDate)))
                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.UpdateDate)));
 
@@ -253,6 +252,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
         }
 
         #region Recording Help Methods
+
+        public static bool IsRecordingProtected(long? protectedUntilEpoch)
+        {
+            if (!protectedUntilEpoch.HasValue)
+            {
+                return false;
+            }
+            
+            long currentUtcTime = SerializationUtils.GetCurrentUtcTimeInUnixTimestamp();
+            return protectedUntilEpoch.Value > currentUtcTime;
+        }
 
         public static WebAPI.ConditionalAccess.TstvRecordingStatus ConvertKalturaRecordingStatus(KalturaRecordingStatus recordingStatus)
         {

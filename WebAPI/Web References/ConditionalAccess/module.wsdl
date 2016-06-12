@@ -590,8 +590,8 @@
           <s:element minOccurs="1" maxOccurs="1" name="EpgEndDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="Type" type="tns:RecordingType" />
           <s:element minOccurs="1" maxOccurs="1" name="GetStatusRetries" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="IsProtected" type="s:boolean" />
-          <s:element minOccurs="1" maxOccurs="1" name="ViewableUntilDate" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="ProtectedUntilDate" nillable="true" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="ViewableUntilDate" type="s:long" />
           <s:element minOccurs="1" maxOccurs="1" name="CreateDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="UpdateDate" type="s:dateTime" />
         </s:sequence>

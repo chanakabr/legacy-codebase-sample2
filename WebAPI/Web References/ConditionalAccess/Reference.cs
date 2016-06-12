@@ -10420,9 +10420,9 @@ namespace WebAPI.ConditionalAccess {
         
         private int getStatusRetriesField;
         
-        private bool isProtectedField;
+        private System.Nullable<long> protectedUntilDateField;
         
-        private System.DateTime viewableUntilDateField;
+        private long viewableUntilDateField;
         
         private System.DateTime createDateField;
         
@@ -10529,17 +10529,18 @@ namespace WebAPI.ConditionalAccess {
         }
         
         /// <remarks/>
-        public bool IsProtected {
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<long> ProtectedUntilDate {
             get {
-                return this.isProtectedField;
+                return this.protectedUntilDateField;
             }
             set {
-                this.isProtectedField = value;
+                this.protectedUntilDateField = value;
             }
         }
         
         /// <remarks/>
-        public System.DateTime ViewableUntilDate {
+        public long ViewableUntilDate {
             get {
                 return this.viewableUntilDateField;
             }
