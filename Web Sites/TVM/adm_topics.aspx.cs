@@ -99,16 +99,27 @@ public partial class adm_topics : System.Web.UI.Page
         theTable.SetConnectionKey("notifications_connection");
 
         DataTable dt = GetAllAnnouncements(nGroupID);
+
+        if (!string.IsNullOrEmpty(sOrderBy))
+        {
+            theTable += " order by ";
+            theTable += sOrderBy;
+
+            dt.DefaultView.Sort = sOrderBy;
+            dt = dt.DefaultView.ToTable();
+            
+        }
+
         theTable.FillDataTable(dt);
 
-        theTable.AddOrderByColumn("ID","a.ID");
+        theTable.AddOrderByColumn("ID","ID");
         theTable.AddHiddenField("group_id");
         theTable.AddHiddenField("status");
         theTable.AddHiddenField("announcementId");
-        theTable.AddOrderByColumn("name", "a.name");
-        theTable.AddOrderByColumn("automatic sending", "automatic_sending");
-        theTable.AddOrderByColumn("subscribers", "amountOfSubscribers");
-        theTable.AddOrderByColumn("last sent date sec", "last_message_sent_date_sec");
+        theTable.AddOrderByColumn("name", "name");
+        theTable.AddOrderByColumn("automatic sending", "automatic sending");
+        theTable.AddOrderByColumn("subscribers", "subscribers");
+        theTable.AddOrderByColumn("last sent date sec", "last sent date sec");
 
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
@@ -166,12 +177,11 @@ public partial class adm_topics : System.Web.UI.Page
         DataTable dt = null;
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
         selectQuery.SetConnectionKey("notifications_connection");
-        selectQuery += "select a.ID, a.name , a.group_id, a.status, a.last_message_sent_date_sec ";
+        selectQuery += "select ID, name , group_id, status, last_message_sent_date_sec as 'last sent date sec' ";
         selectQuery += ",CASE WHEN automatic_sending is null THEN  'Inherit' WHEN automatic_sending = 1 THEN  'Yes' WHEN automatic_sending = 0 THEN  'No'  end as 'automatic sending'";
-        selectQuery += "  from announcements a   ";
-        selectQuery += "  where a.status <> 2  And a.recipient_type = 3 And";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("a.group_id", "=", groupId);
-        selectQuery += " order by name desc ";
+        selectQuery += "  from announcements  ";
+        selectQuery += "  where status <> 2  And recipient_type = 3 And";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupId);        
 
         if (selectQuery.Execute("query", true) != null)
         {
@@ -184,7 +194,7 @@ public partial class adm_topics : System.Web.UI.Page
         selectQuery.Finish();
         selectQuery = null;
 
-        dt.Columns.Add("amountOfSubscribers", typeof(string)); // amountOfSubscribers
+        dt.Columns.Add("subscribers", typeof(int)); // amountOfSubscribers
 
         var dictAmountOfSubscribersPerAnnouncement = ImporterImpl.GetAmountOfSubscribersPerAnnouncement(groupId);
         if (dictAmountOfSubscribersPerAnnouncement != null && dictAmountOfSubscribersPerAnnouncement.Count > 0)
@@ -200,11 +210,10 @@ public partial class adm_topics : System.Web.UI.Page
                 if (dictAmountOfSubscribersPerAnnouncement.ContainsKey(announcementId))
                 {
                     dictAmountOfSubscribersPerAnnouncement.TryGetValue(announcementId, out amountOfSubscribers);
-                    row["amountOfSubscribers"] = amountOfSubscribers;
+                    row["subscribers"] = amountOfSubscribers;
                 }
             }
         }
-        dt.Columns["amountOfSubscribers"].ColumnName = "subscribers";
         return dt;
     }
 
