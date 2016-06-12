@@ -4541,27 +4541,25 @@ namespace ConditionalAccess
                                 existingRecording.Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
                                 existingRecording.CreateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
                                 existingRecording.UpdateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE");
-                                int is_protected = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_protected", 0);
-                                if (is_protected == 1)
+                                long protectedUntilEpoch = ODBCWrapper.Utils.GetLongSafeVal(dr, "PROTECTED_UNTIL_EPOCH", -1);
+                                existingRecording.ProtectedUntilDate = ODBCWrapper.Utils.GetLongSafeVal(dr, "PROTECTED_UNTIL_EPOCH", -1);
+                                if (protectedUntilEpoch == -1)
                                 {
-                                    existingRecording.IsProtected = true;
+                                    if (accountSettings.RecordingLifetimePeriod.HasValue)
+                                    {
+                                        DateTime viewableUntilDate = existingRecording.EpgStartDate.AddDays(accountSettings.RecordingLifetimePeriod.Value);
+                                        existingRecording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(viewableUntilDate);
+                                        existingRecording.ProtectedUntilDate = null;
+                                    }
+                                    else
+                                    {
+                                        log.ErrorFormat("No lifetime period defined for the account {0}", groupId);
+                                    }
                                 }
                                 else
                                 {
-                                    existingRecording.IsProtected = false;
-                                }
-                                
-                                if (dr["VIEWABLE_UNTIL_DATE"] != DBNull.Value)
-                                {
-                                    existingRecording.ViewableUntilDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "VIEWABLE_UNTIL_DATE");
-                                }
-                                else if (accountSettings.RecordingLifetimePeriod.HasValue)
-                                {
-                                    existingRecording.ViewableUntilDate = existingRecording.EpgStartDate.AddDays(accountSettings.RecordingLifetimePeriod.Value);
-                                }
-                                else
-                                {
-                                    log.ErrorFormat("No lifetime period defined for the account {0}", groupId);
+                                    existingRecording.ViewableUntilDate = protectedUntilEpoch;
+                                    existingRecording.ProtectedUntilDate = protectedUntilEpoch;                                    
                                 }
 
                                 responseDictionary[epgId] = existingRecording;
@@ -4749,7 +4747,7 @@ namespace ConditionalAccess
         internal static Dictionary<long, Recording> GetDomainProtectedRecordings(int groupID, long domainID)
         {
             Dictionary<long, Recording> recordingIdToRecordingMap = null;
-            List<long> recordingIds = ConditionalAccessDAL.GetDomainProtectedRecordings(groupID, domainID);
+            List<long> recordingIds = ConditionalAccessDAL.GetDomainProtectedRecordings(groupID, domainID, TVinciShared.DateUtils.UnixTimeStampNow());
             if (recordingIds != null)
             {
                 List<Recording> recordings = Recordings.RecordingsManager.Instance.GetRecordings(groupID, recordingIds);

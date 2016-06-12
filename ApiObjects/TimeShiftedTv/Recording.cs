@@ -30,9 +30,9 @@ namespace ApiObjects.TimeShiftedTv
 
         public int GetStatusRetries { get; set; }
 
-        public bool IsProtected { get; set; }
+        public long? ProtectedUntilDate { get; set; }
 
-        public DateTime ViewableUntilDate { get; set; }
+        public long ViewableUntilDate { get; set; }
 
         public DateTime CreateDate { get; set; }
 
@@ -58,10 +58,10 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("StartDate: {0}, ", EpgStartDate != null ? EpgStartDate.ToString() : ""));
             sb.Append(string.Format("EndDate: {0}, ", EpgEndDate != null ? EpgEndDate.ToString() : ""));
             sb.Append(string.Format("GetStatusRetries: {0}, ", GetStatusRetries));
-            sb.Append(string.Format("ViewableUntilDate: {0}, ", ViewableUntilDate != null ? ViewableUntilDate.ToString() : ""));
+            sb.Append(string.Format("ViewableUntilDate: {0}, ", ViewableUntilDate));
+            sb.Append(string.Format("ProtectedUntilDate: {0}, ", ProtectedUntilDate.HasValue ? ProtectedUntilDate.Value.ToString() : ""));
             sb.Append(string.Format("CreateDate: {0}, ", CreateDate != null ? CreateDate.ToString() : ""));
-            sb.Append(string.Format("UpdateDate: {0}, ", UpdateDate != null ? UpdateDate.ToString() : ""));
-            sb.Append(string.Format("IsProtected: {0}, ", IsProtected.ToString()));
+            sb.Append(string.Format("UpdateDate: {0}, ", UpdateDate != null ? UpdateDate.ToString() : ""));            
 
             return sb.ToString();
         }

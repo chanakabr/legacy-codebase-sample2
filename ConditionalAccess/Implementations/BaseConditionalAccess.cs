@@ -17247,33 +17247,26 @@ namespace ConditionalAccess
                             recording = RecordingsManager.Instance.GetRecording(m_nGroupID, recordingId); // recording id at the recording manager
                             recording.CreateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
                             recording.UpdateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE");
-                            int is_protected = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_protected", 0);
-                            if (is_protected == 1)
-                            {
-                                recording.IsProtected = true;
-                            }
-                            else
-                            {
-                                recording.IsProtected = false;
-                            }
+                            long protectedUntilEpoch = ODBCWrapper.Utils.GetLongSafeVal(dr, "PROTECTED_UNTIL_EPOCH", -1);
 
-                            DateTime? viewableUntilDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "VIEWABLE_UNTIL_DATE");
-
-                            if (viewableUntilDate.HasValue)
-                            {
-                                recording.ViewableUntilDate = viewableUntilDate.Value;
-                            }
-                            else
+                            if (protectedUntilEpoch == -1)
                             {
                                 TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
                                 if (accountSettings.RecordingLifetimePeriod.HasValue)
                                 {
-                                    recording.ViewableUntilDate = recording.EpgStartDate.AddDays(accountSettings.RecordingLifetimePeriod.Value);
+                                    DateTime viewableUntilDate = recording.EpgStartDate.AddDays(accountSettings.RecordingLifetimePeriod.Value);
+                                    recording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(viewableUntilDate);
+                                    recording.ProtectedUntilDate = null;
                                 }
                                 else
                                 {
                                     log.ErrorFormat("No lifetime period defined for the account {0}", m_nGroupID);
-                                }
+                                }                                
+                            }
+                            else
+                            {
+                                recording.ViewableUntilDate = protectedUntilEpoch;
+                                recording.ProtectedUntilDate = protectedUntilEpoch;                                
                             }
                         }
                         else
@@ -18147,7 +18140,9 @@ namespace ConditionalAccess
                 }
 
                 // Update is_protected and viewableUntilDate on domains_recordings
-                if (!ConditionalAccessDAL.ProtectRecording(recording.Id, DateTime.UtcNow.AddDays(accountSettings.ProtectionPeriod.Value)))
+                DateTime protectedUntilDate = DateTime.UtcNow.AddDays(accountSettings.ProtectionPeriod.Value);
+                long protectedUntilEpoch = TVinciShared.DateUtils.DateTimeToUnixTimestamp(protectedUntilDate);
+                if (!ConditionalAccessDAL.ProtectRecording(recording.Id, protectedUntilDate, protectedUntilEpoch))
                 {
                     log.DebugFormat("Failed updating recording protection details on DB, DomainID: {0}, UserID: {1}, recordID: {2}", domainID, userID, recordID);
                     recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());

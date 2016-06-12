@@ -2995,13 +2995,14 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static List<long> GetDomainProtectedRecordings(int groupID, long domainID)
+        public static List<long> GetDomainProtectedRecordings(int groupID, long domainID, long unixTimeStampNow)
         {
             List<long> recordingIds = null;
             ODBCWrapper.StoredProcedure spGetDomainProtectedRecordings = new ODBCWrapper.StoredProcedure("GetDomainProtectedRecordings");
             spGetDomainProtectedRecordings.SetConnectionKey("CONNECTION_STRING");
             spGetDomainProtectedRecordings.AddParameter("@GroupID", groupID);
             spGetDomainProtectedRecordings.AddParameter("@DomainID", domainID);
+            spGetDomainProtectedRecordings.AddParameter("@UtcNowEpoch", unixTimeStampNow);
 
             DataTable dt = spGetDomainProtectedRecordings.Execute();
             if (dt != null && dt.Rows != null)
@@ -3017,7 +3018,7 @@ namespace DAL
             return recordingIds;
         }
 
-        public static bool ProtectRecording(long recordingId, DateTime viewableUntilDate)
+        public static bool ProtectRecording(long recordingId, DateTime protectedUntilDate, long protectedUntilEpoch)
         {
             bool isProtected = false;
             try
@@ -3025,7 +3026,8 @@ namespace DAL
                 ODBCWrapper.StoredProcedure spProtectRecording = new ODBCWrapper.StoredProcedure("ProtectRecording");
                 spProtectRecording.SetConnectionKey("CONNECTION_STRING");
                 spProtectRecording.AddParameter("@ID", recordingId);
-                spProtectRecording.AddParameter("@ViewableUntilDate", viewableUntilDate);
+                spProtectRecording.AddParameter("@ProtectedUntilDate", protectedUntilDate);
+                spProtectRecording.AddParameter("@ProtectedUntilEpoch", protectedUntilEpoch);
 
                 isProtected = spProtectRecording.ExecuteReturnValue<bool>();
             }
