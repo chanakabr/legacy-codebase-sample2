@@ -114,12 +114,19 @@ public partial class adm_channels_media : System.Web.UI.Page
         // 1 = Auto channel 2 = manual channel
         GroupsCacheManager.ChannelType type = (GroupsCacheManager.ChannelType)channelType;
         
-        string mediaIds;
-        string epgIds;
-        int countMedia;
-        int countEpg;
-
-        GetAssetIdsFromCatalog(channelID, out mediaIds, out epgIds, out countMedia, out countEpg);
+        string mediaIds = string.Empty;
+        string epgIds = string.Empty;
+        int countMedia = 0;
+        int countEpg = 0;
+        switch (type)
+        {
+            case GroupsCacheManager.ChannelType.Manual:
+                GetAssetIdsFromDB(channelID, out mediaIds, out countMedia);
+                break;
+            default:
+                GetAssetIdsFromCatalog(channelID, out mediaIds, out epgIds, out countMedia, out countEpg);
+                break;
+        }
 
         string mediaQuery = string.Empty;
         string epgQuery = string.Empty;
@@ -153,11 +160,11 @@ public partial class adm_channels_media : System.Web.UI.Page
 
             mediaQuery += " media m where ";
 
-            mediaQuery += " m.id in (" + mediaIds + ")";
+            mediaQuery += " m.status=1 and m.id in (" + mediaIds + ")";
 
             if (type == GroupsCacheManager.ChannelType.Manual)
             {
-                mediaQuery += " and m.id = cm.MEDIA_ID and cm.status = 1";
+                mediaQuery += " and m.id = cm.MEDIA_ID and cm.status <> 2";
                 mediaQuery += " and cm.channel_id = " + channelID;
             }
 
@@ -284,6 +291,39 @@ public partial class adm_channels_media : System.Web.UI.Page
                 linkColumn.AddQueryStringValue("rep_name", "ων");
                 theTable.AddLinkColumn(linkColumn);
             }
+        }
+    }
+
+    private void GetAssetIdsFromDB(int channelID, out string mediaIds, out int countMedia)
+    {
+        mediaIds = string.Empty;
+        countMedia = 0;
+        try
+        {
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select MEDIA_ID from channels_media where status <> 2 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_ID", "=", channelID);
+            selectQuery.SetCachedSec(0);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                countMedia = selectQuery.Table("query").DefaultView.Count;
+                if (countMedia > 0)
+                {
+                    List<string> medias = new List<string>();
+                    foreach (DataRow item in selectQuery.Table("query").Rows)
+                    {
+                        medias.Add(ODBCWrapper.Utils.GetSafeStr(item, "MEDIA_ID"));
+                    }
+
+                    mediaIds = string.Join(",", medias);
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+        }
+        catch (Exception ex)
+        {         
+   
         }
     }
 
