@@ -9,8 +9,8 @@ namespace ApiObjects.SearchObjects
 {
     [DataContract]
     [Serializable]
-    [JsonObject()]
-    public class BaseSearchObject 
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class BaseSearchObject
     {
     }
 }
