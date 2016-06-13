@@ -69,39 +69,42 @@ namespace ElasticSearchHandler.IndexBuilders
                     // insert / update new channels
                     result = BuildChannelQueries(groupId, api, group.channelIDs, indexName, out channelsToRemove);
 
-                    // remove old deleted channels
-                    List<ESBulkRequestObj<string>> bulkList = new List<ESBulkRequestObj<string>>();
-                    int sizeOfBulk = 500;
-
-                    int id = 0;
-                    foreach (var channelId in currentChannelIds)
+                    if (result)
                     {
-                        // channel is not in groups channel anymore / channel with empty query / channel id is not int - must be garbage
-                        if ((int.TryParse(channelId, out id) && !group.channelIDs.Contains(id)) || id == 0 || channelsToRemove.Contains(channelId))
+                        // remove old deleted channels
+                        List<ESBulkRequestObj<string>> bulkList = new List<ESBulkRequestObj<string>>();
+                        int sizeOfBulk = 500;
+
+                        int id = 0;
+                        foreach (var channelId in currentChannelIds)
                         {
-                            log.DebugFormat("Removing channel from percolator - channelId = {0}", channelId);
-
-                            bulkList.Add(new ESBulkRequestObj<string>()
+                            // channel is not in groups channel anymore / channel with empty query / channel id is not int - must be garbage
+                            if ((int.TryParse(channelId, out id) && !group.channelIDs.Contains(id)) || id == 0 || channelsToRemove.Contains(channelId))
                             {
-                                docID = channelId,
-                                index = PERCOLATOR,
-                                type = indexName,
-                                Operation = eOperation.delete
-                            });
+                                log.DebugFormat("Removing channel from percolator - channelId = {0}", channelId);
 
-                            if (bulkList.Count >= sizeOfBulk)
-                            {
-                                Task<List<ESBulkRequestObj<string>>> t = Task<List<ESBulkRequestObj<string>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(bulkList));
-                                t.Wait();
-                                bulkList = new List<ESBulkRequestObj<string>>();
+                                bulkList.Add(new ESBulkRequestObj<string>()
+                                {
+                                    docID = channelId,
+                                    index = PERCOLATOR,
+                                    type = indexName,
+                                    Operation = eOperation.delete
+                                });
+
+                                if (bulkList.Count >= sizeOfBulk)
+                                {
+                                    Task<List<ESBulkRequestObj<string>>> t = Task<List<ESBulkRequestObj<string>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(bulkList));
+                                    t.Wait();
+                                    bulkList = new List<ESBulkRequestObj<string>>();
+                                }
                             }
                         }
-                    }
 
-                    if (bulkList.Count > 0)
-                    {
-                        Task<List<ESBulkRequestObj<string>>> t = Task<List<ESBulkRequestObj<string>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(bulkList));
-                        t.Wait();
+                        if (bulkList.Count > 0)
+                        {
+                            Task<List<ESBulkRequestObj<string>>> t = Task<List<ESBulkRequestObj<string>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(bulkList));
+                            t.Wait();
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -116,7 +119,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 return new MediaIndexBuilder(groupId).BuildIndex();
             }
 
-            return true;
+            return result;
         }
 
         #endregion
