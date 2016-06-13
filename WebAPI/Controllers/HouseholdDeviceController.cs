@@ -103,6 +103,36 @@ namespace WebAPI.Controllers
         /// Returns device registration status to the supplied household
         /// </summary>
         /// <returns></returns>
+        [Route("get"), HttpPost]
+        [ApiAuthorize]
+        public KalturaDevice Get()
+        {
+            KalturaDevice device = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
+
+            if (string.IsNullOrEmpty(udid))
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "udid cannot be empty");
+            }
+
+            try
+            {
+                // call client
+                device = ClientsManager.DomainsClient().GetDevice(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return device;
+        }
+
+        /// <summary>
+        /// Returns device registration status to the supplied household
+        /// </summary>
+        /// <returns></returns>
         [Route("getStatus"), HttpPost]
         [ApiAuthorize]
         public KalturaDeviceRegistrationStatusHolder GetStatus()
