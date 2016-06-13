@@ -3028,5 +3028,30 @@ namespace DAL
 
             return isProtected;
         }
+
+        public static List<long> GetRecordingsForCleanup(int groupID, DateTime expiredViewDate)
+        {
+            List<long> epgIdsForCleanup = null;
+            ODBCWrapper.StoredProcedure spGetRecordginsForCleanup = new ODBCWrapper.StoredProcedure("GetRecordingsForCleanup");
+            spGetRecordginsForCleanup.SetConnectionKey("CONNECTION_STRING");
+            spGetRecordginsForCleanup.AddParameter("@GroupID", groupID);
+            spGetRecordginsForCleanup.AddParameter("@ExpiredViewDate", expiredViewDate);
+
+            DataTable dt = spGetRecordginsForCleanup.Execute();
+            if (dt != null && dt.Rows != null)
+            {
+                epgIdsForCleanup = new List<long>();
+                foreach (DataRow dr in dt.Rows)
+                {
+                    long epgID = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_PROGRAM_ID", 0);
+                    if (epgID > 0)
+                    {
+                        epgIdsForCleanup.Add(epgID);
+                    }
+                }
+            }
+
+            return epgIdsForCleanup;
+        }
     }
 }

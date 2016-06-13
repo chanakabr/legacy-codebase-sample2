@@ -48,6 +48,8 @@ namespace ConditionalAccess
         private const string CONTENT_ID_WITH_A_RELATED_MEDIA = "Content ID with a related media";
         protected const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";
         protected const string BILLING_CONNECTION_STRING = "BILLING_CONNECTION";
+        private const string ROUTING_KEY_RECORDINGS_CLEANUP = "PROCESS_RECORDINGS_CLEANUP";
+        private const double RECORDING_CLEANUP_EXECUTE_GAP_HOURS = 24;
 
         //errors
         private const string CONFLICTED_PARAMS = "Conflicted params";
@@ -18187,5 +18189,74 @@ namespace ConditionalAccess
             return recording;
         }
 
+        public bool InitializeRecordingsCleanup(int groupID)
+        {
+            bool result = false;
+            SetupTasksQueue queue = new SetupTasksQueue();
+
+            CelerySetupTaskData data = new CelerySetupTaskData(groupID, eSetupTask.RecordingsCleanup, new Dictionary<string, object>());
+
+            try
+            {
+                result = queue.Enqueue(data, ROUTING_KEY_RECORDINGS_CLEANUP);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in InitializeRecordingsCleanup: ex = {0}, ST = {1}", ex.Message, ex.StackTrace);
+            }
+
+            return result;
+        }
+
+        public bool CleanupRecordings(int groupID)
+        {
+            bool result = false;
+            int programsToDeleteCount = 1;
+            try
+            {
+                TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+                if (accountSettings.RecordingLifetimePeriod.HasValue && accountSettings.RecordingLifetimePeriod.Value > 0)
+                {
+                    DateTime viewableUntilDate = DateTime.UtcNow.AddDays(accountSettings.RecordingLifetimePeriod.Value);
+                    List<long> epgIdsForDeletion = ConditionalAccessDAL.GetRecordingsForCleanup(m_nGroupID, viewableUntilDate);
+                    programsToDeleteCount = epgIdsForDeletion.Count;
+                    foreach (long epgID in epgIdsForDeletion)
+                    {
+                        ApiObjects.Response.Status deleteStatus = RecordingsManager.Instance.DeleteRecording(m_nGroupID, epgID);
+                        if (deleteStatus.Code != (int)eResponseStatus.OK)
+                        {
+                            log.ErrorFormat("Failed deleting epg: {0} for groupID {1}", epgID, m_nGroupID);
+                        }
+                        else
+                        {
+                            programsToDeleteCount--;
+                            log.DebugFormat("epg: {0} cleanup successful for groupID {1}", epgID, m_nGroupID);
+                        }
+                    }
+                }
+                else
+                {
+                    log.ErrorFormat("No lifetime period defined for the account {0}", m_nGroupID);
+                }
+
+                if (programsToDeleteCount == 0)
+                {
+                    result = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in CleanupRecordings: ex = {0}, ST = {1}", ex.Message, ex.StackTrace);
+            }
+            finally
+            {
+                DateTime nextExecutionDate = DateTime.UtcNow.AddHours(RECORDING_CLEANUP_EXECUTE_GAP_HOURS);
+                SetupTasksQueue queue = new SetupTasksQueue();
+                CelerySetupTaskData data = new CelerySetupTaskData(groupID, eSetupTask.RecordingsCleanup, new Dictionary<string, object>()) { ETA = nextExecutionDate };
+                result = queue.Enqueue(data, ROUTING_KEY_RECORDINGS_CLEANUP);
+            }
+
+            return result;
+        }
     }
 }
