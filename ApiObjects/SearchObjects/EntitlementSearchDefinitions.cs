@@ -47,7 +47,6 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         [JsonProperty(TypeNameHandling = TypeNameHandling.Auto, ItemTypeNameHandling = TypeNameHandling.Auto,
             ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
-        [DataMember]
         public List<BaseSearchObject> subscriptionSearchObjects;
 
         /// <summary>
