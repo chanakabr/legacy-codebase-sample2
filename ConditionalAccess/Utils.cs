@@ -22,7 +22,7 @@ namespace ConditionalAccess
     public class Utils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
+        private static object lck = new object();
 
         internal const double DEFAULT_MIN_PRICE_FOR_PREVIEW_MODULE = 0.2;
         public const int DEFAULT_MPP_RENEW_FAIL_COUNT = 10; // to be group specific override this value in the 
@@ -4165,35 +4165,47 @@ namespace ConditionalAccess
         }
 
         internal static TimeShiftedTvPartnerSettings GetTimeShiftedTvPartnerSettings(int groupID)
-        {
+        {            
+            string key = string.Format("TstvAccountSettings_{0}", groupID);
             TimeShiftedTvPartnerSettings settings = null;
-
             try
             {
-                DataRow dr = DAL.ApiDAL.GetTimeShiftedTvPartnerSettings(groupID);
-                if (dr != null)
+                settings = TvinciCache.WSCache.Instance.Get<TimeShiftedTvPartnerSettings>(key);
+                if (settings == null)
                 {
-                    int catchup = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_catch_up", -1);
-                    int cdvr = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_cdvr", -1);
-                    int startOver = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_start_over", -1);
-                    int trickPlay = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_trick_play", -1);
-                    long catchUpBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "catch_up_buffer", -1);
-                    long trickPlayBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "trick_play_buffer", -1);
-                    long recordingScheduleWindowBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "recording_schedule_window_buffer", 0);
-                    int recordingScheduleWindow = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_schedule_window", -1);
-                    long paddingAfterProgramEnds = ODBCWrapper.Utils.GetLongSafeVal(dr, "padding_after_program_ends", 0);
-                    long paddingBeforeProgramStarts = ODBCWrapper.Utils.GetLongSafeVal(dr, "padding_before_program_starts", 0);
-                    int protection = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_protection", -1);
-                    int protectionPeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_period", 90);
-                    int protectionQuotaPercentage = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_quota_percentage", 25);
-                    int recordingLifetimePeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "recording_lifetime_period", 182);
-                    int cleanupNoticePeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "cleanup_notice_period", 7);
-
-                    if (catchup > -1 && cdvr > -1 && startOver > -1 && trickPlay > -1 && catchUpBuffer > -1 && trickPlayBuffer > -1 && recordingScheduleWindow > -1 && protection > -1)
+                    lock (lck)
                     {
-                        settings = new TimeShiftedTvPartnerSettings(catchup == 1, cdvr == 1, startOver == 1, trickPlay == 1, recordingScheduleWindow == 1, catchUpBuffer,
-                                                                    trickPlayBuffer, recordingScheduleWindowBuffer, paddingAfterProgramEnds, paddingBeforeProgramStarts,
-                                                                    protection == 1, protectionPeriod, protectionQuotaPercentage, recordingLifetimePeriod, cleanupNoticePeriod);
+                        settings = TvinciCache.WSCache.Instance.Get<TimeShiftedTvPartnerSettings>(key);
+                        if (settings == null)
+                        {                            
+                            DataRow dr = DAL.ApiDAL.GetTimeShiftedTvPartnerSettings(groupID);
+                            if (dr != null)
+                            {
+                                int catchup = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_catch_up", -1);
+                                int cdvr = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_cdvr", -1);
+                                int startOver = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_start_over", -1);
+                                int trickPlay = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_trick_play", -1);
+                                long catchUpBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "catch_up_buffer", -1);
+                                long trickPlayBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "trick_play_buffer", -1);
+                                long recordingScheduleWindowBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "recording_schedule_window_buffer", 0);
+                                int recordingScheduleWindow = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_schedule_window", -1);
+                                long paddingAfterProgramEnds = ODBCWrapper.Utils.GetLongSafeVal(dr, "padding_after_program_ends", 0);
+                                long paddingBeforeProgramStarts = ODBCWrapper.Utils.GetLongSafeVal(dr, "padding_before_program_starts", 0);
+                                int protection = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_protection", -1);
+                                int protectionPeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_period", 90);
+                                int protectionQuotaPercentage = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_quota_percentage", 25);
+                                int recordingLifetimePeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "recording_lifetime_period", 182);
+                                int cleanupNoticePeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "cleanup_notice_period", 7);
+
+                                if (catchup > -1 && cdvr > -1 && startOver > -1 && trickPlay > -1 && catchUpBuffer > -1 && trickPlayBuffer > -1 && recordingScheduleWindow > -1 && protection > -1)
+                                {
+                                    settings = new TimeShiftedTvPartnerSettings(catchup == 1, cdvr == 1, startOver == 1, trickPlay == 1, recordingScheduleWindow == 1, catchUpBuffer,
+                                                                                trickPlayBuffer, recordingScheduleWindowBuffer, paddingAfterProgramEnds, paddingBeforeProgramStarts,
+                                                                                protection == 1, protectionPeriod, protectionQuotaPercentage, recordingLifetimePeriod, cleanupNoticePeriod);
+                                    TvinciCache.WSCache.Instance.Add(key, settings);
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -4761,6 +4773,29 @@ namespace ConditionalAccess
             }
 
             return recordingIdToRecordingMap;
+        }
+
+        internal static Dictionary<long, Recording> GetRecordingsMapingsByDomainRecordingIds(int groupID, long domainID, List<TstvRecordingStatus> recordingStatuses, out Dictionary<long, long> recordingIdToDomainRecordingIdMap)
+        {
+            DataTable dt = ConditionalAccessDAL.GetRecordingsMapingByRecordingStatuses(groupID, domainID, ConvertToDomainRecordingStatus(recordingStatuses));
+            Dictionary<long, Recording> recordingIdToDomainRecordingMap = null;
+            recordingIdToDomainRecordingIdMap = new Dictionary<long, long>();
+            if (dt != null && dt.Rows != null)
+            {
+                recordingIdToDomainRecordingMap = new Dictionary<long,Recording>();                
+                foreach (DataRow dr in dt.Rows)
+                {
+                    long recordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID");
+                    long domainRecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+                    int recordingStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_STATE");
+                    Recording recording = new Recording() { Id = domainRecordingID, RecordingStatus = ConvertToTstvRecordingStatus(new List<int>() { recordingStatus }).First() };
+                    recordingIdToDomainRecordingMap.Add(recordingID, recording);
+                    recordingIdToDomainRecordingIdMap.Add(recordingID, domainRecordingID);
+
+                }
+            }
+
+            return recordingIdToDomainRecordingMap;
         }
     }
 }

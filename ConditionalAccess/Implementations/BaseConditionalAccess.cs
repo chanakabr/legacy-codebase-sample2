@@ -17578,8 +17578,7 @@ namespace ConditionalAccess
 
                 Dictionary<long, long> recordingIdToDomainRecordingIdMap;
 
-                List<Recording> recordingsWithValidStatus =
-                    GetDomainRecordings(domainID, recordingStatuses, out recordingIdToDomainRecordingIdMap);
+                List<Recording> recordingsWithValidStatus = GetDomainRecordings(domainID, recordingStatuses, out recordingIdToDomainRecordingIdMap);
 
                 if (recordingsWithValidStatus != null && recordingsWithValidStatus.Count > 0)
                 {
@@ -17642,18 +17641,26 @@ namespace ConditionalAccess
 
         private List<Recording> GetDomainRecordings(long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses, out Dictionary<long, long> recordingIdToDomainRecordingIdMap)
         {
-            List<Recording> recordingsWithValidStatus = null;
-
-            recordingIdToDomainRecordingIdMap =
-                ConditionalAccessDAL.GetRecordingsMapingByRecordingStatuses(m_nGroupID, domainID, Utils.ConvertToDomainRecordingStatus(recordingStatuses));
-
+            List<Recording> domainRecordings = new List<Recording>();
+             
+            // get both recordings with statuses and recording mappings for search
+            Dictionary<long, Recording> recordingIdToDomainRecordingMap = Utils.GetRecordingsMapingsByDomainRecordingIds(m_nGroupID, domainID, recordingStatuses, out recordingIdToDomainRecordingIdMap);
             if (recordingIdToDomainRecordingIdMap != null && recordingIdToDomainRecordingIdMap.Count > 0)
             {
-                recordingsWithValidStatus =
-                    RecordingsManager.Instance.GetRecordingsByIdsAndStatuses(m_nGroupID, recordingIdToDomainRecordingIdMap.Keys.ToList(), recordingStatuses);
+                // get only recordings with valid statuses from recording manager GetRecordingsByIdsAndStatuses
+                List<long> validRecordingIDs = recordingIdToDomainRecordingMap.Where(x => x.Value.RecordingStatus == TstvRecordingStatus.OK).Select(x => x.Key).ToList();
+                if (validRecordingIDs != null && validRecordingIDs.Count > 0)
+                {
+                    domainRecordings.AddRange(RecordingsManager.Instance.GetRecordingsByIdsAndStatuses(m_nGroupID, validRecordingIDs, recordingStatuses));
+                }                
+                List<long> nonValidRecordingIDs = recordingIdToDomainRecordingMap.Where(x => x.Value.RecordingStatus != TstvRecordingStatus.OK).Select(x => x.Key).ToList();
+                if (nonValidRecordingIDs != null && nonValidRecordingIDs.Count > 0)
+                {
+                    domainRecordings.AddRange(RecordingsManager.Instance.GetRecordings(m_nGroupID, nonValidRecordingIDs));
+                }
             }
 
-            return recordingsWithValidStatus;
+            return domainRecordings;
         }
 
         public RecordingResponse GetRecordingsByIDs(List<long> recordingIDs, long domainID)
@@ -17873,41 +17880,52 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    foreach (var epg in epgs)
+                    TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+                    if (accountSettings.PaddingBeforeProgramStarts.HasValue && accountSettings.PaddingAfterProgramEnds.HasValue)
                     {
-                        DateTime startDate;
-                        DateTime endDate;
+                        foreach (var epg in epgs)
+                        {
+                            DateTime startDate;
+                            DateTime endDate;
 
-                        // Parse start date
-                        if (!DateTime.TryParseExact(epg.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out startDate))
-                        {
-                            log.ErrorFormat("Failed parsing EPG start date, epgID: {0}, startDate: {1}", epg.EPG_ID, epg.START_DATE);
-                        }
-                        else
-                        {
-                            // Parse end date
-                            if (!DateTime.TryParseExact(epg.END_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out endDate))
+                            // Parse start date
+                            if (!DateTime.TryParseExact(epg.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out startDate))
                             {
-                                log.ErrorFormat("Failed parsing EPG end date, epgID: {0}, endDate: {1}", epg.EPG_ID, epg.START_DATE);
+                                log.ErrorFormat("Failed parsing EPG start date, epgID: {0}, startDate: {1}", epg.EPG_ID, epg.START_DATE);
                             }
                             else
                             {
-                                var currentStatus = RecordingsManager.Instance.UpdateRecording(groupID, epg.EPG_ID, startDate, endDate);
-
-                                if (status == null)
+                                // Parse end date
+                                if (!DateTime.TryParseExact(epg.END_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out endDate))
                                 {
-                                    // If we failed with one (and it is the first) - save it so we would later return it
-                                    if (currentStatus == null)
+                                    log.ErrorFormat("Failed parsing EPG end date, epgID: {0}, endDate: {1}", epg.EPG_ID, epg.START_DATE);
+                                }
+                                else
+                                {
+                                    DateTime paddedStartDate = startDate.AddSeconds((-1) * accountSettings.PaddingBeforeProgramStarts.Value);
+                                    DateTime paddedEndDate = endDate.AddSeconds(accountSettings.PaddingAfterProgramEnds.Value);
+                                    var currentStatus = RecordingsManager.Instance.UpdateRecording(groupID, epg.EPG_ID, paddedStartDate, paddedEndDate);
+
+                                    if (status == null)
                                     {
-                                        status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Recording manager failed to update recording");
-                                    }
-                                    else if (currentStatus.Code != (int)eResponseStatus.Error)
-                                    {
-                                        status = currentStatus;
+                                        // If we failed with one (and it is the first) - save it so we would later return it
+                                        if (currentStatus == null)
+                                        {
+                                            status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Recording manager failed to update recording");
+                                        }
+                                        else if (currentStatus.Code != (int)eResponseStatus.Error)
+                                        {
+                                            status = currentStatus;
+                                        }
                                     }
                                 }
                             }
                         }
+                    }
+                    else
+                    {
+                        log.ErrorFormat("Failed getting account padding, groupID: {0}", m_nGroupID);
+                        status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     }
 
                     // If we finished foreach and there is no status - everything is ok

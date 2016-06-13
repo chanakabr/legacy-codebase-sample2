@@ -2808,28 +2808,17 @@ namespace DAL
             return recordings;
         }
 
-        public static Dictionary<long, long> GetRecordingsMapingByRecordingStatuses(int groupID, long domainID, List<int> recordingStatuses)
+        public static DataTable GetRecordingsMapingByRecordingStatuses(int groupID, long domainID, List<int> recordingStatuses)
         {
-            Dictionary<long, long> recordingIdToDomainRecordingIdMap = null;
+            DataTable dt = null;            
             ODBCWrapper.StoredProcedure spGetDomainRecordings = new ODBCWrapper.StoredProcedure("GetDomainRecordingsByRecordingStatuses");
             spGetDomainRecordings.SetConnectionKey("CONNECTION_STRING");
             spGetDomainRecordings.AddParameter("@GroupID", groupID);
             spGetDomainRecordings.AddParameter("@DomainID", domainID);
             spGetDomainRecordings.AddIDListParameter<int>("@RecordingStatuses", recordingStatuses, "ID");
+            dt = spGetDomainRecordings.Execute();
 
-            DataTable dt = spGetDomainRecordings.Execute();
-            if (dt != null && dt.Rows != null)
-            {
-                recordingIdToDomainRecordingIdMap = new Dictionary<long, long>();
-                foreach (DataRow dr in dt.Rows)
-                {
-                    long recordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID");
-                    long domainRecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
-                    recordingIdToDomainRecordingIdMap.Add(recordingID, domainRecordingID);
-                }
-            }
-
-            return recordingIdToDomainRecordingIdMap;
+            return dt;
         }
 
         public static Dictionary<long, long> GetRecordingsMapingsByDomainRecordingIds(int groupID, long domainID, List<long> domainRecordingIds)
