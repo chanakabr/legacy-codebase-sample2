@@ -233,7 +233,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024,
         /// RecordingNotFound = 3039, RecordingStatusNotValid = 3043, DomainExceededProtectionQuota = 3044</remarks>     
-        [Route("get"), HttpPost]
+        [Route("protect"), HttpPost]
         [ApiAuthorize]
         public KalturaRecording Protect(long id)
         {
