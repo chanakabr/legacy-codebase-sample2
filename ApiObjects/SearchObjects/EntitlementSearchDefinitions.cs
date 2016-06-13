@@ -45,8 +45,8 @@ namespace ApiObjects.SearchObjects
         /// <summary>
         /// List of search objects that represent queries of subscriptions the user is entitled to
         /// </summary>
-        [JsonProperty()]
-        [DataMember]
+        [JsonProperty(TypeNameHandling = TypeNameHandling.Auto, ItemTypeNameHandling = TypeNameHandling.Auto,
+            ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
         public List<BaseSearchObject> subscriptionSearchObjects;
 
         /// <summary>
