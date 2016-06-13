@@ -161,7 +161,7 @@ namespace ElasticSearchFeeder
                 if (oGroup == null)
                     return false;
 
-                Logger.Logger.Log("EpgChanged", string.Format("GroupID={0}, Action={1}", m_nGroupID, eAction.ToString()), "ESFeeder");
+                log.DebugFormat("EpgChanged Action:{0}", eAction.ToString());
 
                 if (eAction == ApiObjects.eAction.Delete)
                 {
@@ -176,8 +176,7 @@ namespace ElasticSearchFeeder
                         }
                     }
 
-                    Logger.Logger.Log("EpgChanged", string.Format("DeleteDoc - GroupID={0}, Total:{1} success:{2} - {3}%", 
-                        m_nGroupID, lEpgIDs.Count, success, (success * 100) / lEpgIDs.Count), "ESFeeder");
+                    log.DebugFormat("DeleteDoc Total:{0} success:{1} - {2}%", lEpgIDs.Count, success, (success * 100) / lEpgIDs.Count);
 
                     return true;
                 }
