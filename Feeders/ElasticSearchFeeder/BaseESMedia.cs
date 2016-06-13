@@ -161,6 +161,27 @@ namespace ElasticSearchFeeder
                 if (oGroup == null)
                     return false;
 
+                Logger.Logger.Log("EpgChanged", string.Format("GroupID={0}, Action={1}", m_nGroupID, eAction.ToString()), "ESFeeder");
+
+                if (eAction == ApiObjects.eAction.Delete)
+                {
+                    string alias = Utils.GetEpgGroupAliasStr(m_nGroupID);
+                    int success = 0;
+                    foreach (int epgId in lEpgIDs)
+                    {
+                        var res = m_oESApi.DeleteDoc(alias, EPG, epgId.ToString());
+                        if (res.Ok)
+                        {
+                            success++;
+                        }
+                    }
+
+                    Logger.Logger.Log("EpgChanged", string.Format("DeleteDoc - GroupID={0}, Total:{1} success:{2} - {3}%", 
+                        m_nGroupID, lEpgIDs.Count, success, (success * 100) / lEpgIDs.Count), "ESFeeder");
+
+                    return true;
+                }
+
                 List<LanguageObj> lLanguage = oGroup.GetLangauges(); // dictionary contains all language ids and its  code (string)
                 List<string> languages = lLanguage.Select(p => p.Code.ToLower()).ToList<string>();
                 Dictionary<int, List<EpgCB>> dPrograms = new Dictionary<int, List<EpgCB>>();
