@@ -23,11 +23,15 @@
 		kTestMe.registerService("cdnpartnersettings", "cdnPartnerSettings", "", false);
 		kTestMe.registerService("cdvradapterprofile", "cDVRAdapterProfile", "", false);
 		kTestMe.registerService("channel", "channel", "", false);
+		kTestMe.registerService("coupon", "coupon", "", false);
 		kTestMe.registerService("exporttask", "exportTask", "", false);
 		kTestMe.registerService("externalchannelprofile", "externalChannelProfile", "", false);
 		kTestMe.registerService("followtvseries", "followTvSeries", "", false);
 		kTestMe.registerService("homenetwork", "homeNetwork", "", false);
+		kTestMe.registerService("householddevice", "householdDevice", "", false);
 		kTestMe.registerService("householdlimitations", "householdLimitations", "", false);
+		kTestMe.registerService("householduser", "householdUser", "", false);
+		kTestMe.registerService("inboxmessage", "inboxMessage", "", false);
 		kTestMe.registerService("ossadapterprofile", "ossAdapterProfile", "", false);
 		kTestMe.registerService("ottuser", "ottUser", "", false);
 		kTestMe.registerService("paymentgateway", "paymentGateway", "", false);
@@ -36,6 +40,7 @@
 		kTestMe.registerService("recommendationprofile", "recommendationProfile", "", false);
 		kTestMe.registerService("recording", "recording", "", false);
 		kTestMe.registerService("session", "session", "", false);
+		kTestMe.registerService("topic", "topic", "", false);
 		kTestMe.registerService("userassetslistitem", "userAssetsListItem", "", false);
 	</script>
 	<script type="text/javascript">
@@ -112,7 +117,7 @@
 				</div>
 				<div class="param">
 					<label for="apiVersion">apiVersion (string):</label>
-					<input type="text" name="apiVersion" size="30" class="" value="3.6.287.27748" />
+					<input type="text" name="apiVersion" size="30" class="" value="3.6.287.24335" />
 					<input id="chk-apiVersion" type="checkbox" checked="checked" />
 				</div>
 				<div class="param">
@@ -133,15 +138,19 @@
 							<option value="multirequest">Multirequest</option>
 							<option value="announcement" title="announcement">announcement</option>
 							<option value="apptoken" title="appToken">appToken</option>
+							<option value="cdvradapterprofile" title="cDVRAdapterProfile">cDVRAdapterProfile</option>
 							<option value="cdnadapterprofile" title="cdnAdapterProfile">cdnAdapterProfile</option>
 							<option value="cdnpartnersettings" title="cdnPartnerSettings">cdnPartnerSettings</option>
-							<option value="cdvradapterprofile" title="cDVRAdapterProfile">cDVRAdapterProfile</option>
 							<option value="channel" title="channel">channel</option>
+							<option value="coupon" title="coupon">coupon</option>
 							<option value="exporttask" title="exportTask">exportTask</option>
 							<option value="externalchannelprofile" title="externalChannelProfile">externalChannelProfile</option>
 							<option value="followtvseries" title="followTvSeries">followTvSeries</option>
 							<option value="homenetwork" title="homeNetwork">homeNetwork</option>
+							<option value="householddevice" title="householdDevice">householdDevice</option>
 							<option value="householdlimitations" title="householdLimitations">householdLimitations</option>
+							<option value="householduser" title="householdUser">householdUser</option>
+							<option value="inboxmessage" title="inboxMessage">inboxMessage</option>
 							<option value="ossadapterprofile" title="ossAdapterProfile">ossAdapterProfile</option>
 							<option value="ottuser" title="ottUser">ottUser</option>
 							<option value="paymentgateway" title="paymentGateway">paymentGateway</option>
@@ -150,6 +159,7 @@
 							<option value="recommendationprofile" title="recommendationProfile">recommendationProfile</option>
 							<option value="recording" title="recording">recording</option>
 							<option value="session" title="session">session</option>
+							<option value="topic" title="topic">topic</option>
 							<option value="userassetslistitem" title="userAssetsListItem">userAssetsListItem</option>
 						</select>
 						<img src="images/help.png" class="service-help help" />
