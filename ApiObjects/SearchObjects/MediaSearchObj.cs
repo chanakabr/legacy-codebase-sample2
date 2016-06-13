@@ -45,38 +45,118 @@ namespace ApiObjects.SearchObjects
         }
     }
 
-
     [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.Auto)]
     public class MediaSearchObj : BaseSearchObject
-    {        
+    {
+        [JsonProperty()]
+        [DataMember]
         public OrderObj m_oOrder;
+        [JsonProperty()]
+        [DataMember]
         public CutWith m_eCutWith;
-        
-        public bool m_bExact;
-        public bool m_bUseFinalEndDate;
-        public bool m_bUseStartDate;
-        public bool m_bUseActive;
-        public bool m_bIgnoreDeviceRuleId;
-        
-        public string m_sName;
-        public string m_sDescription;
-        public string m_sMediaTypes;      
-        public string m_sPermittedWatchRules { get; set; }
 
+        [JsonProperty()]
+        [DataMember]
+        public bool m_bExact;
+        [JsonProperty()]
+        [DataMember]
+        public bool m_bUseFinalEndDate;
+        [JsonProperty()]
+        [DataMember]
+        public bool m_bUseStartDate;
+        [JsonProperty()]
+        [DataMember]
+        public bool m_bUseActive;
+        [JsonProperty()]
+        [DataMember]
+        public bool m_bIgnoreDeviceRuleId;
+
+        [JsonProperty()]
+        [DataMember]
+        public string m_sName;
+        [JsonProperty()]
+        [DataMember]
+        public string m_sDescription;
+        [JsonProperty()]
+        [DataMember]
+        public string m_sMediaTypes;
+        [JsonProperty()]
+        [DataMember]
+        public string m_sPermittedWatchRules
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty()]
+        [DataMember]
         public List<SearchValue> m_dAnd;
+        [JsonProperty()]
+        [DataMember]
         public List<SearchValue> m_dOr;
-        public List<SearchValue> m_lFilterTagsAndMetas { get; set; }
-        public CutWith m_eFilterTagsAndMetasCutWith { get; set; }
-     
-        public int m_nGroupId { get; set; }
-        public int m_nIndexGroupId { get; set; }
-        public int m_nPageIndex { get; set; }
-        public int m_nPageSize { get; set; }
+        [JsonProperty()]
+        [DataMember]
+        public List<SearchValue> m_lFilterTagsAndMetas
+        {
+            get;
+            set;
+        }
+        [JsonProperty()]
+        [DataMember]
+        public CutWith m_eFilterTagsAndMetasCutWith
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty()]
+        [DataMember]
+        public int m_nGroupId
+        {
+            get;
+            set;
+        }
+        [JsonProperty()]
+        [DataMember]
+        public int m_nIndexGroupId
+        {
+            get;
+            set;
+        }
+        [JsonProperty()]
+        [DataMember]
+        public int m_nPageIndex
+        {
+            get;
+            set;
+        }
+        [JsonProperty()]
+        [DataMember]
+        public int m_nPageSize
+        {
+            get;
+            set;
+        }
+        [JsonProperty()]
+        [DataMember]
         public int m_nMediaID;
-        public LanguageObj m_oLangauge { get; set; }
+        [JsonProperty()]
+        [DataMember]
+        public LanguageObj m_oLangauge
+        {
+            get;
+            set;
+        }
+        [JsonProperty()]
+        [DataMember]
         public int m_nUserTypeID;
-        
+
+        [JsonProperty()]
+        [DataMember]
         public int[] m_nDeviceRuleId;
+        [JsonProperty()]
+        [DataMember]
         public int[] m_nMediaFileTypes;
 
         /*
@@ -89,22 +169,34 @@ namespace ApiObjects.SearchObjects
          * 7. (The definitions are extracted from ES Percolator). m_lOrMediaNotInAnyOfTheseChannelsDefinitions receives the
          * 8. definitions of all the channels of all ipnos.
          */
+        [JsonProperty()]
+        [DataMember]
         public List<string> m_lChannelsDefinitionsMediaNeedsToBeInAtLeastOneOfIt;
+        [JsonProperty()]
+        [DataMember]
         public List<string> m_lOrMediaNotInAnyOfTheseChannelsDefinitions;
 
 
+        [JsonProperty()]
+        [DataMember]
         public List<int> regionIds;
 
+        [JsonProperty()]
+        [DataMember]
         public List<string> linearChannelMediaTypes;
 
         /// <summary>
         /// Mapping of which media types and their parents
         /// </summary>
+        [JsonProperty()]
+        [DataMember]
         public Dictionary<int, int> parentMediaTypes;
 
         /// <summary>
         /// Mapping of association tag by child media type
         /// </summary>
+        [JsonProperty()]
+        [DataMember]
         public Dictionary<int, string> associationTags;
 
         public MediaSearchObj()
