@@ -453,7 +453,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>        
         [Route("getOldStandard"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
+        [Obsolete]
         public KalturaOTTUserListResponse GetOldStandard()
         {
             List<KalturaOTTUser> response = null;
