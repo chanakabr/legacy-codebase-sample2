@@ -42,7 +42,7 @@ namespace ElasticSearchHandler.IndexBuilders
                     {
                         if (!string.IsNullOrEmpty(urlV1))
                         {
-                            result = new DualMediaIndexBuilder(nGroupID);
+                            result = new DualMediaIndexBuilder(nGroupID, urlV1, urlV2);
                         }
                         else
                         {

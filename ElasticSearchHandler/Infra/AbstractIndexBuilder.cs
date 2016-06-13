@@ -46,7 +46,28 @@ namespace ElasticSearchHandler.IndexBuilders
             get;
             set;
         }
-        
+
+        public string ElasticSearchUrl
+        {
+            get
+            {
+                if (api != null)
+                {
+                    return api.baseUrl;
+                }
+                else{
+                    return null;
+                }
+            }
+            set
+            {
+                if (api != null)
+                {
+                    api.baseUrl = value;
+                }
+            }
+        }
+
         #endregion
         
         #region Ctor
