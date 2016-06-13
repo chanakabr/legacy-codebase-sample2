@@ -121,7 +121,7 @@ public partial class adm_channels_media : System.Web.UI.Page
         switch (type)
         {
             case GroupsCacheManager.ChannelType.Manual:
-                GetAssetIdsFromDB(channelID, out mediaIds, out epgIds, out countMedia, out countEpg);
+                GetAssetIdsFromDB(channelID, out mediaIds, out countMedia);
                 break;
             default:
                 GetAssetIdsFromCatalog(channelID, out mediaIds, out epgIds, out countMedia, out countEpg);
@@ -160,11 +160,11 @@ public partial class adm_channels_media : System.Web.UI.Page
 
             mediaQuery += " media m where ";
 
-            mediaQuery += " m.id in (" + mediaIds + ")";
+            mediaQuery += " m.status=1 and m.id in (" + mediaIds + ")";
 
             if (type == GroupsCacheManager.ChannelType.Manual)
             {
-                mediaQuery += " and m.id = cm.MEDIA_ID and cm.status = 1";
+                mediaQuery += " and m.id = cm.MEDIA_ID and cm.status <> 2";
                 mediaQuery += " and cm.channel_id = " + channelID;
             }
 
@@ -294,38 +294,36 @@ public partial class adm_channels_media : System.Web.UI.Page
         }
     }
 
-    private void GetAssetIdsFromDB(int channelID, out string mediaIds, out string epgIds, out int countMedia, out int countEpg)
+    private void GetAssetIdsFromDB(int channelID, out string mediaIds, out int countMedia)
     {
         mediaIds = string.Empty;
-        epgIds = string.Empty;
         countMedia = 0;
-        countEpg = 0;
         try
         {
-            List<string> medias = new List<string>();
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select MEDIA_ID from channels_media where status = 1 and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_ID", "=", channelID);           
-
+            selectQuery += "select MEDIA_ID from channels_media where status <> 2 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_ID", "=", channelID);
+            selectQuery.SetCachedSec(0);
             if (selectQuery.Execute("query", true) != null)
             {
-                int count = selectQuery.Table("query").DefaultView.Count;
-                countMedia = count;                
-                if (count > 0)
+                countMedia = selectQuery.Table("query").DefaultView.Count;
+                if (countMedia > 0)
                 {
+                    List<string> medias = new List<string>();
                     foreach (DataRow item in selectQuery.Table("query").Rows)
                     {
                         medias.Add(ODBCWrapper.Utils.GetSafeStr(item, "MEDIA_ID"));
-                    }                  
+                    }
+
+                    mediaIds = string.Join(",", medias);
                 }
             }
             selectQuery.Finish();
             selectQuery = null;
-
-            mediaIds = string.Join("," ,medias);
         }
         catch (Exception ex)
-        {            
+        {         
+   
         }
     }
 
