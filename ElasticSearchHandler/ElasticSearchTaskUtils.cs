@@ -13,6 +13,10 @@ using Tvinci.Core.DAL;
 using KLogMonitor;
 using System.Reflection;
 using Catalog;
+using GroupsCacheManager;
+using ElasticSearch.Searcher;
+using ApiObjects.Response;
+using ElasticSearch.Common;
 
 namespace ElasticSearchHandler
 {
@@ -182,6 +186,8 @@ namespace ElasticSearchHandler
                 throw ex;
             }
         }
+
+        
     }
 
     public enum eESFeederType

@@ -41,8 +41,8 @@ namespace SetupTaskHandler
                     case ApiObjects.eSetupTask.NotificationCleanupIteration:
 
                         //Call Notifications WCF service
-                        string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("NotificationService");
-                        using (NotificationWS.NotificationServiceClient service = new NotificationWS.NotificationServiceClient())
+                        string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("ws_notifications");
+                        using (ws_notifications.NotificationServiceClient service = new ws_notifications.NotificationServiceClient())
                         {
                             if (!string.IsNullOrEmpty(sWSURL))
                                 service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://localhost/ws_notification/NotificationService.svc?xsd=xsd6" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Response" />
-  <xs:import schemaLocation="http://localhost/ws_notification/NotificationService.svc?xsd=xsd7" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
+  <xs:import schemaLocation="http://localhost/Notifications_V4_0/NotificationService.svc?xsd=xsd6" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Response" />
+  <xs:import schemaLocation="http://localhost/Notifications_V4_0/NotificationService.svc?xsd=xsd7" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
   <xs:complexType name="NotificationPartnerSettings">
     <xs:sequence>
       <xs:element minOccurs="0" name="AutomaticIssueFollowNotifications" nillable="true" type="xs:boolean" />

@@ -175,84 +175,9 @@ namespace ElasticSearchHandler.IndexBuilders
 
             #region insert channel queries
 
-            if (group.channelIDs != null)
-            {
-                log.Info(string.Format("Start indexing channels. total channels={0}", group.channelIDs.Count));
-
-                
-                List<KeyValuePair<int, string>> channelRequests = new List<KeyValuePair<int, string>>();
-                try
-                {
-                    List<Channel> allChannels = groupManager.GetChannels(group.channelIDs.ToList(), groupId);
-
-                    ESMediaQueryBuilder mediaQueryParser = new ESMediaQueryBuilder()
-                        {
-                            QueryType = eQueryType.EXACT
-                        };
-                    var unifiedQueryBuilder = new ESUnifiedQueryBuilder(null, groupId);
-
-                    foreach (Channel currentChannel in allChannels)
-                    {
-                        if (currentChannel == null || currentChannel.m_nIsActive != 1)
-                            continue;
-
-                        string channelQuery = string.Empty;
-
-                        if (currentChannel.m_nChannelTypeID == (int)ChannelType.KSQL)
-                        {
-                            try
-                            {
-                                // If there is at least 1 media type, build its definitions
-                                if (currentChannel.m_nMediaType != null &&
-                                    currentChannel.m_nMediaType.Count(type => type != Channel.EPG_ASSET_TYPE) > 0)
-                                {
-                                    UnifiedSearchDefinitions definitions = ElasticsearchTasksCommon.Utils.BuildSearchDefinitions(currentChannel, true);
-
-                                    unifiedQueryBuilder.SearchDefinitions = definitions;
-                                    channelQuery = unifiedQueryBuilder.BuildSearchQueryString();
-                                }
-                            }
-                            catch (KalturaException ex)
-                            {
-                                log.ErrorFormat("Tried to index an invalid KSQL Channel. ID = {0}, message = {1}", currentChannel.m_nChannelID, ex.Message, ex);
-                            }
-                            catch (Exception ex)
-                            {
-                                throw ex;
-                            }
-                        }
-                        else
-                        {
-                            mediaQueryParser.m_nGroupID = currentChannel.m_nGroupID;
-                            MediaSearchObj mediaSearchObject = BuildBaseChannelSearchObject(currentChannel);
-
-                            mediaQueryParser.oSearchObject = mediaSearchObject;
-                            channelQuery = mediaQueryParser.BuildSearchQueryString(true);
-                        }
-
-                        if (!string.IsNullOrEmpty(channelQuery))
-                        {
-                            channelRequests.Add(new KeyValuePair<int, string>(currentChannel.m_nChannelID, channelQuery));
-
-                            if (channelRequests.Count > 50)
-                            {
-                                api.CreateBulkIndexRequest("_percolator", newIndexName, channelRequests);
-                                channelRequests.Clear();
-                            }
-                        }
-                    }
-
-                    if (channelRequests.Count > 0)
-                    {
-                        api.CreateBulkIndexRequest("_percolator", newIndexName, channelRequests);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    log.Error(string.Format("Caught exception while indexing channels. Ex={0};Stack={1}", ex.Message, ex.StackTrace));
-                }
-            }
-
+            HashSet<string> channelsToRemove; 
+            ChannelIndexBuilder.BuildChannelQueries(groupId, api, group.channelIDs, newIndexName, out channelsToRemove);
+            
             #endregion
 
             string alias = ElasticSearchTaskUtils.GetMediaGroupAliasStr(groupId);
