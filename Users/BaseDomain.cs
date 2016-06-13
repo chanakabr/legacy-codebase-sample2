@@ -202,6 +202,49 @@ namespace Users
             return oDomainResponseObject;
         }
 
+        public virtual DeviceResponseObject AddDevice(int groupId, int domainId, string udid, string deviceName, int brandId)
+        {
+            DeviceResponseObject oDeviceResponseObject = new DeviceResponseObject();
+            oDeviceResponseObject.m_oDeviceResponseStatus = DeviceResponseStatus.Error;
+
+            // validate UDID is not empty
+            if (string.IsNullOrEmpty(udid))
+                return oDeviceResponseObject;
+
+            // get domain data
+            Domain domain = DomainInitializer(groupId, domainId, false);
+            if (domain == null || domain.m_DomainStatus == DomainStatus.Error)
+            {
+                // error getting domain
+                log.ErrorFormat("Domain doesn't exists. nGroupID: {0}, nDomainID: {1}, sUDID: {2}, sDeviceName: {3}, nBrandID: {4}", groupId, domainId, udid, deviceName, brandId);
+                oDeviceResponseObject.m_oDevice = null;
+                oDeviceResponseObject.m_oDeviceResponseStatus = DeviceResponseStatus.DomainNotExists;
+            }
+            else if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
+            {
+                // domain is suspended
+                oDeviceResponseObject.m_oDeviceResponseStatus = DeviceResponseStatus.DomainSuspended;
+            }
+            else
+            {
+                // create new device
+                Device device = new Device(udid, brandId, m_nGroupID, deviceName, domainId);
+                bool res = device.Initialize(udid, deviceName);
+
+                // add device to domain
+                DomainResponseStatus domainResponseStatus = domain.AddDeviceToDomain(m_nGroupID, domainId, udid, deviceName, brandId, ref device);
+
+                if (domainResponseStatus == DomainResponseStatus.OK)
+                {
+                    // update domain info (to include new device)
+                    oDeviceResponseObject.m_oDeviceResponseStatus = DeviceResponseStatus.OK;
+                    oDeviceResponseObject.m_oDevice = device;
+                }
+            }
+
+            return oDeviceResponseObject;
+        }
+
         public virtual DomainResponseObject AddUserToDomain(int nGroupID, int nDomainID, int userGuid, int nMasterUserGuid, bool bIsMaster = false)
         {
             //New domain
