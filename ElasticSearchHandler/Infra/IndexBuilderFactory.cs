@@ -16,8 +16,27 @@ namespace ElasticSearchHandler.IndexBuilders
 
             switch (eType)
             {
-                case ApiObjects.eObjectType.Media:
                 case ApiObjects.eObjectType.Channel:
+                {
+                    if (!string.IsNullOrEmpty(urlV2))
+                    {
+                        if (!string.IsNullOrEmpty(urlV1))
+                        {
+                            result = new DualChannelIndexBuilder(nGroupID);
+                        }
+                        else
+                        {
+                            result = new ChannelIndexBuilderV2(nGroupID);
+                        }
+                    }
+                    else
+                    {
+                        result = new ChannelIndexBuilderV1(nGroupID);
+                    }
+
+                    break;
+                }
+                case ApiObjects.eObjectType.Media:
                 {
                     if (!string.IsNullOrEmpty(urlV2))
                     {

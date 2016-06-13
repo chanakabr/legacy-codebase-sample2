@@ -61,10 +61,13 @@
   <ItemGroup>
     <Compile Include="ElasticSearchRequest.cs" />
     <Compile Include="ElasticSearchTaskUtils.cs" />
+    <Compile Include="IndexBuilders\Dual\DualChannelIndexBuilder.cs" />
     <Compile Include="IndexBuilders\Dual\DualMediaIndexBuilder.cs" />
+    <Compile Include="IndexBuilders\New\ChannelIndexBuilderV2.cs" />
     <Compile Include="IndexBuilders\New\EpgIndexBuilderV2.cs" />
     <Compile Include="IndexBuilders\New\MediaIndexBuilderV2.cs" />
     <Compile Include="IndexBuilders\New\RecordingIndexBuilderV2.cs" />
+    <Compile Include="IndexBuilders\Old\ChannelIndexBuilderV1.cs" />
     <Compile Include="Infra\AbstractIndexBuilder.cs" />
     <Compile Include="IndexBuilders\Old\EpgIndexBuilderV1.cs" />
     <Compile Include="Infra\IIndexBuilder.cs" />
