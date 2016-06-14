@@ -3377,12 +3377,6 @@ namespace WebAPI.Domains {
         
         /// <remarks/>
         ExceededLimit,
-        
-        /// <remarks/>
-        DomainNotExists,
-        
-        /// <remarks/>
-        DomainSuspended,
     }
     
     /// <remarks/>

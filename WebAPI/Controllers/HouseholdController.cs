@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.Domains;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
@@ -13,17 +15,55 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/household/action")]
+    [OldStandard("getOldStandard", "get")]
+    [OldStandard("addOldStandard", "add")]
     public class HouseholdController : ApiController
     {
+        /// <summary>
+        /// Returns the household model       
+        /// </summary>
+        /// <remarks>Possible status codes: 
+        /// Household does not exist = 1006, Household user failed = 1007</remarks>        
+        [Route("get"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
+        public KalturaHousehold Get()
+        {
+            var ks = KS.GetFromRequest();
+            KalturaHousehold response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            var user = ClientsManager.UsersClient().GetUsersData(groupId, new List<string>() { ks.UserId });
+
+            try
+            {
+                // call client
+                response = ClientsManager.DomainsClient().GetDomainInfo(groupId, user.First().getHouseholdID());
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new InternalServerErrorException();
+            }
+
+            return response;
+        }
+
         /// <summary>
         /// Returns the household model       
         /// </summary>        
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. Possible values: "users_base_info", "users_full_info"</param>
         /// <remarks>Possible status codes: 
         /// Household does not exist = 1006, Household user failed = 1007</remarks>        
-        [Route("get"), HttpPost]
+        [Route("getOldStandard"), HttpPost]
         [ApiAuthorize]
-        public KalturaHousehold Get(List<KalturaHouseholdWithHolder> with = null)
+        [Obsolete]
+        public KalturaHousehold GetOldStandard(List<KalturaHouseholdWithHolder> with = null)
         {
             var ks = KS.GetFromRequest();
             KalturaHousehold response = null;
@@ -123,14 +163,48 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Creates a household for the user      
         /// </summary>        
+        /// <param name="household">Household object</param>
+        /// <remarks>Possible status codes: 
+        /// User exists in other household = 1018, Household user failed = 1007</remarks>
+        [Route("add"), HttpPost]
+        [ApiAuthorize]
+        public KalturaHousehold Add(KalturaHousehold household)
+        {
+            KalturaHousehold response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
+
+            try
+            {
+                // call client
+                response = ClientsManager.DomainsClient().AddDomain(groupId, household.Name, household.Description, userId, household.ExternalId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new InternalServerErrorException();
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Creates a household for the user      
+        /// </summary>        
         /// <param name="name">Name for the household</param>
         /// <param name="description">Description for the household</param>
         /// <param name="external_id">Unique external ID to identify the household</param>
         /// <remarks>Possible status codes: 
         /// User exists in other household = 1018, Household user failed = 1007</remarks>
-        [Route("add"), HttpPost]
+        [Route("addOldStandard"), HttpPost]
         [ApiAuthorize]
-        public KalturaHousehold Add(string name, string description, string external_id = null)
+        [Obsolete]
+        public KalturaHousehold AddOldStandard(string name, string description, string external_id = null)
         {
             KalturaHousehold response = null;
 
