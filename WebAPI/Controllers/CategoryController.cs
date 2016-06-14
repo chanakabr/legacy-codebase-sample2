@@ -38,7 +38,7 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
                 string udid = KSUtils.ExtractKSPayload().UDID;
-                string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
+                string language = Utils.Utils.GetLanguageFromRequest();
 
                 response = ClientsManager.CatalogClient().GetCategory(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, id);
 

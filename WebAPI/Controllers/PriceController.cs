@@ -35,7 +35,7 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
             string udid = KSUtils.ExtractKSPayload().UDID;
-            string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
+            string language = Utils.Utils.GetLanguageFromRequest();
 
             if (filter == null)
             {
