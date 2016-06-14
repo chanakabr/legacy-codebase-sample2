@@ -176,7 +176,7 @@ namespace Validator.Managers.Schema
 
                 if (!Char.IsLower(apiName, 0))
                 {
-                    logError("Error", property.DeclaringType, string.Format("Property {0}.{1} ({2}) data member ({3}) must start with a small lette", property.ReflectedType.Name, property.Name, property.PropertyType.Name, apiName));
+                    logError("Error", property.DeclaringType, string.Format("Property {0}.{1} ({2}) data member ({3}) must start with a small letter", property.ReflectedType.Name, property.Name, property.PropertyType.Name, apiName));
                     if (strict)
                         valid = false;
                 }
