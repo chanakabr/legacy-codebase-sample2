@@ -102,6 +102,10 @@ namespace Validator.Managers.Schema
 
         public static bool Validate(Type type, bool strict)
         {
+            ObsoleteAttribute obsolete = type.GetCustomAttribute<ObsoleteAttribute>(true);
+            if (obsolete != null)
+                return false;
+
             if (type.IsSubclassOf(typeof(ApiController)))
                 return ValidateService(type, strict);
 
