@@ -12,6 +12,7 @@ using System.Globalization;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using WebAPI.Managers.Schema;
+using System.Runtime.CompilerServices;
 
 namespace Validator.Managers.Schema
 {
@@ -101,6 +102,10 @@ namespace Validator.Managers.Schema
 
         public static bool Validate(Type type, bool strict)
         {
+            ObsoleteAttribute obsolete = type.GetCustomAttribute<ObsoleteAttribute>(true);
+            if (obsolete != null)
+                return false;
+
             if (type.IsSubclassOf(typeof(ApiController)))
                 return ValidateService(type, strict);
 
@@ -171,7 +176,7 @@ namespace Validator.Managers.Schema
 
                 if (!Char.IsLower(apiName, 0))
                 {
-                    logError("Warning", property.DeclaringType, string.Format("Property {0}.{1} ({2}) data member ({3}) must start with a small lette", property.ReflectedType.Name, property.Name, property.PropertyType.Name, apiName));
+                    logError("Error", property.DeclaringType, string.Format("Property {0}.{1} ({2}) data member ({3}) must start with a small letter", property.ReflectedType.Name, property.Name, property.PropertyType.Name, apiName));
                     if (strict)
                         valid = false;
                 }
@@ -231,7 +236,7 @@ namespace Validator.Managers.Schema
 
                 if (!hasRightSuffix)
                 {
-                    logError("Warning", property.DeclaringType, string.Format("Filter property {0}.{1} ({2}) data member ({3}) must use on of the following suffixes: {4}", property.ReflectedType.Name, property.Name, property.PropertyType.Name, jsonProperty.PropertyName, String.Join(", ", availableFilterSuffixes)));
+                    logError("Error", property.DeclaringType, string.Format("Filter property {0}.{1} ({2}) data member ({3}) must use on of the following suffixes: {4}", property.ReflectedType.Name, property.Name, property.PropertyType.Name, jsonProperty.PropertyName, String.Join(", ", availableFilterSuffixes)));
                     if (strict)
                         valid = false;
                 }
@@ -240,9 +245,9 @@ namespace Validator.Managers.Schema
             return valid;
         }
 
-        private static void logError(string category, Type type, string message)
+        private static void logError(string category, Type type, string message, [CallerLineNumber] int lineNumber = 0)
         {
-            Console.WriteLine(string.Format("{0}: {1}: {2}", getFilePath(type), category, message));
+            Console.WriteLine(string.Format("{0}: {1}: [{2,3}] {3}", getFilePath(type), category, lineNumber, message));
         }
 
         private static bool ValidateObject(Type type, bool strict)
@@ -424,7 +429,7 @@ namespace Validator.Managers.Schema
 
             if (!Char.IsLower(param.Name, 0))
             {
-                logError("Warning", controller, string.Format("Parameter {0} in method {1}.{2} ({3}) must start with a small letter", param.Name, serviceId, actionId, controller.Name));
+                logError("Error", controller, string.Format("Parameter {0} in method {1}.{2} ({3}) must start with a small letter", param.Name, serviceId, actionId, controller.Name));
                 if (strict)
                     valid = false;
             }
@@ -438,6 +443,10 @@ namespace Validator.Managers.Schema
         internal static bool Validate(MethodInfo action, bool strict)
         {
             bool valid = true;
+
+            ObsoleteAttribute obsolete = action.GetCustomAttribute<ObsoleteAttribute>(true);
+            if (obsolete != null)
+                return false;
 
             RouteAttribute route = action.GetCustomAttribute<RouteAttribute>(false);
             Type controller = action.ReflectedType;
@@ -460,7 +469,7 @@ namespace Validator.Managers.Schema
             string expectedObjectType = string.Format("Kaltura{0}", FirstCharacterToUpper(serviceId));
             if (actionId == "get" || actionId == "add" || actionId == "update")
             {
-                if (action.ReturnType.Name.ToLower() != expectedObjectType.ToLower())
+                if (!hasValidationException(action, SchemaValidationType.ACTION_RETURN_TYPE) && action.ReturnType.Name.ToLower() != expectedObjectType.ToLower())
                 {
                     logError("Warning", controller, string.Format("Action {0}.{1} ({2}) returned type is {3}, expected {4}", serviceId, actionId, controller.Name, action.ReturnType.Name, expectedObjectType));
                     if (strict)
@@ -470,7 +479,7 @@ namespace Validator.Managers.Schema
 
             if (action.ReturnType != null && action.ReturnType.IsSubclassOf(typeof(KalturaOTTObject)) && !Validate(action.ReturnType, strict))
             {
-                logError("Warning", controller, string.Format("Action {0}.{1} ({2}) returned type ({3}) failed validation", serviceId, actionId, controller.Name, action.ReturnType.Name));
+                logError("Error", controller, string.Format("Action {0}.{1} ({2}) returned type ({3}) failed validation", serviceId, actionId, controller.Name, action.ReturnType.Name));
                 valid = false;
             }
 
@@ -479,7 +488,7 @@ namespace Validator.Managers.Schema
             {
                 if (parameter.ParameterType.IsSubclassOf(typeof(KalturaOTTObject)) && !Validate(parameter.ParameterType, strict))
                 {
-                    logError("Warning", controller, string.Format("Action {0}.{1} ({2}) parameter {3} ({4}) failed validation", serviceId, actionId, controller.Name, parameter.Name, parameter.ParameterType.Name));
+                    logError("Error", controller, string.Format("Action {0}.{1} ({2}) parameter {3} ({4}) failed validation", serviceId, actionId, controller.Name, parameter.Name, parameter.ParameterType.Name));
                     valid = false;
                 }
             }
@@ -503,7 +512,7 @@ namespace Validator.Managers.Schema
                     else
                     {
                         var idParam = parameters[0];
-                        if (!idParam.ParameterType.IsPrimitive)
+                        if (!idParam.ParameterType.IsPrimitive && idParam.ParameterType != typeof(string))
                         {
                             logError("Warning", controller, string.Format("Action {0}.{1} ({2}) id argument type is {3}, primitive is expected", serviceId, actionId, controller.Name, idParam.ParameterType.Name));
                             if (strict)
@@ -523,7 +532,7 @@ namespace Validator.Managers.Schema
                     else
                     {
                         var objectParam = parameters[0];
-                        if (objectParam.ParameterType.Name.ToLower() != expectedObjectType.ToLower())
+                        if (!hasValidationException(action, SchemaValidationType.ACTION_RETURN_TYPE) && objectParam.ParameterType.Name.ToLower() != expectedObjectType.ToLower())
                         {
                             logError("Warning", controller, string.Format("Action {0}.{1} ({2}) argument type is {3}, expected {4}", serviceId, actionId, controller.Name, objectParam.ParameterType.Name, expectedObjectType));
                             if (strict)
@@ -543,9 +552,9 @@ namespace Validator.Managers.Schema
                     else
                     {
                         var idParam = parameters[0];
-                        if (!idParam.ParameterType.IsPrimitive)
+                        if (!idParam.ParameterType.IsPrimitive && idParam.ParameterType != typeof(string))
                         {
-                            logError("Warning", controller, string.Format("Action {0}.{1} ({2}) id argument type is {3}, primitive is expected", serviceId, actionId, controller.Name, idParam.ParameterType.Name));
+                            logError("Error", controller, string.Format("Action {0}.{1} ({2}) id argument type is {3}, primitive is expected", serviceId, actionId, controller.Name, idParam.ParameterType.Name));
                             if (strict)
                                 valid = false;
                         }
@@ -598,7 +607,7 @@ namespace Validator.Managers.Schema
             if (actionId == "list")
             {
                 string expectedResponseType = string.Format("Kaltura{0}ListResponse", FirstCharacterToUpper(serviceId));
-                if (action.ReturnType.Name.ToLower() != expectedResponseType.ToLower())
+                if (!hasValidationException(action, SchemaValidationType.ACTION_RETURN_TYPE) && action.ReturnType.Name.ToLower() != expectedResponseType.ToLower())
                 {
                     logError("Warning", controller, string.Format("Action {0}.{1} ({2}) returned type is {3}, expected {4}", serviceId, actionId, controller.Name, action.ReturnType.Name, expectedResponseType));
                     if (strict)
@@ -610,7 +619,7 @@ namespace Validator.Managers.Schema
                     Type arrayType = objectsProperty.PropertyType.GetGenericArguments()[0];
                     if (arrayType.Name.ToLower() != expectedObjectType.ToLower())
                     {
-                        logError("Warning", controller, string.Format("Action {0}.{1} ({2}) returned list-response contains array of {3}, expected {4}", serviceId, actionId, controller.Name, arrayType.Name, expectedObjectType));
+                        logError("Error", controller, string.Format("Action {0}.{1} ({2}) returned list-response contains array of {3}, expected {4}", serviceId, actionId, controller.Name, arrayType.Name, expectedObjectType));
                         if (strict)
                             valid = false;
                     }

@@ -28,6 +28,7 @@ namespace WebAPI.Controllers
     [OldStandard("updateLoginData", "changePassword")]
     [OldStandard("setPassword", "resetPassword")]
     [OldStandard("resetPassword", "sendPassword")]
+    [OldStandard("getOldStandard", "get")]
     public class OttUserController : ApiController
     {
         /// <summary>
@@ -419,7 +420,41 @@ namespace WebAPI.Controllers
         [Route("get"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
-        public KalturaOTTUserListResponse Get()
+        public KalturaOTTUser Get()
+        {
+            List<KalturaOTTUser> response = null;
+
+            string userId = KS.GetFromRequest().UserId;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                response = ClientsManager.UsersClient().GetUsersData(groupId, new List<string>() { userId });
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new InternalServerErrorException();
+            }
+
+            return response.First();
+        }
+
+        /// <summary>
+        /// Retrieving users' data
+        /// </summary>        
+        /// <remarks></remarks>
+        /// <remarks></remarks>        
+        [Route("getOldStandard"), HttpPost]
+        [ApiAuthorize]
+        [Obsolete]
+        public KalturaOTTUserListResponse GetOldStandard()
         {
             List<KalturaOTTUser> response = null;
 

@@ -67,6 +67,8 @@ namespace WebAPI.Filters
 
         public const string REQUEST_METHOD_PARAMETERS = "requestMethodParameters";
         public const string REQUEST_VERSION = "requestVersion";
+        public const string REQUEST_USER_ID = "user_id";
+        public const string REQUEST_LANGUAGE = "language";
 
         public static object GetRequestPayload()
         {
@@ -167,9 +169,15 @@ namespace WebAPI.Filters
                             if (reqParams["ks"] != null)
                                 InitKS(actionContext, reqParams["ks"].ToObject<string>());
 
-                            // additional user_id
+                            // impersonated user_id
                             if (reqParams["user_id"] != null)
-                                HttpContext.Current.Items.Add("user_id", reqParams["user_id"]);
+                                HttpContext.Current.Items.Add(REQUEST_USER_ID, reqParams["user_id"]);
+                            if (reqParams["userId"] != null)
+                                HttpContext.Current.Items.Add(REQUEST_USER_ID, reqParams["userId"]);
+
+                            // language
+                            if (reqParams["language"] != null)
+                                HttpContext.Current.Items.Add(REQUEST_LANGUAGE, reqParams["language"]);
 
                             //Running on the expected method parameters
                             ParameterInfo[] parameters = methodInfo.GetParameters();

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
@@ -38,7 +39,7 @@ namespace WebAPI.Controllers
         [Route("list"), HttpPost]
         [ApiAuthorize]
         public KalturaAssetInfoListResponse List(KalturaAssetInfoFilter filter, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
-            KalturaFilterPager pager = null, string language = null)
+            KalturaFilterPager pager = null)
         {
             KalturaAssetInfoListResponse response = null;
 
@@ -64,6 +65,7 @@ namespace WebAPI.Controllers
             try
             {
                 string userID = KS.GetFromRequest().UserId;
+                string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
                 List<int> ids = null;
 
                 switch (filter.ReferenceType)
@@ -78,6 +80,7 @@ namespace WebAPI.Controllers
                             {
                                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "ids must be numeric when type is media");
                             }
+
 
                             response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
                                 0, 0, ids, with.Select(x => x.type).ToList());
@@ -144,7 +147,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("get"), HttpPost]
         [ApiAuthorize]
-        public KalturaAssetInfo Get(string id, KalturaAssetReferenceType type, List<KalturaCatalogWithHolder> with = null, string language = null)
+        public KalturaAssetInfo Get(string id, KalturaAssetReferenceType type, List<KalturaCatalogWithHolder> with = null)
         {
             KalturaAssetInfo response = null;
 
@@ -162,6 +165,7 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
                 string udid = KSUtils.ExtractKSPayload().UDID;
+                string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
 
 
                 switch (type)
@@ -258,7 +262,7 @@ namespace WebAPI.Controllers
         [Route("search"), HttpPost]
         [ApiAuthorize]
         public KalturaAssetInfoListResponse Search(KalturaOrder? order_by, List<KalturaIntegerValue> filter_types = null, string filter = null,
-            List<KalturaCatalogWithHolder> with = null, string language = null, KalturaFilterPager pager = null, string request_id = null)
+            List<KalturaCatalogWithHolder> with = null, KalturaFilterPager pager = null, string request_id = null)
         {
             KalturaAssetInfoListResponse response = null;
 
@@ -266,6 +270,7 @@ namespace WebAPI.Controllers
             string userID = KS.GetFromRequest().UserId;
             int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
             string udid = KSUtils.ExtractKSPayload().UDID;
+            string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
 
             // parameters validation
             if (!string.IsNullOrEmpty(filter) && filter.Length > 1024)
@@ -313,7 +318,7 @@ namespace WebAPI.Controllers
         [Route("autocomplete"), HttpPost]
         [ApiAuthorize]
         public KalturaSlimAssetInfoWrapper Autocomplete(string query, List<KalturaCatalogWithHolder> with = null, List<KalturaIntegerValue> filter_types = null,
-            KalturaOrder? order_by = null, int? size = null, string language = null)
+            KalturaOrder? order_by = null, int? size = null)
         {
             KalturaSlimAssetInfoWrapper response = null;
 
@@ -333,6 +338,7 @@ namespace WebAPI.Controllers
             if (filter_types == null)
                 filter_types = new List<KalturaIntegerValue>();
 
+            string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
             try
             {
                 response = ClientsManager.CatalogClient().Autocomplete(groupId, userID, udid, language, size, query, order_by, filter_types.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
@@ -359,7 +365,7 @@ namespace WebAPI.Controllers
         [Route("related"), HttpPost]
         [ApiAuthorize]
         public KalturaAssetInfoListResponse Related(int media_id, string filter = null, KalturaFilterPager pager = null, List<KalturaIntegerValue> filter_types = null,
-            List<KalturaCatalogWithHolder> with = null, string language = null)
+            List<KalturaCatalogWithHolder> with = null)
         {
             KalturaAssetInfoListResponse response = null;
 
@@ -383,6 +389,7 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
                 string udid = KSUtils.ExtractKSPayload().UDID;
+                string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
 
                 response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
                     language, pager.getPageIndex(), pager.PageSize, media_id, filter, filter_types.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
@@ -410,11 +417,12 @@ namespace WebAPI.Controllers
         [Route("relatedExternal"), HttpPost]
         [ApiAuthorize]
         public KalturaAssetInfoListResponse RelatedExternal(int asset_id, KalturaFilterPager pager = null, List<KalturaIntegerValue> filter_type_ids = null, int utc_offset = 0,
-            List<KalturaCatalogWithHolder> with = null, string language = null, string free_param = null)
+            List<KalturaCatalogWithHolder> with = null, string free_param = null)
         {
             KalturaAssetInfoListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
+            string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
 
             if (asset_id == 0)
             {
@@ -463,7 +471,7 @@ namespace WebAPI.Controllers
         [Route("searchExternal"), HttpPost]
         [ApiAuthorize]
         public KalturaAssetInfoListResponse searchExternal(string query, KalturaFilterPager pager = null, List<KalturaIntegerValue> filter_type_ids = null, int utc_offset = 0,
-            List<KalturaCatalogWithHolder> with = null, string language = null)
+            List<KalturaCatalogWithHolder> with = null)
         {
             KalturaAssetInfoListResponse response = null;
 
@@ -483,6 +491,7 @@ namespace WebAPI.Controllers
             try
             {
                 string userID = KS.GetFromRequest().UserId;
+                string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
 
                 response = ClientsManager.CatalogClient().GetSearchMediaExternal(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
                     language, pager.getPageIndex(), pager.PageSize, query, filter_type_ids.Select(x => x.value).ToList(), utc_offset, with.Select(x => x.type).ToList());
@@ -515,12 +524,13 @@ namespace WebAPI.Controllers
         [Route("channel"), HttpPost]
         [ApiAuthorize]
         public KalturaAssetInfoListResponse Channel(int id, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
-            KalturaFilterPager pager = null, string language = null, string filter_query = null)
+            KalturaFilterPager pager = null, string filter_query = null)
         {
             KalturaAssetInfoListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
             string udid = KSUtils.ExtractKSPayload().UDID;
+            string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
 
             if (pager == null)
                 pager = new KalturaFilterPager();
@@ -568,12 +578,13 @@ namespace WebAPI.Controllers
         [Route("externalChannel"), HttpPost]
         [ApiAuthorize]
         public KalturaAssetInfoListResponse ExternalChannel(int id, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
-            KalturaFilterPager pager = null, string language = null, string utc_offset = null, string free_param = null)
+            KalturaFilterPager pager = null, string utc_offset = null, string free_param = null)
         {
             KalturaAssetInfoListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
             string udid = KSUtils.ExtractKSPayload().UDID;
+            string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
 
             if (pager == null)
                 pager = new KalturaFilterPager();

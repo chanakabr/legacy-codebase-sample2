@@ -8,8 +8,9 @@ namespace WebAPI.Managers.Schema
     public enum SchemaValidationType
     {
         NULLABLE,
-        ACTION_NAME,
         FILTER_SUFFIX,
-        ACTION_ARGUMENTS
+        ACTION_NAME,
+        ACTION_ARGUMENTS,
+        ACTION_RETURN_TYPE
     }
 }

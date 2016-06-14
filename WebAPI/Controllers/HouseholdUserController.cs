@@ -7,11 +7,13 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Schema;
+using WebAPI.Models.Domains;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/householdUser/action")]
+    [OldStandard("addOldStandard", "add")]
     public class HouseholdUserController : ApiController
     {
         /// <summary>
@@ -59,17 +61,48 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Adds a user to household       
         /// </summary>                
-        /// <param name="user_id_to_add">The identifier of the user to add</param>
-        /// <param name="is_master">True if the new user should be added as master user</param>
+        /// <param name="householdUser">User details to add</param>
         /// <remarks>Possible status codes: 
         /// Household suspended = 1009, Invalid user = 1026, User Already In household = 1029
         /// </remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public bool Add(string user_id_to_add, bool is_master = false)
+        public KalturaHouseholdUser Add(KalturaHouseholdUser householdUser)
         {
             int groupId = KS.GetFromRequest().GroupId;
-          
+
+            try
+            {
+                // get domain id       
+                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+                // call client
+                ClientsManager.DomainsClient().AddUserToDomain(groupId, (int)domainId, householdUser.UserId, KS.GetFromRequest().UserId, householdUser.getIsMaster());
+                householdUser.IsMaster = householdUser.getIsMaster();
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return householdUser;
+        }
+
+        /// <summary>
+        /// Adds a user to household       
+        /// </summary>                
+        /// <param name="user_id_to_add">The identifier of the user to add</param>
+        /// <param name="is_master">True if the new user should be added as master user</param>
+        /// <remarks>Possible status codes: 
+        /// Household suspended = 1009, Invalid user = 1026, User Already In household = 1029
+        /// </remarks>
+        [Route("addOldStandard"), HttpPost]
+        [ApiAuthorize]
+        [Obsolete]
+        public bool AddOldStandard(string user_id_to_add, bool is_master = false)
+        {
+            int groupId = KS.GetFromRequest().GroupId;
+
             try
             {
                 // get domain id       

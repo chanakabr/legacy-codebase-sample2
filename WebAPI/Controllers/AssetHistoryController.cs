@@ -14,6 +14,8 @@ using WebAPI.Catalog;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 using WebAPI.Managers.Schema;
+using System.Web;
+using WebAPI.Filters;
 
 namespace WebAPI.Controllers
 {
@@ -32,7 +34,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaWatchHistoryAssetWrapper List(KalturaAssetHistoryFilter filter = null, KalturaFilterPager pager = null, string language = null)
+        public KalturaWatchHistoryAssetWrapper List(KalturaAssetHistoryFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaWatchHistoryAssetWrapper response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -70,6 +72,9 @@ namespace WebAPI.Controllers
             // days - default value 7
             if (filter.days == null || (filter.days.HasValue && filter.days.Value == 0))
                 filter.days = 7;
+
+            string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
+
             try
             {
                 // call client
