@@ -977,19 +977,18 @@ namespace Users
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 List<int> dbDomains = DAL.DomainDal.GetDeviceDomains(deviceID, groupID);
 
-                // try to get from cache all domains in list 
-                Dictionary<int, Domain> dDomains = oDomainCache.GetDomains(dbDomains);
-                // domains that ned to be build now
-                List<int> createDomains = dbDomains.Where(i => !dDomains.ContainsKey(i)).ToList();
-
-                foreach (int newDomainID in createDomains)
+                foreach (int newDomainID in dbDomains)
                 {
                     Domain domain = oDomainCache.GetDomain(newDomainID, groupID);
-                    retVal.Add(domain);
+                    if (domain != null)
+                    {
+                        retVal.Add(domain);
+                    }
+                    else
+                    {
+                        log.ErrorFormat("Failed getting domain: {0} in GetDeviceDomains", newDomainID);
+                    }
                 }
-
-                // add all values from cache             
-                retVal.AddRange(dDomains.Values);
 
                 if (retVal.Count == 0)
                     retVal = null;
