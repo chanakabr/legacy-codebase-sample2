@@ -10,6 +10,7 @@ using System.Web.Http;
 using WebAPI.Catalog;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Filters;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.Pricing;
@@ -32,7 +33,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaPersonalAssetListResponse List(List<KalturaPersonalAssetRequest> assets, List<KalturaPersonalAssetWithHolder> with, string language = "")
+        public KalturaPersonalAssetListResponse List(List<KalturaPersonalAssetRequest> assets, List<KalturaPersonalAssetWithHolder> with)
         {
             KalturaPersonalAssetListResponse response = null;
 
@@ -49,6 +50,7 @@ namespace WebAPI.Controllers
                 // get user id and domain from KS
                 string userID = KS.GetFromRequest().UserId;
                 int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+                string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
 
                 Dictionary<string, KalturaPersonalAsset> assetIdToPersonalAsset = new Dictionary<string, KalturaPersonalAsset>();
                 Dictionary<long, KalturaPersonalAsset> fileToPersonalAsset = new Dictionary<long, KalturaPersonalAsset>();

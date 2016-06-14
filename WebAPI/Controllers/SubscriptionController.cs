@@ -32,13 +32,14 @@ namespace WebAPI.Controllers
         ///   </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public List<KalturaSubscription> List(KalturaSubscriptionsFilter filter, string language = null)
+        public List<KalturaSubscription> List(KalturaSubscriptionsFilter filter)
         {
             List<KalturaSubscription> subscruptions = null;
             List<int> subscriptionsIds = null;
 
             int groupId = KS.GetFromRequest().GroupId;
             string udid = KSUtils.ExtractKSPayload().UDID;
+            string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
 
             if (filter == null)
             {

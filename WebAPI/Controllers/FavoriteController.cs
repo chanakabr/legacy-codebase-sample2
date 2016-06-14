@@ -6,6 +6,7 @@ using System.Web.Http;
 using System.Web.Http.ModelBinding;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Filters;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
@@ -104,12 +105,13 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: User does not exist = 2000, User suspended = 2001</remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaFavoriteListResponse List(KalturaFavoriteFilter filter = null, List<KalturaCatalogWithHolder> with = null, string language = null, string udid = null)
+        public KalturaFavoriteListResponse List(KalturaFavoriteFilter filter = null, List<KalturaCatalogWithHolder> with = null, string udid = null)
         {
             List<KalturaFavorite> favorites = null;
             List<KalturaFavorite> favoritesFinalList = null;
 
             int groupId = KS.GetFromRequest().GroupId;
+            string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
 
             if (with == null)
                 with = new List<KalturaCatalogWithHolder>();

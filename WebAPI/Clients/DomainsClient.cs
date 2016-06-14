@@ -379,6 +379,11 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
+            if (response.Device == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
             result = Mapper.Map<KalturaDevice>(response.Device.m_oDevice);
 
             return result;

@@ -33,13 +33,11 @@ namespace WebAPI.Controllers
             KalturaHousehold response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-
-            var user = ClientsManager.UsersClient().GetUsersData(groupId, new List<string>() { ks.UserId });
-
+            
             try
             {
                 // call client
-                response = ClientsManager.DomainsClient().GetDomainInfo(groupId, user.First().getHouseholdID());
+                response = ClientsManager.DomainsClient().GetDomainInfo(groupId, (int) HouseholdUtils.GetHouseholdIDByKS(groupId));
             }
             catch (ClientException ex)
             {

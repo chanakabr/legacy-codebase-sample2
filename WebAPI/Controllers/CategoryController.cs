@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Filters;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Utils;
@@ -22,7 +23,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("get"), HttpPost]
         [ApiAuthorize]
-        public KalturaOTTCategory Get(int id, string language = null)
+        public KalturaOTTCategory Get(int id)
         {
             KalturaOTTCategory response = null;
 
@@ -37,6 +38,7 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
                 string udid = KSUtils.ExtractKSPayload().UDID;
+                string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
 
                 response = ClientsManager.CatalogClient().GetCategory(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, id);
 

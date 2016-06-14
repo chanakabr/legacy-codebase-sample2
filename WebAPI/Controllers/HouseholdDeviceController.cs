@@ -133,7 +133,8 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns device registration status to the supplied household
         /// </summary>
-        /// <returns></returns>
+        /// <returns></returns><remarks>Possible status codes: 
+        /// Device does not exist = 1019, Device not in domain = 1003, Device exists in other domain = 1016</remarks>
         [Route("get"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
