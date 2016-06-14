@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Filters;
 using WebAPI.Managers.Models;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
@@ -26,7 +27,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaProductsPriceListResponse List(KalturaPricesFilter filter, string coupon_code = null, string language = null)
+        public KalturaProductsPriceListResponse List(KalturaPricesFilter filter, string coupon_code = null)
         {
             List<KalturaProductPrice> productPrices = new List<KalturaProductPrice>();
             List<KalturaSubscriptionPrice> subscriptionPrices = new List<KalturaSubscriptionPrice>();
@@ -34,6 +35,7 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
             string udid = KSUtils.ExtractKSPayload().UDID;
+            string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
 
             if (filter == null)
             {

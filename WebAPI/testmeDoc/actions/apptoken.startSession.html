@@ -10,7 +10,7 @@
 		<h2>Kaltura API</h2>
 		<table class="action">
 			<tr>
-				<th colspan="5" class="service_action_title">startSession.startSession</th>
+				<th colspan="5" class="service_action_title">apptoken.startSession</th>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Description:</td>
@@ -30,42 +30,42 @@
 			</tr>
 			<tr>
 				<td>id</td>
-				<td><a href="../objects/string.html">string</a></td>
+				<td>string</td>
 				<td>application token id</td>
 				<td>V</td>
 				<td></td>
 			</tr>
 			<tr>
 				<td>tokenHash</td>
-				<td><a href="../objects/string.html">string</a></td>
+				<td>string</td>
 				<td>hashed token - current KS concatenated with the application token hashed using the application token ‘hashType’</td>
 				<td>V</td>
 				<td></td>
 			</tr>
 			<tr>
 				<td>userId</td>
-				<td><a href="../objects/string.html">string</a></td>
+				<td>string</td>
 				<td>session user id, will be ignored if a different user id already defined on the application token</td>
 				<td></td>
 				<td>1</td>
 			</tr>
 			<tr>
 				<td>type</td>
-				<td><a href="../objects/1.html">1</a></td>
+				<td>1</td>
 				<td>session type, will be ignored if a different session type already defined on the application token</td>
 				<td></td>
 				<td>1</td>
 			</tr>
 			<tr>
 				<td>expiry</td>
-				<td><a href="../objects/int.html">int</a></td>
+				<td>int</td>
 				<td>session expiry (in seconds), could be overwritten by shorter expiry of the application token and the session-expiry that defined on the application token</td>
 				<td></td>
 				<td>1</td>
 			</tr>
 			<tr>
 				<td>udid</td>
-				<td><a href="../objects/string.html">string</a></td>
+				<td>string</td>
 				<td></td>
 				<td></td>
 				<td>1</td>
@@ -80,7 +80,7 @@
 				<td colspan="5" class="title">Example HTTP Hit</td>
 			</tr>
 			<tr>
-				<td colspan="5">http://www.kaltura.com/api_v3/service/appToken/action/add<br />
+				<td colspan="5">http://www.kaltura.com/api_v3/service/apptoken/action/startSession<br />
 				<strong>JSON object:</strong>
 				<pre>
 				<div class="post_fields">

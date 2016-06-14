@@ -1,0 +1,226 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
+	<title>Kaltura - TestMe Console Documentation</title>
+	<link rel="stylesheet" type="text/css" href="../css/main.css" />
+	<script type="text/javascript" src="../../testme/js/jquery-1.3.1.min.js"></script>
+	<script type="text/javascript">
+	
+		$(document).ready(function() {
+			$(".base-attribute").click(function() {
+				var classHeaderTable = $(this).parents("table:first");
+				var propertiesTable = classHeaderTable.parent().find("table:last");
+				if ($(this).attr("src").indexOf("collapsed.gif") >= 0) {
+				$(this).attr("src", "../images/expended.gif");
+					propertiesTable.show();
+				}
+				else {
+					$(this).attr("src", "../images/collapsed.gif");
+					propertiesTable.hide();
+				}
+			});
+		});
+	
+	</script>
+</head>
+<body>
+	<div id="doc">
+		<h2>Kaltura API</h2>
+		<table class="action" width="80%">
+			<tr>
+				<th class="service_action_title">KalturaHousehold</th>
+			</tr>
+			<tr>
+				<td class="title">Properties</td>
+			</tr>
+			<tr>
+				<td>
+					<table style="">
+						<tbody>
+							<tr>
+								<td class="inheritedFrom">
+									<b><img class="base-attribute" src="../images/collapsed.gif"> Inherited from KalturaObjectBase</b>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table style="display: none">
+						<tbody>
+							<tr>
+								<th class="subtitle">Name</th>
+								<th class="subtitle">Type</th>
+								<th class="subtitle">Writable</th>
+								<th class="subtitle">Restrictions</th>
+								<th class="subtitle">Description</th>
+							</tr>
+							<tr>
+								<td>relatedObjects</td>
+								<td>map of <a href="KalturaListResponse.html">KalturaListResponse</a></td>
+								<td></td>
+								<td></td>
+								<td></td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<table style="">
+						<tbody>
+							<tr>
+								<td class="inheritedFrom"><b>KalturaHousehold</b></td>
+							</tr>
+						</tbody>
+					</table>
+					<table style="">
+						<tbody>
+							<tr>
+								<th class="subtitle">Name</th>
+								<th class="subtitle">Type</th>
+								<th class="subtitle">Writable</th>
+								<th class="subtitle">Restrictions</th>
+								<th class="subtitle">Description</th>
+							</tr>
+							<tr >
+								<td>id</td>
+								<td>bigint</td>
+								<td>V</td>
+								<td></td>
+								<td>Household identifier</td>
+							</tr>
+							<tr class="odd">
+								<td>name</td>
+								<td>string</td>
+								<td>V</td>
+								<td></td>
+								<td>Household name</td>
+							</tr>
+							<tr >
+								<td>description</td>
+								<td>string</td>
+								<td>V</td>
+								<td></td>
+								<td>Household description</td>
+							</tr>
+							<tr class="odd">
+								<td>externalId</td>
+								<td>string</td>
+								<td>V</td>
+								<td></td>
+								<td>Household external identifier</td>
+							</tr>
+							<tr >
+								<td>householdLimitationsId</td>
+								<td>int</td>
+								<td>V</td>
+								<td></td>
+								<td>Household limitation module identifier</td>
+							</tr>
+							<tr class="odd">
+								<td>devicesLimit</td>
+								<td>int</td>
+								<td>V</td>
+								<td></td>
+								<td>The max number of the devices that can be added to the household</td>
+							</tr>
+							<tr >
+								<td>usersLimit</td>
+								<td>int</td>
+								<td>V</td>
+								<td></td>
+								<td>The max number of the users that can be added to the household</td>
+							</tr>
+							<tr class="odd">
+								<td>concurrentLimit</td>
+								<td>int</td>
+								<td>V</td>
+								<td></td>
+								<td>The max number of concurrent streams in the household</td>
+							</tr>
+							<tr >
+								<td>users</td>
+								<td>array of <a href="KalturaBaseOTTUser.html">KalturaBaseOTTUser</a></td>
+								<td>V</td>
+								<td></td>
+								<td>List of users identifiers</td>
+							</tr>
+							<tr class="odd">
+								<td>masterUsers</td>
+								<td>array of <a href="KalturaBaseOTTUser.html">KalturaBaseOTTUser</a></td>
+								<td>V</td>
+								<td></td>
+								<td>List of master users identifiers</td>
+							</tr>
+							<tr >
+								<td>defaultUsers</td>
+								<td>array of <a href="KalturaBaseOTTUser.html">KalturaBaseOTTUser</a></td>
+								<td>V</td>
+								<td></td>
+								<td>List of default users identifiers</td>
+							</tr>
+							<tr class="odd">
+								<td>pendingUsers</td>
+								<td>array of <a href="KalturaBaseOTTUser.html">KalturaBaseOTTUser</a></td>
+								<td>V</td>
+								<td></td>
+								<td>List of pending users identifiers</td>
+							</tr>
+							<tr >
+								<td>regionId</td>
+								<td>int</td>
+								<td>V</td>
+								<td></td>
+								<td>The households region identifier</td>
+							</tr>
+							<tr class="odd">
+								<td>state</td>
+								<td><a href="../enums/KalturaHouseholdState.html">KalturaHouseholdState</a></td>
+								<td>V</td>
+								<td></td>
+								<td>Household state</td>
+							</tr>
+							<tr >
+								<td>isFrequencyEnabled</td>
+								<td>bool</td>
+								<td>V</td>
+								<td></td>
+								<td>Is household frequency enabled</td>
+							</tr>
+							<tr class="odd">
+								<td>frequencyNextDeviceAction</td>
+								<td>bigint</td>
+								<td>V</td>
+								<td></td>
+								<td>The next time a device is allowed to be removed from the household (epoch)</td>
+							</tr>
+							<tr >
+								<td>frequencyNextUserAction</td>
+								<td>bigint</td>
+								<td>V</td>
+								<td></td>
+								<td>The next time a user is allowed to be removed from the household (epoch)</td>
+							</tr>
+							<tr class="odd">
+								<td>restriction</td>
+								<td><a href="../enums/KalturaHouseholdRestriction.html">KalturaHouseholdRestriction</a></td>
+								<td>V</td>
+								<td></td>
+								<td>Household restriction</td>
+							</tr>
+							<tr >
+								<td>deviceFamilies</td>
+								<td>array of <a href="KalturaDeviceFamily.html">KalturaDeviceFamily</a></td>
+								<td>V</td>
+								<td></td>
+								<td>Household device families</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</div>
+</body>
+</html>

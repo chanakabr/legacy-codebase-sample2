@@ -6,12 +6,15 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.Domains;
 using WebAPI.Utils;
+
 
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/householdDevice/action")]
+    [OldStandard("addOldStandard", "add")]
     public class HouseholdDeviceController : ApiController
     {
         /// <summary>
@@ -42,13 +45,15 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Registers a device to a household using pin code    
         /// </summary>                
-        /// <param name="device_name">Device name</param>
+        /// <param name="deviceName">Device name</param>
         /// <param name="pin">Pin code</param>
         /// <remarks>Possible status codes: 
         /// Exceeded limit = 1001, Duplicate pin = 1028, Device not exists = 1019</remarks>
         [Route("addByPin"), HttpPost]
         [ApiAuthorize]
-        public KalturaDevice AddByPin(string device_name, string pin)
+        [OldStandard("deviceName", "device_name")]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        public KalturaDevice AddByPin(string deviceName, string pin)
         {
             KalturaDevice device = null;
 
@@ -62,7 +67,32 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                device = ClientsManager.DomainsClient().RegisterDeviceByPin(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), device_name, pin);
+                device = ClientsManager.DomainsClient().RegisterDeviceByPin(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), deviceName, pin);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return device;
+        }
+
+        /// <summary>
+        /// Add device to household
+        /// </summary>                
+        /// <param name="device">Device</param>
+        /// <remarks>Possible status codes: 
+        /// Domain does not exist = 1006, Domain suspended = 1009, Device exists in other domain = 1016 , Device already exists = 1015</remarks>
+        [Route("add"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_RETURN_TYPE)]
+        public KalturaDevice Add(KalturaDevice device)
+        {
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                device = ClientsManager.DomainsClient().AddDevice(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), device.Name, device.Udid, device.getBrandId());
             }
             catch (ClientException ex)
             {
@@ -79,9 +109,10 @@ namespace WebAPI.Controllers
         /// <param name="udid">Device UDID</param>
         /// <remarks>Possible status codes: 
         /// Domain does not exist = 1006, Domain suspended = 1009, Device exists in other domain = 1016 , Device already exists = 1015</remarks>
-        [Route("add"), HttpPost]
+        [Route("addOldStandard"), HttpPost]
         [ApiAuthorize]
-        public KalturaHousehold Add(string device_name, int device_brand_id, string udid)
+        [Obsolete]
+        public KalturaHousehold AddOldStandard(string device_name, int device_brand_id, string udid)
         {
             KalturaHousehold household = null;
 
@@ -102,9 +133,43 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns device registration status to the supplied household
         /// </summary>
+        /// <returns></returns><remarks>Possible status codes: 
+        /// Device does not exist = 1019, Device not in domain = 1003, Device exists in other domain = 1016</remarks>
+        [Route("get"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemaValidationType.ACTION_RETURN_TYPE)]
+        public KalturaDevice Get()
+        {
+            KalturaDevice device = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
+
+            if (string.IsNullOrEmpty(udid))
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "udid cannot be empty");
+            }
+
+            try
+            {
+                // call client
+                device = ClientsManager.DomainsClient().GetDevice(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return device;
+        }
+
+        /// <summary>
+        /// Returns device registration status to the supplied household
+        /// </summary>
         /// <returns></returns>
         [Route("getStatus"), HttpPost]
         [ApiAuthorize]
+        [Obsolete]
         public KalturaDeviceRegistrationStatusHolder GetStatus()
         {
             KalturaDeviceRegistrationStatus status = KalturaDeviceRegistrationStatus.not_registered;

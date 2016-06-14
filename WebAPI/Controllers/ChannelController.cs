@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Filters;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Schema;
 using WebAPI.Models.API;
@@ -20,11 +21,10 @@ namespace WebAPI.Controllers
         /// Returns channel info        
         /// </summary>
         /// <param name="id">Channel Identifier</param>
-        /// <param name="language">Language Code</param>        
         /// <remarks></remarks>
         [Route("get"), HttpPost]
         [ApiAuthorize]
-        public KalturaChannel Get(int id, string language = null)
+        public KalturaChannel Get(int id)
         {
             KalturaChannel response = null;
 
@@ -39,7 +39,7 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
                 string udid = KSUtils.ExtractKSPayload().UDID;
-
+                string language = (string) HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
                 response = ClientsManager.CatalogClient().GetChannelInfo(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, id);
 
                 // if no response - return not found status 
