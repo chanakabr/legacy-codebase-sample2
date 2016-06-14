@@ -10,13 +10,13 @@
 		<h2>Kaltura API</h2>
 		<table class="action">
 			<tr>
-				<th colspan="5" class="service_action_title">householddevice.add</th>
+				<th colspan="5" class="service_action_title">householduser.add</th>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Description:</td>
 			</tr>
 			<tr>
-				<td class="description" colspan="5">Registers a device to a household using pin code</td>
+				<td class="description" colspan="5">Adds a user to household</td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Input Params</td>
@@ -29,9 +29,9 @@
 				<th class="subtitle">Default Value</th>
 			</tr>
 			<tr>
-				<td>device</td>
-				<td><a href="../objects/KalturaDevice.html">KalturaDevice</a></td>
-				<td>Device</td>
+				<td>householdUser</td>
+				<td><a href="../objects/KalturaHouseholdUser.html">KalturaHouseholdUser</a></td>
+				<td>User details to add</td>
 				<td>V</td>
 				<td></td>
 			</tr>
@@ -39,25 +39,21 @@
 				<td colspan="5" class="title">Output Type</td>
 			</tr>
 			<tr>
-				<td colspan="5"><a href="../objects/KalturaDevice.html">KalturaDevice</a></td>
+				<td colspan="5"><a href="../objects/KalturaHouseholdUser.html">KalturaHouseholdUser</a></td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Example HTTP Hit</td>
 			</tr>
 			<tr>
-				<td colspan="5">http://www.kaltura.com/api_v3/service/householddevice/action/add<br />
+				<td colspan="5">http://www.kaltura.com/api_v3/service/householduser/action/add<br />
 				<strong>JSON object:</strong>
 				<pre>
 				<div class="post_fields">
 [
-	device: {
-		objectType: "KalturaDevice",
-		udid: "value",
-		name: "value",
-		brand: "value",
-		brandId: value,
-		activatedOn: value,
-		state: "value"
+	householdUser: {
+		objectType: "KalturaHouseholdUser",
+		userId: "value",
+		isMaster: value
 	}
 ]
 				</pre></td>

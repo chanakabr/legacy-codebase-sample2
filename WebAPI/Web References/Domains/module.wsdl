@@ -375,8 +375,6 @@
           <s:enumeration value="DeviceNotExists" />
           <s:enumeration value="OK" />
           <s:enumeration value="ExceededLimit" />
-          <s:enumeration value="DomainNotExists" />
-          <s:enumeration value="DomainSuspended" />
         </s:restriction>
       </s:simpleType>
       <s:element name="RemoveDeviceFromDomain">
