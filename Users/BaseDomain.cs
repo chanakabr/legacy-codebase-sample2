@@ -202,6 +202,49 @@ namespace Users
             return oDomainResponseObject;
         }
 
+        public virtual DeviceResponse AddDevice(int groupId, int domainId, string udid, string deviceName, int brandId)
+        {
+            DeviceResponse response = new DeviceResponse();
+            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            // validate UDID is not empty
+            if (string.IsNullOrEmpty(udid))
+                return response;
+
+            // get domain data
+            Domain domain = DomainInitializer(groupId, domainId, false);
+            if (domain == null || domain.m_DomainStatus == DomainStatus.Error)
+            {
+                // error getting domain
+                log.ErrorFormat("Domain doesn't exists. nGroupID: {0}, nDomainID: {1}, sUDID: {2}, sDeviceName: {3}, nBrandID: {4}", groupId, domainId, udid, deviceName, brandId);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.DomainNotExists, eResponseStatus.DomainNotExists.ToString());
+            }
+            else if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
+            {
+                // domain is suspended
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.DomainSuspended, eResponseStatus.DomainSuspended.ToString());
+            }
+            else
+            {
+                // create new device
+                Device device = new Device(udid, brandId, m_nGroupID, deviceName, domainId);
+                bool res = device.Initialize(udid, deviceName);
+
+                // add device to domain
+                DomainResponseStatus domainResponseStatus = domain.AddDeviceToDomain(m_nGroupID, domainId, udid, deviceName, brandId, ref device);
+
+                if (domainResponseStatus == DomainResponseStatus.OK)
+                {
+                    // update domain info (to include new device)
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.Device = new DeviceResponseObject();
+                    response.Device.m_oDevice = device;
+                }
+            }
+
+            return response;
+        }
+
         public virtual DomainResponseObject AddUserToDomain(int nGroupID, int nDomainID, int userGuid, int nMasterUserGuid, bool bIsMaster = false)
         {
             //New domain
@@ -1409,6 +1452,64 @@ namespace Users
             catch (Exception ex)
             {
                 log.Error("GetDeviceRegistrationStatus - " + string.Format("Failed ex = {0}, udid = {1}, domainId = {2}", ex.Message, udid, domainId), ex);
+            }
+            return response;
+        }
+
+        public virtual DeviceResponse GetDevice(string udid, int domainId)
+        {
+            DeviceResponse response = new DeviceResponse();
+            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            try
+            {
+                // get device
+                int deviceID = Device.GetDeviceIDByUDID(udid, m_nGroupID);
+
+                // device not found - device not registered
+                if (deviceID == 0)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotExists, eResponseStatus.DeviceNotExists.ToString());
+                }
+                // device found
+                else
+                {
+                    // get device domains
+                    var domains = Domain.GetDeviceDomains(deviceID, m_nGroupID);
+
+                    // no domains found for device - device not registered
+                    if (domains == null || domains.Count == 0)
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotInDomain, eResponseStatus.DeviceNotInDomain.ToString());
+                    }
+                    // domains found
+                    else
+                    {
+                        // look for the supplied domain
+                        var domain = domains.Where(d => d.m_nDomainID == domainId).FirstOrDefault();
+
+                        // domain found - device registered
+                        if (domain != null)
+                        {
+                            Device device = new Device(m_nGroupID);
+                            device.Initialize(udid);
+
+                            response.Device = new DeviceResponseObject();
+                            response.Device.m_oDevice = device;
+
+                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        }
+                        // domain not found - device registered to another domain
+                        else
+                        {
+                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.DeviceExistsInOtherDomains, eResponseStatus.DeviceExistsInOtherDomains.ToString());
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("GetDevice - " + string.Format("Failed ex = {0}, udid = {1}, domainId = {2}", ex.Message, udid, domainId), ex);
             }
             return response;
         }
