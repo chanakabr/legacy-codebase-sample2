@@ -18,16 +18,5 @@ namespace WebAPI.Models.ConditionalAccess
         CANCELED = 3,
         FAILED = 4,
         DELETED = 5
-    }
-
-    /// <summary>
-    /// Holder object for KalturaRecordingStatus
-    /// </summary>    
-    public class KalturaRecordingStatusHolder : KalturaOTTObject
-    {
-        [DataMember(Name = "status")]
-        [JsonProperty("status")]
-        [XmlElement("status")]
-        public KalturaRecordingStatus Status { get; set; }
-    }    
+    } 
 }
