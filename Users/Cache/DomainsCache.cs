@@ -282,38 +282,39 @@ namespace Users.Cache
 
         #endregion
 
-        internal Dictionary<int, Domain> GetDomains(List<int> dbDomains)
-        {
-            try
-            {
-                IDictionary<string, object> dTempRes = null;
-                List<string> sDomains = new List<string>();
-                string sKey = string.Empty;
-                foreach (int nDomainID in dbDomains)
-                {
-                    sKey = string.Format("{0}{1}", sDomainKeyCache, nDomainID);
-                    sDomains.Add(sKey);
-                }
+        /***** don't use - throwing exception due to changes in cache.GetValues *****/
+        //internal Dictionary<int, Domain> GetDomains(List<int> dbDomains)
+        //{
+        //    try
+        //    {
+        //        IDictionary<string, object> dTempRes = null;
+        //        List<string> sDomains = new List<string>();
+        //        string sKey = string.Empty;
+        //        foreach (int nDomainID in dbDomains)
+        //        {
+        //            sKey = string.Format("{0}{1}", sDomainKeyCache, nDomainID);
+        //            sDomains.Add(sKey);
+        //        }
 
-                dTempRes = this.cache.GetValues(sDomains, true);
-                if (dTempRes == null)
-                    return null;
-                Dictionary<int, Domain> dRes = new Dictionary<int, Domain>();
-                foreach (KeyValuePair<string, object> obj in dTempRes)
-                {
-                    string domainKey = obj.Key.Replace(sDomainKeyCache, "");
-                    int domainID = int.Parse(domainKey);
-                    Domain oDomain = (Domain)obj.Value;
-                    dRes.Add(domainID, oDomain);
-                }
-                return dRes;
-            }
-            catch (Exception ex)
-            {
-                Logger.Logger.Log("GetDomains", string.Format("Couldn't get domain {0}, ex = {1}", string.Join(";", dbDomains), ex.Message), DOMAIN_LOG_FILENAME);
-                return null;
-            }
-        }
+        //        dTempRes = this.cache.GetValues(sDomains, true);
+        //        if (dTempRes == null)
+        //            return null;
+        //        Dictionary<int, Domain> dRes = new Dictionary<int, Domain>();
+        //        foreach (KeyValuePair<string, object> obj in dTempRes)
+        //        {
+        //            string domainKey = obj.Key.Replace(sDomainKeyCache, "");
+        //            int domainID = int.Parse(domainKey);
+        //            Domain oDomain = (Domain)obj.Value;
+        //            dRes.Add(domainID, oDomain);
+        //        }
+        //        return dRes;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Logger.Logger.Log("GetDomains", string.Format("Couldn't get domain {0}, ex = {1}", string.Join(";", dbDomains), ex.Message), DOMAIN_LOG_FILENAME);
+        //        return null;
+        //    }
+        //}
 
         private static T JsonToObject<T>(string json)
         {
