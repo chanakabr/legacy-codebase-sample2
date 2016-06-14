@@ -233,7 +233,7 @@ namespace Users
                 // add device to domain
                 DomainResponseStatus domainResponseStatus = domain.AddDeviceToDomain(m_nGroupID, domainId, udid, deviceName, brandId, ref device);
 
-                if (domainResponseStatus == DomainResponseStatus.OK)
+                if (res && domainResponseStatus == DomainResponseStatus.OK)
                 {
                     // update domain info (to include new device)
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
