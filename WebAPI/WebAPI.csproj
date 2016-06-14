@@ -1931,6 +1931,7 @@
     <Compile Include="Models\ConditionalAccess\KalturaBillingTransactionListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaEntitlementsFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPricesFilter.cs" />
+    <Compile Include="Models\Domains\KalturaHouseholdUser.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdFrequencyType.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdLimitations.cs" />
     <Compile Include="Models\Domains\KalturaDevicePin.cs" />
