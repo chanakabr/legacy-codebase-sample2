@@ -15,6 +15,7 @@ namespace DAL
     public class ConditionalAccessDAL
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private const int RETRY_LIMIT = 5;
 
         public static DataTable Get_MediaFileByProductCode(int nGroupID, string sProductCode)
         {
@@ -3029,13 +3030,12 @@ namespace DAL
             return isProtected;
         }
 
-        public static List<long> GetRecordingsForCleanup(int groupID, DateTime expiredViewDate)
+        public static List<long> GetRecordingsForCleanup(long utcNowEpoch)
         {
             List<long> epgIdsForCleanup = null;
             ODBCWrapper.StoredProcedure spGetRecordginsForCleanup = new ODBCWrapper.StoredProcedure("GetRecordingsForCleanup");
             spGetRecordginsForCleanup.SetConnectionKey("CONNECTION_STRING");
-            spGetRecordginsForCleanup.AddParameter("@GroupID", groupID);
-            spGetRecordginsForCleanup.AddParameter("@ExpiredViewDate", expiredViewDate);
+            spGetRecordginsForCleanup.AddParameter("@UtcNowEpoch", utcNowEpoch);
 
             DataTable dt = spGetRecordginsForCleanup.Execute();
             if (dt != null && dt.Rows != null)
@@ -3052,6 +3052,75 @@ namespace DAL
             }
 
             return epgIdsForCleanup;
+        }
+
+        public static bool UpdateSuccessfulRecordingsCleanup(DateTime lastSuccessfulCleanUpDate)
+        {
+            bool result = false;
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
+            int limitRetries = RETRY_LIMIT;
+            string recordingsCleanupKey = UtilsDal.GetRecordingsCleanupKey();   
+            try
+            {
+                int numOfRetries = 0;
+                while (!result && numOfRetries < limitRetries)
+                {
+                    result = cbClient.Set(recordingsCleanupKey, lastSuccessfulCleanUpDate);
+                    if (!result)
+                    {
+                        numOfRetries++;
+                        log.ErrorFormat("Error while updating successful recordings cleanup date. number of tries: {0}/{1}. Last Cleanup Date: {2}",
+                                         numOfRetries, limitRetries, lastSuccessfulCleanUpDate);
+
+                        System.Threading.Thread.Sleep(1000);
+                    }                    
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while updating successful recordings cleanup date: {0}, ex: {1}", lastSuccessfulCleanUpDate, ex);
+            }
+            
+            return result;
+        }
+
+        public static DateTime? GetLastSuccessfulRecordingsCleanup()
+        {
+            DateTime? lastSuccessfulCleanupDate = null;
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
+            int limitRetries = RETRY_LIMIT;
+            Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
+            string recordingsCleanupKey = UtilsDal.GetRecordingsCleanupKey();            
+            try
+            {
+                int numOfRetries = 0;
+                while (numOfRetries < limitRetries)
+                {
+                    lastSuccessfulCleanupDate = cbClient.Get<DateTime?>(recordingsCleanupKey, out getResult);
+                    if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
+                    {
+                        log.ErrorFormat("Error while trying to get last successful recordings cleanup date, key: {0}", recordingsCleanupKey);
+                        break;
+                    }
+                    else if (lastSuccessfulCleanupDate.HasValue)
+                    {
+                        break;
+                        log.DebugFormat("cleanup last successful date key {0} found with value {1}", recordingsCleanupKey, lastSuccessfulCleanupDate.Value);
+                    }                    
+                    else
+                    {
+                        log.ErrorFormat("Error while trying to get last successful recordings cleanup date, key: {0}, retryAttempt: {1}, maxRetries: {2}", recordingsCleanupKey, numOfRetries, limitRetries);
+                        numOfRetries++;
+                        System.Threading.Thread.Sleep(1000);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to get last successful recordings cleanup date, ex: {0}", ex);
+            }
+
+            return lastSuccessfulCleanupDate;
         }
     }
 }

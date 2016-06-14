@@ -18189,12 +18189,12 @@ namespace ConditionalAccess
             return recording;
         }
 
-        public bool InitializeRecordingsCleanup(int groupID)
+        public bool InitializeRecordingsCleanup()
         {
             bool result = false;
             SetupTasksQueue queue = new SetupTasksQueue();
 
-            CelerySetupTaskData data = new CelerySetupTaskData(groupID, eSetupTask.RecordingsCleanup, new Dictionary<string, object>());
+            CelerySetupTaskData data = new CelerySetupTaskData(0, eSetupTask.RecordingsCleanup, new Dictionary<string, object>());
 
             try
             {
@@ -18208,40 +18208,42 @@ namespace ConditionalAccess
             return result;
         }
 
-        public bool CleanupRecordings(int groupID)
+        public bool CleanupRecordings()
         {
             bool result = false;
             int programsToDeleteCount = 1;
             try
-            {
-                TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
-                if (accountSettings.RecordingLifetimePeriod.HasValue && accountSettings.RecordingLifetimePeriod.Value > 0)
+            {                                
+                // get current utc epoch
+                long utcNowEpoch = TVinciShared.DateUtils.UnixTimeStampNow();
+                List<long> epgIdsForDeletion = ConditionalAccessDAL.GetRecordingsForCleanup(utcNowEpoch);
+                programsToDeleteCount = epgIdsForDeletion.Count;
+                foreach (long epgID in epgIdsForDeletion)
                 {
-                    DateTime viewableUntilDate = DateTime.UtcNow.AddDays(accountSettings.RecordingLifetimePeriod.Value);
-                    List<long> epgIdsForDeletion = ConditionalAccessDAL.GetRecordingsForCleanup(m_nGroupID, viewableUntilDate);
-                    programsToDeleteCount = epgIdsForDeletion.Count;
-                    foreach (long epgID in epgIdsForDeletion)
+                    ApiObjects.Response.Status deleteStatus = RecordingsManager.Instance.DeleteRecording(m_nGroupID, epgID);
+                    if (deleteStatus.Code != (int)eResponseStatus.OK)
                     {
-                        ApiObjects.Response.Status deleteStatus = RecordingsManager.Instance.DeleteRecording(m_nGroupID, epgID);
-                        if (deleteStatus.Code != (int)eResponseStatus.OK)
-                        {
-                            log.ErrorFormat("Failed deleting epg: {0} for groupID {1}", epgID, m_nGroupID);
-                        }
-                        else
-                        {
-                            programsToDeleteCount--;
-                            log.DebugFormat("epg: {0} cleanup successful for groupID {1}", epgID, m_nGroupID);
-                        }
+                        log.ErrorFormat("Failed deleting epg: {0} for groupID {1}", epgID, m_nGroupID);
+                    }
+                    else
+                    {
+                        programsToDeleteCount--;
+                        log.DebugFormat("epg: {0} cleanup successful for groupID {1}", epgID, m_nGroupID);
                     }
                 }
-                else
-                {
-                    log.ErrorFormat("No lifetime period defined for the account {0}", m_nGroupID);
-                }
 
+                // update successful cleanup date
                 if (programsToDeleteCount == 0)
                 {
                     result = true;
+                    if (!ConditionalAccessDAL.UpdateSuccessfulRecordingsCleanup(DateTime.UtcNow))
+                    {
+                        log.Error("Failed updating recordings cleanup date");
+                    }                    
+                }
+                else
+                {
+                    log.Error("Failed recordings cleanup");
                 }
             }
             catch (Exception ex)
@@ -18252,11 +18254,30 @@ namespace ConditionalAccess
             {
                 DateTime nextExecutionDate = DateTime.UtcNow.AddHours(RECORDING_CLEANUP_EXECUTE_GAP_HOURS);
                 SetupTasksQueue queue = new SetupTasksQueue();
-                CelerySetupTaskData data = new CelerySetupTaskData(groupID, eSetupTask.RecordingsCleanup, new Dictionary<string, object>()) { ETA = nextExecutionDate };
+                CelerySetupTaskData data = new CelerySetupTaskData(0, eSetupTask.RecordingsCleanup, new Dictionary<string, object>()) { ETA = nextExecutionDate };
                 result = queue.Enqueue(data, ROUTING_KEY_RECORDINGS_CLEANUP);
             }
 
             return result;
+        }
+
+        public RecordingCleanupResponse GetLastSuccessfulRecordingsCleanup()
+        {
+            RecordingCleanupResponse response = new RecordingCleanupResponse();
+            DateTime? lastSuccessfulCleanupDate = ConditionalAccessDAL.GetLastSuccessfulRecordingsCleanup();
+            if (!lastSuccessfulCleanupDate.HasValue)
+            {
+                log.ErrorFormat("Error while trying to get last successful recordings cleanup date");
+                response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+            }
+            else
+            {
+                response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
+            }
+
+            response.LastSuccessfulCleanUpDate = lastSuccessfulCleanupDate;
+
+            return response;
         }
     }
 }

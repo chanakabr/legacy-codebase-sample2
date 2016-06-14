@@ -695,5 +695,10 @@ namespace DAL
         {
             return string.Format("g{0}_u{1}_mf{2}_d{3}_p{4}", groupID, siteGuid, MediaFileID, UDID, platform);
         }
+
+        public static string GetRecordingsCleanupKey()
+        {
+            return "recordings_cleanup";
+        }
     }
 }
