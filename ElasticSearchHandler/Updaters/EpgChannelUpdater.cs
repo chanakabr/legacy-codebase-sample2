@@ -16,7 +16,7 @@ namespace ElasticSearchHandler.Updaters
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public static readonly string EPG = "epg";
-        public static readonly int DAYS = 30;
+        public static readonly int DAYS = 14;
 
 
         #region Data Members
@@ -131,14 +131,13 @@ namespace ElasticSearchHandler.Updaters
                 int days = TCMClient.Settings.Instance.GetValue<int>("Channel_StartDate_Days");
                 if (days == 0)
                     days = DAYS;
-                
-                DateTime fromUTCDay = DateTime.UtcNow.AddDays(-days);                 
-                 DateTime toUTCDay = new DateTime(2100,12,01);
 
-                 List<int> epgIds = Tvinci.Core.DAL.EpgDal.GetEpgProgramsByChannelIds(this.groupId, epgChannelIDs, fromUTCDay, toUTCDay);
+                DateTime fromUTCDay = DateTime.UtcNow.AddDays(-days);
+                DateTime toUTCDay = new DateTime(2100, 12, 01);
+
+                List<int> epgIds = Tvinci.Core.DAL.EpgDal.GetEpgProgramsByChannelIds(this.groupId, epgChannelIDs, fromUTCDay, toUTCDay);
 
                 result = UpdateEpg(epgIds);
-                
             }
             catch (Exception ex)
             {
