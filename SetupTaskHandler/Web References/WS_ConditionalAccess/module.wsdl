@@ -924,6 +924,27 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="GetLastSuccessfulRecordingsCleanup">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetLastSuccessfulRecordingsCleanupResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetLastSuccessfulRecordingsCleanupResult" type="tns:RecordingCleanupResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="RecordingCleanupResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="1" maxOccurs="1" name="LastSuccessfulCleanUpDate" nillable="true" type="s:dateTime" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="GetUserPermittedItems">
         <s:complexType>
           <s:sequence>
@@ -3016,6 +3037,11 @@
           <s:element minOccurs="0" maxOccurs="1" name="assetID" type="s:string" />
         </s:sequence>
       </s:complexType>
+      <s:complexType name="CancelSeriesNPVRCommand">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseNPVRCommand" />
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="RecordNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand" />
@@ -3053,6 +3079,16 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
+      <s:complexType name="DeleteSeriesNPVRCommand">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseNPVRCommand" />
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="RecordSeriesByProgramIdNPVRCommand">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseNPVRCommand" />
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="ProtectNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand">
@@ -3063,21 +3099,6 @@
         </s:complexContent>
       </s:complexType>
       <s:complexType name="RecordSeriesByNameNPVRCommand">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:BaseNPVRCommand" />
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="RecordSeriesByProgramIdNPVRCommand">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:BaseNPVRCommand" />
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="DeleteSeriesNPVRCommand">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:BaseNPVRCommand" />
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="CancelSeriesNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
@@ -3094,6 +3115,16 @@
           <s:element minOccurs="0" maxOccurs="1" name="status" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="msg" type="s:string" />
         </s:sequence>
+      </s:complexType>
+      <s:complexType name="QuotaResponse">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:NPVRResponse">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="totalQuota" type="s:long" />
+              <s:element minOccurs="1" maxOccurs="1" name="occupiedQuota" type="s:long" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
       </s:complexType>
       <s:complexType name="CancelDeleteResponse">
         <s:complexContent mixed="false">
@@ -3114,16 +3145,6 @@
           <s:extension base="tns:NPVRResponse">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="recordingID" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="QuotaResponse">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:NPVRResponse">
-            <s:sequence>
-              <s:element minOccurs="1" maxOccurs="1" name="totalQuota" type="s:long" />
-              <s:element minOccurs="1" maxOccurs="1" name="occupiedQuota" type="s:long" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -3292,6 +3313,7 @@
       <s:element name="Recording" nillable="true" type="tns:Recording" />
       <s:element name="RecordingResponse" nillable="true" type="tns:RecordingResponse" />
       <s:element name="DomainQuotaResponse" nillable="true" type="tns:DomainQuotaResponse" />
+      <s:element name="RecordingCleanupResponse" nillable="true" type="tns:RecordingCleanupResponse" />
       <s:element name="ArrayOfPermittedMediaContainer" nillable="true" type="tns:ArrayOfPermittedMediaContainer" />
       <s:element name="PermittedMediaContainerResponse" nillable="true" type="tns:PermittedMediaContainerResponse" />
       <s:element name="UserCAStatus" type="tns:UserCAStatus" />
@@ -3791,6 +3813,12 @@
   </wsdl:message>
   <wsdl:message name="CleanupRecordingsSoapOut">
     <wsdl:part name="parameters" element="tns:CleanupRecordingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetLastSuccessfulRecordingsCleanupSoapIn">
+    <wsdl:part name="parameters" element="tns:GetLastSuccessfulRecordingsCleanup" />
+  </wsdl:message>
+  <wsdl:message name="GetLastSuccessfulRecordingsCleanupSoapOut">
+    <wsdl:part name="parameters" element="tns:GetLastSuccessfulRecordingsCleanupResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsSoapIn">
     <wsdl:part name="parameters" element="tns:GetUserPermittedItems" />
@@ -4588,6 +4616,13 @@
   </wsdl:message>
   <wsdl:message name="CleanupRecordingsHttpPostOut">
     <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetLastSuccessfulRecordingsCleanupHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetLastSuccessfulRecordingsCleanupHttpPostOut">
+    <wsdl:part name="Body" element="tns:RecordingCleanupResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -5792,6 +5827,10 @@
       <wsdl:input message="tns:CleanupRecordingsSoapIn" />
       <wsdl:output message="tns:CleanupRecordingsSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetLastSuccessfulRecordingsCleanup">
+      <wsdl:input message="tns:GetLastSuccessfulRecordingsCleanupSoapIn" />
+      <wsdl:output message="tns:GetLastSuccessfulRecordingsCleanupSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsSoapIn" />
       <wsdl:output message="tns:GetUserPermittedItemsSoapOut" />
@@ -6249,6 +6288,10 @@
     <wsdl:operation name="CleanupRecordings">
       <wsdl:input message="tns:CleanupRecordingsHttpPostIn" />
       <wsdl:output message="tns:CleanupRecordingsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetLastSuccessfulRecordingsCleanup">
+      <wsdl:input message="tns:GetLastSuccessfulRecordingsCleanupHttpPostIn" />
+      <wsdl:output message="tns:GetLastSuccessfulRecordingsCleanupHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsHttpPostIn" />
@@ -6854,6 +6897,15 @@
     </wsdl:operation>
     <wsdl:operation name="CleanupRecordings">
       <soap:operation soapAction="http://ca.tvinci.com/CleanupRecordings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetLastSuccessfulRecordingsCleanup">
+      <soap:operation soapAction="http://ca.tvinci.com/GetLastSuccessfulRecordingsCleanup" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -7926,6 +7978,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetLastSuccessfulRecordingsCleanup">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetLastSuccessfulRecordingsCleanup" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <soap12:operation soapAction="http://ca.tvinci.com/GetUserPermittedItems" style="document" />
       <wsdl:input>
@@ -8948,6 +9009,15 @@
     </wsdl:operation>
     <wsdl:operation name="CleanupRecordings">
       <http:operation location="/CleanupRecordings" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetLastSuccessfulRecordingsCleanup">
+      <http:operation location="/GetLastSuccessfulRecordingsCleanup" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
