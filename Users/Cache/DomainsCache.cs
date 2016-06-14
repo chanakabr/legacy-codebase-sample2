@@ -320,6 +320,8 @@ namespace Users.Cache
 
         #endregion
 
+        /***** don't use - throwing exception due to changes in cache.GetValues *****/
+        /*
         internal Dictionary<int, Domain> GetDomains(List<int> dbDomains)
         {
             try
@@ -352,6 +354,7 @@ namespace Users.Cache
                 return null;
             }
         }
+        */
 
         private static T JsonToObject<T>(string json)
         {

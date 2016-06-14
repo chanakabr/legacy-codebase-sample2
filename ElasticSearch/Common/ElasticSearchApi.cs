@@ -21,6 +21,24 @@ namespace ElasticSearch.Common
         public static readonly string ALT_ES_URL = Common.Utils.GetWSURL("ALT_ES_URL");
         private const string ES_LOG_FILENAME = "Elasticsearch";
 
+        public string baseUrl
+        {
+            get;
+            set;
+        }
+
+        public ElasticSearchApi(string elaticSearchUrl = null)
+        {
+            if (string.IsNullOrEmpty(elaticSearchUrl))
+            {
+                baseUrl = ES_URL;
+            }
+            else
+            {
+                baseUrl = elaticSearchUrl;
+            }
+        }
+        
         public string GetDoc(string sIndex, string sType, string sDocId)
         {
             string sRes = string.Empty;
@@ -109,7 +127,7 @@ namespace ElasticSearch.Common
 
             sBuildIndex.Append("} }");
 
-            string sUrl = string.Format("{0}/{1}", ES_URL, sIndex);
+            string sUrl = string.Format("{0}/{1}", baseUrl, sIndex);
             int nStatus = 0;
 
             string sResponse = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sBuildIndex.ToString(), true);
@@ -130,7 +148,7 @@ namespace ElasticSearch.Common
 
             if (!string.IsNullOrEmpty(sIndex) && !string.IsNullOrEmpty(sMappingObject) && !string.IsNullOrEmpty(sMapName))
             {
-                string sUrl = string.Format("{0}/{1}/{2}/_mapping", ES_URL, sIndex, sMapName);
+                string sUrl = string.Format("{0}/{1}/{2}/_mapping", baseUrl, sIndex, sMapName);
 
                 int nStatus = 0;
 
@@ -173,7 +191,7 @@ namespace ElasticSearch.Common
 
                 sActionRequest.Append(" } } ] }");
 
-                string sUrl = string.Format("{0}/_aliases", ES_URL);
+                string sUrl = string.Format("{0}/_aliases", baseUrl);
                 int nStatus = 0;
 
                 string sRetVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sActionRequest.ToString(), true);
@@ -195,7 +213,7 @@ namespace ElasticSearch.Common
                 int nStatus;
                 foreach (string sIndex in lIndices)
                 {
-                    sUrl = string.Format("{0}/{1}", ES_URL, sIndex);
+                    sUrl = string.Format("{0}/{1}", baseUrl, sIndex);
                     nStatus = 0;
                     string sRetval = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, string.Empty, true);
 
@@ -217,7 +235,7 @@ namespace ElasticSearch.Common
             }
 
 
-            string sUrl = string.Format("{0}/{1}/{2}/{3}", ES_URL, sIndex, sType, sId);
+            string sUrl = string.Format("{0}/{1}/{2}/{3}", baseUrl, sIndex, sType, sId);
             int nStatus = 0;
 
             string sRetVal = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, string.Empty, true);
@@ -232,7 +250,7 @@ namespace ElasticSearch.Common
             bool bResult = true;
             try
             {
-                string sUrl = string.Format("{0}/{1}/{2}/_query", ES_URL, sIndex, sType);
+                string sUrl = string.Format("{0}/{1}/{2}/_query", baseUrl, sIndex, sType);
                 int nStatus = 0;
 
                 string sResult = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery, true);
@@ -262,7 +280,7 @@ namespace ElasticSearch.Common
 
             if (!string.IsNullOrEmpty(sIndex))
             {
-                string url = string.Format("{0}/{1}/_aliases", ES_URL, sIndex);
+                string url = string.Format("{0}/{1}/_aliases", baseUrl, sIndex);
                 int status = 0;
 
                 string httpResponse = SendGetHttpReq(url, ref status, string.Empty, string.Empty, true);
@@ -304,7 +322,7 @@ namespace ElasticSearch.Common
             if (!string.IsNullOrEmpty(sIndex))
             {
 
-                string sUrl = string.Format("{0}/{1}/_settings", ES_URL, sIndex);
+                string sUrl = string.Format("{0}/{1}/_settings", baseUrl, sIndex);
                 int nStatus = 0;
                 string sResponse = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
 
@@ -321,7 +339,7 @@ namespace ElasticSearch.Common
             if (!string.IsNullOrEmpty(sIndex) && !string.IsNullOrEmpty(sType))
             {
 
-                string sUrl = string.Format("{0}/{1}/{2}/_mapping", ES_URL, sIndex, sType);
+                string sUrl = string.Format("{0}/{1}/{2}/_mapping", baseUrl, sIndex, sType);
                 int nStatus = 0;
                 string sResponse = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
 
@@ -337,7 +355,7 @@ namespace ElasticSearch.Common
 
             if (!string.IsNullOrEmpty(sIndex))
             {
-                string sUrl = string.Format("{0}/{1}/_mapping", ES_URL, sIndex);
+                string sUrl = string.Format("{0}/{1}/_mapping", baseUrl, sIndex);
                 int nStatus = 0;
                 string sResponse = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
 
@@ -353,7 +371,7 @@ namespace ElasticSearch.Common
             if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sType) || string.IsNullOrEmpty(sDoc) || string.IsNullOrEmpty(sID))
                 return bRes;
 
-            string sUrl = string.Format("{0}/{1}/{2}/{3}", ES_URL, sIndex, sType, sID);
+            string sUrl = string.Format("{0}/{1}/{2}/{3}", baseUrl, sIndex, sType, sID);
             int nStatus = 0;
 
             string sRes = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sDoc, true);
@@ -399,7 +417,7 @@ namespace ElasticSearch.Common
                 }
             }
 
-            string sUrl = string.Format("{0}/_bulk", ES_URL);
+            string sUrl = string.Format("{0}/_bulk", baseUrl);
             int nStatus = 0;
             string sParams = sBulkRequest.ToString();
             string sRetVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sParams, true);
@@ -437,7 +455,7 @@ namespace ElasticSearch.Common
                 }
             }
 
-            string sUrl = string.Format("{0}/_bulk", ES_URL);
+            string sUrl = string.Format("{0}/_bulk", baseUrl);
             int nStatus = 0;
             string sParams = sBulkRequest.ToString();
             string sRetVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sParams, true);
@@ -458,11 +476,11 @@ namespace ElasticSearch.Common
             if (routing != null && routing.Count > 0)
             {
                 string sRouting = routing.Aggregate((current, next) => current + "," + next);
-                sUrl = string.Format("{0}/{1}/{2}/_search?routing={3}", ES_URL, sIndex, sType, sRouting);
+                sUrl = string.Format("{0}/{1}/{2}/_search?routing={3}", baseUrl, sIndex, sType, sRouting);
             }
             else
             {
-                sUrl = string.Format("{0}/{1}/{2}/_search", ES_URL, sIndex, sType);
+                sUrl = string.Format("{0}/{1}/{2}/_search", baseUrl, sIndex, sType);
             }
             int nStatus = 0;
 
@@ -512,7 +530,7 @@ namespace ElasticSearch.Common
                 sb.Append("\n");
             }
 
-            string sUrl = string.Format("{0}/_msearch", ES_URL);
+            string sUrl = string.Format("{0}/_msearch", baseUrl);
             int nStatus = 0;
             sRes = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sb.ToString(), true);
             log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", sUrl, sb.ToString(), sRes);
@@ -534,7 +552,7 @@ namespace ElasticSearch.Common
             if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sType) || string.IsNullOrEmpty(sDoc))
                 return lResult;
 
-            string sUrl = string.Format("{0}/{1}/{2}/_percolate ", ES_URL, sIndex, sType);
+            string sUrl = string.Format("{0}/{1}/{2}/_percolate ", baseUrl, sIndex, sType);
             int nStatus = 0;
 
             string retVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sDoc, true);
@@ -578,7 +596,7 @@ namespace ElasticSearch.Common
             if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sQueryName) || string.IsNullOrEmpty(sQuery))
                 return bResult;
 
-            string sUrl = string.Format("{0}/_percolator/{1}/{2} ", ES_URL, sIndex, sQueryName);
+            string sUrl = string.Format("{0}/_percolator/{1}/{2} ", baseUrl, sIndex, sQueryName);
             int nStatus = 0;
 
             string sRetVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery, true);
@@ -675,7 +693,7 @@ namespace ElasticSearch.Common
                 sQuery = BuildDirectIDsQuery(oIDsList, nNumOfResultsToReturn);
                 if (sQuery.Length > 0)
                 {
-                    string sUrl = string.Format("{0}/{1}/{2}/_mget", ES_URL, sIndex, sType);
+                    string sUrl = string.Format("{0}/{1}/{2}/_mget", baseUrl, sIndex, sType);
                     int nHttpStatusCode = 0;
                     res = SendPostHttpReq(sUrl, ref nHttpStatusCode, string.Empty, string.Empty, sQuery, true);
                     if (nHttpStatusCode != 200)
