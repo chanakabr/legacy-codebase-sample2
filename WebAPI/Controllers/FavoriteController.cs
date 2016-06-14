@@ -111,7 +111,7 @@ namespace WebAPI.Controllers
             List<KalturaFavorite> favoritesFinalList = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-            string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
+            string language = Utils.Utils.GetLanguageFromRequest();
 
             if (with == null)
                 with = new List<KalturaCatalogWithHolder>();

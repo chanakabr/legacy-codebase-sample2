@@ -73,7 +73,7 @@ namespace WebAPI.Controllers
             if (filter.days == null || (filter.days.HasValue && filter.days.Value == 0))
                 filter.days = 7;
 
-            string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
+            string language = Utils.Utils.GetLanguageFromRequest();
 
             try
             {

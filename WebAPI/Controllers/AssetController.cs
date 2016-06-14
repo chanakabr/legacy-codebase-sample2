@@ -65,7 +65,7 @@ namespace WebAPI.Controllers
             try
             {
                 string userID = KS.GetFromRequest().UserId;
-                string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
+                string language = Utils.Utils.GetLanguageFromRequest();
                 List<int> ids = null;
 
                 switch (filter.ReferenceType)
@@ -165,8 +165,7 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
                 string udid = KSUtils.ExtractKSPayload().UDID;
-                string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
-
+                string language = Utils.Utils.GetLanguageFromRequest();
 
                 switch (type)
                 {
@@ -270,7 +269,7 @@ namespace WebAPI.Controllers
             string userID = KS.GetFromRequest().UserId;
             int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
             string udid = KSUtils.ExtractKSPayload().UDID;
-            string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
+            string language = Utils.Utils.GetLanguageFromRequest();
 
             // parameters validation
             if (!string.IsNullOrEmpty(filter) && filter.Length > 1024)
@@ -338,7 +337,7 @@ namespace WebAPI.Controllers
             if (filter_types == null)
                 filter_types = new List<KalturaIntegerValue>();
 
-            string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
+            string language = Utils.Utils.GetLanguageFromRequest();
             try
             {
                 response = ClientsManager.CatalogClient().Autocomplete(groupId, userID, udid, language, size, query, order_by, filter_types.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
@@ -389,7 +388,7 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
                 string udid = KSUtils.ExtractKSPayload().UDID;
-                string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
+                string language = Utils.Utils.GetLanguageFromRequest();
 
                 response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
                     language, pager.getPageIndex(), pager.PageSize, media_id, filter, filter_types.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
@@ -422,7 +421,7 @@ namespace WebAPI.Controllers
             KalturaAssetInfoListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-            string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
+            string language = Utils.Utils.GetLanguageFromRequest();
 
             if (asset_id == 0)
             {
@@ -491,7 +490,7 @@ namespace WebAPI.Controllers
             try
             {
                 string userID = KS.GetFromRequest().UserId;
-                string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
+                string language = Utils.Utils.GetLanguageFromRequest();
 
                 response = ClientsManager.CatalogClient().GetSearchMediaExternal(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
                     language, pager.getPageIndex(), pager.PageSize, query, filter_type_ids.Select(x => x.value).ToList(), utc_offset, with.Select(x => x.type).ToList());
@@ -530,7 +529,7 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
             string udid = KSUtils.ExtractKSPayload().UDID;
-            string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
+            string language = Utils.Utils.GetLanguageFromRequest();
 
             if (pager == null)
                 pager = new KalturaFilterPager();
@@ -584,7 +583,7 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
             string udid = KSUtils.ExtractKSPayload().UDID;
-            string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
+            string language = Utils.Utils.GetLanguageFromRequest();
 
             if (pager == null)
                 pager = new KalturaFilterPager();

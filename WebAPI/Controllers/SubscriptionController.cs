@@ -27,7 +27,6 @@ namespace WebAPI.Controllers
         /// Returns a list of subscriptions requested by Subscription ID or file ID
         /// </summary>
         /// <param name="filter">Filter request</param>
-        /// <param name="language">Language code</param>
         /// <remarks>Possible status codes:      
         ///   </remarks>
         [Route("list"), HttpPost]
@@ -39,7 +38,7 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
             string udid = KSUtils.ExtractKSPayload().UDID;
-            string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
+            string language = Utils.Utils.GetLanguageFromRequest();
 
             if (filter == null)
             {
