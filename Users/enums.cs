@@ -154,9 +154,7 @@ namespace Users
         DuplicatePin,
         DeviceNotExists,
         OK,
-        ExceededLimit,
-        DomainNotExists,
-        DomainSuspended
+        ExceededLimit
     }
 
     public enum UserGroupRuleResponseStatus

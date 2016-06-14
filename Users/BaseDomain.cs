@@ -202,14 +202,14 @@ namespace Users
             return oDomainResponseObject;
         }
 
-        public virtual DeviceResponseObject AddDevice(int groupId, int domainId, string udid, string deviceName, int brandId)
+        public virtual DeviceResponse AddDevice(int groupId, int domainId, string udid, string deviceName, int brandId)
         {
-            DeviceResponseObject oDeviceResponseObject = new DeviceResponseObject();
-            oDeviceResponseObject.m_oDeviceResponseStatus = DeviceResponseStatus.Error;
+            DeviceResponse response = new DeviceResponse();
+            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // validate UDID is not empty
             if (string.IsNullOrEmpty(udid))
-                return oDeviceResponseObject;
+                return response;
 
             // get domain data
             Domain domain = DomainInitializer(groupId, domainId, false);
@@ -217,13 +217,12 @@ namespace Users
             {
                 // error getting domain
                 log.ErrorFormat("Domain doesn't exists. nGroupID: {0}, nDomainID: {1}, sUDID: {2}, sDeviceName: {3}, nBrandID: {4}", groupId, domainId, udid, deviceName, brandId);
-                oDeviceResponseObject.m_oDevice = null;
-                oDeviceResponseObject.m_oDeviceResponseStatus = DeviceResponseStatus.DomainNotExists;
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.DomainNotExists, eResponseStatus.DomainNotExists.ToString());
             }
             else if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
             {
                 // domain is suspended
-                oDeviceResponseObject.m_oDeviceResponseStatus = DeviceResponseStatus.DomainSuspended;
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.DomainSuspended, eResponseStatus.DomainSuspended.ToString());
             }
             else
             {
@@ -237,12 +236,13 @@ namespace Users
                 if (domainResponseStatus == DomainResponseStatus.OK)
                 {
                     // update domain info (to include new device)
-                    oDeviceResponseObject.m_oDeviceResponseStatus = DeviceResponseStatus.OK;
-                    oDeviceResponseObject.m_oDevice = device;
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.Device = new DeviceResponseObject();
+                    response.Device.m_oDevice = device;
                 }
             }
 
-            return oDeviceResponseObject;
+            return response;
         }
 
         public virtual DomainResponseObject AddUserToDomain(int nGroupID, int nDomainID, int userGuid, int nMasterUserGuid, bool bIsMaster = false)
