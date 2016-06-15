@@ -1914,19 +1914,21 @@ namespace WebAPI.Clients
             return success;
         }
 
-        internal List<Models.API.KalturaExportTask> GetBulkExportTasks(int groupId, long[] ids, string[] externalKeys)
+        internal List<Models.API.KalturaExportTask> GetBulkExportTasks(int groupId, long[] ids, string[] externalKeys, KalturaExportTaskOrderBy orderBy)
         {
             List<Models.API.KalturaExportTask> tasks = new List<Models.API.KalturaExportTask>();
             BulkExportTasksResponse response = null;
 
 
             Group group = GroupsManager.GetGroup(groupId);
+            BulkExportTaskOrderBy wsOrderBy = ApiMappings.ConvertExportTaskOrderBy(orderBy);
+
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetBulkExportTasks(group.ApiCredentials.Username, group.ApiCredentials.Password, ids, externalKeys);
+                    response = Api.GetBulkExportTasks(group.ApiCredentials.Username, group.ApiCredentials.Password, ids, externalKeys, wsOrderBy);
                 }
             }
             catch (Exception ex)

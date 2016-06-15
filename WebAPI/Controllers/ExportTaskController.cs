@@ -125,7 +125,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                var listRes = ClientsManager.ApiClient().GetBulkExportTasks(groupId, new long[] { id }, null);
+                var listRes = ClientsManager.ApiClient().GetBulkExportTasks(groupId, new long[] { id }, null, KalturaExportTaskOrderBy.CREATE_DATE_DESC);
                 if (listRes != null && listRes.Count > 0)
                 {
                     response = listRes[0];
@@ -158,9 +158,14 @@ namespace WebAPI.Controllers
                 filter = new KalturaExportFilter();
             }
 
+            if (!filter.OrderBy.HasValue)
+            {
+                filter.OrderBy = (KalturaExportTaskOrderBy)filter.GetDefaultOrderByValue();
+            }
+
             try
             {
-                response = ClientsManager.ApiClient().GetBulkExportTasks(groupId, filter.Ids != null ? filter.Ids.Select(id => id.value).ToArray() : null, null);
+                response = ClientsManager.ApiClient().GetBulkExportTasks(groupId, filter.IdIn != null ? filter.IdIn.Select(id => id.value).ToArray() : null, null, filter.OrderBy.Value);
             }
             catch (ClientException ex)
             {
