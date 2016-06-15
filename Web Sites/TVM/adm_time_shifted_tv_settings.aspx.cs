@@ -8,6 +8,8 @@ using System.Reflection;
 using KLogMonitor;
 using TVinciShared;
 using System.Data;
+using TvinciImporter;
+using ApiObjects;
 
 public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
 {
@@ -31,9 +33,54 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, true);
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
-                DBManipulator.DoTheWork("MAIN_CONNECTION_STRING");
+                // get catchup valuefrom db to this group_id 
+                int groupId = LoginManager.GetLoginGroupID();
+                apiWS.TimeShiftedTvPartnerSettings tstvOld = GetTimeShiftedTVSettings(groupId);
+
+                int id = DBManipulator.DoTheWork("MAIN_CONNECTION_STRING");
+                if (id > 0)
+                {
+                    apiWS.TimeShiftedTvPartnerSettings tstvNew = GetTimeShiftedTVSettings(groupId);
+                    if ((tstvOld == null && tstvNew != null) || tstvOld.IsCatchUpEnabled != tstvNew.IsCatchUpEnabled || tstvOld.CatchUpBufferLength != tstvNew.CatchUpBufferLength)
+                    {
+                        // call api service
+                        apiWS.API api = new apiWS.API();
+                        string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+
+                        if (sWSURL != "")
+                            api.Url = sWSURL;
+                        string sWSUserName = "";
+                        string sWSPass = "";
+                        TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "UpdateTimeShiftedTvEpgChannelsSettings", "api", "1.1.1.1", ref sWSUserName, ref sWSPass);
+
+                        apiWS.Status status = api.UpdateTimeShiftedTvEpgChannelsSettings(sWSUserName, sWSPass, tstvNew);
+                    }
+                }
             }
         }
+    }
+
+    private apiWS.TimeShiftedTvPartnerSettings GetTimeShiftedTVSettings(int groupId)
+    {
+        apiWS.TimeShiftedTvPartnerSettings tstv = null;
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery += "select top (1) enable_catch_up, catch_up_buffer from dbo.time_shifted_tv_settings WITH(NOLOCK)  where is_active = 1 and status = 1 and ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupId);
+        if (selectQuery.Execute("query", true) != null)
+        {
+            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+            if (nCount > 0)
+            {
+                tstv = new apiWS.TimeShiftedTvPartnerSettings()
+                {
+                    IsCatchUpEnabled = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").Rows[0], "enable_catch_up") == 1 ? true : false,
+                    CatchUpBufferLength = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").Rows[0], "catch_up_buffer")
+                };
+            }
+        }
+        selectQuery.Finish();
+        selectQuery = null;
+        return tstv;
     }
 
     protected void GetMainMenu()
