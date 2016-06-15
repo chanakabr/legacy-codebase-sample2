@@ -47,37 +47,6 @@ namespace Catalog
             OrderObj order = (OrderObj)parameters[3];
             Group group = (Group)parameters[4];
 
-            //EntitlementSearchDefinitions result = new EntitlementSearchDefinitions();
-
-            //string loweredValue = type.ToLower();
-
-            //definitions.entitlementSearchDefinitions = new EntitlementSearchDefinitions();
-
-            //switch (loweredValue)
-            //{
-            //    case ("free"):
-            //    {
-            //        definitions.entitlementSearchDefinitions.shouldGetFreeAssets = true;
-            //        break;
-            //    }
-            //    case ("entitled"):
-            //    {
-            //        definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
-            //        break;
-            //    }
-            //    case ("both"):
-            //    {
-            //        definitions.entitlementSearchDefinitions.shouldGetFreeAssets = true;
-            //        definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
-            //        break;
-            //    }
-            //    default:
-            //    {
-            //        definitions.entitlementSearchDefinitions = null;
-            //        throw new KalturaException("Invalid search value or operator was sent for entitled_assets", (int)eResponseStatus.BadSearchRequest);
-            //    }
-            //}
-
             UnifiedSearchDefinitionsBuilder.BuildEntitlementSearchDefinitions(definitions, request, order, groupId, group);
 
             return definitions.entitlementSearchDefinitions;
@@ -92,10 +61,24 @@ namespace Catalog
         {
             string cacheKey = string.Format("{0}_entitlement_search_definitions_{1}_{2}_{3}", version, groupId, request.m_sSiteGuid, type.ToString());
             string mutexName = string.Concat("Group EntitlementSearchDefinitions GID_", groupId);
-
             this.cacheTime = 4;
 
-            return base.Get(cacheKey, mutexName, groupId, definitions, request, order, group);
+            EntitlementSearchDefinitions result = null;
+
+            // If it is the first page, always rebuild value and set it
+            if (request.m_nPageIndex == 0)
+            {
+                result = BuildValue(groupId, definitions, request, order, group);
+
+                this.cacheService.Set(cacheKey, new CachingProvider.BaseModuleCache(result), cacheTime);
+            }
+            else
+            {
+                // For second page onwards, use cache
+                result = base.Get(cacheKey, mutexName, groupId, definitions, request, order, group);
+            }
+
+            return result;
         }
     }
 }
