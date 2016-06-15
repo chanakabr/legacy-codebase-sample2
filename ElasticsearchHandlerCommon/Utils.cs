@@ -538,7 +538,7 @@ namespace ElasticsearchTasksCommon
         /// <param name="group"></param>
         public static void UpdateNodeTreeFields(ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions, Group group)
         {
-            if (group != null)
+            if (group != null && filterTree != null)
             {
                 Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping = new Dictionary<BooleanPhraseNode, BooleanPhrase>();
 
