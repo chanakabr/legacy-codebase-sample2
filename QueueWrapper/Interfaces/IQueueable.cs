@@ -9,7 +9,7 @@ namespace QueueWrapper
 {
     public interface IQueueable
     {
-        bool Enqueue(QueueObject record, string sRouteKey);
+        bool Enqueue(QueueObject record, string sRouteKey, long expirationMiliSec = 0);
 
         /// <summary>
         /// 

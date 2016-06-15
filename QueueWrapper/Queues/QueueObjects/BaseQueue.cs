@@ -19,7 +19,7 @@ namespace QueueWrapper
         public BaseQueue()
         { }
 
-        public virtual bool Enqueue(ApiObjects.QueueObject record, string routingKey)
+        public virtual bool Enqueue(ApiObjects.QueueObject record, string routingKey, long expirationMiliSec = 0)
         {
             bool bIsEnqueueSucceeded = false;
             string sMessage = string.Empty;
@@ -29,7 +29,7 @@ namespace QueueWrapper
                 sMessage = record.ToString();
                 if (this.Implementation != null)
                 {
-                    bIsEnqueueSucceeded = this.Implementation.Enqueue(sMessage, routingKey);
+                    bIsEnqueueSucceeded = this.Implementation.Enqueue(sMessage, routingKey, expirationMiliSec);
                 }
 
                 if (bIsEnqueueSucceeded && storeForRecovery)

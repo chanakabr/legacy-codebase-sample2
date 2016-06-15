@@ -93,7 +93,7 @@ namespace QueueWrapper
         /// <param name="dataToIndex"></param>
         /// <param name="routingKey"></param>
         /// <returns></returns>
-        public virtual bool Enqueue(string dataToIndex, string routingKey)
+        public virtual bool Enqueue(string dataToIndex, string routingKey, long expirationMiliSec = 0)
         {
             bool success = false;
 
@@ -153,7 +153,7 @@ namespace QueueWrapper
         public virtual bool Ack(string sQueueName, string sAckId)
         {
             bool bResult = false;
-            
+
             RabbitConfigurationData configData = CreateRabbitConfigurationData();
             if (configData != null)
             {
@@ -178,7 +178,7 @@ namespace QueueWrapper
             return false;
         }
 
-        public virtual bool AddQueue(string name, string routingKey)
+        public virtual bool AddQueue(string name, string routingKey, long expirationMiliSec = 0)
         {
             RabbitConfigurationData configData = CreateRabbitConfigurationData();
 
@@ -186,7 +186,7 @@ namespace QueueWrapper
             {
                 configData.QueueName = name;
                 configData.RoutingKey = routingKey;
-                return RabbitConnection.Instance.AddQueue(configData);
+                return RabbitConnection.Instance.AddQueue(configData, expirationMiliSec);
             }
 
             return false;
