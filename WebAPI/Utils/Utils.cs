@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using WebAPI.ClientManagers;
+using WebAPI.Filters;
 using WebAPI.Managers.Models;
 
 namespace WebAPI.Utils
@@ -76,6 +77,12 @@ namespace WebAPI.Utils
         public static long DateTimeToUnixTimestampMilliseconds(DateTime dateTime)
         {
             return (long)(dateTime - new DateTime(1970, 1, 1).ToUniversalTime()).TotalMilliseconds;
+        }
+
+        internal static string GetLanguageFromRequest()
+        {
+            var language = HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
+            return language != null ? language.ToString() : null;
         }
     }
 }

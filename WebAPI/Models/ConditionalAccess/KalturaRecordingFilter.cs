@@ -23,9 +23,8 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "statusIn")]
         [JsonProperty(PropertyName = "statusIn")]
-        [XmlArray(ElementName = "statusIn", IsNullable = true)]
-        [XmlArrayItem(ElementName = "statusIn")]
-        public List<KalturaRecordingStatusHolder> StatusIn { get; set; }
+        [XmlArray(ElementName = "statusIn", IsNullable = true)]        
+        public string StatusIn { get; set; }
 
         /// <summary>
         /// KSQL expression
@@ -49,6 +48,31 @@ namespace WebAPI.Models.ConditionalAccess
         {
             return KalturaRecordingOrderBy.START_DATE_DESC;
         }
-        
+
+        public List<KalturaRecordingStatus> ConvertStatusIn()
+        {
+            List<KalturaRecordingStatus> recordingStatuses = null;
+            if (!string.IsNullOrEmpty(StatusIn))
+            {
+                string[] recordingStatusInrecordingStatuses = StatusIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                recordingStatuses = new List<KalturaRecordingStatus>();
+                foreach (string sRecordingStatus in recordingStatusInrecordingStatuses)
+                {
+                    KalturaRecordingStatus recordingStatus;
+                    if (Enum.TryParse<KalturaRecordingStatus>(sRecordingStatus.ToUpper(), out recordingStatus))
+                    {
+                        recordingStatuses.Add(recordingStatus);
+                    }
+                    else
+                    {
+                        throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, string.Format("Filter.StatusIn contains invalid status {0}", sRecordingStatus));
+                    }
+                }
+            }
+
+            return recordingStatuses;
+
+        }
+
     }
 }

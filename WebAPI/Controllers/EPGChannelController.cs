@@ -49,7 +49,7 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
                 string udid = KSUtils.ExtractKSPayload().UDID;
-                string language = (string)HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
+                string language = Utils.Utils.GetLanguageFromRequest();
 
                 response = ClientsManager.CatalogClient().GetEPGByChannelIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, 0, 0, 
                     new List<int>(filter.IDs.Select(x => x.value).ToList()), 

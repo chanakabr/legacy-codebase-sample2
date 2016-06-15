@@ -139,13 +139,8 @@ namespace WebAPI.Controllers
 
                 if (filter == null)
                 {
-                    filter = new KalturaRecordingFilter() { StatusIn = new List<KalturaRecordingStatusHolder>() };
+                    filter = new KalturaRecordingFilter() { StatusIn = string.Empty };
                     
-                }
-
-                if (filter.StatusIn == null)
-                {
-                    filter.StatusIn = new List<KalturaRecordingStatusHolder>();
                 }
 
                 if (!filter.OrderBy.HasValue)
@@ -159,8 +154,8 @@ namespace WebAPI.Controllers
                 }
 
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().SearchRecordings(groupId, userId, domainId, filter.StatusIn.Select(x => x.Status).ToList(),
-                                                                                     filter.FilterExpression, pager.getPageIndex(), pager.PageSize, filter.OrderBy);
+                response = ClientsManager.ConditionalAccessClient().SearchRecordings(groupId, userId, domainId, filter.ConvertStatusIn(), filter.FilterExpression,
+                                                                                     pager.getPageIndex(), pager.PageSize, filter.OrderBy);
             }
             catch (ClientException ex)
             {
