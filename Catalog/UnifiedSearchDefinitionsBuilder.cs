@@ -250,7 +250,6 @@ namespace Catalog
 
             if (entitlementSearchDefinitions.shouldGetPurchasedAssets)
             {
-
                 entitlementSearchDefinitions.entitledPaidForAssets =
                    EntitledAssetsUtils.GetUserPPVAssets(parentGroupID, request.m_sSiteGuid, request.domainId, fileTypes, out purchasedEpgChannelIds);
             }
