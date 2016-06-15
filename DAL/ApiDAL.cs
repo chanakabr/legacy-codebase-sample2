@@ -3782,5 +3782,34 @@ namespace DAL
 
             return regularGroupId;        
         }
+
+        public static List<int> GetEpgChannelIdsWithNoCatchUp(int groupID)
+        {
+            List<int> epgIds = null;
+            DataTable dt = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetEpgChannelIdsWithNoCatchUp");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+
+                dt = sp.Execute();
+
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    epgIds = new List<int>();
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        epgIds.Add(ODBCWrapper.Utils.GetIntSafeVal(dr, "id"));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Failed getting GetEpgChannelIds", ex);
+            }
+
+            return epgIds;
+        }
     }
 }

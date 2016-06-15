@@ -15,9 +15,9 @@ namespace QueueWrapper.Queues.QueueObjects
             this.Implementation = new RabbitQueue(ConfigType.DefaultConfig, true);
         }
 
-        public override bool Enqueue(ApiObjects.QueueObject record, string sRouteKey)
+        public override bool Enqueue(ApiObjects.QueueObject record, string sRouteKey, long expirationMiliSec = 0)
         {
-            return base.Enqueue(record, sRouteKey);
+            return base.Enqueue(record, sRouteKey, expirationMiliSec);
         }
 
         public override T Dequeue<T>(string sQueueName, out string sAckId)

@@ -58,7 +58,7 @@ namespace QueueWrapper
             return config;
         }
 
-        public override bool Enqueue(string sDataToIndex, string sRouteKey)
+        public override bool Enqueue(string sDataToIndex, string sRouteKey, long expiration = 0)
         {
             bool bIsEnqueueSucceeded = false;
             try
