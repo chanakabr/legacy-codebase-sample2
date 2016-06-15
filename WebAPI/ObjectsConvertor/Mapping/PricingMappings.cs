@@ -259,19 +259,19 @@ namespace WebAPI.Mapping.ObjectsConvertor
             switch (couponStatus)
             {
                 case WebAPI.Pricing.CouponsStatus.Valid:
-                    result = Models.Pricing.KalturaCouponStatus.valid;
+                    result = Models.Pricing.KalturaCouponStatus.VALID;
                     break;
                 case WebAPI.Pricing.CouponsStatus.NotExists:
-                    result = Models.Pricing.KalturaCouponStatus.not_exists;
+                    result = Models.Pricing.KalturaCouponStatus.NOT_EXISTS;
                     break;
                 case WebAPI.Pricing.CouponsStatus.AllreadyUsed:
-                    result = Models.Pricing.KalturaCouponStatus.already_used;
+                    result = Models.Pricing.KalturaCouponStatus.ALREADY_USED;
                     break;
                 case WebAPI.Pricing.CouponsStatus.Expired:
-                    result = Models.Pricing.KalturaCouponStatus.expired;
+                    result = Models.Pricing.KalturaCouponStatus.EXPIRED;
                     break;
                 case WebAPI.Pricing.CouponsStatus.NotActive:
-                    result = Models.Pricing.KalturaCouponStatus.inactive;
+                    result = Models.Pricing.KalturaCouponStatus.INACTIVE;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown coupon status");
