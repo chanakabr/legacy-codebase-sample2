@@ -2809,14 +2809,14 @@ namespace DAL
             return recordings;
         }
 
-        public static DataTable GetRecordingsMapingByRecordingStatuses(int groupID, long domainID, List<int> recordingStatuses)
+        public static DataTable GetRecordingsMapingByRecordingStatuses(int groupID, long domainID, List<int> domainRecordingStatuses)
         {
             DataTable dt = null;            
             ODBCWrapper.StoredProcedure spGetDomainRecordings = new ODBCWrapper.StoredProcedure("GetDomainRecordingsByRecordingStatuses");
             spGetDomainRecordings.SetConnectionKey("CONNECTION_STRING");
             spGetDomainRecordings.AddParameter("@GroupID", groupID);
             spGetDomainRecordings.AddParameter("@DomainID", domainID);
-            spGetDomainRecordings.AddIDListParameter<int>("@RecordingStatuses", recordingStatuses, "ID");
+            spGetDomainRecordings.AddIDListParameter<int>("@RecordingStatuses", domainRecordingStatuses, "ID");
             dt = spGetDomainRecordings.Execute();
 
             return dt;

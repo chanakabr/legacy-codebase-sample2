@@ -594,6 +594,15 @@ namespace ApiObjects
         Deleted = 6
     }
 
+    public enum DomainRecordingStatus
+    {        
+        None = 0,
+        OK = 1,
+        Canceled = 2,        
+        Deleted = 3,
+        DeletedByCleanup = 4
+    }
+
     public enum RecordingInternalStatus
     {
         OK = 0,

@@ -4388,20 +4388,20 @@ namespace ConditionalAccess
             return recordings;
         }
 
-        internal static List<TstvRecordingStatus> ConvertToTstvRecordingStatus(List<int> domainRecordingStatuses)
+        internal static List<TstvRecordingStatus> ConvertToTstvRecordingStatus(List<DomainRecordingStatus> domainRecordingStatuses)
         {
             List<TstvRecordingStatus> result = new List<TstvRecordingStatus>();
-            foreach (int status in domainRecordingStatuses.Distinct())
+            foreach (DomainRecordingStatus status in domainRecordingStatuses.Distinct())
             {
                 switch (status)
                 {
-                    case 1:
+                    case DomainRecordingStatus.OK:
                         result.Add(TstvRecordingStatus.OK);
                         break;
-                    case 2:
+                    case DomainRecordingStatus.Canceled:
                         result.Add(TstvRecordingStatus.Canceled);
                         break;
-                    case 3:
+                    case DomainRecordingStatus.Deleted:
                         result.Add(TstvRecordingStatus.Deleted);
                         break;
                     default:
@@ -4411,9 +4411,9 @@ namespace ConditionalAccess
             return result;
         }
 
-        internal static List<int> ConvertToDomainRecordingStatus(List<TstvRecordingStatus> recordingStatus)
+        internal static List<DomainRecordingStatus> ConvertToDomainRecordingStatus(List<TstvRecordingStatus> recordingStatus)
         {
-            List<int> result = new List<int>();
+            List<DomainRecordingStatus> result = new List<DomainRecordingStatus>();
             foreach (TstvRecordingStatus status in recordingStatus)
             {
                 switch (status)
@@ -4422,15 +4422,15 @@ namespace ConditionalAccess
                     case TstvRecordingStatus.Scheduled:
                     case TstvRecordingStatus.Recording:
                     case TstvRecordingStatus.Recorded:
-                        if (!result.Contains(1))
+                        if (!result.Contains(DomainRecordingStatus.OK))
                         {
-                            result.Add(1);
+                            result.Add(DomainRecordingStatus.OK);
                         }
                         break;
                     case TstvRecordingStatus.Canceled:
-                        if (!result.Contains(2))
+                        if (!result.Contains(DomainRecordingStatus.Canceled))
                         {
-                            result.Add(2);
+                            result.Add(DomainRecordingStatus.Canceled);
                         }
                         break;
                     case TstvRecordingStatus.Deleted:
@@ -4777,7 +4777,8 @@ namespace ConditionalAccess
 
         internal static Dictionary<long, Recording> GetRecordingsMapingsByDomainRecordingIds(int groupID, long domainID, List<TstvRecordingStatus> recordingStatuses, out Dictionary<long, long> recordingIdToDomainRecordingIdMap)
         {
-            DataTable dt = ConditionalAccessDAL.GetRecordingsMapingByRecordingStatuses(groupID, domainID, ConvertToDomainRecordingStatus(recordingStatuses));
+            List<DomainRecordingStatus> domainRecordingStatuses = ConvertToDomainRecordingStatus(recordingStatuses);
+            DataTable dt = ConditionalAccessDAL.GetRecordingsMapingByRecordingStatuses(groupID, domainID, domainRecordingStatuses.Select(x => (int)x).ToList());
             Dictionary<long, Recording> recordingIdToDomainRecordingMap = null;
             recordingIdToDomainRecordingIdMap = new Dictionary<long, long>();
             if (dt != null && dt.Rows != null)
@@ -4787,11 +4788,17 @@ namespace ConditionalAccess
                 {
                     long recordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID");
                     long domainRecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
-                    int recordingStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_STATE");
-                    Recording recording = new Recording() { Id = domainRecordingID, RecordingStatus = ConvertToTstvRecordingStatus(new List<int>() { recordingStatus }).First() };
-                    recordingIdToDomainRecordingMap.Add(recordingID, recording);
-                    recordingIdToDomainRecordingIdMap.Add(recordingID, domainRecordingID);
-
+                    DomainRecordingStatus currentDomainRecordingStatus = (DomainRecordingStatus)ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_STATE");
+                    if (currentDomainRecordingStatus != DomainRecordingStatus.None)
+                    {
+                        Recording recording = new Recording() { Id = domainRecordingID, RecordingStatus = ConvertToTstvRecordingStatus(new List<DomainRecordingStatus>() { currentDomainRecordingStatus }).First() };
+                        recordingIdToDomainRecordingMap.Add(recordingID, recording);
+                        recordingIdToDomainRecordingIdMap.Add(recordingID, domainRecordingID);
+                    }
+                    else
+                    {
+                        log.ErrorFormat("Invalid domainRecordingStatus {0} returned from GetRecordingsMapingByRecordingStatuses", currentDomainRecordingStatus);
+                    }
                 }
             }
 
