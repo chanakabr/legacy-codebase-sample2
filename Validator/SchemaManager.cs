@@ -104,7 +104,7 @@ namespace Validator.Managers.Schema
         {
             ObsoleteAttribute obsolete = type.GetCustomAttribute<ObsoleteAttribute>(true);
             if (obsolete != null)
-                return false;
+                return !strict;
 
             if (type.IsSubclassOf(typeof(ApiController)))
                 return ValidateService(type, strict);
@@ -446,7 +446,7 @@ namespace Validator.Managers.Schema
 
             ObsoleteAttribute obsolete = action.GetCustomAttribute<ObsoleteAttribute>(true);
             if (obsolete != null)
-                return false;
+                return !strict;
 
             RouteAttribute route = action.GetCustomAttribute<RouteAttribute>(false);
             Type controller = action.ReflectedType;

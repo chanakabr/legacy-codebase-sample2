@@ -12,8 +12,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/category/action")]
-    public class CategoryController : ApiController
+    [RoutePrefix("_service/ottCategory/action")]
+    public class OttCategoryController : ApiController
     {
         /// <summary>
         /// Retrieve the list of categories (hierarchical) and their associated channels
@@ -55,5 +55,11 @@ namespace WebAPI.Controllers
 
             return response;
         }
+    }
+
+    [RoutePrefix("_service/category/action")]
+    [Obsolete]
+    public class CategoryController : OttCategoryController
+    {
     }
 }
