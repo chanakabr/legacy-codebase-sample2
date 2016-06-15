@@ -10,13 +10,13 @@
 		<h2>Kaltura API</h2>
 		<table class="action">
 			<tr>
-				<th colspan="5" class="service_action_title">recording.list</th>
+				<th colspan="5" class="service_action_title">ottcategory.get</th>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Description:</td>
 			</tr>
 			<tr>
-				<td class="description" colspan="5">Return a list of recordings for the household with optional filter by status and KSQL.</td>
+				<td class="description" colspan="5">Retrieve the list of categories (hierarchical) and their associated channels</td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Input Params</td>
@@ -29,45 +29,28 @@
 				<th class="subtitle">Default Value</th>
 			</tr>
 			<tr>
-				<td>filter</td>
-				<td><a href="../objects/KalturaRecordingFilter.html">KalturaRecordingFilter</a></td>
-				<td>Filter parameters for filtering out the result</td>
+				<td>id</td>
+				<td>int</td>
+				<td>Category Identifier</td>
+				<td>V</td>
 				<td></td>
-				<td>1</td>
-			</tr>
-			<tr>
-				<td>pager</td>
-				<td><a href="../objects/KalturaFilterPager.html">KalturaFilterPager</a></td>
-				<td>Page size and index</td>
-				<td></td>
-				<td>1</td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Output Type</td>
 			</tr>
 			<tr>
-				<td colspan="5"><a href="../objects/KalturaRecordingListResponse.html">KalturaRecordingListResponse</a></td>
+				<td colspan="5"><a href="../objects/KalturaOTTCategory.html">KalturaOTTCategory</a></td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Example HTTP Hit</td>
 			</tr>
 			<tr>
-				<td colspan="5">http://www.kaltura.com/api_v3/service/recording/action/list<br />
+				<td colspan="5">http://www.kaltura.com/api_v3/service/ottcategory/action/get<br />
 				<strong>JSON object:</strong>
 				<pre>
 				<div class="post_fields">
 [
-	filter: {
-		objectType: "KalturaRecordingFilter",
-		statusIn: "value",
-		filterExpression: "value",
-		orderBy: "value"
-	},
-	pager: {
-		objectType: "KalturaFilterPager",
-		pageSize: value,
-		pageIndex: value
-	}
+	id: value
 ]
 				</pre></td>
 			</tr>

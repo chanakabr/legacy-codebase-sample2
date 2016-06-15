@@ -7,10 +7,10 @@ namespace WebAPI.Models.Pricing
 {
     public enum KalturaCouponStatus
     {
-        valid,
-        not_exists,
-        already_used,
-        expired,
-        inactive
+        VALID,
+        NOT_EXISTS,
+        ALREADY_USED,
+        EXPIRED,
+        INACTIVE
     }
 }

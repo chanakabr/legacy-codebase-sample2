@@ -29,7 +29,7 @@
 		<h2>Kaltura API</h2>
 		<table class="action" width="80%">
 			<tr>
-				<th class="service_action_title">KalturaRecordingStatusHolder</th>
+				<th class="service_action_title">KalturaOTTCategory</th>
 			</tr>
 			<tr>
 				<td class="title">Properties</td>
@@ -70,7 +70,7 @@
 					<table style="">
 						<tbody>
 							<tr>
-								<td class="inheritedFrom"><b>KalturaRecordingStatusHolder</b></td>
+								<td class="inheritedFrom"><b>KalturaOTTCategory</b></td>
 							</tr>
 						</tbody>
 					</table>
@@ -84,11 +84,46 @@
 								<th class="subtitle">Description</th>
 							</tr>
 							<tr >
-								<td>status</td>
-								<td><a href="../enums/KalturaRecordingStatus.html">KalturaRecordingStatus</a></td>
+								<td>id</td>
+								<td>bigint</td>
 								<td>V</td>
 								<td></td>
+								<td>Unique identifier for the category</td>
+							</tr>
+							<tr class="odd">
+								<td>name</td>
+								<td>string</td>
+								<td>V</td>
 								<td></td>
+								<td>Category name</td>
+							</tr>
+							<tr >
+								<td>parentCategoryId</td>
+								<td>bigint</td>
+								<td>V</td>
+								<td></td>
+								<td>Category parent identifier</td>
+							</tr>
+							<tr class="odd">
+								<td>childCategories</td>
+								<td>array of <a href="KalturaOTTCategory.html">KalturaOTTCategory</a></td>
+								<td>V</td>
+								<td></td>
+								<td>Child categories</td>
+							</tr>
+							<tr >
+								<td>channels</td>
+								<td>array of <a href="KalturaChannel.html">KalturaChannel</a></td>
+								<td>V</td>
+								<td></td>
+								<td>Category channels</td>
+							</tr>
+							<tr class="odd">
+								<td>images</td>
+								<td>array of <a href="KalturaMediaImage.html">KalturaMediaImage</a></td>
+								<td>V</td>
+								<td></td>
+								<td>Category images</td>
 							</tr>
 						</tbody>
 					</table>
