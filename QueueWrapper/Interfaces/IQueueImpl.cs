@@ -7,7 +7,7 @@ namespace QueueWrapper
 {
     public interface IQueueImpl : IDisposable
     {
-        bool Enqueue(string message, string routingKey);
+        bool Enqueue(string message, string routingKey, long expirationMiliSec = 0);
 
         T Dequeue<T>(string queueName, out string ackId);
 
@@ -15,7 +15,7 @@ namespace QueueWrapper
 
         bool IsQueueExist(string name);
 
-        bool AddQueue(string name, string routingKey);
+        bool AddQueue(string name, string routingKey, long expirationMiliSec = 0);
 
         bool DeleteQueue(string name);
     }

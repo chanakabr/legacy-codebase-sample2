@@ -150,7 +150,7 @@ namespace QueueWrapper
         /// <param name="configuration"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        public bool Publish(RabbitConfigurationData configuration, string message)
+        public bool Publish(RabbitConfigurationData configuration, string message, long expirationMiliSec = 0)
         {
             bool isPublishSucceeded = false;
 
@@ -184,9 +184,11 @@ namespace QueueWrapper
 
                             // should be "application/json"
                             if (!string.IsNullOrEmpty(configuration.ContentType))
-                            {
                                 properties.ContentType = configuration.ContentType;
-                            }
+                            
+                            // set message expiration
+                            if (expirationMiliSec != 0)
+                                properties.Expiration = expirationMiliSec.ToString();
 
                             using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_RABBITMQ, null, null, null, null) { Database = configuration.Exchange })
                             {
@@ -329,7 +331,7 @@ namespace QueueWrapper
             }
         }
 
-        public bool AddQueue(RabbitConfigurationData configData)
+        public bool AddQueue(RabbitConfigurationData configData, long expirationMiliSec = 0)
         {
             if (IsQueueExist(configData))
             {
@@ -341,18 +343,25 @@ namespace QueueWrapper
             {
                 if (this.GetInstance(configData, QueueAction.Ack) && this.m_Connection != null && this.m_Model != null)
                 {
-                    QueueDeclareOk res = this.m_Model.QueueDeclare(configData.QueueName, true, false, false, null);
+                    Dictionary<string, object> args = null;
+                    if (expirationMiliSec > 0)
+                    {
+                        args = new Dictionary<string, object>();
+                        args.Add("x-expires", expirationMiliSec);
+                    }
+
+                    QueueDeclareOk res = this.m_Model.QueueDeclare(configData.QueueName, true, false, false,args);
                     this.m_Model.QueueBind(configData.QueueName, "scheduled_tasks", configData.RoutingKey);
-                    
+
                     return res != null && res.QueueName == configData.QueueName;
                 }
 
                 return false;
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 log.Error("AddQueue: Error - " + ex);
-                return false; 
+                return false;
             }
             finally
             {
@@ -379,10 +388,10 @@ namespace QueueWrapper
 
                 return false;
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 log.Error("DeleteQueue: Error - " + ex);
-                return false; 
+                return false;
             }
             finally
             {

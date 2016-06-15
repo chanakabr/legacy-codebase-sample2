@@ -14,12 +14,12 @@ namespace QueueWrapper
         {
             //the "picture" parameter will ensure that the config values are the ones relevent for the PictureQueue 
             //the "true" indicates to set the content type of the message in the properties of the message
-            this.Implementation = new RabbitQueue(ConfigType.PictureConfig, true);            
+            this.Implementation = new RabbitQueue(ConfigType.PictureConfig, true);
         }
 
-        public override bool Enqueue(QueueObject record, string sRouteKey)
+        public override bool Enqueue(QueueObject record, string sRouteKey, long expirationMiliSec = 0)
         {
-            return base.Enqueue(record, sRouteKey);
+            return base.Enqueue(record, sRouteKey, expirationMiliSec);
         }
 
         public override T Dequeue<T>(string sQueueName, out string sAckId)
