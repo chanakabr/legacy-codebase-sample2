@@ -316,6 +316,29 @@ namespace QueueWrapper
                         break;
                     }
 
+                case ConfigType.PushNotifications:
+                    {
+                        routingKey = Utils.GetConfigValue("PushNotifications.routingKey");
+                        if (string.IsNullOrEmpty(routingKey))
+                            routingKey = "*";
+
+                        exchange = Utils.GetConfigValue("PushNotifications.exchange");
+                        if (string.IsNullOrEmpty(exchange))
+                            exchange = "push_notifications";
+
+                        virtualHost = Utils.GetConfigValue("PushNotifications.virtualHost");
+                        if (string.IsNullOrEmpty(virtualHost))
+                            virtualHost = "/";
+
+                        exchangeType = Utils.GetConfigValue("PushNotifications.exchangeType");
+                        if (string.IsNullOrEmpty(exchangeType))
+                            exchangeType = "topic";
+
+                        queue = ".";
+
+                        break;
+                    }
+
                 case ConfigType.ImageUpload:
                     {
                         routingKey = Utils.GetConfigValue("routingKey");

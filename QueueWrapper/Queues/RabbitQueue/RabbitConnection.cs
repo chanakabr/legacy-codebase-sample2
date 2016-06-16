@@ -465,7 +465,7 @@ namespace QueueWrapper
                             {
                                 HostName = configuration.Host,
                                 Password = configuration.Password,
-                                UserName = configuration.Username,
+                                UserName = configuration.Username, 
                             };
 
                             int port;
