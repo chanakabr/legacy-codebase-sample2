@@ -268,6 +268,11 @@ namespace WebAPI.Managers.Models
             HttpContext.Current.Items.Add("KS", this);
         }
 
+        public static void ClearOnRequest()
+        {
+            HttpContext.Current.Items.Remove("KS");
+        }
+
         internal static void SaveOnRequest(KS ks)
         {
             if (HttpContext.Current.Items.Contains("KS"))

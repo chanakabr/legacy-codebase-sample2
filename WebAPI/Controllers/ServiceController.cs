@@ -67,6 +67,30 @@ namespace WebAPI.Controllers
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
+        [Route("service/{service_name}"), HttpGet]
+        public async Task<object> _Multirequest(string service_name)
+        {
+            if (service_name.Equals("multirequest", StringComparison.CurrentCultureIgnoreCase))
+            {
+                return await Action("multirequest", "Do");
+            }
+
+            throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error, "No action specified");
+        }
+
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [Route("service/{service_name}"), HttpPost]
+        public async Task<object> Multirequest(string service_name)
+        {
+            if (service_name.Equals("multirequest", StringComparison.CurrentCultureIgnoreCase))
+            {
+                return await Action("multirequest", "Do");
+            }
+
+            throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error, "No action specified");
+        }
+
+        [ApiExplorerSettings(IgnoreApi = true)]
         [Route("service/{service_name}/action/{action_name}"), HttpGet]
         public async Task<object> _Action(string service_name, string action_name)
         {

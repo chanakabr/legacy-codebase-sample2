@@ -1,5 +1,6 @@
 ﻿using Jil;
 using KLogMonitor;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,85 +10,141 @@ using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
 using System.Web.Http;
 using System.Web.Http.Description;
 using WebAPI.App_Start;
 using WebAPI.Exceptions;
+using WebAPI.Filters;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 using WebAPI.Models.MultiRequest;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("multirequest")]
+    [RoutePrefix("_service/multirequest")]
     [ApiExplorerSettings(IgnoreApi = true)]
     [ApiAuthorize]
     public class MultiRequestController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private object Invoke(Type type, string methodName, params object[] parameters)
+        private string getApiName(PropertyInfo property)
         {
-            Object obj = Activator.CreateInstance(type);
-            MethodInfo methodInfo = type.GetMethod(methodName);
+            System.Runtime.Serialization.DataMemberAttribute dataMember = property.GetCustomAttribute<System.Runtime.Serialization.DataMemberAttribute>();
+            if (dataMember == null)
+                return null;
 
-            //Do we need to convert types?            
-            var methodParams = methodInfo.GetParameters();
-            object[] convParams = new object[methodParams.Count()];
+            return dataMember.Name;
+        }
 
-            Dictionary<string, string> pp = new Dictionary<string, string>();
-            foreach (var p in parameters)
+        private object translateToken(object parameter, List<string> tokens)
+        {
+            string token = tokens.ElementAt(0);
+            tokens.RemoveAt(0);
+            object result;
+
+            if (parameter.GetType().IsArray)
             {
-                string[] kv = ((string)p).Split('=');
-                pp.Add(kv[0], kv[1]);
-            }
-
-            //Running on expected parameters
-            for (int i = 0; i < methodParams.Count(); i++)
-            {
-                //Skipping (null) if missing from request
-                if (!pp.ContainsKey(methodParams[i].Name))
-                    continue;
-
-                string val = pp[methodParams[i].Name];
-
-                if (methodParams[i].ParameterType == typeof(int))
+                int index;
+                if (!int.TryParse(token, out index))
                 {
-                    try
-                    {
-                        convParams[i] = int.Parse(pp[methodParams[i].Name]);
-                    }
-                    catch (Exception)
-                    {
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest,
-                            string.Format("Parameters has incorrect type {0}", methodParams[i].Name));
-                    }
-                }
-                else
-                    convParams[i] = pp[methodParams[i].Name];
-            }
-
-            try
-            {
-                return new StatusWrapper(0, Request.GetCorrelationId(), 0, methodInfo.Invoke(obj, convParams), "success");
-            }
-            catch (TargetInvocationException ex)
-            {
-                if (ex.InnerException is ApiException)
-                {
-                    ApiException.ExceptionPayload content = null;
-                    var e = (ApiException)ex.InnerException;
-                    e.Response.TryGetContentValue(out content);
-
-                    return new StatusWrapper(
-                        content.code,
-                        Request.GetCorrelationId(), 0, null, WrappingHandler.HandleError(content.error.ExceptionMessage,
-                        ex.InnerException.StackTrace));
+                    throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidMultirequestToken, "Invalid multirequest token");
                 }
 
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest,
-                           string.Format("Method invocation failed - {0}", methodName));
+                result = parameter.GetType().IsArray ? ((object[])parameter)[index] : ((JArray)parameter)[index];
             }
+            else if (parameter.GetType().IsSubclassOf(typeof(KalturaOTTObject)))
+            {
+                Type type = parameter.GetType();
+                var properties = type.GetProperties();
+                result = null;
+                foreach (PropertyInfo property in properties)
+                {
+                    string name = getApiName(property);
+                    if (!token.Equals(name, StringComparison.CurrentCultureIgnoreCase))
+                        continue;
+
+                    result = property.GetValue(parameter);
+                    break;
+                }
+            }
+            else if (parameter.GetType() == typeof(Dictionary<string, object>))
+            {
+                Dictionary<string, object> dict = (Dictionary<string, object>)parameter;
+                if (!dict.ContainsKey(token))
+                {
+                    throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidMultirequestToken, "Invalid multirequest token");
+                }
+
+                result = dict[token];
+            }
+            else
+            {
+                throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidMultirequestToken, "Invalid multirequest token");
+            }
+
+            if (tokens.Count > 0)
+            {
+                return translateToken(result, tokens);
+            }
+
+            return result;
+        }
+
+        private object translateMultirequestTokens(object parameter, object[] responses)
+        {
+            if (parameter.GetType() == typeof(string))
+            {
+                Match match = Regex.Match((string)parameter, @"^(\d):result(:.+)?$", RegexOptions.IgnoreCase);
+                if (match.Success)
+                {
+                    int index = int.Parse(match.Groups[1].Value);
+                    if (match.Groups[2].Success)
+                    {
+                        List<string> tokens = new List<string>(match.Groups[2].Value.Split(':'));
+                        tokens.RemoveAt(0);
+                        parameter = translateToken(responses[index], tokens);
+                    }
+                    else
+                    {
+                        parameter = responses[index];
+                    }
+                }
+            }
+            else if (parameter.GetType().IsArray)
+            {
+                List<object> list = new List<object>();
+                object[] array = (object[])parameter;
+                foreach (object item in array)
+                {
+                    list.Add(translateMultirequestTokens(item, responses));
+                }
+                parameter = list.ToArray();
+            }
+            else if (parameter.GetType() == typeof(JArray))
+            {
+                List<object> list = new List<object>();
+                JArray array = (JArray)parameter;
+                foreach (object item in array)
+                {
+                    list.Add(translateMultirequestTokens(item, responses));
+                }
+                parameter = list.ToArray();
+            }
+            else if (parameter.GetType() == typeof(Dictionary<string, object>) || parameter.GetType() == typeof(JObject))
+            {
+                Dictionary<string, object> dict = parameter.GetType() == typeof(JObject) ? ((JObject)parameter).ToObject<Dictionary<string, object>>() : (Dictionary<string, object>)parameter;
+                Dictionary<string, object> result = new Dictionary<string, object>();
+
+                foreach (KeyValuePair<string, object> item in dict)
+                {
+                    result.Add(item.Key, translateMultirequestTokens(item.Value, responses));
+                }
+                parameter = result;
+            }
+
+            return parameter;
         }
 
         /// <summary>
@@ -100,58 +157,40 @@ namespace WebAPI.Controllers
         /// <param name="request">Sequential API calls' definitions</param>
         /// <returns></returns>
         [ApiExplorerSettings(IgnoreApi = true)]
-        public object[] Do(KalturaMultiRequest[] request)
+        public object[] Do(KalturaMultiRequestAction[] request)
         {
+            Assembly asm = Assembly.GetExecutingAssembly();
             object[] responses = new object[request.Count()];
             for (int i = 0; i < request.Count(); i++)
             {
-                Type t = Type.GetType(string.Format("WebAPI.Controllers.{0}Controller", request[i].service));
-
-                for (int j = 0; j < request[i].parameters.Count(); j++)
+                object response;
+                Type controller = asm.GetType(string.Format("WebAPI.Controllers.{0}Controller", request[i].Service), false, true);
+                if (controller == null)
+                {
+                    response = new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidService, "Service doesn't exist");
+                }
+                else
                 {
                     try
                     {
-                        string[] kv = request[i].parameters[j].value.Split('=');
-                        string p = kv[1];
-                        string[] tokens = null;
-                        if (p != null && (tokens = p.Split(':')).Count() > 1)
+                        Dictionary<string, object> parameters = request[i].Parameters;
+                        if (i > 0)
                         {
-                            int respIdx = int.Parse(tokens[0]);
-                            dynamic response = responses[respIdx];
-
-                            //TODO: Fix if array or not
-                            var innerResult = response.Result;
-                            if (response.Result is IEnumerable)
-                                innerResult = response.Result[0];
-
-                            Type respType = innerResult.GetType();
-                            var properties = innerResult.GetType().GetProperties();
-                            bool found = false;
-                            foreach (var property in properties)
-                            {
-                                if (property.GetCustomAttributes(typeof(DataMemberAttribute), true)[0].Name == tokens[1])
-                                {
-                                    request[i].parameters[j] = string.Format("{0}={1}", kv[0],
-                                        respType.GetProperty(property.Name).GetValue(innerResult, null).ToString());
-
-                                    found = true;
-                                    break;
-                                }
-                            }
-
-                            if (found)
-                                break;
+                            parameters = (Dictionary<string, object>) translateMultirequestTokens(parameters, responses);
                         }
+                        MethodInfo methodInfo = RequestParser.createMethodInvoker(request[i].Service, request[i].Action, asm);
+                        RequestParser.setRequestContext(parameters);
+                        List<Object> methodParams = RequestParser.buildActionArguments(methodInfo, parameters);
+                        object controllerInstance = Activator.CreateInstance(controller, null);
+                        response = methodInfo.Invoke(controllerInstance, methodParams.ToArray());
                     }
-                    catch (Exception)
+                    catch(Exception e)
                     {
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest,
-                            string.Format("The method {0} has a parameter ({1}) which its syntax is incorrect", request[i].action,
-                            request[i].parameters[j]));
+                        response = e;
                     }
                 }
 
-                responses[i] = Invoke(t, request[i].action, request[i].parameters);
+                responses[i] = response;
             }
 
             return responses;

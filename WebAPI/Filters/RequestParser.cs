@@ -24,9 +24,20 @@ using WebAPI.Managers;
 using WebAPI.Managers.Schema;
 using System.Runtime.Serialization;
 using WebAPI.Models.Billing;
+using WebAPI.Models.MultiRequest;
 
 namespace WebAPI.Filters
 {
+    public class RequestParserException : Exception
+    {
+        public RequestParserException(int code, string message) : base(message)
+        {
+            Code = code;
+        }
+
+        public int Code { get; set; }
+    }
+
     public class RequestParser : ActionFilterAttribute
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -36,6 +47,10 @@ namespace WebAPI.Filters
 
         private static int accessTokenLength = TCMClient.Settings.Instance.GetValue<int>("access_token_length");
         private static string accessTokenKeyFormat = TCMClient.Settings.Instance.GetValue<string>("access_token_key_format");
+
+        private static string globalKs = null;
+        private static string globalUserId = null;
+        private static string globalLanguage = null;
 
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME, true);
 
@@ -75,40 +90,126 @@ namespace WebAPI.Filters
             return HttpContext.Current.Items[REQUEST_METHOD_PARAMETERS];
         }
 
-        private bool createMethodInvoker(HttpActionContext actionContext, string serviceName, string actionName, Assembly asm, out MethodInfo methodInfo, out object classInstance)
+        public static MethodInfo createMethodInvoker(string serviceName, string actionName, Assembly asm)
         {
+            MethodInfo methodInfo = null;
             Type controller = asm.GetType(string.Format("WebAPI.Controllers.{0}Controller", serviceName), false, true);
 
-            classInstance = null;
             methodInfo = null;
 
             if (controller == null)
             {
-                createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidService, "Service doesn't exist");
-                return false;
+                throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidService, "Service doesn't exist");
             }
 
             Dictionary<string, string> oldStandardActions = OldStandardAttribute.getOldMembers(controller);
             if (oldStandardActions != null && oldStandardActions.ContainsValue(actionName))
+            {
                 actionName = oldStandardActions.FirstOrDefault(value => value.Value == actionName).Key;
-            
+            }
+
+            if (serviceName.Equals("multirequest", StringComparison.CurrentCultureIgnoreCase))
+            {
+                actionName = "Do";
+            }
+
             methodInfo = controller.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
             if (methodInfo == null)
             {
-                createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidAction, "Action doesn't exist");
-                return false;
+                throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidAction, "Action doesn't exist");
             }
 
-            classInstance = Activator.CreateInstance(controller, null);
+            return methodInfo;
+        }
 
-            return true;
+        public static void setRequestContext(Dictionary<string, object> requestParams, bool globalScope = true)
+        {
+            // ks
+            if (requestParams.ContainsKey("ks"))
+            {
+                string ks;
+                if (requestParams["ks"].GetType() == typeof(JObject) || requestParams["ks"].GetType().IsSubclassOf(typeof(JObject)))
+                {
+                    ks = ((JObject)requestParams["ks"]).ToObject<string>();
+                }
+                else
+                {
+                    ks = (string)Convert.ChangeType(requestParams["ks"], typeof(string));
+                }
+
+                InitKS(ks);
+
+                if (globalScope)
+                    globalKs = ks;
+            }
+            else if (globalKs != null)
+            {
+                InitKS(globalKs);
+            }
+            else
+            {
+                KS.ClearOnRequest();
+            }
+
+            // impersonated user_id
+            if (requestParams.ContainsKey("user_id") || requestParams.ContainsKey("userId"))
+            {
+                object userIdObject = requestParams.ContainsKey("userId") ? requestParams["userId"] : requestParams["user_id"];
+                string userId;
+                if (userIdObject.GetType() == typeof(JObject) || userIdObject.GetType().IsSubclassOf(typeof(JObject)))
+                {
+                    userId = ((JObject)userIdObject).ToObject<string>();
+                }
+                else
+                {
+                    userId = (string)Convert.ChangeType(userIdObject, typeof(string));
+                }
+
+                HttpContext.Current.Items.Add(REQUEST_USER_ID, userId);
+                if (globalScope)
+                    globalUserId = userId;
+            }
+            else if (globalUserId != null)
+            {
+                HttpContext.Current.Items.Add(REQUEST_USER_ID, globalUserId);
+            }
+            else
+            {
+                HttpContext.Current.Items.Remove(REQUEST_USER_ID);
+            }
+
+            // language
+            if (requestParams.ContainsKey("language"))
+            {
+                string language;
+                if (requestParams["language"].GetType() == typeof(JObject) || requestParams["language"].GetType().IsSubclassOf(typeof(JObject)))
+                {
+                    language = ((JObject)requestParams["language"]).ToObject<string>();
+                }
+                else
+                {
+                    language = (string)Convert.ChangeType(requestParams["language"], typeof(string));
+                }
+
+                HttpContext.Current.Items.Add(REQUEST_LANGUAGE, language);
+                if (globalScope)
+                    globalLanguage = language;
+            }
+            else if (globalLanguage != null)
+            {
+                HttpContext.Current.Items.Add(REQUEST_LANGUAGE, globalLanguage);
+            }
+            else
+            {
+                HttpContext.Current.Items.Remove(REQUEST_LANGUAGE);
+            }
         }
 
         public async override void OnActionExecuting(HttpActionContext actionContext)
         {
-            string currentAction;
-            string currentController;
+            string currentAction = null;
+            string currentController = null;
             
             // version request
             if (actionContext.Request.GetRouteData().Route.RouteTemplate == "api_v3/version" && (actionContext.Request.Method == HttpMethod.Post) || (actionContext.Request.Method == HttpMethod.Get))
@@ -120,13 +221,20 @@ namespace WebAPI.Filters
             if (actionContext.Request.Method == HttpMethod.Post)
             {
                 var rd = actionContext.ControllerContext.RouteData;
-                currentAction = rd.Values["action_name"].ToString();
                 currentController = rd.Values["service_name"].ToString();
+                if (rd.Values.ContainsKey("action_name"))
+                {
+                    currentAction = rd.Values["action_name"].ToString();
+                }
             }
             else if (actionContext.Request.Method == HttpMethod.Get)
             {
-                currentAction = actionContext.Request.GetQueryNameValuePairs().Where(x => x.Key.ToLower() == "action").FirstOrDefault().Value;
                 currentController = actionContext.Request.GetQueryNameValuePairs().Where(x => x.Key.ToLower() == "service").FirstOrDefault().Value;
+                var pair = actionContext.Request.GetQueryNameValuePairs().Where(x => x.Key.ToLower() == "action");
+                if (pair != null)
+                {
+                    currentAction = pair.FirstOrDefault().Value;
+                }
             }
             else
             {
@@ -135,7 +243,6 @@ namespace WebAPI.Filters
             }
 
             MethodInfo methodInfo = null;
-            object classInstance = null;
             Assembly asm = Assembly.GetExecutingAssembly();
 
             if (actionContext.Request.Method == HttpMethod.Post)
@@ -162,158 +269,18 @@ namespace WebAPI.Filters
                                 HttpContext.Current.Items[REQUEST_VERSION] = (string) reqParams["apiVersion"];
                             }
 
-                            if (!createMethodInvoker(actionContext, currentController, currentAction, asm, out methodInfo, out classInstance))
-                                return;
+                            methodInfo = createMethodInvoker(currentController, currentAction, asm);
 
-                            // ks
-                            if (reqParams["ks"] != null)
-                                InitKS(actionContext, reqParams["ks"].ToObject<string>());
-
-                            // impersonated user_id
-                            if (reqParams["user_id"] != null)
-                                HttpContext.Current.Items.Add(REQUEST_USER_ID, reqParams["user_id"]);
-                            if (reqParams["userId"] != null)
-                                HttpContext.Current.Items.Add(REQUEST_USER_ID, reqParams["userId"]);
-
-                            // language
-                            if (reqParams["language"] != null)
-                                HttpContext.Current.Items.Add(REQUEST_LANGUAGE, reqParams["language"]);
-
-                            //Running on the expected method parameters
-                            ParameterInfo[] parameters = methodInfo.GetParameters();
-                            Dictionary<string, string> oldStandardParameters = OldStandardAttribute.getOldMembers(methodInfo);
-
-                            List<Object> methodParams = new List<object>();
-                            foreach (var p in parameters)
-                            {
-                                string name = p.Name;
-                                if (reqParams[name] == null && oldStandardParameters != null && oldStandardParameters.ContainsKey(name))
-                                    name = oldStandardParameters[name];
-
-                                if (reqParams[name] == null && p.IsOptional)
-                                {
-                                    methodParams.Add(Type.Missing);
-                                    continue;
-                                }
-                                else if (reqParams[name] == null && p.ParameterType.IsGenericType && p.ParameterType.GetGenericTypeDefinition() == typeof(Nullable<>))
-                                {
-                                    methodParams.Add(null);
-                                    continue;
-                                }
-                                else if (reqParams[name] == null)
-                                {
-                                    createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidActionParameters, string.Format("Missing parameter {0}", p.Name));
-                                    return;
-                                }
-
-                                try
-                                {
-                                    Type t = p.ParameterType;
-
-                                    var objType = reqParams[name].SelectToken("objectType");
-
-                                    if (objType != null)
-                                    {
-                                        string objectTypeName = objType.ToString();
-
-                                        if (Types.ContainsKey(objectTypeName))
-                                        {
-                                            t = RequestParser.Types[objectTypeName];
-                                        }
-                                        else
-                                        {
-                                            throw new Exception();
-                                        }
-                                    }
-
-                                    // If it is an enum, newtonsoft's bad "ToObject" doesn't do this easily, 
-                                    // so we do it ourselves in this not so good looking way
-                                    Type u = Nullable.GetUnderlyingType(t);
-                                    if (t.IsEnum)
-                                    {
-                                        var paramAsString = reqParams[name].ToString();
-                                        var names = t.GetEnumNames().ToList();
-                                        if (names.Contains(paramAsString))
-                                        {
-                                            methodParams.Add(Enum.Parse(t, paramAsString, true));
-                                        }
-                                    }
-                                    // nullable enum
-                                    else if (u != null && u.IsEnum)
-                                    {
-                                        var paramAsString = reqParams[name] != null ? reqParams[name].ToString() : null;
-                                        if (paramAsString != null)
-                                        {
-                                            var names = u.GetEnumNames().ToList();
-                                            if (names.Contains(paramAsString))
-                                            {
-                                                methodParams.Add(Enum.Parse(u, paramAsString, true));
-                                            }
-                                        }
-                                        else
-                                        {
-                                            methodParams.Add(null);
-                                        }
-                                    }
-                                    else if (OldStandardAttribute.isCurrentRequestOldVersion())
-                                    {
-                                        if (t.IsSubclassOf(typeof(KalturaOTTObject)))
-                                        {
-                                            KalturaOTTObject res = buildObject(t, reqParams[name].ToObject<Dictionary<string, object>>(), actionContext);
-                                            methodParams.Add(res);
-                                        }
-                                        else if (t.IsArray || t.IsGenericType) // array or list
-                                        {
-                                            Type dictType = typeof(SerializableDictionary<,>);
-                                            object res = null;
-
-                                            if (t.GetGenericArguments().Count() == 1)
-                                            {
-                                                // if nullable
-                                                if (t.GetGenericTypeDefinition() == typeof(Nullable<>))
-                                                {
-                                                    Type underlyingType = Nullable.GetUnderlyingType(t);
-                                                    if (underlyingType.IsEnum)
-                                                    {
-                                                        res = Enum.Parse(underlyingType, reqParams[name].ToString(), true);
-                                                    }
-                                                    else
-                                                    {
-                                                        res = Convert.ChangeType(reqParams[name], underlyingType);
-                                                    }
-                                                }
-                                                else // list
-                                                {
-                                                    res = buildList(t, (JArray)reqParams[name], actionContext);
-                                                }
-                                            }
-
-                                            //if Dictionary
-                                            else if (t.GetGenericArguments().Count() == 2)
-                                            {
-                                                res = buildDictionary(t, reqParams[name].ToObject<Dictionary<string, object>>(), actionContext);
-                                            }
-                                            methodParams.Add(res);
-                                        }
-                                        else
-                                        {
-                                            methodParams.Add(reqParams[name].ToObject(t));
-                                        }
-                                    }
-                                    else
-                                    {
-                                        methodParams.Add(reqParams[name].ToObject(t));
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    log.Error("Invalid parameter format", ex);
-                                    createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidActionParameters, string.Format("Invalid parameter format {0}", p.Name));
-                                    return;
-                                }
-                            }
+                            Dictionary<string, object> requestParams = reqParams.ToObject<Dictionary<string, object>>();
+                            setRequestContext(requestParams);
+                            List<Object> methodParams = buildActionArguments(methodInfo, requestParams);
 
                             HttpContext.Current.Items.Add(REQUEST_METHOD_PARAMETERS, methodParams);
+                        }
+                        catch (RequestParserException e)
+                        {
+                            createErrorResponse(actionContext, e.Code, e.Message);
+                            return;
                         }
                         catch (JsonReaderException)
                         {
@@ -340,27 +307,229 @@ namespace WebAPI.Filters
                 var tokens = actionContext.Request.GetQueryNameValuePairs().ToDictionary((keyItem) => keyItem.Key,
                     (valueItem) => valueItem.Value);
 
-                if (tokens["ks"] != null)
-                    InitKS(actionContext, tokens["ks"]);
-
                 if (tokens["apiVersion"] != null)
                 {
                     //For logging and to parse old standard
                     HttpContext.Current.Items[REQUEST_VERSION] = tokens["apiVersion"];
                 }
 
-                if (!createMethodInvoker(actionContext, currentController, currentAction, asm, out methodInfo, out classInstance))
+                try
+                {
+                    //Running on the expected method parameters
+                    var groupedParams = groupParams(tokens);
+
+                    methodInfo = createMethodInvoker(currentController, currentAction, asm);
+
+                    setRequestContext(groupedParams);
+                    List<Object> methodParams = buildActionArguments(methodInfo, groupedParams);
+
+                    HttpContext.Current.Items.Add(REQUEST_METHOD_PARAMETERS, methodParams);
+                }
+                catch (RequestParserException e)
+                {
+                    createErrorResponse(actionContext, e.Code, e.Message);
                     return;
+                }
 
-                //Running on the expected method parameters
-                var groupedParams = groupParams(tokens);
-
-                List<Object> methodParams = buildActionArguments(methodInfo, groupedParams, actionContext);
-
-                HttpContext.Current.Items.Add(REQUEST_METHOD_PARAMETERS, methodParams);
             }
 
             base.OnActionExecuting(actionContext);
+        }
+
+        private static List<object> buildMultirequestActions(Dictionary<string, object> requestParams)
+        {
+            List<KalturaMultiRequestAction> requests = new List<KalturaMultiRequestAction>();
+            Dictionary<string, object> currentRequestParams;
+            
+            int requestIndex = 0;
+            while (requestParams.ContainsKey(requestIndex.ToString()))
+            {
+                var requestItem = requestParams[requestIndex.ToString()];
+                if (requestItem.GetType() == typeof(JObject) || requestItem.GetType().IsSubclassOf(typeof(JObject)))
+                {
+                    currentRequestParams = ((JObject)requestItem).ToObject<Dictionary<string, object>>();
+                }
+                else
+                {
+                    currentRequestParams = (Dictionary<string, object>)requestItem;
+                }
+
+                KalturaMultiRequestAction currentRequest = new KalturaMultiRequestAction(); ;
+                currentRequest.Service = currentRequestParams["service"].ToString();
+                currentRequest.Action = currentRequestParams["action"].ToString();
+                currentRequest.Parameters = currentRequestParams;
+                requests.Add(currentRequest);
+                requestIndex++;
+            }
+
+            List<object> serviceArguments = new List<object>();
+            serviceArguments.Add(requests.ToArray());
+            return serviceArguments;
+        }
+
+        public static List<object> buildActionArguments(MethodInfo methodInfo, Dictionary<string, object> reqParams)
+        {
+            if (methodInfo.ReflectedType == typeof(MultiRequestController))
+                return buildMultirequestActions(reqParams);
+
+            //Running on the expected method parameters
+            ParameterInfo[] parameters = methodInfo.GetParameters();
+            Dictionary<string, string> oldStandardParameters = OldStandardAttribute.getOldMembers(methodInfo);
+
+            List<Object> methodParams = new List<object>();
+            foreach (var p in parameters)
+            {
+                string name = p.Name;
+                if (!reqParams.ContainsKey(name) && oldStandardParameters != null && oldStandardParameters.ContainsKey(name))
+                    name = oldStandardParameters[name];
+
+                if (!reqParams.ContainsKey(name))
+                {
+                    if (p.IsOptional)
+                    {
+                        methodParams.Add(Type.Missing);
+                        continue;
+                    }
+                    else if (p.ParameterType.IsGenericType && p.ParameterType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                    {
+                        methodParams.Add(null);
+                        continue;
+                    }
+
+                    throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidActionParameters, string.Format("Missing parameter {0}", p.Name));
+                }
+
+                try
+                {
+                    Type t = p.ParameterType;
+                    
+                    // If it is an enum, newtonsoft's bad "ToObject" doesn't do this easily, 
+                    // so we do it ourselves in this not so good looking way
+                    Type u = Nullable.GetUnderlyingType(t);
+                    if (t.IsEnum)
+                    {
+                        var paramAsString = reqParams[name].ToString();
+                        var names = t.GetEnumNames().ToList();
+                        if (names.Contains(paramAsString))
+                        {
+                            methodParams.Add(Enum.Parse(t, paramAsString, true));
+                        }
+                    }
+                    // nullable enum
+                    else if (u != null && u.IsEnum)
+                    {
+                        var paramAsString = reqParams[name] != null ? reqParams[name].ToString() : null;
+                        if (paramAsString != null)
+                        {
+                            var names = u.GetEnumNames().ToList();
+                            if (names.Contains(paramAsString))
+                            {
+                                methodParams.Add(Enum.Parse(u, paramAsString, true));
+                            }
+                        }
+                        else
+                        {
+                            methodParams.Add(null);
+                        }
+                    }
+                    else if (OldStandardAttribute.isCurrentRequestOldVersion())
+                    {
+                        if (t.IsSubclassOf(typeof(KalturaOTTObject)))
+                        {
+                            Dictionary<string, object> param;
+                            if (reqParams[name].GetType() == typeof(JObject) || reqParams[name].GetType().IsSubclassOf(typeof(JObject)))
+                            {
+                                param = ((JObject)reqParams[name]).ToObject<Dictionary<string, object>>();
+                            }
+                            else
+                            {
+                                param = (Dictionary<string, object>) reqParams[name];
+                            }
+
+                            KalturaOTTObject res = buildObject(t, param);
+                            methodParams.Add(res);
+                        }
+                        else if (t.IsArray || t.IsGenericType) // array or list
+                        {
+                            Type dictType = typeof(SerializableDictionary<,>);
+                            object res = null;
+
+                            if (t.GetGenericArguments().Count() == 1)
+                            {
+                                // if nullable
+                                if (t.GetGenericTypeDefinition() == typeof(Nullable<>))
+                                {
+                                    Type underlyingType = Nullable.GetUnderlyingType(t);
+                                    if (underlyingType.IsEnum)
+                                    {
+                                        res = Enum.Parse(underlyingType, reqParams[name].ToString(), true);
+                                    }
+                                    else
+                                    {
+                                        res = Convert.ChangeType(reqParams[name], underlyingType);
+                                    }
+                                }
+                                else // list
+                                {
+                                    res = buildList(t, (JArray)reqParams[name]);
+                                }
+                            }
+
+                            //if Dictionary
+                            else if (t.GetGenericArguments().Count() == 2)
+                            {
+                                Dictionary<string, object> param;
+                                if (reqParams[name].GetType() == typeof(JObject) || reqParams[name].GetType().IsSubclassOf(typeof(JObject)))
+                                {
+                                    param = ((JObject)reqParams[name]).ToObject<Dictionary<string, object>>();
+                                }
+                                else
+                                {
+                                    param = (Dictionary<string, object>)reqParams[name];
+                                }
+
+                                res = buildDictionary(t, param);
+                            }
+                            methodParams.Add(res);
+                        }
+                        else
+                        {
+                            object param;
+                            if (reqParams[name].GetType() == typeof(JObject) || reqParams[name].GetType().IsSubclassOf(typeof(JObject)))
+                            {
+                                param = ((JObject)reqParams[name]).ToObject(t);
+                            }
+                            else
+                            {
+                                param = Convert.ChangeType(reqParams[name], t);
+                            }
+
+                            methodParams.Add(param);
+                        }
+                    }
+                    else
+                    {
+                        object param;
+                        if (reqParams[name].GetType() == typeof(JObject) || reqParams[name].GetType().IsSubclassOf(typeof(JObject)))
+                        {
+                            param = ((JObject)reqParams[name]).ToObject(t);
+                        }
+                        else
+                        {
+                            param = Convert.ChangeType(reqParams[name], t);
+                        }
+
+                        methodParams.Add(param);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Invalid parameter format", ex);
+                    throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidActionParameters, string.Format("Invalid parameter format {0}", p.Name));
+                }
+            }
+
+            return methodParams;
         }
 
         private Dictionary<string, object> groupParams(Dictionary<string, string> tokens)
@@ -377,129 +546,6 @@ namespace WebAPI.Filters
             return paramsDic;
         }
 
-        private List<object> buildActionArguments(MethodInfo methodInfo, Dictionary<string, object> paramsGrouped, HttpActionContext actionContext)
-        {
-            ParameterInfo[] actionParams = methodInfo.GetParameters();
-            List<object> serviceArguments = new List<object>();
-            Dictionary<string, string> oldStandardParameters = OldStandardAttribute.getOldMembers(methodInfo);
-            foreach (var actionParam in actionParams)
-            {
-                var type = actionParam.ParameterType;
-                var name = actionParam.Name;
-
-                if (oldStandardParameters != null && oldStandardParameters.ContainsKey(name))
-                    name = oldStandardParameters[name];
-
-                //$this->disableRelativeTime = $actionParam->getDisableRelativeTime();
-
-                if (type.IsPrimitive || type == typeof(string))
-                {
-                    if (paramsGrouped.ContainsKey(name))
-                    {
-                        var obj = Convert.ChangeType(paramsGrouped[name], type);
-                        serviceArguments.Add(obj);
-
-                        continue;
-                    }
-
-                    if (actionParam.IsOptional)
-                    {
-                        serviceArguments.Add(Type.Missing);
-                        continue;
-                    }
-                }
-
-                if (actionParam.ParameterType.IsEnum) // enum
-                {
-                    if (paramsGrouped.ContainsKey(name))
-                    {
-                        //XXX: We support only string enums here...
-
-                        var eValue = Enum.Parse(actionParam.ParameterType, paramsGrouped[name].ToString(), true);
-                        serviceArguments.Add(eValue);
-                        continue;
-                    }
-
-                    if (actionParam.IsOptional)
-                    {
-                        serviceArguments.Add(Type.Missing);
-                        continue;
-                    }
-                }
-
-                if (actionParam.ParameterType.IsArray || actionParam.ParameterType.IsGenericType) // array or list
-                {
-                    if (paramsGrouped.ContainsKey(name))
-                    {
-                        Type dictType = typeof(SerializableDictionary<,>);
-                        object res = null;
-
-                        //if list
-                        if (type.GetGenericArguments().Count() == 1)
-                        {
-                            var d1 = typeof(List<>);
-                            Type[] typeArgs = { type.GetGenericArguments()[0] };
-                            var makeme = d1.MakeGenericType(typeArgs);
-                            res = Activator.CreateInstance(makeme);
-
-                            foreach (var kv in (Dictionary<string, object>)paramsGrouped[name])
-                            {
-                                ((IList)res).Add(buildObject(type.GetGenericArguments()[0], (Dictionary<string, object>)kv.Value, actionContext));
-                            }
-                        }
-                        //if Dictionary
-                        else if (type.GetGenericArguments().Count() == 2 &&
-                            dictType.GetGenericArguments().Length == type.GetGenericArguments().Length &&
-                            dictType.MakeGenericType(type.GetGenericArguments()) == type)
-                        {
-                            var d1 = typeof(Dictionary<,>);
-                            Type[] typeArgs = { typeof(string), type.GetGenericArguments()[0] };
-                            var makeme = d1.MakeGenericType(typeArgs);
-                            res = Activator.CreateInstance(makeme);
-                            foreach (var kv in (Dictionary<string, object>)paramsGrouped[name])
-                            {
-                                ((IDictionary)res).Add(actionParam.Name, buildObject(type.GetGenericArguments()[0], (Dictionary<string, object>)kv.Value, actionContext));
-                            }
-                        }
-
-                        serviceArguments.Add(res);
-                        continue;
-                    }
-
-                    if (actionParam.IsOptional)
-                    {
-                        serviceArguments.Add(Type.Missing);
-                        continue;
-                    }
-
-                    if (actionParam.ParameterType.GetGenericTypeDefinition() == typeof(Nullable<>))
-                    {
-                        serviceArguments.Add(null);
-                        continue;
-                    }
-
-                    continue;
-                }
-
-                if (paramsGrouped.ContainsKey(name)) // object 
-                {
-                    var res = buildObject(actionParam.ParameterType, (Dictionary<string, object>)paramsGrouped[name], actionContext);
-                    serviceArguments.Add(res);
-                    continue;
-                }
-
-                if (actionParam.IsOptional)
-                {
-                    serviceArguments.Add(Type.Missing);
-                    continue;
-                }
-
-                //createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidActionParameters, "Missing required parameter");
-            }
-
-            return serviceArguments;
-        }
-
         private static string getApiName(PropertyInfo property)
         {
             DataMemberAttribute dataMember = property.GetCustomAttribute<DataMemberAttribute>();
@@ -509,7 +555,7 @@ namespace WebAPI.Filters
             return dataMember.Name;
         }
 
-        private KalturaOTTObject buildObject(Type type, Dictionary<string, object> parameters, HttpActionContext actionContext)
+        private static KalturaOTTObject buildObject(Type type, Dictionary<string, object> parameters)
         {
             // if objectType was specified, we will use it only if the anotation type is it's base type
             if (parameters.ContainsKey("objectType"))
@@ -533,8 +579,7 @@ namespace WebAPI.Filters
 
             if (type.IsAbstract)
             {
-                createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.AbstractParameter, "Parameter is abstract");
-                return null;
+                throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.AbstractParameter, "Parameter is abstract");
             }
 
             var classProperties = type.GetProperties();
@@ -587,14 +632,14 @@ namespace WebAPI.Filters
                         }
                         else // list
                         {
-                            res = buildList(property.PropertyType, (JArray)parameters[parameterName], actionContext);
+                            res = buildList(property.PropertyType, (JArray)parameters[parameterName]);
                         }
                     }
 
                     //if Dictionary
                     else if (property.PropertyType.GetGenericArguments().Count() == 2)
                     {
-                        res = buildDictionary(property.PropertyType, ((JObject)parameters[parameterName]).ToObject<Dictionary<string, object>>(), actionContext);
+                        res = buildDictionary(property.PropertyType, ((JObject)parameters[parameterName]).ToObject<Dictionary<string, object>>());
                     }
 
                     property.SetValue(instance, res, null);
@@ -602,7 +647,7 @@ namespace WebAPI.Filters
                 }
 
                 //If object
-                var classRes = buildObject(property.PropertyType, ((JObject)parameters[parameterName]).ToObject<Dictionary<string, object>>(), actionContext);
+                var classRes = buildObject(property.PropertyType, ((JObject)parameters[parameterName]).ToObject<Dictionary<string, object>>());
                 property.SetValue(instance, classRes, null);
                 continue;
 
@@ -611,7 +656,7 @@ namespace WebAPI.Filters
             return instance;
         }
 
-        private dynamic buildList(Type type, JArray array, HttpActionContext actionContext)
+        private static dynamic buildList(Type type, JArray array)
         {
             Type itemType = type.GetGenericArguments()[0];
             Type listType = typeof(List<>).MakeGenericType(itemType);
@@ -621,7 +666,7 @@ namespace WebAPI.Filters
             {
                 if (itemType.IsSubclassOf(typeof(KalturaOTTObject)))
                 {
-                    var itemObject = buildObject(itemType, item.ToObject<Dictionary<string, object>>(), actionContext);
+                    var itemObject = buildObject(itemType, item.ToObject<Dictionary<string, object>>());
                     list.Add((dynamic)Convert.ChangeType(itemObject, itemType));
                 }
                 else
@@ -633,7 +678,7 @@ namespace WebAPI.Filters
             return list;
         }
 
-        private dynamic buildDictionary(Type type, Dictionary<string, object> dictionary, HttpActionContext actionContext)
+        private static dynamic buildDictionary(Type type, Dictionary<string, object> dictionary)
         {
             dynamic res = Activator.CreateInstance(type);
 
@@ -644,7 +689,7 @@ namespace WebAPI.Filters
 
                 if (itemType.IsSubclassOf(typeof(KalturaOTTObject)))
                 {
-                    var itemObject = buildObject(itemType, item.ToObject<Dictionary<string, object>>(), actionContext);
+                    var itemObject = buildObject(itemType, item.ToObject<Dictionary<string, object>>());
                     res.Add(key, (dynamic)Convert.ChangeType(itemObject, itemType));
                 }
                 else
@@ -680,21 +725,21 @@ namespace WebAPI.Filters
             array = tmpArr;
         }
 
-        private void InitKS(HttpActionContext actionContext, string ksVal)
+        private static void InitKS(string ksVal)
         {
             // the supplied ks is in KS forma (project phoenix's)
             if (IsKsFormat(ksVal))
             {
-                parseKS(actionContext, ksVal);
+                parseKS(ksVal);
             }
             // the supplied is in access token format (TVPAPI's)
             else
             {
-                GetUserDataFromCB(actionContext, ksVal);
+                GetUserDataFromCB(ksVal);
             }
         }
 
-        private void GetUserDataFromCB(HttpActionContext actionContext, string ksVal)
+        private static void GetUserDataFromCB(string ksVal)
         {
             // get token from CB
             string tokenKey = string.Format(accessTokenKeyFormat, ksVal);
@@ -702,16 +747,14 @@ namespace WebAPI.Filters
 
             if (token == null)
             {
-                createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidKS, "Invalid KS");
-                return;
+                throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidKS, "Invalid KS");
             }
 
             KS ks = KS.CreateKSFromApiToken(token);
 
             if (!ks.IsValid)
             {
-                createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidKS, "Invalid KS");
-                return;
+                throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidKS, "Invalid KS");
             }
 
             ks.SaveOnRequest();
@@ -731,7 +774,7 @@ namespace WebAPI.Filters
             });
         }
 
-        private static void parseKS(HttpActionContext actionContext, string ksVal)
+        private static void parseKS(string ksVal)
         {
             StringBuilder sb = new StringBuilder(ksVal);
             sb = sb.Replace("-", "+");
@@ -750,14 +793,12 @@ namespace WebAPI.Filters
             }
             catch (Exception)
             {
-                createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidKS, "Invalid KS format");
-                return;
+                throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidKS, "Invalid KS format");
             }
 
             if (ksParts.Length < 3 || ksParts[0] != "v2" || !int.TryParse(ksParts[1], out groupId))
             {
-                createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidKS, "Invalid KS format");
-                return;
+                throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidKS, "Invalid KS format");
             }
 
             Group group = null;
@@ -768,8 +809,7 @@ namespace WebAPI.Filters
             }
             catch (ApiException ex)
             {
-                createErrorResponse(actionContext, (int)ex.Code, ex.Message);
-                return;
+                throw new RequestParserException((int)ex.Code, ex.Message);
             }
 
             string adminSecret = group.UserSecret;
