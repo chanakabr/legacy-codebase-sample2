@@ -125,19 +125,40 @@ namespace ElasticSearch.Common
             return sRes;
         }
 
-        public static string GetLangCodeAnalyzerKey(string sLanguageCode)
+        public static string GetLangCodeAnalyzerKey(string languageCode, string version)
         {
-            return string.Concat(sLanguageCode, "_analyzer");
+            if (string.IsNullOrEmpty(version))
+            {
+                return string.Concat(languageCode, "_analyzer");
+            }
+            else
+            {
+                return string.Concat(languageCode, "_analyzer_", version);
+            }
         }
 
-        public static string GetLangCodeFilterKey(string sLanguageCode)
+        public static string GetLangCodeFilterKey(string languageCode, string version)
         {
-            return string.Concat(sLanguageCode, "_filter");
+            if (string.IsNullOrEmpty(version))
+            {
+                return string.Concat(languageCode, "_filter");
+            }
+            else
+            {
+                return string.Concat(languageCode, "_filter_", version);
+            }
         }
 
-        public static string GetLangCodeTokenizerKey(string languageCode)
+        public static string GetLangCodeTokenizerKey(string languageCode, string version)
         {
-            return string.Concat(languageCode, "_tokenizer");
+            if (string.IsNullOrEmpty(version))
+            {
+                return string.Concat(languageCode, "_tokenizer");
+            }
+            else
+            {
+                return string.Concat(languageCode, "_tokenizer_", version);
+            }
         }
 
         public static string GetGroupStatisticsIndex(int nParentGroupId)
