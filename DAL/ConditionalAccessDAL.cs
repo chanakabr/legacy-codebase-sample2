@@ -2595,6 +2595,7 @@ namespace DAL
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EXTERNAL_RECORDING_ID", "=", recording.ExternalRecordingId);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("RECORDING_STATUS", "=", recordingStatus);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", recording.EpgStartDate);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", rowStatus);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", isActive);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GET_STATUS_RETRIES", "=", recording.GetStatusRetries);
@@ -2605,6 +2606,15 @@ namespace DAL
             updateQuery.Finish();
             updateQuery = null;
             return result;
+        }
+
+        public static bool DeleteRecording(long recordingId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteRecording");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@RecordID", recordingId);
+
+            return sp.ExecuteReturnValue<bool>();
         }
 
         public static DataTable GetDomainExistingRecordingsByEpdIgs(int groupID, long domainID, List<long> epgIds)
@@ -2809,7 +2819,7 @@ namespace DAL
             return recordings;
         }
 
-        public static DataTable GetRecordingsMapingByRecordingStatuses(int groupID, long domainID, List<int> domainRecordingStatuses)
+        public static DataTable GetDomainRecordingsByRecordingStatuses(int groupID, long domainID, List<int> domainRecordingStatuses)
         {
             DataTable dt = null;            
             ODBCWrapper.StoredProcedure spGetDomainRecordings = new ODBCWrapper.StoredProcedure("GetDomainRecordingsByRecordingStatuses");
@@ -2822,11 +2832,12 @@ namespace DAL
             return dt;
         }
 
-        public static DataTable GetDomainRecording(long domainID, List<long> domainRecordingIds)
+        public static DataTable GetDomainRecordingsByIds(int groupID, long domainID, List<long> domainRecordingIds)
         {
             DataTable dt = null;
             ODBCWrapper.StoredProcedure spGetDomainRecordingsByIds = new ODBCWrapper.StoredProcedure("GetDomainRecordingsByIds");
             spGetDomainRecordingsByIds.SetConnectionKey("CONNECTION_STRING");
+            spGetDomainRecordingsByIds.AddParameter("@GroupID", groupID);
             spGetDomainRecordingsByIds.AddParameter("@DomainID", domainID);
             spGetDomainRecordingsByIds.AddIDListParameter<long>("@DomainRecordingIds", domainRecordingIds, "ID");
             dt = spGetDomainRecordingsByIds.Execute();
@@ -2964,9 +2975,9 @@ namespace DAL
 
         }
 
-        public static bool DeleteRecording(long recordingID)
+        public static bool DeleteDomainRecording(long recordingID)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteRecording");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteDomainRecording");
             sp.SetConnectionKey("CONNECTION_STRING");
             sp.AddParameter("@RecordID", recordingID);
 
@@ -3018,34 +3029,38 @@ namespace DAL
             return isProtected;
         }
 
-        public static List<long> GetRecordingsForCleanup(long utcNowEpoch)
+        public static Dictionary<long, KeyValuePair<int, Recording>> GetRecordingsForCleanup(long utcNowEpoch)
         {
-            List<long> epgIdsForCleanup = new List<long>();
+            Dictionary<long, KeyValuePair<int, Recording>> recordingsForCleanup = new Dictionary<long, KeyValuePair<int, Recording>>();            
             ODBCWrapper.StoredProcedure spGetRecordginsForCleanup = new ODBCWrapper.StoredProcedure("GetRecordingsForCleanup");
             spGetRecordginsForCleanup.SetConnectionKey("CONNECTION_STRING");
             spGetRecordginsForCleanup.AddParameter("@UtcNowEpoch", utcNowEpoch);
+            spGetRecordginsForCleanup.AddParameter("@DefaultLifetimePeriod", utcNowEpoch);
 
             DataTable dt = spGetRecordginsForCleanup.Execute();
             if (dt != null && dt.Rows != null)
-            {
-                epgIdsForCleanup = new List<long>();
+            {                
                 foreach (DataRow dr in dt.Rows)
                 {
-                    long epgID = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_PROGRAM_ID", 0);
-                    if (epgID > 0)
+                    int groupID = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_ID", 0);
+                    string externalRecordingID = ODBCWrapper.Utils.GetSafeStr(dr, "EXTERNAL_RECORDING_ID");
+                    long epgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_PROGRAM_ID", 0);
+                    long recordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "id", 0);
+                    if (groupID > 0 && recordingId > 0 && epgId > 0 && !string.IsNullOrEmpty(externalRecordingID) && !recordingsForCleanup.ContainsKey(recordingId))
                     {
-                        epgIdsForCleanup.Add(epgID);
+                        KeyValuePair<int, Recording> pair = new KeyValuePair<int, Recording>(groupID, new Recording() { Id = recordingId, ExternalRecordingId = externalRecordingID, EpgId = epgId });
+                        recordingsForCleanup.Add(recordingId, pair);
                     }
                 }
             }
 
-            return epgIdsForCleanup;
+            return recordingsForCleanup;
         }
 
         public static bool UpdateSuccessfulRecordingsCleanup(DateTime lastSuccessfulCleanUpDate, int deletedRecordingOnLastCleanup, int domainRecordingsUpdatedOnLastCleanup)
         {
             bool result = false;
-            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
             int limitRetries = RETRY_LIMIT;
             string recordingsCleanupKey = UtilsDal.GetRecordingsCleanupKey();   
             try
@@ -3073,12 +3088,12 @@ namespace DAL
             return result;
         }
 
-        public static int UpdateDomainRecordingsAfterCleanup(List<long> epgIds)
+        public static int UpdateDomainRecordingsAfterCleanup(List<long> recordingsIds)
         {
             int updatedRowsCount = 0;
             ODBCWrapper.StoredProcedure spUpdateDomainRecordingsAfterCleanup = new ODBCWrapper.StoredProcedure("UpdateDomainRecordingsAfterCleanup");
-            spUpdateDomainRecordingsAfterCleanup.SetConnectionKey("CONNECTION_STRING");            
-            spUpdateDomainRecordingsAfterCleanup.AddIDListParameter<long>("@EpgIds", epgIds, "ID");
+            spUpdateDomainRecordingsAfterCleanup.SetConnectionKey("CONNECTION_STRING");
+            spUpdateDomainRecordingsAfterCleanup.AddIDListParameter<long>("@RecordingIds", recordingsIds, "ID");
             
             updatedRowsCount = spUpdateDomainRecordingsAfterCleanup.ExecuteReturnValue<int>();
 
@@ -3088,7 +3103,7 @@ namespace DAL
         public static RecordingCleanupResponse GetLastSuccessfulRecordingsCleanupDetails()
         {
             RecordingCleanupResponse response = null;
-            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
             int limitRetries = RETRY_LIMIT;
             Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
             string recordingsCleanupKey = UtilsDal.GetRecordingsCleanupKey();            

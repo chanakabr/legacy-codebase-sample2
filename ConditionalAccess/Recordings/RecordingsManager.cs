@@ -278,12 +278,11 @@ namespace Recordings
             return status;
         }
 
-        public Status DeleteRecording(int groupId, long programId)
+        public Status DeleteRecording(int groupId, Recording slimRecording)
         {
-            Status status = new Status();
-            Recording recording = ConditionalAccessDAL.GetRecordingByProgramId(programId);
-            
-            if (recording != null)
+            Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            if (groupId > 0 && slimRecording != null && slimRecording.Id > 0 && slimRecording.EpgId > 0 && !string.IsNullOrEmpty(slimRecording.ExternalRecordingId))
             {
                 int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
 
@@ -294,21 +293,17 @@ namespace Recordings
                 RecordResult adapterResponse = null;
                 try
                 {
-                    adapterResponse = adapterController.DeleteRecording(groupId, recording.ExternalRecordingId, adapterId);
+                    adapterResponse = adapterController.DeleteRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
                 }
                 catch (KalturaException ex)
                 {
-                    recording.Status = new Status((int)eResponseStatus.Error,
-                        string.Format("Code: {0} Message: {1}", (int)ex.Data["StatusCode"], ex.Message));
+                    status = new Status((int)eResponseStatus.Error, string.Format("Code: {0} Message: {1}", (int)ex.Data["StatusCode"], ex.Message));
+                    return status;
                 }
                 catch (Exception ex)
                 {
-                    recording.Status = new Status((int)eResponseStatus.Error, "Adapter controller excpetion: " + ex.Message);
-                }
-
-                if (recording.Status != null)
-                {
-                    return recording.Status;
+                    status = new Status((int)eResponseStatus.Error, "Adapter controller excpetion: " + ex.Message);
+                    return status;
                 }
 
                 if (adapterResponse == null)
@@ -326,17 +321,16 @@ namespace Recordings
                 {
                     try
                     {
-                        recording.RecordingStatus = TstvRecordingStatus.Deleted;
-
+                       
                         // Update recording information in to database
-                        bool updateResult = ConditionalAccessDAL.UpdateRecording(recording, groupId, 1, 1, null);
+                        bool deleteResult = ConditionalAccessDAL.DeleteRecording(slimRecording.Id);
 
-                        if (!updateResult)
+                        if (!deleteResult)
                         {
                             return new Status((int)eResponseStatus.Error, "Failed update recording");
                         }
 
-                        UpdateCouchbaseIsRecorded(groupId, recording.EpgId, false);
+                        UpdateCouchbaseIsRecorded(groupId, slimRecording.EpgId, false);
 
                         // We're OK
                         status = new Status((int)eResponseStatus.OK);
