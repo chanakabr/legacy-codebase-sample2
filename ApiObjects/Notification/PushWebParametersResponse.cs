@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace ApiObjects.Notification
 {
-    public class PushWebParametersResponse
+    public class RegistryResponse
     {
         public Status Status { get; set; }
-        public List<PushWebParameter> Items { get; set; }
+        public List<RegistryParameter> Items { get; set; }
     }
 }
