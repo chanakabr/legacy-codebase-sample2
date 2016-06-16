@@ -78,7 +78,7 @@ namespace WebAPI.ConditionalAccess {
         
         private System.Threading.SendOrPostCallback SearchDomainRecordingsOperationCompleted;
         
-        private System.Threading.SendOrPostCallback GetRecordingsByIDsOperationCompleted;
+        private System.Threading.SendOrPostCallback GetRecordingByIDOperationCompleted;
         
         private System.Threading.SendOrPostCallback UpdateRecordingOperationCompleted;
         
@@ -89,6 +89,12 @@ namespace WebAPI.ConditionalAccess {
         private System.Threading.SendOrPostCallback RemovePaymentMethodHouseholdPaymentGatewayOperationCompleted;
         
         private System.Threading.SendOrPostCallback ProtectRecordOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback InitializeRecordingsCleanupOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback CleanupRecordingsOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetLastSuccessfulRecordingsCleanupOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetUserPermittedItemsOperationCompleted;
         
@@ -373,7 +379,7 @@ namespace WebAPI.ConditionalAccess {
         public event SearchDomainRecordingsCompletedEventHandler SearchDomainRecordingsCompleted;
         
         /// <remarks/>
-        public event GetRecordingsByIDsCompletedEventHandler GetRecordingsByIDsCompleted;
+        public event GetRecordingByIDCompletedEventHandler GetRecordingByIDCompleted;
         
         /// <remarks/>
         public event UpdateRecordingCompletedEventHandler UpdateRecordingCompleted;
@@ -389,6 +395,15 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         public event ProtectRecordCompletedEventHandler ProtectRecordCompleted;
+        
+        /// <remarks/>
+        public event InitializeRecordingsCleanupCompletedEventHandler InitializeRecordingsCleanupCompleted;
+        
+        /// <remarks/>
+        public event CleanupRecordingsCompletedEventHandler CleanupRecordingsCompleted;
+        
+        /// <remarks/>
+        public event GetLastSuccessfulRecordingsCleanupCompletedEventHandler GetLastSuccessfulRecordingsCleanupCompleted;
         
         /// <remarks/>
         public event GetUserPermittedItemsCompletedEventHandler GetUserPermittedItemsCompleted;
@@ -1621,37 +1636,37 @@ namespace WebAPI.ConditionalAccess {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetRecordingsByIDs", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public RecordingResponse GetRecordingsByIDs(string sWSUserName, string sWSPassword, long domainID, long[] recordingIDs) {
-            object[] results = this.Invoke("GetRecordingsByIDs", new object[] {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetRecordingByID", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Recording GetRecordingByID(string sWSUserName, string sWSPassword, long domainID, long domainRecordingID) {
+            object[] results = this.Invoke("GetRecordingByID", new object[] {
                         sWSUserName,
                         sWSPassword,
                         domainID,
-                        recordingIDs});
-            return ((RecordingResponse)(results[0]));
+                        domainRecordingID});
+            return ((Recording)(results[0]));
         }
         
         /// <remarks/>
-        public void GetRecordingsByIDsAsync(string sWSUserName, string sWSPassword, long domainID, long[] recordingIDs) {
-            this.GetRecordingsByIDsAsync(sWSUserName, sWSPassword, domainID, recordingIDs, null);
+        public void GetRecordingByIDAsync(string sWSUserName, string sWSPassword, long domainID, long domainRecordingID) {
+            this.GetRecordingByIDAsync(sWSUserName, sWSPassword, domainID, domainRecordingID, null);
         }
         
         /// <remarks/>
-        public void GetRecordingsByIDsAsync(string sWSUserName, string sWSPassword, long domainID, long[] recordingIDs, object userState) {
-            if ((this.GetRecordingsByIDsOperationCompleted == null)) {
-                this.GetRecordingsByIDsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetRecordingsByIDsOperationCompleted);
+        public void GetRecordingByIDAsync(string sWSUserName, string sWSPassword, long domainID, long domainRecordingID, object userState) {
+            if ((this.GetRecordingByIDOperationCompleted == null)) {
+                this.GetRecordingByIDOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetRecordingByIDOperationCompleted);
             }
-            this.InvokeAsync("GetRecordingsByIDs", new object[] {
+            this.InvokeAsync("GetRecordingByID", new object[] {
                         sWSUserName,
                         sWSPassword,
                         domainID,
-                        recordingIDs}, this.GetRecordingsByIDsOperationCompleted, userState);
+                        domainRecordingID}, this.GetRecordingByIDOperationCompleted, userState);
         }
         
-        private void OnGetRecordingsByIDsOperationCompleted(object arg) {
-            if ((this.GetRecordingsByIDsCompleted != null)) {
+        private void OnGetRecordingByIDOperationCompleted(object arg) {
+            if ((this.GetRecordingByIDCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetRecordingsByIDsCompleted(this, new GetRecordingsByIDsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+                this.GetRecordingByIDCompleted(this, new GetRecordingByIDCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -1829,6 +1844,99 @@ namespace WebAPI.ConditionalAccess {
             if ((this.ProtectRecordCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.ProtectRecordCompleted(this, new ProtectRecordCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/InitializeRecordingsCleanup", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public bool InitializeRecordingsCleanup(string sWSUserName, string sWSPassword) {
+            object[] results = this.Invoke("InitializeRecordingsCleanup", new object[] {
+                        sWSUserName,
+                        sWSPassword});
+            return ((bool)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void InitializeRecordingsCleanupAsync(string sWSUserName, string sWSPassword) {
+            this.InitializeRecordingsCleanupAsync(sWSUserName, sWSPassword, null);
+        }
+        
+        /// <remarks/>
+        public void InitializeRecordingsCleanupAsync(string sWSUserName, string sWSPassword, object userState) {
+            if ((this.InitializeRecordingsCleanupOperationCompleted == null)) {
+                this.InitializeRecordingsCleanupOperationCompleted = new System.Threading.SendOrPostCallback(this.OnInitializeRecordingsCleanupOperationCompleted);
+            }
+            this.InvokeAsync("InitializeRecordingsCleanup", new object[] {
+                        sWSUserName,
+                        sWSPassword}, this.InitializeRecordingsCleanupOperationCompleted, userState);
+        }
+        
+        private void OnInitializeRecordingsCleanupOperationCompleted(object arg) {
+            if ((this.InitializeRecordingsCleanupCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.InitializeRecordingsCleanupCompleted(this, new InitializeRecordingsCleanupCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/CleanupRecordings", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public bool CleanupRecordings(string sWSUserName, string sWSPassword) {
+            object[] results = this.Invoke("CleanupRecordings", new object[] {
+                        sWSUserName,
+                        sWSPassword});
+            return ((bool)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void CleanupRecordingsAsync(string sWSUserName, string sWSPassword) {
+            this.CleanupRecordingsAsync(sWSUserName, sWSPassword, null);
+        }
+        
+        /// <remarks/>
+        public void CleanupRecordingsAsync(string sWSUserName, string sWSPassword, object userState) {
+            if ((this.CleanupRecordingsOperationCompleted == null)) {
+                this.CleanupRecordingsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnCleanupRecordingsOperationCompleted);
+            }
+            this.InvokeAsync("CleanupRecordings", new object[] {
+                        sWSUserName,
+                        sWSPassword}, this.CleanupRecordingsOperationCompleted, userState);
+        }
+        
+        private void OnCleanupRecordingsOperationCompleted(object arg) {
+            if ((this.CleanupRecordingsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.CleanupRecordingsCompleted(this, new CleanupRecordingsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetLastSuccessfulRecordingsCleanup", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public RecordingCleanupResponse GetLastSuccessfulRecordingsCleanup(string sWSUserName, string sWSPassword) {
+            object[] results = this.Invoke("GetLastSuccessfulRecordingsCleanup", new object[] {
+                        sWSUserName,
+                        sWSPassword});
+            return ((RecordingCleanupResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetLastSuccessfulRecordingsCleanupAsync(string sWSUserName, string sWSPassword) {
+            this.GetLastSuccessfulRecordingsCleanupAsync(sWSUserName, sWSPassword, null);
+        }
+        
+        /// <remarks/>
+        public void GetLastSuccessfulRecordingsCleanupAsync(string sWSUserName, string sWSPassword, object userState) {
+            if ((this.GetLastSuccessfulRecordingsCleanupOperationCompleted == null)) {
+                this.GetLastSuccessfulRecordingsCleanupOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetLastSuccessfulRecordingsCleanupOperationCompleted);
+            }
+            this.InvokeAsync("GetLastSuccessfulRecordingsCleanup", new object[] {
+                        sWSUserName,
+                        sWSPassword}, this.GetLastSuccessfulRecordingsCleanupOperationCompleted, userState);
+        }
+        
+        private void OnGetLastSuccessfulRecordingsCleanupOperationCompleted(object arg) {
+            if ((this.GetLastSuccessfulRecordingsCleanupCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetLastSuccessfulRecordingsCleanupCompleted(this, new GetLastSuccessfulRecordingsCleanupCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -5899,10 +6007,10 @@ namespace WebAPI.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(QuotaResponse))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelDeleteResponse))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordResponse))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(LicensedLinkNPVRResponse))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelDeleteResponse))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(QuotaResponse))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -5933,48 +6041,6 @@ namespace WebAPI.ConditionalAccess {
                 this.msgField = value;
             }
         }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class QuotaResponse : NPVRResponse {
-        
-        private long totalQuotaField;
-        
-        private long occupiedQuotaField;
-        
-        /// <remarks/>
-        public long totalQuota {
-            get {
-                return this.totalQuotaField;
-            }
-            set {
-                this.totalQuotaField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public long occupiedQuota {
-            get {
-                return this.occupiedQuotaField;
-            }
-            set {
-                this.occupiedQuotaField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class CancelDeleteResponse : NPVRResponse {
     }
     
     /// <remarks/>
@@ -6020,16 +6086,58 @@ namespace WebAPI.ConditionalAccess {
     }
     
     /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class CancelDeleteResponse : NPVRResponse {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class QuotaResponse : NPVRResponse {
+        
+        private long totalQuotaField;
+        
+        private long occupiedQuotaField;
+        
+        /// <remarks/>
+        public long totalQuota {
+            get {
+                return this.totalQuotaField;
+            }
+            set {
+                this.totalQuotaField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long occupiedQuota {
+            get {
+                return this.occupiedQuotaField;
+            }
+            set {
+                this.occupiedQuotaField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByNameNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ProtectNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByProgramIdNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteSeriesNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(LicensedLinkNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RetrieveQuotaNPVRCommand))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelSeriesNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordNPVRCommand))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByProgramIdNPVRCommand))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByNameNPVRCommand))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteSeriesNPVRCommand))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ProtectNPVRCommand))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(LicensedLinkNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelSeriesNPVRCommand))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -6116,70 +6224,7 @@ namespace WebAPI.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class RetrieveQuotaNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class CancelSeriesNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class DeleteNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class CancelNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class RecordNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class RecordSeriesByProgramIdNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class RecordSeriesByNameNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class DeleteSeriesNPVRCommand : BaseNPVRCommand {
     }
     
     /// <remarks/>
@@ -6201,6 +6246,24 @@ namespace WebAPI.ConditionalAccess {
                 this.isProtectField = value;
             }
         }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class RecordSeriesByProgramIdNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class DeleteSeriesNPVRCommand : BaseNPVRCommand {
     }
     
     /// <remarks/>
@@ -6318,6 +6381,51 @@ namespace WebAPI.ConditionalAccess {
                 this.couponCodeField = value;
             }
         }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class RetrieveQuotaNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class DeleteNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class CancelNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class RecordNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class CancelSeriesNPVRCommand : BaseNPVRCommand {
     }
     
     /// <remarks/>
@@ -10177,6 +10285,63 @@ namespace WebAPI.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class RecordingCleanupResponse {
+        
+        private Status statusField;
+        
+        private System.DateTime lastSuccessfulCleanUpDateField;
+        
+        private int deletedRecordingOnLastCleanupField;
+        
+        private int domainRecordingsUpdatedOnLastCleanupField;
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime LastSuccessfulCleanUpDate {
+            get {
+                return this.lastSuccessfulCleanUpDateField;
+            }
+            set {
+                this.lastSuccessfulCleanUpDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int DeletedRecordingOnLastCleanup {
+            get {
+                return this.deletedRecordingOnLastCleanupField;
+            }
+            set {
+                this.deletedRecordingOnLastCleanupField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int DomainRecordingsUpdatedOnLastCleanup {
+            get {
+                return this.domainRecordingsUpdatedOnLastCleanupField;
+            }
+            set {
+                this.domainRecordingsUpdatedOnLastCleanupField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class DomainQuotaResponse {
         
         private Status statusField;
@@ -10596,6 +10761,9 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         Deleted,
+        
+        /// <remarks/>
+        LifeTimePeriodExpired,
     }
     
     /// <remarks/>
@@ -12082,26 +12250,26 @@ namespace WebAPI.ConditionalAccess {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void GetRecordingsByIDsCompletedEventHandler(object sender, GetRecordingsByIDsCompletedEventArgs e);
+    public delegate void GetRecordingByIDCompletedEventHandler(object sender, GetRecordingByIDCompletedEventArgs e);
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetRecordingsByIDsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+    public partial class GetRecordingByIDCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
         
         private object[] results;
         
-        internal GetRecordingsByIDsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+        internal GetRecordingByIDCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }
         
         /// <remarks/>
-        public RecordingResponse Result {
+        public Recording Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((RecordingResponse)(this.results[0]));
+                return ((Recording)(this.results[0]));
             }
         }
     }
@@ -12232,6 +12400,84 @@ namespace WebAPI.ConditionalAccess {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((Recording)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void InitializeRecordingsCleanupCompletedEventHandler(object sender, InitializeRecordingsCleanupCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class InitializeRecordingsCleanupCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal InitializeRecordingsCleanupCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public bool Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((bool)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void CleanupRecordingsCompletedEventHandler(object sender, CleanupRecordingsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class CleanupRecordingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal CleanupRecordingsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public bool Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((bool)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetLastSuccessfulRecordingsCleanupCompletedEventHandler(object sender, GetLastSuccessfulRecordingsCleanupCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetLastSuccessfulRecordingsCleanupCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetLastSuccessfulRecordingsCleanupCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public RecordingCleanupResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((RecordingCleanupResponse)(this.results[0]));
             }
         }
     }

@@ -1123,7 +1123,7 @@ namespace WebAPI.Clients
         internal KalturaRecording GetRecord(int groupID, long domainID, long recordingID)
         {
             KalturaRecording recording = null;
-            RecordingResponse response = null;
+            Recording response = null;
 
             // get group ID
             Group group = GroupsManager.GetGroup(groupID);
@@ -1133,7 +1133,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = ConditionalAccess.GetRecordingsByIDs(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, domainID, new long[] { recordingID });
+                    response = ConditionalAccess.GetRecordingByID(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, domainID, recordingID);
                 }
             }
             catch (Exception ex)
@@ -1154,11 +1154,8 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
             
-            if (response.Recordings != null && response.Recordings.Length == 1)
-            {
-                // convert response
-                recording = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaRecording>(response.Recordings[0]);              
-            }
+            // convert response
+            recording = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaRecording>(response);
 
             return recording;
         }
