@@ -102,7 +102,7 @@
             </remarks>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Controllers.AssetController.List(WebAPI.Models.Catalog.KalturaAssetInfoFilter,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.Nullable{WebAPI.Models.Catalog.KalturaOrder},WebAPI.Models.General.KalturaFilterPager,System.String)">
+        <member name="M:WebAPI.Controllers.AssetController.List(WebAPI.Models.Catalog.KalturaAssetInfoFilter,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.Nullable{WebAPI.Models.Catalog.KalturaOrder},WebAPI.Models.General.KalturaFilterPager)">
             <summary>
             Returns media or EPG assets. Filters by media identifiers or by EPG internal or external identifier.
             </summary>
@@ -114,7 +114,7 @@
             <param name="language">Language code</param>
             <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.AssetController.Get(System.String,WebAPI.Models.Catalog.KalturaAssetReferenceType,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.String)">
+        <member name="M:WebAPI.Controllers.AssetController.Get(System.String,WebAPI.Models.Catalog.KalturaAssetReferenceType,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder})">
             <summary>
             Returns media or EPG asset by media / EPG internal or external identifier
             </summary>
@@ -125,7 +125,7 @@
             <param name="language">Language code</param>        
             <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.AssetController.Search(System.Nullable{WebAPI.Models.Catalog.KalturaOrder},System.Collections.Generic.List{WebAPI.Models.General.KalturaIntegerValue},System.String,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.String,WebAPI.Models.General.KalturaFilterPager,System.String)">
+        <member name="M:WebAPI.Controllers.AssetController.Search(System.Nullable{WebAPI.Models.Catalog.KalturaOrder},System.Collections.Generic.List{WebAPI.Models.General.KalturaIntegerValue},System.String,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},WebAPI.Models.General.KalturaFilterPager,System.String)">
             <summary>
             Unified search across – VOD: Movies, TV Series/episodes, EPG content.        
             </summary>
@@ -151,7 +151,7 @@
             <param name="request_id">Current request identifier (used for paging)</param>
             <remarks>Possible status codes: Bad search request = 4002, Missing index = 4003, SyntaxError = 4004, InvalidSearchField = 4005</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.AssetController.Autocomplete(System.String,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.Collections.Generic.List{WebAPI.Models.General.KalturaIntegerValue},System.Nullable{WebAPI.Models.Catalog.KalturaOrder},System.Nullable{System.Int32},System.String)">
+        <member name="M:WebAPI.Controllers.AssetController.Autocomplete(System.String,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.Collections.Generic.List{WebAPI.Models.General.KalturaIntegerValue},System.Nullable{WebAPI.Models.Catalog.KalturaOrder},System.Nullable{System.Int32})">
             <summary>
             Cross asset types search optimized for autocomplete search use. Search is within the title only, “starts with”, consider white spaces. Maximum number of returned assets – 10, no paging.
             </summary>
@@ -165,7 +165,7 @@
             <param name="language">Language Code</param>
             <remarks>Possible status codes: Missing index = 4003</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.AssetController.Related(System.Int32,System.String,WebAPI.Models.General.KalturaFilterPager,System.Collections.Generic.List{WebAPI.Models.General.KalturaIntegerValue},System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.String)">
+        <member name="M:WebAPI.Controllers.AssetController.Related(System.Int32,System.String,WebAPI.Models.General.KalturaFilterPager,System.Collections.Generic.List{WebAPI.Models.General.KalturaIntegerValue},System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder})">
             <summary>
             Return list of media assets that are related to a provided asset ID (of type VOD). Returned assets can be within multi VOD asset types or be of same type as the provided asset. Response is ordered by relevancy. On-demand, per asset enrichment is supported. Maximum number of returned assets – 20, using paging <br />        
             </summary>        
@@ -178,7 +178,7 @@
             <param name="language">3 letter code (ISO 639-2) that represent the user language. If provided – may be used to further fine tune the returned collection. If omitted – partner’s default language is used</param>        
             <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.AssetController.RelatedExternal(System.Int32,WebAPI.Models.General.KalturaFilterPager,System.Collections.Generic.List{WebAPI.Models.General.KalturaIntegerValue},System.Int32,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.String,System.String)">
+        <member name="M:WebAPI.Controllers.AssetController.RelatedExternal(System.Int32,WebAPI.Models.General.KalturaFilterPager,System.Collections.Generic.List{WebAPI.Models.General.KalturaIntegerValue},System.Int32,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.String)">
             <summary>
             Return list of assets that are related to a provided asset ID. Returned assets can be within multi asset types or be of same type as the provided asset. Support on-demand, per asset enrichment. Related assets are provided from the external source (e.g. external recommendation engine). Maximum number of returned assets – 20, using paging <br />        
             </summary>        
@@ -192,7 +192,7 @@
             <param name="free_param">Suplimentry data that the client can provide the external recommnedation engine</param>        
             <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.AssetController.searchExternal(System.String,WebAPI.Models.General.KalturaFilterPager,System.Collections.Generic.List{WebAPI.Models.General.KalturaIntegerValue},System.Int32,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.String)">
+        <member name="M:WebAPI.Controllers.AssetController.searchExternal(System.String,WebAPI.Models.General.KalturaFilterPager,System.Collections.Generic.List{WebAPI.Models.General.KalturaIntegerValue},System.Int32,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder})">
             <summary>
             Search for assets via external service (e.g. external recommendation engine). Search can return multi asset types. Support on-demand, per asset enrichment. Maximum number of returned assets – 100, using paging <br />        
             </summary>        
@@ -207,7 +207,7 @@
             <param name="utc_offset">Client’s offset from UTC. Format: +/-HH:MM. Example (client located at NY - EST): “-05:00”. If provided – may be used to further fine tune the returned collection</param>  
             <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.AssetController.Channel(System.Int32,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.Nullable{WebAPI.Models.Catalog.KalturaOrder},WebAPI.Models.General.KalturaFilterPager,System.String,System.String)">
+        <member name="M:WebAPI.Controllers.AssetController.Channel(System.Int32,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.Nullable{WebAPI.Models.Catalog.KalturaOrder},WebAPI.Models.General.KalturaFilterPager,System.String)">
             <summary>
             Returns assets that belong to a channel
             </summary>
@@ -226,7 +226,7 @@
             BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, 
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.AssetController.ExternalChannel(System.Int32,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.Nullable{WebAPI.Models.Catalog.KalturaOrder},WebAPI.Models.General.KalturaFilterPager,System.String,System.String,System.String)">
+        <member name="M:WebAPI.Controllers.AssetController.ExternalChannel(System.Int32,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.Nullable{WebAPI.Models.Catalog.KalturaOrder},WebAPI.Models.General.KalturaFilterPager,System.String,System.String)">
             <summary>
             Returns assets as defined by an external channel (3rd party recommendations)
             </summary>
@@ -480,7 +480,7 @@
             <returns></returns>
             <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024,
             ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034, ProgramCdvrNotEnabled = 3035,
-            ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3038, InvalidAssetId = 4024</remarks>
+            ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3038, ExceededQuota = 3042, InvalidAssetId = 4024</remarks>
         </member>
         <member name="M:WebAPI.Controllers.RecordingController.Add(WebAPI.Models.ConditionalAccess.KalturaRecording)">
             <summary>
@@ -490,7 +490,8 @@
             <returns></returns>
             <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
             UserWithNoDomain = 2024, ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034,
-            ProgramCdvrNotEnabled = 3035, ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3038, InvalidAssetId = 4024</remarks>
+            ProgramCdvrNotEnabled = 3035, ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3038,
+            ExceededQuota = 3042, InvalidAssetId = 4024</remarks>
         </member>
         <member name="M:WebAPI.Controllers.RecordingController.List(WebAPI.Models.ConditionalAccess.KalturaRecordingFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
@@ -885,7 +886,7 @@
             "objectType": "KalturaBillingPartnerConfig"}
             </param>        
         </member>
-        <member name="M:WebAPI.Controllers.PersonalAssetController.List(System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaPersonalAssetRequest},System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaPersonalAssetWithHolder},System.String)">
+        <member name="M:WebAPI.Controllers.PersonalAssetController.List(System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaPersonalAssetRequest},System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaPersonalAssetWithHolder})">
             <summary>
             Lists personal enriched data for given assets.
             <remarks>Possible status codes: FileToMediaMismatch = 3028, InvalidAssetType = 4021, UserNotExistsInDomain = 1020, InvalidUser = 1026</remarks>
@@ -1040,7 +1041,7 @@
             </remarks>
             <param name="oss_adapter_id">OSS adapter identifier</param>
         </member>
-        <member name="M:WebAPI.Controllers.EpgChannelController.List(WebAPI.Models.Catalog.KalturaEpgChannelFilter,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.String)">
+        <member name="M:WebAPI.Controllers.EpgChannelController.List(WebAPI.Models.Catalog.KalturaEpgChannelFilter,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder})">
             <summary>
             Returns EPG channel programs filtered by channel identifiers and dates
             </summary>
@@ -1121,7 +1122,7 @@
             <param name="filter">Filter</param>
             <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
         </member>
-        <member name="M:WebAPI.Controllers.AssetHistoryController.List(WebAPI.Models.Catalog.KalturaAssetHistoryFilter,WebAPI.Models.General.KalturaFilterPager,System.String)">
+        <member name="M:WebAPI.Controllers.AssetHistoryController.List(WebAPI.Models.Catalog.KalturaAssetHistoryFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
             Get recently watched media for user, ordered by recently watched first.    
             </summary>
@@ -1150,12 +1151,20 @@
             <summary>
             Registers a device to a household using pin code    
             </summary>                
-            <param name="device_name">Device name</param>
+            <param name="deviceName">Device name</param>
             <param name="pin">Pin code</param>
             <remarks>Possible status codes: 
             Exceeded limit = 1001, Duplicate pin = 1028, Device not exists = 1019</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.HouseholdDeviceController.Add(System.String,System.Int32,System.String)">
+        <member name="M:WebAPI.Controllers.HouseholdDeviceController.Add(WebAPI.Models.Domains.KalturaDevice)">
+            <summary>
+            Add device to household
+            </summary>                
+            <param name="device">Device</param>
+            <remarks>Possible status codes: 
+            Domain does not exist = 1006, Domain suspended = 1009, Device exists in other domain = 1016 , Device already exists = 1015</remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.HouseholdDeviceController.AddOldStandard(System.String,System.Int32,System.String)">
             <summary>
             Add device to household
             </summary>                
@@ -1164,6 +1173,13 @@
             <param name="udid">Device UDID</param>
             <remarks>Possible status codes: 
             Domain does not exist = 1006, Domain suspended = 1009, Device exists in other domain = 1016 , Device already exists = 1015</remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.HouseholdDeviceController.Get">
+            <summary>
+            Returns device registration status to the supplied household
+            </summary>
+            <returns></returns><remarks>Possible status codes: 
+            Device does not exist = 1019, Device not in domain = 1003, Device exists in other domain = 1016</remarks>
         </member>
         <member name="M:WebAPI.Controllers.HouseholdDeviceController.GetStatus">
             <summary>
@@ -1243,7 +1259,16 @@
             Household does not exists = 1006, Limitation period = 1014, User not exists in household = 1020, Invalid user = 1026, 
             Household suspended = 1009, No users in household = 1017, User not allowed = 1027</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.HouseholdUserController.Add(System.String,System.Boolean)">
+        <member name="M:WebAPI.Controllers.HouseholdUserController.Add(WebAPI.Models.Domains.KalturaHouseholdUser)">
+            <summary>
+            Adds a user to household       
+            </summary>                
+            <param name="householdUser">User details to add</param>
+            <remarks>Possible status codes: 
+            Household suspended = 1009, Invalid user = 1026, User Already In household = 1029
+            </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.HouseholdUserController.AddOldStandard(System.String,System.Boolean)">
             <summary>
             Adds a user to household       
             </summary>                
@@ -1264,7 +1289,7 @@
             Household suspended = 1009, Invalid user = 1026, User Already In household = 1029
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.PriceController.List(WebAPI.Models.ConditionalAccess.KalturaPricesFilter,System.String,System.String)">
+        <member name="M:WebAPI.Controllers.PriceController.List(WebAPI.Models.ConditionalAccess.KalturaPricesFilter,System.String)">
             <summary>
             Returns a price and a purchase status for each subscription or/and media file, for a given user (if passed) and with the consideration of a coupon code (if passed). 
             </summary>
@@ -1273,16 +1298,15 @@
             <param name="language">Language code</param>
             <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.SubscriptionController.List(WebAPI.Models.Pricing.KalturaSubscriptionsFilter,System.String)">
+        <member name="M:WebAPI.Controllers.SubscriptionController.List(WebAPI.Models.Pricing.KalturaSubscriptionsFilter)">
             <summary>
             Returns a list of subscriptions requested by Subscription ID or file ID
             </summary>
             <param name="filter">Filter request</param>
-            <param name="language">Language code</param>
             <remarks>Possible status codes:      
               </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.CategoryController.Get(System.Int32,System.String)">
+        <member name="M:WebAPI.Controllers.OttCategoryController.Get(System.Int32)">
             <summary>
             Retrieve the list of categories (hierarchical) and their associated channels
             </summary>
@@ -1290,12 +1314,11 @@
             <param name="language">Language Code</param>
             <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.ChannelController.Get(System.Int32,System.String)">
+        <member name="M:WebAPI.Controllers.ChannelController.Get(System.Int32)">
             <summary>
             Returns channel info        
             </summary>
             <param name="id">Channel Identifier</param>
-            <param name="language">Language Code</param>        
             <remarks></remarks>
         </member>
         <member name="M:WebAPI.Controllers.ChannelController.Delete(System.Int32)">
@@ -1489,7 +1512,7 @@
             <param name="media_ids">Media identifiers</param>
             <remarks>Possible status codes: User does not exist = 2000, User suspended = 2001, Wrong username or password = 1011</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.FavoriteController.List(WebAPI.Models.Users.KalturaFavoriteFilter,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.String,System.String)">
+        <member name="M:WebAPI.Controllers.FavoriteController.List(WebAPI.Models.Users.KalturaFavoriteFilter,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.String)">
             <summary>
             Retrieving users' favorites
             </summary>            
@@ -2943,11 +2966,6 @@
             Recordings
             </summary>
         </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaRecordingStatusHolder">
-            <summary>
-            Holder object for KalturaRecordingStatus
-            </summary>    
-        </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaLicensedUrl.MainUrl">
             <summary>
             Main licensed URL
@@ -3096,6 +3114,21 @@
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaPricesFilter.ShouldGetOnlyLowest">
             <summary>
             A flag that indicates if only the lowest price of an item should return
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Domains.KalturaHouseholdUser">
+            <summary>
+            Household details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdUser.UserId">
+            <summary>
+            The identifier of the user
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdUser.IsMaster">
+            <summary>
+            True if the user added as master use
             </summary>
         </member>
         <member name="T:WebAPI.Models.Domains.KalturaHouseholdLimitations">
@@ -5051,7 +5084,14 @@
             Filter expression
             </summary>
         </member>
-        <member name="M:WebAPI.Controllers.HouseholdController.Get(System.Collections.Generic.List{WebAPI.Models.Domains.KalturaHouseholdWithHolder})">
+        <member name="M:WebAPI.Controllers.HouseholdController.Get">
+            <summary>
+            Returns the household model       
+            </summary>
+            <remarks>Possible status codes: 
+            Household does not exist = 1006, Household user failed = 1007</remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.HouseholdController.GetOldStandard(System.Collections.Generic.List{WebAPI.Models.Domains.KalturaHouseholdWithHolder})">
             <summary>
             Returns the household model       
             </summary>        
@@ -5068,7 +5108,15 @@
             <remarks>Possible status codes: 
             Household does not exist = 1006, Household user failed = 1007</remarks>                
         </member>
-        <member name="M:WebAPI.Controllers.HouseholdController.Add(System.String,System.String,System.String)">
+        <member name="M:WebAPI.Controllers.HouseholdController.Add(WebAPI.Models.Domains.KalturaHousehold)">
+            <summary>
+            Creates a household for the user      
+            </summary>        
+            <param name="household">Household object</param>
+            <remarks>Possible status codes: 
+            User exists in other household = 1018, Household user failed = 1007</remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.HouseholdController.AddOldStandard(System.String,System.String,System.String)">
             <summary>
             Creates a household for the user      
             </summary>        
@@ -5644,6 +5692,13 @@
             <remarks>Possible status codes: Wrong username or password = 1011, User does not exist = 2000, Inside lock time = 2015, User already logged in = 2017</remarks>
         </member>
         <member name="M:WebAPI.Controllers.OttUserController.Get">
+            <summary>
+            Retrieving users' data
+            </summary>        
+            <remarks></remarks>
+            <remarks></remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.OttUserController.GetOldStandard">
             <summary>
             Retrieving users' data
             </summary>        
@@ -18022,6 +18077,15 @@
         <member name="M:WebAPI.Domains.module.AddDeviceToDomainAsync(System.String,System.String,System.Int32,System.String,System.String,System.Int32,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.Domains.module.AddDevice(System.String,System.String,System.Int32,System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Domains.module.AddDeviceAsync(System.String,System.String,System.Int32,System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Domains.module.AddDeviceAsync(System.String,System.String,System.Int32,System.String,System.String,System.Int32,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.Domains.module.RemoveDeviceFromDomain(System.String,System.String,System.Int32,System.String)">
             <remarks/>
         </member>
@@ -18301,6 +18365,15 @@
         <member name="M:WebAPI.Domains.module.GetDeviceRegistrationStatusAsync(System.String,System.String,System.String,System.Int32,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.Domains.module.GetDevice(System.String,System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Domains.module.GetDeviceAsync(System.String,System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Domains.module.GetDeviceAsync(System.String,System.String,System.String,System.Int32,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.Domains.module.RemoveDomainById(System.String,System.String,System.Int32)">
             <remarks/>
         </member>
@@ -18356,6 +18429,9 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.Domains.module.AddDeviceToDomainCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Domains.module.AddDeviceCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.Domains.module.RemoveDeviceFromDomainCompleted">
@@ -18449,6 +18525,9 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.Domains.module.GetDeviceRegistrationStatusCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Domains.module.GetDeviceCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.Domains.module.RemoveDomainByIdCompleted">
@@ -18910,6 +18989,24 @@
         <member name="F:WebAPI.Domains.NetworkResponseStatus.Error">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Domains.DevicePinResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Domains.DevicePinResponse.Pin">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Domains.DevicePinResponse.Status">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Domains.DomainResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Domains.DomainResponse.Domain">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Domains.DomainResponse.Status">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Domains.DeviceResponseObject">
             <remarks/>
         </member>
@@ -18947,24 +19044,6 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Domains.DeviceResponse.Status">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Domains.DevicePinResponse">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Domains.DevicePinResponse.Pin">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Domains.DevicePinResponse.Status">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Domains.DomainResponse">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Domains.DomainResponse.Domain">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Domains.DomainResponse.Status">
             <remarks/>
         </member>
         <member name="T:WebAPI.Domains.DomainStatus">
@@ -19121,6 +19200,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Domains.AddDeviceToDomainCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Domains.AddDeviceCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Domains.AddDeviceCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Domains.AddDeviceCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Domains.RemoveDeviceFromDomainCompletedEventHandler">
@@ -19400,6 +19488,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Domains.GetDeviceRegistrationStatusCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Domains.GetDeviceCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Domains.GetDeviceCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Domains.GetDeviceCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Domains.RemoveDomainByIdCompletedEventHandler">

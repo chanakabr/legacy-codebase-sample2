@@ -620,7 +620,6 @@
     <Content Include="testmeDoc\objects\KalturaRecordingContextListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaRecordingFilter.html" />
     <Content Include="testmeDoc\objects\KalturaRecordingListResponse.html" />
-    <Content Include="testmeDoc\objects\KalturaRecordingStatusHolder.html" />
     <Content Include="testmeDoc\objects\KalturaSessionInfo.html" />
     <Content Include="testmeDoc\objects\KalturaSlimAsset.html" />
     <Content Include="testmeDoc\objects\KalturaSlimAssetInfoWrapper.html" />
@@ -1178,7 +1177,6 @@
     <Content Include="testme\json\KalturaRecordingContextListResponse-subclasses.json" />
     <Content Include="testme\json\KalturaRecordingFilter-subclasses.json" />
     <Content Include="testme\json\KalturaRecordingListResponse-subclasses.json" />
-    <Content Include="testme\json\KalturaRecordingStatusHolder-subclasses.json" />
     <Content Include="testme\json\KalturaSessionInfo-subclasses.json" />
     <Content Include="testme\json\KalturaSlimAsset-subclasses.json" />
     <Content Include="testme\json\KalturaSlimAssetInfoWrapper-subclasses.json" />
@@ -1867,6 +1865,7 @@
     <Compile Include="Models\API\KalturaCDNPartnerSettings.cs" />
     <Compile Include="Models\API\KalturaCDNAdapterProfile.cs" />
     <Compile Include="Models\API\KalturaCDNAdapterProfileListResponse.cs" />
+    <Compile Include="Models\API\KalturaExportTaskOrderBy.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCDVRAdapterProfile.cs" />
     <Compile Include="Models\API\KalturaPermissionsFilter.cs" />
     <Compile Include="Models\API\KalturaExportFilter.cs" />

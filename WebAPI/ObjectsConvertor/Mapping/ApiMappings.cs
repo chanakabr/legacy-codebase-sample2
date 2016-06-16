@@ -973,5 +973,24 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
             return result;
         }
+
+        public static BulkExportTaskOrderBy ConvertExportTaskOrderBy(KalturaExportTaskOrderBy orderBy)
+        {
+            BulkExportTaskOrderBy result;
+
+            switch (orderBy)
+            {
+                case KalturaExportTaskOrderBy.CREATE_DATE_DESC:
+                    result = BulkExportTaskOrderBy.CreateDateDesc;
+                    break;
+                case KalturaExportTaskOrderBy.CREATE_DATE_ASC:
+                    result = BulkExportTaskOrderBy.CreateDateAsc;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown export task order by");
+            }
+
+            return result;
+        }
     }
 }

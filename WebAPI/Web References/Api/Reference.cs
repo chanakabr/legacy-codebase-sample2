@@ -6313,22 +6313,23 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetBulkExportTasks", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public BulkExportTasksResponse GetBulkExportTasks(string sWSUserName, string sWSPassword, long[] ids, string[] externalKeys) {
+        public BulkExportTasksResponse GetBulkExportTasks(string sWSUserName, string sWSPassword, long[] ids, string[] externalKeys, BulkExportTaskOrderBy orderBy) {
             object[] results = this.Invoke("GetBulkExportTasks", new object[] {
                         sWSUserName,
                         sWSPassword,
                         ids,
-                        externalKeys});
+                        externalKeys,
+                        orderBy});
             return ((BulkExportTasksResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void GetBulkExportTasksAsync(string sWSUserName, string sWSPassword, long[] ids, string[] externalKeys) {
-            this.GetBulkExportTasksAsync(sWSUserName, sWSPassword, ids, externalKeys, null);
+        public void GetBulkExportTasksAsync(string sWSUserName, string sWSPassword, long[] ids, string[] externalKeys, BulkExportTaskOrderBy orderBy) {
+            this.GetBulkExportTasksAsync(sWSUserName, sWSPassword, ids, externalKeys, orderBy, null);
         }
         
         /// <remarks/>
-        public void GetBulkExportTasksAsync(string sWSUserName, string sWSPassword, long[] ids, string[] externalKeys, object userState) {
+        public void GetBulkExportTasksAsync(string sWSUserName, string sWSPassword, long[] ids, string[] externalKeys, BulkExportTaskOrderBy orderBy, object userState) {
             if ((this.GetBulkExportTasksOperationCompleted == null)) {
                 this.GetBulkExportTasksOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetBulkExportTasksOperationCompleted);
             }
@@ -6336,7 +6337,8 @@ namespace WebAPI.Api {
                         sWSUserName,
                         sWSPassword,
                         ids,
-                        externalKeys}, this.GetBulkExportTasksOperationCompleted, userState);
+                        externalKeys,
+                        orderBy}, this.GetBulkExportTasksOperationCompleted, userState);
         }
         
         private void OnGetBulkExportTasksOperationCompleted(object arg) {
@@ -15437,6 +15439,19 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         Subscription,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public enum BulkExportTaskOrderBy {
+        
+        /// <remarks/>
+        CreateDateAsc,
+        
+        /// <remarks/>
+        CreateDateDesc,
     }
     
     /// <remarks/>

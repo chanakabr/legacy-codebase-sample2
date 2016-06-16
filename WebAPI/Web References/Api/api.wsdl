@@ -4344,9 +4344,16 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="ids" type="tns:ArrayOfLong" />
             <s:element minOccurs="0" maxOccurs="1" name="externalKeys" type="tns:ArrayOfString" />
+            <s:element minOccurs="1" maxOccurs="1" name="orderBy" type="tns:BulkExportTaskOrderBy" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:simpleType name="BulkExportTaskOrderBy">
+        <s:restriction base="s:string">
+          <s:enumeration value="CreateDateAsc" />
+          <s:enumeration value="CreateDateDesc" />
+        </s:restriction>
+      </s:simpleType>
       <s:element name="GetBulkExportTasksResponse">
         <s:complexType>
           <s:sequence>
