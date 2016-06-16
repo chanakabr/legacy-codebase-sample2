@@ -662,5 +662,9 @@ namespace ApiObjects
         No = 2
     }
 
-
+    public enum BulkExportTaskOrderBy
+    {
+        CreateDateAsc = 0,
+        CreateDateDesc = 1
+    }
 }
