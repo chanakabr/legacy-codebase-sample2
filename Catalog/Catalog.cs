@@ -6267,12 +6267,12 @@ namespace Catalog
                 {
                     // If there is at least one media type - it is not an empty request
                     emptyRequest = false;
+                }
 
-                    // if it contains ONLY 0 - it means search all
-                    if (definitions.mediaTypes.Count == 1 && definitions.mediaTypes.Contains(0))
-                    {
-                        definitions.mediaTypes.Remove(0);
-                    }
+                // if it contains ONLY 0 - it means search all
+                if (definitions.mediaTypes.Count == 1 && definitions.mediaTypes.Contains(0))
+                {
+                    definitions.mediaTypes.Remove(0);
                 }
 
                 #endregion
