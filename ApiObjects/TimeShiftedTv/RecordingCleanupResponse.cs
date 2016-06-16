@@ -30,7 +30,7 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("Status Code: {0}, Status Message: {1} ", Status.Code, Status.Message));
             sb.Append(string.Format("LastSuccessfulCleanUpDate: {0}, ", LastSuccessfulCleanUpDate.ToString()));
             sb.Append(string.Format("DeletedRecordingOnLastCleanup: {0}, ", DeletedRecordingOnLastCleanup));
-            sb.Append(string.Format("DomainRecordingsUpdatedOnLastCleanup: {0}, ", DomainRecordingsUpdatedOnLastCleanup));
+            sb.Append(string.Format("DomainRecordingsUpdatedOnLastCleanup: {0}", DomainRecordingsUpdatedOnLastCleanup));
 
             return sb.ToString();        
         }

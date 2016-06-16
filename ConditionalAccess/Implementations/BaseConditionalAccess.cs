@@ -17671,12 +17671,13 @@ namespace ConditionalAccess
             try
             {
                 Dictionary<long, Recording> DomainRecordingIdToRecordingMap = Utils.GetDomainRecordingIdsToRecordingsMap(domainID, new List<long>() { domainRecordingID });
-                if (DomainRecordingIdToRecordingMap == null || DomainRecordingIdToRecordingMap.Count == 0)
+                if (DomainRecordingIdToRecordingMap == null || DomainRecordingIdToRecordingMap.Count == 0 ||
+                    !DomainRecordingIdToRecordingMap.ContainsKey(domainRecordingID) || DomainRecordingIdToRecordingMap[domainRecordingID].RecordingStatus == TstvRecordingStatus.Deleted)
                 {
-                    log.DebugFormat("No recordingIDs were returned from ConditionalAccessDAL.GetRecordingsMapingsByDomainRecordingIds");
+                    log.DebugFormat("No valid recording was returned from Utils.GetDomainRecordingIdsToRecordingsMap");
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingNotFound, eResponseStatus.RecordingNotFound.ToString());
                     return response;
-                }
+                }                
 
                 response = DomainRecordingIdToRecordingMap[domainRecordingID];
                 response.Id = domainRecordingID;                               

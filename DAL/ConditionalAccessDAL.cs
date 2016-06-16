@@ -3104,14 +3104,14 @@ namespace DAL
                         log.ErrorFormat("Error while trying to get last successful recordings cleanup date, key: {0}", recordingsCleanupKey);
                         break;
                     }
-                    else if (response != null && response.Status.Code == (int)ApiObjects.Response.eResponseStatus.OK)
+                    else if (getResult == Couchbase.IO.ResponseStatus.Success)
                     {
-                        log.DebugFormat("RecordingCleanupResponse with key {0}  was found with value {1}", recordingsCleanupKey, response.ToString());
+                        log.DebugFormat("RecordingCleanupResponse with key {0} was found with value {1}", recordingsCleanupKey, response.ToString());
                         break;                        
                     }                    
                     else
                     {
-                        log.ErrorFormat("Error while trying to get last successful recordings cleanup date, key: {0}, retryAttempt: {1}, maxRetries: {2}", recordingsCleanupKey, numOfRetries, limitRetries);
+                        log.ErrorFormat("Retrieving RecordingCleanupResponse with key {0} failed with status: {1}, retryAttempt: {1}, maxRetries: {2}", recordingsCleanupKey, getResult, numOfRetries, limitRetries);
                         numOfRetries++;
                         System.Threading.Thread.Sleep(1000);
                     }
