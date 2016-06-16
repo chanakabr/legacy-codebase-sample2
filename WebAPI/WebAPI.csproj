@@ -1234,7 +1234,7 @@
     <Content Include="Service References\Notifications\WebAPI.Notifications.NotificationCleanupResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.PushWebParametersResponse.datasource">
+    <Content Include="Service References\Notifications\WebAPI.Notifications.RegistryResponse1.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
     <None Include="Web References\Api\api.disco" />
