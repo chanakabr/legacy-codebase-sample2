@@ -6176,19 +6176,19 @@ namespace Catalog
                 switch (channel.m_eCutWith)
                 {
                     case CutWith.WCF_ONLY_DEFAULT_VALUE:
-                        break;
+                    break;
                     case CutWith.OR:
-                        {
-                            cutType = eCutType.Or;
-                            break;
-                        }
-                    case CutWith.AND:
-                        {
-                            cutType = eCutType.And;
-                            break;
-                        }
-                    default:
+                    {
+                        cutType = eCutType.Or;
                         break;
+                    }
+                    case CutWith.AND:
+                    {
+                        cutType = eCutType.And;
+                        break;
+                    }
+                    default:
+                    break;
                 }
 
                 // If there is at least one tag
@@ -6204,19 +6204,19 @@ namespace Catalog
                             switch (channel.m_eCutWith)
                             {
                                 case CutWith.WCF_ONLY_DEFAULT_VALUE:
-                                    break;
+                                break;
                                 case CutWith.OR:
-                                    {
-                                        innerCutType = eCutType.Or;
-                                        break;
-                                    }
-                                case CutWith.AND:
-                                    {
-                                        innerCutType = eCutType.And;
-                                        break;
-                                    }
-                                default:
+                                {
+                                    innerCutType = eCutType.Or;
                                     break;
+                                }
+                                case CutWith.AND:
+                                {
+                                    innerCutType = eCutType.And;
+                                    break;
+                                }
+                                default:
+                                break;
                             }
 
                             string key = searchValue.m_sKey.ToLower();
@@ -6264,12 +6264,12 @@ namespace Catalog
                 {
                     // If there is at least one media type - it is not an empty request
                     emptyRequest = false;
+                }
 
-                    // if it contains ONLY 0 - it means search all
-                    if (definitions.mediaTypes.Count == 1 && definitions.mediaTypes.Contains(0))
-                    {
-                        definitions.mediaTypes.Remove(0);
-                    }
+                // if it contains ONLY 0 - it means search all
+                if (definitions.mediaTypes.Count == 1 && definitions.mediaTypes.Contains(0))
+                {
+                    definitions.mediaTypes.Remove(0);
                 }
 
                 #endregion
