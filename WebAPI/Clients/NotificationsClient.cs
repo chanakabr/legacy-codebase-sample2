@@ -1106,11 +1106,11 @@ namespace WebAPI.Clients
             return response.LastCleanupDate;
         }
 
-        internal KalturaPushWebParametersResponse GetPushWebParams(int groupId, List<int> announcementIds, string hash, string ip)
+        internal KalturaRegistryResponse Registry(int groupId, int announcementId, string hash, string ip)
         {
-            PushWebParametersResponse response = null;
-            List<KalturaPushWebParameters> result = null;
-            KalturaPushWebParametersResponse ret = null;
+            RegistryResponse response = null;
+            List<KalturaRegistryParameter> result = null;
+            KalturaRegistryResponse ret = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -1118,12 +1118,12 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.GetPushWebParams(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, announcementIds, hash, ip);
+                    response = Notification.Registry(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, announcementId, hash, ip);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while GetPushWebParams.  groupID: {0}, exception: {1}", groupId, ex);
+                log.ErrorFormat("Error while Registry.  groupID: {0}, exception: {1}", groupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1139,11 +1139,11 @@ namespace WebAPI.Clients
 
             if (response.Items != null && response.Items.Count > 0)
             {
-                result = Mapper.Map<List<KalturaPushWebParameters>>(response.Items);
-                ret = new KalturaPushWebParametersResponse() { PushWebParameters = result, TotalCount = result.Count };
+                result = Mapper.Map<List<KalturaRegistryParameter>>(response.Items);
+                ret = new KalturaRegistryResponse() { RegistryParameters = result, TotalCount = result.Count };
             }
             else
-                ret = new KalturaPushWebParametersResponse();
+                ret = new KalturaRegistryResponse();
 
             return ret;
         }

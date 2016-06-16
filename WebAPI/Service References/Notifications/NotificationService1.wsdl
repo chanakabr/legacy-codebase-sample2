@@ -241,11 +241,11 @@
   <wsdl:message name="INotificationService_GetNotificationLastCleanupDate_OutputMessage">
     <wsdl:part name="parameters" element="tns:GetNotificationLastCleanupDateResponse" />
   </wsdl:message>
-  <wsdl:message name="INotificationService_GetPushWebParams_InputMessage">
-    <wsdl:part name="parameters" element="tns:GetPushWebParams" />
+  <wsdl:message name="INotificationService_Registry_InputMessage">
+    <wsdl:part name="parameters" element="tns:Registry" />
   </wsdl:message>
-  <wsdl:message name="INotificationService_GetPushWebParams_OutputMessage">
-    <wsdl:part name="parameters" element="tns:GetPushWebParamsResponse" />
+  <wsdl:message name="INotificationService_Registry_OutputMessage">
+    <wsdl:part name="parameters" element="tns:RegistryResponse" />
   </wsdl:message>
   <wsdl:portType name="INotificationService">
     <wsdl:operation name="AddNotificationRequest">
@@ -400,9 +400,9 @@
       <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/GetNotificationLastCleanupDate" message="tns:INotificationService_GetNotificationLastCleanupDate_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/GetNotificationLastCleanupDateResponse" message="tns:INotificationService_GetNotificationLastCleanupDate_OutputMessage" />
     </wsdl:operation>
-    <wsdl:operation name="GetPushWebParams">
-      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/GetPushWebParams" message="tns:INotificationService_GetPushWebParams_InputMessage" />
-      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/GetPushWebParamsResponse" message="tns:INotificationService_GetPushWebParams_OutputMessage" />
+    <wsdl:operation name="Registry">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/Registry" message="tns:INotificationService_Registry_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/RegistryResponse" message="tns:INotificationService_Registry_OutputMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="BasicHttpBinding_INotificationService" type="tns:INotificationService">
@@ -749,8 +749,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetPushWebParams">
-      <soap:operation soapAction="http://tempuri.org/INotificationService/GetPushWebParams" style="document" />
+    <wsdl:operation name="Registry">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/Registry" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>

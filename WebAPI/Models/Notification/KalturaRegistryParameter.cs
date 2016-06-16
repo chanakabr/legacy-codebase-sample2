@@ -7,7 +7,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Notification
 {
     [Serializable]
-    public class KalturaPushWebParameters : KalturaOTTObject
+    public class KalturaRegistryParameter : KalturaOTTObject
     {
         /// <summary>
         /// Announcement Id

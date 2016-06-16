@@ -3080,15 +3080,15 @@ namespace WebAPI.Notifications {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="PushWebParametersResponse", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="RegistryResponse", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification")]
     [System.SerializableAttribute()]
-    public partial class PushWebParametersResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+    public partial class RegistryResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
         
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<WebAPI.Notifications.PushWebParameter> ItemsField;
+        private System.Collections.Generic.List<WebAPI.Notifications.RegistryParameter> ItemsField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private WebAPI.Notifications.Status StatusField;
@@ -3104,7 +3104,7 @@ namespace WebAPI.Notifications {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<WebAPI.Notifications.PushWebParameter> Items {
+        public System.Collections.Generic.List<WebAPI.Notifications.RegistryParameter> Items {
             get {
                 return this.ItemsField;
             }
@@ -3141,9 +3141,9 @@ namespace WebAPI.Notifications {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="PushWebParameter", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="RegistryParameter", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification")]
     [System.SerializableAttribute()]
-    public partial class PushWebParameter : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+    public partial class RegistryParameter : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
         
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
@@ -3452,11 +3452,11 @@ namespace WebAPI.Notifications {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetNotificationLastCleanupDate", ReplyAction="http://tempuri.org/INotificationService/GetNotificationLastCleanupDateResponse")]
         System.Threading.Tasks.Task<WebAPI.Notifications.NotificationCleanupResponse> GetNotificationLastCleanupDateAsync(string sWSUserName, string sWSPassword);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetPushWebParams", ReplyAction="http://tempuri.org/INotificationService/GetPushWebParamsResponse")]
-        WebAPI.Notifications.PushWebParametersResponse GetPushWebParams(string sWSUserName, string sWSPassword, System.Collections.Generic.List<int> announcementIds, string hash, string ip);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/Registry", ReplyAction="http://tempuri.org/INotificationService/RegistryResponse")]
+        WebAPI.Notifications.RegistryResponse Registry(string sWSUserName, string sWSPassword, int announcementId, string hash, string ip);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetPushWebParams", ReplyAction="http://tempuri.org/INotificationService/GetPushWebParamsResponse")]
-        System.Threading.Tasks.Task<WebAPI.Notifications.PushWebParametersResponse> GetPushWebParamsAsync(string sWSUserName, string sWSPassword, System.Collections.Generic.List<int> announcementIds, string hash, string ip);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/Registry", ReplyAction="http://tempuri.org/INotificationService/RegistryResponse")]
+        System.Threading.Tasks.Task<WebAPI.Notifications.RegistryResponse> RegistryAsync(string sWSUserName, string sWSPassword, int announcementId, string hash, string ip);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -3790,12 +3790,12 @@ namespace WebAPI.Notifications {
             return base.Channel.GetNotificationLastCleanupDateAsync(sWSUserName, sWSPassword);
         }
         
-        public WebAPI.Notifications.PushWebParametersResponse GetPushWebParams(string sWSUserName, string sWSPassword, System.Collections.Generic.List<int> announcementIds, string hash, string ip) {
-            return base.Channel.GetPushWebParams(sWSUserName, sWSPassword, announcementIds, hash, ip);
+        public WebAPI.Notifications.RegistryResponse Registry(string sWSUserName, string sWSPassword, int announcementId, string hash, string ip) {
+            return base.Channel.Registry(sWSUserName, sWSPassword, announcementId, hash, ip);
         }
         
-        public System.Threading.Tasks.Task<WebAPI.Notifications.PushWebParametersResponse> GetPushWebParamsAsync(string sWSUserName, string sWSPassword, System.Collections.Generic.List<int> announcementIds, string hash, string ip) {
-            return base.Channel.GetPushWebParamsAsync(sWSUserName, sWSPassword, announcementIds, hash, ip);
+        public System.Threading.Tasks.Task<WebAPI.Notifications.RegistryResponse> RegistryAsync(string sWSUserName, string sWSPassword, int announcementId, string hash, string ip) {
+            return base.Channel.RegistryAsync(sWSUserName, sWSPassword, announcementId, hash, ip);
         }
     }
 }
