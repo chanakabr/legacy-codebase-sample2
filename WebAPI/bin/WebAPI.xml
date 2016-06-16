@@ -602,14 +602,14 @@
             </remarks>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Controllers.NotificationController.GetPushWebParams(System.Collections.Generic.List{WebAPI.Models.General.KalturaIntegerValue})">
+        <member name="M:WebAPI.Controllers.NotificationController.Registry(System.Int32)">
             <summary>
-            TBD
+            TBD 
             </summary>
             <remarks>
             Possible status codes:       
             </remarks>
-            <param name="ids"></param>        
+            <param name="id"></param>        
         </member>
         <member name="M:WebAPI.Controllers.NotificationsPartnerSettingsController.Get">
             <summary>
@@ -2135,9 +2135,19 @@
             Bulk export tasks filter
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaExportFilter.Ids">
+        <member name="T:WebAPI.Models.General.KalturaFilter">
+            <summary>
+            Base filter
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaExportFilter.IdIn">
             <summary>
             The tasks identifiers
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaExportFilter.OrderBy">
+            <summary>
+            order by
             </summary>
         </member>
         <member name="T:WebAPI.Models.API.KalturaExportTask">
@@ -2916,11 +2926,6 @@
             Filtering assets
             </summary>
         </member>
-        <member name="T:WebAPI.Models.General.KalturaFilter">
-            <summary>
-            Base filter
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingContextFilter.AssetIdIn">
             <summary>
             Asset Id's
@@ -3536,12 +3541,6 @@
             Current Bitrate
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Notification.KalturaPushWebParametersResponse">
-            <summary>
-            
-            </summary>
-        </member>
-        <!-- Badly formed XML comment ignored for member "P:WebAPI.Models.Notification.KalturaPushWebParametersResponse.PushWebParameters" -->
         <member name="T:WebAPI.Models.Notification.KalturaInboxMessageTypeHolder">
             <summary>
             Holder object for inbox message type enum
@@ -3730,21 +3729,27 @@
             </summary>
         </member>
         <!-- Badly formed XML comment ignored for member "P:WebAPI.Models.Notification.KalturaPersonalFollowFeedResponse.PersonalFollowFeed" -->
-        <member name="P:WebAPI.Models.Notification.KalturaPushWebParameters.AnnouncementId">
+        <member name="P:WebAPI.Models.Notification.KalturaRegistryParameter.AnnouncementId">
             <summary>
             Announcement Id
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaPushWebParameters.Key">
+        <member name="P:WebAPI.Models.Notification.KalturaRegistryParameter.Key">
             <summary>
             Key
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaPushWebParameters.Url">
+        <member name="P:WebAPI.Models.Notification.KalturaRegistryParameter.Url">
             <summary>
             URL
             </summary>
         </member>
+        <member name="T:WebAPI.Models.Notification.KalturaRegistryResponse">
+            <summary>
+            
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "P:WebAPI.Models.Notification.KalturaRegistryResponse.RegistryParameters" -->
         <member name="P:WebAPI.Models.Notification.KalturaTopic.Id">
             <summary>
             message id
@@ -7436,13 +7441,13 @@
         <member name="M:WebAPI.Api.API.DeleteBulkExportTaskAsync(System.String,System.String,System.Int64,System.String,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.GetBulkExportTasks(System.String,System.String,System.Int64[],System.String[])">
+        <member name="M:WebAPI.Api.API.GetBulkExportTasks(System.String,System.String,System.Int64[],System.String[],WebAPI.Api.BulkExportTaskOrderBy)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.GetBulkExportTasksAsync(System.String,System.String,System.Int64[],System.String[])">
+        <member name="M:WebAPI.Api.API.GetBulkExportTasksAsync(System.String,System.String,System.Int64[],System.String[],WebAPI.Api.BulkExportTaskOrderBy)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.GetBulkExportTasksAsync(System.String,System.String,System.Int64[],System.String[],System.Object)">
+        <member name="M:WebAPI.Api.API.GetBulkExportTasksAsync(System.String,System.String,System.Int64[],System.String[],WebAPI.Api.BulkExportTaskOrderBy,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Api.API.Export(System.String,System.String,System.Int64,System.String)">
@@ -10590,6 +10595,15 @@
             <remarks/>
         </member>
         <member name="F:WebAPI.Api.eBusinessModule.Subscription">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.BulkExportTaskOrderBy">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.BulkExportTaskOrderBy.CreateDateAsc">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.BulkExportTaskOrderBy.CreateDateDesc">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.MessageRecoveryCompletedEventHandler">
