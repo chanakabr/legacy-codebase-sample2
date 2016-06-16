@@ -17665,61 +17665,27 @@ namespace ConditionalAccess
             return domainRecordings;
         }
 
-        public RecordingResponse GetRecordingsByIDs(List<long> recordingIDs, long domainID)
+        public Recording GetRecordingByID(long domainID, long domainRecordingID)
         {
-            RecordingResponse response = new RecordingResponse();
+            Recording response = new Recording();
             try
             {
-                if (recordingIDs == null || recordingIDs.Count == 0)
-                {
-                    log.DebugFormat("No recordingIDs were sent");
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                    return response;
-                }
-
-                Dictionary<long, long> recordingIdToDomainRecordingIdMap = ConditionalAccessDAL.GetRecordingsMapingsByDomainRecordingIds(m_nGroupID, domainID, recordingIDs);
-                if (recordingIdToDomainRecordingIdMap == null || recordingIdToDomainRecordingIdMap.Count == 0)
+                Dictionary<long, Recording> DomainRecordingIdToRecordingMap = Utils.GetDomainRecordingIdsToRecordingsMap(domainID, new List<long>() { domainRecordingID });
+                if (DomainRecordingIdToRecordingMap == null || DomainRecordingIdToRecordingMap.Count == 0)
                 {
                     log.DebugFormat("No recordingIDs were returned from ConditionalAccessDAL.GetRecordingsMapingsByDomainRecordingIds");
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingNotFound, eResponseStatus.RecordingNotFound.ToString());
                     return response;
                 }
 
-                List<Recording> recordings = RecordingsManager.Instance.GetRecordings(m_nGroupID, recordingIdToDomainRecordingIdMap.Keys.ToList());
-                if (recordings == null || recordings.Count == 0)
-                {
-                    log.DebugFormat("No recordings were returned from RecordingsManager.Instance.GetRecordings");
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingNotFound, eResponseStatus.RecordingNotFound.ToString());
-                    return response;
-                }
-
-                foreach (Recording recording in recordings)
-                {
-                    if (recordingIdToDomainRecordingIdMap.ContainsKey(recording.Id))
-                    {
-                        recording.Id = recordingIdToDomainRecordingIdMap[recording.Id];
-                    }
-                }
-
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                response.Recordings = recordings;
+                response = DomainRecordingIdToRecordingMap[domainRecordingID];
+                response.Id = domainRecordingID;                               
             }
 
             catch (Exception ex)
             {
-                StringBuilder sb = new StringBuilder("Exception at GetRecordingsByIDs. ");
-                sb.Append("RecordingIDs: ");
-                if (recordingIDs != null)
-                {
-                    foreach (long recordingID in recordingIDs)
-                    {
-                        sb.Append(String.Concat(recordingID, ", "));
-                    }
-                }
-                else
-                {
-                    sb.Append("Null, ");
-                }
+                StringBuilder sb = new StringBuilder("Exception at GetRecordingByID. ");
+                sb.Append(string.Format("domainRecordingID: {0}, ", domainRecordingID));
                 sb.Append(String.Concat("Ex Msg: ", ex.Message));
                 sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
@@ -18211,34 +18177,61 @@ namespace ConditionalAccess
         public bool CleanupRecordings()
         {
             bool result = false;
-            int programsToDeleteCount = 1;
             try
-            {                                
+            {
                 // get current utc epoch
                 long utcNowEpoch = TVinciShared.DateUtils.UnixTimeStampNow();
                 List<long> epgIdsForDeletion = ConditionalAccessDAL.GetRecordingsForCleanup(utcNowEpoch);
-                programsToDeleteCount = epgIdsForDeletion.Count;
-                foreach (long epgID in epgIdsForDeletion)
-                {
-                    ApiObjects.Response.Status deleteStatus = RecordingsManager.Instance.DeleteRecording(m_nGroupID, epgID);
-                    if (deleteStatus.Code != (int)eResponseStatus.OK)
+                List<long> deletedEpgIds = new List<long>();
+                int updatedDomainRecordingsRowCount = 0;
+                if (epgIdsForDeletion.Count > 0)
+                {                    
+                    foreach (long epgID in epgIdsForDeletion)
                     {
-                        log.ErrorFormat("Failed deleting epg: {0} for groupID {1}", epgID, m_nGroupID);
+                        ApiObjects.Response.Status deleteStatus = RecordingsManager.Instance.DeleteRecording(m_nGroupID, epgID);
+                        if (deleteStatus.Code != (int)eResponseStatus.OK)
+                        {
+                            log.ErrorFormat("Failed deleting epg: {0} for groupID {1}", epgID, m_nGroupID);
+                        }
+                        else
+                        {
+                            deletedEpgIds.Add(epgID);
+                            log.DebugFormat("epg: {0} cleanup successful for groupID {1}", epgID, m_nGroupID);
+                        }
+                    }
+
+                    // update domain recordings
+                    updatedDomainRecordingsRowCount = ConditionalAccessDAL.UpdateDomainRecordingsAfterCleanup(deletedEpgIds);
+                    if (updatedDomainRecordingsRowCount > 0)
+                    {
+                        log.DebugFormat("updated {0} rows on domain recordings after cleanup", updatedDomainRecordingsRowCount);
                     }
                     else
                     {
-                        programsToDeleteCount--;
-                        log.DebugFormat("epg: {0} cleanup successful for groupID {1}", epgID, m_nGroupID);
+                        log.Error("Failed updating domain recordings after cleanup");
                     }
                 }
 
                 // update successful cleanup date
-                if (programsToDeleteCount == 0)
+                if (deletedEpgIds.Count == epgIdsForDeletion.Count)
                 {
                     result = true;
-                    if (!ConditionalAccessDAL.UpdateSuccessfulRecordingsCleanup(DateTime.UtcNow))
+                    if (!ConditionalAccessDAL.UpdateSuccessfulRecordingsCleanup(DateTime.UtcNow, deletedEpgIds.Count, updatedDomainRecordingsRowCount))
                     {
                         log.Error("Failed updating recordings cleanup date");
+                    }
+                    else
+                    {
+                        log.Debug("Successfully updated recordings cleanup date");
+                    }
+
+                    if (deletedEpgIds.Count > 0)
+                    {
+                        log.DebugFormat("Successfully cleaned up {0} recordings and updated {1} rows on domain recordings", deletedEpgIds, updatedDomainRecordingsRowCount);
+                    }
+                    else
+                    {
+                        log.DebugFormat("Did not find any recordings to cleanup");
                     }                    
                 }
                 else
@@ -18263,19 +18256,11 @@ namespace ConditionalAccess
 
         public RecordingCleanupResponse GetLastSuccessfulRecordingsCleanup()
         {
-            RecordingCleanupResponse response = new RecordingCleanupResponse();
-            DateTime? lastSuccessfulCleanupDate = ConditionalAccessDAL.GetLastSuccessfulRecordingsCleanup();
-            if (!lastSuccessfulCleanupDate.HasValue)
+            RecordingCleanupResponse response = ConditionalAccessDAL.GetLastSuccessfulRecordingsCleanupDetails();            
+            if (response.Status.Code != (int)eResponseStatus.OK)
             {
-                log.ErrorFormat("Error while trying to get last successful recordings cleanup date");
-                response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
-            }
-            else
-            {
-                response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
-            }
-
-            response.LastSuccessfulCleanUpDate = lastSuccessfulCleanupDate;
+                log.ErrorFormat("Error while trying to get last successful recordings cleanup details, status code: {0}, status message: {1}", response.Status.Code, response.Status.Message);
+            }  
 
             return response;
         }

@@ -2822,28 +2822,16 @@ namespace DAL
             return dt;
         }
 
-        public static Dictionary<long, long> GetRecordingsMapingsByDomainRecordingIds(int groupID, long domainID, List<long> domainRecordingIds)
+        public static DataTable GetDomainRecording(long domainID, List<long> domainRecordingIds)
         {
-            Dictionary<long, long> recordingIdToDomainRecordingIdMap = null;
-            ODBCWrapper.StoredProcedure spGetDomainRecordings = new ODBCWrapper.StoredProcedure("GetDomainRecordingsByRecordingIds");
-            spGetDomainRecordings.SetConnectionKey("CONNECTION_STRING");
-            spGetDomainRecordings.AddParameter("@GroupID", groupID);
-            spGetDomainRecordings.AddParameter("@DomainID", domainID);
-            spGetDomainRecordings.AddIDListParameter<long>("@DomainRecordingIds", domainRecordingIds, "ID");
+            DataTable dt = null;
+            ODBCWrapper.StoredProcedure spGetDomainRecordingsByIds = new ODBCWrapper.StoredProcedure("GetDomainRecordingsByIds");
+            spGetDomainRecordingsByIds.SetConnectionKey("CONNECTION_STRING");
+            spGetDomainRecordingsByIds.AddParameter("@DomainID", domainID);
+            spGetDomainRecordingsByIds.AddIDListParameter<long>("@DomainRecordingIds", domainRecordingIds, "ID");
+            dt = spGetDomainRecordingsByIds.Execute();
 
-            DataTable dt = spGetDomainRecordings.Execute();
-            if (dt != null && dt.Rows != null)
-            {
-                recordingIdToDomainRecordingIdMap = new Dictionary<long, long>();
-                foreach (DataRow dr in dt.Rows)
-                {
-                    long recordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID");
-                    long domainRecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
-                    recordingIdToDomainRecordingIdMap.Add(recordingID, domainRecordingID);
-                }
-            }
-
-            return recordingIdToDomainRecordingIdMap;
+            return dt;
         }
 
         public static Dictionary<int, List<long>> GetFileIdsToEpgIdsMap(int groupId, List<long> epgIds)
@@ -3032,7 +3020,7 @@ namespace DAL
 
         public static List<long> GetRecordingsForCleanup(long utcNowEpoch)
         {
-            List<long> epgIdsForCleanup = null;
+            List<long> epgIdsForCleanup = new List<long>();
             ODBCWrapper.StoredProcedure spGetRecordginsForCleanup = new ODBCWrapper.StoredProcedure("GetRecordingsForCleanup");
             spGetRecordginsForCleanup.SetConnectionKey("CONNECTION_STRING");
             spGetRecordginsForCleanup.AddParameter("@UtcNowEpoch", utcNowEpoch);
@@ -3054,7 +3042,7 @@ namespace DAL
             return epgIdsForCleanup;
         }
 
-        public static bool UpdateSuccessfulRecordingsCleanup(DateTime lastSuccessfulCleanUpDate)
+        public static bool UpdateSuccessfulRecordingsCleanup(DateTime lastSuccessfulCleanUpDate, int deletedRecordingOnLastCleanup, int domainRecordingsUpdatedOnLastCleanup)
         {
             bool result = false;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
@@ -3063,14 +3051,15 @@ namespace DAL
             try
             {
                 int numOfRetries = 0;
+                RecordingCleanupResponse recordingCleanupDetails = new RecordingCleanupResponse(lastSuccessfulCleanUpDate, deletedRecordingOnLastCleanup, domainRecordingsUpdatedOnLastCleanup);
                 while (!result && numOfRetries < limitRetries)
                 {
-                    result = cbClient.Set(recordingsCleanupKey, lastSuccessfulCleanUpDate);
+                    result = cbClient.Set(recordingsCleanupKey, recordingCleanupDetails);
                     if (!result)
                     {
                         numOfRetries++;
-                        log.ErrorFormat("Error while updating successful recordings cleanup date. number of tries: {0}/{1}. Last Cleanup Date: {2}",
-                                         numOfRetries, limitRetries, lastSuccessfulCleanUpDate);
+                        log.ErrorFormat("Error while updating successful recordings cleanup date. number of tries: {0}/{1}. RecordingCleanupResponse: {2}",
+                                         numOfRetries, limitRetries, recordingCleanupDetails.ToString());
 
                         System.Threading.Thread.Sleep(1000);
                     }                    
@@ -3084,9 +3073,21 @@ namespace DAL
             return result;
         }
 
-        public static DateTime? GetLastSuccessfulRecordingsCleanup()
+        public static int UpdateDomainRecordingsAfterCleanup(List<long> epgIds)
         {
-            DateTime? lastSuccessfulCleanupDate = null;
+            int updatedRowsCount = 0;
+            ODBCWrapper.StoredProcedure spUpdateDomainRecordingsAfterCleanup = new ODBCWrapper.StoredProcedure("UpdateDomainRecordingsAfterCleanup");
+            spUpdateDomainRecordingsAfterCleanup.SetConnectionKey("CONNECTION_STRING");            
+            spUpdateDomainRecordingsAfterCleanup.AddIDListParameter<long>("@EpgIds", epgIds, "ID");
+            
+            updatedRowsCount = spUpdateDomainRecordingsAfterCleanup.ExecuteReturnValue<int>();
+
+            return updatedRowsCount;
+        }
+
+        public static RecordingCleanupResponse GetLastSuccessfulRecordingsCleanupDetails()
+        {
+            RecordingCleanupResponse response = null;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
             int limitRetries = RETRY_LIMIT;
             Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
@@ -3096,16 +3097,17 @@ namespace DAL
                 int numOfRetries = 0;
                 while (numOfRetries < limitRetries)
                 {
-                    lastSuccessfulCleanupDate = cbClient.Get<DateTime?>(recordingsCleanupKey, out getResult);
+                    response = cbClient.Get<RecordingCleanupResponse>(recordingsCleanupKey, out getResult);
                     if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
                     {
+                        response = new RecordingCleanupResponse() { Status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, "CouchBase KeyNotFound") };
                         log.ErrorFormat("Error while trying to get last successful recordings cleanup date, key: {0}", recordingsCleanupKey);
                         break;
                     }
-                    else if (lastSuccessfulCleanupDate.HasValue)
+                    else if (response != null && response.Status.Code == (int)ApiObjects.Response.eResponseStatus.OK)
                     {
-                        break;
-                        log.DebugFormat("cleanup last successful date key {0} found with value {1}", recordingsCleanupKey, lastSuccessfulCleanupDate.Value);
+                        log.DebugFormat("RecordingCleanupResponse with key {0}  was found with value {1}", recordingsCleanupKey, response.ToString());
+                        break;                        
                     }                    
                     else
                     {
@@ -3120,7 +3122,12 @@ namespace DAL
                 log.ErrorFormat("Error while trying to get last successful recordings cleanup date, ex: {0}", ex);
             }
 
-            return lastSuccessfulCleanupDate;
+            if (response == null)
+            {
+                response = new RecordingCleanupResponse() { Status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, "Failed Getting RecordingCleanupResponse from CB") };
+            }
+
+            return response;
         }
     }
 }

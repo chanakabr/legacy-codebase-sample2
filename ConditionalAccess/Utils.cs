@@ -7,6 +7,7 @@ using ConditionalAccess.TvinciUsers;
 using ConditionalAccess.WS_Catalog;
 using DAL;
 using KLogMonitor;
+using Recordings;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -4165,7 +4166,7 @@ namespace ConditionalAccess
         }
 
         internal static TimeShiftedTvPartnerSettings GetTimeShiftedTvPartnerSettings(int groupID)
-        {            
+        {
             string key = string.Format("TstvAccountSettings_{0}", groupID);
             TimeShiftedTvPartnerSettings settings = null;
             try
@@ -4177,7 +4178,7 @@ namespace ConditionalAccess
                     {
                         settings = TvinciCache.WSCache.Instance.Get<TimeShiftedTvPartnerSettings>(key);
                         if (settings == null)
-                        {                            
+                        {
                             DataRow dr = DAL.ApiDAL.GetTimeShiftedTvPartnerSettings(groupID);
                             if (dr != null)
                             {
@@ -4290,7 +4291,7 @@ namespace ConditionalAccess
 
             return res;
         }
-               
+
         internal static List<int> GetGroupEnforcedServices(int groupID)
         {
             List<int> services;
@@ -4352,7 +4353,7 @@ namespace ConditionalAccess
                 WS_Catalog.UnifiedSearchResponse response = client.GetResponse(request) as WS_Catalog.UnifiedSearchResponse;
                 if (response != null && response.status.Code == (int)eResponseStatus.OK && response.m_nTotalItems > 0 && response.searchResults != null)
                 {
-                    recordings = new List<Recording>();                    
+                    recordings = new List<Recording>();
                     totalResults = response.m_nTotalItems;
                     foreach (UnifiedSearchResult unifiedSearchResult in response.searchResults)
                     {
@@ -4411,6 +4412,54 @@ namespace ConditionalAccess
             return result;
         }
 
+        internal static TstvRecordingStatus? ConvertToTstvRecordingStatus(RecordingInternalStatus recordingInternalStatus)
+        {
+            TstvRecordingStatus? recordingStatus = null;
+            switch (recordingInternalStatus)
+            {
+                case RecordingInternalStatus.Canceled:
+                    recordingStatus = TstvRecordingStatus.Canceled;
+                    break;
+                case RecordingInternalStatus.Deleted:
+                    recordingStatus = TstvRecordingStatus.Deleted;
+                    break;
+                case RecordingInternalStatus.Failed:
+                    recordingStatus = TstvRecordingStatus.Failed;
+                    break;
+                case RecordingInternalStatus.OK:
+                    recordingStatus = TstvRecordingStatus.Scheduled;
+                    break;
+                default:
+                    break;
+            }
+
+            return recordingStatus;
+        }
+
+        internal static TstvRecordingStatus? ConvertToTstvRecordingStatus(DomainRecordingStatus domainRecordingStatus)
+        {
+            TstvRecordingStatus? recordingStatus = null;
+            switch (domainRecordingStatus)
+            {
+                case DomainRecordingStatus.Canceled:
+                    recordingStatus = TstvRecordingStatus.Canceled;
+                    break;
+                case DomainRecordingStatus.Deleted:
+                    recordingStatus = TstvRecordingStatus.Deleted;
+                    break;
+                case DomainRecordingStatus.DeletedByCleanup:
+                    recordingStatus = TstvRecordingStatus.LifeTimePeriodExpired;
+                    break;
+                case DomainRecordingStatus.OK:
+                    recordingStatus = TstvRecordingStatus.OK;
+                    break;
+                default:
+                    break;
+            }
+
+            return recordingStatus;
+        }
+
         internal static List<DomainRecordingStatus> ConvertToDomainRecordingStatus(List<TstvRecordingStatus> recordingStatus)
         {
             List<DomainRecordingStatus> result = new List<DomainRecordingStatus>();
@@ -4460,7 +4509,7 @@ namespace ConditionalAccess
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     return response;
                 }
-                
+
                 // validate recording schedule window according to the paddedStartDate
                 DateTime paddedStartDate = epgStartDate.AddSeconds(accountSettings.PaddingBeforeProgramStarts.HasValue ? (-1) * accountSettings.PaddingBeforeProgramStarts.Value : 0);
                 if (accountSettings.IsRecordingScheduleWindowEnabled.HasValue && accountSettings.IsRecordingScheduleWindowEnabled.Value &&
@@ -4507,8 +4556,8 @@ namespace ConditionalAccess
 
         internal static List<Recording> CheckDomainExistingRecording(int groupId, string userID, long domainID, Dictionary<long, EPGChannelProgrammeObject> validEpgObjectForRecordingMap,
                                                                      TimeShiftedTvPartnerSettings accountSettings)
-        {            
-            Dictionary<long, Recording> responseDictionary = new Dictionary<long,Recording>();
+        {
+            Dictionary<long, Recording> responseDictionary = new Dictionary<long, Recording>();
             foreach (long epgId in validEpgObjectForRecordingMap.Keys)
             {
                 Recording recording = new Recording() { EpgId = epgId };
@@ -4537,18 +4586,18 @@ namespace ConditionalAccess
             }
 
             try
-            {                
+            {
                 DataTable dt = ConditionalAccessDAL.GetDomainExistingRecordingsByEpdIgs(groupId, domainID, validEpgObjectForRecordingMap.Keys.ToList());
                 if (dt != null && dt.Rows != null)
                 {
                     foreach (DataRow dr in dt.Rows)
-                    {                        
+                    {
                         long recordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID", 0);
                         if (recordingId > 0)
                         {
                             Recording existingRecording = Recordings.RecordingsManager.Instance.GetRecording(groupId, recordingId);
                             if (existingRecording != null && existingRecording.Status != null && existingRecording.Status.Code == (int)eResponseStatus.OK && existingRecording.Id > 0)
-                            {                                
+                            {
                                 long epgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID", 0);
                                 existingRecording.Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
                                 existingRecording.CreateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
@@ -4571,7 +4620,7 @@ namespace ConditionalAccess
                                 else
                                 {
                                     existingRecording.ViewableUntilDate = protectedUntilEpoch;
-                                    existingRecording.ProtectedUntilDate = protectedUntilEpoch;                                    
+                                    existingRecording.ProtectedUntilDate = protectedUntilEpoch;
                                 }
 
                                 responseDictionary[epgId] = existingRecording;
@@ -4601,13 +4650,13 @@ namespace ConditionalAccess
             int QuotaInMinutes = 0;
             try
             {
-                string key = string.Format("{0}_{1}", groupID, "DefaultQuotaMinutes");              
+                string key = string.Format("{0}_{1}", groupID, "DefaultQuotaMinutes");
                 bool res = ConditionalAccessCache.GetItem<int>(key, out QuotaInMinutes);
                 if (!res || QuotaInMinutes == 0)
                 {
                     QuotaInMinutes = ConditionalAccessDAL.GetQuotaMinutes(groupID);
                     res = ConditionalAccessCache.AddItem(key, QuotaInMinutes);
-                }                
+                }
             }
             catch (Exception ex)
             {
@@ -4742,11 +4791,11 @@ namespace ConditionalAccess
                     {
                         recording.EpgStartDate = recording.EpgStartDate.AddSeconds((-1) * paddingBeforeProgramStarted);
                         recording.EpgEndDate = recording.EpgEndDate.AddSeconds(paddingAfterProgramEnded);
-                    }                    
+                    }
                 }
             }
         }
-            
+
         internal static bool IsValidRecordingStatus(TstvRecordingStatus recordStatus, List<TstvRecordingStatus> RecordingStatus)
         {
             if (RecordingStatus.Contains(recordStatus))
@@ -4783,7 +4832,7 @@ namespace ConditionalAccess
             recordingIdToDomainRecordingIdMap = new Dictionary<long, long>();
             if (dt != null && dt.Rows != null)
             {
-                recordingIdToDomainRecordingMap = new Dictionary<long,Recording>();                
+                recordingIdToDomainRecordingMap = new Dictionary<long, Recording>();
                 foreach (DataRow dr in dt.Rows)
                 {
                     long recordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID");
@@ -4803,6 +4852,106 @@ namespace ConditionalAccess
             }
 
             return recordingIdToDomainRecordingMap;
+        }
+
+        internal static Dictionary<long, Recording> GetDomainRecordingIdsToRecordingsMap(long domainID, List<long> domainRecordingIds)
+        {
+            Dictionary<long, Recording> DomainRecordingIdToRecordingMap = null;
+            DataTable dt = ConditionalAccessDAL.GetDomainRecording(domainID, domainRecordingIds);
+            if (dt != null && dt.Rows != null)
+            {
+                DomainRecordingIdToRecordingMap = new Dictionary<long, Recording>();
+                foreach (DataRow dr in dt.Rows)
+                {
+                    long domainRecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+                    if (domainRecordingID > 0)
+                    {
+                        Recording domainRecording = BuildRecordingFromDomainRecordingDataRow(dr, domainRecordingID);
+                        // add domain recording if its valid and doesn't already exist in dictionary
+                        if (domainRecording != null && domainRecording.Status.Code == (int)eResponseStatus.OK && !DomainRecordingIdToRecordingMap.ContainsKey(domainRecordingID))
+                        {
+                            DomainRecordingIdToRecordingMap.Add(domainRecordingID, domainRecording);
+                        }
+                    }
+                }
+            }
+
+            return DomainRecordingIdToRecordingMap;
+        }
+
+        internal static Recording BuildRecordingFromDomainRecordingDataRow(DataRow dr, long domainRecordingID)
+        {
+            Recording recording = new Recording();
+            long recordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID");            
+            if (recordingID > 0)
+            {
+                long epgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID");
+                DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
+                DateTime updateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE");
+                DateTime viewableUntilDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "VIEWABLE_UNTIL_DATE");
+                DateTime? protectedUntilDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "PROTECTED_UNTIL_DATE");
+                RecordingInternalStatus recordingInternalStatus = (RecordingInternalStatus)ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_STATUS");
+                DomainRecordingStatus domainRecordingStatus = (DomainRecordingStatus)ODBCWrapper.Utils.GetIntSafeVal(dr, "DOMAIN_RECORDING_STATUS");
+                TstvRecordingStatus? recordingStatus = ConvertToTstvRecordingStatus(domainRecordingStatus);
+                if (!recordingStatus.HasValue)
+                {
+                    log.ErrorFormat("Failed Convert DomainRecordingStatus: {0} to TstvRecordingStatus for domainRecordingID: {1}, recordingId: {2}, epgID: {3}",
+                                     domainRecordingStatus, domainRecordingID, recordingID, epgId);
+                    return recording;
+                }
+                // if the domain recording status was 1 now recordingStatus is OK and we need to get recordingStatus from recordings and not domains table
+                else if (recordingStatus.Value == TstvRecordingStatus.OK)
+                {
+                    recordingStatus = ConvertToTstvRecordingStatus(recordingInternalStatus);
+                    if (!recordingStatus.HasValue)
+                    {
+                        log.ErrorFormat("Failed Convert RecordingInternalStatus: {0} to TstvRecordingStatus for domainRecordingID: {1}, recordingId: {2}, epgID: {3}",
+                                         recordingInternalStatus, domainRecordingID, recordingID, epgId);
+                        return recording;
+                    }
+                }
+
+                // create recording object
+                recording = new Recording()
+                {
+                    Id = recordingID,
+                    EpgId = epgId,
+                    CreateDate = createDate,
+                    UpdateDate = updateDate,
+                    RecordingStatus = recordingStatus.Value,
+                    ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(viewableUntilDate)
+                };
+                // set protectUntilDate
+                if (protectedUntilDate.HasValue)
+                {
+                    recording.ProtectedUntilDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(protectedUntilDate.Value);
+                }
+                else
+                {
+                    recording.ProtectedUntilDate = null;
+                }
+
+                // if internal recording status was 0 now recordingStatus is Scheduled and we need to set recording status according to RecordingsManager
+                if (recording.RecordingStatus == TstvRecordingStatus.Scheduled)
+                {
+                    RecordingsManager.SetRecordingStatus(recording);
+                }
+
+                // if recording status is recorded/recording/scheduled then check viewableUntilDate and protectUntilDate
+                if (recording.RecordingStatus == TstvRecordingStatus.Recorded || recording.RecordingStatus == TstvRecordingStatus.Recording || recording.RecordingStatus == TstvRecordingStatus.Scheduled)
+                {
+                    long currentUtcEpoch = TVinciShared.DateUtils.UnixTimeStampNow();
+                    if (recording.ViewableUntilDate < currentUtcEpoch && (!recording.ProtectedUntilDate.HasValue || recording.ProtectedUntilDate.Value < currentUtcEpoch))
+                    {
+                        recording.RecordingStatus = TstvRecordingStatus.LifeTimePeriodExpired;
+                    }
+                }
+
+                // if we got until here then recording.Status is OK
+                recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+
+            return recording;
         }
 
     }
