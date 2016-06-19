@@ -234,23 +234,27 @@ namespace CouchbaseManager
             }
         }
 
-        private void HandleStatusCode(Couchbase.IO.ResponseStatus status, string key = "")
+        private void HandleStatusCode(IOperationResult result, string key = "")
         {
-            if (status != Couchbase.IO.ResponseStatus.Success)
+            if (result.Status != Couchbase.IO.ResponseStatus.Success)
             {
                 // 1 - not found
-                if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                if (result.Status == Couchbase.IO.ResponseStatus.KeyNotFound)
                 {
                     log.DebugFormat("Could not find key on couchbase: {0}", key);
                 }
                 else
                 {
-                    log.ErrorFormat("Error while executing action on CB. Status code = {0}; Status = {1}", (int)status, status.ToString());
+                    log.ErrorFormat("Error while executing action on CB. Key = {0}, Status code = {1}; Status = {2}, Message = {3}, EX = {4}", 
+                        key,
+                        (int)result.Status, result.Status.ToString(),
+                        result.Message,
+                        (result.Exception == null ? string.Empty : result.Exception.ToString()));
                 }
             }
 
             // Cases of retry
-            switch (status)
+            switch (result.Status)
             {
                 case Couchbase.IO.ResponseStatus.AuthenticationContinue:
                     break;
@@ -417,7 +421,7 @@ namespace CouchbaseManager
                             }
                             else
                             {
-                                HandleStatusCode(insertResult.Status, key);
+                                HandleStatusCode(insertResult, key);
 
                                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                                 {
@@ -497,7 +501,7 @@ namespace CouchbaseManager
                             }
                             else
                             {
-                                HandleStatusCode(insertResult.Status, key);
+                                HandleStatusCode(insertResult, key);
 
                                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                                 {
@@ -577,7 +581,7 @@ namespace CouchbaseManager
                             }
                             else
                             {
-                                HandleStatusCode(insertResult.Status, key);
+                                HandleStatusCode(insertResult, key);
 
                                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                                 {
@@ -657,7 +661,7 @@ namespace CouchbaseManager
                             }
                             else
                             {
-                                HandleStatusCode(insertResult.Status, key);
+                                HandleStatusCode(insertResult, key);
 
                                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                                 {
@@ -719,7 +723,7 @@ namespace CouchbaseManager
                             }
                             else
                             {
-                                HandleStatusCode(getResult.Status, key);
+                                HandleStatusCode(getResult, key);
 
                                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                                 {
@@ -761,39 +765,22 @@ namespace CouchbaseManager
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
-                        bool exists;
-
                         string action = string.Format("Action: Exists bucket: {0} key: {1}", bucketName, key);
+                        IOperationResult removeResult;
+                        action = string.Format("Action: Remove bucket: {0} key: {1}", bucketName, key);
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                         {
-                            exists = bucket.Exists(key);
+                            removeResult = bucket.Remove(key);
                         }
 
-                        // if key doesn't exist, we're cool
-                        if (!exists)
+                        if (removeResult.Exception != null)
                         {
-                            result = true;
+                            throw removeResult.Exception;
                         }
-                        else
+
+                        if (removeResult.Status == Couchbase.IO.ResponseStatus.Success || removeResult.Status == Couchbase.IO.ResponseStatus.KeyNotFound)
                         {
-                            // Otherwise, try to really remove the key
-                            IOperationResult removeResult;
-
-                            action = string.Format("Action: Remove bucket: {0} key: {1}", bucketName, key);
-                            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
-                            {
-                                removeResult = bucket.Remove(key);
-                            }
-
-                            if (removeResult.Exception != null)
-                            {
-                                throw removeResult.Exception;
-                            }
-
-                            if (removeResult.Status == Couchbase.IO.ResponseStatus.Success)
-                            {
-                                result = removeResult.Success;
-                            }
+                            result = removeResult.Success;
                         }
                     }
                 }
@@ -851,7 +838,7 @@ namespace CouchbaseManager
                             }
                             else
                             {
-                                HandleStatusCode(getResult.Status, key);
+                                HandleStatusCode(getResult, key);
 
                                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                                 {
@@ -925,7 +912,7 @@ namespace CouchbaseManager
                         }
                         else
                         {
-                            HandleStatusCode(setResult.Status, key);
+                            HandleStatusCode(setResult, key);
 
                             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                             {
@@ -987,7 +974,7 @@ namespace CouchbaseManager
                         }
                         else
                         {
-                            HandleStatusCode(setResult.Status, key);
+                            HandleStatusCode(setResult, key);
 
                             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                             {
@@ -1058,7 +1045,7 @@ namespace CouchbaseManager
                         }
                         else
                         {
-                            HandleStatusCode(setResult.Status, key);
+                            HandleStatusCode(setResult, key);
 
                             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                             {
@@ -1120,7 +1107,7 @@ namespace CouchbaseManager
                         }
                         else
                         {
-                            HandleStatusCode(setResult.Status, key);
+                            HandleStatusCode(setResult, key);
 
                             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                             {
@@ -1233,12 +1220,18 @@ namespace CouchbaseManager
                             // If any of the rows wasn't successful, maybe we need to break - depending if we allow partials or not
                             if (item.Value.Status != Couchbase.IO.ResponseStatus.Success)
                             {
+                                log.ErrorFormat("Couchbase manager: failed to get key {0}, status {1}", item.Key, item.Value.Status);
+
                                 status = item.Value.Status;
 
                                 if (!shouldAllowPartialQuery)
                                 {
                                     break;
                                 }
+                            }
+                            else
+                            {
+                                log.DebugFormat("Couchbase manager: GetValues success - get key {0}, status {1}", item.Key, item.Value.Status);
                             }
                         }
 
@@ -1257,8 +1250,8 @@ namespace CouchbaseManager
                         }
                         else
                         {
-                            // Otherwise, recreate connection and try again
-                            HandleStatusCode(status);
+                            log.ErrorFormat("Error while executing action on CB. Status code = {0}; Status = {1}",
+                                (int)status, status.ToString());
                         }
                     }
                 }
@@ -1552,7 +1545,7 @@ namespace CouchbaseManager
                         }
                         else
                         {
-                            HandleStatusCode(incrementResult.Status, key);
+                            HandleStatusCode(incrementResult, key);
                         }
                     }
                 }
