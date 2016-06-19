@@ -129,8 +129,8 @@
     <Compile Include="Notification\NotificationPartnerSettings.cs" />
     <Compile Include="Notification\NotificationPartnerSettingsResponse.cs" />
     <Compile Include="Notification\NotificationSettingsResponse.cs" />
-    <Compile Include="Notification\PushWebParameter.cs" />
-    <Compile Include="Notification\PushWebParametersResponse.cs" />
+    <Compile Include="Notification\RegistryParameter.cs" />
+    <Compile Include="Notification\RegistryResponse.cs" />
     <Compile Include="Notification\UserDevice.cs" />
     <Compile Include="Notification\UserFollowSettings.cs" />
     <Compile Include="Notification\UserNotification.cs" />

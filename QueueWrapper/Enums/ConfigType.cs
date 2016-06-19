@@ -13,6 +13,7 @@ namespace QueueWrapper.Enums
         EPGConfig,
         ProfessionalServicesNotificationsConfig,
         IndexingDataConfig,
-        ImageUpload
+        ImageUpload,
+        PushNotifications
     }
 }

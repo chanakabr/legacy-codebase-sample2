@@ -1,22 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace ApiObjects.Notification
 {
-    public class PushWebParameter
+    public class RegistryParameter
     {
         public long AnnouncementId { get; set; }
         public string Key { get; set; }
         public string Url { get; set; }
 
-        public PushWebParameter()
+        public RegistryParameter()
         {
+
         }
 
-        public PushWebParameter(long id, string token, string url)
+        public RegistryParameter(long id, string token, string url)
         {
             AnnouncementId = id;
             Key = token;
