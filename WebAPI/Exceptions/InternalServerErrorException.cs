@@ -11,8 +11,8 @@ namespace WebAPI.Exceptions
 {
     public class InternalServerErrorException : ApiException
     {
-        public InternalServerErrorException() : base(HttpStatusCode.InternalServerError, (int)StatusCode.Error, "error") { }
+        public InternalServerErrorException() : base((int)StatusCode.Error, "error") { }
 
-        public InternalServerErrorException(int code, string msg) : base(HttpStatusCode.InternalServerError, code, !string.IsNullOrEmpty(msg) ? msg : "error") { }
+        public InternalServerErrorException(int code, string msg) : base(code, !string.IsNullOrEmpty(msg) ? msg : "error") { }
     }
 }

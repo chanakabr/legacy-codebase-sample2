@@ -2035,7 +2035,7 @@
     <Compile Include="Models\Domains\KalturaHouseholdState.cs" />
     <Compile Include="Models\Domains\KalturaHomeNetwork.cs" />
     <Compile Include="Models\General\KalturaSerializeableDictionary.cs" />
-    <Compile Include="Models\MultiRequest\KalturaMultiRequest.cs" />
+    <Compile Include="Models\MultiRequest\KalturaMultiRequestAction.cs" />
     <Compile Include="Models\Pricing\KalturaPrice.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdWith.cs" />
     <Compile Include="Models\Pricing\KalturaSubscription.cs" />

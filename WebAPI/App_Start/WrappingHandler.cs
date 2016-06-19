@@ -108,7 +108,7 @@ namespace WebAPI.App_Start
             public string[] args { get; set; }
         }
 
-        private static KalturaAPIExceptionWrapper prepareExceptionResponse(int statusCode, string msg)
+        public static KalturaAPIExceptionWrapper prepareExceptionResponse(int statusCode, string msg)
         {
             return new KalturaAPIExceptionWrapper() { error = new KalturaAPIException() { message = msg, code = statusCode.ToString() } };
         }

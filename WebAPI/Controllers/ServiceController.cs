@@ -45,17 +45,7 @@ namespace WebAPI.Controllers
 
             if (methodInfo == null)
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidAction, "Action doesn't exist");
-
-            var authorization = methodInfo.CustomAttributes.Where(x => x.AttributeType == typeof(ApiAuthorizeAttribute)).FirstOrDefault();
-
-            if (authorization != null)
-            {
-                ApiAuthorizeAttribute auth = (ApiAuthorizeAttribute)authorization.Constructor
-                    .Invoke(authorization.ConstructorArguments.Select(x => x.Value).ToArray());
-
-                auth.OnAuthorization(ActionContext);
-            }
-
+            
             classInstance = Activator.CreateInstance(controller, null);
         }
 
@@ -64,6 +54,30 @@ namespace WebAPI.Controllers
         public async Task<object> __Action([FromUri]string service, [FromUri]string action)
         {
             return await Action(service, action);
+        }
+
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [Route("service/{service_name}"), HttpGet]
+        public async Task<object> _Multirequest(string service_name)
+        {
+            if (service_name.Equals("multirequest", StringComparison.CurrentCultureIgnoreCase))
+            {
+                return await Action("multirequest", "Do");
+            }
+
+            throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error, "No action specified");
+        }
+
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [Route("service/{service_name}"), HttpPost]
+        public async Task<object> Multirequest(string service_name)
+        {
+            if (service_name.Equals("multirequest", StringComparison.CurrentCultureIgnoreCase))
+            {
+                return await Action("multirequest", "Do");
+            }
+
+            throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error, "No action specified");
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]

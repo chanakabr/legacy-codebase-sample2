@@ -18,6 +18,7 @@ using KLogMonitor;
 using WebAPI.Managers.Schema;
 using System.Dynamic;
 using Newtonsoft.Json;
+using WebAPI.App_Start;
 
 namespace WebAPI.Utils
 {
@@ -190,6 +191,22 @@ namespace WebAPI.Utils
                         foreach (KalturaOTTObject item in (dynamic)result)
                         {
                             list.Add(new OldStandardObject(item));
+                        }
+                        statusWrapper.Result = list;
+                    }
+                    else if (result.GetType().IsArray) // is multirequest
+                    {
+                        List<object> list = new List<object>();
+                        foreach (object item in (dynamic)result)
+                        {
+                            if (item.GetType().IsSubclassOf(typeof(KalturaOTTObject)))
+                            {
+                                list.Add(new OldStandardObject((KalturaOTTObject)item));
+                            }
+                            else if (item.GetType().IsSubclassOf(typeof(ApiException)))
+                            {
+                                list.Add(WrappingHandler.prepareExceptionResponse(((ApiException)item).Code, ((ApiException)item).Message));
+                            }
                         }
                         statusWrapper.Result = list;
                     }

@@ -87,7 +87,8 @@ namespace WebAPI.Managers.Models
         ExpiredAppToken = 50021, // currently not in use
         InvalidAppTokenHash = 50022,
         NotActiveAppToken = 50023,
-        SwitchingUsersIsNotAllowedForPartner = 50024
+        SwitchingUsersIsNotAllowedForPartner = 50024,
+        InvalidMultirequestToken = 50025
 
     }
 }

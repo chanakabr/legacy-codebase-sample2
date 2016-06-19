@@ -1314,6 +1314,14 @@
             <param name="language">Language Code</param>
             <remarks></remarks>
         </member>
+        <member name="M:WebAPI.Controllers.CategoryController.Get(System.Int32)">
+            <summary>
+            Retrieve the list of categories (hierarchical) and their associated channels
+            </summary>
+            <param name="id">Category Identifier</param>
+            <param name="language">Language Code</param>
+            <remarks></remarks>
+        </member>
         <member name="M:WebAPI.Controllers.ChannelController.Get(System.Int32)">
             <summary>
             Returns channel info        
@@ -1655,7 +1663,7 @@
             PaymentGatewayNotExist = 6008, SignatureMismatch = 6013
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.MultiRequestController.Do(WebAPI.Models.MultiRequest.KalturaMultiRequest[])">
+        <member name="M:WebAPI.Controllers.MultiRequestController.Do(WebAPI.Models.MultiRequest.KalturaMultiRequestAction[])">
              <summary>
              Run a multi request call 
              </summary>
