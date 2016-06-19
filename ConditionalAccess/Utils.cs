@@ -4770,21 +4770,6 @@ namespace ConditionalAccess
             return adapterResponse;
         }
 
-        internal static void UpdateRecordingsWithPadding(ref RecordingResponse recordingsResponse, long paddingBeforeProgramStarted, long paddingAfterProgramEnded)
-        {
-            if (recordingsResponse != null && recordingsResponse.Recordings != null)
-            {
-                foreach (Recording recording in recordingsResponse.Recordings)
-                {
-                    if (recording.Status.Code == (int)eResponseStatus.OK)
-                    {
-                        recording.EpgStartDate = recording.EpgStartDate.AddSeconds((-1) * paddingBeforeProgramStarted);
-                        recording.EpgEndDate = recording.EpgEndDate.AddSeconds(paddingAfterProgramEnded);
-                    }
-                }
-            }
-        }
-
         internal static bool IsValidRecordingStatus(TstvRecordingStatus recordStatus, List<TstvRecordingStatus> RecordingStatus)
         {
             if (RecordingStatus.Contains(recordStatus))
@@ -4813,36 +4798,6 @@ namespace ConditionalAccess
             return recordingIdToRecordingMap;
         }
 
-        internal static Dictionary<long, Recording> GetRecordingsMapingsByDomainRecordingIds(int groupID, long domainID, List<TstvRecordingStatus> recordingStatuses, out Dictionary<long, long> recordingIdToDomainRecordingIdMap)
-        {
-            List<DomainRecordingStatus> domainRecordingStatuses = ConvertToDomainRecordingStatus(recordingStatuses);
-            DataTable dt = ConditionalAccessDAL.GetDomainRecordingsByRecordingStatuses(groupID, domainID, domainRecordingStatuses.Select(x => (int)x).ToList());
-            Dictionary<long, Recording> recordingIdToDomainRecordingMap = null;
-            recordingIdToDomainRecordingIdMap = new Dictionary<long, long>();
-            if (dt != null && dt.Rows != null)
-            {
-                recordingIdToDomainRecordingMap = new Dictionary<long, Recording>();
-                foreach (DataRow dr in dt.Rows)
-                {
-                    long recordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID");
-                    long domainRecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
-                    DomainRecordingStatus currentDomainRecordingStatus = (DomainRecordingStatus)ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_STATE");
-                    if (currentDomainRecordingStatus != DomainRecordingStatus.None)
-                    {
-                        Recording recording = new Recording() { Id = domainRecordingID, RecordingStatus = ConvertToTstvRecordingStatus(new List<DomainRecordingStatus>() { currentDomainRecordingStatus }).First() };
-                        recordingIdToDomainRecordingMap.Add(recordingID, recording);
-                        recordingIdToDomainRecordingIdMap.Add(recordingID, domainRecordingID);
-                    }
-                    else
-                    {
-                        log.ErrorFormat("Invalid domainRecordingStatus {0} returned from GetRecordingsMapingByRecordingStatuses", currentDomainRecordingStatus);
-                    }
-                }
-            }
-
-            return recordingIdToDomainRecordingMap;
-        }
-
         internal static Dictionary<long, Recording> GetDomainRecordingIdsToRecordingsMap(int groupID, long domainID, List<long> domainRecordingIds)
         {
             Dictionary<long, Recording> DomainRecordingIdToRecordingMap = null;
@@ -4869,7 +4824,7 @@ namespace ConditionalAccess
             return DomainRecordingIdToRecordingMap;
         }        
 
-        internal static Dictionary<long, Recording> GetDomainRecordingsByTstvRecordingStatuses(int groupID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses)
+        internal static Dictionary<long, Recording> GetDomainRecordingsByTstvRecordingStatuses(int groupID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses, bool shouldReplaceRecordingIdWithDomainId = true)
         {
             Dictionary<long, Recording> DomainRecordingIdToRecordingMap = null;
             List<DomainRecordingStatus> domainRecordingStatuses = ConvertToDomainRecordingStatus(recordingStatuses);
@@ -4911,6 +4866,7 @@ namespace ConditionalAccess
                 {
                     log.DebugFormat("No valid recording was returned from Utils.GetDomainRecordingIdsToRecordingsMap");
                     recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingNotFound, eResponseStatus.RecordingNotFound.ToString());
+                    recording.Id = domainRecordingID;
                     return recording;
                 }
 

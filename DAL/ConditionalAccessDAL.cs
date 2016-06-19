@@ -2796,12 +2796,6 @@ namespace DAL
             return result;
         }
 
-        public static List<Recording> GetAllRecordingsByStatus(int groupId, int status)
-        {
-            return GetAllRecordingsByStatuses(groupId,
-                new List<int>() { status });
-        }
-
         public static List<Recording> GetAllRecordingsByStatuses(int groupId, List<int> statuses)
         {
             List<Recording> recordings = new List<Recording>();
@@ -2935,23 +2929,6 @@ namespace DAL
             sp.AddParameter("@GroupID", groupID);
 
             return sp.ExecuteReturnValue<int>();
-        }
-
-        public static DataRow GetDomainExistingRecordingsByRecordID(long domainID, long recordingID)
-        {
-            DataRow dr = null;
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetDomainExistingRecordingsByRecordID");
-            sp.SetConnectionKey("CONNECTION_STRING");            
-            sp.AddParameter("@DomainID", domainID);
-            sp.AddParameter("@RecordID", recordingID);
-
-            DataTable dt = sp.Execute();
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-            {
-                dr = dt.Rows[0];
-            }
-
-            return dr;
         }
 
         public static bool CancelRecording(long recordingID)

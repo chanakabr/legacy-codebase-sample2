@@ -18024,8 +18024,7 @@ namespace ConditionalAccess
                     return recording;
                 }                
 
-                // Update recording object with the domain recording ID and status
-                recording.Id = recordID;                
+                // Update recording object with status                         
                 recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             }
