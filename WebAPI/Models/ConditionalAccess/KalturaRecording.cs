@@ -51,7 +51,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "viewableUntilDate")]
         [JsonProperty("viewableUntilDate")]
         [XmlElement(ElementName = "viewableUntilDate")]
-        public long ViewableUntilDate { get; set; }
+        public long? ViewableUntilDate { get; set; }
 
         /// <summary>
         /// Specifies whether or not the recording is protected

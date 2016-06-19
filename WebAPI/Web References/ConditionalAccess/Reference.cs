@@ -10587,7 +10587,7 @@ namespace WebAPI.ConditionalAccess {
         
         private System.Nullable<long> protectedUntilDateField;
         
-        private long viewableUntilDateField;
+        private System.Nullable<long> viewableUntilDateField;
         
         private System.DateTime createDateField;
         
@@ -10705,7 +10705,8 @@ namespace WebAPI.ConditionalAccess {
         }
         
         /// <remarks/>
-        public long ViewableUntilDate {
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<long> ViewableUntilDate {
             get {
                 return this.viewableUntilDateField;
             }
