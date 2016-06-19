@@ -741,37 +741,19 @@ namespace CouchbaseManager
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
-                        bool exists;
+                        string action = string.Format("Action: Exists bucket: {0} key: {1}", bucketName, key);
+                        IOperationResult removeResult;
+                        action = string.Format("Action: Remove bucket: {0} key: {1}", bucketName, key);
+                        removeResult = bucket.Remove(key);
 
-                        
+                        if (removeResult.Exception != null)
                         {
-                            exists = bucket.Exists(key);
+                            throw removeResult.Exception;
                         }
 
-                        // if key doesn't exist, we're cool
-                        if (!exists)
+                        if (removeResult.Status == Couchbase.IO.ResponseStatus.Success || removeResult.Status == Couchbase.IO.ResponseStatus.KeyNotFound)
                         {
-                            result = true;
-                        }
-                        else
-                        {
-                            // Otherwise, try to really remove the key
-                            IOperationResult removeResult;
-                            
-                            
-                            {
-                                removeResult = bucket.Remove(key);
-                            }
-
-                            if (removeResult.Exception != null)
-                            {
-                                throw removeResult.Exception;
-                            }
-
-                            if (removeResult.Status == Couchbase.IO.ResponseStatus.Success)
-                            {
-                                result = removeResult.Success;
-                            }
+                            result = removeResult.Success;
                         }
                     }
                 }
