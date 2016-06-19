@@ -11,6 +11,8 @@ using System.Net.Http;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
 using WebAPI.App_Start;
@@ -178,8 +180,8 @@ namespace WebAPI.Controllers
                         {
                             parameters = (Dictionary<string, object>) translateMultirequestTokens(parameters, responses);
                         }
-                        MethodInfo methodInfo = RequestParser.createMethodInvoker(request[i].Service, request[i].Action, asm);
                         RequestParser.setRequestContext(parameters);
+                        MethodInfo methodInfo = RequestParser.createMethodInvoker(request[i].Service, request[i].Action, asm);
                         List<Object> methodParams = RequestParser.buildActionArguments(methodInfo, parameters);
                         object controllerInstance = Activator.CreateInstance(controller, null);
                         response = methodInfo.Invoke(controllerInstance, methodParams.ToArray());

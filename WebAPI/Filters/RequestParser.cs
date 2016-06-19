@@ -120,13 +120,20 @@ namespace WebAPI.Filters
                 throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidAction, "Action doesn't exist");
             }
 
+            ApiAuthorizeAttribute authorization = methodInfo.GetCustomAttribute<ApiAuthorizeAttribute>(true);
+            if (authorization != null)
+            {
+                authorization.IsAuthorized(serviceName, actionName);
+            }
+
             return methodInfo;
         }
 
         public static void setRequestContext(Dictionary<string, object> requestParams, bool globalScope = true)
         {
             // ks
-            if (requestParams.ContainsKey("ks"))
+            KS.ClearOnRequest();
+            if (requestParams.ContainsKey("ks") && requestParams["ks"] != null)
             {
                 string ks;
                 if (requestParams["ks"].GetType() == typeof(JObject) || requestParams["ks"].GetType().IsSubclassOf(typeof(JObject)))
@@ -147,13 +154,10 @@ namespace WebAPI.Filters
             {
                 InitKS(globalKs);
             }
-            else
-            {
-                KS.ClearOnRequest();
-            }
 
             // impersonated user_id
-            if (requestParams.ContainsKey("user_id") || requestParams.ContainsKey("userId"))
+            HttpContext.Current.Items.Remove(REQUEST_USER_ID);
+            if ((requestParams.ContainsKey("user_id") && requestParams["user_id"] != null) || (requestParams.ContainsKey("userId") && requestParams["userId"] != null))
             {
                 object userIdObject = requestParams.ContainsKey("userId") ? requestParams["userId"] : requestParams["user_id"];
                 string userId;
@@ -174,13 +178,10 @@ namespace WebAPI.Filters
             {
                 HttpContext.Current.Items.Add(REQUEST_USER_ID, globalUserId);
             }
-            else
-            {
-                HttpContext.Current.Items.Remove(REQUEST_USER_ID);
-            }
 
             // language
-            if (requestParams.ContainsKey("language"))
+            HttpContext.Current.Items.Remove(REQUEST_LANGUAGE);
+            if (requestParams.ContainsKey("language") && requestParams["language"] != null)
             {
                 string language;
                 if (requestParams["language"].GetType() == typeof(JObject) || requestParams["language"].GetType().IsSubclassOf(typeof(JObject)))
@@ -199,10 +200,6 @@ namespace WebAPI.Filters
             else if (globalLanguage != null)
             {
                 HttpContext.Current.Items.Add(REQUEST_LANGUAGE, globalLanguage);
-            }
-            else
-            {
-                HttpContext.Current.Items.Remove(REQUEST_LANGUAGE);
             }
         }
 
@@ -269,13 +266,18 @@ namespace WebAPI.Filters
                                 HttpContext.Current.Items[REQUEST_VERSION] = (string) reqParams["apiVersion"];
                             }
 
-                            methodInfo = createMethodInvoker(currentController, currentAction, asm);
-
                             Dictionary<string, object> requestParams = reqParams.ToObject<Dictionary<string, object>>();
                             setRequestContext(requestParams);
+
+                            methodInfo = createMethodInvoker(currentController, currentAction, asm);
                             List<Object> methodParams = buildActionArguments(methodInfo, requestParams);
 
                             HttpContext.Current.Items.Add(REQUEST_METHOD_PARAMETERS, methodParams);
+                        }
+                        catch (UnauthorizedException e)
+                        {
+                            createErrorResponse(actionContext, (int)e.Code, e.Message);
+                            return;
                         }
                         catch (RequestParserException e)
                         {
@@ -318,12 +320,17 @@ namespace WebAPI.Filters
                     //Running on the expected method parameters
                     var groupedParams = groupParams(tokens);
 
+                    setRequestContext(groupedParams);
                     methodInfo = createMethodInvoker(currentController, currentAction, asm);
 
-                    setRequestContext(groupedParams);
                     List<Object> methodParams = buildActionArguments(methodInfo, groupedParams);
 
                     HttpContext.Current.Items.Add(REQUEST_METHOD_PARAMETERS, methodParams);
+                }
+                catch (UnauthorizedException e)
+                {
+                    createErrorResponse(actionContext, (int)e.Code, e.Message);
+                    return;
                 }
                 catch (RequestParserException e)
                 {

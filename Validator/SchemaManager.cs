@@ -333,6 +333,9 @@ namespace Validator.Managers.Schema
             string serviceId = getServiceId(controller);
 
             RoutePrefixAttribute routePrefix = controller.GetCustomAttribute<RoutePrefixAttribute>();
+            if (routePrefix == null)
+                return !strict;
+
             string expectedRoutePrefix = String.Format("_service/{0}/action", serviceId);
             if (routePrefix.Prefix != expectedRoutePrefix)
             {

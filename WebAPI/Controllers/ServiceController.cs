@@ -45,17 +45,7 @@ namespace WebAPI.Controllers
 
             if (methodInfo == null)
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidAction, "Action doesn't exist");
-
-            var authorization = methodInfo.CustomAttributes.Where(x => x.AttributeType == typeof(ApiAuthorizeAttribute)).FirstOrDefault();
-
-            if (authorization != null)
-            {
-                ApiAuthorizeAttribute auth = (ApiAuthorizeAttribute)authorization.Constructor
-                    .Invoke(authorization.ConstructorArguments.Select(x => x.Value).ToArray());
-
-                auth.OnAuthorization(ActionContext);
-            }
-
+            
             classInstance = Activator.CreateInstance(controller, null);
         }
 

@@ -11,8 +11,8 @@ namespace WebAPI.Exceptions
 {
     public class BadRequestException : ApiException
     {
-        public BadRequestException() : base(HttpStatusCode.OK, (int)StatusCode.BadRequest, "bad request") { }
+        public BadRequestException() : base((int)StatusCode.BadRequest, "bad request") { }
 
-        public BadRequestException(int code, string msg) : base(HttpStatusCode.OK, code, !string.IsNullOrEmpty(msg) ? msg : "bad request") { }
+        public BadRequestException(int code, string msg) : base(code, !string.IsNullOrEmpty(msg) ? msg : "bad request") { }
     }
 }

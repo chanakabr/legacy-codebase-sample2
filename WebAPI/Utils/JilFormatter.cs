@@ -203,9 +203,9 @@ namespace WebAPI.Utils
                             {
                                 list.Add(new OldStandardObject((KalturaOTTObject)item));
                             }
-                            else if (item.GetType().IsSubclassOf(typeof(Exception)))
+                            else if (item.GetType().IsSubclassOf(typeof(ApiException)))
                             {
-                                list.Add(WrappingHandler.prepareExceptionResponse((int)StatusCode.Error, ((Exception)item).Message));
+                                list.Add(WrappingHandler.prepareExceptionResponse(((ApiException)item).Code, ((ApiException)item).Message));
                             }
                         }
                         statusWrapper.Result = list;
