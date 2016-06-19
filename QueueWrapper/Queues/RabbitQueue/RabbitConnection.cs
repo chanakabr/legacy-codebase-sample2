@@ -190,6 +190,9 @@ namespace QueueWrapper
                             if (expirationMiliSec != 0)
                                 properties.Expiration = expirationMiliSec.ToString();
 
+                            properties.DeliveryMode = 2;
+                            properties.SetPersistent(true);
+
                             using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_RABBITMQ, null, null, null, null) { Database = configuration.Exchange })
                             {
                                 m_Model.BasicPublish(configuration.Exchange, configuration.RoutingKey, properties, body);
@@ -462,7 +465,7 @@ namespace QueueWrapper
                             {
                                 HostName = configuration.Host,
                                 Password = configuration.Password,
-                                UserName = configuration.Username,
+                                UserName = configuration.Username, 
                             };
 
                             int port;
