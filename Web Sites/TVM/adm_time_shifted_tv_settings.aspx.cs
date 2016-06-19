@@ -126,7 +126,7 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
         dr_protectionPeriod.SetDefault(90);
         theRecord.AddRecord(dr_protectionPeriod);
 
-        DataRecordShortIntField dr_protectionQuotaPercentage = new DataRecordShortIntField(true, 9, 9, 1, 100);
+        DataRecordShortIntField dr_protectionQuotaPercentage = new DataRecordShortIntField(true, 9, 9, 10, 100);
         dr_protectionQuotaPercentage.Initialize("Record Protection Quota Percentage", "adm_table_header_nbg", "FormInput", "protection_quota_percentage", false);
         dr_protectionQuotaPercentage.SetDefault(25);
         theRecord.AddRecord(dr_protectionQuotaPercentage);
