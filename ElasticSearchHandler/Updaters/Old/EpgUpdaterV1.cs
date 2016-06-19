@@ -23,7 +23,7 @@ namespace ElasticSearchHandler.Updaters
         #region Data Members
 
         protected int groupId;
-        protected ElasticSearch.Common.ESSerializer esSerializer;
+        protected ElasticSearch.Common.ESSerializerV1 esSerializer;
         protected ElasticSearch.Common.ElasticSearchApi esApi;
 
         #endregion
@@ -40,7 +40,7 @@ namespace ElasticSearchHandler.Updaters
         public EpgUpdaterV1(int groupId)
         {
             this.groupId = groupId;
-            esSerializer = new ElasticSearch.Common.ESSerializer();
+            esSerializer = new ElasticSearch.Common.ESSerializerV1();
             esApi = new ElasticSearch.Common.ElasticSearchApi();
         }
 

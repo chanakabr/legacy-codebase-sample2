@@ -19,7 +19,7 @@ namespace ESIndexUpdateHandler.Updaters
         public static readonly string PERCOLATOR = "_percolator";
 
         private int m_nGroupID;
-        private ElasticSearch.Common.ESSerializer m_oESSerializer;
+        private ElasticSearch.Common.ESSerializerV1 m_oESSerializer;
         private ElasticSearch.Common.ElasticSearchApi m_oESApi;
 
         public List<int> IDs { get; set; }
@@ -28,7 +28,7 @@ namespace ESIndexUpdateHandler.Updaters
         public ChannelUpdater(int nGroupID)
         {
             m_nGroupID = nGroupID;
-            m_oESSerializer = new ElasticSearch.Common.ESSerializer();
+            m_oESSerializer = new ElasticSearch.Common.ESSerializerV1();
             m_oESApi = new ElasticSearch.Common.ElasticSearchApi();
         }
 
