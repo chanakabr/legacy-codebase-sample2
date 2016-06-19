@@ -34,19 +34,28 @@ public partial class adm_channels_media_new : System.Web.UI.Page
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 2, true);
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {   
-                Int32 nId =  DBManipulator.DoTheWork();
-                if (nId > 0)
-                {  
-                    object oChannelId = ODBCWrapper.Utils.GetTableSingleVal("channels_media", "CHANNEL_ID", nId);//get channel+media_id 
-                    int nChannelId;
-                    if (oChannelId != null && oChannelId != DBNull.Value)
+                // check if media_i already exsits in channel 
+                bool res = ValidateUnique();
+                if (res)
+                {
+                    Int32 nId = DBManipulator.DoTheWork();
+                    if (nId > 0)
                     {
-                        bool result;
-                        nChannelId = int.Parse(oChannelId.ToString());
+                        object oChannelId = ODBCWrapper.Utils.GetTableSingleVal("channels_media", "CHANNEL_ID", nId);//get channel+media_id 
+                        int nChannelId;
+                        if (oChannelId != null && oChannelId != DBNull.Value)
+                        {
+                            bool result;
+                            nChannelId = int.Parse(oChannelId.ToString());
 
-                        nChannelId = int.Parse(oChannelId.ToString());
-                        result = ImporterImpl.UpdateChannelIndex(LoginManager.GetLoginGroupID(), new List<int>() { nChannelId }, ApiObjects.eAction.Update);                          
+                            nChannelId = int.Parse(oChannelId.ToString());
+                            result = ImporterImpl.UpdateChannelIndex(LoginManager.GetLoginGroupID(), new List<int>() { nChannelId }, ApiObjects.eAction.Update);
+                        }
                     }
+                }
+                else
+                {
+                    Session["error_msg"] = "media id is already related to channel";
                 }
             }
 
@@ -72,6 +81,42 @@ public partial class adm_channels_media_new : System.Web.UI.Page
         }
     }
 
+    protected bool ValidateUnique()
+    {
+        bool retVal = true;
+        int channelMediaId = 0;
+        int media_id = 0;
+        System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
+        if (coll["0_val"] != null && !string.IsNullOrEmpty(coll["0_val"].ToString()))
+        {
+            media_id = int.Parse(coll["0_val"].ToString());
+        }
+        if (coll["3_val"] != null && !string.IsNullOrEmpty(coll["3_val"].ToString()))
+        {
+            channelMediaId = int.Parse(coll["3_val"].ToString());
+        }
+        if (media_id > 0 && channelMediaId > 0)
+        {
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select id from channels_media where status = 1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_ID", "=", channelMediaId);
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", media_id);
+
+            if (selectQuery.Execute("query", true) != null)
+            {
+                int count = selectQuery.Table("query").DefaultView.Count;
+                if (count > 0)
+                {
+                    retVal = false;
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+        }
+
+        return retVal;
+    }
     public void GetHeader()
     {
         if (Session["channel_media_id"] != null && Session["channel_media_id"].ToString() != "" && int.Parse(Session["channel_media_id"].ToString()) != 0)
