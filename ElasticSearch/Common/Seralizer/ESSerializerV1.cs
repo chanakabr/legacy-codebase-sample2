@@ -10,8 +10,8 @@ namespace ElasticSearch.Common
 {
     public class ESSerializerV1
     {
-        private static readonly string META_DOUBLE_SUFFIX = "_DOUBLE";
-        private static readonly string META_BOOL_SUFFIX = "_BOOL";
+        protected static readonly string META_DOUBLE_SUFFIX = "_DOUBLE";
+        protected static readonly string META_BOOL_SUFFIX = "_BOOL";
 
         public ESSerializerV1()
         {
@@ -19,7 +19,6 @@ namespace ElasticSearch.Common
 
         public virtual string SerializeMediaObject(Media media)
         {
-
             StringBuilder recordBuilder = new StringBuilder();
             recordBuilder.Append("{ ");
             recordBuilder.AppendFormat("\"media_id\": {0}, \"group_id\": {1}, \"media_type_id\": {2}, \"wp_type_id\": {3}, \"is_active\": {4}, " +

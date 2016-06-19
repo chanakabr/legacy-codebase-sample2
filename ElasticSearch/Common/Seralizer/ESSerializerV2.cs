@@ -10,9 +10,6 @@ namespace ElasticSearch.Common
 {
     public class ESSerializerV2 : ESSerializerV1
     {
-        private static readonly string META_DOUBLE_SUFFIX = "_DOUBLE";
-        private static readonly string META_BOOL_SUFFIX = "_BOOL";
-
         public ESSerializerV2()
         {
         }
@@ -34,9 +31,6 @@ namespace ElasticSearch.Common
             mappingObj.AddProperty(new BasicMappingProperty() { name = "is_active", type = eESFieldType.INTEGER, analyzed = false, null_value = "0" });
             mappingObj.AddProperty(new BasicMappingProperty() { name = "device_rule_id", type = eESFieldType.INTEGER, analyzed = false, null_value = "0" });
             mappingObj.AddProperty(new BasicMappingProperty() { name = "like_counter", type = eESFieldType.INTEGER, analyzed = false, null_value = "0" });
-            mappingObj.AddProperty(new BasicMappingProperty() { name = "views", type = eESFieldType.INTEGER, analyzed = false, null_value = "0" });
-            mappingObj.AddProperty(new BasicMappingProperty() { name = "rating", type = eESFieldType.DOUBLE, analyzed = false, null_value = "0" });
-            mappingObj.AddProperty(new BasicMappingProperty() { name = "votes", type = eESFieldType.INTEGER, analyzed = false, null_value = "0" });
             mappingObj.AddProperty(new BasicMappingProperty() { name = "start_date", type = eESFieldType.DATE, analyzed = false });
             mappingObj.AddProperty(new BasicMappingProperty() { name = "end_date", type = eESFieldType.DATE, analyzed = false });
             mappingObj.AddProperty(new BasicMappingProperty() { name = "final_date", type = eESFieldType.DATE, analyzed = false });
