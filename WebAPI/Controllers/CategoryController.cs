@@ -12,18 +12,10 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/ottCategory/action")]
-    public class OttCategoryController : ApiController
+    public class BaseCategoryController : ApiController
     {
-        /// <summary>
-        /// Retrieve the list of categories (hierarchical) and their associated channels
-        /// </summary>
-        /// <param name="id">Category Identifier</param>
-        /// <param name="language">Language Code</param>
-        /// <remarks></remarks>
-        [Route("get"), HttpPost]
-        [ApiAuthorize]
-        public KalturaOTTCategory Get(int id)
+        [NonAction]
+        public virtual KalturaOTTCategory Get(int id)
         {
             KalturaOTTCategory response = null;
 
@@ -57,9 +49,38 @@ namespace WebAPI.Controllers
         }
     }
 
+    [RoutePrefix("_service/ottCategory/action")]
+    public class OttCategoryController : BaseCategoryController
+    {
+        /// <summary>
+        /// Retrieve the list of categories (hierarchical) and their associated channels
+        /// </summary>
+        /// <param name="id">Category Identifier</param>
+        /// <param name="language">Language Code</param>
+        /// <remarks></remarks>
+        [Route("get"), HttpPost]
+        [ApiAuthorize]
+        public override KalturaOTTCategory Get(int id)
+        {
+            return base.Get(id);
+        }
+    }
+
     [RoutePrefix("_service/category/action")]
     [Obsolete]
-    public class CategoryController : OttCategoryController
+    public class CategoryController : BaseCategoryController
     {
+        /// <summary>
+        /// Retrieve the list of categories (hierarchical) and their associated channels
+        /// </summary>
+        /// <param name="id">Category Identifier</param>
+        /// <param name="language">Language Code</param>
+        /// <remarks></remarks>
+        [Route("get"), HttpPost]
+        [ApiAuthorize]
+        public override KalturaOTTCategory Get(int id)
+        {
+            return base.Get(id);
+        }
     }
 }

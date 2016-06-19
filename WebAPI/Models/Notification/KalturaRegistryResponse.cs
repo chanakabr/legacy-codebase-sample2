@@ -9,9 +9,9 @@ namespace WebAPI.Models.Notification
     /// <summary>
     /// 
     /// </summary>
-    [DataContract(Name = "KalturaPushWebParametersResponse", Namespace = "")]
-    [XmlRoot("KalturaPushWebParametersResponse")]
-    public class KalturaPushWebParametersResponse : KalturaListResponse
+    [DataContract(Name = "KalturaRegistryResponse", Namespace = "")]
+    [XmlRoot("KalturaRegistryResponse")]
+    public class KalturaRegistryResponse : KalturaListResponse
     {
         /// push web parameters
         /// </summary>
@@ -19,6 +19,6 @@ namespace WebAPI.Models.Notification
         [JsonProperty("objects")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
-        public List<KalturaPushWebParameters> PushWebParameters { get; set; }
+        public List<KalturaRegistryParameter> RegistryParameters { get; set; }
     }
 }

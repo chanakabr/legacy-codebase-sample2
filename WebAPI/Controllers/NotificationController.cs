@@ -104,27 +104,29 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// TBD
+        /// TBD 
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
         /// </remarks>
-        /// <param name="ids"></param>        
-        [Route("getPushWebParams"), HttpPost]
+        /// <param name="id"></param>        
+        [Route("registry"), HttpPost]
         [ApiAuthorize]
-        public KalturaPushWebParametersResponse GetPushWebParams(List<KalturaIntegerValue> ids)
+        public KalturaRegistryResponse Registry(int id)
         {
-            KalturaPushWebParametersResponse response = null;
+            KalturaRegistryResponse response = null;
 
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
-                KS.GetFromRequest().ToString();   
-                if (ids == null)
-                    ids = new List<KalturaIntegerValue>();
+                KS.GetFromRequest().ToString();
+
+                // validate input
+                if (id <= 0)
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id is illegal");
 
                 // call client                
-                response = ClientsManager.NotificationClient().GetPushWebParams(groupId, ids.Select(x => x.value).ToList(), KS.GetFromRequest().ToString(), Utils.Utils.GetClientIP());
+                response = ClientsManager.NotificationClient().Registry(groupId, id, KS.GetFromRequest().ToString(), Utils.Utils.GetClientIP());
             }
             catch (ClientException ex)
             {
@@ -132,6 +134,6 @@ namespace WebAPI.Controllers
             }
             return response;
         }
-        
+
     }
 }

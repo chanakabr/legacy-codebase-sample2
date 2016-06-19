@@ -1234,7 +1234,7 @@
     <Content Include="Service References\Notifications\WebAPI.Notifications.NotificationCleanupResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.PushWebParametersResponse.datasource">
+    <Content Include="Service References\Notifications\WebAPI.Notifications.RegistryResponse1.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
     <None Include="Web References\Api\api.disco" />
@@ -1968,7 +1968,6 @@
     <Compile Include="Models\API\KalturaUserRole.cs" />
     <Compile Include="Models\General\KalturaValue.cs" />
     <Compile Include="Models\KalturaPlayerAssetData.cs" />
-    <Compile Include="Models\Notification\KalturaPushWebParametersResponse.cs" />
     <Compile Include="Models\Notification\KalturaInboxMessageTypeHolder.cs" />
     <Compile Include="Models\Notification\KalturaInboxMessageResponse.cs" />
     <Compile Include="Models\Notification\KalturaAnnouncement.cs" />
@@ -1988,7 +1987,8 @@
     <Compile Include="Models\Notification\KalturaPartnerNotificationSettings.cs" />
     <Compile Include="Models\Notification\KalturaPersonalFollowFeed.cs" />
     <Compile Include="Models\Notification\KalturaPersonalFollowFeedResponse.cs" />
-    <Compile Include="Models\Notification\KalturaPushWebParameters.cs" />
+    <Compile Include="Models\Notification\KalturaRegistryParameter.cs" />
+    <Compile Include="Models\Notification\KalturaRegistryResponse.cs" />
     <Compile Include="Models\Notification\KalturaTopic.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -2035,7 +2035,7 @@
     <Compile Include="Models\Domains\KalturaHouseholdState.cs" />
     <Compile Include="Models\Domains\KalturaHomeNetwork.cs" />
     <Compile Include="Models\General\KalturaSerializeableDictionary.cs" />
-    <Compile Include="Models\MultiRequest\KalturaMultiRequest.cs" />
+    <Compile Include="Models\MultiRequest\KalturaMultiRequestAction.cs" />
     <Compile Include="Models\Pricing\KalturaPrice.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdWith.cs" />
     <Compile Include="Models\Pricing\KalturaSubscription.cs" />

@@ -16,7 +16,7 @@ using WebAPI.Managers;
 
 namespace WebAPI.Controllers
 {
-    internal class ApiAuthorizeAttribute : System.Web.Http.AuthorizeAttribute
+    internal class ApiAuthorizeAttribute : Attribute
     {
         [Flags]
         public enum eRole { /* Placeholder */ }
@@ -34,17 +34,15 @@ namespace WebAPI.Controllers
             silent = Silent;
         }
 
-        protected override bool IsAuthorized(HttpActionContext actionContext)
+        public bool IsAuthorized(string service, string action)
         {
             KS ks = KS.GetFromRequest();
 
             if (ks == null)
                 throw new UnauthorizedException((int)StatusCode.ServiceForbidden, "Service Forbidden");
-            else if (!ks.IsValid && !silent)
+            
+            if (!ks.IsValid && !silent)
                 throw new UnauthorizedException((int)StatusCode.ExpiredKS, "Expired KS");
-
-            string service = (string)actionContext.ActionArguments["service_name"];
-            string action = (string)actionContext.ActionArguments["action_name"];
 
             string allowedUsersGroup = null;
             List<long> roleIds = new List<long>() { ANONYMOUS_ROLE_ID };
