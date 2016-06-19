@@ -76,12 +76,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\Seralizer\ESSerializerV2.cs" />
     <Compile Include="Common\DeleteResults\ESDeleteResult.cs" />
     <Compile Include="Common\ElasticSearchApi.cs" />
     <Compile Include="Common\ESBulkRequestObj.cs" />
     <Compile Include="Common\ESMappingObj.cs" />
     <Compile Include="Common\ESRouting.cs" />
-    <Compile Include="Common\ESSerializer.cs" />
+    <Compile Include="Common\Seralizer\ESSerializerV1.cs" />
     <Compile Include="Common\SearchResults\Hits.cs" />
     <Compile Include="Common\SearchResults\HitStatus.cs" />
     <Compile Include="Common\SearchResults\SearchHits.cs" />
