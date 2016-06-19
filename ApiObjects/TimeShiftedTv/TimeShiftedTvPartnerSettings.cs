@@ -14,19 +14,24 @@ namespace ApiObjects.TimeShiftedTv
         public bool? IsStartOverEnabled { get; set; }
         public bool? IsTrickPlayEnabled { get; set; }
         public bool? IsRecordingScheduleWindowEnabled { get; set; }
+        public bool? IsProtectionEnabled { get; set; }
         public long? CatchUpBufferLength { get; set; }
         public long? TrickPlayBufferLength { get; set; }
         public long? RecordingScheduleWindow { get; set; }
         public long? PaddingAfterProgramEnds { get; set; }
-        public long? PaddingBeforeProgramStarts { get; set; }        
-
+        public long? PaddingBeforeProgramStarts { get; set; }
+        public int? ProtectionPeriod { get; set; }
+        public int? ProtectionQuotaPercentage { get; set; }
+        public int? RecordingLifetimePeriod { get; set; }
+        public int? CleanupNoticePeroid { get; set; }
 
         public TimeShiftedTvPartnerSettings()
         {
         }
 
         public TimeShiftedTvPartnerSettings(bool? isCatchUpEnabled, bool? isCdvrEnabled, bool? isStartOverEnabled, bool? isTrickPlayEnabled, bool? isRecordingScheduleWindowEnabled,
-            long? catchUpBufferLength, long? trickPlayBufferLength, long? recordingScheduleWindowBuffer, long? paddingAfterProgramEnds, long? paddingBeforeProgramStarts)
+            long? catchUpBufferLength, long? trickPlayBufferLength, long? recordingScheduleWindowBuffer, long? paddingAfterProgramEnds, long? paddingBeforeProgramStarts,
+            bool? isProtectionEnabled, int? protectionPeriod, int? protectionQuotaPercentage, int? recordingLifetimePeroid, int? cleanupNoticePeroid)
         {
             this.IsCatchUpEnabled = isCatchUpEnabled;
             this.IsCdvrEnabled = isCdvrEnabled;
@@ -38,6 +43,11 @@ namespace ApiObjects.TimeShiftedTv
             this.IsRecordingScheduleWindowEnabled = isRecordingScheduleWindowEnabled;
             this.PaddingAfterProgramEnds = paddingAfterProgramEnds;
             this.PaddingBeforeProgramStarts = paddingBeforeProgramStarts;
+            this.IsProtectionEnabled = IsProtectionEnabled;
+            this.ProtectionPeriod = protectionPeriod;
+            this.ProtectionQuotaPercentage = protectionQuotaPercentage;
+            this.RecordingLifetimePeriod = recordingLifetimePeroid;
+            this.CleanupNoticePeroid = cleanupNoticePeroid;
         }
 
         public override string ToString()
@@ -53,6 +63,11 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("RecordingScheduleWindowBuffer: {0}, ", RecordingScheduleWindow.HasValue ? RecordingScheduleWindow.Value.ToString() : "Null"));
             sb.Append(string.Format("PaddingAfterRecord: {0}, ", PaddingAfterProgramEnds.HasValue ? PaddingAfterProgramEnds.Value.ToString() : "Null"));
             sb.Append(string.Format("PaddingBeforeRecord: {0}, ", PaddingBeforeProgramStarts.HasValue ? PaddingBeforeProgramStarts.Value.ToString() : "Null"));
+            sb.Append(string.Format("IsProtectionEnabled: {0}, ", IsProtectionEnabled.HasValue ? IsProtectionEnabled.Value.ToString() : "Null"));
+            sb.Append(string.Format("ProtectionPeriod: {0}, ", ProtectionPeriod.HasValue ? ProtectionPeriod.Value.ToString() : "Null"));
+            sb.Append(string.Format("ProtectionQuotaPercentage: {0}, ", ProtectionQuotaPercentage.HasValue ? ProtectionQuotaPercentage.Value.ToString() : "Null"));
+            sb.Append(string.Format("RecordingLifetimePeroid: {0}, ", RecordingLifetimePeriod.HasValue ? RecordingLifetimePeriod.Value.ToString() : "Null"));
+            sb.Append(string.Format("CleanupNoticePeroid: {0}, ", CleanupNoticePeroid.HasValue ? CleanupNoticePeroid.Value.ToString() : "Null"));
                         
             return sb.ToString();
         }

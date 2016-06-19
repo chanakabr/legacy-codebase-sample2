@@ -39,6 +39,8 @@ namespace Catalog
                 CatalogCache catalogCache = CatalogCache.Instance();
                 int parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
 
+                definitions.shouldUseSearchEndDate = catalogCache.IsTstvSettingsExists(request.m_nGroupID);
+
                 GroupManager groupManager = new GroupManager();
                 Group group = groupManager.GetGroup(parentGroupID);
 

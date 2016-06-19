@@ -259,6 +259,13 @@ namespace ApiObjects.SearchObjects
         [DataMember]
         public EntitlementSearchDefinitions entitlementSearchDefinitions;
 
+
+        /// <summary>
+        /// Is Time Shiffted TV Settings For Group
+        /// </summary>
+        [JsonProperty()]
+        [DataMember]
+        public bool shouldUseSearchEndDate;
         #endregion
 
         #region Ctor
@@ -293,6 +300,8 @@ namespace ApiObjects.SearchObjects
             epgParentalRulesTags = new Dictionary<string, List<string>>();
 
             entitlementSearchDefinitions = null;
+
+            shouldUseSearchEndDate = false;
         }
 
 

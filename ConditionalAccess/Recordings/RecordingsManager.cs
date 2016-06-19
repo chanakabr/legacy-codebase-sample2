@@ -278,6 +278,72 @@ namespace Recordings
             return status;
         }
 
+        public Status DeleteRecording(int groupId, Recording slimRecording)
+        {
+            Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            if (groupId > 0 && slimRecording != null && slimRecording.Id > 0 && slimRecording.EpgId > 0 && !string.IsNullOrEmpty(slimRecording.ExternalRecordingId))
+            {
+                int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
+
+                var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
+
+                // Call Adapter to delete recording
+
+                RecordResult adapterResponse = null;
+                try
+                {
+                    adapterResponse = adapterController.DeleteRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
+                }
+                catch (KalturaException ex)
+                {
+                    status = new Status((int)eResponseStatus.Error, string.Format("Code: {0} Message: {1}", (int)ex.Data["StatusCode"], ex.Message));
+                    return status;
+                }
+                catch (Exception ex)
+                {
+                    status = new Status((int)eResponseStatus.Error, "Adapter controller excpetion: " + ex.Message);
+                    return status;
+                }
+
+                if (adapterResponse == null)
+                {
+                    status = new Status((int)eResponseStatus.Error, "Adapter controller returned null response.");
+                }
+                //
+                // TODO: Validate adapter response
+                //
+                else if (adapterResponse.FailReason != 0)
+                {
+                    status = CreateFailStatus(adapterResponse);
+                }
+                else
+                {
+                    try
+                    {
+                       
+                        // Update recording information in to database
+                        bool deleteResult = ConditionalAccessDAL.DeleteRecording(slimRecording.Id);
+
+                        if (!deleteResult)
+                        {
+                            return new Status((int)eResponseStatus.Error, "Failed update recording");
+                        }
+
+                        UpdateCouchbaseIsRecorded(groupId, slimRecording.EpgId, false);
+
+                        // We're OK
+                        status = new Status((int)eResponseStatus.OK);
+                    }
+                    catch (Exception ex)
+                    {
+                        status = new Status((int)eResponseStatus.Error, "Failed inserting recording to database and queue.");
+                    }
+                }
+            }
+            return status;
+        }
+
         public Recording GetRecordingStatus(int groupId, long recordingId)
         {
             Recording currentRecording = ConditionalAccessDAL.GetRecordingByRecordingId(recordingId);
@@ -515,7 +581,7 @@ namespace Recordings
                             {
                                 recording.RecordingStatus = TstvRecordingStatus.Scheduled;
 
-                                SetRecordingStatus(recording);
+                                recording.RecordingStatus = GetTstvRecordingStatus(recording.EpgStartDate, recording.EpgEndDate, recording.RecordingStatus);
 
                                 // everything is good
                                 shouldMarkAsFailed = false;
@@ -637,7 +703,7 @@ namespace Recordings
         public Recording GetRecordingByProgramId(long programId)
         {
             Recording recording = ConditionalAccessDAL.GetRecordingByProgramId(programId);
-            SetRecordingStatus(recording);
+            recording.RecordingStatus = GetTstvRecordingStatus(recording.EpgStartDate, recording.EpgEndDate, recording.RecordingStatus);
 
             return recording;
         }
@@ -681,21 +747,24 @@ namespace Recordings
             return filteredRecording;
         }
 
-        public static void SetRecordingStatus(Recording recording)
+        public static TstvRecordingStatus GetTstvRecordingStatus(DateTime epgStartDate, DateTime epgEndDate, TstvRecordingStatus recordingStatus)
         {
-            if (recording.RecordingStatus == TstvRecordingStatus.Scheduled)
+            TstvRecordingStatus response = recordingStatus;
+            if (recordingStatus == TstvRecordingStatus.Scheduled)
             {
                 // If program already finished, we say it is recorded
-                if (recording.EpgEndDate < DateTime.UtcNow)
+                if (epgEndDate < DateTime.UtcNow)
                 {
-                    recording.RecordingStatus = TstvRecordingStatus.Recorded;
+                    response = TstvRecordingStatus.Recorded;
                 }
                 // If program already started but didn't finish, we say it is recording
-                else if (recording.EpgStartDate < DateTime.UtcNow)
+                else if (epgStartDate < DateTime.UtcNow)
                 {
-                    recording.RecordingStatus = TstvRecordingStatus.Recording;
+                    response = TstvRecordingStatus.Recording;
                 }
             }
+
+            return response;
         }
 
         internal void RecoverRecordings(int groupId)
@@ -1024,8 +1093,7 @@ namespace Recordings
                     else
                     {
                         currentRecording.RecordingStatus = TstvRecordingStatus.Scheduled;
-
-                        SetRecordingStatus(currentRecording);
+                        currentRecording.RecordingStatus = RecordingsManager.GetTstvRecordingStatus(currentRecording.EpgStartDate, currentRecording.EpgEndDate, currentRecording.RecordingStatus);                        
 
                         // Insert the new links of the recordings
                         if (adapterResponse.Links != null && adapterResponse.Links.Count > 0)
