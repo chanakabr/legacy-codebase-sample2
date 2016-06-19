@@ -771,39 +771,22 @@ namespace CouchbaseManager
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
-                        bool exists;
-
                         string action = string.Format("Action: Exists bucket: {0} key: {1}", bucketName, key);
+                        IOperationResult removeResult;
+                        action = string.Format("Action: Remove bucket: {0} key: {1}", bucketName, key);
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                         {
-                            exists = bucket.Exists(key);
+                            removeResult = bucket.Remove(key);
                         }
 
-                        // if key doesn't exist, we're cool
-                        if (!exists)
+                        if (removeResult.Exception != null)
                         {
-                            result = true;
+                            throw removeResult.Exception;
                         }
-                        else
+
+                        if (removeResult.Status == Couchbase.IO.ResponseStatus.Success || removeResult.Status == Couchbase.IO.ResponseStatus.KeyNotFound)
                         {
-                            // Otherwise, try to really remove the key
-                            IOperationResult removeResult;
-
-                            action = string.Format("Action: Remove bucket: {0} key: {1}", bucketName, key);
-                            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
-                            {
-                                removeResult = bucket.Remove(key);
-                            }
-
-                            if (removeResult.Exception != null)
-                            {
-                                throw removeResult.Exception;
-                            }
-
-                            if (removeResult.Status == Couchbase.IO.ResponseStatus.Success)
-                            {
-                                result = removeResult.Success;
-                            }
+                            result = removeResult.Success;
                         }
                     }
                 }
