@@ -445,19 +445,23 @@ namespace ElasticSearch.Searcher
 
                     epgDatesFilter.AddChild(epgEndDateRange);
                 }
+                
+                if (SearchDefinitions.shouldUseSearchEndDate)
+                {
+                    // by search_end_date - for buffer issues - MUST BE LT (nor Equal)          
+                    ESRange epgSearchEndDateRange = new ESRange(false)
+                    {
+                        Key = "search_end_date"
+                    };
+                    epgSearchEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GT, DateTime.UtcNow.ToString("yyyyMMddHHmmss")));
+                    epgDatesFilter.AddChild(epgSearchEndDateRange);
+                }
 
                 if (!epgDatesFilter.IsEmpty())
                 {
                     epgFilter.AddChild(epgDatesFilter);
                 }
 
-                // by search_end_date - for buffer issues - MUST BE LT (nor Equal)          
-                ESRange epgSearchEndDateRange = new ESRange(false)
-                {
-                    Key = "search_end_date"
-                };
-                epgSearchEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GT, DateTime.UtcNow.ToString("yyyyMMddHHmmss")));
-                epgDatesFilter.AddChild(epgSearchEndDateRange);
                 #endregion
 
                 #region Parental Rules
