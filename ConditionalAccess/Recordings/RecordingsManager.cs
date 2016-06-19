@@ -581,7 +581,7 @@ namespace Recordings
                             {
                                 recording.RecordingStatus = TstvRecordingStatus.Scheduled;
 
-                                SetRecordingStatus(recording);
+                                recording.RecordingStatus = GetTstvRecordingStatus(recording.EpgStartDate, recording.EpgEndDate, recording.RecordingStatus);
 
                                 // everything is good
                                 shouldMarkAsFailed = false;
@@ -703,7 +703,7 @@ namespace Recordings
         public Recording GetRecordingByProgramId(long programId)
         {
             Recording recording = ConditionalAccessDAL.GetRecordingByProgramId(programId);
-            SetRecordingStatus(recording);
+            recording.RecordingStatus = GetTstvRecordingStatus(recording.EpgStartDate, recording.EpgEndDate, recording.RecordingStatus);
 
             return recording;
         }
@@ -747,21 +747,24 @@ namespace Recordings
             return filteredRecording;
         }
 
-        public static void SetRecordingStatus(Recording recording)
+        public static TstvRecordingStatus GetTstvRecordingStatus(DateTime epgStartDate, DateTime epgEndDate, TstvRecordingStatus recordingStatus)
         {
-            if (recording.RecordingStatus == TstvRecordingStatus.Scheduled)
+            TstvRecordingStatus response = recordingStatus;
+            if (recordingStatus == TstvRecordingStatus.Scheduled)
             {
                 // If program already finished, we say it is recorded
-                if (recording.EpgEndDate < DateTime.UtcNow)
+                if (epgEndDate < DateTime.UtcNow)
                 {
-                    recording.RecordingStatus = TstvRecordingStatus.Recorded;
+                    response = TstvRecordingStatus.Recorded;
                 }
                 // If program already started but didn't finish, we say it is recording
-                else if (recording.EpgStartDate < DateTime.UtcNow)
+                else if (epgStartDate < DateTime.UtcNow)
                 {
-                    recording.RecordingStatus = TstvRecordingStatus.Recording;
+                    response = TstvRecordingStatus.Recording;
                 }
             }
+
+            return response;
         }
 
         internal void RecoverRecordings(int groupId)
@@ -1090,8 +1093,7 @@ namespace Recordings
                     else
                     {
                         currentRecording.RecordingStatus = TstvRecordingStatus.Scheduled;
-
-                        SetRecordingStatus(currentRecording);
+                        currentRecording.RecordingStatus = RecordingsManager.GetTstvRecordingStatus(currentRecording.EpgStartDate, currentRecording.EpgEndDate, currentRecording.RecordingStatus);                        
 
                         // Insert the new links of the recordings
                         if (adapterResponse.Links != null && adapterResponse.Links.Count > 0)

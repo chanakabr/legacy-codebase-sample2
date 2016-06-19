@@ -4426,8 +4426,9 @@ namespace ConditionalAccess
                 case RecordingInternalStatus.Failed:
                     recordingStatus = TstvRecordingStatus.Failed;
                     break;
+                case RecordingInternalStatus.Waiting:
                 case RecordingInternalStatus.OK:
-                    recordingStatus = TstvRecordingStatus.Scheduled;
+                    recordingStatus = TstvRecordingStatus.OK;
                     break;
                 default:
                     break;
@@ -4447,7 +4448,7 @@ namespace ConditionalAccess
                 case DomainRecordingStatus.Deleted:
                     recordingStatus = TstvRecordingStatus.Deleted;
                     break;
-                case DomainRecordingStatus.DeletedByCleanup:
+                case DomainRecordingStatus.DeletedBySystem:
                     recordingStatus = TstvRecordingStatus.LifeTimePeriodExpired;
                     break;
                 case DomainRecordingStatus.OK:
@@ -4489,9 +4490,9 @@ namespace ConditionalAccess
                             result.Add(DomainRecordingStatus.OK);
                         }
 
-                        if (!result.Contains(DomainRecordingStatus.DeletedByCleanup))
+                        if (!result.Contains(DomainRecordingStatus.DeletedBySystem))
                         {
-                            result.Add(DomainRecordingStatus.DeletedByCleanup);
+                            result.Add(DomainRecordingStatus.DeletedBySystem);
                         }
                         break;
                     case TstvRecordingStatus.Deleted:
@@ -4895,6 +4896,44 @@ namespace ConditionalAccess
             return DomainRecordingIdToRecordingMap;
         }
 
+        internal static Recording ValidateRecordID(int groupID, long domainID, long domainRecordingID)
+        {
+            Recording recording = new Recording()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingNotFound, eResponseStatus.RecordingNotFound.ToString())
+            };
+            
+            try
+            {
+                Dictionary<long, Recording> DomainRecordingIdToRecordingMap = Utils.GetDomainRecordingIdsToRecordingsMap(groupID, domainID, new List<long>() { domainRecordingID });
+                if (DomainRecordingIdToRecordingMap == null || DomainRecordingIdToRecordingMap.Count == 0 ||
+                    !DomainRecordingIdToRecordingMap.ContainsKey(domainRecordingID) || DomainRecordingIdToRecordingMap[domainRecordingID].RecordingStatus == TstvRecordingStatus.Deleted)
+                {
+                    log.DebugFormat("No valid recording was returned from Utils.GetDomainRecordingIdsToRecordingsMap");
+                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingNotFound, eResponseStatus.RecordingNotFound.ToString());
+                    return recording;
+                }
+
+                recording = DomainRecordingIdToRecordingMap[domainRecordingID];
+                recording.Id = domainRecordingID;
+            }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("Exception at ValidateRecordID. ");
+                sb.Append(String.Concat("domainID: ", domainID));
+                sb.Append(String.Concat(", domainRecordingID: ", domainRecordingID));
+                sb.Append(String.Concat("Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
+
+                log.Error(sb.ToString(), ex);
+
+                recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "failed ValidateRecordID");
+            }
+
+            return recording;
+        }
+
         internal static Recording BuildRecordingRecordingDetailsDataRow(DataRow dr)
         {
             Recording recording = new Recording();
@@ -4909,6 +4948,8 @@ namespace ConditionalAccess
                 RecordingInternalStatus recordingInternalStatus = (RecordingInternalStatus)ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_STATUS");
                 DomainRecordingStatus domainRecordingStatus = (DomainRecordingStatus)ODBCWrapper.Utils.GetIntSafeVal(dr, "DOMAIN_RECORDING_STATUS");
                 TstvRecordingStatus? recordingStatus = ConvertToTstvRecordingStatus(domainRecordingStatus);
+                DateTime epgStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE");
+                DateTime epgEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
                 if (!recordingStatus.HasValue)
                 {
                     log.ErrorFormat("Failed Convert DomainRecordingStatus: {0} to TstvRecordingStatus for recordingID: {1}, epgID: {2}",
@@ -4925,10 +4966,14 @@ namespace ConditionalAccess
                                          recordingInternalStatus, recordingID, epgId);
                         return recording;
                     }
+
+                    // if internal recording status was 0 now recordingStatus is OK and we need to set recording status according to RecordingsManager
+                    if (recordingStatus.Value == TstvRecordingStatus.OK)
+                    {
+                        recordingStatus = RecordingsManager.GetTstvRecordingStatus(epgStartDate, epgEndDate, TstvRecordingStatus.Scheduled);
+                    }
                 }
 
-                DateTime epgStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE");
-                DateTime epgEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
                 // create recording object
                 recording = new Recording()
                 {
@@ -4938,33 +4983,25 @@ namespace ConditionalAccess
                     EpgEndDate = epgEndDate,
                     CreateDate = createDate,
                     UpdateDate = updateDate,
-                    RecordingStatus = recordingStatus.Value,
-                    ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(viewableUntilDate)
+                    RecordingStatus = recordingStatus.Value
                 };
-                // set protectUntilDate
-                if (protectedUntilDate.HasValue)
+
+                // if recording status is Recorded then set ViewableUntilDate
+                if (recording.RecordingStatus == TstvRecordingStatus.Recorded)
                 {
-                    recording.ProtectedUntilDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(protectedUntilDate.Value);
-                    // update viewableUntilDate incase protectedUntilDate is bigger than viewableUntilDate
-                    if (recording.ProtectedUntilDate.Value > recording.ViewableUntilDate)
+                    recording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(viewableUntilDate);
+
+                    // if recording is/was protected then set ProtectedUntilDate
+                    if (protectedUntilDate.HasValue)
                     {
-                        recording.ViewableUntilDate = recording.ProtectedUntilDate.Value;
+                        recording.ProtectedUntilDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(protectedUntilDate.Value);
+                        // update viewableUntilDate incase protectedUntilDate is bigger than viewableUntilDate
+                        if (recording.ProtectedUntilDate.Value > recording.ViewableUntilDate)
+                        {
+                            recording.ViewableUntilDate = recording.ProtectedUntilDate.Value;
+                        }
                     }
-                }
-                else
-                {
-                    recording.ProtectedUntilDate = null;
-                }
 
-                // if internal recording status was 0 now recordingStatus is Scheduled and we need to set recording status according to RecordingsManager
-                if (recording.RecordingStatus == TstvRecordingStatus.Scheduled)
-                {
-                    RecordingsManager.SetRecordingStatus(recording);
-                }
-
-                // if recording status is recorded/recording/scheduled then check viewableUntilDate and protectUntilDate
-                if (recording.RecordingStatus == TstvRecordingStatus.Recorded || recording.RecordingStatus == TstvRecordingStatus.Recording || recording.RecordingStatus == TstvRecordingStatus.Scheduled)
-                {
                     long currentUtcEpoch = TVinciShared.DateUtils.UnixTimeStampNow();
                     // modify recordings status to LifeTimePeriodExpired if it's currently not viewable
                     if (recording.ViewableUntilDate < currentUtcEpoch)

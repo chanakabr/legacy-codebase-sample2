@@ -32,7 +32,7 @@ namespace ApiObjects.TimeShiftedTv
 
         public long? ProtectedUntilDate { get; set; }
 
-        public long ViewableUntilDate { get; set; }
+        public long? ViewableUntilDate { get; set; }
 
         public DateTime CreateDate { get; set; }
 
@@ -58,7 +58,7 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("StartDate: {0}, ", EpgStartDate != null ? EpgStartDate.ToString() : ""));
             sb.Append(string.Format("EndDate: {0}, ", EpgEndDate != null ? EpgEndDate.ToString() : ""));
             sb.Append(string.Format("GetStatusRetries: {0}, ", GetStatusRetries));
-            sb.Append(string.Format("ViewableUntilDate: {0}, ", ViewableUntilDate));
+            sb.Append(string.Format("ViewableUntilDate: {0}, ", ViewableUntilDate.HasValue ? ViewableUntilDate.Value.ToString() : ""));
             sb.Append(string.Format("ProtectedUntilDate: {0}, ", ProtectedUntilDate.HasValue ? ProtectedUntilDate.Value.ToString() : ""));
             sb.Append(string.Format("CreateDate: {0}, ", CreateDate != null ? CreateDate.ToString() : ""));
             sb.Append(string.Format("UpdateDate: {0}, ", UpdateDate != null ? UpdateDate.ToString() : ""));            

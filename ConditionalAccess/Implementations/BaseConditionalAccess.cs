@@ -17146,7 +17146,7 @@ namespace ConditionalAccess
                     return recording;
                 }
                 // user is OK - see if user sign to recordID
-                recording = ValidateRecordID(domainId, domainRecordingId);
+                recording = Utils.ValidateRecordID(m_nGroupID, domainId, domainRecordingId);
                 if (recording.Status.Code != (int)eResponseStatus.OK)
                 {
                     log.DebugFormat("recording status not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", domainRecordingId, domainId, userId, recording != null ? recording.ToString() : string.Empty);
@@ -17225,75 +17225,7 @@ namespace ConditionalAccess
                     var currentStatus = RecordingsManager.Instance.CancelRecording(m_nGroupID, recording.EpgId);
                 }
             }
-        }
-
-        private Recording ValidateRecordID(long domainID, long domainRecordingID)
-        {
-            Recording recording = new Recording()
-            {
-                Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingNotFound, eResponseStatus.RecordingNotFound.ToString())
-            };
-
-            long recordingId = 0;
-            try
-            {
-                DataRow dr = ConditionalAccessDAL.GetDomainExistingRecordingsByRecordID(domainID, domainRecordingID);
-                if (dr != null)
-                {                    
-                    recordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "recording_id", 0);
-                    if (recordingId > 0)
-                    {                        
-                        int recordingState = ODBCWrapper.Utils.GetIntSafeVal(dr, "recording_state");
-                        if (recordingState == 1)
-                        {
-                            recording = RecordingsManager.Instance.GetRecording(m_nGroupID, recordingId); // recording id at the recording manager
-                            recording.CreateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
-                            recording.UpdateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE");
-                            long protectedUntilEpoch = ODBCWrapper.Utils.GetLongSafeVal(dr, "PROTECTED_UNTIL_EPOCH", -1);
-
-                            if (protectedUntilEpoch == -1)
-                            {
-                                TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
-                                if (accountSettings != null && accountSettings.RecordingLifetimePeriod.HasValue)
-                                {
-                                    DateTime viewableUntilDate = recording.EpgStartDate.AddDays(accountSettings.RecordingLifetimePeriod.Value);
-                                    recording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(viewableUntilDate);
-                                    recording.ProtectedUntilDate = null;                                    
-                                }
-                                else
-                                {
-                                    log.ErrorFormat("No lifetime period defined for the account {0}", m_nGroupID);
-                                }                                
-                            }
-                            else
-                            {
-                                recording.ViewableUntilDate = protectedUntilEpoch;
-                                recording.ProtectedUntilDate = protectedUntilEpoch;                                
-                            }
-                        }
-                        else
-                        {
-                            recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingNotFound, "recording is already canceled or deleted");
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                StringBuilder sb = new StringBuilder("Exception at ValidateRecordEpg. ");
-                sb.Append(String.Concat("domainID: ", domainID));
-                sb.Append(String.Concat(", domainRecordingID: ", domainRecordingID));
-                sb.Append(String.Concat("Ex Msg: ", ex.Message));
-                sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
-                sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
-
-                log.Error(sb.ToString(), ex);
-
-                recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "failed ValidateRecordID");
-            }
-
-            return recording;
-        }
+        }        
 
         public RecordingResponse QueryRecords(string userID, List<long> epgIDs, ref long domainID, bool isAggregative)
         {
@@ -17360,16 +17292,6 @@ namespace ConditionalAccess
 
                 // validate epgs entitlement and add to response
                 ValidateEpgForRecording(userID, domainID, ref response, epgs, validEpgsForRecording);
-
-                /***** Not needed anymore since we get the epg start date and epg end date from the DB with the padding *****/
-                /*
-                // update recordings start\end dates with padding
-                if ((accountSettings.PaddingBeforeProgramStarts.HasValue && accountSettings.PaddingBeforeProgramStarts.Value > 0)
-                    || (accountSettings.PaddingAfterProgramEnds.HasValue && accountSettings.PaddingAfterProgramEnds.Value > 0))
-                {
-                    Utils.UpdateRecordingsWithPadding(ref response, accountSettings.PaddingBeforeProgramStarts.Value, accountSettings.PaddingAfterProgramEnds.Value);
-                }
-                */
 
                 int totalMinutes = Utils.GetQuota(this.m_nGroupID, domainID);
 
@@ -17650,7 +17572,7 @@ namespace ConditionalAccess
                 }                
 
                 response = DomainRecordingIdToRecordingMap[domainRecordingID];
-                response.Id = domainRecordingID;                               
+                response.Id = domainRecordingID;
             }
 
             catch (Exception ex)
@@ -18045,7 +17967,7 @@ namespace ConditionalAccess
                 }
                 
                 // Validate recording exists
-                recording = ValidateRecordID(domainID, recordID);
+                recording = Utils.ValidateRecordID(m_nGroupID, domainID, recordID);
                 if (recording.Status.Code != (int)eResponseStatus.OK)
                 {
                     log.DebugFormat("Recording is not valid for protection, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", recordID, domainID, userID, recording != null ? recording.ToString() : string.Empty);

@@ -601,7 +601,7 @@ namespace ApiObjects
         OK = 1,
         Canceled = 2,        
         Deleted = 3,
-        DeletedByCleanup = 4
+        DeletedBySystem = 4
     }
 
     public enum RecordingInternalStatus
