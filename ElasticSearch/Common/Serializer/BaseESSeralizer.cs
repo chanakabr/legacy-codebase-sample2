@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace ElasticSearch.Common
 {
-    public class ESSerializerV1
+    public abstract class BaseESSeralizer
     {
         protected static readonly string META_DOUBLE_SUFFIX = "_DOUBLE";
         protected static readonly string META_BOOL_SUFFIX = "_BOOL";
 
-        public ESSerializerV1()
+        public BaseESSeralizer()
         {
         }
 
@@ -22,12 +22,12 @@ namespace ElasticSearch.Common
             StringBuilder recordBuilder = new StringBuilder();
             recordBuilder.Append("{ ");
             recordBuilder.AppendFormat("\"media_id\": {0}, \"group_id\": {1}, \"media_type_id\": {2}, \"wp_type_id\": {3}, \"is_active\": {4}, " +
-                "\"device_rule_id\": {5}, \"like_counter\": {6}, \"views\": {7}, \"rating\": {8}, \"votes\": {9}, \"start_date\": \"{10}\", " + 
+                "\"device_rule_id\": {5}, \"like_counter\": {6}, \"views\": {7}, \"rating\": {8}, \"votes\": {9}, \"start_date\": \"{10}\", " +
                 "\"end_date\": \"{11}\", \"final_date\": \"{12}\", \"create_date\": \"{13}\", \"update_date\": \"{14}\", \"name\": \"{15}\", " +
                 "\"description\": \"{16}\", \"cache_date\": \"{17}\", \"geo_block_rule_id\": {18}, ",
-                media.m_nMediaID, media.m_nGroupID, media.m_nMediaTypeID, media.m_nWPTypeID, media.m_nIsActive, 
-                media.m_nDeviceRuleId, media.m_nLikeCounter, media.m_nViews, media.m_dRating, media.m_nVotes, media.m_sStartDate, 
-                media.m_sEndDate, media.m_sFinalEndDate, media.m_sCreateDate, media.m_sUpdateDate, Common.Utils.ReplaceDocumentReservedCharacters(ref media.m_sName), 
+                media.m_nMediaID, media.m_nGroupID, media.m_nMediaTypeID, media.m_nWPTypeID, media.m_nIsActive,
+                media.m_nDeviceRuleId, media.m_nLikeCounter, media.m_nViews, media.m_dRating, media.m_nVotes, media.m_sStartDate,
+                media.m_sEndDate, media.m_sFinalEndDate, media.m_sCreateDate, media.m_sUpdateDate, Common.Utils.ReplaceDocumentReservedCharacters(ref media.m_sName),
                 Common.Utils.ReplaceDocumentReservedCharacters(ref media.m_sDescription), DateTime.UtcNow.ToString("yyyyMMddHHmmss"), media.geoBlockRule);
 
             #region add media file types
@@ -209,7 +209,7 @@ namespace ElasticSearch.Common
 
         }
 
-        public virtual string CreateMediaMapping(Dictionary<int, Dictionary<string, string>> oMetasValuesByGroupId, Dictionary<int, string> oGroupTags, 
+        public virtual string CreateMediaMapping(Dictionary<int, Dictionary<string, string>> oMetasValuesByGroupId, Dictionary<int, string> oGroupTags,
             string sIndexAnalyzer, string sSearchAnalyzer, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null)
         {
             if (oMetasValuesByGroupId == null || oGroupTags == null)
@@ -218,25 +218,123 @@ namespace ElasticSearch.Common
             ESMappingObj mappingObj = new ESMappingObj("media");
 
             #region Add basic type mappings - (e.g. media_id, group_id, description etc)
-            mappingObj.AddProperty(new BasicMappingPropertyV1() { name = "media_id", type = eESFieldType.LONG, analyzed = false, null_value = "0" });
-            mappingObj.AddProperty(new BasicMappingPropertyV1() { name = "group_id", type = eESFieldType.INTEGER, analyzed = false, null_value = "0" });
-            mappingObj.AddProperty(new BasicMappingPropertyV1() { name = "media_type_id", type = eESFieldType.INTEGER, analyzed = false, null_value = "0" });
-            mappingObj.AddProperty(new BasicMappingPropertyV1() { name = "wp_type_id", type = eESFieldType.INTEGER, analyzed = false, null_value = "0" });
-            mappingObj.AddProperty(new BasicMappingPropertyV1() { name = "is_active", type = eESFieldType.INTEGER, analyzed = false, null_value = "0" });
-            mappingObj.AddProperty(new BasicMappingPropertyV1() { name = "device_rule_id", type = eESFieldType.INTEGER, analyzed = false, null_value = "0" });
-            mappingObj.AddProperty(new BasicMappingPropertyV1() { name = "like_counter", type = eESFieldType.INTEGER, analyzed = false, null_value = "0" });
-            mappingObj.AddProperty(new BasicMappingPropertyV1() { name = "views", type = eESFieldType.INTEGER, analyzed = false, null_value = "0" });
-            mappingObj.AddProperty(new BasicMappingPropertyV1() { name = "rating", type = eESFieldType.DOUBLE, analyzed = false, null_value = "0" });
-            mappingObj.AddProperty(new BasicMappingPropertyV1() { name = "votes", type = eESFieldType.INTEGER, analyzed = false, null_value = "0" });
-            mappingObj.AddProperty(new BasicMappingPropertyV1() { name = "start_date", type = eESFieldType.DATE, analyzed = false });
-            mappingObj.AddProperty(new BasicMappingPropertyV1() { name = "end_date", type = eESFieldType.DATE, analyzed = false });
-            mappingObj.AddProperty(new BasicMappingPropertyV1() { name = "final_date", type = eESFieldType.DATE, analyzed = false });
-            mappingObj.AddProperty(new BasicMappingPropertyV1() { name = "create_date", type = eESFieldType.DATE, analyzed = false });
-            mappingObj.AddProperty(new BasicMappingPropertyV1() { name = "update_date", type = eESFieldType.DATE, analyzed = false });
-            mappingObj.AddProperty(new BasicMappingPropertyV1() { name = "cache_date", type = eESFieldType.DATE, analyzed = false });
-            mappingObj.AddProperty(new BasicMappingPropertyV1() { name = "user_types", type = eESFieldType.INTEGER, analyzed = false });
+            mappingObj.AddProperty(new BasicMappingPropertyV1()
+            {
+                name = "media_id",
+                type = eESFieldType.LONG,
+                analyzed = false,
+                null_value = "0"
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV1()
+            {
+                name = "group_id",
+                type = eESFieldType.INTEGER,
+                analyzed = false,
+                null_value = "0"
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV1()
+            {
+                name = "media_type_id",
+                type = eESFieldType.INTEGER,
+                analyzed = false,
+                null_value = "0"
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV1()
+            {
+                name = "wp_type_id",
+                type = eESFieldType.INTEGER,
+                analyzed = false,
+                null_value = "0"
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV1()
+            {
+                name = "is_active",
+                type = eESFieldType.INTEGER,
+                analyzed = false,
+                null_value = "0"
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV1()
+            {
+                name = "device_rule_id",
+                type = eESFieldType.INTEGER,
+                analyzed = false,
+                null_value = "0"
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV1()
+            {
+                name = "like_counter",
+                type = eESFieldType.INTEGER,
+                analyzed = false,
+                null_value = "0"
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV1()
+            {
+                name = "views",
+                type = eESFieldType.INTEGER,
+                analyzed = false,
+                null_value = "0"
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV1()
+            {
+                name = "rating",
+                type = eESFieldType.DOUBLE,
+                analyzed = false,
+                null_value = "0"
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV1()
+            {
+                name = "votes",
+                type = eESFieldType.INTEGER,
+                analyzed = false,
+                null_value = "0"
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV1()
+            {
+                name = "start_date",
+                type = eESFieldType.DATE,
+                analyzed = false
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV1()
+            {
+                name = "end_date",
+                type = eESFieldType.DATE,
+                analyzed = false
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV1()
+            {
+                name = "final_date",
+                type = eESFieldType.DATE,
+                analyzed = false
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV1()
+            {
+                name = "create_date",
+                type = eESFieldType.DATE,
+                analyzed = false
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV1()
+            {
+                name = "update_date",
+                type = eESFieldType.DATE,
+                analyzed = false
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV1()
+            {
+                name = "cache_date",
+                type = eESFieldType.DATE,
+                analyzed = false
+            });
+            mappingObj.AddProperty(new BasicMappingPropertyV1()
+            {
+                name = "user_types",
+                type = eESFieldType.INTEGER,
+                analyzed = false
+            });
 
-            ElasticSearch.Common.MultiFieldMappingPropertyV1 nameProperty = new MultiFieldMappingPropertyV1() { name = "name" };
+            ElasticSearch.Common.MultiFieldMappingPropertyV1 nameProperty = new MultiFieldMappingPropertyV1()
+            {
+                name = "name"
+            };
             nameProperty.fields.Add(new BasicMappingPropertyV1()
             {
                 name = "name",
@@ -269,7 +367,10 @@ namespace ElasticSearch.Common
 
             mappingObj.AddProperty(nameProperty);
 
-            ElasticSearch.Common.MultiFieldMappingPropertyV1 descProperty = new MultiFieldMappingPropertyV1() { name = "description" };
+            ElasticSearch.Common.MultiFieldMappingPropertyV1 descProperty = new MultiFieldMappingPropertyV1()
+            {
+                name = "description"
+            };
 
             descProperty.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV1()
             {
@@ -306,7 +407,10 @@ namespace ElasticSearch.Common
             #endregion
 
             #region Add tags mapping
-            InnerMappingPropertyV1 tags = new InnerMappingPropertyV1() { name = "tags" };
+            InnerMappingPropertyV1 tags = new InnerMappingPropertyV1()
+            {
+                name = "tags"
+            };
 
             if (oGroupTags.Count > 0)
             {
@@ -360,7 +464,10 @@ namespace ElasticSearch.Common
             #endregion
 
             #region Add metas mapping
-            InnerMappingPropertyV1 metas = new InnerMappingPropertyV1() { name = "metas" };
+            InnerMappingPropertyV1 metas = new InnerMappingPropertyV1()
+            {
+                name = "metas"
+            };
             if (oMetasValuesByGroupId != null)
             {
                 foreach (int groupID in oMetasValuesByGroupId.Keys)
@@ -808,7 +915,7 @@ namespace ElasticSearch.Common
         public virtual string SerializeRecordingObject(EpgCB oEpg, long recordingId)
         {
             StringBuilder builder = new StringBuilder();
-            
+
             builder.Append("{ ");
             builder.AppendFormat("\"recording_id\": {0},", recordingId);
 

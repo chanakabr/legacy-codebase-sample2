@@ -133,7 +133,7 @@ namespace ElasticSearch.Common
             }
             else
             {
-                return string.Concat(languageCode, "_analyzer_", version);
+                return string.Concat(languageCode, "_analyzer_v", version);
             }
         }
 
@@ -145,7 +145,7 @@ namespace ElasticSearch.Common
             }
             else
             {
-                return string.Concat(languageCode, "_filter_", version);
+                return string.Concat(languageCode, "_filter_v", version);
             }
         }
 
@@ -157,7 +157,7 @@ namespace ElasticSearch.Common
             }
             else
             {
-                return string.Concat(languageCode, "_tokenizer_", version);
+                return string.Concat(languageCode, "_tokenizer_v", version);
             }
         }
 
