@@ -118,7 +118,7 @@ namespace TVinciShared
             }).Reverse().ToArray();
         }
 
-        public static string EncryptRJ256(string key, string iv, string text)
+        public static string EncryptRJ128(string key, string iv, string text)
         {
             var encoding = new UTF8Encoding();
             var Key = encoding.GetBytes(key);

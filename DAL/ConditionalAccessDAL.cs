@@ -7,11 +7,16 @@ using ODBCWrapper;
 using ApiObjects;
 using System.Text.RegularExpressions;
 using ApiObjects.TimeShiftedTv;
+using KLogMonitor;
+using System.Reflection;
 
 namespace DAL
 {
     public class ConditionalAccessDAL
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private const int RETRY_LIMIT = 5;
+
         public static DataTable Get_MediaFileByProductCode(int nGroupID, string sProductCode)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MediaFileByProductCode");
@@ -2590,6 +2595,7 @@ namespace DAL
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EXTERNAL_RECORDING_ID", "=", recording.ExternalRecordingId);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("RECORDING_STATUS", "=", recordingStatus);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", recording.EpgStartDate);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", rowStatus);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", isActive);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GET_STATUS_RETRIES", "=", recording.GetStatusRetries);
@@ -2600,6 +2606,15 @@ namespace DAL
             updateQuery.Finish();
             updateQuery = null;
             return result;
+        }
+
+        public static bool DeleteRecording(long recordingId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteRecording");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@RecordID", recordingId);
+
+            return sp.ExecuteReturnValue<bool>();
         }
 
         public static DataTable GetDomainExistingRecordingsByEpdIgs(int groupID, long domainID, List<long> epgIds)
@@ -2781,12 +2796,6 @@ namespace DAL
             return result;
         }
 
-        public static List<Recording> GetAllRecordingsByStatus(int groupId, int status)
-        {
-            return GetAllRecordingsByStatuses(groupId,
-                new List<int>() { status });
-        }
-
         public static List<Recording> GetAllRecordingsByStatuses(int groupId, List<int> statuses)
         {
             List<Recording> recordings = new List<Recording>();
@@ -2804,52 +2813,30 @@ namespace DAL
             return recordings;
         }
 
-        public static Dictionary<long, long> GetRecordingsMapingByRecordingStatuses(int groupID, long domainID, List<int> recordingStatuses)
+        public static DataTable GetDomainRecordingsByRecordingStatuses(int groupID, long domainID, List<int> domainRecordingStatuses)
         {
-            Dictionary<long, long> recordingIdToDomainRecordingIdMap = null;
+            DataTable dt = null;            
             ODBCWrapper.StoredProcedure spGetDomainRecordings = new ODBCWrapper.StoredProcedure("GetDomainRecordingsByRecordingStatuses");
             spGetDomainRecordings.SetConnectionKey("CONNECTION_STRING");
             spGetDomainRecordings.AddParameter("@GroupID", groupID);
             spGetDomainRecordings.AddParameter("@DomainID", domainID);
-            spGetDomainRecordings.AddIDListParameter<int>("@RecordingStatuses", recordingStatuses, "ID");
+            spGetDomainRecordings.AddIDListParameter<int>("@RecordingStatuses", domainRecordingStatuses, "ID");
+            dt = spGetDomainRecordings.Execute();
 
-            DataTable dt = spGetDomainRecordings.Execute();
-            if (dt != null && dt.Rows != null)
-            {
-                recordingIdToDomainRecordingIdMap = new Dictionary<long, long>();
-                foreach (DataRow dr in dt.Rows)
-                {
-                    long recordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID");
-                    long domainRecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
-                    recordingIdToDomainRecordingIdMap.Add(recordingID, domainRecordingID);
-                }
-            }
-
-            return recordingIdToDomainRecordingIdMap;
+            return dt;
         }
 
-        public static Dictionary<long, long> GetRecordingsMapingsByDomainRecordingIds(int groupID, long domainID, List<long> domainRecordingIds)
+        public static DataTable GetDomainRecordingsByIds(int groupID, long domainID, List<long> domainRecordingIds)
         {
-            Dictionary<long, long> recordingIdToDomainRecordingIdMap = null;
-            ODBCWrapper.StoredProcedure spGetDomainRecordings = new ODBCWrapper.StoredProcedure("GetDomainRecordingsByRecordingIds");
-            spGetDomainRecordings.SetConnectionKey("CONNECTION_STRING");
-            spGetDomainRecordings.AddParameter("@GroupID", groupID);
-            spGetDomainRecordings.AddParameter("@DomainID", domainID);
-            spGetDomainRecordings.AddIDListParameter<long>("@DomainRecordingIds", domainRecordingIds, "ID");
+            DataTable dt = null;
+            ODBCWrapper.StoredProcedure spGetDomainRecordingsByIds = new ODBCWrapper.StoredProcedure("GetDomainRecordingsByIds");
+            spGetDomainRecordingsByIds.SetConnectionKey("CONNECTION_STRING");
+            spGetDomainRecordingsByIds.AddParameter("@GroupID", groupID);
+            spGetDomainRecordingsByIds.AddParameter("@DomainID", domainID);
+            spGetDomainRecordingsByIds.AddIDListParameter<long>("@DomainRecordingIds", domainRecordingIds, "ID");
+            dt = spGetDomainRecordingsByIds.Execute();
 
-            DataTable dt = spGetDomainRecordings.Execute();
-            if (dt != null && dt.Rows != null)
-            {
-                recordingIdToDomainRecordingIdMap = new Dictionary<long, long>();
-                foreach (DataRow dr in dt.Rows)
-                {
-                    long recordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID");
-                    long domainRecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
-                    recordingIdToDomainRecordingIdMap.Add(recordingID, domainRecordingID);
-                }
-            }
-
-            return recordingIdToDomainRecordingIdMap;
+            return dt;
         }
 
         public static Dictionary<int, List<long>> GetFileIdsToEpgIdsMap(int groupId, List<long> epgIds)
@@ -2944,18 +2931,6 @@ namespace DAL
             return sp.ExecuteReturnValue<int>();
         }
 
-        public static DataTable GetDomainExistingRecordingsByRecordID(long domainID, long recordingID)
-        {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetDomainExistingRecordingsByRecordID");
-            sp.SetConnectionKey("CONNECTION_STRING");            
-            sp.AddParameter("@DomainID", domainID);
-            sp.AddParameter("@RecordID", recordingID);
-
-            DataTable dt = sp.Execute();
-
-            return dt;
-        }
-
         public static bool CancelRecording(long recordingID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelRecording");
@@ -2977,13 +2952,174 @@ namespace DAL
 
         }
 
-        public static bool DeleteRecording(long recordingID)
+        public static bool DeleteDomainRecording(long recordingID)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteRecording");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteDomainRecording");
             sp.SetConnectionKey("CONNECTION_STRING");
             sp.AddParameter("@RecordID", recordingID);
 
             return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static List<long> GetDomainProtectedRecordings(int groupID, long domainID, long unixTimeStampNow)
+        {
+            List<long> recordingIds = null;
+            ODBCWrapper.StoredProcedure spGetDomainProtectedRecordings = new ODBCWrapper.StoredProcedure("GetDomainProtectedRecordings");
+            spGetDomainProtectedRecordings.SetConnectionKey("CONNECTION_STRING");
+            spGetDomainProtectedRecordings.AddParameter("@GroupID", groupID);
+            spGetDomainProtectedRecordings.AddParameter("@DomainID", domainID);
+            spGetDomainProtectedRecordings.AddParameter("@UtcNowEpoch", unixTimeStampNow);
+
+            DataTable dt = spGetDomainProtectedRecordings.Execute();
+            if (dt != null && dt.Rows != null)
+            {
+                recordingIds = new List<long>();
+                foreach (DataRow dr in dt.Rows)
+                {
+                    long recordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID");
+                    recordingIds.Add(recordingID);
+                }
+            }
+
+            return recordingIds;
+        }
+
+        public static bool ProtectRecording(long recordingId, DateTime protectedUntilDate, long protectedUntilEpoch)
+        {
+            bool isProtected = false;
+            try
+            {
+                ODBCWrapper.StoredProcedure spProtectRecording = new ODBCWrapper.StoredProcedure("ProtectRecording");
+                spProtectRecording.SetConnectionKey("CONNECTION_STRING");
+                spProtectRecording.AddParameter("@ID", recordingId);
+                spProtectRecording.AddParameter("@ProtectedUntilDate", protectedUntilDate);
+                spProtectRecording.AddParameter("@ProtectedUntilEpoch", protectedUntilEpoch);
+
+                isProtected = spProtectRecording.ExecuteReturnValue<bool>();
+            }
+
+            catch (Exception ex)
+            {
+                log.Error("Failed protecting recording when running the stored procedure: ProtectRecording", ex);
+            }
+
+            return isProtected;
+        }
+
+        public static Dictionary<long, KeyValuePair<int, Recording>> GetRecordingsForCleanup(long utcNowEpoch)
+        {
+            Dictionary<long, KeyValuePair<int, Recording>> recordingsForCleanup = new Dictionary<long, KeyValuePair<int, Recording>>();            
+            ODBCWrapper.StoredProcedure spGetRecordginsForCleanup = new ODBCWrapper.StoredProcedure("GetRecordingsForCleanup");
+            spGetRecordginsForCleanup.SetConnectionKey("CONNECTION_STRING");
+            spGetRecordginsForCleanup.AddParameter("@UtcNowEpoch", utcNowEpoch);
+            spGetRecordginsForCleanup.AddParameter("@DefaultLifetimePeriod", utcNowEpoch);
+
+            DataTable dt = spGetRecordginsForCleanup.Execute();
+            if (dt != null && dt.Rows != null)
+            {                
+                foreach (DataRow dr in dt.Rows)
+                {
+                    int groupID = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_ID", 0);
+                    string externalRecordingID = ODBCWrapper.Utils.GetSafeStr(dr, "EXTERNAL_RECORDING_ID");
+                    long epgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_PROGRAM_ID", 0);
+                    long recordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "id", 0);
+                    if (groupID > 0 && recordingId > 0 && epgId > 0 && !string.IsNullOrEmpty(externalRecordingID) && !recordingsForCleanup.ContainsKey(recordingId))
+                    {
+                        KeyValuePair<int, Recording> pair = new KeyValuePair<int, Recording>(groupID, new Recording() { Id = recordingId, ExternalRecordingId = externalRecordingID, EpgId = epgId });
+                        recordingsForCleanup.Add(recordingId, pair);
+                    }
+                }
+            }
+
+            return recordingsForCleanup;
+        }
+
+        public static bool UpdateSuccessfulRecordingsCleanup(DateTime lastSuccessfulCleanUpDate, int deletedRecordingOnLastCleanup, int domainRecordingsUpdatedOnLastCleanup)
+        {
+            bool result = false;
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
+            int limitRetries = RETRY_LIMIT;
+            string recordingsCleanupKey = UtilsDal.GetRecordingsCleanupKey();   
+            try
+            {
+                int numOfRetries = 0;
+                RecordingCleanupResponse recordingCleanupDetails = new RecordingCleanupResponse(lastSuccessfulCleanUpDate, deletedRecordingOnLastCleanup, domainRecordingsUpdatedOnLastCleanup);
+                while (!result && numOfRetries < limitRetries)
+                {
+                    result = cbClient.Set(recordingsCleanupKey, recordingCleanupDetails);
+                    if (!result)
+                    {
+                        numOfRetries++;
+                        log.ErrorFormat("Error while updating successful recordings cleanup date. number of tries: {0}/{1}. RecordingCleanupResponse: {2}",
+                                         numOfRetries, limitRetries, recordingCleanupDetails.ToString());
+
+                        System.Threading.Thread.Sleep(1000);
+                    }                    
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while updating successful recordings cleanup date: {0}, ex: {1}", lastSuccessfulCleanUpDate, ex);
+            }
+            
+            return result;
+        }
+
+        public static int UpdateDomainRecordingsAfterCleanup(List<long> recordingsIds)
+        {
+            int updatedRowsCount = 0;
+            ODBCWrapper.StoredProcedure spUpdateDomainRecordingsAfterCleanup = new ODBCWrapper.StoredProcedure("UpdateDomainRecordingsAfterCleanup");
+            spUpdateDomainRecordingsAfterCleanup.SetConnectionKey("CONNECTION_STRING");
+            spUpdateDomainRecordingsAfterCleanup.AddIDListParameter<long>("@RecordingIds", recordingsIds, "ID");
+            
+            updatedRowsCount = spUpdateDomainRecordingsAfterCleanup.ExecuteReturnValue<int>();
+
+            return updatedRowsCount;
+        }
+
+        public static RecordingCleanupResponse GetLastSuccessfulRecordingsCleanupDetails()
+        {
+            RecordingCleanupResponse response = null;
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
+            int limitRetries = RETRY_LIMIT;
+            Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
+            string recordingsCleanupKey = UtilsDal.GetRecordingsCleanupKey();            
+            try
+            {
+                int numOfRetries = 0;
+                while (numOfRetries < limitRetries)
+                {
+                    response = cbClient.Get<RecordingCleanupResponse>(recordingsCleanupKey, out getResult);
+                    if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
+                    {
+                        response = new RecordingCleanupResponse() { Status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, "CouchBase KeyNotFound") };
+                        log.ErrorFormat("Error while trying to get last successful recordings cleanup date, key: {0}", recordingsCleanupKey);
+                        break;
+                    }
+                    else if (getResult == Couchbase.IO.ResponseStatus.Success)
+                    {
+                        log.DebugFormat("RecordingCleanupResponse with key {0} was found with value {1}", recordingsCleanupKey, response.ToString());
+                        break;                        
+                    }                    
+                    else
+                    {
+                        log.ErrorFormat("Retrieving RecordingCleanupResponse with key {0} failed with status: {1}, retryAttempt: {1}, maxRetries: {2}", recordingsCleanupKey, getResult, numOfRetries, limitRetries);
+                        numOfRetries++;
+                        System.Threading.Thread.Sleep(1000);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to get last successful recordings cleanup date, ex: {0}", ex);
+            }
+
+            if (response == null)
+            {
+                response = new RecordingCleanupResponse() { Status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, "Failed Getting RecordingCleanupResponse from CB") };
+            }
+
+            return response;
         }
     }
 }

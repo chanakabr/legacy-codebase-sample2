@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://ca.tvinci.com/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s1="http://pricing.tvinci.com/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:s2="http://billing.tvinci.com/" xmlns:s3="http://ca.tvinci.com/AbstractTypes" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://ca.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:tns="http://ca.tvinci.com/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:s4="http://ca.tvinci.com/AbstractTypes" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s1="http://api.tvinci.com/schemas/eAssetTypes1" xmlns:s2="http://pricing.tvinci.com/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:s3="http://billing.tvinci.com/" targetNamespace="http://ca.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://ca.tvinci.com/">
+      <s:import namespace="http://api.tvinci.com/schemas/eAssetTypes1" />
       <s:import namespace="http://pricing.tvinci.com/" />
       <s:import namespace="http://billing.tvinci.com/" />
       <s:element name="CheckPendingTransaction">
@@ -173,18 +174,10 @@
       <s:complexType name="AssetFiles">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="AssetId" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="AssetType" type="tns:eAssetTypes" />
+          <s:element minOccurs="1" maxOccurs="1" name="AssetType" type="s1:eAssetTypes" />
           <s:element minOccurs="0" maxOccurs="1" name="FileIds" type="tns:ArrayOfInt" />
         </s:sequence>
       </s:complexType>
-      <s:simpleType name="eAssetTypes">
-        <s:restriction base="s:string">
-          <s:enumeration value="UNKNOWN" />
-          <s:enumeration value="EPG" />
-          <s:enumeration value="NPVR" />
-          <s:enumeration value="MEDIA" />
-        </s:restriction>
-      </s:simpleType>
       <s:complexType name="ArrayOfInt">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="unbounded" name="int" type="s:int" />
@@ -211,7 +204,7 @@
       <s:complexType name="AssetItemPrices">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="AssetId" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="AssetType" type="tns:eAssetTypes" />
+          <s:element minOccurs="1" maxOccurs="1" name="AssetType" type="s1:eAssetTypes" />
           <s:element minOccurs="0" maxOccurs="1" name="PriceContainers" type="tns:ArrayOfMediaFileItemPricesContainer" />
         </s:sequence>
       </s:complexType>
@@ -236,14 +229,14 @@
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="m_sPPVModuleCode" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="m_bSubscriptionOnly" type="s:boolean" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_oPrice" type="s1:Price" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_oFullPrice" type="s1:Price" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oPrice" type="s2:Price" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oFullPrice" type="s2:Price" />
           <s:element minOccurs="1" maxOccurs="1" name="m_PriceReason" type="tns:PriceReason" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_relevantSub" type="s1:Subscription" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_relevantCol" type="s1:Collection" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_relevantPP" type="s1:PrePaidModule" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_relevantSub" type="s2:Subscription" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_relevantCol" type="s2:Collection" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_relevantPP" type="s2:PrePaidModule" />
           <s:element minOccurs="0" maxOccurs="1" name="m_oPPVDescription" type="tns:ArrayOfLanguageContainer" />
-          <s:element minOccurs="1" maxOccurs="1" name="m_couponStatus" type="s1:CouponsStatus" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_couponStatus" type="s2:CouponsStatus" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sFirstDeviceNameFound" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="m_bCancelWindow" type="s:boolean" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sPurchasedBySiteGuid" type="s:string" />
@@ -275,7 +268,7 @@
       </s:simpleType>
       <s:complexType name="ArrayOfLanguageContainer">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="LanguageContainer" nillable="true" type="s1:LanguageContainer" />
+          <s:element minOccurs="0" maxOccurs="unbounded" name="LanguageContainer" nillable="true" type="s2:LanguageContainer" />
         </s:sequence>
       </s:complexType>
       <s:element name="ReconcileEntitlements">
@@ -588,13 +581,19 @@
       <s:complexType name="Recording">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
-          <s:element minOccurs="1" maxOccurs="1" name="RecordingID" type="s:long" />
-          <s:element minOccurs="1" maxOccurs="1" name="EpgID" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="Id" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="EpgId" type="s:long" />
           <s:element minOccurs="0" maxOccurs="1" name="ChannelId" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="RecordingStatus" type="tns:TstvRecordingStatus" />
           <s:element minOccurs="0" maxOccurs="1" name="ExternalRecordingId" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="EpgStartDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="EpgEndDate" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="Type" type="tns:RecordingType" />
+          <s:element minOccurs="1" maxOccurs="1" name="GetStatusRetries" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="ProtectedUntilDate" nillable="true" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="ViewableUntilDate" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="CreateDate" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="UpdateDate" type="s:dateTime" />
         </s:sequence>
       </s:complexType>
       <s:simpleType name="TstvRecordingStatus">
@@ -605,10 +604,67 @@
           <s:enumeration value="Recording" />
           <s:enumeration value="Recorded" />
           <s:enumeration value="Canceled" />
-          <s:enumeration value="DoesNotExist" />
           <s:enumeration value="Deleted" />
         </s:restriction>
       </s:simpleType>
+      <s:simpleType name="RecordingType">
+        <s:restriction base="s:string">
+          <s:enumeration value="Single" />
+          <s:enumeration value="Series" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="CancelRecord">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="recordingId" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CancelRecordResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CancelRecordResult" type="tns:Recording" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteRecord">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="recordingId" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteRecordResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteRecordResult" type="tns:Recording" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RecordRetry">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="recordingId" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RecordRetryResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="RecordRetryResult" type="tns:Recording" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="QueryRecords">
         <s:complexType>
           <s:sequence>
@@ -635,6 +691,7 @@
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
           <s:element minOccurs="0" maxOccurs="1" name="Recordings" type="tns:ArrayOfRecording" />
+          <s:element minOccurs="1" maxOccurs="1" name="TotalItems" type="s:int" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ArrayOfRecording">
@@ -642,23 +699,6 @@
           <s:element minOccurs="0" maxOccurs="unbounded" name="Recording" nillable="true" type="tns:Recording" />
         </s:sequence>
       </s:complexType>
-      <s:element name="QueryRecord">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="userID" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="epgID" type="s:long" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="QueryRecordResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="QueryRecordResult" type="tns:Recording" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
       <s:element name="GetRecordingStatus">
         <s:complexType>
           <s:sequence>
@@ -675,35 +715,72 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="GetDomainRecordingIDsByRecordingStatuses">
+      <s:element name="SearchDomainRecordings">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="userID" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="domainID" type="s:long" />
-            <s:element minOccurs="0" maxOccurs="1" name="recordingStatuses" type="tns:ArrayOfInt" />
+            <s:element minOccurs="0" maxOccurs="1" name="recordingStatuses" type="tns:ArrayOfTstvRecordingStatus" />
+            <s:element minOccurs="0" maxOccurs="1" name="filter" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="pageIndex" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="pageSize" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="orderBy" type="tns:OrderObj" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="GetDomainRecordingIDsByRecordingStatusesResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetDomainRecordingIDsByRecordingStatusesResult" type="tns:RecordingIDsResponse" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:complexType name="RecordingIDsResponse">
+      <s:complexType name="ArrayOfTstvRecordingStatus">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
-          <s:element minOccurs="0" maxOccurs="1" name="RecordingIDs" type="tns:ArrayOfLong" />
+          <s:element minOccurs="0" maxOccurs="unbounded" name="TstvRecordingStatus" type="tns:TstvRecordingStatus" />
         </s:sequence>
       </s:complexType>
+      <s:complexType name="OrderObj">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="m_eOrderBy" type="tns:OrderBy" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_eOrderDir" type="tns:OrderDir" />
+          <s:element minOccurs="1" maxOccurs="1" name="lu_min_period_id" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sOrderValue" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_bIsSlidingWindowField" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="OrderBy">
+        <s:restriction base="s:string">
+          <s:enumeration value="ID" />
+          <s:enumeration value="VIEWS" />
+          <s:enumeration value="RATING" />
+          <s:enumeration value="VOTES_COUNT" />
+          <s:enumeration value="LIKE_COUNTER" />
+          <s:enumeration value="START_DATE" />
+          <s:enumeration value="NAME" />
+          <s:enumeration value="CREATE_DATE" />
+          <s:enumeration value="META" />
+          <s:enumeration value="RANDOM" />
+          <s:enumeration value="RELATED" />
+          <s:enumeration value="NONE" />
+          <s:enumeration value="RECOMMENDATION" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="OrderDir">
+        <s:restriction base="s:string">
+          <s:enumeration value="ASC" />
+          <s:enumeration value="DESC" />
+          <s:enumeration value="NONE" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="SearchDomainRecordingsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SearchDomainRecordingsResult" type="tns:RecordingResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="GetRecordingsByIDs">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainID" type="s:long" />
             <s:element minOccurs="0" maxOccurs="1" name="recordingIDs" type="tns:ArrayOfLong" />
           </s:sequence>
         </s:complexType>
@@ -738,6 +815,112 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="UpdateRecordingResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RecoverRecordingMessages">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RecoverRecordingMessagesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="RecoverRecordingMessagesResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDomainQuota">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainID" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDomainQuotaResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetDomainQuotaResult" type="tns:DomainQuotaResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DomainQuotaResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="1" maxOccurs="1" name="AvailableQuota" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="TotalQuota" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="RemovePaymentMethodHouseholdPaymentGateway">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="paymentGatewayID" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="householdId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="paymentMethodId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="force" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RemovePaymentMethodHouseholdPaymentGatewayResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="RemovePaymentMethodHouseholdPaymentGatewayResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ProtectRecord">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="recordID" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ProtectRecordResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ProtectRecordResult" type="tns:Recording" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="InitializeRecordingsCleanup">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="InitializeRecordingsCleanupResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="InitializeRecordingsCleanupResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CleanupRecordings">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CleanupRecordingsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="CleanupRecordingsResult" type="s:boolean" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1224,7 +1407,7 @@
           <s:element minOccurs="0" maxOccurs="1" name="m_sPurchasedItemCode" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="m_eItemType" type="tns:BillingItemsType" />
           <s:element minOccurs="1" maxOccurs="1" name="m_eBillingAction" type="tns:BillingAction" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_Price" type="s1:Price" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_Price" type="s2:Price" />
           <s:element minOccurs="1" maxOccurs="1" name="m_dtActionDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="m_dtStartDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="m_dtEndDate" type="s:dateTime" />
@@ -1609,7 +1792,7 @@
       <s:complexType name="SubscriptionsPricesContainer">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="m_sSubscriptionCode" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_oPrice" type="s1:Price" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oPrice" type="s2:Price" />
           <s:element minOccurs="1" maxOccurs="1" name="m_PriceReason" type="tns:PriceReason" />
         </s:sequence>
       </s:complexType>
@@ -1641,7 +1824,7 @@
       <s:complexType name="CollectionsPricesContainer">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="m_sCollectionCode" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_oPrice" type="s1:Price" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oPrice" type="s2:Price" />
           <s:element minOccurs="1" maxOccurs="1" name="m_PriceReason" type="tns:PriceReason" />
         </s:sequence>
       </s:complexType>
@@ -1695,7 +1878,7 @@
       <s:complexType name="PrePaidPricesContainer">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="m_sPrePaidCode" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_oPrice" type="s1:Price" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oPrice" type="s2:Price" />
           <s:element minOccurs="1" maxOccurs="1" name="m_PriceReason" type="tns:PriceReason" />
         </s:sequence>
       </s:complexType>
@@ -1990,7 +2173,7 @@
       </s:element>
       <s:complexType name="BillingResponse">
         <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="m_oStatus" type="s2:BillingResponseStatus" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_oStatus" type="s3:BillingResponseStatus" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sRecieptCode" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sStatusDescription" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sExternalReceiptCode" type="s:string" />
@@ -2558,8 +2741,8 @@
           <s:element minOccurs="0" maxOccurs="1" name="m_sPurchasedItemName" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sPurchasedItemCode" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="m_eItemType" type="tns:BillingItemsType" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_oPrice" type="s1:Price" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_oCredit" type="s1:Price" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oPrice" type="s2:Price" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oCredit" type="s2:Price" />
           <s:element minOccurs="1" maxOccurs="1" name="m_dtActionDate" type="s:dateTime" />
         </s:sequence>
       </s:complexType>
@@ -2833,43 +3016,9 @@
           <s:element minOccurs="0" maxOccurs="1" name="assetID" type="s:string" />
         </s:sequence>
       </s:complexType>
-      <s:complexType name="DeleteSeriesNPVRCommand">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:BaseNPVRCommand" />
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="RecordSeriesByNameNPVRCommand">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:BaseNPVRCommand" />
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="RecordSeriesByProgramIdNPVRCommand">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:BaseNPVRCommand" />
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="CancelSeriesNPVRCommand">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:BaseNPVRCommand" />
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="RecordNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand" />
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="RetrieveQuotaNPVRCommand">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:BaseNPVRCommand" />
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="ProtectNPVRCommand">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:BaseNPVRCommand">
-            <s:sequence>
-              <s:element minOccurs="1" maxOccurs="1" name="isProtect" type="s:boolean" />
-            </s:sequence>
-          </s:extension>
         </s:complexContent>
       </s:complexType>
       <s:complexType name="CancelNPVRCommand">
@@ -2878,6 +3027,11 @@
         </s:complexContent>
       </s:complexType>
       <s:complexType name="DeleteNPVRCommand">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseNPVRCommand" />
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="RetrieveQuotaNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
@@ -2899,6 +3053,35 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
+      <s:complexType name="ProtectNPVRCommand">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseNPVRCommand">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="isProtect" type="s:boolean" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="RecordSeriesByNameNPVRCommand">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseNPVRCommand" />
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="RecordSeriesByProgramIdNPVRCommand">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseNPVRCommand" />
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="DeleteSeriesNPVRCommand">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseNPVRCommand" />
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="CancelSeriesNPVRCommand">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseNPVRCommand" />
+        </s:complexContent>
+      </s:complexType>
       <s:element name="GetNPVRResponseResponse">
         <s:complexType>
           <s:sequence>
@@ -2911,6 +3094,20 @@
           <s:element minOccurs="0" maxOccurs="1" name="status" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="msg" type="s:string" />
         </s:sequence>
+      </s:complexType>
+      <s:complexType name="CancelDeleteResponse">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:NPVRResponse" />
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="LicensedLinkNPVRResponse">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:NPVRResponse">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="mainUrl" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
       </s:complexType>
       <s:complexType name="RecordResponse">
         <s:complexContent mixed="false">
@@ -2929,20 +3126,6 @@
               <s:element minOccurs="1" maxOccurs="1" name="occupiedQuota" type="s:long" />
             </s:sequence>
           </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="LicensedLinkNPVRResponse">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:NPVRResponse">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="mainUrl" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="CancelDeleteResponse">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:NPVRResponse" />
         </s:complexContent>
       </s:complexType>
       <s:element name="GetDomainServices">
@@ -2969,7 +3152,7 @@
       </s:complexType>
       <s:complexType name="ArrayOfServiceObject">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="ServiceObject" nillable="true" type="s1:ServiceObject" />
+          <s:element minOccurs="0" maxOccurs="unbounded" name="ServiceObject" nillable="true" type="s2:ServiceObject" />
         </s:sequence>
       </s:complexType>
       <s:element name="GetUserSubscriptions">
@@ -3108,7 +3291,7 @@
       <s:element name="CDVRAdapterResponse" nillable="true" type="tns:CDVRAdapterResponse" />
       <s:element name="Recording" nillable="true" type="tns:Recording" />
       <s:element name="RecordingResponse" nillable="true" type="tns:RecordingResponse" />
-      <s:element name="RecordingIDsResponse" nillable="true" type="tns:RecordingIDsResponse" />
+      <s:element name="DomainQuotaResponse" nillable="true" type="tns:DomainQuotaResponse" />
       <s:element name="ArrayOfPermittedMediaContainer" nillable="true" type="tns:ArrayOfPermittedMediaContainer" />
       <s:element name="PermittedMediaContainerResponse" nillable="true" type="tns:PermittedMediaContainerResponse" />
       <s:element name="UserCAStatus" type="tns:UserCAStatus" />
@@ -3137,11 +3320,21 @@
       <s:element name="DomainServicesResponse" nillable="true" type="tns:DomainServicesResponse" />
       <s:element name="TransactionResponse" nillable="true" type="tns:TransactionResponse" />
     </s:schema>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://api.tvinci.com/schemas/eAssetTypes1">
+      <s:simpleType name="eAssetTypes">
+        <s:restriction base="s:string">
+          <s:enumeration value="UNKNOWN" />
+          <s:enumeration value="EPG" />
+          <s:enumeration value="NPVR" />
+          <s:enumeration value="MEDIA" />
+        </s:restriction>
+      </s:simpleType>
+    </s:schema>
     <s:schema elementFormDefault="qualified" targetNamespace="http://pricing.tvinci.com/">
       <s:complexType name="Price">
         <s:sequence>
           <s:element minOccurs="1" maxOccurs="1" name="m_dPrice" type="s:double" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_oCurrency" type="s1:Currency" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oCurrency" type="s2:Currency" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="Currency">
@@ -3154,29 +3347,29 @@
       </s:complexType>
       <s:complexType name="Subscription">
         <s:complexContent mixed="false">
-          <s:extension base="s1:PPVModule">
+          <s:extension base="s2:PPVModule">
             <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sCodes" type="s1:ArrayOfBundleCodeContainer" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sCodes" type="s2:ArrayOfBundleCodeContainer" />
               <s:element minOccurs="1" maxOccurs="1" name="m_dStartDate" type="s:dateTime" />
               <s:element minOccurs="1" maxOccurs="1" name="m_dEndDate" type="s:dateTime" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sFileTypes" type="s1:ArrayOfInt" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sFileTypes" type="s2:ArrayOfInt" />
               <s:element minOccurs="1" maxOccurs="1" name="m_bIsRecurring" type="s:boolean" />
               <s:element minOccurs="1" maxOccurs="1" name="m_nNumberOfRecPeriods" type="s:int" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_oSubscriptionPriceCode" type="s1:PriceCode" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_oExtDisountModule" type="s1:DiscountModule" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sName" type="s1:ArrayOfLanguageContainer" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_oSubscriptionUsageModule" type="s1:UsageModule" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_oSubscriptionPriceCode" type="s2:PriceCode" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_oExtDisountModule" type="s2:DiscountModule" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sName" type="s2:ArrayOfLanguageContainer" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_oSubscriptionUsageModule" type="s2:UsageModule" />
               <s:element minOccurs="1" maxOccurs="1" name="m_fictivicMediaID" type="s:int" />
               <s:element minOccurs="1" maxOccurs="1" name="m_Priority" type="s:long" />
               <s:element minOccurs="0" maxOccurs="1" name="m_ProductCode" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_SubscriptionCode" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_MultiSubscriptionUsageModule" type="s1:ArrayOfUsageModule" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_MultiSubscriptionUsageModule" type="s2:ArrayOfUsageModule" />
               <s:element minOccurs="1" maxOccurs="1" name="n_GeoCommerceID" type="s:int" />
               <s:element minOccurs="1" maxOccurs="1" name="m_bIsInfiniteRecurring" type="s:boolean" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_UserTypes" type="s1:ArrayOfUserType" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_oPreviewModule" type="s1:PreviewModule" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_UserTypes" type="s2:ArrayOfUserType" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_oPreviewModule" type="s2:PreviewModule" />
               <s:element minOccurs="1" maxOccurs="1" name="m_nDomainLimitationModule" type="s:int" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_lServices" type="s1:ArrayOfServiceObject" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_lServices" type="s2:ArrayOfServiceObject" />
               <s:element minOccurs="1" maxOccurs="1" name="m_GracePeriodMinutes" type="s:int" />
             </s:sequence>
           </s:extension>
@@ -3184,15 +3377,15 @@
       </s:complexType>
       <s:complexType name="PPVModule">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="m_oPriceCode" type="s1:PriceCode" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_oUsageModule" type="s1:UsageModule" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_oDiscountModule" type="s1:DiscountModule" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_oCouponsGroup" type="s1:CouponsGroup" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_sDescription" type="s1:ArrayOfLanguageContainer" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oPriceCode" type="s2:PriceCode" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oUsageModule" type="s2:UsageModule" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oDiscountModule" type="s2:DiscountModule" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oCouponsGroup" type="s2:CouponsGroup" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sDescription" type="s2:ArrayOfLanguageContainer" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sObjectCode" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sObjectVirtualName" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="m_bSubscriptionOnly" type="s:boolean" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_relatedFileTypes" type="s1:ArrayOfInt" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_relatedFileTypes" type="s2:ArrayOfInt" />
           <s:element minOccurs="0" maxOccurs="1" name="m_Product_Code" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="m_bFirstDeviceLimitation" type="s:boolean" />
         </s:sequence>
@@ -3200,14 +3393,14 @@
       <s:complexType name="PriceCode">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="m_sCode" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_oPrise" type="s1:Price" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oPrise" type="s2:Price" />
           <s:element minOccurs="1" maxOccurs="1" name="m_nObjectID" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_sDescription" type="s1:ArrayOfLanguageContainer" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sDescription" type="s2:ArrayOfLanguageContainer" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ArrayOfLanguageContainer">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="LanguageContainer" nillable="true" type="s1:LanguageContainer" />
+          <s:element minOccurs="0" maxOccurs="unbounded" name="LanguageContainer" nillable="true" type="s2:LanguageContainer" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="LanguageContainer">
@@ -3218,13 +3411,13 @@
       </s:complexType>
       <s:complexType name="DiscountModule">
         <s:complexContent mixed="false">
-          <s:extension base="s1:PriceCode">
+          <s:extension base="s2:PriceCode">
             <s:sequence>
               <s:element minOccurs="1" maxOccurs="1" name="m_dPercent" type="s:double" />
-              <s:element minOccurs="1" maxOccurs="1" name="m_eTheRelationType" type="s1:RelationTypes" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_eTheRelationType" type="s2:RelationTypes" />
               <s:element minOccurs="1" maxOccurs="1" name="m_dStartDate" type="s:dateTime" />
               <s:element minOccurs="1" maxOccurs="1" name="m_dEndDate" type="s:dateTime" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_oWhenAlgo" type="s1:WhenAlgo" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_oWhenAlgo" type="s2:WhenAlgo" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -3237,7 +3430,7 @@
       </s:simpleType>
       <s:complexType name="WhenAlgo">
         <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="m_eAlgoType" type="s1:WhenAlgoType" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_eAlgoType" type="s2:WhenAlgoType" />
           <s:element minOccurs="1" maxOccurs="1" name="m_nNTimes" type="s:int" />
         </s:sequence>
       </s:complexType>
@@ -3270,9 +3463,9 @@
       </s:complexType>
       <s:complexType name="CouponsGroup">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="m_oDiscountCode" type="s1:DiscountModule" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oDiscountCode" type="s2:DiscountModule" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sDiscountCode" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_sDescription" type="s1:ArrayOfLanguageContainer" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sDescription" type="s2:ArrayOfLanguageContainer" />
           <s:element minOccurs="1" maxOccurs="1" name="m_dStartDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="m_dEndDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="m_nMaxUseCountForCoupon" type="s:int" />
@@ -3289,16 +3482,16 @@
       </s:complexType>
       <s:complexType name="Collection">
         <s:complexContent mixed="false">
-          <s:extension base="s1:PPVModule">
+          <s:extension base="s2:PPVModule">
             <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sCodes" type="s1:ArrayOfBundleCodeContainer" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sCodes" type="s2:ArrayOfBundleCodeContainer" />
               <s:element minOccurs="1" maxOccurs="1" name="m_dStartDate" type="s:dateTime" />
               <s:element minOccurs="1" maxOccurs="1" name="m_dEndDate" type="s:dateTime" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sFileTypes" type="s1:ArrayOfInt" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_oCollectionPriceCode" type="s1:PriceCode" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_oExtDisountModule" type="s1:DiscountModule" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sName" type="s1:ArrayOfLanguageContainer" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_oCollectionUsageModule" type="s1:UsageModule" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sFileTypes" type="s2:ArrayOfInt" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_oCollectionPriceCode" type="s2:PriceCode" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_oExtDisountModule" type="s2:DiscountModule" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sName" type="s2:ArrayOfLanguageContainer" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_oCollectionUsageModule" type="s2:UsageModule" />
               <s:element minOccurs="1" maxOccurs="1" name="m_fictivicMediaID" type="s:int" />
               <s:element minOccurs="0" maxOccurs="1" name="m_ProductCode" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_CollectionCode" type="s:string" />
@@ -3308,7 +3501,7 @@
       </s:complexType>
       <s:complexType name="ArrayOfBundleCodeContainer">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="BundleCodeContainer" nillable="true" type="s1:BundleCodeContainer" />
+          <s:element minOccurs="0" maxOccurs="unbounded" name="BundleCodeContainer" nillable="true" type="s2:BundleCodeContainer" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="BundleCodeContainer">
@@ -3319,12 +3512,12 @@
       </s:complexType>
       <s:complexType name="ArrayOfUsageModule">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="UsageModule" nillable="true" type="s1:UsageModule" />
+          <s:element minOccurs="0" maxOccurs="unbounded" name="UsageModule" nillable="true" type="s2:UsageModule" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ArrayOfUserType">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="UserType" type="s1:UserType" />
+          <s:element minOccurs="0" maxOccurs="unbounded" name="UserType" type="s2:UserType" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="UserType">
@@ -3344,7 +3537,7 @@
       </s:complexType>
       <s:complexType name="ArrayOfServiceObject">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="ServiceObject" nillable="true" type="s1:ServiceObject" />
+          <s:element minOccurs="0" maxOccurs="unbounded" name="ServiceObject" nillable="true" type="s2:ServiceObject" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ServiceObject">
@@ -3355,12 +3548,12 @@
       </s:complexType>
       <s:complexType name="PrePaidModule">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="m_PriceCode" type="s1:PriceCode" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_CreditValue" type="s1:PriceCode" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_UsageModule" type="s1:UsageModule" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_DiscountModule" type="s1:DiscountModule" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_CouponsGroup" type="s1:CouponsGroup" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_Description" type="s1:ArrayOfLanguageContainer" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_PriceCode" type="s2:PriceCode" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_CreditValue" type="s2:PriceCode" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_UsageModule" type="s2:UsageModule" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_DiscountModule" type="s2:DiscountModule" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_CouponsGroup" type="s2:CouponsGroup" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_Description" type="s2:ArrayOfLanguageContainer" />
           <s:element minOccurs="1" maxOccurs="1" name="m_ObjectCode" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="m_Title" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="m_isFixedCredit" type="s:boolean" />
@@ -3515,17 +3708,29 @@
   <wsdl:message name="RecordSoapOut">
     <wsdl:part name="parameters" element="tns:RecordResponse" />
   </wsdl:message>
+  <wsdl:message name="CancelRecordSoapIn">
+    <wsdl:part name="parameters" element="tns:CancelRecord" />
+  </wsdl:message>
+  <wsdl:message name="CancelRecordSoapOut">
+    <wsdl:part name="parameters" element="tns:CancelRecordResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteRecordSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteRecord" />
+  </wsdl:message>
+  <wsdl:message name="DeleteRecordSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteRecordResponse" />
+  </wsdl:message>
+  <wsdl:message name="RecordRetrySoapIn">
+    <wsdl:part name="parameters" element="tns:RecordRetry" />
+  </wsdl:message>
+  <wsdl:message name="RecordRetrySoapOut">
+    <wsdl:part name="parameters" element="tns:RecordRetryResponse" />
+  </wsdl:message>
   <wsdl:message name="QueryRecordsSoapIn">
     <wsdl:part name="parameters" element="tns:QueryRecords" />
   </wsdl:message>
   <wsdl:message name="QueryRecordsSoapOut">
     <wsdl:part name="parameters" element="tns:QueryRecordsResponse" />
-  </wsdl:message>
-  <wsdl:message name="QueryRecordSoapIn">
-    <wsdl:part name="parameters" element="tns:QueryRecord" />
-  </wsdl:message>
-  <wsdl:message name="QueryRecordSoapOut">
-    <wsdl:part name="parameters" element="tns:QueryRecordResponse" />
   </wsdl:message>
   <wsdl:message name="GetRecordingStatusSoapIn">
     <wsdl:part name="parameters" element="tns:GetRecordingStatus" />
@@ -3533,11 +3738,11 @@
   <wsdl:message name="GetRecordingStatusSoapOut">
     <wsdl:part name="parameters" element="tns:GetRecordingStatusResponse" />
   </wsdl:message>
-  <wsdl:message name="GetDomainRecordingIDsByRecordingStatusesSoapIn">
-    <wsdl:part name="parameters" element="tns:GetDomainRecordingIDsByRecordingStatuses" />
+  <wsdl:message name="SearchDomainRecordingsSoapIn">
+    <wsdl:part name="parameters" element="tns:SearchDomainRecordings" />
   </wsdl:message>
-  <wsdl:message name="GetDomainRecordingIDsByRecordingStatusesSoapOut">
-    <wsdl:part name="parameters" element="tns:GetDomainRecordingIDsByRecordingStatusesResponse" />
+  <wsdl:message name="SearchDomainRecordingsSoapOut">
+    <wsdl:part name="parameters" element="tns:SearchDomainRecordingsResponse" />
   </wsdl:message>
   <wsdl:message name="GetRecordingsByIDsSoapIn">
     <wsdl:part name="parameters" element="tns:GetRecordingsByIDs" />
@@ -3550,6 +3755,42 @@
   </wsdl:message>
   <wsdl:message name="UpdateRecordingSoapOut">
     <wsdl:part name="parameters" element="tns:UpdateRecordingResponse" />
+  </wsdl:message>
+  <wsdl:message name="RecoverRecordingMessagesSoapIn">
+    <wsdl:part name="parameters" element="tns:RecoverRecordingMessages" />
+  </wsdl:message>
+  <wsdl:message name="RecoverRecordingMessagesSoapOut">
+    <wsdl:part name="parameters" element="tns:RecoverRecordingMessagesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainQuotaSoapIn">
+    <wsdl:part name="parameters" element="tns:GetDomainQuota" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainQuotaSoapOut">
+    <wsdl:part name="parameters" element="tns:GetDomainQuotaResponse" />
+  </wsdl:message>
+  <wsdl:message name="RemovePaymentMethodHouseholdPaymentGatewaySoapIn">
+    <wsdl:part name="parameters" element="tns:RemovePaymentMethodHouseholdPaymentGateway" />
+  </wsdl:message>
+  <wsdl:message name="RemovePaymentMethodHouseholdPaymentGatewaySoapOut">
+    <wsdl:part name="parameters" element="tns:RemovePaymentMethodHouseholdPaymentGatewayResponse" />
+  </wsdl:message>
+  <wsdl:message name="ProtectRecordSoapIn">
+    <wsdl:part name="parameters" element="tns:ProtectRecord" />
+  </wsdl:message>
+  <wsdl:message name="ProtectRecordSoapOut">
+    <wsdl:part name="parameters" element="tns:ProtectRecordResponse" />
+  </wsdl:message>
+  <wsdl:message name="InitializeRecordingsCleanupSoapIn">
+    <wsdl:part name="parameters" element="tns:InitializeRecordingsCleanup" />
+  </wsdl:message>
+  <wsdl:message name="InitializeRecordingsCleanupSoapOut">
+    <wsdl:part name="parameters" element="tns:InitializeRecordingsCleanupResponse" />
+  </wsdl:message>
+  <wsdl:message name="CleanupRecordingsSoapIn">
+    <wsdl:part name="parameters" element="tns:CleanupRecordings" />
+  </wsdl:message>
+  <wsdl:message name="CleanupRecordingsSoapOut">
+    <wsdl:part name="parameters" element="tns:CleanupRecordingsResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsSoapIn">
     <wsdl:part name="parameters" element="tns:GetUserPermittedItems" />
@@ -4128,7 +4369,7 @@
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="domainID" type="s:string" />
-    <wsdl:part name="fileTypeIDs" type="s3:StringArray" />
+    <wsdl:part name="fileTypeIDs" type="s4:StringArray" />
   </wsdl:message>
   <wsdl:message name="GetUserBundlesHttpPostOut">
     <wsdl:part name="Body" element="tns:UserBundlesResponse" />
@@ -4137,7 +4378,7 @@
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="domainID" type="s:string" />
-    <wsdl:part name="fileTypeIDs" type="s3:StringArray" />
+    <wsdl:part name="fileTypeIDs" type="s4:StringArray" />
   </wsdl:message>
   <wsdl:message name="GetUserPurchasedAssetsHttpPostOut">
     <wsdl:part name="Body" element="tns:UserPurhcasedAssetsResponse" />
@@ -4234,23 +4475,42 @@
   <wsdl:message name="RecordHttpPostOut">
     <wsdl:part name="Body" element="tns:Recording" />
   </wsdl:message>
+  <wsdl:message name="CancelRecordHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+    <wsdl:part name="recordingId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CancelRecordHttpPostOut">
+    <wsdl:part name="Body" element="tns:Recording" />
+  </wsdl:message>
+  <wsdl:message name="DeleteRecordHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+    <wsdl:part name="recordingId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DeleteRecordHttpPostOut">
+    <wsdl:part name="Body" element="tns:Recording" />
+  </wsdl:message>
+  <wsdl:message name="RecordRetryHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="recordingId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RecordRetryHttpPostOut">
+    <wsdl:part name="Body" element="tns:Recording" />
+  </wsdl:message>
   <wsdl:message name="QueryRecordsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="userID" type="s:string" />
-    <wsdl:part name="epgIDs" type="s3:StringArray" />
+    <wsdl:part name="epgIDs" type="s4:StringArray" />
   </wsdl:message>
   <wsdl:message name="QueryRecordsHttpPostOut">
     <wsdl:part name="Body" element="tns:RecordingResponse" />
-  </wsdl:message>
-  <wsdl:message name="QueryRecordHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="userID" type="s:string" />
-    <wsdl:part name="epgID" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="QueryRecordHttpPostOut">
-    <wsdl:part name="Body" element="tns:Recording" />
   </wsdl:message>
   <wsdl:message name="GetRecordingStatusHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -4260,23 +4520,74 @@
   <wsdl:message name="GetRecordingStatusHttpPostOut">
     <wsdl:part name="Body" element="tns:Recording" />
   </wsdl:message>
-  <wsdl:message name="GetDomainRecordingIDsByRecordingStatusesHttpPostIn">
+  <wsdl:message name="GetRecordingsByIDsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="domainID" type="s:string" />
+    <wsdl:part name="recordingIDs" type="s4:StringArray" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingsByIDsHttpPostOut">
+    <wsdl:part name="Body" element="tns:RecordingResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateRecordingHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="epgs" type="s4:StringArray" />
+    <wsdl:part name="action" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="UpdateRecordingHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="RecoverRecordingMessagesHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RecoverRecordingMessagesHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainQuotaHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="userID" type="s:string" />
     <wsdl:part name="domainID" type="s:string" />
-    <wsdl:part name="recordingStatuses" type="s3:StringArray" />
   </wsdl:message>
-  <wsdl:message name="GetDomainRecordingIDsByRecordingStatusesHttpPostOut">
-    <wsdl:part name="Body" element="tns:RecordingIDsResponse" />
+  <wsdl:message name="GetDomainQuotaHttpPostOut">
+    <wsdl:part name="Body" element="tns:DomainQuotaResponse" />
   </wsdl:message>
-  <wsdl:message name="GetRecordingsByIDsHttpPostIn">
+  <wsdl:message name="RemovePaymentMethodHouseholdPaymentGatewayHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="recordingIDs" type="s3:StringArray" />
+    <wsdl:part name="paymentGatewayID" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="householdId" type="s:string" />
+    <wsdl:part name="paymentMethodId" type="s:string" />
+    <wsdl:part name="force" type="s:string" />
   </wsdl:message>
-  <wsdl:message name="GetRecordingsByIDsHttpPostOut">
-    <wsdl:part name="Body" element="tns:RecordingResponse" />
+  <wsdl:message name="RemovePaymentMethodHouseholdPaymentGatewayHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="ProtectRecordHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userID" type="s:string" />
+    <wsdl:part name="recordID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ProtectRecordHttpPostOut">
+    <wsdl:part name="Body" element="tns:Recording" />
+  </wsdl:message>
+  <wsdl:message name="InitializeRecordingsCleanupHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="InitializeRecordingsCleanupHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="CleanupRecordingsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CleanupRecordingsHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -4422,7 +4733,7 @@
   <wsdl:message name="GetUsersBillingHistoryHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="arrSiteGUIDs" type="s3:StringArray" />
+    <wsdl:part name="arrSiteGUIDs" type="s4:StringArray" />
     <wsdl:part name="dStartDate" type="s:string" />
     <wsdl:part name="dEndDate" type="s:string" />
   </wsdl:message>
@@ -4444,7 +4755,7 @@
   <wsdl:message name="GetDomainsBillingHistoryHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="domainIDs" type="s3:StringArray" />
+    <wsdl:part name="domainIDs" type="s4:StringArray" />
     <wsdl:part name="dStartDate" type="s:string" />
     <wsdl:part name="dEndDate" type="s:string" />
   </wsdl:message>
@@ -4505,7 +4816,7 @@
   <wsdl:message name="GetItemsPricesHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nMediaFiles" type="s3:StringArray" />
+    <wsdl:part name="nMediaFiles" type="s4:StringArray" />
     <wsdl:part name="sUserGUID" type="s:string" />
     <wsdl:part name="bOnlyLowest" type="s:string" />
     <wsdl:part name="sCountryCd2" type="s:string" />
@@ -4519,7 +4830,7 @@
   <wsdl:message name="GetItemsPricesByIPHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nMediaFiles" type="s3:StringArray" />
+    <wsdl:part name="nMediaFiles" type="s4:StringArray" />
     <wsdl:part name="sUserGUID" type="s:string" />
     <wsdl:part name="bOnlyLowest" type="s:string" />
     <wsdl:part name="sCountryCd2" type="s:string" />
@@ -4533,7 +4844,7 @@
   <wsdl:message name="GetItemsPricesWithCouponsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nMediaFiles" type="s3:StringArray" />
+    <wsdl:part name="nMediaFiles" type="s4:StringArray" />
     <wsdl:part name="sUserGUID" type="s:string" />
     <wsdl:part name="sCouponCode" type="s:string" />
     <wsdl:part name="bOnlyLowest" type="s:string" />
@@ -4548,7 +4859,7 @@
   <wsdl:message name="GetItemsPricesWithCouponsByIPHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nMediaFiles" type="s3:StringArray" />
+    <wsdl:part name="nMediaFiles" type="s4:StringArray" />
     <wsdl:part name="sUserGUID" type="s:string" />
     <wsdl:part name="sCouponCode" type="s:string" />
     <wsdl:part name="bOnlyLowest" type="s:string" />
@@ -4563,7 +4874,7 @@
   <wsdl:message name="GetSubscriptionsPricesHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="sSubscriptions" type="s3:StringArray" />
+    <wsdl:part name="sSubscriptions" type="s4:StringArray" />
     <wsdl:part name="sUserGUID" type="s:string" />
     <wsdl:part name="sCountryCd2" type="s:string" />
     <wsdl:part name="sLanguageCode3" type="s:string" />
@@ -4576,7 +4887,7 @@
   <wsdl:message name="GetCollectionsPricesHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="sCollections" type="s3:StringArray" />
+    <wsdl:part name="sCollections" type="s4:StringArray" />
     <wsdl:part name="sUserGUID" type="s:string" />
     <wsdl:part name="sCountryCd2" type="s:string" />
     <wsdl:part name="sLanguageCode3" type="s:string" />
@@ -4588,7 +4899,7 @@
   <wsdl:message name="GetSubscriptionsPricesByIPHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="sSubscriptions" type="s3:StringArray" />
+    <wsdl:part name="sSubscriptions" type="s4:StringArray" />
     <wsdl:part name="sUserGUID" type="s:string" />
     <wsdl:part name="sCountryCd2" type="s:string" />
     <wsdl:part name="sLanguageCode3" type="s:string" />
@@ -4601,7 +4912,7 @@
   <wsdl:message name="GetPrePaidPricesHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="sPrePaids" type="s3:StringArray" />
+    <wsdl:part name="sPrePaids" type="s4:StringArray" />
     <wsdl:part name="sUserGUID" type="s:string" />
     <wsdl:part name="sCouponCode" type="s:string" />
     <wsdl:part name="sCountryCd2" type="s:string" />
@@ -4614,7 +4925,7 @@
   <wsdl:message name="GetSubscriptionsPricesWithCouponHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="sSubscriptions" type="s3:StringArray" />
+    <wsdl:part name="sSubscriptions" type="s4:StringArray" />
     <wsdl:part name="sUserGUID" type="s:string" />
     <wsdl:part name="sCouponCode" type="s:string" />
     <wsdl:part name="sCountryCd2" type="s:string" />
@@ -4628,7 +4939,7 @@
   <wsdl:message name="GetCollectionsPricesWithCouponHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="sCollections" type="s3:StringArray" />
+    <wsdl:part name="sCollections" type="s4:StringArray" />
     <wsdl:part name="sUserGUID" type="s:string" />
     <wsdl:part name="sCouponCode" type="s:string" />
     <wsdl:part name="sCountryCd2" type="s:string" />
@@ -4642,7 +4953,7 @@
   <wsdl:message name="GetSubscriptionsPricesWithCouponByIPHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="sSubscriptions" type="s3:StringArray" />
+    <wsdl:part name="sSubscriptions" type="s4:StringArray" />
     <wsdl:part name="sUserGUID" type="s:string" />
     <wsdl:part name="sCouponCode" type="s:string" />
     <wsdl:part name="sCountryCd2" type="s:string" />
@@ -5425,21 +5736,29 @@
       <wsdl:input message="tns:RecordSoapIn" />
       <wsdl:output message="tns:RecordSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="CancelRecord">
+      <wsdl:input message="tns:CancelRecordSoapIn" />
+      <wsdl:output message="tns:CancelRecordSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteRecord">
+      <wsdl:input message="tns:DeleteRecordSoapIn" />
+      <wsdl:output message="tns:DeleteRecordSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RecordRetry">
+      <wsdl:input message="tns:RecordRetrySoapIn" />
+      <wsdl:output message="tns:RecordRetrySoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="QueryRecords">
       <wsdl:input message="tns:QueryRecordsSoapIn" />
       <wsdl:output message="tns:QueryRecordsSoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="QueryRecord">
-      <wsdl:input message="tns:QueryRecordSoapIn" />
-      <wsdl:output message="tns:QueryRecordSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="GetRecordingStatus">
       <wsdl:input message="tns:GetRecordingStatusSoapIn" />
       <wsdl:output message="tns:GetRecordingStatusSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="GetDomainRecordingIDsByRecordingStatuses">
-      <wsdl:input message="tns:GetDomainRecordingIDsByRecordingStatusesSoapIn" />
-      <wsdl:output message="tns:GetDomainRecordingIDsByRecordingStatusesSoapOut" />
+    <wsdl:operation name="SearchDomainRecordings">
+      <wsdl:input message="tns:SearchDomainRecordingsSoapIn" />
+      <wsdl:output message="tns:SearchDomainRecordingsSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="GetRecordingsByIDs">
       <wsdl:input message="tns:GetRecordingsByIDsSoapIn" />
@@ -5448,6 +5767,30 @@
     <wsdl:operation name="UpdateRecording">
       <wsdl:input message="tns:UpdateRecordingSoapIn" />
       <wsdl:output message="tns:UpdateRecordingSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RecoverRecordingMessages">
+      <wsdl:input message="tns:RecoverRecordingMessagesSoapIn" />
+      <wsdl:output message="tns:RecoverRecordingMessagesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainQuota">
+      <wsdl:input message="tns:GetDomainQuotaSoapIn" />
+      <wsdl:output message="tns:GetDomainQuotaSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RemovePaymentMethodHouseholdPaymentGateway">
+      <wsdl:input message="tns:RemovePaymentMethodHouseholdPaymentGatewaySoapIn" />
+      <wsdl:output message="tns:RemovePaymentMethodHouseholdPaymentGatewaySoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ProtectRecord">
+      <wsdl:input message="tns:ProtectRecordSoapIn" />
+      <wsdl:output message="tns:ProtectRecordSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="InitializeRecordingsCleanup">
+      <wsdl:input message="tns:InitializeRecordingsCleanupSoapIn" />
+      <wsdl:output message="tns:InitializeRecordingsCleanupSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CleanupRecordings">
+      <wsdl:input message="tns:CleanupRecordingsSoapIn" />
+      <wsdl:output message="tns:CleanupRecordingsSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsSoapIn" />
@@ -5855,25 +6198,57 @@
       <wsdl:input message="tns:RecordHttpPostIn" />
       <wsdl:output message="tns:RecordHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="CancelRecord">
+      <wsdl:input message="tns:CancelRecordHttpPostIn" />
+      <wsdl:output message="tns:CancelRecordHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteRecord">
+      <wsdl:input message="tns:DeleteRecordHttpPostIn" />
+      <wsdl:output message="tns:DeleteRecordHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RecordRetry">
+      <wsdl:input message="tns:RecordRetryHttpPostIn" />
+      <wsdl:output message="tns:RecordRetryHttpPostOut" />
+    </wsdl:operation>
     <wsdl:operation name="QueryRecords">
       <wsdl:input message="tns:QueryRecordsHttpPostIn" />
       <wsdl:output message="tns:QueryRecordsHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="QueryRecord">
-      <wsdl:input message="tns:QueryRecordHttpPostIn" />
-      <wsdl:output message="tns:QueryRecordHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetRecordingStatus">
       <wsdl:input message="tns:GetRecordingStatusHttpPostIn" />
       <wsdl:output message="tns:GetRecordingStatusHttpPostOut" />
     </wsdl:operation>
-    <wsdl:operation name="GetDomainRecordingIDsByRecordingStatuses">
-      <wsdl:input message="tns:GetDomainRecordingIDsByRecordingStatusesHttpPostIn" />
-      <wsdl:output message="tns:GetDomainRecordingIDsByRecordingStatusesHttpPostOut" />
-    </wsdl:operation>
     <wsdl:operation name="GetRecordingsByIDs">
       <wsdl:input message="tns:GetRecordingsByIDsHttpPostIn" />
       <wsdl:output message="tns:GetRecordingsByIDsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateRecording">
+      <wsdl:input message="tns:UpdateRecordingHttpPostIn" />
+      <wsdl:output message="tns:UpdateRecordingHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RecoverRecordingMessages">
+      <wsdl:input message="tns:RecoverRecordingMessagesHttpPostIn" />
+      <wsdl:output message="tns:RecoverRecordingMessagesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainQuota">
+      <wsdl:input message="tns:GetDomainQuotaHttpPostIn" />
+      <wsdl:output message="tns:GetDomainQuotaHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RemovePaymentMethodHouseholdPaymentGateway">
+      <wsdl:input message="tns:RemovePaymentMethodHouseholdPaymentGatewayHttpPostIn" />
+      <wsdl:output message="tns:RemovePaymentMethodHouseholdPaymentGatewayHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ProtectRecord">
+      <wsdl:input message="tns:ProtectRecordHttpPostIn" />
+      <wsdl:output message="tns:ProtectRecordHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="InitializeRecordingsCleanup">
+      <wsdl:input message="tns:InitializeRecordingsCleanupHttpPostIn" />
+      <wsdl:output message="tns:InitializeRecordingsCleanupHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CleanupRecordings">
+      <wsdl:input message="tns:CleanupRecordingsHttpPostIn" />
+      <wsdl:output message="tns:CleanupRecordingsHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsHttpPostIn" />
@@ -6360,8 +6735,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="QueryRecords">
-      <soap:operation soapAction="http://ca.tvinci.com/QueryRecords" style="document" />
+    <wsdl:operation name="CancelRecord">
+      <soap:operation soapAction="http://ca.tvinci.com/CancelRecord" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -6369,8 +6744,26 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="QueryRecord">
-      <soap:operation soapAction="http://ca.tvinci.com/QueryRecord" style="document" />
+    <wsdl:operation name="DeleteRecord">
+      <soap:operation soapAction="http://ca.tvinci.com/DeleteRecord" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RecordRetry">
+      <soap:operation soapAction="http://ca.tvinci.com/RecordRetry" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="QueryRecords">
+      <soap:operation soapAction="http://ca.tvinci.com/QueryRecords" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -6387,8 +6780,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetDomainRecordingIDsByRecordingStatuses">
-      <soap:operation soapAction="http://ca.tvinci.com/GetDomainRecordingIDsByRecordingStatuses" style="document" />
+    <wsdl:operation name="SearchDomainRecordings">
+      <soap:operation soapAction="http://ca.tvinci.com/SearchDomainRecordings" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -6407,6 +6800,60 @@
     </wsdl:operation>
     <wsdl:operation name="UpdateRecording">
       <soap:operation soapAction="http://ca.tvinci.com/UpdateRecording" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RecoverRecordingMessages">
+      <soap:operation soapAction="http://ca.tvinci.com/RecoverRecordingMessages" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainQuota">
+      <soap:operation soapAction="http://ca.tvinci.com/GetDomainQuota" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemovePaymentMethodHouseholdPaymentGateway">
+      <soap:operation soapAction="http://ca.tvinci.com/RemovePaymentMethodHouseholdPaymentGateway" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ProtectRecord">
+      <soap:operation soapAction="http://ca.tvinci.com/ProtectRecord" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InitializeRecordingsCleanup">
+      <soap:operation soapAction="http://ca.tvinci.com/InitializeRecordingsCleanup" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CleanupRecordings">
+      <soap:operation soapAction="http://ca.tvinci.com/CleanupRecordings" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -7353,8 +7800,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="QueryRecords">
-      <soap12:operation soapAction="http://ca.tvinci.com/QueryRecords" style="document" />
+    <wsdl:operation name="CancelRecord">
+      <soap12:operation soapAction="http://ca.tvinci.com/CancelRecord" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -7362,8 +7809,26 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="QueryRecord">
-      <soap12:operation soapAction="http://ca.tvinci.com/QueryRecord" style="document" />
+    <wsdl:operation name="DeleteRecord">
+      <soap12:operation soapAction="http://ca.tvinci.com/DeleteRecord" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RecordRetry">
+      <soap12:operation soapAction="http://ca.tvinci.com/RecordRetry" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="QueryRecords">
+      <soap12:operation soapAction="http://ca.tvinci.com/QueryRecords" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -7380,8 +7845,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetDomainRecordingIDsByRecordingStatuses">
-      <soap12:operation soapAction="http://ca.tvinci.com/GetDomainRecordingIDsByRecordingStatuses" style="document" />
+    <wsdl:operation name="SearchDomainRecordings">
+      <soap12:operation soapAction="http://ca.tvinci.com/SearchDomainRecordings" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -7400,6 +7865,60 @@
     </wsdl:operation>
     <wsdl:operation name="UpdateRecording">
       <soap12:operation soapAction="http://ca.tvinci.com/UpdateRecording" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RecoverRecordingMessages">
+      <soap12:operation soapAction="http://ca.tvinci.com/RecoverRecordingMessages" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainQuota">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetDomainQuota" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemovePaymentMethodHouseholdPaymentGateway">
+      <soap12:operation soapAction="http://ca.tvinci.com/RemovePaymentMethodHouseholdPaymentGateway" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ProtectRecord">
+      <soap12:operation soapAction="http://ca.tvinci.com/ProtectRecord" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InitializeRecordingsCleanup">
+      <soap12:operation soapAction="http://ca.tvinci.com/InitializeRecordingsCleanup" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CleanupRecordings">
+      <soap12:operation soapAction="http://ca.tvinci.com/CleanupRecordings" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -8319,8 +8838,8 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="QueryRecords">
-      <http:operation location="/QueryRecords" />
+    <wsdl:operation name="CancelRecord">
+      <http:operation location="/CancelRecord" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -8328,8 +8847,26 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="QueryRecord">
-      <http:operation location="/QueryRecord" />
+    <wsdl:operation name="DeleteRecord">
+      <http:operation location="/DeleteRecord" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RecordRetry">
+      <http:operation location="/RecordRetry" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="QueryRecords">
+      <http:operation location="/QueryRecords" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -8346,8 +8883,8 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetDomainRecordingIDsByRecordingStatuses">
-      <http:operation location="/GetDomainRecordingIDsByRecordingStatuses" />
+    <wsdl:operation name="GetRecordingsByIDs">
+      <http:operation location="/GetRecordingsByIDs" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -8355,8 +8892,62 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetRecordingsByIDs">
-      <http:operation location="/GetRecordingsByIDs" />
+    <wsdl:operation name="UpdateRecording">
+      <http:operation location="/UpdateRecording" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RecoverRecordingMessages">
+      <http:operation location="/RecoverRecordingMessages" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainQuota">
+      <http:operation location="/GetDomainQuota" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemovePaymentMethodHouseholdPaymentGateway">
+      <http:operation location="/RemovePaymentMethodHouseholdPaymentGateway" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ProtectRecord">
+      <http:operation location="/ProtectRecord" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InitializeRecordingsCleanup">
+      <http:operation location="/InitializeRecordingsCleanup" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CleanupRecordings">
+      <http:operation location="/CleanupRecordings" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -9087,13 +9678,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://localhost:82/ws_cas/module.asmx" />
+      <soap:address location="http://localhost/WS_ConditionalAccess/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://localhost:82/ws_cas/module.asmx" />
+      <soap12:address location="http://localhost/WS_ConditionalAccess/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://localhost:82/ws_cas/module.asmx" />
+      <http:address location="http://localhost/WS_ConditionalAccess/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
