@@ -68,8 +68,11 @@ namespace SetupTaskHandler
                         using (SetupTaskHandler.WS_ConditionalAccess.module cas = new SetupTaskHandler.WS_ConditionalAccess.module())
                         {
                             if (!string.IsNullOrEmpty(url))
+                            {
                                 cas.Url = url;
+                            }
 
+                            cas.Timeout = 600000;
                             success = cas.CleanupRecordings(username, password);
 
                             if (!success)
