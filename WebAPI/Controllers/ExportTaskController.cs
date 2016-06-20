@@ -8,6 +8,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.API;
 using WebAPI.Models.General;
 using WebAPI.Utils;
@@ -15,6 +16,8 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/exportTask/action")]
+    [OldStandard("listOldStandard", "list")]
+    [OldStandard("updateOldStandard", "update")]
     public class ExportTaskController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -53,6 +56,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Updates an existing bulk export task by task identifier
         /// </summary>
+        /// <param name="id">The task id to update</param>
         /// <param name="task">The task model to update</param>
         /// <remarks>
         /// Possible status codes:   
@@ -61,9 +65,9 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        public bool Update(KalturaExportTask task)
+        public KalturaExportTask Update(long id, KalturaExportTask task)
         {
-            bool response = false;
+            KalturaExportTask response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -74,7 +78,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.ApiClient().UpdateBulkExportTask(groupId, task.getId(), task.Alias, task.Name, task.DataType, task.Filter, task.ExportType, task.getFrequency(), task.NotificationUrl, 
+                response = ClientsManager.ApiClient().UpdateBulkExportTask(groupId, id, task.Alias, task.Name, task.DataType, task.Filter, task.ExportType, task.getFrequency(), task.NotificationUrl,
                     task.VodTypes != null ? task.VodTypes.Select(vt => vt.value).ToList() : null, task.IsActive);
             }
             catch (ClientException ex)
@@ -83,6 +87,40 @@ namespace WebAPI.Controllers
             }
 
             return response;
+        }
+
+        /// <summary>
+        /// Updates an existing bulk export task by task identifier
+        /// </summary>
+        /// <param name="task">The task model to update</param>
+        /// <remarks>
+        /// Possible status codes:   
+        /// Export notification URL required = 5017, Export frequency minimum value = 5018, Alias must be unique = 5019
+        /// </remarks>
+        /// <returns></returns>
+        [Route("updateOldStandard"), HttpPost]
+        [ApiAuthorize]
+        [Obsolete]
+        public bool UpdateOldStandard(KalturaExportTask task)
+        {
+            int groupId = KS.GetFromRequest().GroupId;
+
+            if (task.Id == 0)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "task id must be supplied");
+            }
+
+            try
+            {
+                ClientsManager.ApiClient().UpdateBulkExportTask(groupId, task.getId(), task.Alias, task.Name, task.DataType, task.Filter, task.ExportType, task.getFrequency(), task.NotificationUrl,
+                    task.VodTypes != null ? task.VodTypes.Select(vt => vt.value).ToList() : null, task.IsActive);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -147,7 +185,46 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public List<KalturaExportTask> List(KalturaExportFilter filter = null)
+        public KalturaExportTaskListResponse List(KalturaExportTaskFilter filter = null)
+        {
+            KalturaExportTaskListResponse response = new KalturaExportTaskListResponse();
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            if (filter == null)
+            {
+                filter = new KalturaExportTaskFilter();
+            }
+
+            if (!filter.OrderBy.HasValue)
+            {
+                filter.OrderBy = (KalturaExportTaskOrderBy)filter.GetDefaultOrderByValue();
+            }
+
+            try
+            {
+                List<KalturaExportTask> objects = ClientsManager.ApiClient().GetBulkExportTasks(groupId, filter.getIdIn(), null, filter.OrderBy.Value);
+                response.Objects = objects;
+                response.TotalCount = objects.Count;
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Returns bulk export tasks by tasks identifiers
+        /// </summary>
+        /// <param name="filter">Bulk export tasks filter</param>
+        /// 
+        /// <returns></returns>
+        [Route("listOldStandard"), HttpPost]
+        [ApiAuthorize]
+        [Obsolete]
+        public List<KalturaExportTask> ListOldStandard(KalturaExportFilter filter = null)
         {
             List<KalturaExportTask> response = null;
 
@@ -165,7 +242,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.ApiClient().GetBulkExportTasks(groupId, filter.IdIn != null ? filter.IdIn.Select(id => id.value).ToArray() : null, null, filter.OrderBy.Value);
+                response = ClientsManager.ApiClient().GetBulkExportTasks(groupId, filter.ids != null ? filter.ids.Select(id => id.value).ToArray() : null, null, filter.OrderBy.Value);
             }
             catch (ClientException ex)
             {
