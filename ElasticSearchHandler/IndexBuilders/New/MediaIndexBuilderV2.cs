@@ -178,7 +178,7 @@ namespace ElasticSearchHandler.IndexBuilders
             #region insert channel queries
 
             HashSet<string> channelsToRemove; 
-            ChannelIndexBuilderV1.BuildChannelQueries(groupId, api, group.channelIDs, newIndexName, out channelsToRemove);
+            ChannelIndexBuilderV2.BuildChannelQueries(groupId, api, group.channelIDs, newIndexName, out channelsToRemove);
             
             #endregion
 
