@@ -1106,7 +1106,7 @@ namespace WebAPI.Clients
             return response.LastCleanupDate;
         }
 
-        internal KalturaRegistryResponse Registry(int groupId, int announcementId, string hash, string ip)
+        internal KalturaRegistryResponse Register(int groupId, KalturaNotificationType type, string id, string hash, string ip)
         {
             RegistryResponse response = null;
             List<KalturaRegistryParameter> result = null;
@@ -1118,54 +1118,25 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.RegisterPushAnnouncementParameters(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, announcementId, hash, ip);
+                    switch (type)
+                    {
+                        case KalturaNotificationType.announcement:
+                            response = Notification.RegisterPushAnnouncementParameters(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, long.Parse(id), hash, ip);
+                            break;
+                        case KalturaNotificationType.system:
+                            if (id.ToLower() != "login")
+                                response = Notification.RegisterPushSystemParameters(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, hash, ip);
+                            else
+                                throw new NotImplementedException();
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Error while RegisterPushAnnouncementParameters.  groupID: {0}, exception: {1}", groupId, ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Status.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException((int)response.Status.Code, response.Status.Message);
-            }
-
-            if (response.Items != null && response.Items.Count > 0)
-            {
-                result = Mapper.Map<List<KalturaRegistryParameter>>(response.Items);
-                ret = new KalturaRegistryResponse() { RegistryParameters = result, TotalCount = result.Count };
-            }
-            else
-                ret = new KalturaRegistryResponse();
-
-            return ret;
-        }
-
-        internal KalturaRegistryResponse SystemRegistry(int groupId, string hash, string ip)
-        {
-            RegistryResponse response = null;
-            List<KalturaRegistryParameter> result = null;
-            KalturaRegistryResponse ret = null;
-
-            Group group = GroupsManager.GetGroup(groupId);
-
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Notification.RegisterPushSystemParameters(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, hash, ip);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while SystemRegistry.  groupID: {0}, exception: {1}", groupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 

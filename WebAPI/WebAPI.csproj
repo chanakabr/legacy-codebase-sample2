@@ -414,10 +414,10 @@
     <None Include="Service References\Notifications\NotificationService2.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\Notifications\NotificationService3.xsd">
+    <None Include="Service References\Notifications\NotificationService20.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\Notifications\NotificationService30.xsd">
+    <None Include="Service References\Notifications\NotificationService3.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\Notifications\NotificationService4.xsd">
@@ -1998,6 +1998,7 @@
     <Compile Include="Models\Notification\KalturaTopicResponse.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Models\Notification\KalturaNotificationType.cs" />
     <Compile Include="Models\Partner\KalturaBillingPartnerConfiguration.cs">
       <SubType>Code</SubType>
     </Compile>

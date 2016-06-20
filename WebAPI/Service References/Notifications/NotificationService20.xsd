@@ -654,7 +654,7 @@
       <xs:sequence>
         <xs:element minOccurs="0" name="sWSUserName" nillable="true" type="xs:string" />
         <xs:element minOccurs="0" name="sWSPassword" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="announcementId" type="xs:int" />
+        <xs:element minOccurs="0" name="announcementId" type="xs:long" />
         <xs:element minOccurs="0" name="hash" nillable="true" type="xs:string" />
         <xs:element minOccurs="0" name="ip" nillable="true" type="xs:string" />
       </xs:sequence>

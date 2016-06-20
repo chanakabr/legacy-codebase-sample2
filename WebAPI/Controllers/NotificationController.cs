@@ -110,9 +110,9 @@ namespace WebAPI.Controllers
         /// Possible status codes:       
         /// </remarks>
         /// <param name="id"></param>        
-        [Route("registry"), HttpPost]
+        [Route("register"), HttpPost]
         [ApiAuthorize]
-        public KalturaRegistryResponse Registry(int id)
+        public KalturaRegistryResponse Register(string id, KalturaNotificationType type)
         {
             KalturaRegistryResponse response = null;
 
@@ -120,13 +120,29 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 KS.GetFromRequest().ToString();
+
+                if (string.IsNullOrEmpty(id))
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id is empty");
 
                 // validate input
-                if (id <= 0)
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id is illegal");
+                switch (type)
+                {
+                    case KalturaNotificationType.announcement:
+                        long announcentId = 0;
+                        if (!long.TryParse(id, out announcentId))
+                            throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "illegal id");
+                        break;
+
+                    case KalturaNotificationType.system:
+                        if (id.ToLower() != "login")
+                            throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "illegal id");
+                        break;
+                    default:
+                        break;
+                }
 
                 // call client                
-                response = ClientsManager.NotificationClient().Registry(groupId, id, KS.GetFromRequest().ToString(), Utils.Utils.GetClientIP());
+                response = ClientsManager.NotificationClient().Register(groupId, type, id, KS.GetFromRequest().ToString(), Utils.Utils.GetClientIP());
             }
             catch (ClientException ex)
             {
@@ -134,33 +150,5 @@ namespace WebAPI.Controllers
             }
             return response;
         }
-
-        /// <summary>
-        /// TBD 
-        /// </summary>
-        /// <remarks>
-        /// Possible status codes:       
-        /// </remarks>
-        [Route("systemRegistry"), HttpPost]
-        [ApiAuthorize]
-        public KalturaRegistryResponse SystemRegistry()
-        {
-            KalturaRegistryResponse response = null;
-
-            try
-            {
-                int groupId = KS.GetFromRequest().GroupId;
-                KS.GetFromRequest().ToString();
-
-                // call client                
-                response = ClientsManager.NotificationClient().SystemRegistry(groupId, KS.GetFromRequest().ToString(), Utils.Utils.GetClientIP());
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-            return response;
-        }
-
     }
 }
