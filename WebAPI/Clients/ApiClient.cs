@@ -1833,14 +1833,14 @@ namespace WebAPI.Clients
 
         }
 
-        internal bool UpdateBulkExportTask(int groupId, long id, string externalKey, string name, Models.API.KalturaExportDataType dataType, string filter, Models.API.KalturaExportType exportType, long frequency,
+        internal KalturaExportTask UpdateBulkExportTask(int groupId, long id, string externalKey, string name, Models.API.KalturaExportDataType dataType, string filter, Models.API.KalturaExportType exportType, long frequency,
             string notificationUrl, List<int> vodTypes, bool? isActive)
         {
             bool success = false;
 
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.Status response = null;
+            BulkExportTaskResponse response = null;
 
             WebAPI.Api.eBulkExportExportType wsExportType = ApiMappings.ConvertExportType(exportType);
             WebAPI.Api.eBulkExportDataType wsDataType = ApiMappings.ConvertExportDataType(dataType);
@@ -1859,21 +1859,20 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response == null)
+            if (response == null || response.Status == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.Code != (int)StatusCode.OK)
+            if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Code, response.Message);
-            }
-            else
-            {
-                success = true;
+                throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            return success;
+            KalturaExportTask task = null;
+            task = AutoMapper.Mapper.Map<KalturaExportTask>(response.Task);
+
+            return task;
         }
 
         internal bool DeleteBulkExportTask(int groupId, long id, string externalKey)

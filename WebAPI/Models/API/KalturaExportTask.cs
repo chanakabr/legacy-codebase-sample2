@@ -113,4 +113,21 @@ namespace WebAPI.Models.API
             return Id.HasValue ? (long)Id : 0;
         }
     }
+
+    /// <summary>
+    /// Export task list wrapper
+    /// </summary>
+    [Serializable]
+    public class KalturaExportTaskListResponse : KalturaListResponse
+    {
+        /// <summary>
+        /// Export task items
+        /// </summary>
+        [DataMember(Name = "objects")]
+        [JsonProperty(PropertyName = "objects")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaExportTask> Objects { get; set; }
+
+    }
 }

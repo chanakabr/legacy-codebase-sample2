@@ -4316,7 +4316,7 @@
       <s:element name="UpdateBulkExportTaskResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="UpdateBulkExportTaskResult" type="tns:Status" />
+            <s:element minOccurs="0" maxOccurs="1" name="UpdateBulkExportTaskResult" type="tns:BulkExportTaskResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>

@@ -1862,6 +1862,7 @@
     <Compile Include="Managers\Schema\OldStandard.cs" />
     <Compile Include="Managers\Schema\ValidationException.cs" />
     <Compile Include="Managers\Schema\SchemaValidationType.cs" />
+    <Compile Include="Models\API\KalturaExportTaskFilter.cs" />
     <Compile Include="Models\API\KalturaCDNPartnerSettings.cs" />
     <Compile Include="Models\API\KalturaCDNAdapterProfile.cs" />
     <Compile Include="Models\API\KalturaCDNAdapterProfileListResponse.cs" />
@@ -2204,7 +2205,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="packages.config" />
     <None Include="Web References\Users\module.wsdl" />
     <Content Include="Web References\Users\Status.datasource">
       <DependentUpon>Reference.map</DependentUpon>
