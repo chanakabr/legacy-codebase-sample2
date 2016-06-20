@@ -278,13 +278,16 @@ namespace Recordings
             return status;
         }
 
-        public Status DeleteRecording(int groupId, Recording slimRecording)
+        public Status DeleteRecording(int groupId, Recording slimRecording, int adapterId = 0)
         {
             Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             if (groupId > 0 && slimRecording != null && slimRecording.Id > 0 && slimRecording.EpgId > 0 && !string.IsNullOrEmpty(slimRecording.ExternalRecordingId))
             {
-                int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
+                if (adapterId == 0)
+                {
+                    adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
+                }
 
                 var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
 

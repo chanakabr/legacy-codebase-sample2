@@ -13,10 +13,11 @@ namespace ApiObjects.TimeShiftedTv
         public DateTime LastSuccessfulCleanUpDate { get; set; }
         public int DeletedRecordingOnLastCleanup { get; set; }
         public int DomainRecordingsUpdatedOnLastCleanup { get; set; }
+        public int IntervalInMinutes { get; set; }
 
         public RecordingCleanupResponse() { }
 
-        public RecordingCleanupResponse(DateTime lastSuccessfulCleanUpDate, int deletedRecordingOnLastCleanup, int domainRecordingsUpdatedOnLastCleanup)
+        public RecordingCleanupResponse(DateTime lastSuccessfulCleanUpDate, int deletedRecordingOnLastCleanup, int domainRecordingsUpdatedOnLastCleanup, int intervalInMinutes)
         {
             this.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             this.LastSuccessfulCleanUpDate = lastSuccessfulCleanUpDate;
@@ -31,6 +32,7 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("LastSuccessfulCleanUpDate: {0}, ", LastSuccessfulCleanUpDate.ToString()));
             sb.Append(string.Format("DeletedRecordingOnLastCleanup: {0}, ", DeletedRecordingOnLastCleanup));
             sb.Append(string.Format("DomainRecordingsUpdatedOnLastCleanup: {0}", DomainRecordingsUpdatedOnLastCleanup));
+            sb.Append(string.Format("IntervalInMinutes: {0}", IntervalInMinutes));
 
             return sb.ToString();        
         }

@@ -49,7 +49,7 @@ namespace ConditionalAccess
         protected const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";
         protected const string BILLING_CONNECTION_STRING = "BILLING_CONNECTION";
         private const string ROUTING_KEY_RECORDINGS_CLEANUP = "PROCESS_RECORDINGS_CLEANUP";
-        private const double RECORDING_CLEANUP_EXECUTE_GAP_HOURS = 24;
+        private const int RECORDING_CLEANUP_EXECUTE_GAP_HOURS = 24;
 
         //errors
         private const string CONFLICTED_PARAMS = "Conflicted params";
@@ -18043,40 +18043,32 @@ namespace ConditionalAccess
             return recording;
         }
 
-        public bool InitializeRecordingsCleanup()
-        {
-            bool result = false;
-            SetupTasksQueue queue = new SetupTasksQueue();
-
-            CelerySetupTaskData data = new CelerySetupTaskData(0, eSetupTask.RecordingsCleanup, new Dictionary<string, object>());
-
-            try
-            {
-                result = queue.Enqueue(data, ROUTING_KEY_RECORDINGS_CLEANUP);
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error in InitializeRecordingsCleanup: ex = {0}, ST = {1}", ex.Message, ex.StackTrace);
-            }
-
-            return result;
-        }
-
         public bool CleanupRecordings()
         {
             bool result = false;
+            int recordingCleanupIntervalMin = 0;            
             try
             {
                 // get current utc epoch
                 long utcNowEpoch = TVinciShared.DateUtils.UnixTimeStampNow();
+                // get first batch
+                int totalRecordingsToCleanup = 0, totalRecordingsDeleted = 0, totalDomainRecordingsUpdated = 0;
+                Dictionary<int, int> groupIdToAdapterIdMap = new Dictionary<int, int>();
                 Dictionary<long, KeyValuePair<int, Recording>> recordingsForDeletion = ConditionalAccessDAL.GetRecordingsForCleanup(utcNowEpoch);
-                List<long> deletedRecordingIds = new List<long>();
-                int updatedDomainRecordingsRowCount = 0;
-                if (recordingsForDeletion.Count > 0)
+                while (recordingsForDeletion != null && recordingsForDeletion.Count > 0)
                 {
+                    totalRecordingsToCleanup += recordingsForDeletion.Count;
+                    List<long> deletedRecordingIds = new List<long>();
+                    int adapterId = 0, updatedDomainRecordingsRowCount = 0;
                     foreach (KeyValuePair<int, Recording> pair in recordingsForDeletion.Values)
                     {
-                        ApiObjects.Response.Status deleteStatus = RecordingsManager.Instance.DeleteRecording(pair.Key, pair.Value);
+                        if (!groupIdToAdapterIdMap.ContainsKey(pair.Key))
+                        {
+                            adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(pair.Key);
+                            groupIdToAdapterIdMap.Add(pair.Key, adapterId);
+                        }
+
+                        ApiObjects.Response.Status deleteStatus = RecordingsManager.Instance.DeleteRecording(pair.Key, pair.Value, adapterId);
                         if (deleteStatus.Code != (int)eResponseStatus.OK)
                         {
                             log.ErrorFormat("Failed deleting recordingID: {0} for groupID {1}", pair.Value.Id, m_nGroupID);
@@ -18088,23 +18080,42 @@ namespace ConditionalAccess
                         }
                     }
 
+                    totalRecordingsDeleted += deletedRecordingIds.Count;
                     // update domain recordings
-                    updatedDomainRecordingsRowCount = ConditionalAccessDAL.UpdateDomainRecordingsAfterCleanup(deletedRecordingIds);
-                    if (updatedDomainRecordingsRowCount > 0)
+                    if (deletedRecordingIds.Count > 0)
                     {
-                        log.DebugFormat("updated {0} rows on domain recordings after cleanup", updatedDomainRecordingsRowCount);
+                        updatedDomainRecordingsRowCount = ConditionalAccessDAL.UpdateDomainRecordingsAfterCleanup(deletedRecordingIds);
+
+                        if (updatedDomainRecordingsRowCount > 0)
+                        {
+                            totalDomainRecordingsUpdated += updatedDomainRecordingsRowCount;
+                            log.DebugFormat("updated {0} rows on domain recordings after cleanup", updatedDomainRecordingsRowCount);
+                        }
+                        else
+                        {
+                            log.Error("Failed updating domain recordings after cleanup");
+                        }
                     }
-                    else
-                    {
-                        log.Error("Failed updating domain recordings after cleanup");
-                    }
+
+                    recordingsForDeletion = ConditionalAccessDAL.GetRecordingsForCleanup(utcNowEpoch);
                 }
 
                 // update successful cleanup date
-                if (deletedRecordingIds.Count == recordingsForDeletion.Count)
+                if (totalRecordingsDeleted == totalRecordingsToCleanup)
                 {
                     result = true;
-                    if (!ConditionalAccessDAL.UpdateSuccessfulRecordingsCleanup(DateTime.UtcNow, deletedRecordingIds.Count, updatedDomainRecordingsRowCount))
+                    // try to get interval for next cleanup or take default
+                    RecordingCleanupResponse lastRecordingCleanupResponse = GetLastSuccessfulRecordingsCleanup();
+                    if (lastRecordingCleanupResponse.Status.Code == (int)eResponseStatus.OK && lastRecordingCleanupResponse.IntervalInMinutes > 0)
+                    {
+                        recordingCleanupIntervalMin = lastRecordingCleanupResponse.IntervalInMinutes;
+                    }
+                    else
+                    {
+                        recordingCleanupIntervalMin = RECORDING_CLEANUP_EXECUTE_GAP_HOURS * 60;
+                    }
+
+                    if (!ConditionalAccessDAL.UpdateSuccessfulRecordingsCleanup(DateTime.UtcNow, totalRecordingsDeleted, totalDomainRecordingsUpdated, recordingCleanupIntervalMin))
                     {
                         log.Error("Failed updating recordings cleanup date");
                     }
@@ -18113,14 +18124,14 @@ namespace ConditionalAccess
                         log.Debug("Successfully updated recordings cleanup date");
                     }
 
-                    if (deletedRecordingIds.Count > 0)
+                    if (totalRecordingsDeleted > 0)
                     {
-                        log.DebugFormat("Successfully cleaned up {0} recordings and updated {1} rows on domain recordings", deletedRecordingIds, updatedDomainRecordingsRowCount);
+                        log.DebugFormat("Successfully cleaned up {0} recordings and updated {1} rows on domain recordings", totalRecordingsDeleted, totalDomainRecordingsUpdated);
                     }
                     else
                     {
                         log.DebugFormat("Did not find any recordings to cleanup");
-                    }                    
+                    }
                 }
                 else
                 {
@@ -18133,7 +18144,12 @@ namespace ConditionalAccess
             }
             finally
             {
-                DateTime nextExecutionDate = DateTime.UtcNow.AddHours(RECORDING_CLEANUP_EXECUTE_GAP_HOURS);
+                if (recordingCleanupIntervalMin == 0)
+                {
+                    recordingCleanupIntervalMin = RECORDING_CLEANUP_EXECUTE_GAP_HOURS * 60;
+                }
+
+                DateTime nextExecutionDate = DateTime.UtcNow.AddMinutes(recordingCleanupIntervalMin);
                 SetupTasksQueue queue = new SetupTasksQueue();
                 CelerySetupTaskData data = new CelerySetupTaskData(0, eSetupTask.RecordingsCleanup, new Dictionary<string, object>()) { ETA = nextExecutionDate };
                 result = queue.Enqueue(data, ROUTING_KEY_RECORDINGS_CLEANUP);

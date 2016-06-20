@@ -3011,8 +3011,7 @@ namespace DAL
             Dictionary<long, KeyValuePair<int, Recording>> recordingsForCleanup = new Dictionary<long, KeyValuePair<int, Recording>>();            
             ODBCWrapper.StoredProcedure spGetRecordginsForCleanup = new ODBCWrapper.StoredProcedure("GetRecordingsForCleanup");
             spGetRecordginsForCleanup.SetConnectionKey("CONNECTION_STRING");
-            spGetRecordginsForCleanup.AddParameter("@UtcNowEpoch", utcNowEpoch);
-            spGetRecordginsForCleanup.AddParameter("@DefaultLifetimePeriod", utcNowEpoch);
+            spGetRecordginsForCleanup.AddParameter("@UtcNowEpoch", utcNowEpoch);            
 
             DataTable dt = spGetRecordginsForCleanup.Execute();
             if (dt != null && dt.Rows != null)
@@ -3034,7 +3033,7 @@ namespace DAL
             return recordingsForCleanup;
         }
 
-        public static bool UpdateSuccessfulRecordingsCleanup(DateTime lastSuccessfulCleanUpDate, int deletedRecordingOnLastCleanup, int domainRecordingsUpdatedOnLastCleanup)
+        public static bool UpdateSuccessfulRecordingsCleanup(DateTime lastSuccessfulCleanUpDate, int deletedRecordingOnLastCleanup, int domainRecordingsUpdatedOnLastCleanup, int intervalInMinutes)
         {
             bool result = false;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
@@ -3043,7 +3042,7 @@ namespace DAL
             try
             {
                 int numOfRetries = 0;
-                RecordingCleanupResponse recordingCleanupDetails = new RecordingCleanupResponse(lastSuccessfulCleanUpDate, deletedRecordingOnLastCleanup, domainRecordingsUpdatedOnLastCleanup);
+                RecordingCleanupResponse recordingCleanupDetails = new RecordingCleanupResponse(lastSuccessfulCleanUpDate, deletedRecordingOnLastCleanup, domainRecordingsUpdatedOnLastCleanup, intervalInMinutes);
                 while (!result && numOfRetries < limitRetries)
                 {
                     result = cbClient.Set(recordingsCleanupKey, recordingCleanupDetails);

@@ -556,7 +556,6 @@ namespace AdapterControllers.CDVR
             return recordResult;
         }
 
-
         public RecordResult DeleteRecording(int partnerId, string recordingId, int adapterId)
         {
             RecordResult recordResult = new RecordResult();
