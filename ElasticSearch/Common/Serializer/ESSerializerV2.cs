@@ -10,6 +10,43 @@ namespace ElasticSearch.Common
 {
     public class ESSerializerV2 : BaseESSeralizer
     {
+        /*
+         * http://www.joda.org/joda-time/apidocs/org/joda/time/format/DateTimeFormat.html
+ ------  -------                      ------------  -------
+ G       era                          text          AD
+ C       century of era (>=0)         number        20
+ Y       year of era (>=0)            year          1996
+
+ x       weekyear                     year          1996
+ w       week of weekyear             number        27
+ e       day of week                  number        2
+ E       day of week                  text          Tuesday; Tue
+
+ y       year                         year          1996
+ D       day of year                  number        189
+ M       month of year                month         July; Jul; 07
+ d       day of month                 number        10
+
+ a       halfday of day               text          PM
+ K       hour of halfday (0~11)       number        0
+ h       clockhour of halfday (1~12)  number        12
+
+ H       hour of day (0~23)           number        0
+ k       clockhour of day (1~24)      number        24
+ m       minute of hour               number        30
+ s       second of minute             number        55
+ S       fraction of second           millis        978
+
+ z       time zone                    text          Pacific Standard Time; PST
+ Z       time zone offset/id          zone          -0800; -08:00; America/Los_Angeles
+
+ '       escape for text              delimiter
+ ''      single quote                 literal       '
+ 
+         */
+
+        protected readonly string DATE_FORMAT = "yyyyMMddHHmmss";
+
         public ESSerializerV2()
         {
         }
@@ -27,91 +64,92 @@ namespace ElasticSearch.Common
             {
                 name = "media_id",
                 type = eESFieldType.LONG,
-                index = eMappingIndex.no,
+                index = eMappingIndex.not_analyzed,
                 null_value = "0"
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
                 name = "group_id",
                 type = eESFieldType.INTEGER,
-                index = eMappingIndex.no,
+                index = eMappingIndex.not_analyzed,
                 null_value = "0"
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
                 name = "media_type_id",
                 type = eESFieldType.INTEGER,
-                index = eMappingIndex.no,
+                index = eMappingIndex.not_analyzed,
                 null_value = "0"
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
                 name = "wp_type_id",
                 type = eESFieldType.INTEGER,
-                index = eMappingIndex.no,
+                index = eMappingIndex.not_analyzed,
                 null_value = "0"
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
                 name = "is_active",
                 type = eESFieldType.INTEGER,
-                index = eMappingIndex.no,
+                index = eMappingIndex.not_analyzed,
                 null_value = "0"
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
                 name = "device_rule_id",
                 type = eESFieldType.INTEGER,
-                index = eMappingIndex.no,
+                index = eMappingIndex.not_analyzed,
                 null_value = "0"
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
                 name = "like_counter",
                 type = eESFieldType.INTEGER,
-                index = eMappingIndex.no,
+                index = eMappingIndex.not_analyzed,
                 null_value = "0"
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
                 name = "start_date",
                 type = eESFieldType.DATE,
-                index = eMappingIndex.no,
-                format = "dateOptionalTime"
+                index = eMappingIndex.not_analyzed,
+                format = DATE_FORMAT
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
                 name = "end_date",
                 type = eESFieldType.DATE,
-                index = eMappingIndex.no,
-                format = "dateOptionalTime"
+                index = eMappingIndex.not_analyzed,
+                format = DATE_FORMAT
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
                 name = "final_date",
                 type = eESFieldType.DATE,
-                index = eMappingIndex.no,
-                format = "dateOptionalTime"
+                index = eMappingIndex.not_analyzed,
+                format = DATE_FORMAT
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
                 name = "create_date",
                 type = eESFieldType.DATE,
-                index = eMappingIndex.no,
-                format = "dateOptionalTime"
+                index = eMappingIndex.not_analyzed,
+                format = DATE_FORMAT
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
                 name = "update_date",
                 type = eESFieldType.DATE,
-                index = eMappingIndex.no
+                index = eMappingIndex.not_analyzed,
+                format = DATE_FORMAT
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
                 name = "cache_date",
                 type = eESFieldType.DATE,
-                index = eMappingIndex.no,
-                format = "dateOptionalTime"
+                index = eMappingIndex.not_analyzed,
+                format = DATE_FORMAT
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
@@ -348,43 +386,45 @@ namespace ElasticSearch.Common
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
                 name = "epg_id",
-                index = eMappingIndex.no,
+                index = eMappingIndex.not_analyzed,
                 type = eESFieldType.LONG
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
                 name = "group_id",
-                index = eMappingIndex.no,
+                index = eMappingIndex.not_analyzed,
                 type = eESFieldType.INTEGER
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
                 name = "epg_channel_id",
-                index = eMappingIndex.no,
+                index = eMappingIndex.not_analyzed,
                 type = eESFieldType.INTEGER
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
                 name = "is_active",
-                index = eMappingIndex.no,
+                index = eMappingIndex.not_analyzed,
                 type = eESFieldType.INTEGER
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
                 name = "start_date",
-                index = eMappingIndex.no,
-                type = eESFieldType.DATE
+                index = eMappingIndex.not_analyzed,
+                type = eESFieldType.DATE,
+                format = DATE_FORMAT
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
                 name = "end_date",
-                index = eMappingIndex.no,
-                type = eESFieldType.DATE
+                index = eMappingIndex.not_analyzed,
+                type = eESFieldType.DATE,
+                format = DATE_FORMAT
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
                 name = "date_routing",
-                index = eMappingIndex.no,
+                index = eMappingIndex.not_analyzed,
                 type = eESFieldType.STRING
             });
 
@@ -464,14 +504,16 @@ namespace ElasticSearch.Common
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
                 name = "cache_date",
-                index = eMappingIndex.no,
-                type = eESFieldType.DATE
+                index = eMappingIndex.not_analyzed,
+                type = eESFieldType.DATE,
+                format = DATE_FORMAT
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
                 name = "create_date",
                 type = eESFieldType.DATE,
-                index = eMappingIndex.no
+                index = eMappingIndex.not_analyzed,
+                format = DATE_FORMAT
             });
 
             #endregion
