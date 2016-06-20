@@ -22,7 +22,8 @@ namespace ApiObjects.TimeShiftedTv
             this.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             this.LastSuccessfulCleanUpDate = lastSuccessfulCleanUpDate;
             this.DeletedRecordingOnLastCleanup = deletedRecordingOnLastCleanup;
-            this.DomainRecordingsUpdatedOnLastCleanup = domainRecordingsUpdatedOnLastCleanup;            
+            this.DomainRecordingsUpdatedOnLastCleanup = domainRecordingsUpdatedOnLastCleanup;
+            this.IntervalInMinutes = intervalInMinutes;
         }
 
         public override string ToString()
