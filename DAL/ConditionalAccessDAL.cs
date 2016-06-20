@@ -2608,13 +2608,15 @@ namespace DAL
             return result;
         }
 
-        public static bool DeleteRecording(long recordingId)
+        public static int DeleteRecording(long recordingId)
         {
+            int result = 0;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteRecording");
             sp.SetConnectionKey("CONNECTION_STRING");
             sp.AddParameter("@RecordID", recordingId);
 
-            return sp.ExecuteReturnValue<bool>();
+            result = sp.ExecuteReturnValue<int>();
+            return result;
         }
 
         public static DataTable GetDomainExistingRecordingsByEpdIgs(int groupID, long domainID, List<long> epgIds)

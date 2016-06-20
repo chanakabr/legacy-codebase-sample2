@@ -326,11 +326,11 @@ namespace Recordings
                     {
                        
                         // Update recording information in to database
-                        bool deleteResult = ConditionalAccessDAL.DeleteRecording(slimRecording.Id);
+                        int deleteResult = ConditionalAccessDAL.DeleteRecording(slimRecording.Id);
 
-                        if (!deleteResult)
+                        if (deleteResult == 0)
                         {
-                            return new Status((int)eResponseStatus.Error, "Failed update recording");
+                            return new Status((int)eResponseStatus.Error, "Failed deleting recording");
                         }
 
                         UpdateCouchbaseIsRecorded(groupId, slimRecording.EpgId, false);
