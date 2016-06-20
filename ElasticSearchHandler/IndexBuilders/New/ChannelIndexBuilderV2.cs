@@ -18,7 +18,6 @@ namespace ElasticSearchHandler.IndexBuilders
 {
     public class ChannelIndexBuilderV2 : AbstractIndexBuilder
     {
-        private static readonly string MEDIA = "media";
         private static readonly string PERCOLATOR = "_percolator";
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -46,7 +45,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                 if (group == null)
                 {
-                    log.ErrorFormat("Could not load group {0} in media index builder", groupId);
+                    log.ErrorFormat("Could not load group {0} in channel index builder", groupId);
                     return false;
                 }
                 try
@@ -66,8 +65,15 @@ namespace ElasticSearchHandler.IndexBuilders
                     
                     HashSet<string> channelsToRemove;
 
+                    var indexAliases = api.GetAliases(indexName);
+                    if (indexAliases == null || indexAliases.Count != 1)
+                    {
+                        log.ErrorFormat("Could not get valid index alias for group {0} in channel index builder, with index name = {1}", groupId, indexName);
+                        return false;
+                    }
+
                     // insert / update new channels
-                    result = BuildChannelQueries(groupId, api, group.channelIDs, indexName, out channelsToRemove);
+                    result = BuildChannelQueries(groupId, api, group.channelIDs, indexAliases[0], out channelsToRemove);
 
                     if (result)
                     {
