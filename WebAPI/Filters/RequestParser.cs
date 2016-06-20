@@ -157,7 +157,14 @@ namespace WebAPI.Filters
             }
 
             // impersonated user_id
-            HttpContext.Current.Items.Remove(REQUEST_USER_ID);
+
+            var testUserId = HttpContext.Current.Items[RequestParser.REQUEST_USER_ID];
+            log.Debug(string.Format("testUserId [{0}]", testUserId));
+            
+            HttpContext.Current.Items.Remove(REQUEST_USER_ID); 
+            
+            testUserId = HttpContext.Current.Items[RequestParser.REQUEST_USER_ID];
+            log.Debug(string.Format("testUserId [{0}]", testUserId));
             if ((requestParams.ContainsKey("user_id") && requestParams["user_id"] != null) || (requestParams.ContainsKey("userId") && requestParams["userId"] != null))
             {
                 object userIdObject = requestParams.ContainsKey("userId") ? requestParams["userId"] : requestParams["user_id"];
@@ -174,10 +181,15 @@ namespace WebAPI.Filters
                 HttpContext.Current.Items.Add(REQUEST_USER_ID, userId);
                 if (globalScope)
                     globalUserId = userId;
+
+                testUserId = HttpContext.Current.Items[RequestParser.REQUEST_USER_ID];
+                log.Debug(string.Format("testUserId [{0}]", testUserId));
             }
             else if (globalUserId != null)
             {
                 HttpContext.Current.Items.Add(REQUEST_USER_ID, globalUserId);
+                testUserId = HttpContext.Current.Items[RequestParser.REQUEST_USER_ID];
+                log.Debug(string.Format("testUserId [{0}]", testUserId));
             }
 
             // language
