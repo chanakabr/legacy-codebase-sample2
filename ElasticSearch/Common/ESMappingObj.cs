@@ -375,6 +375,12 @@ namespace ElasticSearch.Common
             get;
             set;
         }
+        public string format
+        {
+            get;
+            set;
+        }
+
         public BasicMappingPropertyV2()
         {
             type = eESFieldType.INTEGER;
@@ -384,6 +390,7 @@ namespace ElasticSearch.Common
             analyzer = string.Empty;
             store = true;
             name = string.Empty;
+            format = string.Empty;
         }
 
         public override string ToString()
@@ -402,7 +409,12 @@ namespace ElasticSearch.Common
                 sb.AppendFormat(",\"null_value\": \"{0}\"", null_value);
             }
 
-            sb.AppendFormat(",\"index\": \"not_analyzed\"");
+            if (!string.IsNullOrEmpty(format))
+            {
+                sb.AppendFormat(",\"format\": \"{0}\"", format);
+            }
+
+            sb.AppendFormat(",\"index\": \"{0}\"", index);
 
             if (index == eMappingIndex.analyzed)
             {

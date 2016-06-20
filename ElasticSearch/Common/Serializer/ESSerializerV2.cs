@@ -76,25 +76,29 @@ namespace ElasticSearch.Common
             {
                 name = "start_date",
                 type = eESFieldType.DATE,
-                index = eMappingIndex.no
+                index = eMappingIndex.no,
+                format = "dateOptionalTime"
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
                 name = "end_date",
                 type = eESFieldType.DATE,
-                index = eMappingIndex.no
+                index = eMappingIndex.no,
+                format = "dateOptionalTime"
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
                 name = "final_date",
                 type = eESFieldType.DATE,
-                index = eMappingIndex.no
+                index = eMappingIndex.no,
+                format = "dateOptionalTime"
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
                 name = "create_date",
                 type = eESFieldType.DATE,
-                index = eMappingIndex.no
+                index = eMappingIndex.no,
+                format = "dateOptionalTime"
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
@@ -106,7 +110,8 @@ namespace ElasticSearch.Common
             {
                 name = "cache_date",
                 type = eESFieldType.DATE,
-                index = eMappingIndex.no
+                index = eMappingIndex.no,
+                format = "dateOptionalTime"
             });
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
