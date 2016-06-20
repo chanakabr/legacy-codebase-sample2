@@ -3011,8 +3011,7 @@ namespace DAL
             Dictionary<long, KeyValuePair<int, Recording>> recordingsForCleanup = new Dictionary<long, KeyValuePair<int, Recording>>();            
             ODBCWrapper.StoredProcedure spGetRecordginsForCleanup = new ODBCWrapper.StoredProcedure("GetRecordingsForCleanup");
             spGetRecordginsForCleanup.SetConnectionKey("CONNECTION_STRING");
-            spGetRecordginsForCleanup.AddParameter("@UtcNowEpoch", utcNowEpoch);
-            spGetRecordginsForCleanup.AddParameter("@DefaultLifetimePeriod", utcNowEpoch);
+            spGetRecordginsForCleanup.AddParameter("@UtcNowEpoch", utcNowEpoch);            
 
             DataTable dt = spGetRecordginsForCleanup.Execute();
             if (dt != null && dt.Rows != null)
