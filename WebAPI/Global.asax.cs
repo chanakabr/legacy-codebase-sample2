@@ -29,25 +29,9 @@ namespace WebAPI
 
         protected void Application_BeginRequest()
         {
-            // get group ID
-            NameValueCollection queryParams = Request.Url.ParseQueryString();
-            if (queryParams["partnerId"] != null)
-                HttpContext.Current.Items[Constants.GROUP_ID] = queryParams["partnerId"];
-
-            if (queryParams["user_id"] != null)
-                HttpContext.Current.Items[Constants.USER_ID] = queryParams["user_id"];
-
-            // get user agent
-            if (HttpContext.Current.Request.UserAgent != null)
-                HttpContext.Current.Items[Constants.CLIENT_TAG] = queryParams["clientTag"];
-
             // get host IP
             if (HttpContext.Current.Request.UserHostAddress != null)
                 HttpContext.Current.Items[Constants.HOST_IP] = HttpContext.Current.Request.UserHostAddress;
-
-            // get action name
-            if (HttpContext.Current.Request.AppRelativeCurrentExecutionFilePath != null)
-                HttpContext.Current.Items[Constants.ACTION] = HttpContext.Current.Request.AppRelativeCurrentExecutionFilePath;
         }
     }
 }

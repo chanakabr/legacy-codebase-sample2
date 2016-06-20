@@ -13,11 +13,16 @@ using WebAPI.Models.General;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers;
+using WebAPI.Filters;
+using KLogMonitor;
+using System.Reflection;
 
 namespace WebAPI.Controllers
 {
     internal class ApiAuthorizeAttribute : Attribute
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         [Flags]
         public enum eRole { /* Placeholder */ }
         public eRole Role { get; set; }
@@ -67,10 +72,14 @@ namespace WebAPI.Controllers
             
             // allowed group users (additional user_id) handling:
             // get user_id additional parameter
+            
+            var testUserId = HttpContext.Current.Items[RequestParser.REQUEST_USER_ID];
+            log.Debug(string.Format("testUserId [{0}]", testUserId));
+
             string userId = null;
-            if (HttpContext.Current.Items.Contains("user_id"))
+            if (HttpContext.Current.Items.Contains(RequestParser.REQUEST_USER_ID))
             {
-                var extraUserId = HttpContext.Current.Items["user_id"];
+                var extraUserId = HttpContext.Current.Items[RequestParser.REQUEST_USER_ID];
                 userId = extraUserId != null ? extraUserId.ToString() : null;
             }
             // if exists and is in the allowed group users list - override the user id in ks (HOUSEHOLD_WILDCARD = everyone in the domain is allowed, PARTNER_WILDCARD = everyone in the group is allowed)
