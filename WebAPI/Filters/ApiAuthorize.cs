@@ -13,6 +13,7 @@ using WebAPI.Models.General;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers;
+using WebAPI.Filters;
 
 namespace WebAPI.Controllers
 {
@@ -60,7 +61,7 @@ namespace WebAPI.Controllers
             // no roles found for the user
             if (roleIds == null || roleIds.Count == 0)
                 throw new UnauthorizedException((int)StatusCode.ServiceForbidden, "Service Forbidden");
-
+            
             // user not permitted
             if (!RolesManager.IsActionPermitedForRoles(ks.GroupId, service, action, roleIds, out allowedUsersGroup))
                 throw new UnauthorizedException((int)StatusCode.ServiceForbidden, "Service Forbidden");
@@ -68,9 +69,9 @@ namespace WebAPI.Controllers
             // allowed group users (additional user_id) handling:
             // get user_id additional parameter
             string userId = null;
-            if (HttpContext.Current.Items.Contains("user_id"))
+            if (HttpContext.Current.Items.Contains(RequestParser.REQUEST_USER_ID))
             {
-                var extraUserId = HttpContext.Current.Items["user_id"];
+                var extraUserId = HttpContext.Current.Items[RequestParser.REQUEST_USER_ID];
                 userId = extraUserId != null ? extraUserId.ToString() : null;
             }
             // if exists and is in the allowed group users list - override the user id in ks (HOUSEHOLD_WILDCARD = everyone in the domain is allowed, PARTNER_WILDCARD = everyone in the group is allowed)
