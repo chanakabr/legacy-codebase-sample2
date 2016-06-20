@@ -17166,7 +17166,7 @@ namespace ConditionalAccess
                         }
                         else
                         {
-                            res = ConditionalAccessDAL.CancelRecording(domainRecordingId);  // delete recording id from domian                             
+                            res = ConditionalAccessDAL.CancelDomainRecording(domainRecordingId);  // delete recording id from domian                             
                         }
                         break;
                     case TstvRecordingStatus.Deleted:
@@ -17191,7 +17191,10 @@ namespace ConditionalAccess
                     recording.RecordingStatus = tstvRecordingStatus;
                     recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     // if no other users assign to this record id - ask adapter to cancel
-                    CancelRecording(recording);
+                    if(Utils.CancelOrDeleteRecording(m_nGroupID, recording, tstvRecordingStatus))
+                    {
+                        log.DebugFormat("Recording {0} has been updated to status {1}", recording.Id, tstvRecordingStatus.ToString());
+                    }
                 }
                 else
                 {
@@ -17213,18 +17216,6 @@ namespace ConditionalAccess
                 log.Error(sb.ToString(), ex);
             }
             return recording;
-        }
-
-        private void CancelRecording(Recording recording)
-        {
-            DataTable dt = ConditionalAccessDAL.GetExistingRecordingsByRecordingID(m_nGroupID, recording.Id);
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-            {
-                if ((ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "countUsers", 0)) == 0)
-                {
-                    var currentStatus = RecordingsManager.Instance.CancelRecording(m_nGroupID, recording.EpgId);
-                }
-            }
         }        
 
         public RecordingResponse QueryRecords(string userID, List<long> epgIDs, ref long domainID, bool isAggregative)
@@ -17705,7 +17696,7 @@ namespace ConditionalAccess
             {
                 foreach (var id in epgIds)
                 {
-                    var currentStatus = RecordingsManager.Instance.CancelRecording(groupID, id);
+                    var currentStatus = RecordingsManager.Instance.CancelOrDeleteRecording(groupID, id, TstvRecordingStatus.Canceled);
 
                     // If something went wrong, use the first status that failed
                     if (status == null)
@@ -18068,7 +18059,7 @@ namespace ConditionalAccess
                             groupIdToAdapterIdMap.Add(pair.Key, adapterId);
                         }
 
-                        ApiObjects.Response.Status deleteStatus = RecordingsManager.Instance.DeleteRecording(pair.Key, pair.Value, adapterId);
+                        ApiObjects.Response.Status deleteStatus = RecordingsManager.Instance.CancelOrDeleteRecording(pair.Key, pair.Value, TstvRecordingStatus.Deleted, adapterId);
                         if (deleteStatus.Code != (int)eResponseStatus.OK)
                         {
                             log.ErrorFormat("Failed deleting recordingID: {0} for groupID {1}", pair.Value.Id, m_nGroupID);

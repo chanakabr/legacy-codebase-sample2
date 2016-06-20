@@ -2608,15 +2608,22 @@ namespace DAL
             return result;
         }
 
-        public static int DeleteRecording(long recordingId)
+        public static bool CancelRecording(long recordingId)
         {
-            int result = 0;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelRecording");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@RecordID", recordingId);
+
+            return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static bool DeleteRecording(long recordingId)
+        {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteRecording");
             sp.SetConnectionKey("CONNECTION_STRING");
             sp.AddParameter("@RecordID", recordingId);
 
-            result = sp.ExecuteReturnValue<int>();
-            return result;
+            return sp.ExecuteReturnValue<bool>();
         }
 
         public static DataTable GetDomainExistingRecordingsByEpdIgs(int groupID, long domainID, List<long> epgIds)
@@ -2933,9 +2940,9 @@ namespace DAL
             return sp.ExecuteReturnValue<int>();
         }
 
-        public static bool CancelRecording(long recordingID)
+        public static bool CancelDomainRecording(long recordingID)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelRecording");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelDomainRecording");
             sp.SetConnectionKey("CONNECTION_STRING");
             sp.AddParameter("@RecordID", recordingID);
 
