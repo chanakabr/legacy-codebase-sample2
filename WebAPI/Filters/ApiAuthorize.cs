@@ -14,15 +14,11 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers;
 using WebAPI.Filters;
-using KLogMonitor;
-using System.Reflection;
 
 namespace WebAPI.Controllers
 {
     internal class ApiAuthorizeAttribute : Attribute
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
         [Flags]
         public enum eRole { /* Placeholder */ }
         public eRole Role { get; set; }
@@ -65,17 +61,13 @@ namespace WebAPI.Controllers
             // no roles found for the user
             if (roleIds == null || roleIds.Count == 0)
                 throw new UnauthorizedException((int)StatusCode.ServiceForbidden, "Service Forbidden");
-
+            
             // user not permitted
             if (!RolesManager.IsActionPermitedForRoles(ks.GroupId, service, action, roleIds, out allowedUsersGroup))
                 throw new UnauthorizedException((int)StatusCode.ServiceForbidden, "Service Forbidden");
             
             // allowed group users (additional user_id) handling:
             // get user_id additional parameter
-            
-            var testUserId = HttpContext.Current.Items[RequestParser.REQUEST_USER_ID];
-            log.Debug(string.Format("testUserId [{0}]", testUserId));
-
             string userId = null;
             if (HttpContext.Current.Items.Contains(RequestParser.REQUEST_USER_ID))
             {
