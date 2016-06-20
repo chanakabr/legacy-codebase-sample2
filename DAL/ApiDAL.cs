@@ -2650,12 +2650,10 @@ namespace DAL
             return task;
         }
 
-        public static long UpdateBulkExportTask(int groupId, long id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency,
+        public static BulkExportTask UpdateBulkExportTask(int groupId, long id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency,
              string notificationUrl, List<int> vodTypes, string version, bool? isActive)
         {
-            long taskId = 0;
-
-            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Update_BulkExportTask");
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Update_BulkExportTaskAndGet");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
             storedProcedure.AddParameter("@group_id", groupId);
             storedProcedure.AddParameter("@id", id);
@@ -2676,10 +2674,12 @@ namespace DAL
                 storedProcedure.AddParameter("@is_active", null);
             }
             storedProcedure.AddIDListParameter("@vod_types", vodTypes, "ID");
+            
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+            DataTable tasksTable = dataSet.Tables[0];
 
-            taskId = storedProcedure.ExecuteReturnValue<long>();
-
-            return taskId;
+            BulkExportTask task = BuildExportTaskFromDataRow(tasksTable.Rows[0]);
+            return task;
         }
 
         public static bool DeleteBulkExportTask(int groupId, long? id, string externalKey)
@@ -2714,6 +2714,25 @@ namespace DAL
             return tasks;
         }
 
+        private static BulkExportTask BuildExportTaskFromDataRow(DataRow row)
+        {
+            return new BulkExportTask()
+            {
+                DataType = (eBulkExportDataType)ODBCWrapper.Utils.GetIntSafeVal(row, "DATA_TYPE"),
+                ExportType = (eBulkExportExportType)ODBCWrapper.Utils.GetIntSafeVal(row, "EXPORT_TYPE"),
+                ExternalKey = ODBCWrapper.Utils.GetSafeStr(row, "EXTERNAL_KEY"),
+                Filter = ODBCWrapper.Utils.GetSafeStr(row, "FILTER"),
+                Frequency = ODBCWrapper.Utils.GetLongSafeVal(row, "FREQUENCY"),
+                Id = ODBCWrapper.Utils.GetLongSafeVal(row, "ID"),
+                Name = ODBCWrapper.Utils.GetSafeStr(row, "NAME"),
+                Version = ODBCWrapper.Utils.GetSafeStr(row, "VERSION"),
+                InProcess = ODBCWrapper.Utils.GetIntSafeVal(row, "IN_PROCESS") == 0 ? false : true,
+                LastProcess = ODBCWrapper.Utils.GetNullableDateSafeVal(row, "LAST_PROCESS"),
+                NotificationUrl = ODBCWrapper.Utils.GetSafeStr(row, "NOTIFICATION_URL"),
+                IsActive = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_ACTIVE") == 0 ? false : true
+            };
+        }
+
         private static List<BulkExportTask> BuildExportTasksFromDataSet(DataSet dataSet)
         {
             List<BulkExportTask> tasks = new List<BulkExportTask>();
@@ -2732,21 +2751,7 @@ namespace DAL
 
                         foreach (DataRow row in tasksTable.Rows)
                         {
-                            tasks.Add(new BulkExportTask()
-                            {
-                                DataType = (eBulkExportDataType)ODBCWrapper.Utils.GetIntSafeVal(row, "DATA_TYPE"),
-                                ExportType = (eBulkExportExportType)ODBCWrapper.Utils.GetIntSafeVal(row, "EXPORT_TYPE"),
-                                ExternalKey = ODBCWrapper.Utils.GetSafeStr(row, "EXTERNAL_KEY"),
-                                Filter = ODBCWrapper.Utils.GetSafeStr(row, "FILTER"),
-                                Frequency = ODBCWrapper.Utils.GetLongSafeVal(row, "FREQUENCY"),
-                                Id = ODBCWrapper.Utils.GetLongSafeVal(row, "ID"),
-                                Name = ODBCWrapper.Utils.GetSafeStr(row, "NAME"),
-                                Version = ODBCWrapper.Utils.GetSafeStr(row, "VERSION"),
-                                InProcess = ODBCWrapper.Utils.GetIntSafeVal(row, "IN_PROCESS") == 0 ? false : true,
-                                LastProcess = ODBCWrapper.Utils.GetNullableDateSafeVal(row, "LAST_PROCESS"),
-                                NotificationUrl = ODBCWrapper.Utils.GetSafeStr(row, "NOTIFICATION_URL"),
-                                IsActive = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_ACTIVE") == 0 ? false : true
-                            });
+                            tasks.Add(BuildExportTaskFromDataRow(row));
                         }
                     }
 
