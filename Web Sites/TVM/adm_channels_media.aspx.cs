@@ -72,8 +72,8 @@ public partial class adm_channels_media : System.Web.UI.Page
 
     public void GetHeader()
     {
-        Response.Write(PageUtils.GetPreHeader() + ":" + 
-            PageUtils.GetTableSingleVal("channels", "NAME", int.Parse(Session["channel_id"].ToString())).ToString() + 
+        Response.Write(PageUtils.GetPreHeader() + ":" +
+            PageUtils.GetTableSingleVal("channels", "NAME", int.Parse(Session["channel_id"].ToString())).ToString() +
             ": Assets List");
     }
 
@@ -113,20 +113,12 @@ public partial class adm_channels_media : System.Web.UI.Page
     {
         // 1 = Auto channel 2 = manual channel
         GroupsCacheManager.ChannelType type = (GroupsCacheManager.ChannelType)channelType;
-        
+
         string mediaIds = string.Empty;
         string epgIds = string.Empty;
         int countMedia = 0;
         int countEpg = 0;
-        switch (type)
-        {
-            case GroupsCacheManager.ChannelType.Manual:
-                GetAssetIdsFromDB(channelID, out mediaIds, out countMedia);
-                break;
-            default:
-                GetAssetIdsFromCatalog(channelID, out mediaIds, out epgIds, out countMedia, out countEpg);
-                break;
-        }
+        GetAssetIdsFromCatalog(channelID, out mediaIds, out epgIds, out countMedia, out countEpg);
 
         string mediaQuery = string.Empty;
         string epgQuery = string.Empty;
@@ -294,39 +286,7 @@ public partial class adm_channels_media : System.Web.UI.Page
         }
     }
 
-    private void GetAssetIdsFromDB(int channelID, out string mediaIds, out int countMedia)
-    {
-        mediaIds = string.Empty;
-        countMedia = 0;
-        try
-        {
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select MEDIA_ID from channels_media where status <> 2 and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_ID", "=", channelID);
-            selectQuery.SetCachedSec(0);
-            if (selectQuery.Execute("query", true) != null)
-            {
-                countMedia = selectQuery.Table("query").DefaultView.Count;
-                if (countMedia > 0)
-                {
-                    List<string> medias = new List<string>();
-                    foreach (DataRow item in selectQuery.Table("query").Rows)
-                    {
-                        medias.Add(ODBCWrapper.Utils.GetSafeStr(item, "MEDIA_ID"));
-                    }
-
-                    mediaIds = string.Join(",", medias);
-                }
-            }
-            selectQuery.Finish();
-            selectQuery = null;
-        }
-        catch (Exception ex)
-        {         
-   
-        }
-    }
-
+  
     private string GetWSURL(string key)
     {
         return TVinciShared.WS_Utils.GetTcmConfigValue(key);
@@ -469,24 +429,24 @@ public partial class adm_channels_media : System.Web.UI.Page
         switch (orderBy)
         {
             case -10:
-            {
-                orderString = " e.start_date";
-                break;
-            }
+                {
+                    orderString = " e.start_date";
+                    break;
+                }
             case -11:
-            {
-                orderString = " e.name";
-                break;
-            }
+                {
+                    orderString = " e.name";
+                    break;
+                }
             case -12:
-            {
-                orderString = " e.create_date";
-                break;
-            }
+                {
+                    orderString = " e.create_date";
+                    break;
+                }
             default:
-            {
-                break;
-            }
+                {
+                    break;
+                }
         }
 
         return orderString;
@@ -500,7 +460,7 @@ public partial class adm_channels_media : System.Web.UI.Page
             retVal = (TVinciShared.OrderDir)orderDir;
         }
         return retVal;
-    } 
+    }
     #endregion
 
     private string GetMediaIdsFromCatalog(int channelID)
@@ -526,7 +486,7 @@ public partial class adm_channels_media : System.Web.UI.Page
             apiWS.API client = new apiWS.API();
             client.Url = sWSURL;
 
-            
+
             assetIds = client.GetChannelsAssetsIDs(sWSUserName, sWSPass, new int[] { channelID }, null, false, string.Empty, false, false);
             if (assetIds != null && assetIds.Length > 0)
             {
@@ -580,21 +540,21 @@ public partial class adm_channels_media : System.Web.UI.Page
                 switch (item.AssetType)
                 {
                     case apiWS.eAssetTypes1.EPG:
-                    {
-                        epgIds.Add(item.AssetId);
-                        break;
-                    }
+                        {
+                            epgIds.Add(item.AssetId);
+                            break;
+                        }
                     case apiWS.eAssetTypes1.MEDIA:
-                    {
-                        mediaIds.Add(item.AssetId);
-                        break;
-                    }
+                        {
+                            mediaIds.Add(item.AssetId);
+                            break;
+                        }
                     case apiWS.eAssetTypes1.NPVR:
-                    break;
+                        break;
                     case apiWS.eAssetTypes1.UNKNOWN:
-                    break;
+                        break;
                     default:
-                    break;
+                        break;
                 }
             }
 
