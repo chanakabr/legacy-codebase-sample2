@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using EpgBL;
+using ElasticSearch.Common;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
@@ -28,6 +29,7 @@ namespace ElasticSearchHandler.IndexBuilders
         public RecordingIndexBuilderV1(int groupId) : base(groupId)
         {
             epgToRecordingMapping = new Dictionary<int, long>();
+            serializer = new ESSerializerV1();
         }
 
         #endregion

@@ -15,12 +15,12 @@ namespace SetupTaskHandler
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         
-        protected ESSerializerV1 serializer;
+        protected ESSerializer serializer;
         protected ElasticSearchApi api;
 
         public IPToCountryIndexBuilder()
         {
-            serializer = new ESSerializerV1();
+            serializer = new ElasticSearch.Common.ESSerializer();
             api = new ElasticSearchApi();
         }
 

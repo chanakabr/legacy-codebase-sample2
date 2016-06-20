@@ -26,7 +26,7 @@ namespace ElasticSearchHandler.IndexBuilders
         public ChannelIndexBuilderV2(int groupID)
             : base(groupID)
         {
-
+            serializer = new ESSerializerV2();
         }
 
         #region Interface Methods

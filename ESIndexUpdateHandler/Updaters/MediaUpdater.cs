@@ -21,7 +21,7 @@ namespace ESIndexUpdateHandler.Updaters
         public static readonly string MEDIA = "media";
 
         private int groupID;
-        private ElasticSearch.Common.ESSerializerV1 esSerializer;
+        private ElasticSearch.Common.ESSerializer esSerializer;
         private ElasticSearch.Common.ElasticSearchApi esApi;
 
         public List<int> IDs { get; set; }
@@ -30,7 +30,7 @@ namespace ESIndexUpdateHandler.Updaters
         public MediaUpdater(int groupID)
         {
             this.groupID = groupID;
-            esSerializer = new ElasticSearch.Common.ESSerializerV1();
+            esSerializer = new ElasticSearch.Common.ESSerializer(); 
             esApi = new ElasticSearch.Common.ElasticSearchApi();
         }
 

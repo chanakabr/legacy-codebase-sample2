@@ -34,7 +34,7 @@ namespace ElasticSearchHandler.IndexBuilders
         public EpgIndexBuilderV1(int groupID)
             : base(groupID)
         {
-
+            serializer = new ESSerializerV1();
         }
 
         #endregion

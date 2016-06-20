@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ElasticSearchHandler.Updaters
 {
-    public class RecordingUpdaterV2 : EpgUpdaterV1
+    public class RecordingUpdaterV2 : EpgUpdaterV2
     {
         #region Consts
 

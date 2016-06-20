@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using EpgBL;
+using ElasticSearch.Common;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
@@ -20,7 +21,7 @@ namespace ElasticSearchHandler.IndexBuilders
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         protected Dictionary<int, long> epgToRecordingMapping = null;
-
+        
         #endregion
 
         #region Ctor
@@ -28,6 +29,7 @@ namespace ElasticSearchHandler.IndexBuilders
         public RecordingIndexBuilderV2(int groupId)
             : base(groupId)
         {
+            serializer = new ESSerializerV2();
             epgToRecordingMapping = new Dictionary<int, long>();
         }
 

@@ -23,12 +23,12 @@ namespace ElasticSearchHandler.IndexBuilders
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-
         public MediaIndexBuilderV2(int groupID)
             : base(groupID)
         {
-
+            serializer = new ESSerializerV2();
         }
+
 
         #region Interface Methods
 
@@ -268,7 +268,6 @@ namespace ElasticSearchHandler.IndexBuilders
             CopySearchValuesToSearchObjects(ref searchObject, channel.m_eCutWith, channel.m_lChannelTags);
             return searchObject;
         }
-
 
         private static void CopySearchValuesToSearchObjects(ref ApiObjects.SearchObjects.MediaSearchObj searchObject,
             ApiObjects.SearchObjects.CutWith cutWith, List<ApiObjects.SearchObjects.SearchValue> channelSearchValues)

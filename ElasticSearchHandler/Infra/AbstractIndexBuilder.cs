@@ -16,8 +16,8 @@ namespace ElasticSearchHandler.IndexBuilders
         #region Data Members
         
         protected int groupId;
-        protected ESSerializerV1 serializer;
         protected ElasticSearchApi api;
+        protected BaseESSeralizer serializer;
 
         #endregion
 
@@ -76,7 +76,6 @@ namespace ElasticSearchHandler.IndexBuilders
         {
             this.groupId = groupID;
             api = new ElasticSearchApi();
-            serializer = new ESSerializerV1();
         }
 
         #endregion

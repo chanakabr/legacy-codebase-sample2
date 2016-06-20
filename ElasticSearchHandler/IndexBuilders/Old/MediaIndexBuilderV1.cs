@@ -22,10 +22,11 @@ namespace ElasticSearchHandler.IndexBuilders
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
+
         public MediaIndexBuilderV1(int groupID)
             : base(groupID)
         {
-
+            serializer = new ESSerializerV1();
         }
 
         #region Interface Methods
