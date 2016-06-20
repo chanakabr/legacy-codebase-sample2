@@ -18082,15 +18082,19 @@ namespace ConditionalAccess
 
                     totalRecordingsDeleted += deletedRecordingIds.Count;
                     // update domain recordings
-                    updatedDomainRecordingsRowCount = ConditionalAccessDAL.UpdateDomainRecordingsAfterCleanup(deletedRecordingIds);
-                    if (updatedDomainRecordingsRowCount > 0)
+                    if (deletedRecordingIds.Count > 0)
                     {
-                        totalDomainRecordingsUpdated += updatedDomainRecordingsRowCount;
-                        log.DebugFormat("updated {0} rows on domain recordings after cleanup", updatedDomainRecordingsRowCount);
-                    }
-                    else
-                    {
-                        log.Error("Failed updating domain recordings after cleanup");
+                        updatedDomainRecordingsRowCount = ConditionalAccessDAL.UpdateDomainRecordingsAfterCleanup(deletedRecordingIds);
+
+                        if (updatedDomainRecordingsRowCount > 0)
+                        {
+                            totalDomainRecordingsUpdated += updatedDomainRecordingsRowCount;
+                            log.DebugFormat("updated {0} rows on domain recordings after cleanup", updatedDomainRecordingsRowCount);
+                        }
+                        else
+                        {
+                            log.Error("Failed updating domain recordings after cleanup");
+                        }
                     }
 
                     recordingsForDeletion = ConditionalAccessDAL.GetRecordingsForCleanup(utcNowEpoch);
