@@ -382,5 +382,33 @@ namespace Catalog.Cache
 
             return values;
         }
+
+        public bool IsTstvSettingsExists(int groupId)
+        {
+            bool isTstvSettingsExists = false;
+            try
+            {
+                string key = string.Format("TstvGroupSettingsExists_{0}", groupId);
+                object obj = Get(key);
+                if (obj != null)
+                {
+                    isTstvSettingsExists = (bool)obj;
+                }
+                else
+                {
+                    DataRow dr = ApiDAL.GetTimeShiftedTvPartnerSettings(groupId);
+                    if (dr != null)
+                    {
+                        isTstvSettingsExists = true;                        
+                    }
+                    Set(key, isTstvSettingsExists);
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+            return isTstvSettingsExists;
+        }
     }
 }

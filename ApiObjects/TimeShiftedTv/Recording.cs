@@ -12,7 +12,7 @@ namespace ApiObjects.TimeShiftedTv
         
         public ApiObjects.Response.Status Status { get; set; }
 
-        public long Id { get; set; }
+        public long Id { get; set; }        
 
         public long EpgId { get; set; }
 
@@ -29,6 +29,14 @@ namespace ApiObjects.TimeShiftedTv
         public RecordingType Type { get; set; }       
 
         public int GetStatusRetries { get; set; }
+
+        public long? ProtectedUntilDate { get; set; }
+
+        public long? ViewableUntilDate { get; set; }
+
+        public DateTime CreateDate { get; set; }
+
+        public DateTime UpdateDate { get; set; }
 
         public Recording()
         {
@@ -50,6 +58,10 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("StartDate: {0}, ", EpgStartDate != null ? EpgStartDate.ToString() : ""));
             sb.Append(string.Format("EndDate: {0}, ", EpgEndDate != null ? EpgEndDate.ToString() : ""));
             sb.Append(string.Format("GetStatusRetries: {0}, ", GetStatusRetries));
+            sb.Append(string.Format("ViewableUntilDate: {0}, ", ViewableUntilDate.HasValue ? ViewableUntilDate.Value.ToString() : ""));
+            sb.Append(string.Format("ProtectedUntilDate: {0}, ", ProtectedUntilDate.HasValue ? ProtectedUntilDate.Value.ToString() : ""));
+            sb.Append(string.Format("CreateDate: {0}, ", CreateDate != null ? CreateDate.ToString() : ""));
+            sb.Append(string.Format("UpdateDate: {0}, ", UpdateDate != null ? UpdateDate.ToString() : ""));            
 
             return sb.ToString();
         }

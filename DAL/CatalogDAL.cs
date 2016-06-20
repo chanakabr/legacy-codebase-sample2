@@ -23,7 +23,7 @@ namespace Tvinci.Core.DAL
         private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
         private static readonly string CB_EPG_DOCUMENT_EXPIRY_DAYS = ODBCWrapper.Utils.GetTcmConfigValue("epg_doc_expiry");
         private static readonly string CB_PLAYCYCLE_DOC_EXPIRY_MIN = ODBCWrapper.Utils.GetTcmConfigValue("playCycle_doc_expiry_min");
-        private const int RETRY_LIMIT = 5;        
+        private const int RETRY_LIMIT = 5;
 
         public static DataSet Get_MediaDetails(int nGroupID, int nMediaID, string sSiteGuid, bool bOnlyActiveMedia, int nLanguage, string sEndDate, bool bUseStartDate, List<int> lSubGroupTree)
         {
@@ -1543,7 +1543,7 @@ namespace Tvinci.Core.DAL
                 staleState = CouchbaseManager.ViewStaleState.False,
                 asJson = true
             };
-            
+
             List<WatchHistory> lastWatchViews = cbManager.View<WatchHistory>(viewManager);
 
             foreach (var view in lastWatchViews)
@@ -2442,7 +2442,7 @@ namespace Tvinci.Core.DAL
 
                 //For quick last position access
                 umm.LastMark = dev;
-                
+
                 TimeSpan? epgDocExpiry = null;
 
                 uint cbEpgDocumentExpiryDays;
@@ -2757,7 +2757,7 @@ namespace Tvinci.Core.DAL
         /// <param name="groupId"></param>
         /// <param name="idToName"></param>
         /// <param name="nameToId"></param>
-        public static void GetMediaTypes(int groupId, out Dictionary<int, string> idToName, 
+        public static void GetMediaTypes(int groupId, out Dictionary<int, string> idToName,
             out Dictionary<string, int> nameToId, out Dictionary<int, int> parentMediaTypes,
             out List<int> linearChannelMediaTypes)
         {
@@ -4168,7 +4168,7 @@ namespace Tvinci.Core.DAL
             // create new playCycleKey even when updating an existing document since its a new session
             string playCycleKey = Guid.NewGuid().ToString();
 
-            try                
+            try
             {
                 string docKey = UtilsDal.GetPlayCycleKey(siteGuid, MediaFileID, groupID, UDID, platform);
 
@@ -4176,7 +4176,7 @@ namespace Tvinci.Core.DAL
                 playCycleSession = cbClient.GetWithVersion<PlayCycleSession>(docKey, out version);
 
                 if (version != 0 && playCycleSession != null)
-                {                    
+                {
                     playCycleSession.MediaConcurrencyRuleID = mediaConcurrencyRuleID;
                     playCycleSession.CreateDateMs = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
                     playCycleSession.PlayCycleKey = playCycleKey;
@@ -4199,17 +4199,17 @@ namespace Tvinci.Core.DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed InsertPlayCycleSession, userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaConcurrencyRuleID: {4}, playCycleKey: {5}, mediaFileID: {6}, Exception: {7}", 
-                                 siteGuid, groupID, UDID, platform, mediaConcurrencyRuleID, playCycleKey, MediaFileID, ex.Message);                
+                log.ErrorFormat("Failed InsertPlayCycleSession, userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaConcurrencyRuleID: {4}, playCycleKey: {5}, mediaFileID: {6}, Exception: {7}",
+                                 siteGuid, groupID, UDID, platform, mediaConcurrencyRuleID, playCycleKey, MediaFileID, ex.Message);
             }
 
             if (playCycleSession == null)
             {
                 log.ErrorFormat("Error in InsertPlayCycleSession, playCycleSession is null. userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaConcurrencyRuleID: {4}, playCycleKey: {5}, mediaFileID: {6}",
-                                 siteGuid, groupID, UDID, platform, mediaConcurrencyRuleID, playCycleKey, MediaFileID);      
+                                 siteGuid, groupID, UDID, platform, mediaConcurrencyRuleID, playCycleKey, MediaFileID);
             }
             return playCycleSession;
-        }        
+        }
 
         public static PlayCycleSession GetUserPlayCycle(string siteGuid, int MediaFileID, int groupID, string UDID, int platform)
         {
@@ -4237,10 +4237,10 @@ namespace Tvinci.Core.DAL
             }
 
             return playCycleSession;
-        }      
+        }
 
         public static DataSet GetLinearChannelSettings(int groupId, List<int> epgChannelIDs)
-        {            
+        {
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_LinearChannelSettings");
@@ -4248,7 +4248,7 @@ namespace Tvinci.Core.DAL
                 sp.AddParameter("@GroupId", groupId);
                 sp.AddIDListParameter<int>("@EpgChannelID", epgChannelIDs, "id");
 
-               return sp.ExecuteDataSet();               
+                return sp.ExecuteDataSet();
             }
             catch
             {
@@ -4260,7 +4260,7 @@ namespace Tvinci.Core.DAL
         {
             string cdvrId = string.Empty;
 
-            object value = 
+            object value =
                 ODBCWrapper.Utils.GetTableSingleVal("epg_channels", "CDVR_ID", Convert.ToInt32(epgChannelId), 60, "MAIN_CONNECTION_STRING");
 
             if (value != DBNull.Value)
@@ -4270,6 +4270,6 @@ namespace Tvinci.Core.DAL
 
             return cdvrId;
         }
-      
+
     }
 }
