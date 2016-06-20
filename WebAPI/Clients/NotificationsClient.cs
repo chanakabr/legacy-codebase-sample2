@@ -1118,12 +1118,54 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.Registry(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, announcementId, hash, ip);
+                    response = Notification.RegisterPushAnnouncementParameters(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, announcementId, hash, ip);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while Registry.  groupID: {0}, exception: {1}", groupId, ex);
+                log.ErrorFormat("Error while RegisterPushAnnouncementParameters.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Items != null && response.Items.Count > 0)
+            {
+                result = Mapper.Map<List<KalturaRegistryParameter>>(response.Items);
+                ret = new KalturaRegistryResponse() { RegistryParameters = result, TotalCount = result.Count };
+            }
+            else
+                ret = new KalturaRegistryResponse();
+
+            return ret;
+        }
+
+        internal KalturaRegistryResponse SystemRegistry(int groupId, string hash, string ip)
+        {
+            RegistryResponse response = null;
+            List<KalturaRegistryParameter> result = null;
+            KalturaRegistryResponse ret = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Notification.RegisterPushSystemParameters(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, hash, ip);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while SystemRegistry.  groupID: {0}, exception: {1}", groupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 

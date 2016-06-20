@@ -3452,11 +3452,19 @@ namespace WebAPI.Notifications {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetNotificationLastCleanupDate", ReplyAction="http://tempuri.org/INotificationService/GetNotificationLastCleanupDateResponse")]
         System.Threading.Tasks.Task<WebAPI.Notifications.NotificationCleanupResponse> GetNotificationLastCleanupDateAsync(string sWSUserName, string sWSPassword);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/Registry", ReplyAction="http://tempuri.org/INotificationService/RegistryResponse")]
-        WebAPI.Notifications.RegistryResponse Registry(string sWSUserName, string sWSPassword, int announcementId, string hash, string ip);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/RegisterPushAnnouncementParameters", ReplyAction="http://tempuri.org/INotificationService/RegisterPushAnnouncementParametersRespons" +
+            "e")]
+        WebAPI.Notifications.RegistryResponse RegisterPushAnnouncementParameters(string sWSUserName, string sWSPassword, int announcementId, string hash, string ip);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/Registry", ReplyAction="http://tempuri.org/INotificationService/RegistryResponse")]
-        System.Threading.Tasks.Task<WebAPI.Notifications.RegistryResponse> RegistryAsync(string sWSUserName, string sWSPassword, int announcementId, string hash, string ip);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/RegisterPushAnnouncementParameters", ReplyAction="http://tempuri.org/INotificationService/RegisterPushAnnouncementParametersRespons" +
+            "e")]
+        System.Threading.Tasks.Task<WebAPI.Notifications.RegistryResponse> RegisterPushAnnouncementParametersAsync(string sWSUserName, string sWSPassword, int announcementId, string hash, string ip);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/RegisterPushSystemParameters", ReplyAction="http://tempuri.org/INotificationService/RegisterPushSystemParametersResponse")]
+        WebAPI.Notifications.RegistryResponse RegisterPushSystemParameters(string sWSUserName, string sWSPassword, string hash, string ip);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/RegisterPushSystemParameters", ReplyAction="http://tempuri.org/INotificationService/RegisterPushSystemParametersResponse")]
+        System.Threading.Tasks.Task<WebAPI.Notifications.RegistryResponse> RegisterPushSystemParametersAsync(string sWSUserName, string sWSPassword, string hash, string ip);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -3790,12 +3798,20 @@ namespace WebAPI.Notifications {
             return base.Channel.GetNotificationLastCleanupDateAsync(sWSUserName, sWSPassword);
         }
         
-        public WebAPI.Notifications.RegistryResponse Registry(string sWSUserName, string sWSPassword, int announcementId, string hash, string ip) {
-            return base.Channel.Registry(sWSUserName, sWSPassword, announcementId, hash, ip);
+        public WebAPI.Notifications.RegistryResponse RegisterPushAnnouncementParameters(string sWSUserName, string sWSPassword, int announcementId, string hash, string ip) {
+            return base.Channel.RegisterPushAnnouncementParameters(sWSUserName, sWSPassword, announcementId, hash, ip);
         }
         
-        public System.Threading.Tasks.Task<WebAPI.Notifications.RegistryResponse> RegistryAsync(string sWSUserName, string sWSPassword, int announcementId, string hash, string ip) {
-            return base.Channel.RegistryAsync(sWSUserName, sWSPassword, announcementId, hash, ip);
+        public System.Threading.Tasks.Task<WebAPI.Notifications.RegistryResponse> RegisterPushAnnouncementParametersAsync(string sWSUserName, string sWSPassword, int announcementId, string hash, string ip) {
+            return base.Channel.RegisterPushAnnouncementParametersAsync(sWSUserName, sWSPassword, announcementId, hash, ip);
+        }
+        
+        public WebAPI.Notifications.RegistryResponse RegisterPushSystemParameters(string sWSUserName, string sWSPassword, string hash, string ip) {
+            return base.Channel.RegisterPushSystemParameters(sWSUserName, sWSPassword, hash, ip);
+        }
+        
+        public System.Threading.Tasks.Task<WebAPI.Notifications.RegistryResponse> RegisterPushSystemParametersAsync(string sWSUserName, string sWSPassword, string hash, string ip) {
+            return base.Channel.RegisterPushSystemParametersAsync(sWSUserName, sWSPassword, hash, ip);
         }
     }
 }

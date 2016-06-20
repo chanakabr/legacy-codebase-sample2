@@ -135,5 +135,32 @@ namespace WebAPI.Controllers
             return response;
         }
 
+        /// <summary>
+        /// TBD 
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:       
+        /// </remarks>
+        [Route("systemRegistry"), HttpPost]
+        [ApiAuthorize]
+        public KalturaRegistryResponse SystemRegistry()
+        {
+            KalturaRegistryResponse response = null;
+
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                KS.GetFromRequest().ToString();
+
+                // call client                
+                response = ClientsManager.NotificationClient().SystemRegistry(groupId, KS.GetFromRequest().ToString(), Utils.Utils.GetClientIP());
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
+
     }
 }
