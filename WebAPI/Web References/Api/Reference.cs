@@ -6227,7 +6227,7 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/UpdateBulkExportTask", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status UpdateBulkExportTask(string sWSUserName, string sWSPassword, long id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<bool> isActive) {
+        public BulkExportTaskResponse UpdateBulkExportTask(string sWSUserName, string sWSPassword, long id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<bool> isActive) {
             object[] results = this.Invoke("UpdateBulkExportTask", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -6241,7 +6241,7 @@ namespace WebAPI.Api {
                         notificationUrl,
                         vodTypes,
                         isActive});
-            return ((Status)(results[0]));
+            return ((BulkExportTaskResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -19482,10 +19482,10 @@ namespace WebAPI.Api {
         }
         
         /// <remarks/>
-        public Status Result {
+        public BulkExportTaskResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((Status)(this.results[0]));
+                return ((BulkExportTaskResponse)(this.results[0]));
             }
         }
     }
