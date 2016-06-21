@@ -62,7 +62,9 @@
     <Compile Include="ElasticSearchRequest.cs" />
     <Compile Include="ElasticSearchTaskUtils.cs" />
     <Compile Include="IndexBuilders\Dual\DualChannelIndexBuilder.cs" />
+    <Compile Include="IndexBuilders\Dual\DualEPGIndexBuilder.cs" />
     <Compile Include="IndexBuilders\Dual\DualMediaIndexBuilder.cs" />
+    <Compile Include="IndexBuilders\Dual\DualRecordingIndexBuilder.cs" />
     <Compile Include="IndexBuilders\New\ChannelIndexBuilderV2.cs" />
     <Compile Include="IndexBuilders\New\EpgIndexBuilderV2.cs" />
     <Compile Include="IndexBuilders\New\MediaIndexBuilderV2.cs" />
@@ -76,6 +78,11 @@
     <Compile Include="IndexBuilders\Old\RecordingIndexBuilderV1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TaskHandler.cs" />
+    <Compile Include="Updaters\Dual\DualEpgChannelUpdater.cs" />
+    <Compile Include="Updaters\Dual\DualChannelUpdater.cs" />
+    <Compile Include="Updaters\Dual\DualRecordingUpdater.cs" />
+    <Compile Include="Updaters\Dual\DualEpgUpdater.cs" />
+    <Compile Include="Updaters\Dual\DualMediaUpdater.cs" />
     <Compile Include="Updaters\New\ChannelUpdaterV2.cs" />
     <Compile Include="Updaters\New\EpgChannelUpdaterV2.cs" />
     <Compile Include="Updaters\New\EpgUpdaterV2.cs" />

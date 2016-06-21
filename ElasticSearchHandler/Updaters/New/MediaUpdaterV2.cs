@@ -33,6 +33,18 @@ namespace ElasticSearchHandler.Updaters
         public List<int> IDs { get; set; }
         public ApiObjects.eAction Action { get; set; }
 
+        public string ElasticSearchUrl
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         #endregion
 
         #region Ctors

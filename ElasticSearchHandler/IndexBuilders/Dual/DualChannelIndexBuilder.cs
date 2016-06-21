@@ -8,10 +8,20 @@ namespace ElasticSearchHandler.IndexBuilders
 {
     public class DualChannelIndexBuilder : AbstractIndexBuilder
     {
-        public DualChannelIndexBuilder(int groupId)
+        private ChannelIndexBuilderV1 oldBuilder;
+        private ChannelIndexBuilderV2 newBuilder;
+
+        public DualChannelIndexBuilder(int groupId, string urlV1, string urlV2)
             : base(groupId)
         {
-
+            oldBuilder = new ChannelIndexBuilderV1(groupId)
+            {
+                ElasticSearchUrl = urlV1
+            };
+            newBuilder = new ChannelIndexBuilderV2(groupId)
+            {
+                ElasticSearchUrl = urlV2
+            };
         }
 
         public override bool BuildIndex()

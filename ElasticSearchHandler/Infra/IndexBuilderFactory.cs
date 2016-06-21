@@ -22,7 +22,7 @@ namespace ElasticSearchHandler.IndexBuilders
                     {
                         if (!string.IsNullOrEmpty(urlV1))
                         {
-                            result = new DualChannelIndexBuilder(nGroupID);
+                            result = new DualChannelIndexBuilder(nGroupID, urlV1, urlV2);
                         }
                         else
                         {
@@ -57,13 +57,45 @@ namespace ElasticSearchHandler.IndexBuilders
                     break;
                 }
                 case ApiObjects.eObjectType.EPG:
-                    result = new EpgIndexBuilderV1(nGroupID);
+                {
+                    if (!string.IsNullOrEmpty(urlV2))
+                    {
+                        if (!string.IsNullOrEmpty(urlV1))
+                        {
+                            result = new DualEPGIndexBuilder(nGroupID, urlV1, urlV2);
+                        }
+                        else
+                        {
+                            result = new EpgIndexBuilderV2(nGroupID);
+                        }
+                    }
+                    else
+                    {
+                        result = new EpgIndexBuilderV1(nGroupID);
+                    }
+
                     break;
+                }
                 case ApiObjects.eObjectType.Recording:
+                {
+                    if (!string.IsNullOrEmpty(urlV2))
+                    {
+                        if (!string.IsNullOrEmpty(urlV1))
+                        {
+                            result = new DualRecordingIndexBuilder(nGroupID, urlV1, urlV2);
+                        }
+                        else
+                        {
+                            result = new RecordingIndexBuilderV2(nGroupID);
+                        }
+                    }
+                    else
                     {
                         result = new RecordingIndexBuilderV1(nGroupID);
-                        break;
                     }
+
+                    break;
+                }
                 default:
                     break;
             }

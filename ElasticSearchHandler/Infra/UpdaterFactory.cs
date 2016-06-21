@@ -11,25 +11,93 @@ namespace ElasticSearchHandler.Updaters
         {
             IElasticSearchUpdater result = null;
 
+            string urlV1 = ElasticSearchTaskUtils.GetTcmConfigValue("ES_URL_V1");
+            string urlV2 = ElasticSearchTaskUtils.GetTcmConfigValue("ES_URL_V2");
+
             switch (eType)
             {
-                case ApiObjects.eObjectType.Media:
-                    result = new MediaUpdaterV1(nGroupID);
-                    break;
                 case ApiObjects.eObjectType.Channel:
-                    result = new ChannelUpdaterV1(nGroupID);
+                {
+                    if (!string.IsNullOrEmpty(urlV2))
+                    {
+                        if (!string.IsNullOrEmpty(urlV1))
+                        {
+                            result = new DualMediaUpdater(nGroupID, urlV1, urlV2);
+                        }
+                        else
+                        {
+                            result = new ChannelUpdaterV2(nGroupID);
+                        }
+                    }
+                    else
+                    {
+                        result = new ChannelUpdaterV1(nGroupID);
+                    }
+
                     break;
+                }
+                case ApiObjects.eObjectType.Media:
+                {
+                    if (!string.IsNullOrEmpty(urlV2))
+                    {
+                        if (!string.IsNullOrEmpty(urlV1))
+                        {
+                            result = new DualMediaUpdater(nGroupID, urlV1, urlV2);
+                        }
+                        else
+                        {
+                            result = new MediaUpdaterV2(nGroupID);
+                        }
+                    }
+                    else
+                    {
+                        result = new MediaUpdaterV1(nGroupID);
+                    }
+
+                    break;
+                }
                 case ApiObjects.eObjectType.EPG:
-                    result = new EpgUpdaterV1(nGroupID);
+                {
+                    if (!string.IsNullOrEmpty(urlV2))
+                    {
+                        if (!string.IsNullOrEmpty(urlV1))
+                        {
+                            result = new DualEpgUpdater(nGroupID, urlV1, urlV2);
+                        }
+                        else
+                        {
+                            result = new EpgUpdaterV2(nGroupID);
+                        }
+                    }
+                    else
+                    {
+                        result = new EpgUpdaterV1(nGroupID);
+                    }
+
                     break;
-                case ApiObjects.eObjectType.EpgChannel:
-                    result = new EpgChannelUpdaterV1(nGroupID);
-                    break;
+                }
                 case ApiObjects.eObjectType.Recording:
-                    result = new RecordingUpdaterV1(nGroupID);
+                {
+                    if (!string.IsNullOrEmpty(urlV2))
+                    {
+                        if (!string.IsNullOrEmpty(urlV1))
+                        {
+                            result = new DualRecordingUpdater(nGroupID, urlV1, urlV2);
+                        }
+                        else
+                        {
+                            result = new RecordingUpdaterV2(nGroupID);
+                        }
+                    }
+                    else
+                    {
+                        result = new RecordingUpdaterV1(nGroupID);
+                    }
+
                     break;
+                }
                 default:
-                    break;
+                break;
             }
 
             return result;
