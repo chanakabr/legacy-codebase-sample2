@@ -109,10 +109,11 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// Possible status codes:       
         /// </remarks>
-        /// <param name="id"></param>        
+        /// <param name="identifier">In case type is "announcement", identifier should be the announcement ID. In case type is "system", identifier should be "login" (the login topic)</param>        
+        /// <param name="type">"announcement" - TV-Series topic, "system" - login topic</param>     
         [Route("register"), HttpPost]
         [ApiAuthorize]
-        public KalturaRegistryResponse Register(string id, KalturaNotificationType type)
+        public KalturaRegistryResponse Register(string identifier, KalturaNotificationType type)
         {
             KalturaRegistryResponse response = null;
 
@@ -121,7 +122,7 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 KS.GetFromRequest().ToString();
 
-                if (string.IsNullOrEmpty(id))
+                if (string.IsNullOrEmpty(identifier))
                     throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id is empty");
 
                 // validate input
@@ -129,12 +130,12 @@ namespace WebAPI.Controllers
                 {
                     case KalturaNotificationType.announcement:
                         long announcentId = 0;
-                        if (!long.TryParse(id, out announcentId))
+                        if (!long.TryParse(identifier, out announcentId))
                             throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "illegal id");
                         break;
 
                     case KalturaNotificationType.system:
-                        if (id.ToLower() != "login")
+                        if (identifier.ToLower() != "login")
                             throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "illegal id");
                         break;
                     default:
@@ -142,7 +143,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client                
-                response = ClientsManager.NotificationClient().Register(groupId, type, id, KS.GetFromRequest().ToString(), Utils.Utils.GetClientIP());
+                response = ClientsManager.NotificationClient().Register(groupId, type, identifier, KS.GetFromRequest().ToString(), Utils.Utils.GetClientIP());
             }
             catch (ClientException ex)
             {
