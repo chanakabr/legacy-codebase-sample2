@@ -205,80 +205,7 @@ namespace Recordings
             return recording;
         }
 
-        public Status CancelRecording(int groupId, long programId)
-        {
-            Status status = new Status();
-            Recording recording = ConditionalAccessDAL.GetRecordingByProgramId(programId);
-
-            // If there is no recording for this program - create one. This is the first, hurray!
-            if (recording != null)
-            {
-                int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
-
-                var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
-
-                // Call Adapter to cancel recording schedule
-
-                RecordResult adapterResponse = null;
-                try
-                {
-                    adapterResponse = adapterController.CancelRecording(groupId, recording.ExternalRecordingId, adapterId);
-                }
-                catch (KalturaException ex)
-                {
-                    recording.Status = new Status((int)eResponseStatus.Error,
-                        string.Format("Code: {0} Message: {1}", (int)ex.Data["StatusCode"], ex.Message));
-                }
-                catch (Exception ex)
-                {
-                    recording.Status = new Status((int)eResponseStatus.Error, "Adapter controller excpetion: " + ex.Message);
-                }
-
-                if (recording.Status != null)
-                {
-                    return recording.Status;
-                }
-
-                if (adapterResponse == null)
-                {
-                    status = new Status((int)eResponseStatus.Error, "Adapter controller returned null response.");
-                }
-                //
-                // TODO: Validate adapter response
-                //
-                else if (adapterResponse.FailReason != 0)
-                {
-                    status = CreateFailStatus(adapterResponse);
-                }
-                else
-                {
-                    try
-                    {
-                        recording.RecordingStatus = TstvRecordingStatus.Canceled;
-
-                        // Update recording information in to database
-                        bool updateResult = ConditionalAccessDAL.UpdateRecording(recording, groupId, 1, 1, null);
-
-                        if (!updateResult)
-                        {
-                            return new Status((int)eResponseStatus.Error, "Failed update recording");
-                        }
-
-                        UpdateCouchbaseIsRecorded(groupId, recording.EpgId, false);
-
-                        // We're OK
-                        status = new Status((int)eResponseStatus.OK);
-                    }
-                    catch (Exception ex)
-                    {
-                        status = new Status((int)eResponseStatus.Error, "Failed inserting recording to database and queue.");
-                    }
-                }
-            }
-            return status;
-        }
-
-        public Status DeleteRecording(int groupId, Recording slimRecording, int adapterId = 0)
+        public Status CancelOrDeleteRecording(int groupId, Recording slimRecording, TstvRecordingStatus recordingStatus, int adapterId = 0)
         {
             Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -291,12 +218,23 @@ namespace Recordings
 
                 var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
 
-                // Call Adapter to delete recording
+                // Call Adapter to cancel or delete recording
 
                 RecordResult adapterResponse = null;
                 try
-                {
-                    adapterResponse = adapterController.DeleteRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
+                {                    
+                    switch (recordingStatus)
+                    {
+                        case TstvRecordingStatus.Canceled:
+                            adapterResponse = adapterController.CancelRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
+                            break;
+                        case TstvRecordingStatus.Deleted:
+                            adapterResponse = adapterController.DeleteRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
+                            break;
+                        default:
+                            break;
+                    }
+                    
                 }
                 catch (KalturaException ex)
                 {
@@ -326,11 +264,23 @@ namespace Recordings
                     {
                        
                         // Update recording information in to database
-                        bool deleteResult = ConditionalAccessDAL.DeleteRecording(slimRecording.Id);
+                        bool updateResult = false;
 
-                        if (!deleteResult)
+                        switch (recordingStatus)
                         {
-                            return new Status((int)eResponseStatus.Error, "Failed update recording");
+                            case TstvRecordingStatus.Canceled:
+                                updateResult = ConditionalAccessDAL.CancelRecording(slimRecording.Id);
+                                break;
+                            case TstvRecordingStatus.Deleted:
+                                updateResult = ConditionalAccessDAL.DeleteRecording(slimRecording.Id);
+                                break;
+                            default:
+                                break;
+                        }
+
+                        if (!updateResult)
+                        {
+                            return new Status((int)eResponseStatus.Error, string.Format("Failed updating recording {0} to status {1}", slimRecording.Id, recordingStatus));
                         }
 
                         UpdateCouchbaseIsRecorded(groupId, slimRecording.EpgId, false);
@@ -340,6 +290,98 @@ namespace Recordings
                     }
                     catch (Exception ex)
                     {
+                        log.ErrorFormat("Error while trying to CancelOrDeleteRecording, recordingID: {0}, recordingUpdatedStatus {1}", slimRecording.Id, recordingStatus);
+                        status = new Status((int)eResponseStatus.Error, "Failed inserting recording to database and queue.");
+                    }
+                }
+            }
+            return status;
+        }
+
+        public Status CancelOrDeleteRecording(int groupId, long epgId, TstvRecordingStatus recordingStatus)
+        {
+            Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            Recording recording = ConditionalAccessDAL.GetRecordingByProgramId(epgId);
+
+            if (groupId > 0 && recording != null && recording.Id > 0 && recording.EpgId > 0 && !string.IsNullOrEmpty(recording.ExternalRecordingId))
+            {
+                int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);                
+
+                var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
+
+                // Call Adapter to cancel or delete recording
+
+                RecordResult adapterResponse = null;
+                try
+                {
+                    switch (recordingStatus)
+                    {
+                        case TstvRecordingStatus.Canceled:
+                            adapterResponse = adapterController.CancelRecording(groupId, recording.ExternalRecordingId, adapterId);
+                            break;
+                        case TstvRecordingStatus.Deleted:
+                            adapterResponse = adapterController.DeleteRecording(groupId, recording.ExternalRecordingId, adapterId);
+                            break;
+                        default:
+                            break;
+                    }
+
+                }
+                catch (KalturaException ex)
+                {
+                    status = new Status((int)eResponseStatus.Error, string.Format("Code: {0} Message: {1}", (int)ex.Data["StatusCode"], ex.Message));
+                    return status;
+                }
+                catch (Exception ex)
+                {
+                    status = new Status((int)eResponseStatus.Error, "Adapter controller excpetion: " + ex.Message);
+                    return status;
+                }
+
+                if (adapterResponse == null)
+                {
+                    status = new Status((int)eResponseStatus.Error, "Adapter controller returned null response.");
+                }
+                //
+                // TODO: Validate adapter response
+                //
+                else if (adapterResponse.FailReason != 0)
+                {
+                    status = CreateFailStatus(adapterResponse);
+                }
+                else
+                {
+                    try
+                    {
+
+                        // Update recording information in to database
+                        bool updateResult = false;
+
+                        switch (recordingStatus)
+                        {
+                            case TstvRecordingStatus.Canceled:
+                                updateResult = ConditionalAccessDAL.CancelRecording(recording.Id);
+                                break;
+                            case TstvRecordingStatus.Deleted:
+                                updateResult = ConditionalAccessDAL.DeleteRecording(recording.Id);
+                                break;
+                            default:
+                                break;
+                        }
+
+                        if (!updateResult)
+                        {
+                            return new Status((int)eResponseStatus.Error, string.Format("Failed updating recording {0} to status {1}", recording.Id, recordingStatus));
+                        }
+
+                        UpdateCouchbaseIsRecorded(groupId, recording.EpgId, false);
+
+                        // We're OK
+                        status = new Status((int)eResponseStatus.OK);
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Error while trying to CancelOrDeleteRecording, recordingID: {0}, recordingUpdatedStatus {1}", recording.Id, recordingStatus);
                         status = new Status((int)eResponseStatus.Error, "Failed inserting recording to database and queue.");
                     }
                 }

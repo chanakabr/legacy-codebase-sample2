@@ -2608,6 +2608,15 @@ namespace DAL
             return result;
         }
 
+        public static bool CancelRecording(long recordingId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelRecording");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@RecordID", recordingId);
+
+            return sp.ExecuteReturnValue<bool>();
+        }
+
         public static bool DeleteRecording(long recordingId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteRecording");
@@ -2931,9 +2940,9 @@ namespace DAL
             return sp.ExecuteReturnValue<int>();
         }
 
-        public static bool CancelRecording(long recordingID)
+        public static bool CancelDomainRecording(long recordingID)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelRecording");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelDomainRecording");
             sp.SetConnectionKey("CONNECTION_STRING");
             sp.AddParameter("@RecordID", recordingID);
 

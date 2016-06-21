@@ -4973,5 +4973,26 @@ namespace ConditionalAccess
             return recording;
         }
 
+        internal static bool CancelOrDeleteRecording(int groupID, Recording recording, TstvRecordingStatus tstvRecordingStatus)
+        {
+            bool result = false;
+            DataTable dt = ConditionalAccessDAL.GetExistingRecordingsByRecordingID(groupID, recording.Id);
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                if ((ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "countUsers", 0)) == 0)
+                {
+                    ApiObjects.Response.Status status = RecordingsManager.Instance.CancelOrDeleteRecording(groupID, recording, tstvRecordingStatus);                                                
+
+                    if (status != null && status.Code == (int)eResponseStatus.OK)
+                    {
+                        result = true;
+                    }
+                    
+                }
+            }
+
+            return result;
+        }        
+
     }
 }
