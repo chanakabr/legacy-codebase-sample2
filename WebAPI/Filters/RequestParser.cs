@@ -48,9 +48,9 @@ namespace WebAPI.Filters
         private static int accessTokenLength = TCMClient.Settings.Instance.GetValue<int>("access_token_length");
         private static string accessTokenKeyFormat = TCMClient.Settings.Instance.GetValue<string>("access_token_key_format");
 
-        private static string globalKs = null;
-        private static string globalUserId = null;
-        private static string globalLanguage = null;
+        private string globalKs = null;
+        private string globalUserId = null;
+        private string globalLanguage = null;
 
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME, true);
 
@@ -84,6 +84,9 @@ namespace WebAPI.Filters
         public const string REQUEST_VERSION = "requestVersion";
         public const string REQUEST_USER_ID = "user_id";
         public const string REQUEST_LANGUAGE = "language";
+        public const string REQUEST_GLOBAL_KS = "global_ks";
+        public const string REQUEST_GLOBAL_USER_ID = "global_user_id";
+        public const string REQUEST_GLOBAL_LANGUAGE = "global_language";
 
         public static object GetRequestPayload()
         {
@@ -103,17 +106,18 @@ namespace WebAPI.Filters
             }
 
             Dictionary<string, string> oldStandardActions = OldStandardAttribute.getOldMembers(controller);
+            string action = actionName;
             if (oldStandardActions != null && oldStandardActions.ContainsValue(actionName))
             {
-                actionName = oldStandardActions.FirstOrDefault(value => value.Value == actionName).Key;
+                action = oldStandardActions.FirstOrDefault(value => value.Value == actionName).Key;
             }
 
             if (serviceName.Equals("multirequest", StringComparison.CurrentCultureIgnoreCase))
             {
-                actionName = "Do";
+                action = "Do";
             }
 
-            methodInfo = controller.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+            methodInfo = controller.GetMethod(action, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
             if (methodInfo == null)
             {
@@ -148,15 +152,15 @@ namespace WebAPI.Filters
                 InitKS(ks);
 
                 if (globalScope)
-                    globalKs = ks;
+                    HttpContext.Current.Items.Add(REQUEST_GLOBAL_KS, ks);
             }
-            else if (globalKs != null)
+            else if (HttpContext.Current.Items[REQUEST_GLOBAL_KS] != null)
             {
-                InitKS(globalKs);
+                InitKS((string)HttpContext.Current.Items[REQUEST_GLOBAL_KS]);
             }
 
             // impersonated user_id
-            HttpContext.Current.Items.Remove(REQUEST_USER_ID);
+            HttpContext.Current.Items.Remove(REQUEST_USER_ID); 
             if ((requestParams.ContainsKey("user_id") && requestParams["user_id"] != null) || (requestParams.ContainsKey("userId") && requestParams["userId"] != null))
             {
                 object userIdObject = requestParams.ContainsKey("userId") ? requestParams["userId"] : requestParams["user_id"];
@@ -172,11 +176,11 @@ namespace WebAPI.Filters
 
                 HttpContext.Current.Items.Add(REQUEST_USER_ID, userId);
                 if (globalScope)
-                    globalUserId = userId;
+                    HttpContext.Current.Items.Add(REQUEST_GLOBAL_USER_ID, userId);
             }
-            else if (globalUserId != null)
+            else if (HttpContext.Current.Items[REQUEST_GLOBAL_USER_ID] != null)
             {
-                HttpContext.Current.Items.Add(REQUEST_USER_ID, globalUserId);
+                HttpContext.Current.Items.Add(REQUEST_USER_ID, HttpContext.Current.Items[REQUEST_GLOBAL_USER_ID]);
             }
 
             // language
@@ -195,11 +199,11 @@ namespace WebAPI.Filters
 
                 HttpContext.Current.Items.Add(REQUEST_LANGUAGE, language);
                 if (globalScope)
-                    globalLanguage = language;
+                    HttpContext.Current.Items.Add(REQUEST_GLOBAL_LANGUAGE, language);
             }
-            else if (globalLanguage != null)
+            else if (HttpContext.Current.Items[REQUEST_GLOBAL_LANGUAGE] != null)
             {
-                HttpContext.Current.Items.Add(REQUEST_LANGUAGE, globalLanguage);
+                HttpContext.Current.Items.Add(REQUEST_LANGUAGE, HttpContext.Current.Items[REQUEST_GLOBAL_LANGUAGE]);
             }
         }
 

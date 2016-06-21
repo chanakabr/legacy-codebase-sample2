@@ -44,7 +44,7 @@ namespace WebAPI.Controllers
         /// Configure the account’s time-shifted TV settings (catch-up and C-DVR, Trick-play, Start-over)
         /// </summary>
         /// <returns></returns>
-        /// <remarks>Possible status codes: BadRequest = 500003, TimeShiftedTvPartnerSettingsNotSent = 5023, TimeShiftedTvPartnerSettingsNegativeBufferSent = 5024</remarks>   
+        /// <remarks>Possible status codes: BadRequest = 500003, TimeShiftedTvPartnerSettingsNotSent = 5023, TimeShiftedTvPartnerSettingsNegativeBufferSent = 5024</remarks>  
         [Route("update"), HttpPost]
         [ApiAuthorize]
         public bool Update(KalturaTimeShiftedTvPartnerSettings settings)
@@ -65,6 +65,30 @@ namespace WebAPI.Controllers
                 if (settings.PaddingAfterProgramEnds.HasValue && settings.PaddingAfterProgramEnds.Value < 0)
                 {
                     throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "paddingAfterProgramEnds can not be negative");
+                }
+
+                // validate protectionPeriod
+                if (settings.ProtectionPeriod.HasValue && settings.ProtectionPeriod.Value <= 0)
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "protectionPeriod must be above 0");
+                }
+
+                // validate recordingLifetimePeriod
+                if (settings.RecordingLifetimePeriod.HasValue && settings.RecordingLifetimePeriod.Value <= 0)
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "recordingLifetimePeriod must be above 0");
+                }
+
+                // validate cleanupNoticePeriod
+                if (settings.CleanupNoticePeroid.HasValue && settings.CleanupNoticePeroid.Value <= 0)
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "cleanupNoticePeroid must be above 0");
+                }
+
+                // validate protectionQuotaPercentage
+                if (settings.ProtectionQuotaPercentage.HasValue && (settings.ProtectionQuotaPercentage.Value < 10 || settings.ProtectionQuotaPercentage.Value > 100))
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "protectionQuotaPercentage must be between 10 and 100");
                 }
 
                 // call client

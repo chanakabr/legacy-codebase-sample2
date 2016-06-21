@@ -109,10 +109,11 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// Possible status codes:       
         /// </remarks>
-        /// <param name="id"></param>        
-        [Route("registry"), HttpPost]
+        /// <param name="identifier">In case type is "announcement", identifier should be the announcement ID. In case type is "system", identifier should be "login" (the login topic)</param>        
+        /// <param name="type">"announcement" - TV-Series topic, "system" - login topic</param>     
+        [Route("register"), HttpPost]
         [ApiAuthorize]
-        public KalturaRegistryResponse Registry(int id)
+        public KalturaRegistryResponse Register(string identifier, KalturaNotificationType type)
         {
             KalturaRegistryResponse response = null;
 
@@ -121,12 +122,28 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 KS.GetFromRequest().ToString();
 
+                if (string.IsNullOrEmpty(identifier))
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id is empty");
+
                 // validate input
-                if (id <= 0)
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id is illegal");
+                switch (type)
+                {
+                    case KalturaNotificationType.announcement:
+                        long announcentId = 0;
+                        if (!long.TryParse(identifier, out announcentId))
+                            throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "illegal id");
+                        break;
+
+                    case KalturaNotificationType.system:
+                        if (identifier.ToLower() != "login")
+                            throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "illegal id");
+                        break;
+                    default:
+                        break;
+                }
 
                 // call client                
-                response = ClientsManager.NotificationClient().Registry(groupId, id, KS.GetFromRequest().ToString(), Utils.Utils.GetClientIP());
+                response = ClientsManager.NotificationClient().Register(groupId, type, identifier, KS.GetFromRequest().ToString(), Utils.Utils.GetClientIP());
             }
             catch (ClientException ex)
             {
@@ -134,6 +151,5 @@ namespace WebAPI.Controllers
             }
             return response;
         }
-
     }
 }

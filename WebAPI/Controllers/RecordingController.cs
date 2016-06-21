@@ -6,6 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
@@ -33,7 +34,7 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().GetRecording(groupId, domainId, id);
+                response = ClientsManager.ConditionalAccessClient().GetRecord(groupId, domainId, id);
             }
             catch (ClientException ex)
             {
@@ -174,6 +175,7 @@ namespace WebAPI.Controllers
         /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043 </remarks>
         [Route("cancel"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
         public KalturaRecording Cancel(long id)
         {
             KalturaRecording response = null;
@@ -221,7 +223,33 @@ namespace WebAPI.Controllers
             return response;
         }
 
+        /// <summary>
+        /// Protects an existing recording from the cleanup process for the defined protection period
+        /// </summary>
+        /// <param name="id">Recording identifier</param>
+        /// <returns></returns>
+        /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024,
+        /// RecordingNotFound = 3039, RecordingStatusNotValid = 3043, DomainExceededProtectionQuota = 3044</remarks>     
+        [Route("protect"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        public KalturaRecording Protect(long id)
+        {
+            KalturaRecording response = null;
 
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
+                // call client                
+                response = ClientsManager.ConditionalAccessClient().ProtectRecord(groupId, userId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
 
     }
 }

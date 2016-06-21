@@ -6227,7 +6227,7 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/UpdateBulkExportTask", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status UpdateBulkExportTask(string sWSUserName, string sWSPassword, long id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<bool> isActive) {
+        public BulkExportTaskResponse UpdateBulkExportTask(string sWSUserName, string sWSPassword, long id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<bool> isActive) {
             object[] results = this.Invoke("UpdateBulkExportTask", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -6241,7 +6241,7 @@ namespace WebAPI.Api {
                         notificationUrl,
                         vodTypes,
                         isActive});
-            return ((Status)(results[0]));
+            return ((BulkExportTaskResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -14224,6 +14224,8 @@ namespace WebAPI.Api {
         
         private System.Nullable<bool> isRecordingScheduleWindowEnabledField;
         
+        private System.Nullable<bool> isProtectionEnabledField;
+        
         private System.Nullable<long> catchUpBufferLengthField;
         
         private System.Nullable<long> trickPlayBufferLengthField;
@@ -14233,6 +14235,14 @@ namespace WebAPI.Api {
         private System.Nullable<long> paddingAfterProgramEndsField;
         
         private System.Nullable<long> paddingBeforeProgramStartsField;
+        
+        private System.Nullable<int> protectionPeriodField;
+        
+        private System.Nullable<int> protectionQuotaPercentageField;
+        
+        private System.Nullable<int> recordingLifetimePeriodField;
+        
+        private System.Nullable<int> cleanupNoticePeroidField;
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
@@ -14291,6 +14301,17 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<bool> IsProtectionEnabled {
+            get {
+                return this.isProtectionEnabledField;
+            }
+            set {
+                this.isProtectionEnabledField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
         public System.Nullable<long> CatchUpBufferLength {
             get {
                 return this.catchUpBufferLengthField;
@@ -14341,6 +14362,50 @@ namespace WebAPI.Api {
             }
             set {
                 this.paddingBeforeProgramStartsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<int> ProtectionPeriod {
+            get {
+                return this.protectionPeriodField;
+            }
+            set {
+                this.protectionPeriodField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<int> ProtectionQuotaPercentage {
+            get {
+                return this.protectionQuotaPercentageField;
+            }
+            set {
+                this.protectionQuotaPercentageField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<int> RecordingLifetimePeriod {
+            get {
+                return this.recordingLifetimePeriodField;
+            }
+            set {
+                this.recordingLifetimePeriodField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<int> CleanupNoticePeroid {
+            get {
+                return this.cleanupNoticePeroidField;
+            }
+            set {
+                this.cleanupNoticePeroidField = value;
             }
         }
     }
@@ -19417,10 +19482,10 @@ namespace WebAPI.Api {
         }
         
         /// <remarks/>
-        public Status Result {
+        public BulkExportTaskResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((Status)(this.results[0]));
+                return ((BulkExportTaskResponse)(this.results[0]));
             }
         }
     }

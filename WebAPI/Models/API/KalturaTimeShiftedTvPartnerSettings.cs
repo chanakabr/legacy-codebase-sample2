@@ -61,6 +61,14 @@ namespace WebAPI.Models.API
         public bool? RecordingScheduleWindowEnabled { get; set; }
 
         /// <summary>
+        /// Is recording protection enabled
+        /// </summary>
+        [DataMember(Name = "protectionEnabled")]
+        [JsonProperty("protectionEnabled")]
+        [XmlElement(ElementName = "protectionEnabled", IsNullable = true)]
+        public bool? ProtectionEnabled { get; set; }
+
+        /// <summary>
         /// Catch-up buffer length
         /// </summary>
         [DataMember(Name = "catchUpBufferLength")]
@@ -99,6 +107,38 @@ namespace WebAPI.Models.API
         [JsonProperty("paddingAfterProgramEnds")]
         [XmlElement(ElementName = "paddingAfterProgramEnds", IsNullable = true)]
         public long? PaddingAfterProgramEnds { get; set; }
+
+        /// <summary>
+        /// Specify the time in days that a recording should be protected. Start time begins at protection request.
+        /// </summary>
+        [DataMember(Name = "protectionPeriod")]
+        [JsonProperty("protectionPeriod")]
+        [XmlElement(ElementName = "protectionPeriod", IsNullable = true)]
+        public int? ProtectionPeriod { get; set; }
+
+        /// <summary>
+        /// Indicates how long (in seconds) after the program ends the recording will end
+        /// </summary>
+        [DataMember(Name = "protectionQuotaPercentage")]
+        [JsonProperty("protectionQuotaPercentage")]
+        [XmlElement(ElementName = "protectionQuotaPercentage", IsNullable = true)]
+        public int? ProtectionQuotaPercentage { get; set; }
+
+        /// <summary>
+        /// Specify the time in days that a recording should be kept for user. Start time begins with the program end date.
+        /// </summary>
+        [DataMember(Name = "recordingLifetimePeriod")]
+        [JsonProperty("recordingLifetimePeriod")]
+        [XmlElement(ElementName = "recordingLifetimePeriod", IsNullable = true)]
+        public int? RecordingLifetimePeriod { get; set; }
+
+        /// <summary>
+        /// The time in days before the recording lifetime is due from which the client should be able to warn user about deletion.
+        /// </summary>
+        [DataMember(Name = "cleanupNoticePeroid")]
+        [JsonProperty("cleanupNoticePeroid")]
+        [XmlElement(ElementName = "cleanupNoticePeroid", IsNullable = true)]
+        public int? CleanupNoticePeroid { get; set; }
 
     }
 }
