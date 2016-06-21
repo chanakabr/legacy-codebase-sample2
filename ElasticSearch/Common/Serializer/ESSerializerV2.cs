@@ -377,7 +377,6 @@ namespace ElasticSearch.Common
 
             ESRouting routing = new ESRouting()
             {
-                path = "date_routing",
                 required = true
             };
             mappingObj.SetRoting(routing);
