@@ -699,7 +699,7 @@ namespace ElasticSearch.Searcher
             }
             else if (oOrderObj.m_eOrderBy == OrderBy.ID)
             {
-                sSort.Append(" \"_uid\": ");
+                sSort.Append(" \"_id\": ");
             }
             else if (oOrderObj.m_eOrderBy == OrderBy.RELATED)
             {
@@ -725,8 +725,8 @@ namespace ElasticSearch.Searcher
             if (bOrderByScore)
                 sSort.Append(", \"_score\"");
 
-            // Always add sort by _uid to avoid ES weirdness of same sort-value 
-            sSort.Append(", { \"_uid\": { \"order\": \"desc\" } }");
+            // Always add sort by _id to avoid ES weirdness of same sort-value 
+            sSort.Append(", { \"_id\": { \"order\": \"desc\" } }");
 
             sSort.Append(" ]");
 
@@ -795,7 +795,7 @@ namespace ElasticSearch.Searcher
                             if (string.IsNullOrEmpty(sValue))
                                 continue;
 
-                            ESMatchQuery matchQuery = new ESMatchQuery(ESMatchQuery.eMatchQueryType.match) { eOperator = CutWith.AND, Field = sSearchKey, Query = sValue };
+                            ESMatchQuery matchQuery = new ESMatchQuery(null) { eOperator = CutWith.AND, Field = sSearchKey, Query = sValue };
                             oValueBoolQuery.AddChild(matchQuery, searchValue.m_eInnerCutWith);
                         }
                     }

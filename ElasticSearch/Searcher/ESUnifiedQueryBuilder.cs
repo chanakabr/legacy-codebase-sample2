@@ -1415,12 +1415,12 @@ namespace ElasticSearch.Searcher
                         {
                             field = string.Format("{0}.autocomplete", leaf.field);
                         }
-                        else
+                        else 
                         {
                             field = string.Format("{0}.analyzed", leaf.field);
                         }
 
-                        term = new ESMatchQuery(ESMatchQuery.eMatchQueryType.match)
+                        term = new ESMatchQuery(null)
                         {
                             Field = field,
                             eOperator = CutWith.AND,
@@ -1435,7 +1435,7 @@ namespace ElasticSearch.Searcher
                         term = new BoolQuery();
 
                         (term as BoolQuery).AddNot(
-                            new ESMatchQuery(ESMatchQuery.eMatchQueryType.match)
+                            new ESMatchQuery(null)
                             {
                                 Field = field,
                                 eOperator = CutWith.AND,
@@ -1701,7 +1701,7 @@ namespace ElasticSearch.Searcher
                 {
                     result.AddChild(new ESTerm(true)
                     {
-                        Key = "_uid",
+                        Key = "_id",
                         Value = "-1"
                     }, 
                     CutWith.OR);
@@ -1881,7 +1881,7 @@ namespace ElasticSearch.Searcher
             }
             else if (order.m_eOrderBy == OrderBy.ID)
             {
-                sortBuilder.Append(" \"_uid\": ");
+                sortBuilder.Append(" \"_id\": ");
             }
             else if (order.m_eOrderBy == OrderBy.RELATED || order.m_eOrderBy == OrderBy.NONE)
             {
@@ -1908,8 +1908,8 @@ namespace ElasticSearch.Searcher
 
             if (order.m_eOrderBy != OrderBy.ID)
             {
-                // Always add sort by _uid to avoid ES weirdness of same sort-value 
-                sortBuilder.Append(", { \"_uid\": { \"order\": \"desc\" } }");
+                // Always add sort by _id to avoid ES weirdness of same sort-value 
+                sortBuilder.Append(", { \"_id\": { \"order\": \"desc\" } }");
             }
 
             sortBuilder.Append(" ]");

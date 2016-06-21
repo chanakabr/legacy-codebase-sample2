@@ -759,7 +759,7 @@ namespace ElasticSearch.Common
             res = sb.ToString();
             return res;
         }
-
+        
         #region HTTP requests
         public string SendPostHttpReq(string sUrl, ref int nStatus, string sUserName, string sPassword, string sParams, bool isFirstTry)
         {
