@@ -566,18 +566,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         private static WebAPI.Models.API.KalturaParentalRuleType ConvertParentalRuleType(WebAPI.Api.eParentalRuleType type)
         {
-            WebAPI.Models.API.KalturaParentalRuleType result = WebAPI.Models.API.KalturaParentalRuleType.all;
+            WebAPI.Models.API.KalturaParentalRuleType result = WebAPI.Models.API.KalturaParentalRuleType.ALL;
 
             switch (type)
             {
                 case WebAPI.Api.eParentalRuleType.All:
-                    result = WebAPI.Models.API.KalturaParentalRuleType.all;
+                    result = WebAPI.Models.API.KalturaParentalRuleType.ALL;
                     break;
                 case WebAPI.Api.eParentalRuleType.Movies:
-                    result = WebAPI.Models.API.KalturaParentalRuleType.movies;
+                    result = WebAPI.Models.API.KalturaParentalRuleType.MOVIES;
                     break;
                 case WebAPI.Api.eParentalRuleType.TVSeries:
-                    result = WebAPI.Models.API.KalturaParentalRuleType.tv_series;
+                    result = WebAPI.Models.API.KalturaParentalRuleType.TV_SERIES;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown asset type");

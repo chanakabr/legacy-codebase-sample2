@@ -158,6 +158,11 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter cannot be null");
             }
 
+            //if (!filter.OrderBy.HasValue)
+            //{
+            //    filter.OrderBy = (KalturaEntitlementOrderBy)filter.GetDefaultOrderByValue();
+            //}
+
             try
             {
                 // call client

@@ -10,8 +10,8 @@ namespace WebAPI.Models.Catalog
     /// </summary>
     public enum KalturaCatalogReferenceBy
     {
-        media = 0,
-        epg_internal = 2,
-        epg_external = 3
+        MEDIA = 0,
+        EPG_INTERNAL = 2,
+        EPG_EXTERNAL = 3
     }
 }

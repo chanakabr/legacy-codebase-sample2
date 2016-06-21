@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Jil;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -88,6 +89,8 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "stats", EmitDefaultValue = true)]
         [JsonProperty(PropertyName = "stats", NullValueHandling = NullValueHandling.Ignore)]
         [XmlElement(ElementName = "stats", IsNullable = true)]
+        [JilDirectiveAttribute(Ignore = true)]
+        [Obsolete]
         public KalturaAssetStatistics Statistics { get; set; }
 
 

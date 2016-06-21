@@ -1862,10 +1862,15 @@
     <Compile Include="Managers\Schema\OldStandard.cs" />
     <Compile Include="Managers\Schema\ValidationException.cs" />
     <Compile Include="Managers\Schema\SchemaValidationType.cs" />
+    <Compile Include="Models\API\KalturaParentalRuleFilter.cs" />
     <Compile Include="Models\API\KalturaCDNPartnerSettings.cs" />
     <Compile Include="Models\API\KalturaCDNAdapterProfile.cs" />
     <Compile Include="Models\API\KalturaCDNAdapterProfileListResponse.cs" />
     <Compile Include="Models\API\KalturaExportTaskOrderBy.cs" />
+    <Compile Include="Models\API\KalturaParentalRuleOrderBy.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaAsset.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetOrderBy.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCDVRAdapterProfile.cs" />
     <Compile Include="Models\API\KalturaPermissionsFilter.cs" />
     <Compile Include="Models\API\KalturaExportFilter.cs" />
