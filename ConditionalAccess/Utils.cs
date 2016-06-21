@@ -4609,8 +4609,9 @@ namespace ConditionalAccess
                         if (domainRecordingID > 0)
                         {
                             Recording domainRecording = BuildRecordingRecordingDetailsDataRow(dr);
-                            // add domain recording if its valid and doesn't already exist in dictionary
-                            if (domainRecording != null && domainRecording.Status != null && domainRecording.Status.Code == (int)eResponseStatus.OK)
+                            // add domain recording if it doesn't already exist in dictionary and wasn't canceled or deleted
+                            if (domainRecording != null && domainRecording.Status != null && domainRecording.Status.Code == (int)eResponseStatus.OK
+                                && domainRecording.RecordingStatus != TstvRecordingStatus.Canceled && domainRecording.RecordingStatus != TstvRecordingStatus.Deleted)
                             {
                                 domainRecording.Id = domainRecordingID;
                                 responseDictionary[domainRecording.EpgId] = domainRecording;
