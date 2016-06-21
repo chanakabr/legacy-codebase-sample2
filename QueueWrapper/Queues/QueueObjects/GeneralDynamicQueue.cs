@@ -11,12 +11,12 @@ namespace QueueWrapper.Queues.QueueObjects
     {
         private string Name { get; set; }
 
-        public GeneralDynamicQueue(string name)
+        public GeneralDynamicQueue(string name, ConfigType configType = ConfigType.DefaultConfig)
             : base()
         {
             Name = name;
 
-            this.Implementation = new RabbitQueue(ConfigType.DefaultConfig, true);
+            this.Implementation = new RabbitQueue(configType, true);
         }
 
         public override bool Enqueue(ApiObjects.QueueObject record, string sRouteKey, long expirationMiliSec = 0)
