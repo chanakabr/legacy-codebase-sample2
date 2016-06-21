@@ -60,11 +60,6 @@ namespace SetupTaskHandler
                     case ApiObjects.eSetupTask.RecordingsCleanup:
                         
                         string url = TVinciShared.WS_Utils.GetTcmConfigValue("WS_CAS");
-                        string username = string.Empty;
-                        string password = string.Empty;
-
-                        TasksCommon.RemoteTasksUtils.GetCredentials(request.GroupID, ref username, ref password, ApiObjects.eWSModules.CONDITIONALACCESS);
-
                         using (SetupTaskHandler.WS_ConditionalAccess.module cas = new SetupTaskHandler.WS_ConditionalAccess.module())
                         {
                             if (!string.IsNullOrEmpty(url))
@@ -73,7 +68,7 @@ namespace SetupTaskHandler
                             }
 
                             cas.Timeout = 600000;
-                            success = cas.CleanupRecordings(username, password);
+                            success = cas.CleanupRecordings();
 
                             if (!success)
                             {
