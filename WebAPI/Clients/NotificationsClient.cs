@@ -1124,7 +1124,7 @@ namespace WebAPI.Clients
                             response = Notification.RegisterPushAnnouncementParameters(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, long.Parse(id), hash, ip);
                             break;
                         case KalturaNotificationType.system:
-                            if (id.ToLower() != "login")
+                            if (id.ToLower() == "login")
                                 response = Notification.RegisterPushSystemParameters(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, hash, ip);
                             else
                                 throw new NotImplementedException();
