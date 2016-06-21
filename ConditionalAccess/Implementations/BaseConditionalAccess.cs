@@ -17295,7 +17295,7 @@ namespace ConditionalAccess
                 };
 
                 Dictionary<long, Recording> recordingIdToDomainRecordingsMap = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, domainID, recordingStatuses);
-                List<Recording> currentRecordings = recordingIdToDomainRecordingsMap.Values.ToList();
+                List<Recording> currentRecordings = recordingIdToDomainRecordingsMap != null? recordingIdToDomainRecordingsMap.Values.ToList() : new List<Recording>();
                 List<Recording> recordingsToCheckQuota = response.Recordings.Where(recording => recording.Status != null
                                                                                     && recording.Status.Code == (int)eResponseStatus.OK
                                                                                     && Utils.IsValidRecordingStatus(recording.RecordingStatus)).ToList();
@@ -17925,7 +17925,7 @@ namespace ConditionalAccess
                 };
 
                 Dictionary<long, Recording> recordingIdToDomainRecordingsMap = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, domainID, recordingStatuses);
-                List<Recording> currentRecordings = recordingIdToDomainRecordingsMap.Values.ToList();               
+                List<Recording> currentRecordings = recordingIdToDomainRecordingsMap != null ? recordingIdToDomainRecordingsMap.Values.ToList() : new List<Recording>();
 
                 response = QuotaManager.Instance.GetDomainQuota(this.m_nGroupID, domainID, currentRecordings);
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK);
