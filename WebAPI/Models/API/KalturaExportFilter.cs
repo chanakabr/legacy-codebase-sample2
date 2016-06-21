@@ -5,7 +5,6 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
-using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
@@ -13,18 +12,18 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Bulk export tasks filter
     /// </summary>
-    [OldStandard("idIn", "ids")]
+    [Obsolete]
     public class KalturaExportFilter : KalturaFilter
     {
 
         /// <summary>
         /// The tasks identifiers
         /// </summary>
-        [DataMember(Name = "idIn")]
-        [JsonProperty("idIn")]
+        [DataMember(Name = "ids")]
+        [JsonProperty("ids")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
-        public List<KalturaLongValue> IdIn { get; set; }
+        public List<KalturaLongValue> ids { get; set; }
 
         /// <summary>
         /// order by
@@ -32,7 +31,6 @@ namespace WebAPI.Models.API
         [DataMember(Name = "orderBy")]
         [JsonProperty("orderBy")]
         [XmlElement(ElementName = "orderBy", IsNullable = true)]
-        [ValidationException(SchemaValidationType.FILTER_SUFFIX)]
         public KalturaExportTaskOrderBy? OrderBy { get; set; }
 
         public override object GetDefaultOrderByValue()

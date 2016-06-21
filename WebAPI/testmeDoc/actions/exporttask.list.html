@@ -10,13 +10,13 @@
 		<h2>Kaltura API</h2>
 		<table class="action">
 			<tr>
-				<th colspan="5" class="service_action_title">recording.add</th>
+				<th colspan="5" class="service_action_title">exporttask.list</th>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Description:</td>
 			</tr>
 			<tr>
-				<td class="description" colspan="5">Issue a record request for a program</td>
+				<td class="description" colspan="5">Returns bulk export tasks by tasks identifiers</td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Input Params</td>
@@ -29,37 +29,31 @@
 				<th class="subtitle">Default Value</th>
 			</tr>
 			<tr>
-				<td>recording</td>
-				<td><a href="../objects/KalturaRecording.html">KalturaRecording</a></td>
-				<td>Recording Object</td>
-				<td>V</td>
+				<td>filter</td>
+				<td><a href="../objects/KalturaExportTaskFilter.html">KalturaExportTaskFilter</a></td>
+				<td>Bulk export tasks filter</td>
 				<td></td>
+				<td>1</td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Output Type</td>
 			</tr>
 			<tr>
-				<td colspan="5"><a href="../objects/KalturaRecording.html">KalturaRecording</a></td>
+				<td colspan="5"><a href="../objects/KalturaExportTaskListResponse.html">KalturaExportTaskListResponse</a></td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Example HTTP Hit</td>
 			</tr>
 			<tr>
-				<td colspan="5">http://www.kaltura.com/api_v3/service/recording/action/add<br />
+				<td colspan="5">http://www.kaltura.com/api_v3/service/exporttask/action/list<br />
 				<strong>JSON object:</strong>
 				<pre>
 				<div class="post_fields">
 [
-	recording: {
-		objectType: "KalturaRecording",
-		id: value,
-		status: "value",
-		assetId: value,
-		type: "value",
-		viewableUntilDate: value,
-		isProtected: value,
-		createDate: value,
-		updateDate: value
+	filter: {
+		objectType: "KalturaExportTaskFilter",
+		idIn: "value",
+		orderBy: "value"
 	}
 ]
 				</pre></td>
