@@ -9,8 +9,6 @@ namespace TVPPro.Configuration.Admin
 {
     public class AdminConfiguration : ConfigurationManager<AdminData>
     {
-        
-
         #region Public Properties
         private static AdminConfiguration m_Instance = new AdminConfiguration();
         public static AdminConfiguration Instance
@@ -40,9 +38,13 @@ namespace TVPPro.Configuration.Admin
         #region Constructor
         private AdminConfiguration()
         {
-            TCMClient.Settings.Instance.Init();
             base.SyncFromFile(ConfigurationManager.AppSettings["Configuration.Admin"], true);
         } 
         #endregion
+
+        private void DummyMethodToLoadDll()
+        {
+            TCMClient.Settings.Instance.Init();
+        }
     }
 }
