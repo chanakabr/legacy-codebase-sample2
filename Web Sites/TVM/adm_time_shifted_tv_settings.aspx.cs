@@ -124,26 +124,32 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
 
         DataRecordCheckBoxField dr_catchUp = new DataRecordCheckBoxField(true);
         dr_catchUp.Initialize("Enable Catch-Up", "adm_table_header_nbg", "FormInput", "enable_catch_up", false);
+        dr_catchUp.SetDefault(0);
         theRecord.AddRecord(dr_catchUp);
 
         DataRecordShortIntField dr_catchUpBuffer = new DataRecordShortIntField(true, 9, 9, 0);
         dr_catchUpBuffer.Initialize("Catch-Up Buffer Length", "adm_table_header_nbg", "FormInput", "catch_up_buffer", false);
+        dr_catchUpBuffer.SetDefault(7);
         theRecord.AddRecord(dr_catchUpBuffer);
 
         DataRecordCheckBoxField dr_cdvr = new DataRecordCheckBoxField(true);
         dr_cdvr.Initialize("Enable C-DVR", "adm_table_header_nbg", "FormInput", "enable_cdvr", false);
+        dr_cdvr.SetDefault(0);
         theRecord.AddRecord(dr_cdvr);
 
         DataRecordCheckBoxField dr_startOver = new DataRecordCheckBoxField(true);
         dr_startOver.Initialize("Enable Start-Over", "adm_table_header_nbg", "FormInput", "enable_start_over", false);
+        dr_startOver.SetDefault(0);
         theRecord.AddRecord(dr_startOver);
 
         DataRecordCheckBoxField dr_trickPlay = new DataRecordCheckBoxField(true);
         dr_trickPlay.Initialize("Enable Live Trick-Play ", "adm_table_header_nbg", "FormInput", "enable_trick_play", false);
+        dr_trickPlay..SetDefault(0);
         theRecord.AddRecord(dr_trickPlay);
 
         DataRecordShortIntField dr_trickPlayBuffer = new DataRecordShortIntField(true, 9, 9, 0);
         dr_trickPlayBuffer.Initialize("Live Trick-Play Buffer Length", "adm_table_header_nbg", "FormInput", "trick_play_buffer", false);
+        dr_trickPlay.SetDefault(1);
         theRecord.AddRecord(dr_trickPlayBuffer);
 
         DataRecordCheckBoxField dr_scheduleWindow = new DataRecordCheckBoxField(true);
@@ -152,6 +158,7 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
 
         DataRecordShortIntField dr_scheduleWindowBuffer = new DataRecordShortIntField(true, 9, 9);
         dr_scheduleWindowBuffer.Initialize("Recording Schedule Window Length", "adm_table_header_nbg", "FormInput", "recording_schedule_window_buffer", false);
+        dr_scheduleWindowBuffer.SetDefault(0);
         theRecord.AddRecord(dr_scheduleWindowBuffer);
 
         DataRecordShortIntField dr_paddingBeforeProgramStarts = new DataRecordShortIntField(true, 9, 9, 0);
