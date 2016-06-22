@@ -18046,6 +18046,7 @@ namespace ConditionalAccess
                 int totalRecordingsToCleanup = 0, totalRecordingsDeleted = 0, totalDomainRecordingsUpdated = 0;
                 Dictionary<int, int> groupIdToAdapterIdMap = new Dictionary<int, int>();
                 Dictionary<long, KeyValuePair<int, Recording>> recordingsForDeletion = ConditionalAccessDAL.GetRecordingsForCleanup(utcNowEpoch);
+                HashSet<long> recordingsThatFailedDeletion = new HashSet<long>();
                 while (recordingsForDeletion != null && recordingsForDeletion.Count > 0)
                 {
                     totalRecordingsToCleanup += recordingsForDeletion.Count;
@@ -18062,12 +18063,16 @@ namespace ConditionalAccess
                         ApiObjects.Response.Status deleteStatus = RecordingsManager.Instance.CancelOrDeleteRecording(pair.Key, pair.Value, TstvRecordingStatus.Deleted, adapterId);
                         if (deleteStatus.Code != (int)eResponseStatus.OK)
                         {
-                            log.ErrorFormat("Failed deleting recordingID: {0} for groupID {1}", pair.Value.Id, m_nGroupID);
+                            if (!recordingsThatFailedDeletion.Contains(pair.Value.Id))
+                            {
+                                recordingsThatFailedDeletion.Add(pair.Value.Id);
+                            }
+                            log.ErrorFormat("Failed deleting recordingID: {0} for groupID {1}", pair.Value.Id, pair.Key);
                         }
                         else
                         {
                             deletedRecordingIds.Add(pair.Value.Id);
-                            log.DebugFormat("recordingID {0} has been successfully cleaned up for groupID {1}", pair.Value.Id, m_nGroupID);
+                            log.DebugFormat("recordingID {0} has been successfully cleaned up for groupID {1}", pair.Value.Id, pair.Key);
                         }
                     }
 
@@ -18089,6 +18094,7 @@ namespace ConditionalAccess
                     }
 
                     recordingsForDeletion = ConditionalAccessDAL.GetRecordingsForCleanup(utcNowEpoch);
+                    recordingsForDeletion = recordingsForDeletion.Where(x => !recordingsThatFailedDeletion.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
                 }
 
                 // update successful cleanup date
