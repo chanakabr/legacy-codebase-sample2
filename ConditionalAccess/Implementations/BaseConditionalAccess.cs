@@ -18060,9 +18060,31 @@ namespace ConditionalAccess
         public bool CleanupRecordings()
         {
             bool result = false;
-            int recordingCleanupIntervalMin = 0;            
+            int recordingCleanupIntervalMin = 0;
+            bool shouldInsertToQueue = false;
+
             try
             {
+                // try to get interval for next cleanup or take default
+                RecordingCleanupResponse lastRecordingCleanupResponse = GetLastSuccessfulRecordingsCleanup();
+                if (lastRecordingCleanupResponse.Status.Code == (int)eResponseStatus.OK && lastRecordingCleanupResponse.IntervalInMinutes > 0)
+                {
+                    recordingCleanupIntervalMin = lastRecordingCleanupResponse.IntervalInMinutes;
+                    if (lastRecordingCleanupResponse.LastSuccessfulCleanUpDate.AddMinutes(recordingCleanupIntervalMin) < DateTime.UtcNow)
+                    {
+                        shouldInsertToQueue = true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    shouldInsertToQueue = true;
+                    recordingCleanupIntervalMin = RECORDING_CLEANUP_EXECUTE_GAP_HOURS * 60;
+                }
+
                 // get current utc epoch
                 long utcNowEpoch = TVinciShared.DateUtils.UnixTimeStampNow();
                 // get first batch
@@ -18124,16 +18146,6 @@ namespace ConditionalAccess
                 if (totalRecordingsDeleted == totalRecordingsToCleanup)
                 {
                     result = true;
-                    // try to get interval for next cleanup or take default
-                    RecordingCleanupResponse lastRecordingCleanupResponse = GetLastSuccessfulRecordingsCleanup();
-                    if (lastRecordingCleanupResponse.Status.Code == (int)eResponseStatus.OK && lastRecordingCleanupResponse.IntervalInMinutes > 0)
-                    {
-                        recordingCleanupIntervalMin = lastRecordingCleanupResponse.IntervalInMinutes;
-                    }
-                    else
-                    {
-                        recordingCleanupIntervalMin = RECORDING_CLEANUP_EXECUTE_GAP_HOURS * 60;
-                    }
 
                     if (!ConditionalAccessDAL.UpdateSuccessfulRecordingsCleanup(DateTime.UtcNow, totalRecordingsDeleted, totalDomainRecordingsUpdated, recordingCleanupIntervalMin))
                     {
@@ -18164,15 +18176,18 @@ namespace ConditionalAccess
             }
             finally
             {
-                if (recordingCleanupIntervalMin == 0)
+                if (shouldInsertToQueue)
                 {
-                    recordingCleanupIntervalMin = RECORDING_CLEANUP_EXECUTE_GAP_HOURS * 60;
-                }
+                    if (recordingCleanupIntervalMin == 0)
+                    {
+                        recordingCleanupIntervalMin = RECORDING_CLEANUP_EXECUTE_GAP_HOURS * 60;
+                    }
 
-                DateTime nextExecutionDate = DateTime.UtcNow.AddMinutes(recordingCleanupIntervalMin);
-                SetupTasksQueue queue = new SetupTasksQueue();
-                CelerySetupTaskData data = new CelerySetupTaskData(0, eSetupTask.RecordingsCleanup, new Dictionary<string, object>()) { ETA = nextExecutionDate };
-                result = queue.Enqueue(data, ROUTING_KEY_RECORDINGS_CLEANUP);
+                    DateTime nextExecutionDate = DateTime.UtcNow.AddMinutes(recordingCleanupIntervalMin);
+                    SetupTasksQueue queue = new SetupTasksQueue();
+                    CelerySetupTaskData data = new CelerySetupTaskData(0, eSetupTask.RecordingsCleanup, new Dictionary<string, object>()) { ETA = nextExecutionDate };
+                    result = queue.Enqueue(data, ROUTING_KEY_RECORDINGS_CLEANUP);
+                }
             }
 
             return result;
