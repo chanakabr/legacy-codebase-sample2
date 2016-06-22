@@ -27,7 +27,7 @@ namespace ElasticSearch.Searcher
             ReturnFields = DEFAULT_RETURN_FIELDS;
             string sMaxResults = Common.Utils.GetWSURL("MAX_RESULTS");
             if (!int.TryParse(sMaxResults, out MAX_RESULTS))
-                MAX_RESULTS = 100000;
+                MAX_RESULTS = 10000;
         }
 
         private int CalcNumOfRequests()

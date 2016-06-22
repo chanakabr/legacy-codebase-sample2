@@ -110,7 +110,7 @@ namespace ElasticSearch.Searcher
 
             if (!int.TryParse(maxResults, out MAX_RESULTS))
             {
-                MAX_RESULTS = 100000;
+                MAX_RESULTS = 10000;
             }
         }
 

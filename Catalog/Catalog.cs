@@ -53,7 +53,7 @@ namespace Catalog
         private static readonly int ASSET_STATS_VOTES_SUM_INDEX = 2;
         private static readonly int ASSET_STATS_LIKES_INDEX = 3;
 
-        private const int DEFAULT_SEARCHER_MAX_RESULTS_SIZE = 100000;
+        private const int DEFAULT_SEARCHER_MAX_RESULTS_SIZE = 10000;
 
         internal const int DEFAULT_PWWAWP_MAX_RESULTS_SIZE = 8;
         internal const int DEFAULT_PWLALP_MAX_RESULTS_SIZE = 8;
@@ -3869,7 +3869,7 @@ namespace Catalog
 
             filteredQuery.Filter.FilterSettings = filter;
 
-            ESTermsFacet facet = new ESTermsFacet("channel_views", "media_id", 100000);
+            ESTermsFacet facet = new ESTermsFacet("channel_views", "media_id", 10000);
             facet.Query = filteredQuery;
             #endregion
 
@@ -4142,7 +4142,7 @@ namespace Catalog
 
             filteredQuery.Filter.FilterSettings = filter;
 
-            ESTermsFacet facet = new ESTermsFacet(STAT_SLIDING_WINDOW_FACET_NAME, "media_id", 100000);
+            ESTermsFacet facet = new ESTermsFacet(STAT_SLIDING_WINDOW_FACET_NAME, "media_id", 10000);
             facet.Query = filteredQuery;
             #endregion
 
@@ -4286,7 +4286,7 @@ namespace Catalog
 
             filteredQuery.Filter.FilterSettings = filter;
 
-            ESTermsStatsFacet facet = new ESTermsStatsFacet(STAT_SLIDING_WINDOW_FACET_NAME, "media_id", valueField, 100000);
+            ESTermsStatsFacet facet = new ESTermsStatsFacet(STAT_SLIDING_WINDOW_FACET_NAME, "media_id", valueField, 10000);
             facet.Query = filteredQuery;
             #endregion
 

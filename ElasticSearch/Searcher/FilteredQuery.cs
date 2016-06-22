@@ -26,7 +26,7 @@ namespace ElasticSearch.Searcher
             m_bIsRoot = bIsRoot;
 
             if (!int.TryParse(sMaxResults, out MAX_RESULTS))
-                MAX_RESULTS = 100000;
+                MAX_RESULTS = 10000;
         }
 
         public override string ToString()

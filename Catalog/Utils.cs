@@ -466,7 +466,7 @@ namespace Catalog
 
             filteredQuery.Filter.FilterSettings = filter;
 
-            ESTermsFacet facet = new ESTermsFacet("channel_views", "media_id", 100000);
+            ESTermsFacet facet = new ESTermsFacet("channel_views", "media_id", 10000);
             facet.Query = filteredQuery;
             #endregion
 
@@ -540,7 +540,7 @@ namespace Catalog
 
             filteredQuery.Filter.FilterSettings = filter;
 
-            ESTermsFacet facet = new ESTermsFacet("sliding_window", "media_id", 100000);
+            ESTermsFacet facet = new ESTermsFacet("sliding_window", "media_id", 10000);
             facet.Query = filteredQuery;
             #endregion
 
@@ -615,7 +615,7 @@ namespace Catalog
 
             filteredQuery.Filter.FilterSettings = filter;
 
-            ESTermsStatsFacet facet = new ESTermsStatsFacet("sliding_window", "media_id", valueField, 100000);
+            ESTermsStatsFacet facet = new ESTermsStatsFacet("sliding_window", "media_id", valueField, 10000);
             facet.Query = filteredQuery;
             #endregion
 

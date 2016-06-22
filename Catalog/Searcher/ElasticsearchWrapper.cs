@@ -1824,7 +1824,7 @@ namespace Catalog
             }
             else
             {
-                facet = new ESTermsFacet("stats", "media_id", 100000)
+                facet = new ESTermsFacet("stats", "media_id", 10000)
                 {
                     Query = filteredQuery
                 };
