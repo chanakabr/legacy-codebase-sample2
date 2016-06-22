@@ -13837,9 +13837,13 @@ namespace ConditionalAccess
                                 DateTime entitlementDate = DateTime.UtcNow;
                                 response.CreatedAt = DateUtils.DateTimeToUnixTimestamp(entitlementDate);
 
-                                DateTime? subscriptionEndDate = DateUtils.UnixTimeStampToDateTime(response.EndDateSeconds);
-                                bool isRecurring = subscription.m_bIsRecurring && response.AutoRenewing;
+                                DateTime? subscriptionEndDate = null;
+                                if (response.EndDateSeconds > 0)
+                                {
+                                    subscriptionEndDate = DateUtils.UnixTimeStampToDateTime(response.EndDateSeconds);
+                                }
 
+                                bool isRecurring = subscription.m_bIsRecurring && response.AutoRenewing;
 
                                 // grant entitlement
                                 bool handleBillingPassed = HandleSubscriptionBillingSuccess(ref response, siteguid, householdId, subscription, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty, userIp,
