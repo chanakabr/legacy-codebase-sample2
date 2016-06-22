@@ -144,7 +144,7 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
 
         DataRecordCheckBoxField dr_trickPlay = new DataRecordCheckBoxField(true);
         dr_trickPlay.Initialize("Enable Live Trick-Play ", "adm_table_header_nbg", "FormInput", "enable_trick_play", false);
-        dr_trickPlay..SetDefault(0);
+        dr_trickPlay.SetDefault(0);
         theRecord.AddRecord(dr_trickPlay);
 
         DataRecordShortIntField dr_trickPlayBuffer = new DataRecordShortIntField(true, 9, 9, 0);
