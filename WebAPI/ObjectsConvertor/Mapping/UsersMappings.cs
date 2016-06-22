@@ -150,6 +150,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // Rest WS_Users FavoritObject ==>  Favorite  
             Mapper.CreateMap<Users.FavoritObject, KalturaFavorite>()
                 .ForMember(dest => dest.ExtraData, opt => opt.MapFrom(src => src.m_sExtraData))
+                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.m_sItemCode))
                 .ForMember(dest => dest.Asset, opt => opt.MapFrom(src => src.m_sItemCode));
 
             // UserItemsList to KalturaUserAssetsList

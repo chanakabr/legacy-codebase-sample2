@@ -29,7 +29,7 @@
 		<h2>Kaltura API</h2>
 		<table class="action" width="80%">
 			<tr>
-				<th class="service_action_title">KalturaRecordingFilter</th>
+				<th class="service_action_title">KalturaFavoriteFilter</th>
 			</tr>
 			<tr>
 				<td class="title">Properties</td>
@@ -87,7 +87,7 @@
 							</tr>
 							<tr >
 								<td>orderBy</td>
-								<td><a href="../enums/KalturaRecordingOrderBy.html">KalturaRecordingOrderBy</a></td>
+								<td><a href="../enums/KalturaFavoriteOrderBy.html">KalturaFavoriteOrderBy</a></td>
 								<td>V</td>
 								<td></td>
 								<td></td>
@@ -101,7 +101,7 @@
 					<table style="">
 						<tbody>
 							<tr>
-								<td class="inheritedFrom"><b>KalturaRecordingFilter</b></td>
+								<td class="inheritedFrom"><b>KalturaFavoriteFilter</b></td>
 							</tr>
 						</tbody>
 					</table>
@@ -115,18 +115,18 @@
 								<th class="subtitle">Description</th>
 							</tr>
 							<tr >
-								<td>statusIn</td>
-								<td>string</td>
+								<td>mediaTypeIn</td>
+								<td>int</td>
 								<td>V</td>
 								<td></td>
-								<td>Recording Statuses</td>
+								<td>Media type to filter by the favorite assets</td>
 							</tr>
 							<tr class="odd">
-								<td>filterExpression</td>
+								<td>mediaIdIn</td>
 								<td>string</td>
 								<td>V</td>
 								<td></td>
-								<td>KSQL expression</td>
+								<td>Media identifiers from which to filter the favorite assets</td>
 							</tr>
 						</tbody>
 					</table>

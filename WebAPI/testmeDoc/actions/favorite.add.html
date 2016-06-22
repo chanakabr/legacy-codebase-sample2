@@ -10,13 +10,13 @@
 		<h2>Kaltura API</h2>
 		<table class="action">
 			<tr>
-				<th colspan="5" class="service_action_title">exporttask.list</th>
+				<th colspan="5" class="service_action_title">favorite.add</th>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Description:</td>
 			</tr>
 			<tr>
-				<td class="description" colspan="5">Returns bulk export tasks by tasks identifiers</td>
+				<td class="description" colspan="5">Add media to user&#39;s favorite list</td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Input Params</td>
@@ -29,30 +29,31 @@
 				<th class="subtitle">Default Value</th>
 			</tr>
 			<tr>
-				<td>filter</td>
-				<td><a href="../objects/KalturaExportTaskFilter.html">KalturaExportTaskFilter</a></td>
-				<td>Bulk export tasks filter</td>
+				<td>favorite</td>
+				<td><a href="../objects/KalturaFavorite.html">KalturaFavorite</a></td>
+				<td>Favorite details.</td>
+				<td>V</td>
 				<td></td>
-				<td>1</td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Output Type</td>
 			</tr>
 			<tr>
-				<td colspan="5"><a href="../objects/KalturaExportTaskListResponse.html">KalturaExportTaskListResponse</a></td>
+				<td colspan="5"><a href="../objects/KalturaFavorite.html">KalturaFavorite</a></td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Example HTTP Hit</td>
 			</tr>
 			<tr>
-				<td colspan="5">http://www.kaltura.com/api_v3/service/exporttask/action/list<br />
+				<td colspan="5">http://www.kaltura.com/api_v3/service/favorite/action/add<br />
 				<strong>JSON object:</strong>
 				<pre>
 				<div class="post_fields">
 [
-	filter: {
-		objectType: "KalturaExportTaskFilter",
-		idIn: "value"
+	favorite: {
+		objectType: "KalturaFavorite",
+		assetId: value,
+		extraData: "value"
 	}
 ]
 				</pre></td>

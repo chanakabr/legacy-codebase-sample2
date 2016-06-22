@@ -27,7 +27,8 @@ namespace Validator.Managers.Schema
         private XmlWriter writer;
 
         private List<Type> enums = new List<Type>();
-        private List<Type> types = new List<Type>();
+        private List<Type> types;
+        private Dictionary<string, Type> loadedTypes = new Dictionary<string, Type>();
         private IEnumerable<Type> controllers;
 
         public Schema(bool loadAll)
@@ -97,7 +98,7 @@ namespace Validator.Managers.Schema
                 };
             }
 
-            var filters = assembly.GetTypes().Where(myType => myType.IsClass && myType.IsSubclassOf(typeof(KalturaFilter)));
+            var filters = assembly.GetTypes().Where(myType => myType.IsClass && typeof(IKalturaFilter).IsAssignableFrom(myType));
             foreach (var filter in filters)
             {
                 var orderByName = filter.Name.Replace("Filter", "OrderBy");
@@ -107,7 +108,7 @@ namespace Validator.Managers.Schema
             }
 
             List<Field> fields = new List<Field>();
-            foreach (Type type in types)
+            foreach (Type type in loadedTypes.Values)
             {   
                 fields.Add(new Field(type));
             }
@@ -118,7 +119,7 @@ namespace Validator.Managers.Schema
             for (int i = 0; i < sortedFields.Length; i++)
             {
                 var field = fields[sortedFields[i]];
-                sortedTypes.Insert(0, types.Where(myType => myType.Name == field.Name).First());
+                sortedTypes.Insert(0, loadedTypes.Values.Where(myType => myType.Name == field.Name).First());
             }
             types = sortedTypes;
         }
@@ -138,9 +139,13 @@ namespace Validator.Managers.Schema
                 return;
             }
 
-            if (type.IsSubclassOf(typeof(KalturaOTTObject)) && !types.Contains(type) && (loadAll || SchemaManager.Validate(type, false)))
+            string typeName = type.Name;
+            if (type.IsGenericType && typeName.StartsWith("KalturaFilter"))
+                typeName = "KalturaFilter";
+
+            if (type.IsSubclassOf(typeof(KalturaOTTObject)) && !loadedTypes.ContainsKey(typeName) && (loadAll || SchemaManager.Validate(type, false)))
             {
-                types.Add(type);
+                loadedTypes.Add(typeName, type);
                 LoadType(type.BaseType, loadAll);
 
                 var subClasses = assembly.GetTypes().Where(myType => myType.IsSubclassOf(type));
@@ -509,12 +514,22 @@ namespace Validator.Managers.Schema
         
         private void writeType(Type type)
         {
+            string typeName = type.Name;
+            if (type.IsGenericType && typeName.StartsWith("KalturaFilter"))
+                typeName = "KalturaFilter";
+
             writer.WriteStartElement("class");
-            writer.WriteAttributeString("name", type.Name);
+            writer.WriteAttributeString("name", typeName);
             writer.WriteAttributeString("description", getDescription(type));
 
             if (type.BaseType != null && type.BaseType != typeof(KalturaOTTObject))
-                writer.WriteAttributeString("base", type.BaseType.Name);
+            {
+                string baseType = type.BaseType.Name;
+                if (type.BaseType.IsGenericType && baseType.StartsWith("KalturaFilter"))
+                    baseType = "KalturaFilter";
+
+                writer.WriteAttributeString("base", baseType);
+            }
 
             if (type.IsInterface || type.IsAbstract)
                 writer.WriteAttributeString("abstract", "1");
@@ -528,14 +543,27 @@ namespace Validator.Managers.Schema
 
             foreach (var property in properties)
             {
-                //Type eType = null;
+                ObsoleteAttribute obsolete = property.GetCustomAttribute<ObsoleteAttribute>(true);
+                if (obsolete != null)
+                    continue;
+
                 var dataMemberAttr = property.GetCustomAttribute<DataMemberAttribute>();
                 if (dataMemberAttr == null)
                     continue;
 
+
                 writer.WriteStartElement("property");
                 writer.WriteAttributeString("name", dataMemberAttr.Name);
-                appendType(property.PropertyType);
+
+                if (typeName == "KalturaFilter" && dataMemberAttr.Name == "orderBy")
+                {
+                    appendType(typeof(int));
+                }
+                else
+                {
+                    appendType(property.PropertyType);
+                }
+
                 writer.WriteAttributeString("description", getDescription(property));
                 writer.WriteAttributeString("readOnly", "0");
                 writer.WriteAttributeString("insertOnly", "0");

@@ -220,6 +220,10 @@ namespace Validator.Managers.Schema
 
             foreach (PropertyInfo property in type.GetProperties())
             {
+                ObsoleteAttribute obsolete = property.GetCustomAttribute<ObsoleteAttribute>(true);
+                if (obsolete != null)
+                    continue;
+
                 if (property.DeclaringType != type || hasValidationException(property, SchemaValidationType.FILTER_SUFFIX))
                     continue;
 
@@ -278,11 +282,11 @@ namespace Validator.Managers.Schema
                     valid = false;
             }
 
-            if (type.IsSubclassOf(typeof(KalturaFilter)))
+            if (typeof(IKalturaFilter).IsAssignableFrom(type))
             {
                 valid = ValidateFilter(type, strict) && valid;
             }
-            else if (type != typeof(KalturaFilter) && type.Name.EndsWith("Filter"))
+            else if (!type.Name.Equals("KalturaFilter") && type.Name.EndsWith("Filter"))
             {
                 logError("Warning", type, string.Format("Filter {0} must inherit KalturaFilter", type.Name));
                 if (strict)
@@ -291,6 +295,10 @@ namespace Validator.Managers.Schema
 
             foreach (PropertyInfo property in type.GetProperties())
             {
+                ObsoleteAttribute obsolete = property.GetCustomAttribute<ObsoleteAttribute>(true);
+                if (obsolete != null)
+                    continue;
+
                 if (property.DeclaringType == type)
                     valid = ValidateProperty(property, strict) && valid;
             }
