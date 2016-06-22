@@ -4449,7 +4449,9 @@ namespace ConditionalAccess
                     recordingStatus = TstvRecordingStatus.Deleted;
                     break;
                 case DomainRecordingStatus.DeletedBySystem:
-                    recordingStatus = TstvRecordingStatus.LifeTimePeriodExpired;
+                    /***** Currently the LifeTimePeriodExpired status is only for backend inner needs and we are not exposing it on the REST to the client *****/
+                    //recordingStatus = TstvRecordingStatus.LifeTimePeriodExpired;
+                    recordingStatus = TstvRecordingStatus.Deleted;
                     break;
                 case DomainRecordingStatus.OK:
                     recordingStatus = TstvRecordingStatus.OK;
@@ -4483,6 +4485,8 @@ namespace ConditionalAccess
                             result.Add(DomainRecordingStatus.Canceled);
                         }
                         break;
+                    /***** Currently the LifeTimePeriodExpired status is only for backend inner needs and we are not exposing it on the REST to the client *****/
+                    /*
                     // add both DomainRecordingStatus.OK and DomainRecordingStatus.DeletedByCleanup because we don't know if the recording has already been deleted
                     case TstvRecordingStatus.LifeTimePeriodExpired:
                         if (!result.Contains(DomainRecordingStatus.OK))
@@ -4495,6 +4499,7 @@ namespace ConditionalAccess
                             result.Add(DomainRecordingStatus.DeletedBySystem);
                         }
                         break;
+                     */ 
                     case TstvRecordingStatus.Deleted:
                     default:
                         break;
@@ -4960,10 +4965,12 @@ namespace ConditionalAccess
                     }
 
                     long currentUtcEpoch = TVinciShared.DateUtils.UnixTimeStampNow();
-                    // modify recordings status to LifeTimePeriodExpired if it's currently not viewable
+                    // modify recordings status to Deleted if it's currently not viewable
                     if (recording.ViewableUntilDate < currentUtcEpoch)
                     {
-                        recording.RecordingStatus = TstvRecordingStatus.LifeTimePeriodExpired;
+                        /***** Currently the LifeTimePeriodExpired status is only for backend inner needs and we are not exposing it on the REST to the client *****
+                        recording.RecordingStatus = TstvRecordingStatus.LifeTimePeriodExpired;*/
+                        recording.RecordingStatus = TstvRecordingStatus.Deleted;
                     }
                 }
 
