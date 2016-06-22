@@ -13,7 +13,8 @@ namespace ElasticSearch.Searcher
         protected List<IESTerm> should;
         protected List<IESTerm> mustNot;
         public eTermType eType { get; protected set; }
-        
+        public QueryFilter filter;
+
         public bool isNot
         {
             get
@@ -31,12 +32,13 @@ namespace ElasticSearch.Searcher
             should = new List<IESTerm>();
             mustNot = new List<IESTerm>();
             eType = eTermType.BOOL_QUERY;
+            filter = new QueryFilter();
         }
 
 
         public bool IsEmpty()
         {
-            return must.Count == 0 && should.Count == 0 && mustNot.Count == 0;
+            return must.Count == 0 && should.Count == 0 && mustNot.Count == 0 && (filter == null || filter.IsEmpty());
         }
 
         public void AddChild(IESTerm oChild, CutWith eCutWith)
@@ -121,7 +123,6 @@ namespace ElasticSearch.Searcher
                 queryString.Append("]");
             }
 
-
             if (mustNot.Count > 0)
             {
                 if (hasMustClause || hasShouldClause)
@@ -144,6 +145,11 @@ namespace ElasticSearch.Searcher
                     queryString.Append(terms.Aggregate((current, next) => current + "," + next));
 
                 queryString.Append("]");
+            }
+
+            if (filter != null && !filter.IsEmpty())
+            {
+                queryString.AppendFormat(", {0}", filter.ToString());
             }
 
             queryString.Append(" }}");

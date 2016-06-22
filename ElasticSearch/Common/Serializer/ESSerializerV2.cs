@@ -155,7 +155,7 @@ namespace ElasticSearch.Common
             {
                 name = "user_types",
                 type = eESFieldType.INTEGER,
-                index = eMappingIndex.no
+                index = eMappingIndex.not_analyzed
             });
 
             ElasticSearch.Common.FieldsMappingPropertyV2 nameProperty = new FieldsMappingPropertyV2()
@@ -167,7 +167,7 @@ namespace ElasticSearch.Common
                 name = "name",
                 type = eESFieldType.STRING,
                 null_value = string.Empty,
-                index = eMappingIndex.no
+                index = eMappingIndex.not_analyzed
             });
             nameProperty.fields.Add(new BasicMappingPropertyV2()
             {
@@ -204,7 +204,7 @@ namespace ElasticSearch.Common
                 name = "description",
                 type = ElasticSearch.Common.eESFieldType.STRING,
                 null_value = "",
-                index = eMappingIndex.no
+                index = eMappingIndex.not_analyzed
             });
             descProperty.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV2()
             {
@@ -258,7 +258,7 @@ namespace ElasticSearch.Common
                             name = sTagName,
                             type = ElasticSearch.Common.eESFieldType.STRING,
                             null_value = string.Empty,
-                            index = eMappingIndex.no
+                            index = eMappingIndex.not_analyzed
                         });
                         multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
                         {
@@ -322,7 +322,7 @@ namespace ElasticSearch.Common
                                     name = sMetaName,
                                     type = eMetaType,
                                     null_value = sNullValue,
-                                    index = eMappingIndex.no
+                                    index = eMappingIndex.not_analyzed
                                 });
                                 multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
                                 {
