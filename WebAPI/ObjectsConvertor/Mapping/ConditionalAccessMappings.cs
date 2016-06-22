@@ -286,10 +286,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 case KalturaRecordingStatus.SCHEDULED:
                     result = WebAPI.ConditionalAccess.TstvRecordingStatus.Scheduled;
-                    break;
-                case KalturaRecordingStatus.LIFETIME_PERIOD_EXPIRED:
-                    result = WebAPI.ConditionalAccess.TstvRecordingStatus.LifeTimePeriodExpired;
-                    break;
+                    break;                
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown recordingStatus type");
             }
@@ -318,9 +315,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 case WebAPI.ConditionalAccess.TstvRecordingStatus.Scheduled:
                     result = KalturaRecordingStatus.SCHEDULED;
-                    break;
-                case WebAPI.ConditionalAccess.TstvRecordingStatus.LifeTimePeriodExpired:
-                    result = KalturaRecordingStatus.LIFETIME_PERIOD_EXPIRED;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown recordingStatus type");
