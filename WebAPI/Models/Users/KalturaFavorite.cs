@@ -44,5 +44,13 @@ namespace WebAPI.Models.Users
         [XmlElement(ElementName = "extraData")]
         public string ExtraData { get; set; }
 
+        /// <summary>
+        /// Specifies when was the favorite created. Date and time represented as epoch.
+        /// </summary>
+        [DataMember(Name = "createDate")]
+        [JsonProperty("createDate")]
+        [XmlElement(ElementName = "createDate")]
+        public long CreateDate { get; set; }
+
     }
 }

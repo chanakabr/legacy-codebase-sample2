@@ -600,7 +600,7 @@ namespace Validator.Managers.Schema
             if (type == typeof(String))
                 return "string";
             if (type == typeof(DateTime))
-                return "time";
+                return "int";
             if (type == typeof(long) || type == typeof(Int64))
                 return "bigint";
             if (type == typeof(Int32))

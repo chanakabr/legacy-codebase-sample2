@@ -343,5 +343,24 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             return result;
         }
+
+        public static Users.FavoriteOrderBy ConvertFavoriteOrderBy(KalturaFavoriteOrderBy orderBy)
+        {
+            Users.FavoriteOrderBy result;
+
+            switch (orderBy)
+            {
+                case KalturaFavoriteOrderBy.CREATE_DATE_DESC:
+                    result = Users.FavoriteOrderBy.CreateDateDesc;
+                    break;
+                case KalturaFavoriteOrderBy.CREATE_DATE_ASC:
+                    result = Users.FavoriteOrderBy.CreateDateAsc;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown export task order by");
+            }
+
+            return result;
+        }
     }
 }

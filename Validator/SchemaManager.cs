@@ -154,7 +154,7 @@ namespace Validator.Managers.Schema
 
             if (property.Name.Contains('_'))
             {
-                logError("Warning", property.DeclaringType, string.Format("Property {0}.{1} ({2}) name may not contain underscores", property.ReflectedType.Name, property.Name, property.PropertyType.Name));
+                logError("Error", property.DeclaringType, string.Format("Property {0}.{1} ({2}) name may not contain underscores", property.ReflectedType.Name, property.Name, property.PropertyType.Name));
                 if (strict)
                     valid = false;
             }
@@ -269,7 +269,7 @@ namespace Validator.Managers.Schema
                 PropertyInfo objectsProperty = getObjectsProperty(type);
                 if (objectsProperty == null)
                 {
-                    logError("Warning", type, string.Format("List response {0} must implement objects attribute", type.Name));
+                    logError("Error", type, string.Format("List response {0} must implement objects attribute", type.Name));
                     if (strict)
                         valid = false;
                 }
@@ -277,7 +277,7 @@ namespace Validator.Managers.Schema
 
             if (type.IsSubclassOf(typeof(KalturaFilterPager)))
             {
-                logError("Warning", type, string.Format("Object {0} should not inherit KalturaFilterPager", type.Name));
+                logError("Error", type, string.Format("Object {0} should not inherit KalturaFilterPager", type.Name));
                 if (strict)
                     valid = false;
             }
@@ -615,10 +615,10 @@ namespace Validator.Managers.Schema
                 }
             }
 
-            if (actionId == "list")
+            if (actionId == "list" && !hasValidationException(action, SchemaValidationType.ACTION_RETURN_TYPE))
             {
                 string expectedResponseType = string.Format("Kaltura{0}ListResponse", FirstCharacterToUpper(serviceId));
-                if (!hasValidationException(action, SchemaValidationType.ACTION_RETURN_TYPE) && action.ReturnType.Name.ToLower() != expectedResponseType.ToLower())
+                if (action.ReturnType.Name.ToLower() != expectedResponseType.ToLower())
                 {
                     logError("Warning", controller, string.Format("Action {0}.{1} ({2}) returned type is {3}, expected {4}", serviceId, actionId, controller.Name, action.ReturnType.Name, expectedResponseType));
                     if (strict)

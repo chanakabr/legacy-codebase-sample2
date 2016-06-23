@@ -188,11 +188,11 @@ namespace WebAPI.Controllers
                 List<int> mediaIds = filter.getMediaIdIn();
                 if (mediaIds == null || mediaIds.Count == 0)
                 {
-                    favorites = ClientsManager.UsersClient().GetUserFavorites(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, filter.MediaTypeIn != 0 ? filter.MediaTypeIn.ToString() : string.Empty);
+                    favorites = ClientsManager.UsersClient().GetUserFavorites(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, filter.MediaTypeIn != 0 ? filter.MediaTypeIn.ToString() : string.Empty, filter.OrderBy);
                 }
                 else
                 {
-                    favorites = ClientsManager.UsersClient().FilterFavoriteMedias(groupId, userID, mediaIds, udid, filter.MediaTypeIn != 0 ? filter.MediaTypeIn.ToString() : null);
+                    favorites = ClientsManager.UsersClient().FilterFavoriteMedias(groupId, userID, mediaIds, udid, filter.MediaTypeIn != 0 ? filter.MediaTypeIn.ToString() : null, filter.OrderBy);
                 }
             }
             catch (ClientException ex)
@@ -237,11 +237,11 @@ namespace WebAPI.Controllers
                 if (mediaIds == null || mediaIds.Count == 0)
                 {
                     favorites = ClientsManager.UsersClient().GetUserFavorites(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.UDID,
-                        filter.MediaTypeIn != 0 ? filter.MediaTypeIn.ToString() : string.Empty);
+                        filter.MediaTypeIn != 0 ? filter.MediaTypeIn.ToString() : string.Empty, filter.OrderBy);
                 }
                 else
                 {
-                    favorites = ClientsManager.UsersClient().FilterFavoriteMedias(groupId, userID, mediaIds, udid, filter.MediaTypeIn != 0 ? filter.MediaTypeIn.ToString() : null);
+                    favorites = ClientsManager.UsersClient().FilterFavoriteMedias(groupId, userID, mediaIds, udid, filter.MediaTypeIn != 0 ? filter.MediaTypeIn.ToString() : null, filter.OrderBy);
                 }
 
                 // get assets

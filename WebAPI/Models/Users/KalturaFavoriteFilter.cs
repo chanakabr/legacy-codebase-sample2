@@ -12,13 +12,15 @@ namespace WebAPI.Models.Users
 {
     public enum KalturaFavoriteOrderBy
     {
+        CREATE_DATE_ASC,
+        CREATE_DATE_DESC
     }
 
     /// <summary>
     /// Favorite request filter 
     /// </summary>
     [OldStandard("mediaTypeIn", "media_type")]
-    public class KalturaFavoriteFilter : KalturaFilter<KalturaFavoriteOrderBy?>
+    public class KalturaFavoriteFilter : KalturaFilter<KalturaFavoriteOrderBy>
     {
         /// <summary>
         /// Media type to filter by the favorite assets
@@ -55,9 +57,9 @@ namespace WebAPI.Models.Users
         [XmlArray(ElementName = "mediaIdIn", IsNullable = true)]
         public string MediaIdIn { get; set; }
 
-        public override KalturaFavoriteOrderBy? GetDefaultOrderByValue()
+        public override KalturaFavoriteOrderBy GetDefaultOrderByValue()
         {
-            return null;
+            return KalturaFavoriteOrderBy.CREATE_DATE_DESC;
         }
 
         public List<int> getMediaIdIn() 
