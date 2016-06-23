@@ -15,7 +15,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// Filtering recordings
     /// </summary>
     [Serializable]
-    public class KalturaRecordingFilter : KalturaFilter
+    public class KalturaRecordingFilter : KalturaFilter<KalturaRecordingOrderBy>
     {
 
         /// <summary>
@@ -35,16 +35,7 @@ namespace WebAPI.Models.ConditionalAccess
         [ValidationException(SchemaValidationType.FILTER_SUFFIX)]
         public string FilterExpression { get; set; }
 
-        /// <summary>
-        /// order by
-        /// </summary>
-        [DataMember(Name = "orderBy")]
-        [JsonProperty("orderBy")]
-        [XmlElement(ElementName = "orderBy", IsNullable = true)]
-        [ValidationException(SchemaValidationType.FILTER_SUFFIX)]
-        public KalturaRecordingOrderBy? OrderBy { get; set; }
-
-        public override object GetDefaultOrderByValue()
+        public override KalturaRecordingOrderBy GetDefaultOrderByValue()
         {
             return KalturaRecordingOrderBy.START_DATE_DESC;
         }

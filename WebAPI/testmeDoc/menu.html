@@ -124,6 +124,14 @@
 							<li class="action"><a href="actions/externalchannelprofile.add.html" target="main">add</a></li>
 							<li class="action"><a href="actions/externalchannelprofile.delete.html" target="main">delete</a></li>
 						</ul></li>
+					<li class="service" id="favorite">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/favorite.html" target="main">favorite</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/favorite.add.html" target="main">add</a></li>
+							<li class="action"><a href="actions/favorite.delete.html" target="main">delete</a></li>
+							<li class="action"><a href="actions/favorite.list.html" target="main">list</a></li>
+						</ul></li>
 					<li class="service" id="followtvseries">
 						<img class="tree-item" src="images/collapsed.gif" />
 						<a class="tree-content" href="services/followtvseries.html" target="main">followTvSeries</a>
@@ -251,6 +259,12 @@
 							<li class="action"><a href="actions/topic.delete.html" target="main">delete</a></li>
 							<li class="action"><a href="actions/topic.get.html" target="main">get</a></li>
 						</ul></li>
+					<li class="service" id="transactionhistory">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/transactionhistory.html" target="main">transactionHistory</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/transactionhistory.list.html" target="main">list</a></li>
+						</ul></li>
 					<li class="service" id="userassetslistitem">
 						<img class="tree-item" src="images/collapsed.gif" />
 						<a class="tree-content" href="services/userassetslistitem.html" target="main">userAssetsListItem</a>
@@ -292,6 +306,7 @@
 					<li id="object_KalturaDiscountModule"><a href="objects/KalturaDiscountModule.html" target="main">KalturaDiscountModule</a></li>
 					<li id="object_KalturaDoubleValue"><a href="objects/KalturaDoubleValue.html" target="main">KalturaDoubleValue</a></li>
 					<li id="object_KalturaEPGChannelAssets"><a href="objects/KalturaEPGChannelAssets.html" target="main">KalturaEPGChannelAssets</a></li>
+					<li id="object_KalturaEPGChannelAssetsListResponse"><a href="objects/KalturaEPGChannelAssetsListResponse.html" target="main">KalturaEPGChannelAssetsListResponse</a></li>
 					<li id="object_KalturaEntitlement"><a href="objects/KalturaEntitlement.html" target="main">KalturaEntitlement</a></li>
 					<li id="object_KalturaEntitlementListResponse"><a href="objects/KalturaEntitlementListResponse.html" target="main">KalturaEntitlementListResponse</a></li>
 					<li id="object_KalturaExportTask"><a href="objects/KalturaExportTask.html" target="main">KalturaExportTask</a></li>
@@ -374,9 +389,11 @@
 				<h2>Filter Objects</h2>
 				<ul>
 					<li id="object_KalturaExportTaskFilter"><a href="objects/KalturaExportTaskFilter.html" target="main">KalturaExportTaskFilter</a></li>
+					<li id="object_KalturaFavoriteFilter"><a href="objects/KalturaFavoriteFilter.html" target="main">KalturaFavoriteFilter</a></li>
 					<li id="object_KalturaFilter"><a href="objects/KalturaFilter.html" target="main">KalturaFilter</a></li>
 					<li id="object_KalturaRecordingContextFilter"><a href="objects/KalturaRecordingContextFilter.html" target="main">KalturaRecordingContextFilter</a></li>
 					<li id="object_KalturaRecordingFilter"><a href="objects/KalturaRecordingFilter.html" target="main">KalturaRecordingFilter</a></li>
+					<li id="object_KalturaTransactionHistoryFilter"><a href="objects/KalturaTransactionHistoryFilter.html" target="main">KalturaTransactionHistoryFilter</a></li>
 				</ul>
 			</div>
 			<div id="enums">
@@ -392,9 +409,11 @@
 					<li id="object_KalturaChannelEnrichment"><a href="enums/KalturaChannelEnrichment.html" target="main">KalturaChannelEnrichment</a></li>
 					<li id="object_KalturaCouponStatus"><a href="enums/KalturaCouponStatus.html" target="main">KalturaCouponStatus</a></li>
 					<li id="object_KalturaDeviceState"><a href="enums/KalturaDeviceState.html" target="main">KalturaDeviceState</a></li>
+					<li id="object_KalturaEntityReferenceBy"><a href="enums/KalturaEntityReferenceBy.html" target="main">KalturaEntityReferenceBy</a></li>
 					<li id="object_KalturaExportDataType"><a href="enums/KalturaExportDataType.html" target="main">KalturaExportDataType</a></li>
 					<li id="object_KalturaExportTaskOrderBy"><a href="enums/KalturaExportTaskOrderBy.html" target="main">KalturaExportTaskOrderBy</a></li>
 					<li id="object_KalturaExportType"><a href="enums/KalturaExportType.html" target="main">KalturaExportType</a></li>
+					<li id="object_KalturaFavoriteOrderBy"><a href="enums/KalturaFavoriteOrderBy.html" target="main">KalturaFavoriteOrderBy</a></li>
 					<li id="object_KalturaHouseholdRestriction"><a href="enums/KalturaHouseholdRestriction.html" target="main">KalturaHouseholdRestriction</a></li>
 					<li id="object_KalturaHouseholdState"><a href="enums/KalturaHouseholdState.html" target="main">KalturaHouseholdState</a></li>
 					<li id="object_KalturaHouseholdSuspentionState"><a href="enums/KalturaHouseholdSuspentionState.html" target="main">KalturaHouseholdSuspentionState</a></li>
@@ -404,6 +423,8 @@
 					<li id="object_KalturaPaymentMethodType"><a href="enums/KalturaPaymentMethodType.html" target="main">KalturaPaymentMethodType</a></li>
 					<li id="object_KalturaPositionOwner"><a href="enums/KalturaPositionOwner.html" target="main">KalturaPositionOwner</a></li>
 					<li id="object_KalturaPurchaseStatus"><a href="enums/KalturaPurchaseStatus.html" target="main">KalturaPurchaseStatus</a></li>
+					<li id="object_KalturaRecordingContextOrderBy"><a href="enums/KalturaRecordingContextOrderBy.html" target="main">KalturaRecordingContextOrderBy</a></li>
+					<li id="object_KalturaRecordingContextOrderBy"><a href="enums/KalturaRecordingContextOrderBy.html" target="main">KalturaRecordingContextOrderBy</a></li>
 					<li id="object_KalturaRecordingOrderBy"><a href="enums/KalturaRecordingOrderBy.html" target="main">KalturaRecordingOrderBy</a></li>
 					<li id="object_KalturaRecordingStatus"><a href="enums/KalturaRecordingStatus.html" target="main">KalturaRecordingStatus</a></li>
 					<li id="object_KalturaRecordingType"><a href="enums/KalturaRecordingType.html" target="main">KalturaRecordingType</a></li>
@@ -411,6 +432,7 @@
 					<li id="object_KalturaRuleType"><a href="enums/KalturaRuleType.html" target="main">KalturaRuleType</a></li>
 					<li id="object_KalturaSessionType"><a href="enums/KalturaSessionType.html" target="main">KalturaSessionType</a></li>
 					<li id="object_KalturaTopicAutomaticIssueNotification"><a href="enums/KalturaTopicAutomaticIssueNotification.html" target="main">KalturaTopicAutomaticIssueNotification</a></li>
+					<li id="object_KalturaTransactionHistoryOrderBy"><a href="enums/KalturaTransactionHistoryOrderBy.html" target="main">KalturaTransactionHistoryOrderBy</a></li>
 					<li id="object_KalturaTransactionType"><a href="enums/KalturaTransactionType.html" target="main">KalturaTransactionType</a></li>
 					<li id="object_KalturaUserAssetsListItemType"><a href="enums/KalturaUserAssetsListItemType.html" target="main">KalturaUserAssetsListItemType</a></li>
 					<li id="object_KalturaUserAssetsListType"><a href="enums/KalturaUserAssetsListType.html" target="main">KalturaUserAssetsListType</a></li>

@@ -566,11 +566,12 @@ namespace WebAPI.Clients
             return response.Code == (int)StatusCode.OK;
         }
 
-        public List<Models.Users.KalturaFavorite> GetUserFavorites(int groupId, string userId, int domainID, string udid, string mediaType)
+        public List<Models.Users.KalturaFavorite> GetUserFavorites(int groupId, string userId, int domainID, string udid, string mediaType, KalturaFavoriteOrderBy orderBy)
         {
             List<WebAPI.Models.Users.KalturaFavorite> favorites = null;
 
             Group group = GroupsManager.GetGroup(groupId);
+            FavoriteOrderBy wsOrderBy = UsersMappings.ConvertFavoriteOrderBy(orderBy);
 
             FavoriteResponse response = null;
 
@@ -578,7 +579,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.GetUserFavorites(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, domainID, udid, mediaType);
+                    response = Users.GetUserFavorites(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, domainID, udid, mediaType, wsOrderBy);
                 }
             }
             catch (Exception ex)
@@ -640,17 +641,18 @@ namespace WebAPI.Clients
             return userAssetsList;
         }
 
-        internal List<KalturaFavorite> FilterFavoriteMedias(int groupId, string userId, List<int> mediaIds, string udid, string mediaType)
+        internal List<KalturaFavorite> FilterFavoriteMedias(int groupId, string userId, List<int> mediaIds, string udid, string mediaType, KalturaFavoriteOrderBy orderBy)
         {
             FavoriteResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
+            FavoriteOrderBy wsOrderBy = UsersMappings.ConvertFavoriteOrderBy(orderBy);
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.FilterFavoriteMediaIds(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, mediaIds.ToArray(), udid, mediaType);
+                    response = Users.FilterFavoriteMediaIds(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, mediaIds.ToArray(), udid, mediaType, wsOrderBy);
                 }
             }
             catch (Exception ex)

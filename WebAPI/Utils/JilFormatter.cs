@@ -201,7 +201,7 @@ namespace WebAPI.Utils
                         {
                             if (item.GetType().IsSubclassOf(typeof(KalturaOTTObject)))
                             {
-                                list.Add(new OldStandardObject((KalturaOTTObject)item));
+                                list.Add(item);
                             }
                             else if (item.GetType().IsSubclassOf(typeof(ApiException)))
                             {

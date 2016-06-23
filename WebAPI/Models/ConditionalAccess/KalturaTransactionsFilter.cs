@@ -15,6 +15,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// </summary>
     [OldStandard("startDate", "start_date")]
     [OldStandard("endDate", "end_date")]
+    [Obsolete]
     public class KalturaTransactionsFilter : KalturaFilterPager
     {
         /// <summary>

@@ -451,5 +451,24 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
             return result;
         }
+
+        public static TransactionHistoryOrderBy ConvertTransactionHistoryOrderBy(KalturaTransactionHistoryOrderBy orderBy)
+        {
+            TransactionHistoryOrderBy result;
+
+            switch (orderBy)
+            {
+                case KalturaTransactionHistoryOrderBy.CREATE_DATE_DESC:
+                    result = TransactionHistoryOrderBy.CreateDateDesc;
+                    break;
+                case KalturaTransactionHistoryOrderBy.CREATE_DATE_ASC:
+                    result = TransactionHistoryOrderBy.CreateDateAsc;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown export task order by");
+            }
+
+            return result;
+        }
     }
 }

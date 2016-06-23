@@ -150,6 +150,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // Rest WS_Users FavoritObject ==>  Favorite  
             Mapper.CreateMap<Users.FavoritObject, KalturaFavorite>()
                 .ForMember(dest => dest.ExtraData, opt => opt.MapFrom(src => src.m_sExtraData))
+                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.m_sItemCode))
                 .ForMember(dest => dest.Asset, opt => opt.MapFrom(src => src.m_sItemCode));
 
             // UserItemsList to KalturaUserAssetsList
@@ -338,6 +339,25 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         result.Add(data.m_sDataType, new KalturaStringValue() { value = data.m_sValue });
                     }
                 }
+            }
+
+            return result;
+        }
+
+        public static Users.FavoriteOrderBy ConvertFavoriteOrderBy(KalturaFavoriteOrderBy orderBy)
+        {
+            Users.FavoriteOrderBy result;
+
+            switch (orderBy)
+            {
+                case KalturaFavoriteOrderBy.CREATE_DATE_DESC:
+                    result = Users.FavoriteOrderBy.CreateDateDesc;
+                    break;
+                case KalturaFavoriteOrderBy.CREATE_DATE_ASC:
+                    result = Users.FavoriteOrderBy.CreateDateAsc;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown export task order by");
             }
 
             return result;

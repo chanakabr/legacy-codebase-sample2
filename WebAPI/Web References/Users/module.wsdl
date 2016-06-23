@@ -467,9 +467,16 @@
             <s:element minOccurs="1" maxOccurs="1" name="domainID" type="s:int" />
             <s:element minOccurs="0" maxOccurs="1" name="sDeviceUDID" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sItemType" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="orderBy" type="tns:FavoriteOrderBy" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:simpleType name="FavoriteOrderBy">
+        <s:restriction base="s:string">
+          <s:enumeration value="CreateDateAsc" />
+          <s:enumeration value="CreateDateDesc" />
+        </s:restriction>
+      </s:simpleType>
       <s:element name="GetUserFavoritesResponse">
         <s:complexType>
           <s:sequence>
@@ -495,6 +502,7 @@
           <s:element minOccurs="0" maxOccurs="1" name="m_sItemCode" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sSiteUserGUID" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="m_dUpdateDate" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_dCreateDate" type="s:dateTime" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sExtraData" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="m_nID" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sDeviceName" type="s:string" />
@@ -1654,6 +1662,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="mediaIds" type="tns:ArrayOfInt" />
             <s:element minOccurs="0" maxOccurs="1" name="udid" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="mediaType" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="orderBy" type="tns:FavoriteOrderBy" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -2534,6 +2543,7 @@
     <wsdl:part name="domainID" type="s:string" />
     <wsdl:part name="sDeviceUDID" type="s:string" />
     <wsdl:part name="sItemType" type="s:string" />
+    <wsdl:part name="orderBy" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetUserFavoritesHttpPostOut">
     <wsdl:part name="Body" element="tns:FavoriteResponse" />

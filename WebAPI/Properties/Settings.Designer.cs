@@ -56,7 +56,7 @@ namespace WebAPI.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://webservices/users_v4_0/module.asmx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/WS_Users/module.asmx")]
         public string WebAPI_Users_UsersService {
             get {
                 return ((string)(this["WebAPI_Users_UsersService"]));
@@ -66,20 +66,10 @@ namespace WebAPI.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://webservices/cas_v4_0/module.asmx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/WS_ConditionalAccess/module.asmx")]
         public string WebAPI_ConditionalAccess_module {
             get {
                 return ((string)(this["WebAPI_ConditionalAccess_module"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/ws_api/api.asmx")]
-        public string WebAPI_Api_API {
-            get {
-                return ((string)(this["WebAPI_Api_API"]));
             }
         }
         
@@ -90,6 +80,16 @@ namespace WebAPI.Properties {
         public string WebAPI_Billing_module {
             get {
                 return ((string)(this["WebAPI_Billing_module"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://webservices/api_v4_0/api.asmx")]
+        public string WebAPI_Api_API {
+            get {
+                return ((string)(this["WebAPI_Api_API"]));
             }
         }
     }

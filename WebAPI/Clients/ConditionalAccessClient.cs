@@ -135,17 +135,18 @@ namespace WebAPI.Clients
             return entitlements;
         }
 
-        public Models.ConditionalAccess.KalturaBillingTransactionListResponse GetUserTransactionHistory(int groupId, string userid, int page_number, int page_size)
+        public Models.ConditionalAccess.KalturaBillingTransactionListResponse GetUserTransactionHistory(int groupId, string userid, int page_number, int page_size, KalturaTransactionHistoryOrderBy orderBy)
         {
             Models.ConditionalAccess.KalturaBillingTransactionListResponse transactions = null;
             WebAPI.ConditionalAccess.BillingTransactions response = null;
             Group group = GroupsManager.GetGroup(groupId);
+            TransactionHistoryOrderBy wsOrderBy = ConditionalAccessMappings.ConvertTransactionHistoryOrderBy(orderBy);
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.GetUserBillingHistory(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userid, page_number, page_size);
+                    response = ConditionalAccess.GetUserBillingHistory(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userid, page_number, page_size, wsOrderBy);
                 }
             }
             catch (Exception ex)
@@ -616,19 +617,20 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaBillingTransactionListResponse GetDomainBillingHistory(int groupId, int domainId, DateTime startDate, DateTime endDate, int pageIndex, int pageSize)
+        internal KalturaBillingTransactionListResponse GetDomainBillingHistory(int groupId, int domainId, DateTime startDate, DateTime endDate, int pageIndex, int pageSize, KalturaTransactionHistoryOrderBy orderBy)
         {
             KalturaBillingTransactionListResponse clientResponse = new KalturaBillingTransactionListResponse();
             DomainTransactionsHistoryResponse wsResponse = null;
 
             // get group by ID
             Group group = GroupsManager.GetGroup(groupId);
+            TransactionHistoryOrderBy wsOrderBy = ConditionalAccessMappings.ConvertTransactionHistoryOrderBy(orderBy);
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    wsResponse = ConditionalAccess.GetDomainTransactionsHistory(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, domainId, startDate, endDate, pageSize, pageIndex);
+                    wsResponse = ConditionalAccess.GetDomainTransactionsHistory(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, domainId, startDate, endDate, pageSize, pageIndex, wsOrderBy);
                 }
             }
             catch (Exception ex)

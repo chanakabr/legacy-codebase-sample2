@@ -9,11 +9,16 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
 {
+    public enum KalturaRecordingContextOrderBy
+    {
+        NONE
+    }
+
     /// <summary>
     /// Filtering assets
     /// </summary>
     [Serializable]
-    public class KalturaRecordingContextFilter : KalturaFilter
+    public class KalturaRecordingContextFilter : KalturaFilter<KalturaRecordingContextOrderBy>
     {
 
         /// <summary>
@@ -25,9 +30,9 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlArrayItem(ElementName = "assetIdIn")]
         public List<KalturaLongValue> AssetIdIn { get; set; }
 
-        public override object GetDefaultOrderByValue()
+        public override KalturaRecordingContextOrderBy GetDefaultOrderByValue()
         {
-            return null;
+            return KalturaRecordingContextOrderBy.NONE;
         }
     }
 }
