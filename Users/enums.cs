@@ -223,4 +223,10 @@ namespace Users
         Registered = 2,
         RegisteredToAnotherDomain = 3
     }
+
+    public enum FavoriteOrderBy
+    {
+        CreateDateAsc = 0,
+        CreateDateDesc = 1
+    }
 }

@@ -219,7 +219,7 @@ namespace DAL
         }
 
 
-        public static DataView GetUserBillingHistory(string[] arrGroupIDs, string sUserGUID, int nTopNum, DateTime dStartDate, DateTime dEndDate)
+        public static DataView GetUserBillingHistory(string[] arrGroupIDs, string sUserGUID, int nTopNum, DateTime dStartDate, DateTime dEndDate, int orderBy)
         {
             DataView res = null;
             ODBCWrapper.DataSetSelectQuery selectQuery = null;
@@ -243,7 +243,15 @@ namespace DAL
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CREATE_DATE", ">=", dStartDate);
                 selectQuery += " AND ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CREATE_DATE", "<=", dEndDate);
-                selectQuery += " ORDER BY ID DESC";
+
+                if (orderBy == 0)
+                {
+                    selectQuery += " ORDER BY CREATE_DATE ASC";
+                }
+                else if (orderBy == 1)
+                {
+                    selectQuery += " ORDER BY CREATE_DATE DESC";
+                }
 
                 if (selectQuery.Execute("query", true) != null)
                 {
@@ -271,7 +279,7 @@ namespace DAL
 
         }
 
-        public static DataTable GetDomainBillingHistory(int groupID, int domainID, int topNum, DateTime startDate, DateTime endDate)
+        public static DataTable GetDomainBillingHistory(int groupID, int domainID, int topNum, DateTime startDate, DateTime endDate, int orderBy)
         {
             DataTable dt = null;            
             if (domainID > 0)
@@ -284,6 +292,7 @@ namespace DAL
                     spGet_DomainBillingHistory.AddParameter("@DomainID", domainID);
                     spGet_DomainBillingHistory.AddParameter("@StartDate", startDate);
                     spGet_DomainBillingHistory.AddParameter("@EndDate", endDate);
+                    spGet_DomainBillingHistory.AddParameter("@orderBy", orderBy);
                     dt = spGet_DomainBillingHistory.Execute();
                 }
                 catch (Exception ex)

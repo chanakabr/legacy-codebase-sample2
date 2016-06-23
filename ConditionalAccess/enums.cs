@@ -95,6 +95,12 @@ namespace ConditionalAccess
         UnKnownBillingProvider = 9
     }
 
+    public enum TransactionHistoryOrderBy
+    {
+        CreateDateAsc = 0,
+        CreateDateDesc = 1
+    }
+
     public enum PrePaidResponseStatus
     {
         Success = 0,
