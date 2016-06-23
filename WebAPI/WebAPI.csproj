@@ -1575,9 +1575,6 @@
     <Content Include="Web References\ConditionalAccess\RecordingResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\ConditionalAccess\RecordingCleanupResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
     <None Include="Web References\ConditionalAccess\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
