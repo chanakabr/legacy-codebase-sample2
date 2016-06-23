@@ -155,6 +155,18 @@ namespace CouchbaseManager
                         }
                     };
                 }
+
+                if (!IsClusterInitialized)
+                {
+                    lock (locker)
+                    {
+                        if (!IsClusterInitialized)
+                        {
+                            ClusterHelper.Initialize(clientConfiguration);
+                            IsClusterInitialized = true;
+                        }
+                    }
+                }
             }
 
             this.clientConfiguration.Transcoder = GetTranscoder;
