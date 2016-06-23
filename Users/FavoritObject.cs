@@ -15,12 +15,13 @@ namespace Users
             m_sType = "";
             m_sItemCode = "";
             m_dUpdateDate = new DateTime(2000, 1, 1);
+            m_dCreateDate = new DateTime(2000, 1, 1);
             m_sSiteUserGUID = "";
             m_sExtraData = "";
             m_nID = 0;
         }
 
-        public void Initialize(Int32 nID, string sUserGUID, int domainID, string sDeviceName, string sDeviceUDID, string sType, string sItemCode, string sExtraData, DateTime dUpdate)
+        public void Initialize(Int32 nID, string sUserGUID, int domainID, string sDeviceName, string sDeviceUDID, string sType, string sItemCode, string sExtraData, DateTime dUpdate, DateTime dCreate)
         {
             m_sDeviceName = sDeviceName;
             m_sDeviceUDID = sDeviceUDID;
@@ -30,10 +31,11 @@ namespace Users
             m_sExtraData = sExtraData;
             m_nID = nID;
             m_dUpdateDate = dUpdate;
+            m_dCreateDate = dCreate;
             m_nDomainID = domainID;
             m_is_channel = 0;
         }
-        public void Initialize(Int32 nID, string sUserGUID, int domainID, string sDeviceName, string sDeviceUDID, string sType, string sItemCode, string sExtraData, DateTime dUpdate, int isChannel)
+        public void Initialize(Int32 nID, string sUserGUID, int domainID, string sDeviceName, string sDeviceUDID, string sType, string sItemCode, string sExtraData, DateTime dUpdate, DateTime dCreate, int isChannel)
         {
             m_sDeviceName = sDeviceName;
             m_sDeviceUDID = sDeviceUDID;
@@ -43,6 +45,7 @@ namespace Users
             m_sExtraData = sExtraData;
             m_nID = nID;
             m_dUpdateDate = dUpdate;
+            m_dCreateDate = dCreate;
             m_nDomainID = domainID;
             m_is_channel = isChannel;
         }
@@ -92,7 +95,7 @@ namespace Users
             m_dUpdateDate = dUpdate;
             m_is_channel = isChannel;
         }
-        static public FavoriteResponse GetFavorites(Int32 nGroupID, string sUserGUID, int domainID, string sUDID, string sType)
+        static public FavoriteResponse GetFavorites(Int32 nGroupID, string sUserGUID, int domainID, string sUDID, string sType, FavoriteOrderBy orderBy = 0)
         {
             FavoriteResponse response = new FavoriteResponse();
 
@@ -120,7 +123,7 @@ namespace Users
             List<FavoritObject> favorits = new List<FavoritObject>();
 
             #region Get Single Media's user Favorit
-            var table = DAL.UsersDal.Get_UserFavorites(sUserGUID, sUDID, nType);
+            var table = DAL.UsersDal.Get_UserFavorites(sUserGUID, sUDID, nType, (int)orderBy);
 
             if (table != null && table.Rows != null && table.Rows.Count > 0)
             {
@@ -133,9 +136,10 @@ namespace Users
                     string sExtraData = ODBCWrapper.Utils.GetSafeStr(row, "EXTRA_DATA");
                     string sDeviceName = ODBCWrapper.Utils.GetSafeStr(row, "DEVICE_NAME");
                     DateTime dUpdate = ODBCWrapper.Utils.GetDateSafeVal(row, "UPDATE_DATE");
+                    DateTime dCreate = ODBCWrapper.Utils.GetDateSafeVal(row, "CREATE_DATE");
 
                     FavoritObject fo = new FavoritObject();
-                    fo.Initialize(nID, sUserGUID, domainID, sDeviceName, sDeviceUDID, sIType, sItemCode, sExtraData, dUpdate);
+                    fo.Initialize(nID, sUserGUID, domainID, sDeviceName, sDeviceUDID, sIType, sItemCode, sExtraData, dUpdate, dCreate);
                     favorits.Add(fo);
                 }
             }
@@ -167,6 +171,7 @@ namespace Users
                     string sExtraData = ODBCWrapper.Utils.GetStrSafeVal(selectchannelquery, "EXTRA_DATA", i);
                     string sDeviceName = ODBCWrapper.Utils.GetStrSafeVal(selectchannelquery, "DEVICE_NAME", i);
                     DateTime dUpdate = ODBCWrapper.Utils.GetDateSafeVal(selectchannelquery, "UPDATE_DATE", i);
+                    DateTime dCreate = ODBCWrapper.Utils.GetDateSafeVal(selectchannelquery, "CREATE_DATE", i);
 
                     int nDeviceUDID = 0;
                     int.TryParse(sDeviceUDID, out nDeviceUDID);
@@ -193,7 +198,7 @@ namespace Users
                         for (int j = 0; j < MediaIDsArray.Length; j++)
                         {
                             FavoritObject fo = new FavoritObject();
-                            fo.Initialize(nID, sUserGUID, domainID, sDeviceName, sDeviceUDID, sIType, MediaIDsArray[j], sExtraData, dUpdate, 1);
+                            fo.Initialize(nID, sUserGUID, domainID, sDeviceName, sDeviceUDID, sIType, MediaIDsArray[j], sExtraData, dUpdate, dCreate, 1);
                             favorits.Add(fo);
                         }
                     }
@@ -376,6 +381,7 @@ namespace Users
         public string m_sItemCode;
         public string m_sSiteUserGUID;
         public DateTime m_dUpdateDate;
+        public DateTime m_dCreateDate;
         public string m_sExtraData;
         public Int32 m_nID;
         public string m_sDeviceName;

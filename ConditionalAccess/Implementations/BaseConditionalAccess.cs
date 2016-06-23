@@ -8474,7 +8474,7 @@ namespace ConditionalAccess
         /// <summary>
         /// Get Domain Billing History
         /// </summary>
-        public virtual DomainTransactionsHistoryResponse GetDomainTransactionsHistory(int domainID, DateTime dStartDate, DateTime dEndDate, int pageSize, int pageIndex)
+        public virtual DomainTransactionsHistoryResponse GetDomainTransactionsHistory(int domainID, DateTime dStartDate, DateTime dEndDate, int pageSize, int pageIndex, TransactionHistoryOrderBy orderBy)
         {
             DomainTransactionsHistoryResponse domainTransactionsHistoryResponse = new DomainTransactionsHistoryResponse();
 
@@ -8494,7 +8494,7 @@ namespace ConditionalAccess
                     return domainTransactionsHistoryResponse;
                 }
 
-                DataTable domainBillingHistory = ConditionalAccessDAL.GetDomainBillingHistory(m_nGroupID, domainID, 0, dStartDate, dEndDate);
+                DataTable domainBillingHistory = ConditionalAccessDAL.GetDomainBillingHistory(m_nGroupID, domainID, 0, dStartDate, dEndDate, (int)orderBy);
 
                 if (domainBillingHistory == null || domainBillingHistory.Rows == null || domainBillingHistory.Rows.Count == 0)
                 {
@@ -8599,7 +8599,7 @@ namespace ConditionalAccess
         /// <summary>
         /// Get User Billing History
         /// </summary>
-        protected virtual BillingTransactions GetUserBillingHistoryExt(string sUserGUID, DateTime dStartDate, DateTime dEndDate, int nStartIndex = 0, int nNumberOfItems = 0)
+        protected virtual BillingTransactions GetUserBillingHistoryExt(string sUserGUID, DateTime dStartDate, DateTime dEndDate, int nStartIndex = 0, int nNumberOfItems = 0, TransactionHistoryOrderBy orderBy = TransactionHistoryOrderBy.CreateDateDesc)
         {
 
             BillingTransactionsResponse theResp = new BillingTransactionsResponse();
@@ -8612,7 +8612,7 @@ namespace ConditionalAccess
                 string[] arrGroupIDs = lGroupIDs.Select(g => g.ToString()).ToArray();
 
                 int nTopNum = nStartIndex + nNumberOfItems;
-                DataView dvBillHistory = ConditionalAccessDAL.GetUserBillingHistory(arrGroupIDs, sUserGUID, nTopNum, dStartDate, dEndDate);
+                DataView dvBillHistory = ConditionalAccessDAL.GetUserBillingHistory(arrGroupIDs, sUserGUID, nTopNum, dStartDate, dEndDate, (int)orderBy);
 
 
                 if (dvBillHistory == null || dvBillHistory.Count == 0)
@@ -8886,13 +8886,13 @@ namespace ConditionalAccess
         /// <summary>
         /// Get User Billing History
         /// </summary>
-        public virtual BillingTransactions GetUserBillingHistory(string sUserGUID, Int32 nStartIndex, Int32 nNumberOfItems)
+        public virtual BillingTransactions GetUserBillingHistory(string sUserGUID, Int32 nStartIndex, Int32 nNumberOfItems, TransactionHistoryOrderBy orderBy)
         {
             BillingTransactions res = null;
             try
             {
                 DateTime minDate = new DateTime(2000, 1, 1);
-                res = GetUserBillingHistoryExt(sUserGUID, minDate, DateTime.MaxValue, nStartIndex, nNumberOfItems);
+                res = GetUserBillingHistoryExt(sUserGUID, minDate, DateTime.MaxValue, nStartIndex, nNumberOfItems, orderBy);
             }
             catch (Exception ex)
             {
