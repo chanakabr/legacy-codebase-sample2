@@ -97,17 +97,6 @@ namespace CouchbaseManager
         public CouchbaseManager(eCouchbaseBucket bucket)
             : this(bucket.ToString().ToLower())
         {
-            if (!IsClusterInitialized)
-            {
-                lock (locker)
-                {
-                    if (!IsClusterInitialized)
-                    {
-                        ClusterHelper.Initialize(clientConfiguration);
-                        IsClusterInitialized = true;
-                    }
-                }
-            }
         }
 
         /// <summary>
@@ -154,21 +143,21 @@ namespace CouchbaseManager
                         }
                     };
                 }
-
-                if (!IsClusterInitialized)
-                {
-                    lock (locker)
-                    {
-                        if (!IsClusterInitialized)
-                        {
-                            ClusterHelper.Initialize(clientConfiguration);
-                            IsClusterInitialized = true;
-                        }
-                    }
-                }
             }
 
             this.clientConfiguration.Transcoder = GetTranscoder;
+
+            if (!IsClusterInitialized)
+            {
+                lock (locker)
+                {
+                    if (!IsClusterInitialized)
+                    {
+                        ClusterHelper.Initialize(clientConfiguration);
+                        IsClusterInitialized = true;
+                    }
+                }
+            }
         }
 
         private ITypeTranscoder GetTranscoder()
