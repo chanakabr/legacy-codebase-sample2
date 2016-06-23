@@ -51,10 +51,16 @@ namespace CouchbaseManager
         #region Static Members
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static object syncObj = new object();
+        private static object locker = new object();
         private static ReaderWriterLockSlim m_oSyncLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
         protected static Couchbase.Core.Serialization.DefaultSerializer serializer;
+
+        private static bool IsClusterInitialized
+        {
+            get;
+            set;
+        }
 
         #endregion
 
@@ -63,7 +69,7 @@ namespace CouchbaseManager
         private string configurationSection;
         private string bucketName;
         private ClientConfiguration clientConfiguration;
-
+        
         #endregion
 
         #region Ctor
@@ -91,6 +97,17 @@ namespace CouchbaseManager
         public CouchbaseManager(eCouchbaseBucket bucket)
             : this(bucket.ToString().ToLower())
         {
+            if (!IsClusterInitialized)
+            {
+                lock (locker)
+                {
+                    if (!IsClusterInitialized)
+                    {
+                        ClusterHelper.Initialize(clientConfiguration);
+                        IsClusterInitialized = true;
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -386,9 +403,9 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(clientConfiguration))
+                //using (var cluster = new Cluster(clientConfiguration))
                 {
-                    using (var bucket = cluster.OpenBucket(bucketName))
+                    var bucket = ClusterHelper.GetBucket(bucketName);
                     {
                         expiration = FixExpirationTime(expiration);
 
@@ -467,9 +484,9 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(clientConfiguration))
+                //using (var cluster = new Cluster(clientConfiguration))
                 {
-                    using (var bucket = cluster.OpenBucket(bucketName))
+                    var bucket = ClusterHelper.GetBucket(bucketName);
                     {
                         IOperationResult insertResult = null;
                         expiration = FixExpirationTime(expiration);
@@ -547,9 +564,9 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(clientConfiguration))
+                //using (var cluster = new Cluster(clientConfiguration))
                 {
-                    using (var bucket = cluster.OpenBucket(bucketName))
+                    var bucket = ClusterHelper.GetBucket(bucketName);
                     {
                         IOperationResult insertResult = null;
                         expiration = FixExpirationTime(expiration);
@@ -627,9 +644,9 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(clientConfiguration))
+                //using (var cluster = new Cluster(clientConfiguration))
                 {
-                    using (var bucket = cluster.OpenBucket(bucketName))
+                    var bucket = ClusterHelper.GetBucket(bucketName);
                     {
                         IOperationResult insertResult = null;
                         expiration = FixExpirationTime(expiration);
@@ -698,9 +715,9 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(clientConfiguration))
+                //using (var cluster = new Cluster(clientConfiguration))
                 {
-                    using (var bucket = cluster.OpenBucket(bucketName))
+                    var bucket = ClusterHelper.GetBucket(bucketName);
                     {
                         IOperationResult<T> getResult = null;
 
@@ -761,9 +778,9 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(clientConfiguration))
+                //using (var cluster = new Cluster(clientConfiguration))
                 {
-                    using (var bucket = cluster.OpenBucket(bucketName))
+                    var bucket = ClusterHelper.GetBucket(bucketName);
                     {
                         string action = string.Format("Action: Exists bucket: {0} key: {1}", bucketName, key);
                         IOperationResult removeResult;
@@ -811,9 +828,9 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(clientConfiguration))
+                //using (var cluster = new Cluster(clientConfiguration))
                 {
-                    using (var bucket = cluster.OpenBucket(bucketName))
+                    var bucket = ClusterHelper.GetBucket(bucketName);
                     {
                         IOperationResult<T> getResult;
 
@@ -878,9 +895,9 @@ namespace CouchbaseManager
         {
             bool result = false;
 
-            using (var cluster = new Cluster(clientConfiguration))
+            //using (var cluster = new Cluster(clientConfiguration))
             {
-                using (var bucket = cluster.OpenBucket(bucketName))
+                var bucket = ClusterHelper.GetBucket(bucketName);
                 {
                     IOperationResult setResult;
                     expiration = FixExpirationTime(expiration);
@@ -939,9 +956,9 @@ namespace CouchbaseManager
             bool result = false;
             newVersion = 0;
 
-            using (var cluster = new Cluster(clientConfiguration))
+            //using (var cluster = new Cluster(clientConfiguration))
             {
-                using (var bucket = cluster.OpenBucket(bucketName))
+                var bucket = ClusterHelper.GetBucket(bucketName);
                 {
                     IOperationResult setResult;
                     expiration = FixExpirationTime(expiration);
@@ -1011,9 +1028,9 @@ namespace CouchbaseManager
         {
             bool result = false;
 
-            using (var cluster = new Cluster(clientConfiguration))
+            //using (var cluster = new Cluster(clientConfiguration))
             {
-                using (var bucket = cluster.OpenBucket(bucketName))
+                var bucket = ClusterHelper.GetBucket(bucketName);
                 {
                     IOperationResult setResult;
                     expiration = FixExpirationTime(expiration);
@@ -1072,9 +1089,9 @@ namespace CouchbaseManager
             bool result = false;
             newVersion = 0;
 
-            using (var cluster = new Cluster(clientConfiguration))
+            //using (var cluster = new Cluster(clientConfiguration))
             {
-                using (var bucket = cluster.OpenBucket(bucketName))
+                var bucket = ClusterHelper.GetBucket(bucketName);
                 {
                     IOperationResult setResult;
                     expiration = FixExpirationTime(expiration);
@@ -1194,9 +1211,9 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(clientConfiguration))
+                //using (var cluster = new Cluster(clientConfiguration))
                 {
-                    using (var bucket = cluster.OpenBucket(bucketName))
+                    var bucket = ClusterHelper.GetBucket(bucketName);
                     {
                         IDictionary<string, IOperationResult<T>> getResult;
 
@@ -1323,9 +1340,9 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(clientConfiguration))
+                //using (var cluster = new Cluster(clientConfiguration))
                 {
-                    using (var bucket = cluster.OpenBucket(bucketName))
+                    var bucket = ClusterHelper.GetBucket(bucketName);
                     {
                         Dictionary<string, int> keysToIndexes = new Dictionary<string, int>();
                         List<string> missingKeys = new List<string>();
@@ -1411,9 +1428,9 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(clientConfiguration))
+                //using (var cluster = new Cluster(clientConfiguration))
                 {
-                    using (var bucket = cluster.OpenBucket(bucketName))
+                    var bucket = ClusterHelper.GetBucket(bucketName);
                     {
                         if (definitions.asJson)
                         {
@@ -1453,9 +1470,9 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(clientConfiguration))
+                //using (var cluster = new Cluster(clientConfiguration))
                 {
-                    using (var bucket = cluster.OpenBucket(bucketName))
+                    var bucket = ClusterHelper.GetBucket(bucketName);
                     {
                         result = definitions.QueryIds(bucket);
                     }
@@ -1481,9 +1498,9 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(clientConfiguration))
+                //using (var cluster = new Cluster(clientConfiguration))
                 {
-                    using (var bucket = cluster.OpenBucket(bucketName))
+                    var bucket = ClusterHelper.GetBucket(bucketName);
                     {
                         if (definitions.asJson)
                         {
@@ -1520,9 +1537,9 @@ namespace CouchbaseManager
         {
             ulong result = 0;
 
-            using (var cluster = new Cluster(clientConfiguration))
+            //using (var cluster = new Cluster(clientConfiguration))
             {
-                using (var bucket = cluster.OpenBucket(bucketName))
+                var bucket = ClusterHelper.GetBucket(bucketName);
                 {
                     IOperationResult<ulong> incrementResult = null;
 
