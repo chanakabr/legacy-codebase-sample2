@@ -228,14 +228,14 @@ namespace Users
             FavoritObject.RemoveChannelMediaFavorit(sUserGUID, nGroupID, nChannelIDs);
         }
 
-        public virtual FavoriteResponse GetUserFavorites(string sSiteGUID, string sDeviceUDID, string sItemType, int nGroupID, int domainID)
+        public virtual FavoriteResponse GetUserFavorites(string sSiteGUID, string sDeviceUDID, string sItemType, int nGroupID, int domainID, FavoriteOrderBy orderBy)
         {
             FavoriteResponse response = new FavoriteResponse();
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
             //check if userID exist
             if (IsUserValid(nGroupID, sSiteGUID, out status))
             {
-                return FavoritObject.GetFavorites(nGroupID, sSiteGUID, domainID, sDeviceUDID, sItemType);
+                return FavoritObject.GetFavorites(nGroupID, sSiteGUID, domainID, sDeviceUDID, sItemType, orderBy);
             }
             else
             {
@@ -1289,7 +1289,7 @@ namespace Users
         /// <param name="userId"></param>
         /// <param name="mediaIds"></param>
         /// <returns></returns>
-        public FavoriteResponse FilterFavoriteMediaIds(int groupId, string userId, List<int> mediaIds, string udid, string mediaType)
+        public FavoriteResponse FilterFavoriteMediaIds(int groupId, string userId, List<int> mediaIds, string udid, string mediaType, FavoriteOrderBy orderBy)
         {
             FavoriteResponse response = new FavoriteResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()); 
@@ -1305,7 +1305,7 @@ namespace Users
                 }
 
                 // get the favorites ids
-                DataTable dt = UsersDal.Get_FavoriteMediaIds(userId, mediaIds, udid, mediaType);
+                DataTable dt = UsersDal.Get_FavoriteMediaIds(userId, mediaIds, udid, mediaType, (int)orderBy);
                 if (dt != null)
                 {
                     if (dt.Rows != null && dt.Rows.Count > 0)
@@ -1317,7 +1317,8 @@ namespace Users
                             favorite = new FavoritObject()
                             {
                                 m_sItemCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["ID"]),
-                                m_sExtraData = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["EXTRA_DATA"])
+                                m_sExtraData = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["EXTRA_DATA"]),
+                                m_dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[i]["CREATE_DATE"])
                             };
                             response.Favorites[i] = favorite;
                         }

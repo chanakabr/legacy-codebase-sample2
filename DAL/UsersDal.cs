@@ -1904,7 +1904,7 @@ namespace DAL
             }
         }
 
-        public static DataTable Get_FavoriteMediaIds(string userId, List<int> mediaIds, string udid, string mediaType)
+        public static DataTable Get_FavoriteMediaIds(string userId, List<int> mediaIds, string udid, string mediaType, int orderBy = 0)
         {
             try
             {
@@ -1912,6 +1912,7 @@ namespace DAL
                 sp.AddParameter("@user_id", userId);
                 sp.AddParameter("@udid", !string.IsNullOrEmpty(udid) ? udid : null);
                 sp.AddParameter("@media_type", !string.IsNullOrEmpty(mediaType) ? mediaType : null);
+                sp.AddParameter("@order_by", orderBy);
                 sp.AddIDListParameter("@media_ids", mediaIds, "id");
                 DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
@@ -2037,11 +2038,12 @@ namespace DAL
             return result; 
         }
 
-        public static DataTable Get_UserFavorites(string sUserGUID, string sUDID, int nType)
+        public static DataTable Get_UserFavorites(string sUserGUID, string sUDID, int nType, int orderBy = 0)
         {
             StoredProcedure sp = new StoredProcedure("Get_UserFavorites");
             sp.AddParameter("@SiteGUID", sUserGUID);
             sp.AddParameter("@MediaTypeID", nType);
+            sp.AddParameter("@order_by", orderBy);
             
             if (!string.IsNullOrEmpty(sUDID))
                 sp.AddParameter("@UDID", sUDID);
