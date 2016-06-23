@@ -23,7 +23,7 @@ namespace ElasticSearchHandler
     public static class ElasticSearchTaskUtils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
+        public static readonly int DAYS = 7;
         public static string GetWSURL(string key)
         {
             return TVinciShared.WS_Utils.GetTcmConfigValue(key);
@@ -171,13 +171,22 @@ namespace ElasticSearchHandler
 
                 Parallel.ForEach(lEpg.Cast<EpgCB>(), currentElement =>
                 {
-                    currentElement.SearchEndDate = currentElement.EndDate;
-
-                    if (linearChannelSettings.ContainsKey(currentElement.ChannelID.ToString()) && linearChannelSettings[currentElement.ChannelID.ToString()].EnableCatchUp)
+                    if (!linearChannelSettings.ContainsKey(currentElement.ChannelID.ToString()))
+                    {
+                        int days = TCMClient.Settings.Instance.GetValue<int>("CURRENT_REQUEST_DAYS_OFFSET");
+                        if (days == 0)
+                            days = DAYS;
+                        currentElement.SearchEndDate = currentElement.EndDate.AddDays(days);
+                    }
+                    else if (linearChannelSettings[currentElement.ChannelID.ToString()].EnableCatchUp)
                     {
                         currentElement.SearchEndDate = currentElement.EndDate.AddMinutes(linearChannelSettings[currentElement.ChannelID.ToString()].CatchUpBuffer);
                     }
-                    
+                    else
+                    {
+                        currentElement.SearchEndDate = currentElement.EndDate;
+                    }
+
                 });
             }
             catch (Exception ex)
@@ -187,15 +196,12 @@ namespace ElasticSearchHandler
             }
         }
 
-        
+        public enum eESFeederType
+        {
+            MEDIA,
+            EPG
+        }
+
+
     }
-
-    public enum eESFeederType
-    {
-        MEDIA,
-        EPG
-    }
-
-
-
 }
