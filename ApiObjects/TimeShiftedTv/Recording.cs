@@ -45,6 +45,24 @@ namespace ApiObjects.TimeShiftedTv
             this.Type = RecordingType.Single;
         }
 
+        public Recording(Recording record)
+        {
+            this.Status = record.Status != null ? new Status(record.Status.Code, record.Status.Message) : null;
+            this.Id = record.Id;
+            this.EpgId = record.EpgId;
+            this.ChannelId = string.IsNullOrEmpty(record.ChannelId) ? string.Empty : string.Copy(record.ChannelId);
+            this.RecordingStatus = record.RecordingStatus;
+            this.ExternalRecordingId = string.IsNullOrEmpty(record.ExternalRecordingId) ? string.Empty : string.Copy(record.ExternalRecordingId);
+            this.EpgStartDate = record.EpgStartDate;
+            this.EpgEndDate = record.EpgEndDate;
+            this.Type = record.Type;
+            this.GetStatusRetries = record.GetStatusRetries;
+            this.ProtectedUntilDate = record.ProtectedUntilDate;
+            this.ViewableUntilDate = record.ViewableUntilDate;
+            this.CreateDate = record.CreateDate;
+            this.UpdateDate = record.UpdateDate;
+        }
+
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
