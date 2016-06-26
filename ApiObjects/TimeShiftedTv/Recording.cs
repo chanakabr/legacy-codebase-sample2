@@ -45,26 +45,22 @@ namespace ApiObjects.TimeShiftedTv
             this.Type = RecordingType.Single;
         }
 
-        public Recording Clone()
+        public Recording(Recording record)
         {
-            Recording clone = new Recording();
-            {
-                clone.Status = this.Status;
-                clone.Id = this.Id;
-                clone.EpgId = this.EpgId;
-                clone.ChannelId = this.ChannelId;
-                clone.RecordingStatus = this.RecordingStatus;
-                clone.ExternalRecordingId = this.ExternalRecordingId;
-                clone.EpgStartDate = this.EpgStartDate;
-                clone.EpgEndDate = this.EpgEndDate;
-                clone.Type = this.Type;
-                clone.GetStatusRetries = this.GetStatusRetries;
-                clone.ProtectedUntilDate = this.ProtectedUntilDate;
-                clone.ViewableUntilDate = this.ViewableUntilDate;
-                clone.CreateDate = this.CreateDate;
-                clone.UpdateDate = this.UpdateDate;
-            }
-            return clone;
+            this.Status = new Status(record.Status.Code, record.Status.Message);
+            this.Id = record.Id;
+            this.EpgId = record.EpgId;
+            this.ChannelId = string.Copy(record.ChannelId);
+            this.RecordingStatus = record.RecordingStatus;
+            this.ExternalRecordingId = string.Copy(record.ExternalRecordingId);
+            this.EpgStartDate = record.EpgStartDate;
+            this.EpgEndDate = record.EpgEndDate;
+            this.Type = record.Type;
+            this.GetStatusRetries = record.GetStatusRetries;
+            this.ProtectedUntilDate = record.ProtectedUntilDate;
+            this.ViewableUntilDate = record.ViewableUntilDate;
+            this.CreateDate = record.CreateDate;
+            this.UpdateDate = record.UpdateDate;
         }
 
         public override string ToString()

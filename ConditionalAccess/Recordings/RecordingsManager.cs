@@ -912,7 +912,7 @@ namespace Recordings
 
                 // We're OK
                 recording.Status = new Status((int)eResponseStatus.OK);
-                Recording copyRecording = recording.Clone();
+                Recording copyRecording = new Recording(recording);
                 ContextData cd = new ContextData();
 
                 // Async - call adapter. Main flow is done
