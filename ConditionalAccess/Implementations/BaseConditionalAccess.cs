@@ -8474,7 +8474,7 @@ namespace ConditionalAccess
         /// <summary>
         /// Get Domain Billing History
         /// </summary>
-        public virtual DomainTransactionsHistoryResponse GetDomainTransactionsHistory(int domainID, DateTime dStartDate, DateTime dEndDate, int pageSize, int pageIndex)
+        public virtual DomainTransactionsHistoryResponse GetDomainTransactionsHistory(int domainID, DateTime dStartDate, DateTime dEndDate, int pageSize, int pageIndex, TransactionHistoryOrderBy orderBy)
         {
             DomainTransactionsHistoryResponse domainTransactionsHistoryResponse = new DomainTransactionsHistoryResponse();
 
@@ -8494,7 +8494,7 @@ namespace ConditionalAccess
                     return domainTransactionsHistoryResponse;
                 }
 
-                DataTable domainBillingHistory = ConditionalAccessDAL.GetDomainBillingHistory(m_nGroupID, domainID, 0, dStartDate, dEndDate);
+                DataTable domainBillingHistory = ConditionalAccessDAL.GetDomainBillingHistory(m_nGroupID, domainID, 0, dStartDate, dEndDate, (int)orderBy);
 
                 if (domainBillingHistory == null || domainBillingHistory.Rows == null || domainBillingHistory.Rows.Count == 0)
                 {
@@ -8599,7 +8599,7 @@ namespace ConditionalAccess
         /// <summary>
         /// Get User Billing History
         /// </summary>
-        protected virtual BillingTransactions GetUserBillingHistoryExt(string sUserGUID, DateTime dStartDate, DateTime dEndDate, int nStartIndex = 0, int nNumberOfItems = 0)
+        protected virtual BillingTransactions GetUserBillingHistoryExt(string sUserGUID, DateTime dStartDate, DateTime dEndDate, int nStartIndex = 0, int nNumberOfItems = 0, TransactionHistoryOrderBy orderBy = TransactionHistoryOrderBy.CreateDateDesc)
         {
 
             BillingTransactionsResponse theResp = new BillingTransactionsResponse();
@@ -8612,7 +8612,7 @@ namespace ConditionalAccess
                 string[] arrGroupIDs = lGroupIDs.Select(g => g.ToString()).ToArray();
 
                 int nTopNum = nStartIndex + nNumberOfItems;
-                DataView dvBillHistory = ConditionalAccessDAL.GetUserBillingHistory(arrGroupIDs, sUserGUID, nTopNum, dStartDate, dEndDate);
+                DataView dvBillHistory = ConditionalAccessDAL.GetUserBillingHistory(arrGroupIDs, sUserGUID, nTopNum, dStartDate, dEndDate, (int)orderBy);
 
 
                 if (dvBillHistory == null || dvBillHistory.Count == 0)
@@ -8886,13 +8886,13 @@ namespace ConditionalAccess
         /// <summary>
         /// Get User Billing History
         /// </summary>
-        public virtual BillingTransactions GetUserBillingHistory(string sUserGUID, Int32 nStartIndex, Int32 nNumberOfItems)
+        public virtual BillingTransactions GetUserBillingHistory(string sUserGUID, Int32 nStartIndex, Int32 nNumberOfItems, TransactionHistoryOrderBy orderBy)
         {
             BillingTransactions res = null;
             try
             {
                 DateTime minDate = new DateTime(2000, 1, 1);
-                res = GetUserBillingHistoryExt(sUserGUID, minDate, DateTime.MaxValue, nStartIndex, nNumberOfItems);
+                res = GetUserBillingHistoryExt(sUserGUID, minDate, DateTime.MaxValue, nStartIndex, nNumberOfItems, orderBy);
             }
             catch (Exception ex)
             {
@@ -13837,9 +13837,13 @@ namespace ConditionalAccess
                                 DateTime entitlementDate = DateTime.UtcNow;
                                 response.CreatedAt = DateUtils.DateTimeToUnixTimestamp(entitlementDate);
 
-                                DateTime? subscriptionEndDate = DateUtils.UnixTimeStampToDateTime(response.EndDateSeconds);
-                                bool isRecurring = subscription.m_bIsRecurring && response.AutoRenewing;
+                                DateTime? subscriptionEndDate = null;
+                                if (response.EndDateSeconds > 0)
+                                {
+                                    subscriptionEndDate = DateUtils.UnixTimeStampToDateTime(response.EndDateSeconds);
+                                }
 
+                                bool isRecurring = subscription.m_bIsRecurring && response.AutoRenewing;
 
                                 // grant entitlement
                                 bool handleBillingPassed = HandleSubscriptionBillingSuccess(ref response, siteguid, householdId, subscription, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty, userIp,
@@ -17091,7 +17095,26 @@ namespace ConditionalAccess
                     return recording;
                 }
 
-                if (recording.Id == 0 || !Utils.IsValidRecordingStatus(recording.RecordingStatus))
+                bool isInvalidRecording = false;
+                if (recording.Id == 0)
+                {
+                    isInvalidRecording = true;
+                    TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+                    if (accountSettings != null && accountSettings.PaddingBeforeProgramStarts.HasValue && accountSettings.PaddingAfterProgramEnds.HasValue)
+                    {
+                        recording.EpgStartDate = recording.EpgStartDate.AddSeconds((-1) * accountSettings.PaddingBeforeProgramStarts.Value);
+                        recording.EpgEndDate = recording.EpgEndDate.AddSeconds(accountSettings.PaddingAfterProgramEnds.Value);
+                    }
+                    else
+                    {
+                        log.ErrorFormat("Failed getting account padding, groupID: {0}", m_nGroupID);
+                        recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed getting account padding settings");
+                        return recording;
+                    }
+
+                }
+
+                if (isInvalidRecording || !Utils.IsValidRecordingStatus(recording.RecordingStatus))
                 {
                     log.DebugFormat("Recording ID is 0 or RecordingStatus not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
                     recording = RecordingsManager.Instance.Record(m_nGroupID, recording.EpgId, recording.ChannelId, recording.EpgStartDate, recording.EpgEndDate, userID, domainID);
@@ -18037,9 +18060,31 @@ namespace ConditionalAccess
         public bool CleanupRecordings()
         {
             bool result = false;
-            int recordingCleanupIntervalMin = 0;            
+            int recordingCleanupIntervalMin = 0;
+            bool shouldInsertToQueue = false;
+
             try
             {
+                // try to get interval for next cleanup or take default
+                RecordingCleanupResponse lastRecordingCleanupResponse = GetLastSuccessfulRecordingsCleanup();
+                if (lastRecordingCleanupResponse.Status.Code == (int)eResponseStatus.OK && lastRecordingCleanupResponse.IntervalInMinutes > 0)
+                {
+                    recordingCleanupIntervalMin = lastRecordingCleanupResponse.IntervalInMinutes;
+                    if (lastRecordingCleanupResponse.LastSuccessfulCleanUpDate.AddMinutes(recordingCleanupIntervalMin) < DateTime.UtcNow)
+                    {
+                        shouldInsertToQueue = true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    shouldInsertToQueue = true;
+                    recordingCleanupIntervalMin = RECORDING_CLEANUP_EXECUTE_GAP_HOURS * 60;
+                }
+
                 // get current utc epoch
                 long utcNowEpoch = TVinciShared.DateUtils.UnixTimeStampNow();
                 // get first batch
@@ -18101,16 +18146,6 @@ namespace ConditionalAccess
                 if (totalRecordingsDeleted == totalRecordingsToCleanup)
                 {
                     result = true;
-                    // try to get interval for next cleanup or take default
-                    RecordingCleanupResponse lastRecordingCleanupResponse = GetLastSuccessfulRecordingsCleanup();
-                    if (lastRecordingCleanupResponse.Status.Code == (int)eResponseStatus.OK && lastRecordingCleanupResponse.IntervalInMinutes > 0)
-                    {
-                        recordingCleanupIntervalMin = lastRecordingCleanupResponse.IntervalInMinutes;
-                    }
-                    else
-                    {
-                        recordingCleanupIntervalMin = RECORDING_CLEANUP_EXECUTE_GAP_HOURS * 60;
-                    }
 
                     if (!ConditionalAccessDAL.UpdateSuccessfulRecordingsCleanup(DateTime.UtcNow, totalRecordingsDeleted, totalDomainRecordingsUpdated, recordingCleanupIntervalMin))
                     {
@@ -18141,15 +18176,18 @@ namespace ConditionalAccess
             }
             finally
             {
-                if (recordingCleanupIntervalMin == 0)
+                if (shouldInsertToQueue)
                 {
-                    recordingCleanupIntervalMin = RECORDING_CLEANUP_EXECUTE_GAP_HOURS * 60;
-                }
+                    if (recordingCleanupIntervalMin == 0)
+                    {
+                        recordingCleanupIntervalMin = RECORDING_CLEANUP_EXECUTE_GAP_HOURS * 60;
+                    }
 
-                DateTime nextExecutionDate = DateTime.UtcNow.AddMinutes(recordingCleanupIntervalMin);
-                SetupTasksQueue queue = new SetupTasksQueue();
-                CelerySetupTaskData data = new CelerySetupTaskData(0, eSetupTask.RecordingsCleanup, new Dictionary<string, object>()) { ETA = nextExecutionDate };
-                result = queue.Enqueue(data, ROUTING_KEY_RECORDINGS_CLEANUP);
+                    DateTime nextExecutionDate = DateTime.UtcNow.AddMinutes(recordingCleanupIntervalMin);
+                    SetupTasksQueue queue = new SetupTasksQueue();
+                    CelerySetupTaskData data = new CelerySetupTaskData(0, eSetupTask.RecordingsCleanup, new Dictionary<string, object>()) { ETA = nextExecutionDate };
+                    result = queue.Enqueue(data, ROUTING_KEY_RECORDINGS_CLEANUP);
+                }
             }
 
             return result;

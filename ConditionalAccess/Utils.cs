@@ -4182,12 +4182,12 @@ namespace ConditionalAccess
                             DataRow dr = DAL.ApiDAL.GetTimeShiftedTvPartnerSettings(groupID);
                             if (dr != null)
                             {
-                                int catchup = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_catch_up", -1);
-                                int cdvr = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_cdvr", -1);
-                                int startOver = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_start_over", -1);
-                                int trickPlay = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_trick_play", -1);
-                                long catchUpBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "catch_up_buffer", -1);
-                                long trickPlayBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "trick_play_buffer", -1);
+                                int catchup = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_catch_up", 0);
+                                int cdvr = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_cdvr", 0);
+                                int startOver = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_start_over", 0);
+                                int trickPlay = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_trick_play", 0);
+                                long catchUpBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "catch_up_buffer", 7);
+                                long trickPlayBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "trick_play_buffer", 1);
                                 long recordingScheduleWindowBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "recording_schedule_window_buffer", 0);
                                 int recordingScheduleWindow = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_schedule_window", -1);
                                 long paddingAfterProgramEnds = ODBCWrapper.Utils.GetLongSafeVal(dr, "padding_after_program_ends", 0);
@@ -4198,7 +4198,7 @@ namespace ConditionalAccess
                                 int recordingLifetimePeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "recording_lifetime_period", 182);
                                 int cleanupNoticePeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "cleanup_notice_period", 7);
 
-                                if (catchup > -1 && cdvr > -1 && startOver > -1 && trickPlay > -1 && catchUpBuffer > -1 && trickPlayBuffer > -1 && recordingScheduleWindow > -1)
+                                if (recordingScheduleWindow > -1)
                                 {
                                     settings = new TimeShiftedTvPartnerSettings(catchup == 1, cdvr == 1, startOver == 1, trickPlay == 1, recordingScheduleWindow == 1, catchUpBuffer,
                                                                                 trickPlayBuffer, recordingScheduleWindowBuffer, paddingAfterProgramEnds, paddingBeforeProgramStarts,
@@ -4449,7 +4449,9 @@ namespace ConditionalAccess
                     recordingStatus = TstvRecordingStatus.Deleted;
                     break;
                 case DomainRecordingStatus.DeletedBySystem:
-                    recordingStatus = TstvRecordingStatus.LifeTimePeriodExpired;
+                    /***** Currently the LifeTimePeriodExpired status is only for backend inner needs and we are not exposing it on the REST to the client *****/
+                    //recordingStatus = TstvRecordingStatus.LifeTimePeriodExpired;
+                    recordingStatus = TstvRecordingStatus.Deleted;
                     break;
                 case DomainRecordingStatus.OK:
                     recordingStatus = TstvRecordingStatus.OK;
@@ -4483,6 +4485,8 @@ namespace ConditionalAccess
                             result.Add(DomainRecordingStatus.Canceled);
                         }
                         break;
+                    /***** Currently the LifeTimePeriodExpired status is only for backend inner needs and we are not exposing it on the REST to the client *****/
+                    /*
                     // add both DomainRecordingStatus.OK and DomainRecordingStatus.DeletedByCleanup because we don't know if the recording has already been deleted
                     case TstvRecordingStatus.LifeTimePeriodExpired:
                         if (!result.Contains(DomainRecordingStatus.OK))
@@ -4495,6 +4499,7 @@ namespace ConditionalAccess
                             result.Add(DomainRecordingStatus.DeletedBySystem);
                         }
                         break;
+                     */ 
                     case TstvRecordingStatus.Deleted:
                     default:
                         break;
@@ -4960,10 +4965,12 @@ namespace ConditionalAccess
                     }
 
                     long currentUtcEpoch = TVinciShared.DateUtils.UnixTimeStampNow();
-                    // modify recordings status to LifeTimePeriodExpired if it's currently not viewable
+                    // modify recordings status to Deleted if it's currently not viewable
                     if (recording.ViewableUntilDate < currentUtcEpoch)
                     {
-                        recording.RecordingStatus = TstvRecordingStatus.LifeTimePeriodExpired;
+                        /***** Currently the LifeTimePeriodExpired status is only for backend inner needs and we are not exposing it on the REST to the client *****
+                        recording.RecordingStatus = TstvRecordingStatus.LifeTimePeriodExpired;*/
+                        recording.RecordingStatus = TstvRecordingStatus.Deleted;
                     }
                 }
 
