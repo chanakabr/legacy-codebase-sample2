@@ -32,7 +32,7 @@ namespace WebAPI.Models.API
 
         public override object GetDefaultOrderByValue()
         {
-            return KalturaParentalRuleOrderBy.CREATE_DATE_ASC;
+            return KalturaParentalRuleOrderBy.PARTNER_SORT_VALUE;
         }
     }
 }

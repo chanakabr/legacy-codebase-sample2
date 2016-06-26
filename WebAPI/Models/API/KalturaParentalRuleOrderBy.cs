@@ -7,7 +7,6 @@ namespace WebAPI.Models.API
 {
     public enum KalturaParentalRuleOrderBy
     {
-        CREATE_DATE_ASC,
-        CREATE_DATE_DESC
+        PARTNER_SORT_VALUE
     }
 }
