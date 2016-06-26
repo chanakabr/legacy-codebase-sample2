@@ -2648,9 +2648,10 @@ namespace DAL
             return dt;
         }
 
-        public static long UpdateOrInsertDomainRecording(int groupID, long userID, long domainID, Recording recording)
+        public static bool UpdateOrInsertDomainRecording(int groupID, long userID, long domainID, Recording recording)
         {
-            long domainRecordingId = 0;
+            DataTable dt = null;
+            bool res = false;
             ODBCWrapper.StoredProcedure spUpdateOrInsertDomainRecording = new ODBCWrapper.StoredProcedure("UpdateOrInsertDomainRecording");
             spUpdateOrInsertDomainRecording.SetConnectionKey("CONNECTION_STRING");
             spUpdateOrInsertDomainRecording.AddParameter("@GroupID", groupID);
@@ -2659,9 +2660,23 @@ namespace DAL
             spUpdateOrInsertDomainRecording.AddParameter("@EpgID", recording.EpgId);
             spUpdateOrInsertDomainRecording.AddParameter("@RecordingID", recording.Id);
 
-            domainRecordingId = spUpdateOrInsertDomainRecording.ExecuteReturnValue<long>();
+            dt = spUpdateOrInsertDomainRecording.Execute();
 
-            return domainRecordingId;
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                DataRow dr = dt.Rows[0];
+                long domainRecordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
+                if (domainRecordingId > 0)
+                {
+                    recording.Id = domainRecordingId;
+                    recording.CreateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
+                    recording.UpdateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE");
+                    
+                    res = true;
+                }
+            }
+
+            return res;
         }
 
         public static int GetTimeShiftedTVAdapterId(int groupId)
