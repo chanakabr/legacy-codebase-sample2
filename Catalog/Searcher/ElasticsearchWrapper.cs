@@ -1529,7 +1529,7 @@ namespace Catalog
 
             #endregion
 
-            #region Define Facet Query
+            #region Define Aggregations Search Query
 
             FilteredQuery filteredQuery = new FilteredQuery()
             {
@@ -1591,48 +1591,69 @@ namespace Catalog
             filterSettings.AddChild(tagsFilter);
             filteredQuery.Filter.FilterSettings = filterSettings;
 
-            ESTermsStatsFacet facet = new ESTermsStatsFacet()
-            {
-                Query = filteredQuery
-            };
+            //ESTermsStatsFacet facet = new ESTermsStatsFacet()
+            //{
+            //    Query = filteredQuery
+            //};
 
             // Create a term stats facet for each association tag we have
             foreach (var associationTag in associationTags)
             {
-                // Filter each facet according to its media type
-                BaseFilterCompositeType facetFilter = new FilterCompositeType(CutWith.AND);
-                facetFilter.AddChild(new ESTerm(true)
+                ESBaseAggsItem currentAggregation = new ESBaseAggsItem()
                 {
-                    Key = "media_type_id",
-                    // key of association tag is the child media type
-                    Value = associationTag.Key.ToString()
-                });
-
-                // Group by the association tag. Get statistics for start_date - we are interested in maximum start date
-                ElasticSearch.Searcher.ESTermsStatsFacet.ESTermsStatsFacetItem facetItem = new ESTermsStatsFacet.ESTermsStatsFacetItem()
-                {
-                    // the name of the tag will be the facet name
-                    FacetName = associationTag.Value,
-                    KeyField = string.Format("tags.{0}", associationTag.Value),
-                    ValueField = "start_date",
-                    FacetFilter = facetFilter
+                    Name = associationTag.Value,
+                    Type = eElasticAggregationType.terms,
+                    Filter = new ESTerm(true)
+                    {
+                        Key = "media_type_id",
+                        // key of association tag is the child media type
+                        Value = associationTag.Key.ToString()
+                    },
+                    Field = string.Format("tags.{0}", associationTag.Value)
                 };
 
-                facet.AddTermStatsFacet(facetItem);
+                ESBaseAggsItem subAggregation = new ESBaseAggsItem()
+                {
+                    Name = associationTag.Value + "_sub",
+                    Field = "start_date",
+                    Type = eElasticAggregationType.stats
+                };
+                
+                //// Filter each facet according to its media type
+                //BaseFilterCompositeType facetFilter = new FilterCompositeType(CutWith.AND);
+                //facetFilter.AddChild(new ESTerm(true)
+                //{
+                //    Key = "media_type_id",
+                //    // key of association tag is the child media type
+                //    Value = associationTag.Key.ToString()
+                //});
+
+                //// Group by the association tag. Get statistics for start_date - we are interested in maximum start date
+                //ElasticSearch.Searcher.ESTermsStatsFacet.ESTermsStatsFacetItem facetItem = new ESTermsStatsFacet.ESTermsStatsFacetItem()
+                //{
+                //    // the name of the tag will be the facet name
+                //    FacetName = associationTag.Value,
+                //    KeyField = string.Format("tags.{0}", associationTag.Value),
+                //    ValueField = "start_date",
+                //    FacetFilter = facetFilter
+                //};
+
+                filteredQuery.Aggregations.Add(currentAggregation);
+                //facet.AddTermStatsFacet(facetItem);
             }
 
             #endregion
 
-            #region Get Facets Results
+            #region Get Aggregations Results
 
-            string facetRequestBody = facet.ToString();
+            string searchRequestBody = filteredQuery.ToString();
             string index = groupId.ToString();
 
-            string facetsResults = m_oESApi.Search(index, "media", ref facetRequestBody);
+            string searchResults = m_oESApi.Search(index, "media", ref searchRequestBody);
 
             // Get facet results
             Dictionary<string, List<ESTermsStatsFacet.StatisticFacetResult>> facetsDictionary =
-                ESTermsStatsFacet.FacetResults(ref facetsResults);
+                ESTermsStatsFacet.FacetResults(ref searchResults);
 
             #endregion
 
@@ -1812,23 +1833,51 @@ namespace Catalog
 
             filteredQuery.Filter.FilterSettings = filter;
 
-            IESFacet facet = null;
+            //IESFacet facet = null;
+            ESBaseAggsItem aggregations = null;
 
             // Ratings is a special case, because it is not based on count, but on average instead
             if (orderBy == ApiObjects.SearchObjects.OrderBy.RATING)
             {
-                facet = new ESTermsStatsFacet("stats", "media_id", Catalog.STAT_ACTION_RATE_VALUE_FIELD, 10000)
+                //ESBaseAggsItem aggregations = new ESBaseAggsItem()
+                //{
+                //    Name = "stats",
+                //    Field = "media_id",
+                //    Type = eElasticAggregationType.avg,
+                //};
+                aggregations = new ESBaseAggsItem()
                 {
-                    Query = filteredQuery
+                    Name = "stats",
+                    Field = "media_id",
+                    Type = eElasticAggregationType.terms,
                 };
+
+                aggregations.SubAggrgations.Add(new ESBaseAggsItem()
+                {
+                    Type = eElasticAggregationType.stats,
+                    Field = Catalog.STAT_ACTION_RATE_VALUE_FIELD
+                });
+
+                //facet = new ESTermsStatsFacet("stats", "media_id", Catalog.STAT_ACTION_RATE_VALUE_FIELD, 10000)
+                //{
+                //    Query = filteredQuery
+                //};
             }
             else
             {
-                facet = new ESTermsFacet("stats", "media_id", 10000)
+                aggregations = new ESBaseAggsItem()
                 {
-                    Query = filteredQuery
+                    Name = "stats",
+                    Field = "media_id",
+                    Type = eElasticAggregationType.terms,
                 };
+                //facet = new ESTermsFacet("stats", "media_id", 10000)
+                //{
+                //    Query = filteredQuery
+                //};
             }
+
+            filteredQuery.Aggregations.Add(aggregations);
 
             #endregion
 
@@ -1847,7 +1896,7 @@ namespace Catalog
                 // Convert partial Ids to strings
                 idsTerm.Value.AddRange(assetIds.Skip(assetIndex).Take(facetsSize).Select(id => id.ToString()));
 
-                string facetRequestBody = facet.ToString();
+                string facetRequestBody = filteredQuery.ToString();
 
                 string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(groupId);
 
@@ -1858,13 +1907,13 @@ namespace Catalog
                     Task task = Task.Factory.StartNew((obj) =>
                         {
                             contextData.Load();
-                            // Get facet results
-                            string facetsResults = m_oESApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref facetRequestBody);
+                            // Get aggregations results
+                            string aggregationsResults = m_oESApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref facetRequestBody);
 
                             if (orderBy == ApiObjects.SearchObjects.OrderBy.RATING)
                             {
                                 // Parse string into dictionary
-                                var partialDictionary = ESTermsStatsFacet.FacetResults(ref facetsResults);
+                                var partialDictionary = ESTermsStatsFacet.FacetResults(ref aggregationsResults);
 
                                 // Run on partial dictionary and merge into main dictionary
                                 foreach (var mainPart in partialDictionary)
@@ -1883,7 +1932,7 @@ namespace Catalog
                             else
                             {
                                 // Parse string into dictionary
-                                var partialDictionary = ESTermsFacet.FacetResults(ref facetsResults);
+                                var partialDictionary = ESAggregations.DeserializeAggrgations(aggregationsResults);
 
                                 // Run on partial dictionary and merge into main dictionary
                                 foreach (var mainPart in partialDictionary)

@@ -95,6 +95,7 @@
     <Compile Include="Searcher\BaseFilterCompositeType.cs" />
     <Compile Include="Searcher\BaseFilterCompositeTypeDecorator.cs" />
     <Compile Include="Searcher\BoolQuery.cs" />
+    <Compile Include="Searcher\ESAggregations.cs" />
     <Compile Include="Searcher\ESCustomQuery.cs" />
     <Compile Include="Searcher\ESEpgQueryBuilder.cs" />
     <Compile Include="Searcher\ESFacet.cs" />
