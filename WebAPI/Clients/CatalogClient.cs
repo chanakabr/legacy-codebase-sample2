@@ -149,6 +149,75 @@ namespace WebAPI.Clients
             return result;
         }
 
+        public KalturaAssetListResponse SearchAssets(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
+            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, string requestId)
+        {
+            KalturaAssetListResponse result = new KalturaAssetListResponse();
+
+            OrderObj order = CatalogConvertor.ConvertOrderToOrderObj(orderBy);
+
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
+
+            // build request
+            UnifiedSearchRequest request = new UnifiedSearchRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_bUseStartDate = group.UseStartDate,
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
+                },
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize.Value,
+                filterQuery = filter,
+                order = order,
+                assetTypes = assetTypes,
+                m_sSiteGuid = siteGuid,
+                domainId = domainId,
+                requestId = requestId
+            };
+
+            // build failover cache key
+            StringBuilder key = new StringBuilder();
+            key.AppendFormat("Unified_search_g={0}_ps={1}_pi={2}_ob={3}_od={4}_ov={5}_f={6}", groupId, pageSize, pageIndex, order.m_eOrderBy, order.m_eOrderDir, order.m_sOrderValue, filter);
+            if (assetTypes != null && assetTypes.Count > 0)
+                key.AppendFormat("_at={0}", string.Join(",", assetTypes.Select(at => at.ToString()).ToArray()));
+
+            // fire unified search request
+            UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(CatalogClientModule, request, out searchResponse, true, key.ToString()))
+            {
+                // general error
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (searchResponse.status.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(searchResponse.status.Code, searchResponse.status.Message);
+            }
+
+            if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
+            {
+                // get base objects list
+                List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
+
+                // get assets from catalog/cache
+                result.Objects = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration);
+                result.TotalCount = searchResponse.m_nTotalItems;
+            }
+
+            result.RequestId = searchResponse.requestId;
+
+            return result;
+        }
+
         public KalturaSlimAssetInfoWrapper Autocomplete(int groupId, string siteGuid, string udid, string language, int? size, string query, KalturaOrder? orderBy, List<int> assetTypes, List<KalturaCatalogWith> with)
         {
             KalturaSlimAssetInfoWrapper result = new KalturaSlimAssetInfoWrapper();

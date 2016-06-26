@@ -25,7 +25,6 @@ namespace WebAPI.Controllers
     [RoutePrefix("_service/asset/action")]
     [OldStandard("listOldStandard", "list")]
     [OldStandard("getOldStandard", "get")]
-    [OldStandard("searchOldStandard", "search")]
     public class AssetController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -153,19 +152,24 @@ namespace WebAPI.Controllers
             KalturaAssetListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
+            string userID = KS.GetFromRequest().UserId;
+            int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
             string udid = KSUtils.ExtractKSPayload().UDID;
+            string language = Utils.Utils.GetLanguageFromRequest();
 
+            // parameters validation
             if (pager == null)
                 pager = new KalturaFilterPager();
 
             if (filter == null)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter cannot be null");
-            }
+                filter = new KalturaAssetFilter();
 
-            if (string.IsNullOrEmpty(filter.IdIn))
+            if (filter.TypesIn == null)
+                filter.TypesIn = new List<KalturaIntegerValue>();
+
+            if (!string.IsNullOrEmpty(filter.KSql) && filter.KSql.Length > 1024)
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter idIn cannot be empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "too long filter");
             }
 
             if (!filter.OrderBy.HasValue)
@@ -175,69 +179,9 @@ namespace WebAPI.Controllers
 
             try
             {
-                string userID = KS.GetFromRequest().UserId;
-                string language = Utils.Utils.GetLanguageFromRequest();
-                List<int> ids = null;
-
-                switch (filter.EntityReferenceEqual)
-                {
-                    case KalturaCatalogReferenceBy.MEDIA:
-                        {
-                            try
-                            {
-                                ids = filter.IdIn.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(id => int.Parse(id)).ToList();
-                            }
-                            catch (Exception)
-                            {
-                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "ids must be numeric when type is media");
-                            }
-
-
-                            response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
-                                0, 0, ids, filter.OrderBy.Value);
-
-                            // if no response - return not found status 
-                            if (response == null || response.Objects == null || response.Objects.Count == 0)
-                                throw new NotFoundException();
-                        }
-                        break;
-                    case KalturaCatalogReferenceBy.EPG_INTERNAL:
-                        {
-                            try
-                            {
-                                ids = filter.IdIn.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(id => int.Parse(id)).ToList();
-                            }
-                            catch (Exception)
-                            {
-                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "ids must be numeric when type is epg_internal");
-                            }
-
-                            response = ClientsManager.CatalogClient().GetEPGByInternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
-                               0, 0, ids, filter.OrderBy.Value);
-
-                            // if no response - return not found status 
-                            if (response == null || response.Objects == null || response.Objects.Count == 0)
-                            {
-                                throw new NotFoundException();
-                            }
-
-                        }
-                        break;
-                    case KalturaCatalogReferenceBy.EPG_EXTERNAL:
-                        {
-                            response = ClientsManager.CatalogClient().GetEPGByExternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
-                                  0, 1, filter.IdIn.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries).ToList(), filter.OrderBy.Value);
-
-                            // if no response - return not found status 
-                            if (response == null || response.Objects == null || response.Objects.Count == 0)
-                            {
-                                throw new NotFoundException();
-                            }
-                        }
-                        break;
-                    default:
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Not implemented");
-                }
+                // call client
+                response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, filter.KSql, filter.OrderBy.Value, filter.TypesIn.Select(x => x.value).ToList(),
+                filter.RequestIdEqual);
             }
             catch (ClientException ex)
             {
@@ -256,6 +200,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("get"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
         public KalturaAsset Get(string id, KalturaAssetReferenceType assetReferenceType)
         {
             KalturaAsset response = null;
@@ -461,77 +406,9 @@ namespace WebAPI.Controllers
         /// <param name="pager">Page size and index</param>
         /// <param name="request_id">Current request identifier (used for paging)</param>
         /// <remarks>Possible status codes: Bad search request = 4002, Missing index = 4003, SyntaxError = 4004, InvalidSearchField = 4005</remarks>
-        [Route("searchOldStandart"), HttpPost]
-        [ApiAuthorize]
-        [Obsolete]
-        public KalturaAssetInfoListResponse SearchOldStandart(KalturaOrder? order_by, List<KalturaIntegerValue> filter_types = null, string filter = null,
-            List<KalturaCatalogWithHolder> with = null, KalturaFilterPager pager = null, string request_id = null)
-        {
-            KalturaAssetInfoListResponse response = null;
-
-            int groupId = KS.GetFromRequest().GroupId;
-            string userID = KS.GetFromRequest().UserId;
-            int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
-            string udid = KSUtils.ExtractKSPayload().UDID;
-            string language = Utils.Utils.GetLanguageFromRequest();
-
-            // parameters validation
-            if (!string.IsNullOrEmpty(filter) && filter.Length > 1024)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "too long filter");
-            }
-
-            if (pager == null)
-                pager = new KalturaFilterPager();
-
-            if (with == null)
-                with = new List<KalturaCatalogWithHolder>();
-
-            if (filter_types == null)
-                filter_types = new List<KalturaIntegerValue>();
-
-            try
-            {
-                // call client
-                response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language,
-                pager.getPageIndex(), pager.PageSize, filter, order_by, filter_types.Select(x => x.value).ToList(), 
-                request_id,
-                with.Select(x => x.type).ToList());
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return response;
-        }
-
-        /// <summary>
-        /// Unified search across – VOD: Movies, TV Series/episodes, EPG content.        
-        /// </summary>
-        /// <param name="filter_types">List of asset types to search within. 
-        /// Possible values: 0 – EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).
-        /// If omitted – all types should be included.</param>
-        /// <param name="filter"> <![CDATA[
-        /// Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
-        /// Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date. 
-        /// geo_block - only valid value is "true": When enabled, only assets that are not restriced to the user by geo-block rules will return.
-        /// parental_rules - only valid value is "true": When enabled, only assets that the user doesn't need to provide PIN code will return.
-        /// epg_channel_id – the channel identifier of the EPG program.
-        /// entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
-        /// Comparison operators: for numerical fields =, >, >=, <, <=. For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or. 
-        /// Search values are limited to 20 characters each.
-        /// (maximum length of entire filter is 1024 characters)]]></param>
-        /// <param name="order_by">Required sort option to apply for the identified assets. If omitted – will use relevancy.
-        /// Possible values: relevancy, a_to_z, z_to_a, views, ratings, votes, newest.</param>
-        /// <param name="with"> Additional data to return per asset, formatted as a comma-separated array. 
-        /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
-        /// <param name="pager">Page size and index</param>
-        /// <param name="request_id">Current request identifier (used for paging)</param>
-        /// <remarks>Possible status codes: Bad search request = 4002, Missing index = 4003, SyntaxError = 4004, InvalidSearchField = 4005</remarks>
         [Route("search"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [Obsolete]
         public KalturaAssetInfoListResponse Search(KalturaOrder? order_by, List<KalturaIntegerValue> filter_types = null, string filter = null,
             List<KalturaCatalogWithHolder> with = null, KalturaFilterPager pager = null, string request_id = null)
         {
@@ -562,7 +439,7 @@ namespace WebAPI.Controllers
             {
                 // call client
                 response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language,
-                pager.getPageIndex(), pager.PageSize, filter, order_by, filter_types.Select(x => x.value).ToList(),
+                pager.getPageIndex(), pager.PageSize, filter, order_by, filter_types.Select(x => x.value).ToList(), 
                 request_id,
                 with.Select(x => x.type).ToList());
             }

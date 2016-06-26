@@ -234,6 +234,48 @@ namespace WebAPI.ObjectsConvertor
             return result;
         }
 
+        public static OrderObj ConvertOrderToOrderObj(KalturaAssetOrderBy order)
+        {
+            OrderObj result = new OrderObj();
+
+            switch (order)
+            {
+                case KalturaAssetOrderBy.A_TO_Z:
+                    result.m_eOrderBy = OrderBy.NAME;
+                    result.m_eOrderDir = OrderDir.ASC;
+                    break;
+                case KalturaAssetOrderBy.Z_TO_A:
+                    result.m_eOrderBy = OrderBy.NAME;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaAssetOrderBy.VIEWS:
+                    result.m_eOrderBy = OrderBy.VIEWS;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaAssetOrderBy.RATINGS:
+                    result.m_eOrderBy = OrderBy.RATING;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaAssetOrderBy.VOTES:
+                    result.m_eOrderBy = OrderBy.VOTES_COUNT;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaAssetOrderBy.NEWEST:
+                    result.m_eOrderBy = OrderBy.START_DATE;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaAssetOrderBy.RELEVANCY:
+                    result.m_eOrderBy = OrderBy.RELATED;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaAssetOrderBy.OLDEST_FIRST:
+                    result.m_eOrderBy = OrderBy.START_DATE;
+                    result.m_eOrderDir = OrderDir.ASC;
+                    break;
+            }
+            return result;
+        }
+        
         public static List<KalturaEPGChannelAssets> ConvertEPGChannelAssets(int groupId, List<EpgResultsObj> epgResultsList, List<KalturaCatalogWith> withList)
         {
             List<KalturaEPGChannelAssets> finalResults = new List<KalturaEPGChannelAssets>();

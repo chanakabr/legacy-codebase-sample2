@@ -237,6 +237,18 @@ namespace WebAPI.Utils
                 return null;
         }
 
+        internal static List<KalturaAsset> GetAssets(IserviceClient client, List<BaseObject> assetsBaseData, BaseRequest request, int cacheDuration)
+        {
+            var assets = GetOrderedAssets(client, assetsBaseData, request, cacheDuration);
+
+            if (assets != null)
+            {
+                return Mapper.Map<List<KalturaAsset>>(assets);
+            }
+            else
+                return null;
+        }
+
         private static List<BaseObject> GetOrderedAssets(IserviceClient client, List<BaseObject> assetsBaseData, BaseRequest request, int cacheDuration)
         {
             List<BaseObject> finalResult = new List<BaseObject>();
