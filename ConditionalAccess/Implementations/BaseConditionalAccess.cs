@@ -18007,8 +18007,8 @@ namespace ConditionalAccess
                     return recording;
                 }
 
-                // Calculate total protection quota
-                int availableProtectionMinutes = (int)((domainsQuota * accountSettings.ProtectionQuotaPercentage.Value) / 100);
+                // Calculate total protection quota (round up according to spec)
+                int availableProtectionMinutes = (int)Math.Ceiling((double)((domainsQuota * accountSettings.ProtectionQuotaPercentage.Value) / 100));
                 // Get domain used protection minutes
                 Dictionary<long, Recording> domainProtectedRecordings = Utils.GetDomainProtectedRecordings(m_nGroupID, domainID);
                 // Check protection quota before applying protection on recording
