@@ -4270,11 +4270,15 @@ namespace ConditionalAccess
             return epgs;
         }
 
-        internal static bool IsValidRecordingStatus(TstvRecordingStatus recordingStatus)
+        internal static bool IsValidRecordingStatus(TstvRecordingStatus recordingStatus, bool isOkStatusValid = false)
         {
             bool res = false;
             switch (recordingStatus)
             {
+                case TstvRecordingStatus.OK:
+                    res = isOkStatusValid;
+                    break;
+
                 case TstvRecordingStatus.Recording:
                 case TstvRecordingStatus.Recorded:
                 case TstvRecordingStatus.Scheduled:

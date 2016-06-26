@@ -17321,7 +17321,7 @@ namespace ConditionalAccess
                 List<Recording> currentRecordings = recordingIdToDomainRecordingsMap != null? recordingIdToDomainRecordingsMap.Values.ToList() : new List<Recording>();
                 List<Recording> recordingsToCheckQuota = response.Recordings.Where(recording => recording.Status != null
                                                                                     && recording.Status.Code == (int)eResponseStatus.OK
-                                                                                    && Utils.IsValidRecordingStatus(recording.RecordingStatus)).ToList();
+                                                                                    && Utils.IsValidRecordingStatus(recording.RecordingStatus, true)).ToList();
 
                 var temporaryStatus = QuotaManager.Instance.CheckQuotaByTotalMinutes(this.m_nGroupID, domainID, totalMinutes, isAggregative, recordingsToCheckQuota, currentRecordings);
                 if (temporaryStatus == null)
