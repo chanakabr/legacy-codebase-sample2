@@ -23,7 +23,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "filterTypes")]
         [XmlArray(ElementName = "filterTypes", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
-        public List<KalturaIntegerValue> filter_types { get; set; }
+        public List<KalturaIntegerValue> filterTypes { get; set; }
 
         /// <summary>
         /// Which type of recently watched media to include in the result – those that finished watching, those that are in progress or both.
@@ -33,7 +33,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "filterStatus")]
         [JsonProperty(PropertyName = "filterStatus")]
         [XmlElement(ElementName = "filterStatus", IsNullable = true)]
-        public KalturaWatchStatus? filter_status { get; set; }
+        public KalturaWatchStatus? filterStatus { get; set; }
 
         /// <summary>
         /// How many days back to return the watched media. If omitted, default to 7 days

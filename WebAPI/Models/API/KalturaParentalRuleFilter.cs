@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
-    public class KalturaParentalRuleFilter : KalturaFilter
+    public class KalturaParentalRuleFilter : KalturaFilter<KalturaParentalRuleOrderBy>
     {
         /// <summary>
         ///Reference type to filter by
@@ -21,16 +21,7 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "entityReferenceEqual")]
         public KalturaEntityReferenceBy EntityReferenceEqual { get; set; }
 
-        /// <summary>
-        /// order by
-        /// </summary>
-        [DataMember(Name = "orderBy")]
-        [JsonProperty("orderBy")]
-        [XmlElement(ElementName = "orderBy", IsNullable = true)]
-        [ValidationException(SchemaValidationType.FILTER_SUFFIX)]
-        public KalturaParentalRuleOrderBy? OrderBy { get; set; }
-
-        public override object GetDefaultOrderByValue()
+        public override KalturaParentalRuleOrderBy GetDefaultOrderByValue()
         {
             return KalturaParentalRuleOrderBy.PARTNER_SORT_VALUE;
         }

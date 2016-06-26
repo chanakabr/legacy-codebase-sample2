@@ -172,15 +172,10 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "too long filter");
             }
 
-            if (!filter.OrderBy.HasValue)
-            {
-                filter.OrderBy = (KalturaAssetOrderBy)filter.GetDefaultOrderByValue();
-            }
-
             try
             {
                 // call client
-                response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, filter.KSql, filter.OrderBy.Value, filter.TypesIn.Select(x => x.value).ToList(),
+                response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, filter.KSql, filter.OrderBy, filter.TypesIn.Select(x => x.value).ToList(),
                 filter.RequestIdEqual);
             }
             catch (ClientException ex)

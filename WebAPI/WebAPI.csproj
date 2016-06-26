@@ -1501,7 +1501,7 @@
     <Content Include="Web References\ConditionalAccess\MediaFileItemPricesContainerResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\ConditionalAccess\module.disco" />
+    <None Include="Web References\ConditionalAccess\module.disco" />
     <Content Include="Web References\Domains\ChangeDLMObj.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -1541,7 +1541,7 @@
     <Content Include="Web References\Domains\HomeNetworksResponse1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\ConditionalAccess\module.wsdl" />
+    <None Include="Web References\ConditionalAccess\module.wsdl" />
     <Content Include="Web References\ConditionalAccess\NPVRResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -1575,10 +1575,10 @@
     <Content Include="Web References\ConditionalAccess\RecordingResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\ConditionalAccess\Reference.map">
+    <None Include="Web References\ConditionalAccess\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
-    </Content>
+    </None>
     <Content Include="Web References\ConditionalAccess\Status.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -1872,6 +1872,7 @@
     <Compile Include="Models\Catalog\KalturaAssetFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAsset.cs" />
     <Compile Include="Models\Catalog\KalturaAssetOrderBy.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaTransactionHistoryFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCDVRAdapterProfile.cs" />
     <Compile Include="Models\API\KalturaPermissionsFilter.cs" />
     <Compile Include="Models\API\KalturaExportFilter.cs" />

@@ -143,12 +143,7 @@ namespace WebAPI.Controllers
                     filter = new KalturaRecordingFilter() { StatusIn = string.Empty };
                     
                 }
-
-                if (!filter.OrderBy.HasValue)
-                {
-                    filter.OrderBy = (KalturaRecordingOrderBy)filter.GetDefaultOrderByValue();
-                }
-
+                
                 if (!string.IsNullOrEmpty(filter.FilterExpression) && filter.FilterExpression.Length > 1024)
                 {
                     throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter too long");

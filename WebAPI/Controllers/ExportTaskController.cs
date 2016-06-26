@@ -196,14 +196,9 @@ namespace WebAPI.Controllers
                 filter = new KalturaExportTaskFilter();
             }
 
-            if (!filter.OrderBy.HasValue)
-            {
-                filter.OrderBy = (KalturaExportTaskOrderBy)filter.GetDefaultOrderByValue();
-            }
-
             try
             {
-                List<KalturaExportTask> objects = ClientsManager.ApiClient().GetBulkExportTasks(groupId, filter.getIdIn(), null, filter.OrderBy.Value);
+                List<KalturaExportTask> objects = ClientsManager.ApiClient().GetBulkExportTasks(groupId, filter.getIdIn(), null, filter.OrderBy);
                 response.Objects = objects;
                 response.TotalCount = objects.Count;
             }
@@ -235,14 +230,9 @@ namespace WebAPI.Controllers
                 filter = new KalturaExportFilter();
             }
 
-            if (!filter.OrderBy.HasValue)
-            {
-                filter.OrderBy = (KalturaExportTaskOrderBy)filter.GetDefaultOrderByValue();
-            }
-
             try
             {
-                response = ClientsManager.ApiClient().GetBulkExportTasks(groupId, filter.ids != null ? filter.ids.Select(id => id.value).ToArray() : null, null, filter.OrderBy.Value);
+                response = ClientsManager.ApiClient().GetBulkExportTasks(groupId, filter.ids != null ? filter.ids.Select(id => id.value).ToArray() : null, null, filter.OrderBy);
             }
             catch (ClientException ex)
             {

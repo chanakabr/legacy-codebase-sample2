@@ -154,7 +154,7 @@ namespace Validator.Managers.Schema
 
             if (property.Name.Contains('_'))
             {
-                logError("Warning", property.DeclaringType, string.Format("Property {0}.{1} ({2}) name may not contain underscores", property.ReflectedType.Name, property.Name, property.PropertyType.Name));
+                logError("Error", property.DeclaringType, string.Format("Property {0}.{1} ({2}) name may not contain underscores", property.ReflectedType.Name, property.Name, property.PropertyType.Name));
                 if (strict)
                     valid = false;
             }
@@ -220,6 +220,10 @@ namespace Validator.Managers.Schema
 
             foreach (PropertyInfo property in type.GetProperties())
             {
+                ObsoleteAttribute obsolete = property.GetCustomAttribute<ObsoleteAttribute>(true);
+                if (obsolete != null)
+                    continue;
+
                 if (property.DeclaringType != type || hasValidationException(property, SchemaValidationType.FILTER_SUFFIX))
                     continue;
 
@@ -265,7 +269,7 @@ namespace Validator.Managers.Schema
                 PropertyInfo objectsProperty = getObjectsProperty(type);
                 if (objectsProperty == null)
                 {
-                    logError("Warning", type, string.Format("List response {0} must implement objects attribute", type.Name));
+                    logError("Error", type, string.Format("List response {0} must implement objects attribute", type.Name));
                     if (strict)
                         valid = false;
                 }
@@ -273,16 +277,16 @@ namespace Validator.Managers.Schema
 
             if (type.IsSubclassOf(typeof(KalturaFilterPager)))
             {
-                logError("Warning", type, string.Format("Object {0} should not inherit KalturaFilterPager", type.Name));
+                logError("Error", type, string.Format("Object {0} should not inherit KalturaFilterPager", type.Name));
                 if (strict)
                     valid = false;
             }
 
-            if (type.IsSubclassOf(typeof(KalturaFilter)))
+            if (typeof(IKalturaFilter).IsAssignableFrom(type))
             {
                 valid = ValidateFilter(type, strict) && valid;
             }
-            else if (type != typeof(KalturaFilter) && type.Name.EndsWith("Filter"))
+            else if (!type.Name.Equals("KalturaFilter") && type.Name.EndsWith("Filter"))
             {
                 logError("Warning", type, string.Format("Filter {0} must inherit KalturaFilter", type.Name));
                 if (strict)
@@ -291,6 +295,10 @@ namespace Validator.Managers.Schema
 
             foreach (PropertyInfo property in type.GetProperties())
             {
+                ObsoleteAttribute obsolete = property.GetCustomAttribute<ObsoleteAttribute>(true);
+                if (obsolete != null)
+                    continue;
+
                 if (property.DeclaringType == type)
                     valid = ValidateProperty(property, strict) && valid;
             }
@@ -607,10 +615,10 @@ namespace Validator.Managers.Schema
                 }
             }
 
-            if (actionId == "list")
+            if (actionId == "list" && !hasValidationException(action, SchemaValidationType.ACTION_RETURN_TYPE))
             {
                 string expectedResponseType = string.Format("Kaltura{0}ListResponse", FirstCharacterToUpper(serviceId));
-                if (!hasValidationException(action, SchemaValidationType.ACTION_RETURN_TYPE) && action.ReturnType.Name.ToLower() != expectedResponseType.ToLower())
+                if (action.ReturnType.Name.ToLower() != expectedResponseType.ToLower())
                 {
                     logError("Warning", controller, string.Format("Action {0}.{1} ({2}) returned type is {3}, expected {4}", serviceId, actionId, controller.Name, action.ReturnType.Name, expectedResponseType));
                     if (strict)

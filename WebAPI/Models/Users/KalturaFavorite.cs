@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Jil;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +24,17 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "asset")]
         [JsonProperty(PropertyName = "asset")]
         [XmlElement(ElementName = "asset", IsNullable = true)]
+        [Obsolete]
+        [JilDirectiveAttribute(Ignore = true)]
         public KalturaAssetInfo Asset { get; set; }
+
+        /// <summary>
+        /// AssetInfo Model
+        /// </summary>
+        [DataMember(Name = "assetId")]
+        [JsonProperty(PropertyName = "assetId")]
+        [XmlElement(ElementName = "assetId", IsNullable = true)]
+        public long AssetId { get; set; }
 
         /// <summary>
         /// Extra Value
@@ -32,6 +43,14 @@ namespace WebAPI.Models.Users
         [JsonProperty("extraData")]
         [XmlElement(ElementName = "extraData")]
         public string ExtraData { get; set; }
+
+        /// <summary>
+        /// Specifies when was the favorite created. Date and time represented as epoch.
+        /// </summary>
+        [DataMember(Name = "createDate")]
+        [JsonProperty("createDate")]
+        [XmlElement(ElementName = "createDate")]
+        public long CreateDate { get; set; }
 
     }
 }

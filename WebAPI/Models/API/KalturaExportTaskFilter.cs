@@ -13,7 +13,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Bulk export tasks filter
     /// </summary>
-    public class KalturaExportTaskFilter : KalturaFilter
+    public class KalturaExportTaskFilter : KalturaFilter<KalturaExportTaskOrderBy>
     {
 
         /// <summary>
@@ -25,16 +25,7 @@ namespace WebAPI.Models.API
         [XmlArrayItem(ElementName = "item")]
         public string IdIn { get; set; }
 
-        /// <summary>
-        /// order by
-        /// </summary>
-        [DataMember(Name = "orderBy")]
-        [JsonProperty("orderBy")]
-        [XmlElement(ElementName = "orderBy", IsNullable = true)]
-        [ValidationException(SchemaValidationType.FILTER_SUFFIX)]
-        public KalturaExportTaskOrderBy? OrderBy { get; set; }
-
-        public override object GetDefaultOrderByValue()
+        public override KalturaExportTaskOrderBy GetDefaultOrderByValue()
         {
             return KalturaExportTaskOrderBy.CREATE_DATE_ASC;
         }

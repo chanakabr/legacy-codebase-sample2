@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaAssetFilter : KalturaFilter
+    public class KalturaAssetFilter : KalturaFilter<KalturaAssetOrderBy>
     {
         /// <summary>
         /// Current request identifier (used for paging)
@@ -48,16 +48,7 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "typesIn", IsNullable = true)]
         public List<KalturaIntegerValue> TypesIn { get; set; }
 
-        /// <summary>
-        /// Order by
-        /// </summary>
-        [DataMember(Name = "orderBy")]
-        [JsonProperty("orderBy")]
-        [XmlElement(ElementName = "orderBy", IsNullable = true)]
-        [ValidationException(SchemaValidationType.FILTER_SUFFIX)]
-        public KalturaAssetOrderBy? OrderBy { get; set; }
-
-        public override object GetDefaultOrderByValue()
+        public override KalturaAssetOrderBy GetDefaultOrderByValue()
         {
             return KalturaAssetOrderBy.RELEVANCY;
         }
