@@ -912,32 +912,16 @@ namespace Recordings
 
                 // We're OK
                 recording.Status = new Status((int)eResponseStatus.OK);
-
+                Recording copyRecording = recording.Clone();
                 ContextData cd = new ContextData();
 
                 // Async - call adapter. Main flow is done
                 System.Threading.Tasks.Task async = Task.Factory.StartNew((taskRecording) =>
                 {
                     cd.Load();
-
-                    Recording copyRecording = (Recording)taskRecording;
-                    Recording currentRecording = new Recording()
-                    {
-                        ChannelId = copyRecording.ChannelId,
-                        EpgEndDate = copyRecording.EpgEndDate,
-                        EpgId = copyRecording.EpgId,
-                        EpgStartDate = copyRecording.EpgStartDate,
-                        ExternalRecordingId = copyRecording.ExternalRecordingId,
-                        GetStatusRetries = copyRecording.GetStatusRetries,
-                        Id = copyRecording.Id,
-                        RecordingStatus = copyRecording.RecordingStatus,
-                        Status = copyRecording.Status,
-                        Type = copyRecording.Type
-                    };
-
-                    CallAdapterRecord(groupId, epgChannelID, startDate, endDate, isCanceled, currentRecording);
+                    CallAdapterRecord(groupId, epgChannelID, startDate, endDate, isCanceled, (Recording)taskRecording);
                 },
-                recording);
+                copyRecording);
             }
 
             parameters["recording"] = recording;
