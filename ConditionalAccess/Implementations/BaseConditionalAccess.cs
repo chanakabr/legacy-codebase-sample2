@@ -17095,26 +17095,7 @@ namespace ConditionalAccess
                     return recording;
                 }
 
-                bool isInvalidRecording = false;
-                if (recording.Id == 0)
-                {
-                    isInvalidRecording = true;
-                    TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
-                    if (accountSettings != null && accountSettings.PaddingBeforeProgramStarts.HasValue && accountSettings.PaddingAfterProgramEnds.HasValue)
-                    {
-                        recording.EpgStartDate = recording.EpgStartDate.AddSeconds((-1) * accountSettings.PaddingBeforeProgramStarts.Value);
-                        recording.EpgEndDate = recording.EpgEndDate.AddSeconds(accountSettings.PaddingAfterProgramEnds.Value);
-                    }
-                    else
-                    {
-                        log.ErrorFormat("Failed getting account padding, groupID: {0}", m_nGroupID);
-                        recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed getting account padding settings");
-                        return recording;
-                    }
-
-                }
-
-                if (isInvalidRecording || !Utils.IsValidRecordingStatus(recording.RecordingStatus))
+                if (recording.Id == 0 || !Utils.IsValidRecordingStatus(recording.RecordingStatus))
                 {
                     log.DebugFormat("Recording ID is 0 or RecordingStatus not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
                     recording = RecordingsManager.Instance.Record(m_nGroupID, recording.EpgId, recording.ChannelId, recording.EpgStartDate, recording.EpgEndDate, userID, domainID);

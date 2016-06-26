@@ -4209,7 +4209,8 @@ namespace ConditionalAccess
                         }
                     }
                 }
-            }
+                log.DebugFormat("current TSTV settings values are: {0}", settings.ToString());
+            }            
 
             catch (Exception ex)
             {
@@ -4579,6 +4580,7 @@ namespace ConditionalAccess
         internal static List<Recording> CheckDomainExistingRecordingsByEpgs(int groupId, long domainID, Dictionary<long, EPGChannelProgrammeObject> validEpgObjectForRecordingMap)
         {
             Dictionary<long, Recording> responseDictionary = new Dictionary<long, Recording>();
+            TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(groupId);            
             foreach (long epgId in validEpgObjectForRecordingMap.Keys)
             {
                 Recording recording = new Recording() { EpgId = epgId };
@@ -4597,6 +4599,17 @@ namespace ConditionalAccess
                         EpgStartDate = epgStartDate,
                         EpgEndDate = epgEndDate
                     };
+
+                    if (accountSettings != null && accountSettings.PaddingBeforeProgramStarts.HasValue && accountSettings.PaddingAfterProgramEnds.HasValue)
+                    {
+                        recording.EpgStartDate = recording.EpgStartDate.AddSeconds((-1) * accountSettings.PaddingBeforeProgramStarts.Value);
+                        recording.EpgEndDate = recording.EpgEndDate.AddSeconds(accountSettings.PaddingAfterProgramEnds.Value);
+                    }
+                    else
+                    {
+                        log.ErrorFormat("Failed getting account padding, epgId: {0}, groupID: {1}", groupId, recording.EpgId);
+                        recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed getting account padding settings");                        
+                    }
                 }
                 else
                 {

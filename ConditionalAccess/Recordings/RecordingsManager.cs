@@ -407,11 +407,11 @@ namespace Recordings
                 else
                 {
                     // If the program finished already or not: if it didn't finish, then the recording obviously didn't finish...
-                    if (currentRecording.EpgEndDate < DateTime.Now)
+                    if (currentRecording.EpgEndDate < DateTime.UtcNow)
                     {
                         var timeSpan = DateTime.UtcNow - currentRecording.EpgEndDate;
 
-                        // If this recording is mark as failed, there is no point in tring to get its status
+                        // If this recording is mark as failed, there is no point in trying to get its status
                         if (currentRecording.RecordingStatus == TstvRecordingStatus.Failed)
                         {
                             log.InfoFormat("Rejected GetRecordingStatus request because it is already failed. recordingId = {0}" +
