@@ -144,7 +144,18 @@ namespace Recordings
             {
                 if (recording != null)
                 {
-                    recording.Status = new Status((int)eResponseStatus.OK);
+                    TimeShiftedTvPartnerSettings accountSettings = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
+                    if (accountSettings == null || !accountSettings.RecordingLifetimePeriod.HasValue)
+                    {
+                        log.DebugFormat("Failed getting account Lifetime Period, groupID: {0}, epgID: {1}", groupId, programId);
+                        recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());                        
+                    }
+                    else
+                    {
+                        DateTime viewUntilDate = recording.EpgEndDate.AddDays(accountSettings.RecordingLifetimePeriod.Value);
+                        recording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(viewUntilDate);
+                        recording.Status = new Status((int)eResponseStatus.OK);
+                    }
                 }
             }
             catch (Exception ex)
