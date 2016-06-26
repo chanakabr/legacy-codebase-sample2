@@ -147,7 +147,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaAssetListResponse List(KalturaAssetFilter filter,  KalturaFilterPager pager = null)
+        public KalturaAssetListResponse List(KalturaAssetFilter filter = null,  KalturaFilterPager pager = null)
         {
             KalturaAssetListResponse response = null;
 
@@ -174,9 +174,24 @@ namespace WebAPI.Controllers
 
             try
             {
-                // call client
-                response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, filter.KSql, filter.OrderBy, filter.TypesIn.Select(x => x.value).ToList(),
-                filter.RequestIdEqual);
+                // no related media id - search
+                if (string.IsNullOrEmpty(filter.RelatedMediaIdEqual))
+                {
+                    response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, filter.KSql, filter.OrderBy, filter.TypesIn.Select(x => x.value).ToList(),
+                    filter.RequestIdEqual);
+                }
+                // related
+                else
+                {
+                    int mediaId = 0;
+                    if (int.TryParse(filter.RelatedMediaIdEqual, out mediaId))
+                    {
+                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "related media id must be numeric");
+                    }
+
+                    response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
+                    language, pager.getPageIndex(), pager.PageSize, mediaId, filter.KSql, filter.TypesIn.Select(x => x.value).ToList(), filter.OrderBy);
+                }
             }
             catch (ClientException ex)
             {
@@ -505,6 +520,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("related"), HttpPost]
         [ApiAuthorize]
+        [Obsolete]
         public KalturaAssetInfoListResponse Related(int media_id, string filter = null, KalturaFilterPager pager = null, List<KalturaIntegerValue> filter_types = null,
             List<KalturaCatalogWithHolder> with = null)
         {

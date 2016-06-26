@@ -364,6 +364,9 @@
     <Content Include="Service References\Catalog\WebAPI.Catalog.Response.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
+    <Content Include="Service References\Catalog\WebAPI.Catalog.Status.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
     <None Include="Service References\Notifications\configuration91.svcinfo" />
     <None Include="Service References\Notifications\configuration.svcinfo" />
     <None Include="Service References\Catalog\Service.disco" />
@@ -1869,6 +1872,7 @@
     <Compile Include="Models\API\KalturaCDNAdapterProfileListResponse.cs" />
     <Compile Include="Models\API\KalturaExportTaskOrderBy.cs" />
     <Compile Include="Models\API\KalturaParentalRuleOrderBy.cs" />
+    <Compile Include="Models\Catalog\KalturaSearchFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAssetFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAsset.cs" />
     <Compile Include="Models\Catalog\KalturaAssetOrderBy.cs" />
