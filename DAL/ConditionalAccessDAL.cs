@@ -495,7 +495,7 @@ namespace DAL
             return updated;
         }
 
-        public static DataTable Get_All_Users_PPV_modules(List<int> usersIds, bool isExpired, int domainID)
+        public static DataTable Get_All_Users_PPV_modules(List<int> usersIds, bool isExpired, int domainID, int orderBy = 0)
         {
             if (usersIds.Count > 0 || domainID > 0)
             {
@@ -504,6 +504,7 @@ namespace DAL
                 spGet_All_Users_PPV_modules.AddIDListParameter<int>("@UserIDs", usersIds, "Id");
                 spGet_All_Users_PPV_modules.AddParameter("@isExpired", isExpired);
                 spGet_All_Users_PPV_modules.AddParameter("@DomainID", domainID);
+                spGet_All_Users_PPV_modules.AddParameter("@OrderBy", orderBy);
 
                 DataSet ds = spGet_All_Users_PPV_modules.ExecuteDataSet();
 
@@ -514,13 +515,14 @@ namespace DAL
             return null;
         }
 
-        public static DataTable Get_UsersPermittedSubscriptions(List<int> usersIds, bool isExpired, int domainID)
+        public static DataTable Get_UsersPermittedSubscriptions(List<int> usersIds, bool isExpired, int domainID, int orderBy = 0)
         {
             ODBCWrapper.StoredProcedure spGet_All_Users_Permitted_Subscriptions = new ODBCWrapper.StoredProcedure("Get_UsersPermittedSubscriptions");
             spGet_All_Users_Permitted_Subscriptions.SetConnectionKey("CONNECTION_STRING");
             spGet_All_Users_Permitted_Subscriptions.AddIDListParameter<int>("@UserIDs", usersIds, "Id");
             spGet_All_Users_Permitted_Subscriptions.AddParameter("@isExpired", isExpired);
             spGet_All_Users_Permitted_Subscriptions.AddParameter("@DomainID", domainID);
+            spGet_All_Users_Permitted_Subscriptions.AddParameter("@OrderBy", orderBy);
 
             DataSet ds = spGet_All_Users_Permitted_Subscriptions.ExecuteDataSet();
 
@@ -529,13 +531,14 @@ namespace DAL
             return null;
         }
 
-        public static DataTable Get_UsersPermittedCollections(List<int> usersIds, bool isExpired, int domainID)
+        public static DataTable Get_UsersPermittedCollections(List<int> usersIds, bool isExpired, int domainID, int orderBy = 0)
         {
             ODBCWrapper.StoredProcedure spGet_UsersPermittedCollections = new ODBCWrapper.StoredProcedure("Get_UsersPermittedCollections");
             spGet_UsersPermittedCollections.SetConnectionKey("CONNECTION_STRING");
             spGet_UsersPermittedCollections.AddIDListParameter<int>("@UserIDs", usersIds, "Id");
             spGet_UsersPermittedCollections.AddParameter("@isExpired", isExpired);
             spGet_UsersPermittedCollections.AddParameter("@DomainID", domainID);
+            spGet_UsersPermittedCollections.AddParameter("@OrderBy", orderBy);
 
             DataSet ds = spGet_UsersPermittedCollections.ExecuteDataSet();
 

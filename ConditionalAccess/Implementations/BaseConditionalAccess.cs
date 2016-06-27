@@ -5241,7 +5241,7 @@ namespace ConditionalAccess
         /// <summary>
         /// Get User Permitted Items
         /// </summary>
-        public virtual Entitlements GetUsersEntitlementPPVItems(List<int> lUsersIDs, bool isExpired, int domainID = 0, bool shouldCheckByDomain = true, int pageSize = 500, int pageIndex = 0)
+        public virtual Entitlements GetUsersEntitlementPPVItems(List<int> lUsersIDs, bool isExpired, int domainID = 0, bool shouldCheckByDomain = true, int pageSize = 500, int pageIndex = 0, EntitlementOrderBy orderBy = EntitlementOrderBy.PurchaseDateAsc)
         {
             Entitlements entitlementsResponse = new Entitlements();
             List<int> mediaFileIds = new List<int>();
@@ -5257,7 +5257,7 @@ namespace ConditionalAccess
                     }
                 }
 
-                DataTable allPPVModules = ConditionalAccessDAL.Get_All_Users_PPV_modules(lUsersIDs, isExpired, domainID);
+                DataTable allPPVModules = ConditionalAccessDAL.Get_All_Users_PPV_modules(lUsersIDs, isExpired, domainID, (int)orderBy);
                 if (allPPVModules == null || allPPVModules.Rows == null || allPPVModules.Rows.Count == 0)
                 {
                     entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no permitted items");
@@ -5697,7 +5697,7 @@ namespace ConditionalAccess
             return ret;
         }
 
-        private Entitlements GetUsersEntitlementSubscriptionsItems(List<int> userIds, bool isExpired, int domainID, bool shouldCheckByDomain, int pageSize, int pageIndex)
+        private Entitlements GetUsersEntitlementSubscriptionsItems(List<int> userIds, bool isExpired, int domainID, bool shouldCheckByDomain, int pageSize, int pageIndex, EntitlementOrderBy orderBy)
         {
             Entitlements entitlementsResponse = new Entitlements();
 
@@ -5713,7 +5713,7 @@ namespace ConditionalAccess
                     }
                 }
 
-                DataTable allSubscriptionsPurchases = ConditionalAccessDAL.Get_UsersPermittedSubscriptions(userIds, isExpired, domainID);
+                DataTable allSubscriptionsPurchases = ConditionalAccessDAL.Get_UsersPermittedSubscriptions(userIds, isExpired, domainID, (int)orderBy);
 
                 if (allSubscriptionsPurchases == null || allSubscriptionsPurchases.Rows == null || allSubscriptionsPurchases.Rows.Count == 0)
                 {
@@ -12749,7 +12749,8 @@ namespace ConditionalAccess
         /// <summary>
         /// Get users' entitlements (PPV or subscriptions or collections)
         /// </summary>
-        public virtual Entitlements GetUsersEntitlements(int domainID, List<int> userIds, eTransactionType type, bool isExpired = false, int numOfItems = 0, bool shouldCheckByDomain = true, int pageSize = 500, int pageIndex = 0)
+        public virtual Entitlements GetUsersEntitlements(int domainID, List<int> userIds, eTransactionType type, bool isExpired = false, int numOfItems = 0, bool shouldCheckByDomain = true, 
+            int pageSize = 500, int pageIndex = 0, EntitlementOrderBy orderBy = EntitlementOrderBy.PurchaseDateAsc)
         {
             Entitlements response = new Entitlements();
             response.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
@@ -12765,17 +12766,17 @@ namespace ConditionalAccess
                 {
                     case eTransactionType.PPV:
                         {
-                            response = GetUsersEntitlementPPVItems(userIds, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex);
+                            response = GetUsersEntitlementPPVItems(userIds, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex, orderBy);
                             break;
                         }
                     case eTransactionType.Subscription:
                         {
-                            response = GetUsersEntitlementSubscriptionsItems(userIds, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex);
+                            response = GetUsersEntitlementSubscriptionsItems(userIds, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex, orderBy);
                             break;
                         }
                     case eTransactionType.Collection:
                         {
-                            response = GetUsersEntitlementCollectionsItems(userIds, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex);
+                            response = GetUsersEntitlementCollectionsItems(userIds, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex, orderBy);
                             break;
                         }
                     default:
@@ -12791,7 +12792,7 @@ namespace ConditionalAccess
             return response;
         }
 
-        private Entitlements GetUsersEntitlementCollectionsItems(List<int> userIds, bool isExpired, int domainID, bool shouldCheckByDomain, int pageSize, int pageIndex)
+        private Entitlements GetUsersEntitlementCollectionsItems(List<int> userIds, bool isExpired, int domainID, bool shouldCheckByDomain, int pageSize, int pageIndex, EntitlementOrderBy orderBy)
         {
             Entitlements entitlementsResponse = new Entitlements();
             try
@@ -12806,7 +12807,7 @@ namespace ConditionalAccess
                     }
                 }
 
-                DataTable allCollectionsPurchases = ConditionalAccessDAL.Get_UsersPermittedCollections(userIds, isExpired, domainID);
+                DataTable allCollectionsPurchases = ConditionalAccessDAL.Get_UsersPermittedCollections(userIds, isExpired, domainID, (int)orderBy);
                 if (allCollectionsPurchases == null || allCollectionsPurchases.Rows == null || allCollectionsPurchases.Rows.Count == 0)
                 {
                     entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no permitted items");
@@ -12877,13 +12878,13 @@ namespace ConditionalAccess
             return entitlement;
         }
 
-        public virtual Entitlements GetUserEntitlements(string siteGuid, eTransactionType type, bool isExpired = false, int pageSize = 500, int pageIndex = 0)
+        public virtual Entitlements GetUserEntitlements(string siteGuid, eTransactionType type, bool isExpired = false, int pageSize = 500, int pageIndex = 0, EntitlementOrderBy orderBy = EntitlementOrderBy.PurchaseDateAsc)
         {
             int userId, domainID = 0;
             TvinciUsers.DomainSuspentionStatus userSuspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
             if (int.TryParse(siteGuid, out userId) && Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref userSuspendStatus))
             {
-                return GetUsersEntitlements(domainID, new List<int>() { userId }, type, isExpired, 0, false, pageSize, pageIndex);
+                return GetUsersEntitlements(domainID, new List<int>() { userId }, type, isExpired, 0, false, pageSize, pageIndex, orderBy);
             }
             else
             {
@@ -12893,7 +12894,7 @@ namespace ConditionalAccess
             }
         }
 
-        public virtual Entitlements GetDomainEntitlements(int domainId, eTransactionType type, bool isExpired = false, int pageSize = 500, int pageIndex = 0)
+        public virtual Entitlements GetDomainEntitlements(int domainId, eTransactionType type, bool isExpired = false, int pageSize = 500, int pageIndex = 0, EntitlementOrderBy orderBy = EntitlementOrderBy.PurchaseDateAsc)
         {
             List<int> intUsersList = GetDomainsUsers(domainId);
             return GetUsersEntitlements(domainId, intUsersList, type, isExpired);

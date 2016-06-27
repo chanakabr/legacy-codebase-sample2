@@ -667,4 +667,10 @@ namespace ApiObjects
         CreateDateAsc = 0,
         CreateDateDesc = 1
     }
+
+    public enum EntitlementOrderBy
+    {
+        PurchaseDateAsc = 0,
+        PurchaseDateDesc = 1
+    }
 }
