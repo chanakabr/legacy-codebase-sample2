@@ -144,7 +144,18 @@ namespace Recordings
             {
                 if (recording != null)
                 {
-                    recording.Status = new Status((int)eResponseStatus.OK);
+                    TimeShiftedTvPartnerSettings accountSettings = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
+                    if (accountSettings == null || !accountSettings.RecordingLifetimePeriod.HasValue)
+                    {
+                        log.DebugFormat("Failed getting account Lifetime Period, groupID: {0}, epgID: {1}", groupId, programId);
+                        recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());                        
+                    }
+                    else
+                    {
+                        DateTime viewUntilDate = recording.EpgEndDate.AddDays(accountSettings.RecordingLifetimePeriod.Value);
+                        recording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(viewUntilDate);
+                        recording.Status = new Status((int)eResponseStatus.OK);
+                    }
                 }
             }
             catch (Exception ex)
@@ -407,11 +418,11 @@ namespace Recordings
                 else
                 {
                     // If the program finished already or not: if it didn't finish, then the recording obviously didn't finish...
-                    if (currentRecording.EpgEndDate < DateTime.Now)
+                    if (currentRecording.EpgEndDate < DateTime.UtcNow)
                     {
                         var timeSpan = DateTime.UtcNow - currentRecording.EpgEndDate;
 
-                        // If this recording is mark as failed, there is no point in tring to get its status
+                        // If this recording is mark as failed, there is no point in trying to get its status
                         if (currentRecording.RecordingStatus == TstvRecordingStatus.Failed)
                         {
                             log.InfoFormat("Rejected GetRecordingStatus request because it is already failed. recordingId = {0}" +
