@@ -1578,6 +1578,9 @@
     <Content Include="Web References\ConditionalAccess\RecordingResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\ConditionalAccess\RecordingCleanupResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\ConditionalAccess\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
@@ -1876,6 +1879,8 @@
     <Compile Include="Models\Catalog\KalturaAssetFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAsset.cs" />
     <Compile Include="Models\Catalog\KalturaAssetOrderBy.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaEntitlementFilter.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaEntitlementOrderBy.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransactionHistoryFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCDVRAdapterProfile.cs" />
     <Compile Include="Models\API\KalturaPermissionsFilter.cs" />

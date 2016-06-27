@@ -31,19 +31,5 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("by")]
         [XmlElement(ElementName = "by")]
         public KalturaEntityReferenceBy By { get; set; }
-
-        ///// <summary>
-        ///// order by
-        ///// </summary>
-        //[DataMember(Name = "orderBy")]
-        //[JsonProperty("orderBy")]
-        //[XmlElement(ElementName = "orderBy", IsNullable = true)]
-        //[ValidationException(SchemaValidationType.FILTER_SUFFIX)]
-        //public KalturaEntitlementOrderBy? OrderBy { get; set; }
-
-        //public override object GetDefaultOrderByValue()
-        //{
-        //    return KalturaEntitlementOrderBy.PURCHASE_DATE_DESC;
-        //}
     }
 }

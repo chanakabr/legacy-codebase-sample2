@@ -465,7 +465,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     result = TransactionHistoryOrderBy.CreateDateAsc;
                     break;
                 default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown export task order by");
+                    throw new ClientException((int)StatusCode.Error, "Unknown transaction history order by");
+            }
+
+            return result;
+        }
+
+        public static EntitlementOrderBy ConvertEntitlementOrderBy(KalturaEntitlementOrderBy orderBy)
+        {
+            EntitlementOrderBy result;
+
+            switch (orderBy)
+            {
+                case KalturaEntitlementOrderBy.PURCHASE_DATE_ASC:
+                    result = EntitlementOrderBy.PurchaseDateAsc;
+                    break;
+                case KalturaEntitlementOrderBy.PURCHASE_DATE_DESC:
+                    result = EntitlementOrderBy.PurchaseDateDesc;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown entitlement order by");
             }
 
             return result;
