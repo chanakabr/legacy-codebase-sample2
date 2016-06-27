@@ -3657,7 +3657,7 @@ namespace TVPApiServices
                         order = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj()
                         {
                             m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.RELATED,
-                            m_eOrderDir = OrderDir.DESC
+                            m_eOrderDir = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir.DESC
                         };
                     }
                     else
@@ -3760,39 +3760,39 @@ namespace TVPApiServices
             {
                 case "a_to_z":
                     order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.NAME;
-                    order.m_eOrderDir = OrderDir.ASC;
+                    order.m_eOrderDir = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir.ASC;
                     break;
                 case "z_to_a":
                     order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.NAME;
-                    order.m_eOrderDir = OrderDir.DESC;
+                    order.m_eOrderDir = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir.DESC;
                     break;
                 case "views":
                     order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.VIEWS;
-                    order.m_eOrderDir = OrderDir.DESC;
+                    order.m_eOrderDir = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir.DESC;
                     break;
                 case "ratings":
                     order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.RATING;
-                    order.m_eOrderDir = OrderDir.DESC;
+                    order.m_eOrderDir = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir.DESC;
                     break;
                 case "votes":
                     order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.VOTES_COUNT;
-                    order.m_eOrderDir = OrderDir.DESC;
+                    order.m_eOrderDir = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir.DESC;
                     break;
                 case "newest":
                     order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.START_DATE;
-                    order.m_eOrderDir = OrderDir.DESC;
+                    order.m_eOrderDir = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir.DESC;
                     break;
                 case "relevancy":
                     order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.RELATED;
-                    order.m_eOrderDir = OrderDir.DESC;
+                    order.m_eOrderDir = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir.DESC;
                     break;
                 case "likes":
                     order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.LIKE_COUNTER;
-                    order.m_eOrderDir = OrderDir.DESC;
+                    order.m_eOrderDir = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir.DESC;
                     break;
                 case "oldest_first":
                     order.m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.START_DATE;
-                    order.m_eOrderDir = OrderDir.ASC;
+                    order.m_eOrderDir = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir.ASC;
                     break;
                 default:
                     order = null;
@@ -3828,7 +3828,7 @@ namespace TVPApiServices
                         order = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj()
                         {
                             m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.START_DATE,
-                            m_eOrderDir = OrderDir.DESC
+                            m_eOrderDir = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir.DESC
                         };
                     }
                     else
@@ -3974,7 +3974,7 @@ namespace TVPApiServices
 
                     // fire request
                     response = new APIWatchHistoryLoader(groupId, initObj.Platform, initObj.DomainID, SiteHelper.GetClientIP(), page_size, (int)page_index,
-                        filter_types, filter_status, with, (int)days, OrderDir.DESC)
+                        filter_types, filter_status, with, (int)days, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir.DESC)
                     {
                         SiteGuid = initObj.SiteGuid,
                         DomainId = initObj.DomainID
@@ -4065,7 +4065,7 @@ namespace TVPApiServices
                         order = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj()
                         {
                             m_eOrderBy = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.NONE,
-                            m_eOrderDir = OrderDir.DESC
+                            m_eOrderDir = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir.DESC
                         };
                     }
                     else
