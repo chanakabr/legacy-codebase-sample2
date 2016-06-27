@@ -24,11 +24,6 @@ namespace WebAPI.Models.Catalog
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaAsset> Objects { get; set; }
-
-        [DataMember(Name = "requestId")]
-        [JsonProperty(PropertyName = "requestId")]
-        [XmlElement("requestId", IsNullable = true)]
-        public string RequestId { get; set; }
     }
 
     /// <summary>

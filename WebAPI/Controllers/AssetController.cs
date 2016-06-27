@@ -177,14 +177,13 @@ namespace WebAPI.Controllers
                 // no related media id - search
                 if (string.IsNullOrEmpty(filter.RelatedMediaIdEqual))
                 {
-                    response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, filter.KSql, filter.OrderBy, filter.TypesIn.Select(x => x.value).ToList(),
-                    filter.RequestIdEqual);
+                    response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, filter.KSql, filter.OrderBy, filter.TypesIn.Select(x => x.value).ToList());
                 }
                 // related
                 else
                 {
                     int mediaId = 0;
-                    if (int.TryParse(filter.RelatedMediaIdEqual, out mediaId))
+                    if (!int.TryParse(filter.RelatedMediaIdEqual, out mediaId))
                     {
                         throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "related media id must be numeric");
                     }
