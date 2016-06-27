@@ -76,7 +76,9 @@ namespace Catalog
 		            {
 			            "name",
 			            "description",
-			            "epg_channel_id"
+			            "epg_channel_id",
+                        "media_id",
+                        "epg_id",
 		            };
 
         private static readonly HashSet<string> reservedUnifiedSearchNumericFields = new HashSet<string>()
@@ -1771,7 +1773,7 @@ namespace Catalog
 
         /*Build the right MediaSearchRequest for a Search Related Media */
         public static MediaSearchRequest BuildMediasRequest(Int32 nMediaID, bool bIsMainLang, Filter filterRequest, 
-            ref Filter oFilter, Int32 nGroupID, List<Int32> nMediaTypes, string sSiteGuid)
+            ref Filter oFilter, Int32 nGroupID, List<Int32> nMediaTypes, string sSiteGuid, OrderObj orderObj)
         {
             try
             {
@@ -1794,8 +1796,11 @@ namespace Catalog
 
                 if (ds == null)
                     return null;
+                
                 oMediasRequest.m_nGroupID = nGroupID;
                 oMediasRequest.m_sSiteGuid = sSiteGuid;
+                oMediasRequest.m_oOrderObj = orderObj;
+
                 if (ds.Tables.Count == 4)
                 {
                     if (ds.Tables[1] != null) // basic details
@@ -5547,7 +5552,7 @@ namespace Catalog
             bool bIsMainLang = Utils.IsLangMain(request.m_nGroupID, request.m_oFilter.m_nLanguage);
 
             MediaSearchRequest mediaSearchRequest = 
-                BuildMediasRequest(request.m_nMediaID, bIsMainLang, request.m_oFilter, ref filter, request.m_nGroupID, request.m_nMediaTypes, request.m_sSiteGuid);
+                BuildMediasRequest(request.m_nMediaID, bIsMainLang, request.m_oFilter, ref filter, request.m_nGroupID, request.m_nMediaTypes, request.m_sSiteGuid, request.OrderObj);
 
             #region Basic
 
