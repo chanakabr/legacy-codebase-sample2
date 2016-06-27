@@ -38,10 +38,10 @@ namespace WebAPI.Controllers
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <remarks></remarks>
-        [Route("listOldStandart"), HttpPost]
+        [Route("listOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
-        public KalturaAssetInfoListResponse ListOldStandart(KalturaAssetInfoFilter filter, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
+        public KalturaAssetInfoListResponse ListOldStandard(KalturaAssetInfoFilter filter, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
             KalturaFilterPager pager = null)
         {
             KalturaAssetInfoListResponse response = null;
@@ -302,10 +302,10 @@ namespace WebAPI.Controllers
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <remarks></remarks>
-        [Route("getOldStandart"), HttpPost]
+        [Route("getOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
-        public KalturaAssetInfo GetOldStandart(string id, KalturaAssetReferenceType type, List<KalturaCatalogWithHolder> with = null)
+        public KalturaAssetInfo GetOldStandard(string id, KalturaAssetReferenceType type, List<KalturaCatalogWithHolder> with = null)
         {
             KalturaAssetInfo response = null;
 

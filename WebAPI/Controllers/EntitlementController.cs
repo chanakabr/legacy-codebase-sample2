@@ -147,10 +147,10 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <param name="filter">Request filter</param>
         /// <remarks></remarks>
-        [Route("listOldStandart"), HttpPost]
+        [Route("listOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
-        public KalturaEntitlementListResponse ListOldStandart(KalturaEntitlementsFilter filter)
+        public KalturaEntitlementListResponse ListOldStandard(KalturaEntitlementsFilter filter)
         {
             List<KalturaEntitlement> response = new List<KalturaEntitlement>();
 
