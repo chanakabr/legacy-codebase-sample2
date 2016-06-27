@@ -4179,6 +4179,7 @@ namespace ConditionalAccess
                         settings = TvinciCache.WSCache.Instance.Get<TimeShiftedTvPartnerSettings>(key);
                         if (settings == null)
                         {
+                            log.Debug("Getting TSTV Settings from DB");
                             DataRow dr = DAL.ApiDAL.GetTimeShiftedTvPartnerSettings(groupID);
                             if (dr != null)
                             {
