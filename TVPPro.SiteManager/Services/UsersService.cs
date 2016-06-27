@@ -125,7 +125,7 @@ namespace TVPPro.SiteManager.Services
             return retVal;
         }
 
-        public Enums.eUserOnlineStatus GetCurrentUserOnlineStatus(string UserName, string Password, KeyValuePair[] KeyValuePairs = null)
+        public Enums.eUserOnlineStatus GetCurrentUserOnlineStatus(string UserName, string Password, TVPPro.SiteManager.TvinciPlatform.Users.KeyValuePair[] KeyValuePairs = null)
         {
             UserContext = null; // to be ensure we start a new context
             try
@@ -140,7 +140,7 @@ namespace TVPPro.SiteManager.Services
             }
         }
 
-        public bool SignIn(string UserName, string Password, KeyValuePair[] KeyValuePairs = null)
+        public bool SignIn(string UserName, string Password, TVPPro.SiteManager.TvinciPlatform.Users.KeyValuePair[] KeyValuePairs = null)
         {
             UserContext = null; // to be ensure we start a new context
             try

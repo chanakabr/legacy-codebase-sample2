@@ -809,7 +809,7 @@ namespace TVPPro.SiteManager.Services
             GetWSMethodUserPass(eWSMethodName.GetUserTransactionHistory, out wsUser, out wsPassword);
             try
             {
-                BillingTransactions response = m_Module.GetUserBillingHistory(wsUser, wsPassword, UsersService.Instance.GetUserID(), startIndex, count);
+                BillingTransactions response = m_Module.GetUserBillingHistory(wsUser, wsPassword, UsersService.Instance.GetUserID(), startIndex, count, TransactionHistoryOrderBy.CreateDateDesc);
                 if (response != null)
                 {
                     retVal = response.transactions;
