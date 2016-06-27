@@ -7,11 +7,15 @@ using ApiObjects.Response;
 using ApiObjects;
 using ApiObjects.TimeShiftedTv;
 using DAL;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Recordings
 {
     public class QuotaManager
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         #region SingleTon
         
         private static object locker = new object();
@@ -90,9 +94,8 @@ namespace Recordings
                 // Mark this, current-specific, recording as failed
                 if (tempMinutes < 0)
                 {
-                    recording.Status = new Status((int)eResponseStatus.ExceededQuota,
-                        string.Format("Requested EPG exceeds domain's quota. EPG duration is {0} minutes and there are {1} minutes available.",
-                        currentEpgMinutes, initialMinutesLeft));
+                    log.DebugFormat("Requested EPG exceeds domain's quota. EPG duration is {0} minutes and there are {1} minutes available.", currentEpgMinutes, initialMinutesLeft);
+                    recording.Status = new Status((int)eResponseStatus.ExceededQuota, eResponseStatus.ExceededQuota.ToString());
                 }
 
                 // If we check each recording individually or not
@@ -181,7 +184,7 @@ namespace Recordings
                     // Mark the entire operation as failure, something here is completely wrong
                     if (minutesLeft < 0)
                     {
-                        status = new Status((int)eResponseStatus.ExceededQuota);
+                        status = new Status((int)eResponseStatus.ExceededQuota, eResponseStatus.ExceededQuota.ToString());
                         shouldContinue = false;
                         break;
                     }
