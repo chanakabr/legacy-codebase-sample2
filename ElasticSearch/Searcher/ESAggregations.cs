@@ -164,6 +164,78 @@ namespace ElasticSearch.Searcher
 
             return result;
         }
+
+        public static Dictionary<string, List<StatisticsAggregationsResult>> DeserializeStatisticsAggregations(string json, string subAggregationName)
+        {
+            Dictionary<string, List<StatisticsAggregationsResult>> result = new Dictionary<string, List<StatisticsAggregationsResult>>();
+            
+            if (!string.IsNullOrEmpty(json))
+            {
+                try
+                {
+                    var jObject = JObject.Parse(json);
+
+                    if (jObject == null)
+                    {
+                        return result;
+                    }
+
+                    var facets = jObject["aggregations"];
+
+                    if (facets == null)
+                    {
+                        return result;
+                    }
+
+                    foreach (JToken token in facets)
+                    {
+                        var facetKey = token.Value<JProperty>();
+                        var fkey = facetKey.Name;
+                        var fvalue = facetKey.Value;
+
+                        var buckets = fvalue["buckets"];
+
+                        var list = new List<StatisticsAggregationsResult>();
+                        foreach (JToken term in buckets)
+                        {
+                            try
+                            {
+                                var tm = term["key"];
+                                var subAggregation = term[subAggregationName];
+                                
+                                var count = term["doc_count"];
+                                var min = subAggregation["min"];
+                                var max = subAggregation["max"];
+                                var sum = subAggregation["sum"];
+                                var avg = subAggregation["avg"];
+
+                                list.Add(new StatisticsAggregationsResult()
+                                {
+                                    key = tm.Value<string>(),
+                                    count = count.Value<int>(),
+                                    min = min.Value<long>(),
+                                    max = max.Value<long>(),
+                                    sum = sum.Value<long>(),
+                                    avg = avg.Value<double>()
+                                });
+                            }
+                            catch (Exception ex)
+                            {
+                                log.Error("Error - " + string.Format("search aggregations json parse failure. ex={0}; stack={1}", ex.Message, ex.StackTrace), ex);
+                            }
+                        }
+
+                        result[fkey] = list;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Error - " + string.Format("Could not parse aggregations results. ex={0}; stack={1}", ex.Message, ex.StackTrace), ex);
+                }
+            }
+
+            return result;
+        }
     }
 
     public class ESBaseAggsItem
@@ -272,5 +344,89 @@ namespace ElasticSearch.Searcher
 
         #endregion
 
+    }
+
+    public class StatisticsAggregationsResult
+    {
+        public string key
+        {
+            get;
+            set;
+        }
+        public int count
+        {
+            get;
+            set;
+        }
+        public long min
+        {
+            get;
+            set;
+        }
+        public long max
+        {
+            get;
+            set;
+        }
+        public long sum
+        {
+            get;
+            set;
+        }
+        public double avg
+        {
+            get;
+            set;
+        }
+    }
+
+    public class AggregationsComparer : IComparer<StatisticsAggregationsResult>
+    {
+        public enum eCompareType
+        {
+            Key,
+            Count,
+            Min,
+            Max,
+            Sum,
+            Average
+        };
+
+        private eCompareType m_compareType;
+        public AggregationsComparer(eCompareType compareType)
+        {
+            m_compareType = compareType;
+        }
+
+        public int Compare(StatisticsAggregationsResult stats1, StatisticsAggregationsResult stats2)
+        {
+
+            if (stats1 == null && stats2 == null)
+                return 0;
+            else if (stats1 == null)
+                return 1;
+            else if (stats2 == null)
+                return -1;
+            else
+            {
+                switch (m_compareType)
+                {
+                    case eCompareType.Key:
+                    return string.Compare(stats2.key, stats1.key);
+                    case eCompareType.Sum:
+                    return stats2.sum.CompareTo(stats1.sum);
+                    case eCompareType.Count:
+                    return stats2.count.CompareTo(stats1.count);
+                    case eCompareType.Min:
+                    return stats2.min.CompareTo(stats1.min);
+                    case eCompareType.Max:
+                    return stats2.max.CompareTo(stats1.max);
+                    case eCompareType.Average:
+                    return stats2.avg.CompareTo(stats1.avg);
+                    default:
+                    return stats2.count.CompareTo(stats1.count);
+                }
+            }
+        }
     }
 }

@@ -1753,9 +1753,9 @@ namespace Catalog
             List<long> sortedList = null;
             HashSet<long> alreadyContainedIds = null;
 
-            ConcurrentDictionary<string, List<ESTermsStatsFacet.StatisticFacetResult>> ratingsFacetsDictionary =
-                new ConcurrentDictionary<string, List<ESTermsStatsFacet.StatisticFacetResult>>();
-            ConcurrentDictionary<string, ConcurrentDictionary<string, int>> countsFacetsDictionary =
+            ConcurrentDictionary<string, List<StatisticsAggregationsResult>> ratingsAggregationsDictionary =
+                new ConcurrentDictionary<string, List<StatisticsAggregationsResult>>();
+            ConcurrentDictionary<string, ConcurrentDictionary<string, int>> countsAggregationsDictionary =
                 new ConcurrentDictionary<string, ConcurrentDictionary<string, int>>();
 
             #region Define Facet Query
@@ -1854,6 +1854,7 @@ namespace Catalog
 
                 aggregations.SubAggrgations.Add(new ESBaseAggsItem()
                 {
+                    Name = "sub_stats",
                     Type = eElasticAggregationType.stats,
                     Field = Catalog.STAT_ACTION_RATE_VALUE_FIELD
                 });
@@ -1913,19 +1914,19 @@ namespace Catalog
                             if (orderBy == ApiObjects.SearchObjects.OrderBy.RATING)
                             {
                                 // Parse string into dictionary
-                                var partialDictionary = ESTermsStatsFacet.FacetResults(ref aggregationsResults);
+                                var partialDictionary = ESAggregations.DeserializeStatisticsAggregations(aggregationsResults, "sub_stats");
 
                                 // Run on partial dictionary and merge into main dictionary
                                 foreach (var mainPart in partialDictionary)
                                 {
-                                    if (!ratingsFacetsDictionary.ContainsKey(mainPart.Key))
+                                    if (!ratingsAggregationsDictionary.ContainsKey(mainPart.Key))
                                     {
-                                        ratingsFacetsDictionary[mainPart.Key] = new List<ESTermsStatsFacet.StatisticFacetResult>();
+                                        ratingsAggregationsDictionary[mainPart.Key] = new List<StatisticsAggregationsResult>();
                                     }
 
                                     foreach (var singleResult in mainPart.Value)
                                     {
-                                        ratingsFacetsDictionary[mainPart.Key].Add(singleResult);
+                                        ratingsAggregationsDictionary[mainPart.Key].Add(singleResult);
                                     }
                                 }
                             }
@@ -1937,14 +1938,14 @@ namespace Catalog
                                 // Run on partial dictionary and merge into main dictionary
                                 foreach (var mainPart in partialDictionary)
                                 {
-                                    if (!countsFacetsDictionary.ContainsKey(mainPart.Key))
+                                    if (!countsAggregationsDictionary.ContainsKey(mainPart.Key))
                                     {
-                                        countsFacetsDictionary[mainPart.Key] = new ConcurrentDictionary<string, int>();
+                                        countsAggregationsDictionary[mainPart.Key] = new ConcurrentDictionary<string, int>();
                                     }
 
                                     foreach (var singleResult in mainPart.Value)
                                     {
-                                        countsFacetsDictionary[mainPart.Key][singleResult.Key] = singleResult.Value;
+                                        countsAggregationsDictionary[mainPart.Key][singleResult.Key] = singleResult.Value;
                                     }
                                 }
                             }
@@ -1972,7 +1973,7 @@ namespace Catalog
 
             #endregion
 
-            #region Process Facets
+            #region Process Aggregations
 
             // get a sorted list of the asset Ids that have statistical data in the facet
             sortedList = new List<long>();
@@ -1981,12 +1982,12 @@ namespace Catalog
             // Ratings is a special case, because it is not based on count, but on average instead
             if (orderBy == ApiObjects.SearchObjects.OrderBy.RATING)
             {
-                ProcessRatingsFacetsResult(ratingsFacetsDictionary, orderDirection, alreadyContainedIds, sortedList);
+                ProcessRatingsAggregationsResult(ratingsAggregationsDictionary, orderDirection, alreadyContainedIds, sortedList);
             }
             // If it is not ratings - just use count
             else
             {
-                ProcessCountFacetsResults(countsFacetsDictionary, orderDirection, alreadyContainedIds, sortedList);
+                ProcessCountDictionaryResults(countsAggregationsDictionary, orderDirection, alreadyContainedIds, sortedList);
             }
 
             #endregion
@@ -2019,31 +2020,31 @@ namespace Catalog
         /// <summary>
         /// After receiving a result from ES server, process it to create a list of Ids with the given order
         /// </summary>
-        /// <param name="facetsResults"></param>
+        /// <param name="statsDictionary"></param>
         /// <param name="orderBy"></param>
         /// <param name="orderDirection"></param>
         /// <param name="alreadyContainedIds"></param>
         /// <returns></returns>
-        private static void ProcessCountFacetsResults(ConcurrentDictionary<string, ConcurrentDictionary<string, int>> facetsDictionary,
+        private static void ProcessCountDictionaryResults(ConcurrentDictionary<string, ConcurrentDictionary<string, int>> statsDictionary,
             OrderDir orderDirection, HashSet<long> alreadyContainedIds, List<long> sortedList)
         {
-            if (facetsDictionary != null && facetsDictionary.Count > 0)
+            if (statsDictionary != null && statsDictionary.Count > 0)
             {
                 ConcurrentDictionary<string, int> statResult;
 
-                //retrieve specific facet result
-                facetsDictionary.TryGetValue("stats", out statResult);
+                //retrieve specific stats result
+                statsDictionary.TryGetValue("stats", out statResult);
 
                 if (statResult != null && statResult.Count > 0)
                 {
                     // We base this section on the assumption that facets request is sorted, descending
-                    foreach (string facetKey in statResult.Keys)
+                    foreach (string currentKey in statResult.Keys)
                     {
-                        int count = statResult[facetKey];
+                        int count = statResult[currentKey];
 
                         int currentId;
 
-                        if (int.TryParse(facetKey, out currentId))
+                        if (int.TryParse(currentKey, out currentId))
                         {
                             // Depending on direction - if it is ascending, insert Id at start. Otherwise at end
                             if (orderDirection == OrderDir.ASC)
@@ -2091,6 +2092,52 @@ namespace Catalog
 
                         // Depending on direction - if it is ascending, insert Id at end. Otherwise at start
                         if (int.TryParse(result.term, out currentId))
+                        {
+                            if (orderDirection == OrderDir.ASC)
+                            {
+                                sortedList.Insert(0, currentId);
+                            }
+                            else
+                            {
+                                sortedList.Add(currentId);
+                            }
+
+                            alreadyContainedIds.Add(currentId);
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// After receiving a result from ES server, process it to create a list of Ids with the given order
+        /// </summary>
+        /// <param name=")"></param>
+        /// <param name="orderBy"></param>
+        /// <param name="orderDirection"></param>
+        /// <param name="alreadyContainedIds"></param>
+        /// <returns></returns>
+        private static void ProcessRatingsAggregationsResult(ConcurrentDictionary<string, List<StatisticsAggregationsResult>> statisticsDictionary,
+            OrderDir orderDirection, HashSet<long> alreadyContainedIds, List<long> sortedList)
+        {
+            if (statisticsDictionary != null && statisticsDictionary.Count > 0)
+            {
+                List<StatisticsAggregationsResult> statResult;
+
+                //retrieve specific facet result
+                statisticsDictionary.TryGetValue("stats", out statResult);
+
+                if (statResult != null && statResult.Count > 0)
+                {
+                    // sort ASCENDING - different than normal execution!
+                    statResult.Sort(new AggregationsComparer(AggregationsComparer.eCompareType.Average));
+
+                    foreach (var result in statResult)
+                    {
+                        int currentId;
+
+                        // Depending on direction - if it is ascending, insert Id at end. Otherwise at start
+                        if (int.TryParse(result.key, out currentId))
                         {
                             if (orderDirection == OrderDir.ASC)
                             {
