@@ -978,7 +978,8 @@ namespace DAL
             {
                 startKey = new object[] { nSiteGuid, 0 },
                 endKey = new object[] { nSiteGuid, string.Empty},
-                asJson = true
+                asJson = true,
+                shouldLookupById = true
             });
 
             List<MediaMarkLog> sortedMediaMarksList = res.ToList().OrderByDescending(x => x.LastMark.CreatedAt).ToList();
