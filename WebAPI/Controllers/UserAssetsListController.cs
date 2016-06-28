@@ -6,6 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
@@ -14,6 +15,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/userAssetsList/action")]
+    [OldStandard("listOldStandard", "list")]
     public class UserAssetsListController : ApiController
     {
         /// <summary>
@@ -22,9 +24,10 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: 
         /// Invalid user = 1026</remarks>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Route("listOldStandard"), HttpPost]
         [ApiAuthorize]
-        public List<KalturaUserAssetsList> List(KalturaUserAssetsListFilter filter)
+        [Obsolete]
+        public List<KalturaUserAssetsList> ListOldStandard(KalturaUserAssetsListFilter filter)
         {
             List<KalturaUserAssetsList> response = null;
 
@@ -36,13 +39,13 @@ namespace WebAPI.Controllers
                 switch (filter.By)
                 {
                     case KalturaEntityReferenceBy.user:
-                        response = ClientsManager.UsersClient().GetItemFromList(groupId, new List<string>() { KS.GetFromRequest().UserId}, filter.ListType, filter.AssetType);
+                        response = ClientsManager.UsersClient().GetItemFromList(groupId, new List<string>() { KS.GetFromRequest().UserId }, filter.ListTypeEqual, filter.AssetTypeEqual);
                         break;
                     case KalturaEntityReferenceBy.household:
                         List<string> householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId);
                         if (householdUserIds != null && householdUserIds.Count > 0)
                         {
-                            response = ClientsManager.UsersClient().GetItemFromList(groupId, householdUserIds, filter.ListType, filter.AssetType);
+                            response = ClientsManager.UsersClient().GetItemFromList(groupId, householdUserIds, filter.ListTypeEqual, filter.AssetTypeEqual);
                         }
                         else
                         {
@@ -52,6 +55,55 @@ namespace WebAPI.Controllers
                     default:
                         break;
                 }
+
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Retrieve the user’s private asset lists 
+        /// </summary>
+        /// <remarks>Possible status codes: 
+        /// Invalid user = 1026</remarks>
+        /// <returns></returns>
+        [Route("list"), HttpPost]
+        [ApiAuthorize]
+        public KalturaUserAssetsListListResponse List(KalturaUserAssetsListFilter filter)
+        {
+            KalturaUserAssetsListListResponse response = new KalturaUserAssetsListListResponse();
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                switch (filter.By)
+                {
+                    case KalturaEntityReferenceBy.user:
+                        response.UserAssetsLists = ClientsManager.UsersClient().GetItemFromList(groupId, new List<string>() { KS.GetFromRequest().UserId }, filter.ListTypeEqual, filter.AssetTypeEqual);
+                        break;
+                    case KalturaEntityReferenceBy.household:
+                        List<string> householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId);
+                        if (householdUserIds != null && householdUserIds.Count > 0)
+                        {
+                            response.UserAssetsLists = ClientsManager.UsersClient().GetItemFromList(groupId, householdUserIds, filter.ListTypeEqual, filter.AssetTypeEqual);
+                        }
+                        else
+                        {
+                            throw new ClientException((int)WebAPI.Managers.Models.StatusCode.HouseholdInvalid, "Household not found");
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
+                if (response.UserAssetsLists != null)
+                    response.TotalCount = response.UserAssetsLists.Count();
                 
             }
             catch (ClientException ex)

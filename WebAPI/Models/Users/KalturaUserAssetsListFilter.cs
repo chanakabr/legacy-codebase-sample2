@@ -14,8 +14,8 @@ namespace WebAPI.Models.Users
     /// A user list of assets
     /// </summary>
     [Serializable]
-    [OldStandard("listType", "list_type")]
-    [OldStandard("assetType", "asset_type")]
+    [OldStandard("listTypeEqual", "list_type")]
+    [OldStandard("assetTypeEqual", "asset_type")]
     public class KalturaUserAssetsListFilter : KalturaOTTObject
     {
         /// <summary>
@@ -29,17 +29,17 @@ namespace WebAPI.Models.Users
         /// <summary>
         /// The requested list type
         /// </summary>
-        [DataMember(Name = "listType")]
-        [JsonProperty("listType")]
-        [XmlElement(ElementName = "listType")]
-        public KalturaUserAssetsListType ListType { get; set; }
+        [DataMember(Name = "listTypeEqual")]
+        [JsonProperty("listTypeEqual")]
+        [XmlElement(ElementName = "listTypeEqual")]
+        public KalturaUserAssetsListType ListTypeEqual { get; set; }
 
         /// <summary>
         /// The requested asset type
         /// </summary>
-        [DataMember(Name = "assetType")]
-        [JsonProperty("assetType")]
-        [XmlElement(ElementName = "assetType")]
-        public KalturaUserAssetsListItemType AssetType { get; set; }
+        [DataMember(Name = "assetTypeEqual")]
+        [JsonProperty("assetTypeEqual")]
+        [XmlElement(ElementName = "assetTypeEqual")]
+        public KalturaUserAssetsListItemType AssetTypeEqual { get; set; }
     }
 }
