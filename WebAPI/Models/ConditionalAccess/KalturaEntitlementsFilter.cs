@@ -14,6 +14,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// Entitlements filter 
     /// </summary>
     [OldStandard("entitlementType", "entitlement_type")]
+    [Obsolete]
     public class KalturaEntitlementsFilter : KalturaOTTObject 
     {
         /// <summary>

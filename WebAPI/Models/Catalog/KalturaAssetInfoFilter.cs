@@ -16,6 +16,7 @@ namespace WebAPI.Models.Catalog
     /// </summary>
     [Serializable]
     [OldStandard("referenceType", "reference_type")]
+    [Obsolete]
     public class KalturaAssetInfoFilter : KalturaOTTObject
     {
         /// <summary>
