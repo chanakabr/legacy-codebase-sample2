@@ -43,6 +43,7 @@
             <s:element minOccurs="1" maxOccurs="1" name="isExpired" type="s:boolean" />
             <s:element minOccurs="1" maxOccurs="1" name="pageSize" type="s:int" />
             <s:element minOccurs="1" maxOccurs="1" name="pageIndex" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="orderBy" type="tns:EntitlementOrderBy" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -51,6 +52,12 @@
           <s:enumeration value="PPV" />
           <s:enumeration value="Subscription" />
           <s:enumeration value="Collection" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="EntitlementOrderBy">
+        <s:restriction base="s:string">
+          <s:enumeration value="PurchaseDateAsc" />
+          <s:enumeration value="PurchaseDateDesc" />
         </s:restriction>
       </s:simpleType>
       <s:element name="GetUserEntitlementsResponse">
@@ -122,6 +129,7 @@
             <s:element minOccurs="1" maxOccurs="1" name="isExpired" type="s:boolean" />
             <s:element minOccurs="1" maxOccurs="1" name="pageSize" type="s:int" />
             <s:element minOccurs="1" maxOccurs="1" name="pageIndex" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="orderBy" type="tns:EntitlementOrderBy" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -4339,6 +4347,7 @@
     <wsdl:part name="isExpired" type="s:string" />
     <wsdl:part name="pageSize" type="s:string" />
     <wsdl:part name="pageIndex" type="s:string" />
+    <wsdl:part name="orderBy" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetUserEntitlementsHttpPostOut">
     <wsdl:part name="Body" element="tns:Entitlements" />
@@ -4351,6 +4360,7 @@
     <wsdl:part name="isExpired" type="s:string" />
     <wsdl:part name="pageSize" type="s:string" />
     <wsdl:part name="pageIndex" type="s:string" />
+    <wsdl:part name="orderBy" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetDomainEntitlementsHttpPostOut">
     <wsdl:part name="Body" element="tns:Entitlements" />
