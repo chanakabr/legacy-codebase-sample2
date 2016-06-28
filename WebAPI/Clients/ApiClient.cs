@@ -57,10 +57,10 @@ namespace WebAPI.Clients
 
         #region Parental Rules
 
-        internal List<Models.API.KalturaParentalRule> GetGroupParentalRules(int groupId)
+        internal List<KalturaParentalRuleProfile> GetGroupParentalRules(int groupId)
         {
             ParentalRulesResponse response = null;
-            List<Models.API.KalturaParentalRule> rules = new List<Models.API.KalturaParentalRule>();
+            List<KalturaParentalRuleProfile> rules = new List<KalturaParentalRuleProfile>();
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -87,7 +87,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.status.Code, response.status.Message);
             }
 
-            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.KalturaParentalRule>>(response.rules);
+            rules = AutoMapper.Mapper.Map<List<KalturaParentalRuleProfile>>(response.rules);
 
             return rules;
         }
