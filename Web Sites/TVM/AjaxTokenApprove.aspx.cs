@@ -1,12 +1,16 @@
-﻿using System;
+﻿using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
 public partial class AjaxTokenApprove : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     protected void Page_Load(object sender, EventArgs e)
     {
         string sRet = "FAIL";
@@ -14,11 +18,16 @@ public partial class AjaxTokenApprove : System.Web.UI.Page
             sRet = "HTTPS_REQUIERED";
         else
         {
+            log.Debug("AjaxTokenApprove page load");
             string sGuid = "";
             if (Request.Form["email"] != null)
                 sGuid = Request.Form["email"].ToString();
             string sIpAddress = TVinciShared.PageUtils.GetCallerIP();
             Int32 nID = GetIPID(sIpAddress, sGuid);
+
+            log.DebugFormat("AjaxTokenApprove sGuid={0}, sIpAddress={1}, nID={2}", sGuid, sIpAddress, nID);
+
+
             if (nID > 0)
             {
                 ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("groups_ips");
@@ -32,7 +41,9 @@ public partial class AjaxTokenApprove : System.Web.UI.Page
             }
             else
                 sRet = "WRONG_USERNAME_PASS";
-        }
+        
+
+            log.DebugFormat("AjaxTokenApprove sRet={0}", sRet);
 
         Response.CacheControl = "no-cache";
         Response.AddHeader("Pragma", "no-cache");
