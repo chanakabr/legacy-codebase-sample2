@@ -41,15 +41,16 @@ public partial class AjaxTokenApprove : System.Web.UI.Page
             }
             else
                 sRet = "WRONG_USERNAME_PASS";
-        
+
 
             log.DebugFormat("AjaxTokenApprove sRet={0}", sRet);
 
-        Response.CacheControl = "no-cache";
-        Response.AddHeader("Pragma", "no-cache");
-        Response.Expires = -1;
-        Response.Clear();
-        Response.Write(sRet + "~~|~~");
+            Response.CacheControl = "no-cache";
+            Response.AddHeader("Pragma", "no-cache");
+            Response.Expires = -1;
+            Response.Clear();
+            Response.Write(sRet + "~~|~~");
+        }
     }
 
     static public Int32 GetIPID(string sIP, string sGuid)
