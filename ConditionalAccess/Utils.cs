@@ -4810,11 +4810,15 @@ namespace ConditionalAccess
             if (recordingIds != null)
             {
                 List<Recording> recordings = Recordings.RecordingsManager.Instance.GetRecordings(groupID, recordingIds);
-                foreach (Recording record in recordings)
+                if (recordings != null)
                 {
-                    if (!recordingIdToRecordingMap.ContainsKey(record.Id))
+                    recordingIdToRecordingMap = new Dictionary<long, Recording>();
+                    foreach (Recording record in recordings)
                     {
-                        recordingIdToRecordingMap.Add(record.Id, record);
+                        if (!recordingIdToRecordingMap.ContainsKey(record.Id))
+                        {
+                            recordingIdToRecordingMap.Add(record.Id, record);
+                        }
                     }
                 }
             }

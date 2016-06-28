@@ -18020,20 +18020,24 @@ namespace ConditionalAccess
                     recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     return recording;
                 }
-
-                // Update is_protected and viewableUntilDate on domains_recordings
+                
                 DateTime protectedUntilDate = DateTime.UtcNow.AddDays(accountSettings.ProtectionPeriod.Value);
                 long protectedUntilEpoch = TVinciShared.DateUtils.DateTimeToUnixTimestamp(protectedUntilDate);
-                if (!ConditionalAccessDAL.ProtectRecording(recording.Id, protectedUntilDate, protectedUntilEpoch))
+                // Try to Update protection details for domain recording and update recording status
+                if (ConditionalAccessDAL.ProtectRecording(recording.Id, protectedUntilDate, protectedUntilEpoch))
+                {
+                    recording.ProtectedUntilDate = protectedUntilEpoch;
+                    if (!recording.ViewableUntilDate.HasValue || (recording.ViewableUntilDate.HasValue && recording.ViewableUntilDate.Value < protectedUntilEpoch))
+                    {
+                        recording.ViewableUntilDate = protectedUntilEpoch;
+                    }
+                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+                else
                 {
                     log.DebugFormat("Failed updating recording protection details on DB, DomainID: {0}, UserID: {1}, recordID: {2}", domainID, userID, domainRecordingID);
-                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                    return recording;
-                }                
-
-                // Update recording object with status                         
-                recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-
+                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());                    
+                }
             }
             catch (Exception ex)
             {
