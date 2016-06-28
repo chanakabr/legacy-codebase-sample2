@@ -362,6 +362,23 @@ public partial class adm_epg_channels_schedule_new : System.Web.UI.Page
         theRecord.AddRecord(dr_LIVE_TRICK_PLAY);
 
 
+        //Recordings (EPG) Data model
+        DataRecordLongTextField dr_CRID = new DataRecordLongTextField("ltr", true, 60, 10);
+        dr_CRID.Initialize("CRID", "adm_table_header_nbg", "FormInput", "CRID", epg.Crid ,true);        
+        theRecord.AddRecord(dr_CRID);
+
+        DataRecordLongTextField dr_series = new DataRecordLongTextField("ltr", true, 60, 10);
+        dr_series.Initialize("Series ID", "adm_table_header_nbg", "FormInput", "series_id", epg.SeriesId, false);
+        theRecord.AddRecord(dr_series);
+
+        DataRecordShortIntField dr_season_number = new DataRecordShortIntField(true, 9, 9);
+        dr_season_number.Initialize("Season Number", "adm_table_header_nbg", "FormInput", "season_number", epg.SeasonNumber.ToString(), false);
+        theRecord.AddRecord(dr_season_number);
+
+        DataRecordShortIntField dr_episode_number = new DataRecordShortIntField(true, 9, 9);
+        dr_episode_number.Initialize("Episode Number", "adm_table_header_nbg", "FormInput", "episode_number",  epg.EpisodeNumber.ToString(), false);
+        theRecord.AddRecord(dr_episode_number);
+
         AddMetasFields(ref theRecord, epg);
         AddTagsFields(ref theRecord, epg);
 
