@@ -4894,8 +4894,7 @@ namespace ConditionalAccess
                     return recording;
                 }
 
-                recording = DomainRecordingIdToRecordingMap[domainRecordingID];               
-                recording.Id = domainRecordingID;
+                recording = DomainRecordingIdToRecordingMap[domainRecordingID];                
             }
             catch (Exception ex)
             {

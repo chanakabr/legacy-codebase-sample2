@@ -17198,6 +17198,7 @@ namespace ConditionalAccess
                 else
                 {
                     recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to perform cancel or delete");
+                    recording.Id = domainRecordingId;
                     log.ErrorFormat("fail to perform cancel or delete recordingId = {0}, domainRecordingID = {1}, tstvRecordingStatus = {2}", recording.Id, domainRecordingId, tstvRecordingStatus.ToString());
                 }
 
