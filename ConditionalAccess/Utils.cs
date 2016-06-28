@@ -4179,6 +4179,7 @@ namespace ConditionalAccess
                         settings = TvinciCache.WSCache.Instance.Get<TimeShiftedTvPartnerSettings>(key);
                         if (settings == null)
                         {
+                            log.Debug("Getting TSTV Settings from DB");
                             DataRow dr = DAL.ApiDAL.GetTimeShiftedTvPartnerSettings(groupID);
                             if (dr != null)
                             {
@@ -4809,11 +4810,15 @@ namespace ConditionalAccess
             if (recordingIds != null)
             {
                 List<Recording> recordings = Recordings.RecordingsManager.Instance.GetRecordings(groupID, recordingIds);
-                foreach (Recording record in recordings)
+                if (recordings != null)
                 {
-                    if (!recordingIdToRecordingMap.ContainsKey(record.Id))
+                    recordingIdToRecordingMap = new Dictionary<long, Recording>();
+                    foreach (Recording record in recordings)
                     {
-                        recordingIdToRecordingMap.Add(record.Id, record);
+                        if (!recordingIdToRecordingMap.ContainsKey(record.Id))
+                        {
+                            recordingIdToRecordingMap.Add(record.Id, record);
+                        }
                     }
                 }
             }
@@ -4893,8 +4898,7 @@ namespace ConditionalAccess
                     return recording;
                 }
 
-                recording = DomainRecordingIdToRecordingMap[domainRecordingID];
-                recording.Id = domainRecordingID;
+                recording = DomainRecordingIdToRecordingMap[domainRecordingID];                
             }
             catch (Exception ex)
             {
@@ -4929,6 +4933,8 @@ namespace ConditionalAccess
                 TstvRecordingStatus? recordingStatus = ConvertToTstvRecordingStatus(domainRecordingStatus);
                 DateTime epgStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE");
                 DateTime epgEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
+                string externalRecordingId = ODBCWrapper.Utils.GetSafeStr(dr, "EXTERNAL_RECORDING_ID");
+
                 if (!recordingStatus.HasValue)
                 {
                     log.ErrorFormat("Failed Convert DomainRecordingStatus: {0} to TstvRecordingStatus for recordingID: {1}, epgID: {2}",
@@ -4962,7 +4968,8 @@ namespace ConditionalAccess
                     EpgEndDate = epgEndDate,
                     CreateDate = createDate,
                     UpdateDate = updateDate,
-                    RecordingStatus = recordingStatus.Value
+                    RecordingStatus = recordingStatus.Value,
+                    ExternalRecordingId = externalRecordingId
                 };
 
                 // if recording status is Recorded then set ViewableUntilDate

@@ -25,10 +25,15 @@ namespace Catalog.Request
 
         [DataMember]
         public Int32 m_nMediaID;
+
         [DataMember]
         public List<Int32> m_nMediaTypes;
+
         [DataMember]
         public string m_sFilter;
+
+        [DataMember]
+        public OrderObj OrderObj;
 
         public MediaRelatedRequest()
             : base()
@@ -36,12 +41,13 @@ namespace Catalog.Request
             m_nMediaTypes = new List<Int32>();
         }
 
-        public MediaRelatedRequest(Int32 nMediaID, Int32 nGroupID, Int32 nPageSize, Int32 nPageIndex, string sUserIP, Filter oFilter, string sSignature, string sSignString, List<Int32> nMediaTypes)
+        public MediaRelatedRequest(Int32 nMediaID, Int32 nGroupID, Int32 nPageSize, Int32 nPageIndex, string sUserIP, Filter oFilter, string sSignature, string sSignString, List<Int32> nMediaTypes, OrderObj orderObj)
             : base(nPageSize, nPageIndex, sUserIP, nGroupID, oFilter, sSignature, sSignString)
         {
             m_nMediaID = nMediaID;
             m_nMediaTypes = nMediaTypes;
             m_nMediaTypes = new List<Int32>();
+            OrderObj = orderObj;
         }
 
         public MediaRelatedRequest(MediaRelatedRequest m)
@@ -50,6 +56,7 @@ namespace Catalog.Request
             m_nMediaID = m.m_nMediaID;
             m_nMediaTypes = m.m_nMediaTypes;
             m_nMediaTypes = new List<Int32>();
+            OrderObj = m.OrderObj;
         }
 
         public BaseResponse GetResponse(BaseRequest oBaseRequest)

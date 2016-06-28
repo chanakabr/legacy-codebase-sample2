@@ -963,9 +963,11 @@ namespace Recordings
 
             EpgCB epg = epgBLTvinci.GetEpgCB((ulong)programId);
 
-            epg.IsRecorded = Convert.ToInt32(isRecorded);
-
-            epgBLTvinci.UpdateEpg(epg);
+            if (epg != null)
+            {
+                epg.IsRecorded = Convert.ToInt32(isRecorded);
+                epgBLTvinci.UpdateEpg(epg);
+            }
         }
 
         private static void EnqueueMessage(int groupId, long programId, long recordingId, DateTime checkTime, eRecordingTask task)
