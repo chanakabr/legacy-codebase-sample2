@@ -1591,55 +1591,41 @@ namespace Catalog
             filterSettings.AddChild(tagsFilter);
             filteredQuery.Filter.FilterSettings = filterSettings;
 
-            //ESTermsStatsFacet facet = new ESTermsStatsFacet()
-            //{
-            //    Query = filteredQuery
-            //};
-
-            // Create a term stats facet for each association tag we have
+ 
+            // Create an aggregation search object for each association tag we have
             foreach (var associationTag in associationTags)
             {
-                ESBaseAggsItem currentAggregation = new ESBaseAggsItem()
-                {
-                    Name = associationTag.Value,
-                    Type = eElasticAggregationType.terms,
-                    Filter = new ESTerm(true)
+                ESTerm filter = new ESTerm(true)
                     {
                         Key = "media_type_id",
                         // key of association tag is the child media type
                         Value = associationTag.Key.ToString()
-                    },
-                    Field = string.Format("tags.{0}", associationTag.Value)
+                    };
+
+                ESFilterAggregation currentAggregation = new ESFilterAggregation(filter)
+                {
+                    Name = associationTag.Value
                 };
 
-                ESBaseAggsItem subAggregation = new ESBaseAggsItem()
+                ESBaseAggsItem subAggregation1 = new ESBaseAggsItem()
                 {
-                    Name = associationTag.Value + "_sub",
+                    Name = associationTag.Value + "_sub1",
+                    Field = string.Format("tags.{0}", associationTag.Value).ToLower(),
+                    Type = eElasticAggregationType.terms
+                };
+
+
+                ESBaseAggsItem subAggregation2 = new ESBaseAggsItem()
+                {
+                    Name = associationTag.Value + "_sub2",
                     Field = "start_date",
                     Type = eElasticAggregationType.stats
                 };
-                
-                //// Filter each facet according to its media type
-                //BaseFilterCompositeType facetFilter = new FilterCompositeType(CutWith.AND);
-                //facetFilter.AddChild(new ESTerm(true)
-                //{
-                //    Key = "media_type_id",
-                //    // key of association tag is the child media type
-                //    Value = associationTag.Key.ToString()
-                //});
 
-                //// Group by the association tag. Get statistics for start_date - we are interested in maximum start date
-                //ElasticSearch.Searcher.ESTermsStatsFacet.ESTermsStatsFacetItem facetItem = new ESTermsStatsFacet.ESTermsStatsFacetItem()
-                //{
-                //    // the name of the tag will be the facet name
-                //    FacetName = associationTag.Value,
-                //    KeyField = string.Format("tags.{0}", associationTag.Value),
-                //    ValueField = "start_date",
-                //    FacetFilter = facetFilter
-                //};
+                subAggregation1.SubAggrgations.Add(subAggregation2);
+                currentAggregation.SubAggrgations.Add(subAggregation1);
 
                 filteredQuery.Aggregations.Add(currentAggregation);
-                //facet.AddTermStatsFacet(facetItem);
             }
 
             #endregion
@@ -1651,37 +1637,45 @@ namespace Catalog
 
             string searchResults = m_oESApi.Search(index, "media", ref searchRequestBody);
 
-            // Get facet results
-            Dictionary<string, List<ESTermsStatsFacet.StatisticFacetResult>> facetsDictionary =
-                ESTermsStatsFacet.FacetResults(ref searchResults);
+            ESAggregationsResult aggregationsResult =
+                ESAggregationsResult.FullParse(searchResults, filteredQuery.Aggregations);
 
             #endregion
 
-            #region Process Facets Results
+            #region Process Aggregations Results
 
-            if (facetsDictionary != null && facetsDictionary.Count > 0)
+            if (aggregationsResult != null && aggregationsResult.Aggregations != null && aggregationsResult.Aggregations.Count > 0)
             {
                 foreach (var associationTag in associationTags)
                 {
                     int parentMediaType = mediaTypeParent[associationTag.Key];
 
-                    // Get the current tag's statistics 
-                    if (facetsDictionary.ContainsKey(associationTag.Value))
+                    if (aggregationsResult.Aggregations.ContainsKey(associationTag.Value))
                     {
-                        List<ESTermsStatsFacet.StatisticFacetResult> currentFacetList = facetsDictionary[associationTag.Value];
+                        ESAggregationResult currentResult = aggregationsResult.Aggregations[associationTag.Value];
 
-                        foreach (ESTermsStatsFacet.StatisticFacetResult facetTerm in currentFacetList)
+                        ESAggregationResult firstSub;
+
+                        if (currentResult.Aggregations.TryGetValue(associationTag.Value + "_sub1", out firstSub))
                         {
-                            // "series name" is the facets term
-                            string tagValue = facetTerm.term;
-
-                            if (nameToTypeToId.ContainsKey(tagValue) && nameToTypeToId[tagValue].ContainsKey(parentMediaType))
+                            foreach (var bucket in firstSub.buckets)
                             {
-                                foreach (var assetId in nameToTypeToId[tagValue][parentMediaType])
-                                {
-                                    string maximumStartDate = facetTerm.max.ToString();
+                                ESAggregationResult subBucket;
 
-                                    idToStartDate[assetId] = DateTime.ParseExact(maximumStartDate, DATE_FORMAT, null);
+                                if (bucket.Aggregations.TryGetValue(associationTag.Value + "_sub2", out subBucket))
+                                {
+                                    // "series name" is the bucket's key
+                                    string tagValue = bucket.key;
+
+                                    if (nameToTypeToId.ContainsKey(tagValue) && nameToTypeToId[tagValue].ContainsKey(parentMediaType))
+                                    {
+                                        foreach (var assetId in nameToTypeToId[tagValue][parentMediaType])
+                                        {
+                                            string maximumStartDate = subBucket.max_as_string.ToString();
+
+                                            idToStartDate[assetId] = DateTime.ParseExact(maximumStartDate, DATE_FORMAT, null);
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -1753,12 +1747,12 @@ namespace Catalog
             List<long> sortedList = null;
             HashSet<long> alreadyContainedIds = null;
 
-            ConcurrentDictionary<string, List<StatisticsAggregationsResult>> ratingsAggregationsDictionary =
-                new ConcurrentDictionary<string, List<StatisticsAggregationsResult>>();
+            ConcurrentDictionary<string, List<StatisticsAggregationResult>> ratingsAggregationsDictionary =
+                new ConcurrentDictionary<string, List<StatisticsAggregationResult>>();
             ConcurrentDictionary<string, ConcurrentDictionary<string, int>> countsAggregationsDictionary =
                 new ConcurrentDictionary<string, ConcurrentDictionary<string, int>>();
 
-            #region Define Facet Query
+            #region Define Aggregation Query
 
             FilteredQuery filteredQuery = new FilteredQuery()
             {
@@ -1833,18 +1827,11 @@ namespace Catalog
 
             filteredQuery.Filter.FilterSettings = filter;
 
-            //IESFacet facet = null;
             ESBaseAggsItem aggregations = null;
 
             // Ratings is a special case, because it is not based on count, but on average instead
             if (orderBy == ApiObjects.SearchObjects.OrderBy.RATING)
             {
-                //ESBaseAggsItem aggregations = new ESBaseAggsItem()
-                //{
-                //    Name = "stats",
-                //    Field = "media_id",
-                //    Type = eElasticAggregationType.avg,
-                //};
                 aggregations = new ESBaseAggsItem()
                 {
                     Name = "stats",
@@ -1858,11 +1845,6 @@ namespace Catalog
                     Type = eElasticAggregationType.stats,
                     Field = Catalog.STAT_ACTION_RATE_VALUE_FIELD
                 });
-
-                //facet = new ESTermsStatsFacet("stats", "media_id", Catalog.STAT_ACTION_RATE_VALUE_FIELD, 10000)
-                //{
-                //    Query = filteredQuery
-                //};
             }
             else
             {
@@ -1872,56 +1854,52 @@ namespace Catalog
                     Field = "media_id",
                     Type = eElasticAggregationType.terms,
                 };
-                //facet = new ESTermsFacet("stats", "media_id", 10000)
-                //{
-                //    Query = filteredQuery
-                //};
             }
 
             filteredQuery.Aggregations.Add(aggregations);
 
             #endregion
 
-            #region Split call of facets query to pieces
+            #region Split call of aggregations query to pieces
 
-            int facetsSize = 5000;
+            int aggregationssSize = 5000;
 
             //Start MultiThread Call
             List<Task> tasks = new List<Task>();
 
             // Split the request to small pieces, to avoid timeout exceptions
-            for (int assetIndex = 0; assetIndex < assetIds.Count; assetIndex += facetsSize)
+            for (int assetIndex = 0; assetIndex < assetIds.Count; assetIndex += aggregationssSize)
             {
                 idsTerm.Value.Clear();
 
                 // Convert partial Ids to strings
-                idsTerm.Value.AddRange(assetIds.Skip(assetIndex).Take(facetsSize).Select(id => id.ToString()));
+                idsTerm.Value.AddRange(assetIds.Skip(assetIndex).Take(aggregationssSize).Select(id => id.ToString()));
 
-                string facetRequestBody = filteredQuery.ToString();
+                string aggregationsRequestBody = filteredQuery.ToString();
 
                 string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(groupId);
 
                 try
                 {
                     ContextData contextData = new ContextData();
-                    // Create a task for the search and merge of partial facets
+                    // Create a task for the search and merge of partial aggregations
                     Task task = Task.Factory.StartNew((obj) =>
                         {
                             contextData.Load();
                             // Get aggregations results
-                            string aggregationsResults = m_oESApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref facetRequestBody);
+                            string aggregationsResults = m_oESApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref aggregationsRequestBody);
 
                             if (orderBy == ApiObjects.SearchObjects.OrderBy.RATING)
                             {
                                 // Parse string into dictionary
-                                var partialDictionary = ESAggregations.DeserializeStatisticsAggregations(aggregationsResults, "sub_stats");
+                                var partialDictionary = ESAggregationsResult.DeserializeStatisticsAggregations(aggregationsResults, "sub_stats");
 
                                 // Run on partial dictionary and merge into main dictionary
                                 foreach (var mainPart in partialDictionary)
                                 {
                                     if (!ratingsAggregationsDictionary.ContainsKey(mainPart.Key))
                                     {
-                                        ratingsAggregationsDictionary[mainPart.Key] = new List<StatisticsAggregationsResult>();
+                                        ratingsAggregationsDictionary[mainPart.Key] = new List<StatisticsAggregationResult>();
                                     }
 
                                     foreach (var singleResult in mainPart.Value)
@@ -1933,7 +1911,7 @@ namespace Catalog
                             else
                             {
                                 // Parse string into dictionary
-                                var partialDictionary = ESAggregations.DeserializeAggrgations(aggregationsResults);
+                                var partialDictionary = ESAggregationsResult.DeserializeAggrgations(aggregationsResults);
 
                                 // Run on partial dictionary and merge into main dictionary
                                 foreach (var mainPart in partialDictionary)
@@ -1975,7 +1953,7 @@ namespace Catalog
 
             #region Process Aggregations
 
-            // get a sorted list of the asset Ids that have statistical data in the facet
+            // get a sorted list of the asset Ids that have statistical data in the aggregations dictionary
             sortedList = new List<long>();
             alreadyContainedIds = new HashSet<long>();
 
@@ -2037,7 +2015,7 @@ namespace Catalog
 
                 if (statResult != null && statResult.Count > 0)
                 {
-                    // We base this section on the assumption that facets request is sorted, descending
+                    // We base this section on the assumption that aggregations request is sorted, descending
                     foreach (string currentKey in statResult.Keys)
                     {
                         int count = statResult[currentKey];
@@ -2066,65 +2044,19 @@ namespace Catalog
         /// <summary>
         /// After receiving a result from ES server, process it to create a list of Ids with the given order
         /// </summary>
-        /// <param name="facetsResults"></param>
-        /// <param name="orderBy"></param>
-        /// <param name="orderDirection"></param>
-        /// <param name="alreadyContainedIds"></param>
-        /// <returns></returns>
-        private static void ProcessRatingsFacetsResult(ConcurrentDictionary<string, List<ESTermsStatsFacet.StatisticFacetResult>> facetsDictionary,
-            OrderDir orderDirection, HashSet<long> alreadyContainedIds, List<long> sortedList)
-        {
-            if (facetsDictionary != null && facetsDictionary.Count > 0)
-            {
-                List<ESTermsStatsFacet.StatisticFacetResult> statResult;
-
-                //retrieve specific facet result
-                facetsDictionary.TryGetValue("stats", out statResult);
-
-                if (statResult != null && statResult.Count > 0)
-                {
-                    // sort ASCENDING - different than normal execution!
-                    statResult.Sort(new ESTermsStatsFacet.FacetCompare(ESTermsStatsFacet.FacetCompare.eCompareType.MEAN));
-
-                    foreach (var result in statResult)
-                    {
-                        int currentId;
-
-                        // Depending on direction - if it is ascending, insert Id at end. Otherwise at start
-                        if (int.TryParse(result.term, out currentId))
-                        {
-                            if (orderDirection == OrderDir.ASC)
-                            {
-                                sortedList.Insert(0, currentId);
-                            }
-                            else
-                            {
-                                sortedList.Add(currentId);
-                            }
-
-                            alreadyContainedIds.Add(currentId);
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// After receiving a result from ES server, process it to create a list of Ids with the given order
-        /// </summary>
         /// <param name=")"></param>
         /// <param name="orderBy"></param>
         /// <param name="orderDirection"></param>
         /// <param name="alreadyContainedIds"></param>
         /// <returns></returns>
-        private static void ProcessRatingsAggregationsResult(ConcurrentDictionary<string, List<StatisticsAggregationsResult>> statisticsDictionary,
+        private static void ProcessRatingsAggregationsResult(ConcurrentDictionary<string, List<StatisticsAggregationResult>> statisticsDictionary,
             OrderDir orderDirection, HashSet<long> alreadyContainedIds, List<long> sortedList)
         {
             if (statisticsDictionary != null && statisticsDictionary.Count > 0)
             {
-                List<StatisticsAggregationsResult> statResult;
+                List<StatisticsAggregationResult> statResult;
 
-                //retrieve specific facet result
+                //retrieve specific aggregation result
                 statisticsDictionary.TryGetValue("stats", out statResult);
 
                 if (statResult != null && statResult.Count > 0)
