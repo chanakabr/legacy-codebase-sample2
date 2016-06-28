@@ -17976,7 +17976,7 @@ namespace ConditionalAccess
                 // Check if protect is defined and enabled
                 if (accountSettings == null || !accountSettings.IsProtectionEnabled.HasValue)
                 {
-                    log.DebugFormat("Failed getting account protection quota percentage, DomainID: {0}, UserID: {1}, recordID: {2}", domainID, userID, recordID);
+                    log.ErrorFormat("Failed getting account protection quota percentage, DomainID: {0}, UserID: {1}, recordID: {2}", domainID, userID, recordID);
                     recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     return recording;
                 }
@@ -17993,7 +17993,7 @@ namespace ConditionalAccess
                 // Get protection quota percentages                
                 if (accountSettings == null || !accountSettings.ProtectionQuotaPercentage.HasValue)
                 {
-                    log.DebugFormat("Failed getting account protection quota percentage, DomainID: {0}, UserID: {1}, recordID: {2}", domainID, userID, recordID);
+                    log.ErrorFormat("Failed getting account protection quota percentage, DomainID: {0}, UserID: {1}, recordID: {2}", domainID, userID, recordID);
                     recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     return recording;
                 }
@@ -18014,7 +18014,7 @@ namespace ConditionalAccess
                 // Check protection period is defined
                 if (!accountSettings.ProtectionPeriod.HasValue)
                 {
-                    log.DebugFormat("Failed getting account protection period, DomainID: {0}, UserID: {1}, recordID: {2}", domainID, userID, recordID);
+                    log.ErrorFormat("Failed getting account protection period, DomainID: {0}, UserID: {1}, recordID: {2}", domainID, userID, recordID);
                     recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     return recording;
                 }
