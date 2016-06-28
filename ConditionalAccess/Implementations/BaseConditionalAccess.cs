@@ -17969,13 +17969,28 @@ namespace ConditionalAccess
                 {
                     log.DebugFormat("RecordingStatus is not valid for protection, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", recordID, domainID, userID, recording.ToString());
                     recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotValid, "Protection failed, only recording in status Recorded can be protected");
-                }             
+                }
+
+                TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+
+                // Check if protect is defined and enabled
+                if (accountSettings == null || !accountSettings.IsProtectionEnabled.HasValue)
+                {
+                    log.DebugFormat("Failed getting account protection quota percentage, DomainID: {0}, UserID: {1}, recordID: {2}", domainID, userID, recordID);
+                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    return recording;
+                }
+                else if (!accountSettings.IsProtectionEnabled.Value)
+                {
+                    log.DebugFormat("Protect is not enabled on the account, DomainID: {0}, UserID: {1}, recordID: {2}", domainID, userID, recordID);
+                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.AccountProtectRecordNotEnabled, eResponseStatus.AccountProtectRecordNotEnabled.ToString());
+                    return recording;
+                }
 
                 // Get domains quota
                 int domainsQuota = Utils.GetQuota(this.m_nGroupID, domainID);
 
-                // Get protection quota percentages
-                TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+                // Get protection quota percentages                
                 if (accountSettings == null || !accountSettings.ProtectionQuotaPercentage.HasValue)
                 {
                     log.DebugFormat("Failed getting account protection quota percentage, DomainID: {0}, UserID: {1}, recordID: {2}", domainID, userID, recordID);
