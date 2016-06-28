@@ -1875,10 +1875,13 @@
     <Compile Include="Models\API\KalturaCDNAdapterProfileListResponse.cs" />
     <Compile Include="Models\API\KalturaExportTaskOrderBy.cs" />
     <Compile Include="Models\API\KalturaParentalRuleOrderBy.cs" />
-    <Compile Include="Models\Catalog\KalturaSearchFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAssetFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAsset.cs" />
     <Compile Include="Models\Catalog\KalturaAssetOrderBy.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaHouseholdPremiumService.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaHouseholdPremiumServiceListResponse.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaPriceOrderBy.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaPriceFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaEntitlementFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaEntitlementOrderBy.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransactionHistoryFilter.cs" />
@@ -2063,6 +2066,7 @@
     <Compile Include="Models\API\KalturaTimeShiftedTvPartnerSettings.cs">
       <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
     </Compile>
+    <Compile Include="Models\Users\KalturaUserAssetsListListResponse.cs" />
     <Compile Include="Models\Users\KalturaFavoriteFilter.cs" />
     <Compile Include="Models\Users\KalturaLoginResponse.cs" />
     <Compile Include="Models\Users\KalturaOTTUserFilter.cs" />
