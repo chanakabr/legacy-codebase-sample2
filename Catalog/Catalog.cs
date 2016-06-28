@@ -76,7 +76,8 @@ namespace Catalog
 		            {
 			            "name",
 			            "description",
-			            "epg_channel_id"
+			            "epg_channel_id",
+                        "...."
 		            };
 
         private static readonly HashSet<string> reservedUnifiedSearchNumericFields = new HashSet<string>()

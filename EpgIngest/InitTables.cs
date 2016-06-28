@@ -101,6 +101,10 @@ namespace EpgIngest
             dt.Columns.Add("ENABLE_CATCH_UP", typeof(int));
             dt.Columns.Add("ENABLE_START_OVER", typeof(int));
             dt.Columns.Add("ENABLE_TRICK_PLAY", typeof(int));
+            dt.Columns.Add("CRID", typeof(string));
+            dt.Columns.Add("SERIES_ID", typeof(string));
+            dt.Columns.Add("SEASON_NUMBER", typeof(int));
+            dt.Columns.Add("EPISODE_NUMBER", typeof(int));
 
             return dt;
         }
@@ -130,6 +134,11 @@ namespace EpgIngest
             dt.Columns.Add("ENABLE_CATCH_UP", typeof(int));
             dt.Columns.Add("ENABLE_START_OVER", typeof(int));
             dt.Columns.Add("ENABLE_TRICK_PLAY", typeof(int));
+            dt.Columns.Add("CRID", typeof(string));
+            dt.Columns.Add("SERIES_ID", typeof(string));
+            dt.Columns.Add("SEASON_NUMBER", typeof(int));
+            dt.Columns.Add("EPISODE_NUMBER", typeof(int));
+
             return dt;
         }
 
@@ -179,6 +188,11 @@ namespace EpgIngest
                         row["ENABLE_CDVR"] = epg.EnableCDVR;
                         row["ENABLE_START_OVER"] = epg.EnableStartOver;
                         row["ENABLE_TRICK_PLAY"] = epg.EnableTrickPlay;
+                        row["CRID"] = epg.Crid;
+                        row["SERIES_ID"] = epg.SeriesId;
+                        row["SEASON_NUMBER"] = epg.SeasonNumber;
+                        row["EPISODE_NUMBER"] = epg.EpisodeNumber;
+
                         dtEPG.Rows.Add(row);
                     }
                 }

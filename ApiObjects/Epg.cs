@@ -86,11 +86,21 @@ namespace ApiObjects
         public DateTime SearchEndDate { get; set; }
 
         [JsonProperty("is_recorded", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public int IsRecorded
-        {
-            get;
-            set;
-        }
+        public int IsRecorded { get; set; }
+
+        //from Storm version
+        [JsonProperty("crid", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        public string Crid { get; set; }
+
+        [JsonProperty("series_id", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        public string SeriesId { get; set; }
+
+        [JsonProperty("season_number", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        public int SeasonNumber { get; set; }
+
+        [JsonProperty("episode_number", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        public int EpisodeNumber { get; set; }
+
 
         public EpgCB()
         {
@@ -125,6 +135,11 @@ namespace ApiObjects
             EnableCatchUp = 0;
             EnableStartOver = 0;
             EnableTrickPlay = 0;
+
+            Crid = string.Empty;
+            SeriesId = string.Empty;
+            SeasonNumber = 0;
+            EpisodeNumber = 0;
         }
 
               
@@ -158,6 +173,9 @@ namespace ApiObjects
                 }
                 if (this.EnableCatchUp != obj.EnableCatchUp || this.EnableCDVR != obj.EnableCDVR || 
                     this.EnableStartOver != obj.EnableStartOver || this.EnableTrickPlay != obj.EnableTrickPlay)
+                    return false;
+
+                if (this.Crid != obj.Crid || this.SeriesId != obj.SeriesId || this.SeasonNumber != obj.SeasonNumber || this.EpisodeNumber != obj.EpisodeNumber)
                     return false;
 
                 #region Tags

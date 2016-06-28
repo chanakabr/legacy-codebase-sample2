@@ -190,6 +190,11 @@ namespace EpgIngest
                     newEpgItem.EnableCDVR = EnableLinearSetting(prog.enablecdvr);
                     newEpgItem.EnableStartOver = EnableLinearSetting(prog.enablestartover);
                     newEpgItem.EnableTrickPlay = EnableLinearSetting(prog.enabletrickplay);
+                    newEpgItem.Crid = prog.crid;
+                    newEpgItem.SeriesId = prog.seriesid;
+                    newEpgItem.SeasonNumber = prog.seasonnumber;
+                    newEpgItem.EpisodeNumber = prog.episodenumber;
+
 
                     string picName = string.Empty;
                     #region Name  With languages
