@@ -128,9 +128,9 @@ namespace WebAPI.Models.API
     /// </summary>
     public enum KalturaParentalRuleType
     {
-        all = 0,
-        movies = 1,
-        tv_series = 2
+        ALL = 0,
+        MOVIES = 1,
+        TV_SERIES = 2
     }
 
     /// <summary>

@@ -166,6 +166,45 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sCountryNameField))
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.m_sCountryCodeField));
 
+            //EPG to KalturaAsset
+            Mapper.CreateMap<EPGChannelProgrammeObject, KalturaAsset>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.EPG_ID))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.NAME))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.DESCRIPTION))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(DateTime.ParseExact(src.START_DATE, "dd/MM/yyyy HH:mm:ss", null))))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(DateTime.ParseExact(src.END_DATE, "dd/MM/yyyy HH:mm:ss", null))))
+                .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.EPG_Meta)))
+                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.EPG_TAGS)))
+                .ForMember(dest => dest.ExtraParams, opt => opt.MapFrom(src => BuildExtraParamsDictionary(src)))
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.EPG_PICTURES));
+
+            //Media to KalturaAsset
+            Mapper.CreateMap<MediaObj, KalturaAsset>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_sDescription))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dStartDate)))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dEndDate)))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.m_oMediaType.m_nTypeID))
+                .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.m_lMetas)))
+                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.m_lTags)))
+                .ForMember(dest => dest.ExtraParams, opt => opt.MapFrom(src => BuildExtraParamsDictionary(src)))
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_lPicture))
+                .ForMember(dest => dest.MediaFiles, opt => opt.MapFrom(src => src.m_lFiles));
+
+            //EPG to AssetInfo
+            Mapper.CreateMap<ProgramObj, KalturaAssetInfo>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_oProgram.NAME))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_oProgram.DESCRIPTION))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(DateTime.ParseExact(src.m_oProgram.START_DATE, "dd/MM/yyyy HH:mm:ss", null))))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(DateTime.ParseExact(src.m_oProgram.END_DATE, "dd/MM/yyyy HH:mm:ss", null))))
+                .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.m_oProgram.EPG_Meta)))
+                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.m_oProgram.EPG_TAGS)))
+                .ForMember(dest => dest.ExtraParams, opt => opt.MapFrom(src => BuildExtraParamsDictionary(src.m_oProgram)))
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_oProgram.EPG_PICTURES));
         }
 
         //eAssetTypes to KalturaAssetType

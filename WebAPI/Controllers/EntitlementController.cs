@@ -4,6 +4,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 using WebAPI.Utils;
@@ -11,6 +12,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/entitlement/action")]
+    [OldStandard("listOldStandard", "list")]
     public class EntitlementController : ApiController
     {
         /// <summary>
@@ -145,9 +147,10 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <param name="filter">Request filter</param>
         /// <remarks></remarks>
-        [Route("list"), HttpPost]
+        [Route("listOldStandard"), HttpPost]
         [ApiAuthorize]
-        public KalturaEntitlementListResponse List(KalturaEntitlementsFilter filter)
+        [Obsolete]
+        public KalturaEntitlementListResponse ListOldStandard(KalturaEntitlementsFilter filter)
         {
             List<KalturaEntitlement> response = new List<KalturaEntitlement>();
 
@@ -171,6 +174,54 @@ namespace WebAPI.Controllers
                     case KalturaEntityReferenceBy.household:
                         {
                             response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.EntitlementType);
+                        }
+                        break;
+                    default:
+                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "unknown reference type");
+                }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return new KalturaEntitlementListResponse() { Entitlements = response, TotalCount = response.Count };
+        }
+
+        /// <summary>
+        /// Gets all the entitled media items for a household
+        /// </summary>        
+        /// <param name="filter">Request filter</param>
+        /// <param name="pager">Request pager</param>1
+        /// <remarks></remarks>
+        [Route("list"), HttpPost]
+        [ApiAuthorize]
+        public KalturaEntitlementListResponse List(KalturaEntitlementFilter filter, KalturaFilterPager pager = null)
+        {
+            List<KalturaEntitlement> response = new List<KalturaEntitlement>();
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            if (filter == null)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter cannot be null");
+            }
+
+            try
+            {
+                // call client
+                switch (filter.EntityReferenceEqual)
+                {
+                    case KalturaEntityReferenceBy.user:
+                        {
+                            response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KS.GetFromRequest().UserId, filter.EntitlementTypeEqual,
+                                false, pager.getPageSize(), pager.getPageIndex(), filter.OrderBy);
+                        }
+                        break;
+                    case KalturaEntityReferenceBy.household:
+                        {
+                            response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.EntitlementTypeEqual,
+                                false, pager.getPageSize(), pager.getPageIndex(), filter.OrderBy);
                         }
                         break;
                     default:

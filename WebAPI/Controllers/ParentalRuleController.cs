@@ -7,6 +7,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.API;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
@@ -15,6 +16,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/parentalRule/action")]
+    [OldStandard("listOldStandard", "list")]
     public class ParentalRuleController : ApiController 
     {
         /// <summary>
@@ -27,9 +29,10 @@ namespace WebAPI.Controllers
         /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001
         /// </remarks>
         /// <returns>List of parental rules applied to the user</returns>
-        [Route("list"), HttpPost]
+        [Route("listOldStandard"), HttpPost]
         [ApiAuthorize]
-        public KalturaParentalRuleListResponse List(KalturaRuleFilter filter)
+        [Obsolete]
+        public KalturaParentalRuleListResponse ListOldStandard(KalturaRuleFilter filter)
         {
             List<KalturaParentalRule> response = null;
 
@@ -64,34 +67,83 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Enable a parental rules for a user  
+        /// Return the parental rules that applies for the user or household. Can include rules that have been associated in account, household, or user level.
+        /// Association level is also specified in the response.
         /// </summary>
-        /// <param name="by">Reference type to filter by</param>
-        /// <remarks>Possible status codes: 
-        /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001, Invalid rule = 5003</remarks>
-        /// <param name="rule_id">Rule Identifier</param>
-        /// <returns>Success or failure and reason</returns>
-        [Route("enable"), HttpPost]
+        /// <param name="filter">Filter</param>
+        /// <remarks>
+        /// Possible status codes: 
+        /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001
+        /// </remarks>
+        /// <returns>List of parental rules applied to the user</returns>
+        [Route("list"), HttpPost]
         [ApiAuthorize]
-        public bool Enable(long rule_id, KalturaEntityReferenceBy by)
+        public KalturaParentalRuleListResponse List(KalturaParentalRuleFilter filter)
         {
-            bool success = false;
-            
+            List<KalturaParentalRule> response = null;
+
             int groupId = KS.GetFromRequest().GroupId;
+
+            if (filter == null)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter cannot be null");
+            }
 
             try
             {
-                if (by == KalturaEntityReferenceBy.user)
+                if (filter.EntityReferenceEqual == KalturaEntityReferenceBy.user)
                 {
                     string userId = KS.GetFromRequest().UserId;
 
                     // call client
-                    success = ClientsManager.ApiClient().SetUserParentalRule(groupId, userId, rule_id, 1);
+                    response = ClientsManager.ApiClient().GetUserParentalRules(groupId, userId);
                 }
-                else if (by == KalturaEntityReferenceBy.household)
+                else if (filter.EntityReferenceEqual == KalturaEntityReferenceBy.household)
                 {
                     // call client
-                    success = ClientsManager.ApiClient().SetDomainParentalRules(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), rule_id, 1);
+                    response = ClientsManager.ApiClient().GetDomainParentalRules(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId));
+                }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return new KalturaParentalRuleListResponse() { ParentalRule = response, TotalCount = response.Count };
+        }
+
+        /// <summary>
+        /// Enable a parental rules for a user  
+        /// </summary>
+        /// <param name="entityReference">Reference type to filter by</param>
+        /// <remarks>Possible status codes: 
+        /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001, Invalid rule = 5003</remarks>
+        /// <param name="ruleId">Rule Identifier</param>
+        /// <returns>Success or failure and reason</returns>
+        [Route("enable"), HttpPost]
+        [ApiAuthorize]
+        [OldStandard("by", "entityReference")]
+        [OldStandard("ruleId", "rule_id")]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        public bool Enable(long ruleId, KalturaEntityReferenceBy entityReference)
+        {
+            bool success = false;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                if (entityReference == KalturaEntityReferenceBy.user)
+                {
+                    string userId = KS.GetFromRequest().UserId;
+
+                    // call client
+                    success = ClientsManager.ApiClient().SetUserParentalRule(groupId, userId, ruleId, 1);
+                }
+                else if (entityReference == KalturaEntityReferenceBy.household)
+                {
+                    // call client
+                    success = ClientsManager.ApiClient().SetDomainParentalRules(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), ruleId, 1);
                 }
             }
             catch (ClientException ex)
@@ -105,35 +157,38 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Disables a parental rule that was previously defined by the household master. Disable can be at specific user or household level.  
         /// </summary>
-        /// <param name="by">Reference type to filter by</param>
+        /// <param name="entityReference">Reference type to filter by</param>
         /// <remarks>Possible status codes: 
         /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001, Invalid rule = 5003, 
         /// Cannot disable a default rule that was not specifically enabled previously = 5021 </remarks>
-        /// <param name="rule_id">Rule Identifier</param>
+        /// <param name="ruleId">Rule Identifier</param>
         /// <returns>Success or failure and reason</returns>
         [Route("disable"), HttpPost]
         [ApiAuthorize]
-        public bool Disable(long rule_id, KalturaEntityReferenceBy by)
+        [OldStandard("by", "entityReference")]
+        [OldStandard("ruleId", "rule_id")]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        public bool Disable(long ruleId, KalturaEntityReferenceBy entityReference)
         {
             bool success = false;
-            
+
             int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
-                if (by == KalturaEntityReferenceBy.user)
+                if (entityReference == KalturaEntityReferenceBy.user)
                 {
                     string userId = KS.GetFromRequest().UserId;
 
                     // call client
-                    success = ClientsManager.ApiClient().SetUserParentalRule(groupId, userId, rule_id, 0);
+                    success = ClientsManager.ApiClient().SetUserParentalRule(groupId, userId, ruleId, 0);
                 }
-                else if (by == KalturaEntityReferenceBy.household)
+                else if (entityReference == KalturaEntityReferenceBy.household)
                 {
                     // call client
-                    success = ClientsManager.ApiClient().SetDomainParentalRules(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), rule_id, 0);
+                    success = ClientsManager.ApiClient().SetDomainParentalRules(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), ruleId, 0);
                 }
-                
+
             }
             catch (ClientException ex)
             {
@@ -150,23 +205,25 @@ namespace WebAPI.Controllers
         /// Possible status codes: Bad, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
         /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001
         /// </remarks>
-        /// <param name="by">Reference type to filter by</param>
+        /// <param name="entityReference">Reference type to filter by</param>
         /// <returns>Success / fail</returns>
         [Route("disableDefault"), HttpPost]
         [ApiAuthorize]
-        public bool DisableDefault(KalturaEntityReferenceBy by)
+        [OldStandard("by", "entityReference")]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        public bool DisableDefault(KalturaEntityReferenceBy entityReference)
         {
             bool success = false;
             int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
-                if (by == KalturaEntityReferenceBy.household)
+                if (entityReference == KalturaEntityReferenceBy.household)
                 {
                     // call client
                     success = ClientsManager.ApiClient().DisableDomainDefaultParentalRule(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId));
                 }
-                else if (by == KalturaEntityReferenceBy.user)
+                else if (entityReference == KalturaEntityReferenceBy.user)
                 {
                     string userId = KS.GetFromRequest().UserId;
 

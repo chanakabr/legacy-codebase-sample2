@@ -199,15 +199,37 @@ namespace WebAPI.Catalog {
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.EPGProgramsByScidsRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.EPGProgramsByProgramsIdentefierRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.BaseChannelRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.ExternalChannelRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.InternalChannelRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.EpgRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.ExternalChannelRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaChannelsRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaMarkRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaHitRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.ChannelRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.ChannelRequestMultiFiltering))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.EpgCommentsListRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.EpgSearchRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.EpgAutoCompleteRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.CommentRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaCommentRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.EpgCommentRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.IsMediaExistsInSubscriptionRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.ChannelsContainingMediaRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.BundleContainingMediaRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.PicRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.EpgRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.AssetStatsRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.EPGSearchContentRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.ChannelViewsRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.BuzzMeterRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaLastPositionRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.CategoryRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaRelatedExternalRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaSearchExternalRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaAutoCompleteRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.BaseMediaSearchRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaSearchRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaSearchFullRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaAutoCompleteRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaRelatedRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaUpdateDateRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.BaseProtocolRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.PWWAWProtocolRequest))]
@@ -219,28 +241,6 @@ namespace WebAPI.Catalog {
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.CommentsListRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.UserSocialMediasRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.BundleAssetsRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.PicRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaMarkRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaHitRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.EpgCommentsListRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.EpgSearchRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.EpgAutoCompleteRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.CommentRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaCommentRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.EpgCommentRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.IsMediaExistsInSubscriptionRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.ChannelsContainingMediaRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.BundleContainingMediaRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaChannelsRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaRelatedRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.EPGSearchContentRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.ChannelViewsRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.BuzzMeterRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaLastPositionRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.CategoryRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.AssetStatsRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaRelatedExternalRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaSearchExternalRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.EpgProgramDetailsRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.ChannelObjRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.CrowdsourceRequest))]
@@ -688,8 +688,8 @@ namespace WebAPI.Catalog {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="BaseChannelRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
     [System.SerializableAttribute()]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.ExternalChannelRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.InternalChannelRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.ExternalChannelRequest))]
     public partial class BaseChannelRequest : WebAPI.Catalog.BaseRequest {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -752,6 +752,45 @@ namespace WebAPI.Catalog {
                 if ((this.typeField.Equals(value) != true)) {
                     this.typeField = value;
                     this.RaisePropertyChanged("type");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="InternalChannelRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
+    [System.SerializableAttribute()]
+    public partial class InternalChannelRequest : WebAPI.Catalog.BaseChannelRequest {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool m_bIgnoreDeviceRuleIDField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Catalog.OrderObj orderField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool m_bIgnoreDeviceRuleID {
+            get {
+                return this.m_bIgnoreDeviceRuleIDField;
+            }
+            set {
+                if ((this.m_bIgnoreDeviceRuleIDField.Equals(value) != true)) {
+                    this.m_bIgnoreDeviceRuleIDField = value;
+                    this.RaisePropertyChanged("m_bIgnoreDeviceRuleID");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Catalog.OrderObj order {
+            get {
+                return this.orderField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.orderField, value) != true)) {
+                    this.orderField = value;
+                    this.RaisePropertyChanged("order");
                 }
             }
         }
@@ -830,38 +869,22 @@ namespace WebAPI.Catalog {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="InternalChannelRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="MediaChannelsRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
     [System.SerializableAttribute()]
-    public partial class InternalChannelRequest : WebAPI.Catalog.BaseChannelRequest {
+    public partial class MediaChannelsRequest : WebAPI.Catalog.BaseRequest {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private bool m_bIgnoreDeviceRuleIDField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private WebAPI.Catalog.OrderObj orderField;
+        private int m_nMediaIDField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public bool m_bIgnoreDeviceRuleID {
+        public int m_nMediaID {
             get {
-                return this.m_bIgnoreDeviceRuleIDField;
+                return this.m_nMediaIDField;
             }
             set {
-                if ((this.m_bIgnoreDeviceRuleIDField.Equals(value) != true)) {
-                    this.m_bIgnoreDeviceRuleIDField = value;
-                    this.RaisePropertyChanged("m_bIgnoreDeviceRuleID");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public WebAPI.Catalog.OrderObj order {
-            get {
-                return this.orderField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.orderField, value) != true)) {
-                    this.orderField = value;
-                    this.RaisePropertyChanged("order");
+                if ((this.m_nMediaIDField.Equals(value) != true)) {
+                    this.m_nMediaIDField = value;
+                    this.RaisePropertyChanged("m_nMediaID");
                 }
             }
         }
@@ -869,102 +892,93 @@ namespace WebAPI.Catalog {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="EpgRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="MediaMarkRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
     [System.SerializableAttribute()]
-    public partial class EpgRequest : WebAPI.Catalog.BaseRequest {
+    public partial class MediaMarkRequest : WebAPI.Catalog.BaseRequest {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.DateTime m_dEndDateField;
+        private WebAPI.Catalog.MediaPlayRequestData m_oMediaPlayRequestDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.DateTime m_dStartDateField;
+        private string m_sErrorCodeField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private WebAPI.Catalog.EpgSearchType m_eSearchTypeField;
+        private string m_sErrorMessageField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<int> m_nChannelIDsField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nNextTopField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nPrevTopField;
+        private string m_sMediaCDNField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.DateTime m_dEndDate {
+        public WebAPI.Catalog.MediaPlayRequestData m_oMediaPlayRequestData {
             get {
-                return this.m_dEndDateField;
+                return this.m_oMediaPlayRequestDataField;
             }
             set {
-                if ((this.m_dEndDateField.Equals(value) != true)) {
-                    this.m_dEndDateField = value;
-                    this.RaisePropertyChanged("m_dEndDate");
+                if ((object.ReferenceEquals(this.m_oMediaPlayRequestDataField, value) != true)) {
+                    this.m_oMediaPlayRequestDataField = value;
+                    this.RaisePropertyChanged("m_oMediaPlayRequestData");
                 }
             }
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.DateTime m_dStartDate {
+        public string m_sErrorCode {
             get {
-                return this.m_dStartDateField;
+                return this.m_sErrorCodeField;
             }
             set {
-                if ((this.m_dStartDateField.Equals(value) != true)) {
-                    this.m_dStartDateField = value;
-                    this.RaisePropertyChanged("m_dStartDate");
+                if ((object.ReferenceEquals(this.m_sErrorCodeField, value) != true)) {
+                    this.m_sErrorCodeField = value;
+                    this.RaisePropertyChanged("m_sErrorCode");
                 }
             }
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public WebAPI.Catalog.EpgSearchType m_eSearchType {
+        public string m_sErrorMessage {
             get {
-                return this.m_eSearchTypeField;
+                return this.m_sErrorMessageField;
             }
             set {
-                if ((this.m_eSearchTypeField.Equals(value) != true)) {
-                    this.m_eSearchTypeField = value;
-                    this.RaisePropertyChanged("m_eSearchType");
+                if ((object.ReferenceEquals(this.m_sErrorMessageField, value) != true)) {
+                    this.m_sErrorMessageField = value;
+                    this.RaisePropertyChanged("m_sErrorMessage");
                 }
             }
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<int> m_nChannelIDs {
+        public string m_sMediaCDN {
             get {
-                return this.m_nChannelIDsField;
+                return this.m_sMediaCDNField;
             }
             set {
-                if ((object.ReferenceEquals(this.m_nChannelIDsField, value) != true)) {
-                    this.m_nChannelIDsField = value;
-                    this.RaisePropertyChanged("m_nChannelIDs");
+                if ((object.ReferenceEquals(this.m_sMediaCDNField, value) != true)) {
+                    this.m_sMediaCDNField = value;
+                    this.RaisePropertyChanged("m_sMediaCDN");
                 }
             }
         }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="MediaHitRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
+    [System.SerializableAttribute()]
+    public partial class MediaHitRequest : WebAPI.Catalog.BaseRequest {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Catalog.MediaPlayRequestData m_oMediaPlayRequestDataField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nNextTop {
+        public WebAPI.Catalog.MediaPlayRequestData m_oMediaPlayRequestData {
             get {
-                return this.m_nNextTopField;
+                return this.m_oMediaPlayRequestDataField;
             }
             set {
-                if ((this.m_nNextTopField.Equals(value) != true)) {
-                    this.m_nNextTopField = value;
-                    this.RaisePropertyChanged("m_nNextTop");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nPrevTop {
-            get {
-                return this.m_nPrevTopField;
-            }
-            set {
-                if ((this.m_nPrevTopField.Equals(value) != true)) {
-                    this.m_nPrevTopField = value;
-                    this.RaisePropertyChanged("m_nPrevTop");
+                if ((object.ReferenceEquals(this.m_oMediaPlayRequestDataField, value) != true)) {
+                    this.m_oMediaPlayRequestDataField = value;
+                    this.RaisePropertyChanged("m_oMediaPlayRequestData");
                 }
             }
         }
@@ -1060,745 +1074,6 @@ namespace WebAPI.Catalog {
                 if ((object.ReferenceEquals(this.m_lFilterTagsField, value) != true)) {
                     this.m_lFilterTagsField = value;
                     this.RaisePropertyChanged("m_lFilterTags");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="BaseMediaSearchRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
-    [System.SerializableAttribute()]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaSearchRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaSearchFullRequest))]
-    public partial class BaseMediaSearchRequest : WebAPI.Catalog.BaseRequest {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private bool m_bExactField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nMediaIDField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<int> m_nMediaTypesField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private WebAPI.Catalog.OrderObj m_oOrderObjField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public bool m_bExact {
-            get {
-                return this.m_bExactField;
-            }
-            set {
-                if ((this.m_bExactField.Equals(value) != true)) {
-                    this.m_bExactField = value;
-                    this.RaisePropertyChanged("m_bExact");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nMediaID {
-            get {
-                return this.m_nMediaIDField;
-            }
-            set {
-                if ((this.m_nMediaIDField.Equals(value) != true)) {
-                    this.m_nMediaIDField = value;
-                    this.RaisePropertyChanged("m_nMediaID");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<int> m_nMediaTypes {
-            get {
-                return this.m_nMediaTypesField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_nMediaTypesField, value) != true)) {
-                    this.m_nMediaTypesField = value;
-                    this.RaisePropertyChanged("m_nMediaTypes");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public WebAPI.Catalog.OrderObj m_oOrderObj {
-            get {
-                return this.m_oOrderObjField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_oOrderObjField, value) != true)) {
-                    this.m_oOrderObjField = value;
-                    this.RaisePropertyChanged("m_oOrderObj");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="MediaSearchRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
-    [System.SerializableAttribute()]
-    public partial class MediaSearchRequest : WebAPI.Catalog.BaseMediaSearchRequest {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private bool m_bAndField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<WebAPI.Catalog.KeyValue> m_lMetasField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<WebAPI.Catalog.KeyValue> m_lTagsField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string m_sDescriptionField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string m_sNameField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public bool m_bAnd {
-            get {
-                return this.m_bAndField;
-            }
-            set {
-                if ((this.m_bAndField.Equals(value) != true)) {
-                    this.m_bAndField = value;
-                    this.RaisePropertyChanged("m_bAnd");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<WebAPI.Catalog.KeyValue> m_lMetas {
-            get {
-                return this.m_lMetasField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_lMetasField, value) != true)) {
-                    this.m_lMetasField = value;
-                    this.RaisePropertyChanged("m_lMetas");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<WebAPI.Catalog.KeyValue> m_lTags {
-            get {
-                return this.m_lTagsField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_lTagsField, value) != true)) {
-                    this.m_lTagsField = value;
-                    this.RaisePropertyChanged("m_lTags");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string m_sDescription {
-            get {
-                return this.m_sDescriptionField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_sDescriptionField, value) != true)) {
-                    this.m_sDescriptionField = value;
-                    this.RaisePropertyChanged("m_sDescription");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string m_sName {
-            get {
-                return this.m_sNameField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_sNameField, value) != true)) {
-                    this.m_sNameField = value;
-                    this.RaisePropertyChanged("m_sName");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="MediaSearchFullRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
-    [System.SerializableAttribute()]
-    public partial class MediaSearchFullRequest : WebAPI.Catalog.BaseMediaSearchRequest {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<WebAPI.Catalog.KeyValue> m_AndListField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<WebAPI.Catalog.KeyValue> m_OrListField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<WebAPI.Catalog.KeyValue> m_AndList {
-            get {
-                return this.m_AndListField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_AndListField, value) != true)) {
-                    this.m_AndListField = value;
-                    this.RaisePropertyChanged("m_AndList");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<WebAPI.Catalog.KeyValue> m_OrList {
-            get {
-                return this.m_OrListField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_OrListField, value) != true)) {
-                    this.m_OrListField = value;
-                    this.RaisePropertyChanged("m_OrList");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="MediaAutoCompleteRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
-    [System.SerializableAttribute()]
-    public partial class MediaAutoCompleteRequest : WebAPI.Catalog.BaseRequest {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<int> m_MediaTypesField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<string> m_lMetasField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<string> m_lTagsField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string m_sPrefixField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<int> m_MediaTypes {
-            get {
-                return this.m_MediaTypesField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_MediaTypesField, value) != true)) {
-                    this.m_MediaTypesField = value;
-                    this.RaisePropertyChanged("m_MediaTypes");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<string> m_lMetas {
-            get {
-                return this.m_lMetasField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_lMetasField, value) != true)) {
-                    this.m_lMetasField = value;
-                    this.RaisePropertyChanged("m_lMetas");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<string> m_lTags {
-            get {
-                return this.m_lTagsField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_lTagsField, value) != true)) {
-                    this.m_lTagsField = value;
-                    this.RaisePropertyChanged("m_lTags");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string m_sPrefix {
-            get {
-                return this.m_sPrefixField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_sPrefixField, value) != true)) {
-                    this.m_sPrefixField = value;
-                    this.RaisePropertyChanged("m_sPrefix");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="MediaUpdateDateRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
-    [System.SerializableAttribute()]
-    public partial class MediaUpdateDateRequest : WebAPI.Catalog.BaseRequest {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<int> m_lMediaIdsField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<int> m_lMediaIds {
-            get {
-                return this.m_lMediaIdsField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_lMediaIdsField, value) != true)) {
-                    this.m_lMediaIdsField = value;
-                    this.RaisePropertyChanged("m_lMediaIds");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="BaseProtocolRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
-    [System.SerializableAttribute()]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.PWWAWProtocolRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.PersonalRecommendedRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.PWLALProtocolRequest))]
-    public partial class BaseProtocolRequest : WebAPI.Catalog.BaseRequest {
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="PWWAWProtocolRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
-    [System.SerializableAttribute()]
-    public partial class PWWAWProtocolRequest : WebAPI.Catalog.BaseProtocolRequest {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nCountryIDField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nMediaIDField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nCountryID {
-            get {
-                return this.m_nCountryIDField;
-            }
-            set {
-                if ((this.m_nCountryIDField.Equals(value) != true)) {
-                    this.m_nCountryIDField = value;
-                    this.RaisePropertyChanged("m_nCountryID");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nMediaID {
-            get {
-                return this.m_nMediaIDField;
-            }
-            set {
-                if ((this.m_nMediaIDField.Equals(value) != true)) {
-                    this.m_nMediaIDField = value;
-                    this.RaisePropertyChanged("m_nMediaID");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="PersonalRecommendedRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
-    [System.SerializableAttribute()]
-    public partial class PersonalRecommendedRequest : WebAPI.Catalog.BaseProtocolRequest {
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="PWLALProtocolRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
-    [System.SerializableAttribute()]
-    public partial class PWLALProtocolRequest : WebAPI.Catalog.BaseProtocolRequest {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nCountryIDField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nMediaFileIDField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nMediaIDField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nSocialActionField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nSocialPlatformField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nCountryID {
-            get {
-                return this.m_nCountryIDField;
-            }
-            set {
-                if ((this.m_nCountryIDField.Equals(value) != true)) {
-                    this.m_nCountryIDField = value;
-                    this.RaisePropertyChanged("m_nCountryID");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nMediaFileID {
-            get {
-                return this.m_nMediaFileIDField;
-            }
-            set {
-                if ((this.m_nMediaFileIDField.Equals(value) != true)) {
-                    this.m_nMediaFileIDField = value;
-                    this.RaisePropertyChanged("m_nMediaFileID");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nMediaID {
-            get {
-                return this.m_nMediaIDField;
-            }
-            set {
-                if ((this.m_nMediaIDField.Equals(value) != true)) {
-                    this.m_nMediaIDField = value;
-                    this.RaisePropertyChanged("m_nMediaID");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nSocialAction {
-            get {
-                return this.m_nSocialActionField;
-            }
-            set {
-                if ((this.m_nSocialActionField.Equals(value) != true)) {
-                    this.m_nSocialActionField = value;
-                    this.RaisePropertyChanged("m_nSocialAction");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nSocialPlatform {
-            get {
-                return this.m_nSocialPlatformField;
-            }
-            set {
-                if ((this.m_nSocialPlatformField.Equals(value) != true)) {
-                    this.m_nSocialPlatformField = value;
-                    this.RaisePropertyChanged("m_nSocialPlatform");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="ChannelsListRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
-    [System.SerializableAttribute()]
-    public partial class ChannelsListRequest : WebAPI.Catalog.BaseRequest {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nCategoryIDField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nCategoryID {
-            get {
-                return this.m_nCategoryIDField;
-            }
-            set {
-                if ((this.m_nCategoryIDField.Equals(value) != true)) {
-                    this.m_nCategoryIDField = value;
-                    this.RaisePropertyChanged("m_nCategoryID");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="PersonalLastWatchedRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
-    [System.SerializableAttribute()]
-    public partial class PersonalLastWatchedRequest : WebAPI.Catalog.BaseRequest {
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="PersonalLasDeviceRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
-    [System.SerializableAttribute()]
-    public partial class PersonalLasDeviceRequest : WebAPI.Catalog.BaseRequest {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<int> m_nMediaIDsField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<int> m_nMediaIDs {
-            get {
-                return this.m_nMediaIDsField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_nMediaIDsField, value) != true)) {
-                    this.m_nMediaIDsField = value;
-                    this.RaisePropertyChanged("m_nMediaIDs");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="CommentsListRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
-    [System.SerializableAttribute()]
-    public partial class CommentsListRequest : WebAPI.Catalog.BaseRequest {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nMediaIDField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nMediaID {
-            get {
-                return this.m_nMediaIDField;
-            }
-            set {
-                if ((this.m_nMediaIDField.Equals(value) != true)) {
-                    this.m_nMediaIDField = value;
-                    this.RaisePropertyChanged("m_nMediaID");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="UserSocialMediasRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
-    [System.SerializableAttribute()]
-    public partial class UserSocialMediasRequest : WebAPI.Catalog.BaseRequest {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nSocialActionField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nSocialPlatformField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nSocialAction {
-            get {
-                return this.m_nSocialActionField;
-            }
-            set {
-                if ((this.m_nSocialActionField.Equals(value) != true)) {
-                    this.m_nSocialActionField = value;
-                    this.RaisePropertyChanged("m_nSocialAction");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nSocialPlatform {
-            get {
-                return this.m_nSocialPlatformField;
-            }
-            set {
-                if ((this.m_nSocialPlatformField.Equals(value) != true)) {
-                    this.m_nSocialPlatformField = value;
-                    this.RaisePropertyChanged("m_nSocialPlatform");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="BundleAssetsRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
-    [System.SerializableAttribute()]
-    public partial class BundleAssetsRequest : WebAPI.Catalog.BaseRequest {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private WebAPI.Catalog.eBundleType m_eBundleTypeField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nBundleIDField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private WebAPI.Catalog.OrderObj m_oOrderObjField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string m_sMediaTypeField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public WebAPI.Catalog.eBundleType m_eBundleType {
-            get {
-                return this.m_eBundleTypeField;
-            }
-            set {
-                if ((this.m_eBundleTypeField.Equals(value) != true)) {
-                    this.m_eBundleTypeField = value;
-                    this.RaisePropertyChanged("m_eBundleType");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nBundleID {
-            get {
-                return this.m_nBundleIDField;
-            }
-            set {
-                if ((this.m_nBundleIDField.Equals(value) != true)) {
-                    this.m_nBundleIDField = value;
-                    this.RaisePropertyChanged("m_nBundleID");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public WebAPI.Catalog.OrderObj m_oOrderObj {
-            get {
-                return this.m_oOrderObjField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_oOrderObjField, value) != true)) {
-                    this.m_oOrderObjField = value;
-                    this.RaisePropertyChanged("m_oOrderObj");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string m_sMediaType {
-            get {
-                return this.m_sMediaTypeField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_sMediaTypeField, value) != true)) {
-                    this.m_sMediaTypeField = value;
-                    this.RaisePropertyChanged("m_sMediaType");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="PicRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
-    [System.SerializableAttribute()]
-    public partial class PicRequest : WebAPI.Catalog.BaseRequest {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<int> m_nPicIdsField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<int> m_nPicIds {
-            get {
-                return this.m_nPicIdsField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_nPicIdsField, value) != true)) {
-                    this.m_nPicIdsField = value;
-                    this.RaisePropertyChanged("m_nPicIds");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="MediaMarkRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
-    [System.SerializableAttribute()]
-    public partial class MediaMarkRequest : WebAPI.Catalog.BaseRequest {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private WebAPI.Catalog.MediaPlayRequestData m_oMediaPlayRequestDataField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string m_sErrorCodeField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string m_sErrorMessageField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string m_sMediaCDNField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public WebAPI.Catalog.MediaPlayRequestData m_oMediaPlayRequestData {
-            get {
-                return this.m_oMediaPlayRequestDataField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_oMediaPlayRequestDataField, value) != true)) {
-                    this.m_oMediaPlayRequestDataField = value;
-                    this.RaisePropertyChanged("m_oMediaPlayRequestData");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string m_sErrorCode {
-            get {
-                return this.m_sErrorCodeField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_sErrorCodeField, value) != true)) {
-                    this.m_sErrorCodeField = value;
-                    this.RaisePropertyChanged("m_sErrorCode");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string m_sErrorMessage {
-            get {
-                return this.m_sErrorMessageField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_sErrorMessageField, value) != true)) {
-                    this.m_sErrorMessageField = value;
-                    this.RaisePropertyChanged("m_sErrorMessage");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string m_sMediaCDN {
-            get {
-                return this.m_sMediaCDNField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_sMediaCDNField, value) != true)) {
-                    this.m_sMediaCDNField = value;
-                    this.RaisePropertyChanged("m_sMediaCDN");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="MediaHitRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
-    [System.SerializableAttribute()]
-    public partial class MediaHitRequest : WebAPI.Catalog.BaseRequest {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private WebAPI.Catalog.MediaPlayRequestData m_oMediaPlayRequestDataField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public WebAPI.Catalog.MediaPlayRequestData m_oMediaPlayRequestData {
-            get {
-                return this.m_oMediaPlayRequestDataField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_oMediaPlayRequestDataField, value) != true)) {
-                    this.m_oMediaPlayRequestDataField = value;
-                    this.RaisePropertyChanged("m_oMediaPlayRequestData");
                 }
             }
         }
@@ -2335,22 +1610,22 @@ namespace WebAPI.Catalog {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="MediaChannelsRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="PicRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
     [System.SerializableAttribute()]
-    public partial class MediaChannelsRequest : WebAPI.Catalog.BaseRequest {
+    public partial class PicRequest : WebAPI.Catalog.BaseRequest {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nMediaIDField;
+        private System.Collections.Generic.List<int> m_nPicIdsField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nMediaID {
+        public System.Collections.Generic.List<int> m_nPicIds {
             get {
-                return this.m_nMediaIDField;
+                return this.m_nPicIdsField;
             }
             set {
-                if ((this.m_nMediaIDField.Equals(value) != true)) {
-                    this.m_nMediaIDField = value;
-                    this.RaisePropertyChanged("m_nMediaID");
+                if ((object.ReferenceEquals(this.m_nPicIdsField, value) != true)) {
+                    this.m_nPicIdsField = value;
+                    this.RaisePropertyChanged("m_nPicIds");
                 }
             }
         }
@@ -2358,54 +1633,173 @@ namespace WebAPI.Catalog {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="MediaRelatedRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="EpgRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
     [System.SerializableAttribute()]
-    public partial class MediaRelatedRequest : WebAPI.Catalog.BaseRequest {
+    public partial class EpgRequest : WebAPI.Catalog.BaseRequest {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nMediaIDField;
+        private System.DateTime m_dEndDateField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<int> m_nMediaTypesField;
+        private System.DateTime m_dStartDateField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string m_sFilterField;
+        private WebAPI.Catalog.EpgSearchType m_eSearchTypeField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<int> m_nChannelIDsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nNextTopField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nPrevTopField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nMediaID {
+        public System.DateTime m_dEndDate {
             get {
-                return this.m_nMediaIDField;
+                return this.m_dEndDateField;
             }
             set {
-                if ((this.m_nMediaIDField.Equals(value) != true)) {
-                    this.m_nMediaIDField = value;
-                    this.RaisePropertyChanged("m_nMediaID");
+                if ((this.m_dEndDateField.Equals(value) != true)) {
+                    this.m_dEndDateField = value;
+                    this.RaisePropertyChanged("m_dEndDate");
                 }
             }
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<int> m_nMediaTypes {
+        public System.DateTime m_dStartDate {
             get {
-                return this.m_nMediaTypesField;
+                return this.m_dStartDateField;
             }
             set {
-                if ((object.ReferenceEquals(this.m_nMediaTypesField, value) != true)) {
-                    this.m_nMediaTypesField = value;
-                    this.RaisePropertyChanged("m_nMediaTypes");
+                if ((this.m_dStartDateField.Equals(value) != true)) {
+                    this.m_dStartDateField = value;
+                    this.RaisePropertyChanged("m_dStartDate");
                 }
             }
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string m_sFilter {
+        public WebAPI.Catalog.EpgSearchType m_eSearchType {
             get {
-                return this.m_sFilterField;
+                return this.m_eSearchTypeField;
             }
             set {
-                if ((object.ReferenceEquals(this.m_sFilterField, value) != true)) {
-                    this.m_sFilterField = value;
-                    this.RaisePropertyChanged("m_sFilter");
+                if ((this.m_eSearchTypeField.Equals(value) != true)) {
+                    this.m_eSearchTypeField = value;
+                    this.RaisePropertyChanged("m_eSearchType");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<int> m_nChannelIDs {
+            get {
+                return this.m_nChannelIDsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_nChannelIDsField, value) != true)) {
+                    this.m_nChannelIDsField = value;
+                    this.RaisePropertyChanged("m_nChannelIDs");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nNextTop {
+            get {
+                return this.m_nNextTopField;
+            }
+            set {
+                if ((this.m_nNextTopField.Equals(value) != true)) {
+                    this.m_nNextTopField = value;
+                    this.RaisePropertyChanged("m_nNextTop");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nPrevTop {
+            get {
+                return this.m_nPrevTopField;
+            }
+            set {
+                if ((this.m_nPrevTopField.Equals(value) != true)) {
+                    this.m_nPrevTopField = value;
+                    this.RaisePropertyChanged("m_nPrevTop");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="AssetStatsRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
+    [System.SerializableAttribute()]
+    public partial class AssetStatsRequest : WebAPI.Catalog.BaseRequest {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.DateTime m_dEndDateField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.DateTime m_dStartDateField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<int> m_nAssetIDsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Catalog.StatsType m_typeField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.DateTime m_dEndDate {
+            get {
+                return this.m_dEndDateField;
+            }
+            set {
+                if ((this.m_dEndDateField.Equals(value) != true)) {
+                    this.m_dEndDateField = value;
+                    this.RaisePropertyChanged("m_dEndDate");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.DateTime m_dStartDate {
+            get {
+                return this.m_dStartDateField;
+            }
+            set {
+                if ((this.m_dStartDateField.Equals(value) != true)) {
+                    this.m_dStartDateField = value;
+                    this.RaisePropertyChanged("m_dStartDate");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<int> m_nAssetIDs {
+            get {
+                return this.m_nAssetIDsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_nAssetIDsField, value) != true)) {
+                    this.m_nAssetIDsField = value;
+                    this.RaisePropertyChanged("m_nAssetIDs");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Catalog.StatsType m_type {
+            get {
+                return this.m_typeField;
+            }
+            set {
+                if ((this.m_typeField.Equals(value) != true)) {
+                    this.m_typeField = value;
+                    this.RaisePropertyChanged("m_type");
                 }
             }
         }
@@ -2521,77 +1915,6 @@ namespace WebAPI.Catalog {
                 if ((this.m_nCategoryIDField.Equals(value) != true)) {
                     this.m_nCategoryIDField = value;
                     this.RaisePropertyChanged("m_nCategoryID");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="AssetStatsRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
-    [System.SerializableAttribute()]
-    public partial class AssetStatsRequest : WebAPI.Catalog.BaseRequest {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.DateTime m_dEndDateField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.DateTime m_dStartDateField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<int> m_nAssetIDsField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private WebAPI.Catalog.StatsType m_typeField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.DateTime m_dEndDate {
-            get {
-                return this.m_dEndDateField;
-            }
-            set {
-                if ((this.m_dEndDateField.Equals(value) != true)) {
-                    this.m_dEndDateField = value;
-                    this.RaisePropertyChanged("m_dEndDate");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.DateTime m_dStartDate {
-            get {
-                return this.m_dStartDateField;
-            }
-            set {
-                if ((this.m_dStartDateField.Equals(value) != true)) {
-                    this.m_dStartDateField = value;
-                    this.RaisePropertyChanged("m_dStartDate");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<int> m_nAssetIDs {
-            get {
-                return this.m_nAssetIDsField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_nAssetIDsField, value) != true)) {
-                    this.m_nAssetIDsField = value;
-                    this.RaisePropertyChanged("m_nAssetIDs");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public WebAPI.Catalog.StatsType m_type {
-            get {
-                return this.m_typeField;
-            }
-            set {
-                if ((this.m_typeField.Equals(value) != true)) {
-                    this.m_typeField = value;
-                    this.RaisePropertyChanged("m_type");
                 }
             }
         }
@@ -2782,6 +2105,699 @@ namespace WebAPI.Catalog {
                 if ((object.ReferenceEquals(this.m_sQueryField, value) != true)) {
                     this.m_sQueryField = value;
                     this.RaisePropertyChanged("m_sQuery");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="MediaAutoCompleteRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
+    [System.SerializableAttribute()]
+    public partial class MediaAutoCompleteRequest : WebAPI.Catalog.BaseRequest {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<int> m_MediaTypesField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<string> m_lMetasField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<string> m_lTagsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sPrefixField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<int> m_MediaTypes {
+            get {
+                return this.m_MediaTypesField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_MediaTypesField, value) != true)) {
+                    this.m_MediaTypesField = value;
+                    this.RaisePropertyChanged("m_MediaTypes");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<string> m_lMetas {
+            get {
+                return this.m_lMetasField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_lMetasField, value) != true)) {
+                    this.m_lMetasField = value;
+                    this.RaisePropertyChanged("m_lMetas");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<string> m_lTags {
+            get {
+                return this.m_lTagsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_lTagsField, value) != true)) {
+                    this.m_lTagsField = value;
+                    this.RaisePropertyChanged("m_lTags");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sPrefix {
+            get {
+                return this.m_sPrefixField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sPrefixField, value) != true)) {
+                    this.m_sPrefixField = value;
+                    this.RaisePropertyChanged("m_sPrefix");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="BaseMediaSearchRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaSearchRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaSearchFullRequest))]
+    public partial class BaseMediaSearchRequest : WebAPI.Catalog.BaseRequest {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool m_bExactField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nMediaIDField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<int> m_nMediaTypesField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Catalog.OrderObj m_oOrderObjField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool m_bExact {
+            get {
+                return this.m_bExactField;
+            }
+            set {
+                if ((this.m_bExactField.Equals(value) != true)) {
+                    this.m_bExactField = value;
+                    this.RaisePropertyChanged("m_bExact");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nMediaID {
+            get {
+                return this.m_nMediaIDField;
+            }
+            set {
+                if ((this.m_nMediaIDField.Equals(value) != true)) {
+                    this.m_nMediaIDField = value;
+                    this.RaisePropertyChanged("m_nMediaID");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<int> m_nMediaTypes {
+            get {
+                return this.m_nMediaTypesField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_nMediaTypesField, value) != true)) {
+                    this.m_nMediaTypesField = value;
+                    this.RaisePropertyChanged("m_nMediaTypes");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Catalog.OrderObj m_oOrderObj {
+            get {
+                return this.m_oOrderObjField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_oOrderObjField, value) != true)) {
+                    this.m_oOrderObjField = value;
+                    this.RaisePropertyChanged("m_oOrderObj");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="MediaSearchRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
+    [System.SerializableAttribute()]
+    public partial class MediaSearchRequest : WebAPI.Catalog.BaseMediaSearchRequest {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool m_bAndField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<WebAPI.Catalog.KeyValue> m_lMetasField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<WebAPI.Catalog.KeyValue> m_lTagsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sDescriptionField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sNameField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool m_bAnd {
+            get {
+                return this.m_bAndField;
+            }
+            set {
+                if ((this.m_bAndField.Equals(value) != true)) {
+                    this.m_bAndField = value;
+                    this.RaisePropertyChanged("m_bAnd");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<WebAPI.Catalog.KeyValue> m_lMetas {
+            get {
+                return this.m_lMetasField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_lMetasField, value) != true)) {
+                    this.m_lMetasField = value;
+                    this.RaisePropertyChanged("m_lMetas");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<WebAPI.Catalog.KeyValue> m_lTags {
+            get {
+                return this.m_lTagsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_lTagsField, value) != true)) {
+                    this.m_lTagsField = value;
+                    this.RaisePropertyChanged("m_lTags");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sDescription {
+            get {
+                return this.m_sDescriptionField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sDescriptionField, value) != true)) {
+                    this.m_sDescriptionField = value;
+                    this.RaisePropertyChanged("m_sDescription");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sName {
+            get {
+                return this.m_sNameField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sNameField, value) != true)) {
+                    this.m_sNameField = value;
+                    this.RaisePropertyChanged("m_sName");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="MediaSearchFullRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
+    [System.SerializableAttribute()]
+    public partial class MediaSearchFullRequest : WebAPI.Catalog.BaseMediaSearchRequest {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<WebAPI.Catalog.KeyValue> m_AndListField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<WebAPI.Catalog.KeyValue> m_OrListField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<WebAPI.Catalog.KeyValue> m_AndList {
+            get {
+                return this.m_AndListField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_AndListField, value) != true)) {
+                    this.m_AndListField = value;
+                    this.RaisePropertyChanged("m_AndList");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<WebAPI.Catalog.KeyValue> m_OrList {
+            get {
+                return this.m_OrListField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_OrListField, value) != true)) {
+                    this.m_OrListField = value;
+                    this.RaisePropertyChanged("m_OrList");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="MediaRelatedRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
+    [System.SerializableAttribute()]
+    public partial class MediaRelatedRequest : WebAPI.Catalog.BaseRequest {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Catalog.OrderObj OrderObjField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nMediaIDField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<int> m_nMediaTypesField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sFilterField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Catalog.OrderObj OrderObj {
+            get {
+                return this.OrderObjField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.OrderObjField, value) != true)) {
+                    this.OrderObjField = value;
+                    this.RaisePropertyChanged("OrderObj");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nMediaID {
+            get {
+                return this.m_nMediaIDField;
+            }
+            set {
+                if ((this.m_nMediaIDField.Equals(value) != true)) {
+                    this.m_nMediaIDField = value;
+                    this.RaisePropertyChanged("m_nMediaID");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<int> m_nMediaTypes {
+            get {
+                return this.m_nMediaTypesField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_nMediaTypesField, value) != true)) {
+                    this.m_nMediaTypesField = value;
+                    this.RaisePropertyChanged("m_nMediaTypes");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sFilter {
+            get {
+                return this.m_sFilterField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sFilterField, value) != true)) {
+                    this.m_sFilterField = value;
+                    this.RaisePropertyChanged("m_sFilter");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="MediaUpdateDateRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
+    [System.SerializableAttribute()]
+    public partial class MediaUpdateDateRequest : WebAPI.Catalog.BaseRequest {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<int> m_lMediaIdsField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<int> m_lMediaIds {
+            get {
+                return this.m_lMediaIdsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_lMediaIdsField, value) != true)) {
+                    this.m_lMediaIdsField = value;
+                    this.RaisePropertyChanged("m_lMediaIds");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="BaseProtocolRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.PWWAWProtocolRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.PersonalRecommendedRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.PWLALProtocolRequest))]
+    public partial class BaseProtocolRequest : WebAPI.Catalog.BaseRequest {
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="PWWAWProtocolRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
+    [System.SerializableAttribute()]
+    public partial class PWWAWProtocolRequest : WebAPI.Catalog.BaseProtocolRequest {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nCountryIDField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nMediaIDField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nCountryID {
+            get {
+                return this.m_nCountryIDField;
+            }
+            set {
+                if ((this.m_nCountryIDField.Equals(value) != true)) {
+                    this.m_nCountryIDField = value;
+                    this.RaisePropertyChanged("m_nCountryID");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nMediaID {
+            get {
+                return this.m_nMediaIDField;
+            }
+            set {
+                if ((this.m_nMediaIDField.Equals(value) != true)) {
+                    this.m_nMediaIDField = value;
+                    this.RaisePropertyChanged("m_nMediaID");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="PersonalRecommendedRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
+    [System.SerializableAttribute()]
+    public partial class PersonalRecommendedRequest : WebAPI.Catalog.BaseProtocolRequest {
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="PWLALProtocolRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
+    [System.SerializableAttribute()]
+    public partial class PWLALProtocolRequest : WebAPI.Catalog.BaseProtocolRequest {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nCountryIDField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nMediaFileIDField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nMediaIDField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nSocialActionField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nSocialPlatformField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nCountryID {
+            get {
+                return this.m_nCountryIDField;
+            }
+            set {
+                if ((this.m_nCountryIDField.Equals(value) != true)) {
+                    this.m_nCountryIDField = value;
+                    this.RaisePropertyChanged("m_nCountryID");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nMediaFileID {
+            get {
+                return this.m_nMediaFileIDField;
+            }
+            set {
+                if ((this.m_nMediaFileIDField.Equals(value) != true)) {
+                    this.m_nMediaFileIDField = value;
+                    this.RaisePropertyChanged("m_nMediaFileID");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nMediaID {
+            get {
+                return this.m_nMediaIDField;
+            }
+            set {
+                if ((this.m_nMediaIDField.Equals(value) != true)) {
+                    this.m_nMediaIDField = value;
+                    this.RaisePropertyChanged("m_nMediaID");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nSocialAction {
+            get {
+                return this.m_nSocialActionField;
+            }
+            set {
+                if ((this.m_nSocialActionField.Equals(value) != true)) {
+                    this.m_nSocialActionField = value;
+                    this.RaisePropertyChanged("m_nSocialAction");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nSocialPlatform {
+            get {
+                return this.m_nSocialPlatformField;
+            }
+            set {
+                if ((this.m_nSocialPlatformField.Equals(value) != true)) {
+                    this.m_nSocialPlatformField = value;
+                    this.RaisePropertyChanged("m_nSocialPlatform");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="ChannelsListRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
+    [System.SerializableAttribute()]
+    public partial class ChannelsListRequest : WebAPI.Catalog.BaseRequest {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nCategoryIDField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nCategoryID {
+            get {
+                return this.m_nCategoryIDField;
+            }
+            set {
+                if ((this.m_nCategoryIDField.Equals(value) != true)) {
+                    this.m_nCategoryIDField = value;
+                    this.RaisePropertyChanged("m_nCategoryID");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="PersonalLastWatchedRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
+    [System.SerializableAttribute()]
+    public partial class PersonalLastWatchedRequest : WebAPI.Catalog.BaseRequest {
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="PersonalLasDeviceRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
+    [System.SerializableAttribute()]
+    public partial class PersonalLasDeviceRequest : WebAPI.Catalog.BaseRequest {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<int> m_nMediaIDsField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<int> m_nMediaIDs {
+            get {
+                return this.m_nMediaIDsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_nMediaIDsField, value) != true)) {
+                    this.m_nMediaIDsField = value;
+                    this.RaisePropertyChanged("m_nMediaIDs");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="CommentsListRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
+    [System.SerializableAttribute()]
+    public partial class CommentsListRequest : WebAPI.Catalog.BaseRequest {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nMediaIDField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nMediaID {
+            get {
+                return this.m_nMediaIDField;
+            }
+            set {
+                if ((this.m_nMediaIDField.Equals(value) != true)) {
+                    this.m_nMediaIDField = value;
+                    this.RaisePropertyChanged("m_nMediaID");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="UserSocialMediasRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
+    [System.SerializableAttribute()]
+    public partial class UserSocialMediasRequest : WebAPI.Catalog.BaseRequest {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nSocialActionField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nSocialPlatformField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nSocialAction {
+            get {
+                return this.m_nSocialActionField;
+            }
+            set {
+                if ((this.m_nSocialActionField.Equals(value) != true)) {
+                    this.m_nSocialActionField = value;
+                    this.RaisePropertyChanged("m_nSocialAction");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nSocialPlatform {
+            get {
+                return this.m_nSocialPlatformField;
+            }
+            set {
+                if ((this.m_nSocialPlatformField.Equals(value) != true)) {
+                    this.m_nSocialPlatformField = value;
+                    this.RaisePropertyChanged("m_nSocialPlatform");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="BundleAssetsRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
+    [System.SerializableAttribute()]
+    public partial class BundleAssetsRequest : WebAPI.Catalog.BaseRequest {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Catalog.eBundleType m_eBundleTypeField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nBundleIDField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Catalog.OrderObj m_oOrderObjField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sMediaTypeField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Catalog.eBundleType m_eBundleType {
+            get {
+                return this.m_eBundleTypeField;
+            }
+            set {
+                if ((this.m_eBundleTypeField.Equals(value) != true)) {
+                    this.m_eBundleTypeField = value;
+                    this.RaisePropertyChanged("m_eBundleType");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nBundleID {
+            get {
+                return this.m_nBundleIDField;
+            }
+            set {
+                if ((this.m_nBundleIDField.Equals(value) != true)) {
+                    this.m_nBundleIDField = value;
+                    this.RaisePropertyChanged("m_nBundleID");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Catalog.OrderObj m_oOrderObj {
+            get {
+                return this.m_oOrderObjField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_oOrderObjField, value) != true)) {
+                    this.m_oOrderObjField = value;
+                    this.RaisePropertyChanged("m_oOrderObj");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sMediaType {
+            get {
+                return this.m_sMediaTypeField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sMediaTypeField, value) != true)) {
+                    this.m_sMediaTypeField = value;
+                    this.RaisePropertyChanged("m_sMediaType");
                 }
             }
         }
@@ -3672,103 +3688,6 @@ namespace WebAPI.Catalog {
         NONE = 2,
     }
     
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="EpgSearchType", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects")]
-    public enum EpgSearchType : int {
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        ByDate = 0,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Current = 1,
-    }
-    
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="CutWith", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects")]
-    public enum CutWith : int {
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        WCF_ONLY_DEFAULT_VALUE = 0,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        OR = 1,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        AND = 2,
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="KeyValue", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
-    [System.SerializableAttribute()]
-    public partial class KeyValue : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
-        [System.NonSerializedAttribute()]
-        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string m_sKeyField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string m_sValueField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
-                return this.extensionDataField;
-            }
-            set {
-                this.extensionDataField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string m_sKey {
-            get {
-                return this.m_sKeyField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_sKeyField, value) != true)) {
-                    this.m_sKeyField = value;
-                    this.RaisePropertyChanged("m_sKey");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string m_sValue {
-            get {
-                return this.m_sValueField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_sValueField, value) != true)) {
-                    this.m_sValueField = value;
-                    this.RaisePropertyChanged("m_sValue");
-                }
-            }
-        }
-        
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
-            }
-        }
-    }
-    
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="eBundleType", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
-    public enum eBundleType : int {
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        SUBSCRIPTION = 0,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        COLLECTION = 1,
-    }
-    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="MediaPlayRequestData", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
@@ -4007,6 +3926,114 @@ namespace WebAPI.Catalog {
         MEDIA = 2,
     }
     
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="CutWith", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects")]
+    public enum CutWith : int {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        WCF_ONLY_DEFAULT_VALUE = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        OR = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        AND = 2,
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="KeyValue", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
+    [System.SerializableAttribute()]
+    public partial class KeyValue : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sKeyField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sValueField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sKey {
+            get {
+                return this.m_sKeyField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sKeyField, value) != true)) {
+                    this.m_sKeyField = value;
+                    this.RaisePropertyChanged("m_sKey");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sValue {
+            get {
+                return this.m_sValueField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sValueField, value) != true)) {
+                    this.m_sValueField = value;
+                    this.RaisePropertyChanged("m_sValue");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="eBundleType", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
+    public enum eBundleType : int {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        SUBSCRIPTION = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        COLLECTION = 1,
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="EpgSearchType", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects")]
+    public enum EpgSearchType : int {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        ByDate = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Current = 1,
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="StatsType", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects")]
+    public enum StatsType : int {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        MEDIA = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        EPG = 1,
+    }
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="MediaLastPositionRequestData", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
@@ -4098,17 +4125,6 @@ namespace WebAPI.Catalog {
                 propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
-    }
-    
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="StatsType", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects")]
-    public enum StatsType : int {
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        MEDIA = 0,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        EPG = 1,
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -4492,11 +4508,10 @@ namespace WebAPI.Catalog {
     [System.Runtime.Serialization.DataContractAttribute(Name="BaseResponse", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Response")]
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaLastPositionResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.ChannelObjResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.CrowdsourceResponse))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.UnifiedSearchResponse))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.UnifiedSearchExternalResponse))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.EpgProgramsResponse))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.EpgAutoCompleteResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.BuzzMeterResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.EpgProgramResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.AssetsBookmarksResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.ChannelResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaIdsResponse))]
@@ -4510,18 +4525,19 @@ namespace WebAPI.Catalog {
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaHitResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.CommentResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.EpgSearchResponse))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.EpgResponse))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.EpgProgramResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.EpgAutoCompleteResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.EpgProgramsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.IsMediaExistsInSubscriptionResponse))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.ChannelsContainingMediaResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaChannelsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaAutoCompleteResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.ContainingMediaResponse))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.ChannelObjResponse))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.ChannelViewsResponse))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.BuzzMeterResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.EpgResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.AssetStatsResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.ChannelsContainingMediaResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.ChannelViewsResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.BundlesContainingMediaResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.UnifiedSearchResponse))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.UnifiedSearchExternalResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.AssetInfoResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaFilesResponse))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.CategoryResponse))]
@@ -4643,6 +4659,29 @@ namespace WebAPI.Catalog {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="ChannelObjResponse", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Response")]
+    [System.SerializableAttribute()]
+    public partial class ChannelObjResponse : WebAPI.Catalog.BaseResponse {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Catalog.Channel ChannelObjField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Catalog.Channel ChannelObj {
+            get {
+                return this.ChannelObjField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.ChannelObjField, value) != true)) {
+                    this.ChannelObjField = value;
+                    this.RaisePropertyChanged("ChannelObj");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="CrowdsourceResponse", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Response")]
     [System.SerializableAttribute()]
     public partial class CrowdsourceResponse : WebAPI.Catalog.BaseResponse {
@@ -4666,71 +4705,22 @@ namespace WebAPI.Catalog {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="UnifiedSearchResponse", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Response")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="BuzzMeterResponse", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Response")]
     [System.SerializableAttribute()]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.UnifiedSearchExternalResponse))]
-    public partial class UnifiedSearchResponse : WebAPI.Catalog.BaseResponse {
+    public partial class BuzzMeterResponse : WebAPI.Catalog.BaseResponse {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string requestIdField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<WebAPI.Catalog.UnifiedSearchResult> searchResultsField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private WebAPI.Catalog.Status statusField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int toField;
+        private WebAPI.Catalog.BuzzWeightedAverScore m_buzzAverScoreField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string requestId {
+        public WebAPI.Catalog.BuzzWeightedAverScore m_buzzAverScore {
             get {
-                return this.requestIdField;
+                return this.m_buzzAverScoreField;
             }
             set {
-                if ((object.ReferenceEquals(this.requestIdField, value) != true)) {
-                    this.requestIdField = value;
-                    this.RaisePropertyChanged("requestId");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<WebAPI.Catalog.UnifiedSearchResult> searchResults {
-            get {
-                return this.searchResultsField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.searchResultsField, value) != true)) {
-                    this.searchResultsField = value;
-                    this.RaisePropertyChanged("searchResults");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public WebAPI.Catalog.Status status {
-            get {
-                return this.statusField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.statusField, value) != true)) {
-                    this.statusField = value;
-                    this.RaisePropertyChanged("status");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int to {
-            get {
-                return this.toField;
-            }
-            set {
-                if ((this.toField.Equals(value) != true)) {
-                    this.toField = value;
-                    this.RaisePropertyChanged("to");
+                if ((object.ReferenceEquals(this.m_buzzAverScoreField, value) != true)) {
+                    this.m_buzzAverScoreField = value;
+                    this.RaisePropertyChanged("m_buzzAverScore");
                 }
             }
         }
@@ -4738,55 +4728,9 @@ namespace WebAPI.Catalog {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="UnifiedSearchExternalResponse", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Response")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="EpgProgramResponse", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Response")]
     [System.SerializableAttribute()]
-    public partial class UnifiedSearchExternalResponse : WebAPI.Catalog.UnifiedSearchResponse {
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="EpgProgramsResponse", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Response")]
-    [System.SerializableAttribute()]
-    public partial class EpgProgramsResponse : WebAPI.Catalog.BaseResponse {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<WebAPI.Catalog.EPGChannelProgrammeObject> lEpgListField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<WebAPI.Catalog.EPGChannelProgrammeObject> lEpgList {
-            get {
-                return this.lEpgListField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.lEpgListField, value) != true)) {
-                    this.lEpgListField = value;
-                    this.RaisePropertyChanged("lEpgList");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="EpgAutoCompleteResponse", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Response")]
-    [System.SerializableAttribute()]
-    public partial class EpgAutoCompleteResponse : WebAPI.Catalog.BaseResponse {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<string> m_sListField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<string> m_sList {
-            get {
-                return this.m_sListField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_sListField, value) != true)) {
-                    this.m_sListField = value;
-                    this.RaisePropertyChanged("m_sList");
-                }
-            }
-        }
+    public partial class EpgProgramResponse : WebAPI.Catalog.BaseResponse {
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -5187,22 +5131,22 @@ namespace WebAPI.Catalog {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="EpgResponse", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Response")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="EpgAutoCompleteResponse", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Response")]
     [System.SerializableAttribute()]
-    public partial class EpgResponse : WebAPI.Catalog.BaseResponse {
+    public partial class EpgAutoCompleteResponse : WebAPI.Catalog.BaseResponse {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<WebAPI.Catalog.EpgResultsObj> programsPerChannelField;
+        private System.Collections.Generic.List<string> m_sListField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<WebAPI.Catalog.EpgResultsObj> programsPerChannel {
+        public System.Collections.Generic.List<string> m_sList {
             get {
-                return this.programsPerChannelField;
+                return this.m_sListField;
             }
             set {
-                if ((object.ReferenceEquals(this.programsPerChannelField, value) != true)) {
-                    this.programsPerChannelField = value;
-                    this.RaisePropertyChanged("programsPerChannel");
+                if ((object.ReferenceEquals(this.m_sListField, value) != true)) {
+                    this.m_sListField = value;
+                    this.RaisePropertyChanged("m_sList");
                 }
             }
         }
@@ -5210,9 +5154,25 @@ namespace WebAPI.Catalog {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="EpgProgramResponse", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Response")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="EpgProgramsResponse", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Response")]
     [System.SerializableAttribute()]
-    public partial class EpgProgramResponse : WebAPI.Catalog.BaseResponse {
+    public partial class EpgProgramsResponse : WebAPI.Catalog.BaseResponse {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<WebAPI.Catalog.EPGChannelProgrammeObject> lEpgListField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<WebAPI.Catalog.EPGChannelProgrammeObject> lEpgList {
+            get {
+                return this.lEpgListField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.lEpgListField, value) != true)) {
+                    this.lEpgListField = value;
+                    this.RaisePropertyChanged("lEpgList");
+                }
+            }
+        }
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -5233,29 +5193,6 @@ namespace WebAPI.Catalog {
                 if ((this.m_bExistsField.Equals(value) != true)) {
                     this.m_bExistsField = value;
                     this.RaisePropertyChanged("m_bExists");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="ChannelsContainingMediaResponse", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Response")]
-    [System.SerializableAttribute()]
-    public partial class ChannelsContainingMediaResponse : WebAPI.Catalog.BaseResponse {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<int> m_lChannellListField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<int> m_lChannellList {
-            get {
-                return this.m_lChannellListField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_lChannellListField, value) != true)) {
-                    this.m_lChannellListField = value;
-                    this.RaisePropertyChanged("m_lChannellList");
                 }
             }
         }
@@ -5332,68 +5269,22 @@ namespace WebAPI.Catalog {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="ChannelObjResponse", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Response")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="EpgResponse", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Response")]
     [System.SerializableAttribute()]
-    public partial class ChannelObjResponse : WebAPI.Catalog.BaseResponse {
+    public partial class EpgResponse : WebAPI.Catalog.BaseResponse {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private WebAPI.Catalog.Channel ChannelObjField;
+        private System.Collections.Generic.List<WebAPI.Catalog.EpgResultsObj> programsPerChannelField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public WebAPI.Catalog.Channel ChannelObj {
+        public System.Collections.Generic.List<WebAPI.Catalog.EpgResultsObj> programsPerChannel {
             get {
-                return this.ChannelObjField;
+                return this.programsPerChannelField;
             }
             set {
-                if ((object.ReferenceEquals(this.ChannelObjField, value) != true)) {
-                    this.ChannelObjField = value;
-                    this.RaisePropertyChanged("ChannelObj");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="ChannelViewsResponse", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Response")]
-    [System.SerializableAttribute()]
-    public partial class ChannelViewsResponse : WebAPI.Catalog.BaseResponse {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<WebAPI.Catalog.ChannelViewsResult> ChannelViewsField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<WebAPI.Catalog.ChannelViewsResult> ChannelViews {
-            get {
-                return this.ChannelViewsField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.ChannelViewsField, value) != true)) {
-                    this.ChannelViewsField = value;
-                    this.RaisePropertyChanged("ChannelViews");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="BuzzMeterResponse", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Response")]
-    [System.SerializableAttribute()]
-    public partial class BuzzMeterResponse : WebAPI.Catalog.BaseResponse {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private WebAPI.Catalog.BuzzWeightedAverScore m_buzzAverScoreField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public WebAPI.Catalog.BuzzWeightedAverScore m_buzzAverScore {
-            get {
-                return this.m_buzzAverScoreField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_buzzAverScoreField, value) != true)) {
-                    this.m_buzzAverScoreField = value;
-                    this.RaisePropertyChanged("m_buzzAverScore");
+                if ((object.ReferenceEquals(this.programsPerChannelField, value) != true)) {
+                    this.programsPerChannelField = value;
+                    this.RaisePropertyChanged("programsPerChannel");
                 }
             }
         }
@@ -5424,6 +5315,52 @@ namespace WebAPI.Catalog {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="ChannelsContainingMediaResponse", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Response")]
+    [System.SerializableAttribute()]
+    public partial class ChannelsContainingMediaResponse : WebAPI.Catalog.BaseResponse {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<int> m_lChannellListField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<int> m_lChannellList {
+            get {
+                return this.m_lChannellListField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_lChannellListField, value) != true)) {
+                    this.m_lChannellListField = value;
+                    this.RaisePropertyChanged("m_lChannellList");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="ChannelViewsResponse", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Response")]
+    [System.SerializableAttribute()]
+    public partial class ChannelViewsResponse : WebAPI.Catalog.BaseResponse {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<WebAPI.Catalog.ChannelViewsResult> ChannelViewsField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<WebAPI.Catalog.ChannelViewsResult> ChannelViews {
+            get {
+                return this.ChannelViewsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.ChannelViewsField, value) != true)) {
+                    this.ChannelViewsField = value;
+                    this.RaisePropertyChanged("ChannelViews");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="BundlesContainingMediaResponse", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Response")]
     [System.SerializableAttribute()]
     public partial class BundlesContainingMediaResponse : WebAPI.Catalog.BaseResponse {
@@ -5443,6 +5380,85 @@ namespace WebAPI.Catalog {
                 }
             }
         }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="UnifiedSearchResponse", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Response")]
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.UnifiedSearchExternalResponse))]
+    public partial class UnifiedSearchResponse : WebAPI.Catalog.BaseResponse {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string requestIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<WebAPI.Catalog.UnifiedSearchResult> searchResultsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Catalog.Status statusField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int toField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string requestId {
+            get {
+                return this.requestIdField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.requestIdField, value) != true)) {
+                    this.requestIdField = value;
+                    this.RaisePropertyChanged("requestId");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<WebAPI.Catalog.UnifiedSearchResult> searchResults {
+            get {
+                return this.searchResultsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.searchResultsField, value) != true)) {
+                    this.searchResultsField = value;
+                    this.RaisePropertyChanged("searchResults");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Catalog.Status status {
+            get {
+                return this.statusField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.statusField, value) != true)) {
+                    this.statusField = value;
+                    this.RaisePropertyChanged("status");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int to {
+            get {
+                return this.toField;
+            }
+            set {
+                if ((this.toField.Equals(value) != true)) {
+                    this.toField = value;
+                    this.RaisePropertyChanged("to");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="UnifiedSearchExternalResponse", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Response")]
+    [System.SerializableAttribute()]
+    public partial class UnifiedSearchExternalResponse : WebAPI.Catalog.UnifiedSearchResponse {
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -5788,9 +5804,9 @@ namespace WebAPI.Catalog {
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.ProgramObj))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaFileObj))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.PicObj))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.UnifiedSearchResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.MediaObj))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.PicObj))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Catalog.UserWatchHistory))]
     public partial class BaseObject : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
         
@@ -5906,6 +5922,29 @@ namespace WebAPI.Catalog {
                 if ((object.ReferenceEquals(this.m_oFileField, value) != true)) {
                     this.m_oFileField = value;
                     this.RaisePropertyChanged("m_oFile");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="PicObj", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Response")]
+    [System.SerializableAttribute()]
+    public partial class PicObj : WebAPI.Catalog.BaseObject {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<WebAPI.Catalog.Picture> m_PictureField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<WebAPI.Catalog.Picture> m_Picture {
+            get {
+                return this.m_PictureField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_PictureField, value) != true)) {
+                    this.m_PictureField = value;
+                    this.RaisePropertyChanged("m_Picture");
                 }
             }
         }
@@ -6384,29 +6423,6 @@ namespace WebAPI.Catalog {
                 if ((object.ReferenceEquals(this.m_sSiteUserGuidField, value) != true)) {
                     this.m_sSiteUserGuidField = value;
                     this.RaisePropertyChanged("m_sSiteUserGuid");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="PicObj", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Response")]
-    [System.SerializableAttribute()]
-    public partial class PicObj : WebAPI.Catalog.BaseObject {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<WebAPI.Catalog.Picture> m_PictureField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<WebAPI.Catalog.Picture> m_Picture {
-            get {
-                return this.m_PictureField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_PictureField, value) != true)) {
-                    this.m_PictureField = value;
-                    this.RaisePropertyChanged("m_Picture");
                 }
             }
         }
@@ -7685,6 +7701,131 @@ namespace WebAPI.Catalog {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="Picture", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
+    [System.SerializableAttribute()]
+    public partial class Picture : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string idField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool isDefaultField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sSizeField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sURLField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string ratioField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int versionField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string id {
+            get {
+                return this.idField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.idField, value) != true)) {
+                    this.idField = value;
+                    this.RaisePropertyChanged("id");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool isDefault {
+            get {
+                return this.isDefaultField;
+            }
+            set {
+                if ((this.isDefaultField.Equals(value) != true)) {
+                    this.isDefaultField = value;
+                    this.RaisePropertyChanged("isDefault");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sSize {
+            get {
+                return this.m_sSizeField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sSizeField, value) != true)) {
+                    this.m_sSizeField = value;
+                    this.RaisePropertyChanged("m_sSize");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sURL {
+            get {
+                return this.m_sURLField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sURLField, value) != true)) {
+                    this.m_sURLField = value;
+                    this.RaisePropertyChanged("m_sURL");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string ratio {
+            get {
+                return this.ratioField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.ratioField, value) != true)) {
+                    this.ratioField = value;
+                    this.RaisePropertyChanged("ratio");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int version {
+            get {
+                return this.versionField;
+            }
+            set {
+                if ((this.versionField.Equals(value) != true)) {
+                    this.versionField = value;
+                    this.RaisePropertyChanged("version");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="MediaType", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
     [System.SerializableAttribute()]
     public partial class MediaType : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
@@ -8012,131 +8153,6 @@ namespace WebAPI.Catalog {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="Picture", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
-    [System.SerializableAttribute()]
-    public partial class Picture : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
-        [System.NonSerializedAttribute()]
-        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string idField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private bool isDefaultField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string m_sSizeField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string m_sURLField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string ratioField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int versionField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
-                return this.extensionDataField;
-            }
-            set {
-                this.extensionDataField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string id {
-            get {
-                return this.idField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.idField, value) != true)) {
-                    this.idField = value;
-                    this.RaisePropertyChanged("id");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public bool isDefault {
-            get {
-                return this.isDefaultField;
-            }
-            set {
-                if ((this.isDefaultField.Equals(value) != true)) {
-                    this.isDefaultField = value;
-                    this.RaisePropertyChanged("isDefault");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string m_sSize {
-            get {
-                return this.m_sSizeField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_sSizeField, value) != true)) {
-                    this.m_sSizeField = value;
-                    this.RaisePropertyChanged("m_sSize");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string m_sURL {
-            get {
-                return this.m_sURLField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_sURLField, value) != true)) {
-                    this.m_sURLField = value;
-                    this.RaisePropertyChanged("m_sURL");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string ratio {
-            get {
-                return this.ratioField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.ratioField, value) != true)) {
-                    this.ratioField = value;
-                    this.RaisePropertyChanged("ratio");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int version {
-            get {
-                return this.versionField;
-            }
-            set {
-                if ((this.versionField.Equals(value) != true)) {
-                    this.versionField = value;
-                    this.RaisePropertyChanged("version");
-                }
-            }
-        }
-        
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="Tags", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
     [System.SerializableAttribute()]
     public partial class Tags : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
@@ -8243,6 +8259,458 @@ namespace WebAPI.Catalog {
                 if ((object.ReferenceEquals(this.m_sTypeField, value) != true)) {
                     this.m_sTypeField = value;
                     this.RaisePropertyChanged("m_sType");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="Channel", Namespace="http://schemas.datacontract.org/2004/07/GroupsCacheManager")]
+    [System.SerializableAttribute()]
+    public partial class Channel : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string filterQueryField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Catalog.BooleanPhraseNode filterTreeField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Catalog.OrderObj m_OrderObjectField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Catalog.CutWith m_eCutWithField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Catalog.OrderBy m_eOrderByField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Catalog.OrderDir m_eOrderDirField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<WebAPI.Catalog.SearchValue> m_lChannelTagsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<WebAPI.Catalog.ManualMedia> m_lManualMediasField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nChannelIDField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nChannelTypeIDField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nGroupIDField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nIsActiveField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<int> m_nMediaTypeField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nParentGroupIDField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nStatusField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<int> m_oMediasField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sDescriptionField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<string> m_sMediasField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sNameField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string filterQuery {
+            get {
+                return this.filterQueryField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.filterQueryField, value) != true)) {
+                    this.filterQueryField = value;
+                    this.RaisePropertyChanged("filterQuery");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Catalog.BooleanPhraseNode filterTree {
+            get {
+                return this.filterTreeField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.filterTreeField, value) != true)) {
+                    this.filterTreeField = value;
+                    this.RaisePropertyChanged("filterTree");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Catalog.OrderObj m_OrderObject {
+            get {
+                return this.m_OrderObjectField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_OrderObjectField, value) != true)) {
+                    this.m_OrderObjectField = value;
+                    this.RaisePropertyChanged("m_OrderObject");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Catalog.CutWith m_eCutWith {
+            get {
+                return this.m_eCutWithField;
+            }
+            set {
+                if ((this.m_eCutWithField.Equals(value) != true)) {
+                    this.m_eCutWithField = value;
+                    this.RaisePropertyChanged("m_eCutWith");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Catalog.OrderBy m_eOrderBy {
+            get {
+                return this.m_eOrderByField;
+            }
+            set {
+                if ((this.m_eOrderByField.Equals(value) != true)) {
+                    this.m_eOrderByField = value;
+                    this.RaisePropertyChanged("m_eOrderBy");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Catalog.OrderDir m_eOrderDir {
+            get {
+                return this.m_eOrderDirField;
+            }
+            set {
+                if ((this.m_eOrderDirField.Equals(value) != true)) {
+                    this.m_eOrderDirField = value;
+                    this.RaisePropertyChanged("m_eOrderDir");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<WebAPI.Catalog.SearchValue> m_lChannelTags {
+            get {
+                return this.m_lChannelTagsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_lChannelTagsField, value) != true)) {
+                    this.m_lChannelTagsField = value;
+                    this.RaisePropertyChanged("m_lChannelTags");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<WebAPI.Catalog.ManualMedia> m_lManualMedias {
+            get {
+                return this.m_lManualMediasField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_lManualMediasField, value) != true)) {
+                    this.m_lManualMediasField = value;
+                    this.RaisePropertyChanged("m_lManualMedias");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nChannelID {
+            get {
+                return this.m_nChannelIDField;
+            }
+            set {
+                if ((this.m_nChannelIDField.Equals(value) != true)) {
+                    this.m_nChannelIDField = value;
+                    this.RaisePropertyChanged("m_nChannelID");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nChannelTypeID {
+            get {
+                return this.m_nChannelTypeIDField;
+            }
+            set {
+                if ((this.m_nChannelTypeIDField.Equals(value) != true)) {
+                    this.m_nChannelTypeIDField = value;
+                    this.RaisePropertyChanged("m_nChannelTypeID");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nGroupID {
+            get {
+                return this.m_nGroupIDField;
+            }
+            set {
+                if ((this.m_nGroupIDField.Equals(value) != true)) {
+                    this.m_nGroupIDField = value;
+                    this.RaisePropertyChanged("m_nGroupID");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nIsActive {
+            get {
+                return this.m_nIsActiveField;
+            }
+            set {
+                if ((this.m_nIsActiveField.Equals(value) != true)) {
+                    this.m_nIsActiveField = value;
+                    this.RaisePropertyChanged("m_nIsActive");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<int> m_nMediaType {
+            get {
+                return this.m_nMediaTypeField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_nMediaTypeField, value) != true)) {
+                    this.m_nMediaTypeField = value;
+                    this.RaisePropertyChanged("m_nMediaType");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nParentGroupID {
+            get {
+                return this.m_nParentGroupIDField;
+            }
+            set {
+                if ((this.m_nParentGroupIDField.Equals(value) != true)) {
+                    this.m_nParentGroupIDField = value;
+                    this.RaisePropertyChanged("m_nParentGroupID");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nStatus {
+            get {
+                return this.m_nStatusField;
+            }
+            set {
+                if ((this.m_nStatusField.Equals(value) != true)) {
+                    this.m_nStatusField = value;
+                    this.RaisePropertyChanged("m_nStatus");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<int> m_oMedias {
+            get {
+                return this.m_oMediasField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_oMediasField, value) != true)) {
+                    this.m_oMediasField = value;
+                    this.RaisePropertyChanged("m_oMedias");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sDescription {
+            get {
+                return this.m_sDescriptionField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sDescriptionField, value) != true)) {
+                    this.m_sDescriptionField = value;
+                    this.RaisePropertyChanged("m_sDescription");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<string> m_sMedias {
+            get {
+                return this.m_sMediasField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sMediasField, value) != true)) {
+                    this.m_sMediasField = value;
+                    this.RaisePropertyChanged("m_sMedias");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sName {
+            get {
+                return this.m_sNameField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sNameField, value) != true)) {
+                    this.m_sNameField = value;
+                    this.RaisePropertyChanged("m_sName");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="BooleanPhraseNode", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects")]
+    [System.SerializableAttribute()]
+    public partial class BooleanPhraseNode : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="SearchValue", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects")]
+    [System.SerializableAttribute()]
+    public partial class SearchValue : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="ManualMedia", Namespace="http://schemas.datacontract.org/2004/07/GroupsCacheManager")]
+    [System.SerializableAttribute()]
+    public partial class ManualMedia : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int m_nOrderNumField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sMediaIdField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int m_nOrderNum {
+            get {
+                return this.m_nOrderNumField;
+            }
+            set {
+                if ((this.m_nOrderNumField.Equals(value) != true)) {
+                    this.m_nOrderNumField = value;
+                    this.RaisePropertyChanged("m_nOrderNum");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sMediaId {
+            get {
+                return this.m_sMediaIdField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.m_sMediaIdField, value) != true)) {
+                    this.m_sMediaIdField = value;
+                    this.RaisePropertyChanged("m_sMediaId");
                 }
             }
         }
@@ -8673,6 +9141,80 @@ namespace WebAPI.Catalog {
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
         VOD = 2,
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="BuzzWeightedAverScore", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Statistics")]
+    [System.SerializableAttribute()]
+    public partial class BuzzWeightedAverScore : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        private double NormalizedWeightedAverageScoreField;
+        
+        private System.DateTime UpdateDateField;
+        
+        private double WeightedAverageScoreField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
+        public double NormalizedWeightedAverageScore {
+            get {
+                return this.NormalizedWeightedAverageScoreField;
+            }
+            set {
+                if ((this.NormalizedWeightedAverageScoreField.Equals(value) != true)) {
+                    this.NormalizedWeightedAverageScoreField = value;
+                    this.RaisePropertyChanged("NormalizedWeightedAverageScore");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
+        public System.DateTime UpdateDate {
+            get {
+                return this.UpdateDateField;
+            }
+            set {
+                if ((this.UpdateDateField.Equals(value) != true)) {
+                    this.UpdateDateField = value;
+                    this.RaisePropertyChanged("UpdateDate");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
+        public double WeightedAverageScore {
+            get {
+                return this.WeightedAverageScoreField;
+            }
+            set {
+                if ((this.WeightedAverageScoreField.Equals(value) != true)) {
+                    this.WeightedAverageScoreField = value;
+                    this.RaisePropertyChanged("WeightedAverageScore");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -10356,593 +10898,6 @@ namespace WebAPI.Catalog {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="Channel", Namespace="http://schemas.datacontract.org/2004/07/GroupsCacheManager")]
-    [System.SerializableAttribute()]
-    public partial class Channel : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
-        [System.NonSerializedAttribute()]
-        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string filterQueryField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private WebAPI.Catalog.BooleanPhraseNode filterTreeField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private WebAPI.Catalog.OrderObj m_OrderObjectField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private WebAPI.Catalog.CutWith m_eCutWithField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private WebAPI.Catalog.OrderBy m_eOrderByField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private WebAPI.Catalog.OrderDir m_eOrderDirField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<WebAPI.Catalog.SearchValue> m_lChannelTagsField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<WebAPI.Catalog.ManualMedia> m_lManualMediasField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nChannelIDField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nChannelTypeIDField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nGroupIDField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nIsActiveField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<int> m_nMediaTypeField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nParentGroupIDField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nStatusField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<int> m_oMediasField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string m_sDescriptionField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<string> m_sMediasField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string m_sNameField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
-                return this.extensionDataField;
-            }
-            set {
-                this.extensionDataField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string filterQuery {
-            get {
-                return this.filterQueryField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.filterQueryField, value) != true)) {
-                    this.filterQueryField = value;
-                    this.RaisePropertyChanged("filterQuery");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public WebAPI.Catalog.BooleanPhraseNode filterTree {
-            get {
-                return this.filterTreeField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.filterTreeField, value) != true)) {
-                    this.filterTreeField = value;
-                    this.RaisePropertyChanged("filterTree");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public WebAPI.Catalog.OrderObj m_OrderObject {
-            get {
-                return this.m_OrderObjectField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_OrderObjectField, value) != true)) {
-                    this.m_OrderObjectField = value;
-                    this.RaisePropertyChanged("m_OrderObject");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public WebAPI.Catalog.CutWith m_eCutWith {
-            get {
-                return this.m_eCutWithField;
-            }
-            set {
-                if ((this.m_eCutWithField.Equals(value) != true)) {
-                    this.m_eCutWithField = value;
-                    this.RaisePropertyChanged("m_eCutWith");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public WebAPI.Catalog.OrderBy m_eOrderBy {
-            get {
-                return this.m_eOrderByField;
-            }
-            set {
-                if ((this.m_eOrderByField.Equals(value) != true)) {
-                    this.m_eOrderByField = value;
-                    this.RaisePropertyChanged("m_eOrderBy");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public WebAPI.Catalog.OrderDir m_eOrderDir {
-            get {
-                return this.m_eOrderDirField;
-            }
-            set {
-                if ((this.m_eOrderDirField.Equals(value) != true)) {
-                    this.m_eOrderDirField = value;
-                    this.RaisePropertyChanged("m_eOrderDir");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<WebAPI.Catalog.SearchValue> m_lChannelTags {
-            get {
-                return this.m_lChannelTagsField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_lChannelTagsField, value) != true)) {
-                    this.m_lChannelTagsField = value;
-                    this.RaisePropertyChanged("m_lChannelTags");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<WebAPI.Catalog.ManualMedia> m_lManualMedias {
-            get {
-                return this.m_lManualMediasField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_lManualMediasField, value) != true)) {
-                    this.m_lManualMediasField = value;
-                    this.RaisePropertyChanged("m_lManualMedias");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nChannelID {
-            get {
-                return this.m_nChannelIDField;
-            }
-            set {
-                if ((this.m_nChannelIDField.Equals(value) != true)) {
-                    this.m_nChannelIDField = value;
-                    this.RaisePropertyChanged("m_nChannelID");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nChannelTypeID {
-            get {
-                return this.m_nChannelTypeIDField;
-            }
-            set {
-                if ((this.m_nChannelTypeIDField.Equals(value) != true)) {
-                    this.m_nChannelTypeIDField = value;
-                    this.RaisePropertyChanged("m_nChannelTypeID");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nGroupID {
-            get {
-                return this.m_nGroupIDField;
-            }
-            set {
-                if ((this.m_nGroupIDField.Equals(value) != true)) {
-                    this.m_nGroupIDField = value;
-                    this.RaisePropertyChanged("m_nGroupID");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nIsActive {
-            get {
-                return this.m_nIsActiveField;
-            }
-            set {
-                if ((this.m_nIsActiveField.Equals(value) != true)) {
-                    this.m_nIsActiveField = value;
-                    this.RaisePropertyChanged("m_nIsActive");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<int> m_nMediaType {
-            get {
-                return this.m_nMediaTypeField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_nMediaTypeField, value) != true)) {
-                    this.m_nMediaTypeField = value;
-                    this.RaisePropertyChanged("m_nMediaType");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nParentGroupID {
-            get {
-                return this.m_nParentGroupIDField;
-            }
-            set {
-                if ((this.m_nParentGroupIDField.Equals(value) != true)) {
-                    this.m_nParentGroupIDField = value;
-                    this.RaisePropertyChanged("m_nParentGroupID");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nStatus {
-            get {
-                return this.m_nStatusField;
-            }
-            set {
-                if ((this.m_nStatusField.Equals(value) != true)) {
-                    this.m_nStatusField = value;
-                    this.RaisePropertyChanged("m_nStatus");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<int> m_oMedias {
-            get {
-                return this.m_oMediasField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_oMediasField, value) != true)) {
-                    this.m_oMediasField = value;
-                    this.RaisePropertyChanged("m_oMedias");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string m_sDescription {
-            get {
-                return this.m_sDescriptionField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_sDescriptionField, value) != true)) {
-                    this.m_sDescriptionField = value;
-                    this.RaisePropertyChanged("m_sDescription");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<string> m_sMedias {
-            get {
-                return this.m_sMediasField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_sMediasField, value) != true)) {
-                    this.m_sMediasField = value;
-                    this.RaisePropertyChanged("m_sMedias");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string m_sName {
-            get {
-                return this.m_sNameField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_sNameField, value) != true)) {
-                    this.m_sNameField = value;
-                    this.RaisePropertyChanged("m_sName");
-                }
-            }
-        }
-        
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="BooleanPhraseNode", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects")]
-    [System.SerializableAttribute()]
-    public partial class BooleanPhraseNode : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
-        [System.NonSerializedAttribute()]
-        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
-                return this.extensionDataField;
-            }
-            set {
-                this.extensionDataField = value;
-            }
-        }
-        
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="SearchValue", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects")]
-    [System.SerializableAttribute()]
-    public partial class SearchValue : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
-        [System.NonSerializedAttribute()]
-        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
-                return this.extensionDataField;
-            }
-            set {
-                this.extensionDataField = value;
-            }
-        }
-        
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="ManualMedia", Namespace="http://schemas.datacontract.org/2004/07/GroupsCacheManager")]
-    [System.SerializableAttribute()]
-    public partial class ManualMedia : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
-        [System.NonSerializedAttribute()]
-        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nOrderNumField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string m_sMediaIdField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
-                return this.extensionDataField;
-            }
-            set {
-                this.extensionDataField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nOrderNum {
-            get {
-                return this.m_nOrderNumField;
-            }
-            set {
-                if ((this.m_nOrderNumField.Equals(value) != true)) {
-                    this.m_nOrderNumField = value;
-                    this.RaisePropertyChanged("m_nOrderNum");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string m_sMediaId {
-            get {
-                return this.m_sMediaIdField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.m_sMediaIdField, value) != true)) {
-                    this.m_sMediaIdField = value;
-                    this.RaisePropertyChanged("m_sMediaId");
-                }
-            }
-        }
-        
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="ChannelViewsResult", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
-    [System.SerializableAttribute()]
-    public partial class ChannelViewsResult : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
-        [System.NonSerializedAttribute()]
-        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int ChannelIdField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int NumOfViewsField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
-                return this.extensionDataField;
-            }
-            set {
-                this.extensionDataField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int ChannelId {
-            get {
-                return this.ChannelIdField;
-            }
-            set {
-                if ((this.ChannelIdField.Equals(value) != true)) {
-                    this.ChannelIdField = value;
-                    this.RaisePropertyChanged("ChannelId");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int NumOfViews {
-            get {
-                return this.NumOfViewsField;
-            }
-            set {
-                if ((this.NumOfViewsField.Equals(value) != true)) {
-                    this.NumOfViewsField = value;
-                    this.RaisePropertyChanged("NumOfViews");
-                }
-            }
-        }
-        
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="BuzzWeightedAverScore", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Statistics")]
-    [System.SerializableAttribute()]
-    public partial class BuzzWeightedAverScore : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
-        [System.NonSerializedAttribute()]
-        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
-        private double NormalizedWeightedAverageScoreField;
-        
-        private System.DateTime UpdateDateField;
-        
-        private double WeightedAverageScoreField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
-                return this.extensionDataField;
-            }
-            set {
-                this.extensionDataField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
-        public double NormalizedWeightedAverageScore {
-            get {
-                return this.NormalizedWeightedAverageScoreField;
-            }
-            set {
-                if ((this.NormalizedWeightedAverageScoreField.Equals(value) != true)) {
-                    this.NormalizedWeightedAverageScoreField = value;
-                    this.RaisePropertyChanged("NormalizedWeightedAverageScore");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
-        public System.DateTime UpdateDate {
-            get {
-                return this.UpdateDateField;
-            }
-            set {
-                if ((this.UpdateDateField.Equals(value) != true)) {
-                    this.UpdateDateField = value;
-                    this.RaisePropertyChanged("UpdateDate");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
-        public double WeightedAverageScore {
-            get {
-                return this.WeightedAverageScoreField;
-            }
-            set {
-                if ((this.WeightedAverageScoreField.Equals(value) != true)) {
-                    this.WeightedAverageScoreField = value;
-                    this.RaisePropertyChanged("WeightedAverageScore");
-                }
-            }
-        }
-        
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="AssetStatsResult", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Response")]
     [System.SerializableAttribute()]
     public partial class AssetStatsResult : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
@@ -11052,6 +11007,67 @@ namespace WebAPI.Catalog {
                 if ((this.m_nVotesField.Equals(value) != true)) {
                     this.m_nVotesField = value;
                     this.RaisePropertyChanged("m_nVotes");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="ChannelViewsResult", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
+    [System.SerializableAttribute()]
+    public partial class ChannelViewsResult : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int ChannelIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int NumOfViewsField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int ChannelId {
+            get {
+                return this.ChannelIdField;
+            }
+            set {
+                if ((this.ChannelIdField.Equals(value) != true)) {
+                    this.ChannelIdField = value;
+                    this.RaisePropertyChanged("ChannelId");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int NumOfViews {
+            get {
+                return this.NumOfViewsField;
+            }
+            set {
+                if ((this.NumOfViewsField.Equals(value) != true)) {
+                    this.NumOfViewsField = value;
+                    this.RaisePropertyChanged("NumOfViews");
                 }
             }
         }
@@ -11401,6 +11417,12 @@ namespace WebAPI.Catalog {
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/RebuildEpgChannel", ReplyAction="urn:Iservice/RebuildEpgChannelResponse")]
         System.Threading.Tasks.Task<bool> RebuildEpgChannelAsync(int groupId, int epgChannelID, System.DateTime fromDate, System.DateTime toDate, bool duplicates);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/ClearStatistics", ReplyAction="urn:Iservice/ClearStatisticsResponse")]
+        WebAPI.Catalog.Status ClearStatistics(int groupId, System.DateTime until);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/ClearStatistics", ReplyAction="urn:Iservice/ClearStatisticsResponse")]
+        System.Threading.Tasks.Task<WebAPI.Catalog.Status> ClearStatisticsAsync(int groupId, System.DateTime until);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -11564,6 +11586,14 @@ namespace WebAPI.Catalog {
         
         public System.Threading.Tasks.Task<bool> RebuildEpgChannelAsync(int groupId, int epgChannelID, System.DateTime fromDate, System.DateTime toDate, bool duplicates) {
             return base.Channel.RebuildEpgChannelAsync(groupId, epgChannelID, fromDate, toDate, duplicates);
+        }
+        
+        public WebAPI.Catalog.Status ClearStatistics(int groupId, System.DateTime until) {
+            return base.Channel.ClearStatistics(groupId, until);
+        }
+        
+        public System.Threading.Tasks.Task<WebAPI.Catalog.Status> ClearStatisticsAsync(int groupId, System.DateTime until) {
+            return base.Channel.ClearStatisticsAsync(groupId, until);
         }
     }
 }

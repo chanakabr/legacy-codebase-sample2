@@ -364,6 +364,9 @@
     <Content Include="Service References\Catalog\WebAPI.Catalog.Response.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
+    <Content Include="Service References\Catalog\WebAPI.Catalog.Status.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
     <None Include="Service References\Notifications\configuration91.svcinfo" />
     <None Include="Service References\Notifications\configuration.svcinfo" />
     <None Include="Service References\Catalog\Service.disco" />
@@ -1575,6 +1578,9 @@
     <Content Include="Web References\ConditionalAccess\RecordingResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\ConditionalAccess\RecordingCleanupResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\ConditionalAccess\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
@@ -1862,11 +1868,19 @@
     <Compile Include="Managers\Schema\OldStandard.cs" />
     <Compile Include="Managers\Schema\ValidationException.cs" />
     <Compile Include="Managers\Schema\SchemaValidationType.cs" />
+    <Compile Include="Models\API\KalturaParentalRuleFilter.cs" />
     <Compile Include="Models\API\KalturaExportTaskFilter.cs" />
     <Compile Include="Models\API\KalturaCDNPartnerSettings.cs" />
     <Compile Include="Models\API\KalturaCDNAdapterProfile.cs" />
     <Compile Include="Models\API\KalturaCDNAdapterProfileListResponse.cs" />
     <Compile Include="Models\API\KalturaExportTaskOrderBy.cs" />
+    <Compile Include="Models\API\KalturaParentalRuleOrderBy.cs" />
+    <Compile Include="Models\Catalog\KalturaSearchFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaAsset.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetOrderBy.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaEntitlementFilter.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaEntitlementOrderBy.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransactionHistoryFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCDVRAdapterProfile.cs" />
     <Compile Include="Models\API\KalturaPermissionsFilter.cs" />

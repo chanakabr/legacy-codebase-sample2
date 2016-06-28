@@ -149,6 +149,72 @@ namespace WebAPI.Clients
             return result;
         }
 
+        public KalturaAssetListResponse SearchAssets(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
+            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes)
+        {
+            KalturaAssetListResponse result = new KalturaAssetListResponse();
+
+            OrderObj order = CatalogConvertor.ConvertOrderToOrderObj(orderBy);
+
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
+
+            // build request
+            UnifiedSearchRequest request = new UnifiedSearchRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_bUseStartDate = group.UseStartDate,
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
+                },
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize.Value,
+                filterQuery = filter,
+                order = order,
+                assetTypes = assetTypes,
+                m_sSiteGuid = siteGuid,
+                domainId = domainId
+            };
+
+            // build failover cache key
+            StringBuilder key = new StringBuilder();
+            key.AppendFormat("Unified_search_g={0}_ps={1}_pi={2}_ob={3}_od={4}_ov={5}_f={6}", groupId, pageSize, pageIndex, order.m_eOrderBy, order.m_eOrderDir, order.m_sOrderValue, filter);
+            if (assetTypes != null && assetTypes.Count > 0)
+                key.AppendFormat("_at={0}", string.Join(",", assetTypes.Select(at => at.ToString()).ToArray()));
+
+            // fire unified search request
+            UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(CatalogClientModule, request, out searchResponse, true, key.ToString()))
+            {
+                // general error
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (searchResponse.status.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(searchResponse.status.Code, searchResponse.status.Message);
+            }
+
+            if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
+            {
+                // get base objects list
+                List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
+
+                // get assets from catalog/cache
+                result.Objects = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration);
+                result.TotalCount = searchResponse.m_nTotalItems;
+            }
+
+            return result;
+        }
+
         public KalturaSlimAssetInfoWrapper Autocomplete(int groupId, string siteGuid, string udid, string language, int? size, string query, KalturaOrder? orderBy, List<int> assetTypes, List<KalturaCatalogWith> with)
         {
             KalturaSlimAssetInfoWrapper result = new KalturaSlimAssetInfoWrapper();
@@ -375,6 +441,50 @@ namespace WebAPI.Clients
                 mediaId, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty);
 
             result = CatalogUtils.GetMedia(CatalogClientModule, request, key.ToString(), CacheDuration, with);
+
+            return result;
+        }
+
+        public KalturaAssetListResponse GetRelatedMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int mediaId, string filter, List<int> mediaTypes, KalturaAssetOrderBy orderBy)
+        {
+            KalturaAssetListResponse result = new KalturaAssetListResponse();
+
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
+
+            // convert order by
+            OrderObj order = CatalogConvertor.ConvertOrderToOrderObj(orderBy);
+
+            // build request
+            MediaRelatedRequest request = new MediaRelatedRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_bUseStartDate = group.UseStartDate,
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
+                },
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize.Value,
+                m_nMediaID = mediaId,
+                m_nMediaTypes = mediaTypes,
+                m_sSiteGuid = siteGuid,
+                domainId = domainId,
+                m_sFilter = filter, 
+                OrderObj = order
+            };
+
+            // build failover cache key
+            StringBuilder key = new StringBuilder();
+            key.AppendFormat("related_media_id={0}_pi={1}_pz={2}_g={3}_l={4}_mt={5}",
+                mediaId, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty);
+
+            result = CatalogUtils.GetMedia(CatalogClientModule, request, key.ToString(), CacheDuration);
 
             return result;
         }
@@ -657,7 +767,52 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetInfoListResponse GetEPGByInternalIds(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, List<int> epgIds, List<KalturaCatalogWith> with)
+        public KalturaAssetListResponse GetMediaByIds(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, List<int> mediaIds, KalturaAssetOrderBy orderBy)
+        {
+            KalturaAssetListResponse result = new KalturaAssetListResponse();
+
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
+
+            // build request
+            MediaUpdateDateRequest request = new MediaUpdateDateRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_bUseStartDate = group.UseStartDate,
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
+                },
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize.Value,
+                m_sSiteGuid = siteGuid,
+                domainId = domainId,
+                m_lMediaIds = mediaIds,
+            };
+
+            MediaIdsResponse mediaIdsResponse = new MediaIdsResponse();
+            if (!CatalogUtils.GetBaseResponse<MediaIdsResponse>(CatalogClientModule, request, out mediaIdsResponse))
+            {
+                // general error
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (mediaIdsResponse.m_nMediaIds != null && mediaIdsResponse.m_nMediaIds.Count > 0)
+            {
+                result.Objects = Mapper.Map<List<KalturaAsset>>(mediaIdsResponse.m_lObj);
+                result.TotalCount = mediaIdsResponse.m_nTotalItems;
+            }
+
+            return result;
+        }
+
+        public KalturaAssetInfoListResponse GetEPGByInternalIds(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, List<int> epgIds,
+            List<KalturaCatalogWith> with)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
@@ -707,7 +862,55 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetInfoListResponse GetEPGByExternalIds(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, List<string> epgIds, List<KalturaCatalogWith> with)
+        public KalturaAssetListResponse GetEPGByInternalIds(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, List<int> epgIds, KalturaAssetOrderBy orderBy)
+        {
+            KalturaAssetListResponse result = new KalturaAssetListResponse();
+
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
+
+            // build request
+            EpgProgramDetailsRequest request = new EpgProgramDetailsRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_bUseStartDate = group.UseStartDate,
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
+                },
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize.Value,
+                m_sSiteGuid = siteGuid,
+                domainId = domainId,
+                m_lProgramsIds = epgIds,
+            };
+
+            EpgProgramResponse epgProgramResponse = null;
+
+            if (CatalogUtils.GetBaseResponse(CatalogClientModule, request, out epgProgramResponse) && epgProgramResponse != null)
+            {
+                result.Objects = Mapper.Map<List<KalturaAsset>>(epgProgramResponse.m_lObj);
+
+                if (result.Objects != null)
+                {
+                    result.TotalCount = epgProgramResponse.m_nTotalItems;
+                }
+                else
+                {
+                    throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                }
+            }
+
+            return result;
+        }
+
+        public KalturaAssetInfoListResponse GetEPGByExternalIds(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, List<string> epgIds,
+            List<KalturaCatalogWith> with)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
@@ -757,6 +960,54 @@ namespace WebAPI.Clients
             return result;
         }
 
+        public KalturaAssetListResponse GetEPGByExternalIds(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, List<string> epgIds,
+            KalturaAssetOrderBy orderBy)
+        {
+            KalturaAssetListResponse result = new KalturaAssetListResponse();
+
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
+
+            // build request
+            EPGProgramsByProgramsIdentefierRequest request = new EPGProgramsByProgramsIdentefierRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                },
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize.Value,
+                m_sSiteGuid = siteGuid,
+                domainId = domainId,
+                pids = epgIds,
+                eLang = Catalog.Language.English,
+                duration = 0
+            };
+
+            EpgProgramsResponse epgProgramResponse = null;
+
+            if (CatalogUtils.GetBaseResponse(CatalogClientModule, request, out epgProgramResponse) && epgProgramResponse != null)
+            {
+                result.Objects = Mapper.Map<List<KalturaAsset>>(epgProgramResponse.lEpgList);
+
+                if (result.Objects != null)
+                {
+                    result.TotalCount = epgProgramResponse.m_nTotalItems;
+                }
+                else
+                {
+                    throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                }
+            }
+
+            return result;
+        }
+
         internal List<KalturaEPGChannelAssets> GetEPGByChannelIds(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, List<int> epgIds, DateTime startTime, DateTime endTime, List<KalturaCatalogWith> with)
         {
             List<KalturaEPGChannelAssets> result = new List<KalturaEPGChannelAssets>();
@@ -789,7 +1040,7 @@ namespace WebAPI.Clients
 
             EpgResponse epgProgramResponse = null;
 
-            var isBaseResponse = CatalogUtils.GetBaseResponse < EpgResponse>(CatalogClientModule, request, out  epgProgramResponse);
+            var isBaseResponse = CatalogUtils.GetBaseResponse <EpgResponse>(CatalogClientModule, request, out  epgProgramResponse);
             if (isBaseResponse && epgProgramResponse != null)
             {
                 result = CatalogConvertor.ConvertEPGChannelAssets(groupId, epgProgramResponse.programsPerChannel, with);
