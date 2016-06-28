@@ -2022,6 +2022,7 @@
     <Compile Include="Models\Partner\KalturaPartnerConfiguration.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Models\Pricing\KalturaSubscriptionFilter.cs" />
     <Compile Include="Models\Pricing\KalturaAssetPrice.cs" />
     <Compile Include="Models\Pricing\KalturaCoupon.cs" />
     <Compile Include="Models\Pricing\KalturaCouponStatus.cs" />
