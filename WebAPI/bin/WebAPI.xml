@@ -1327,7 +1327,15 @@
             <param name="language">Language code</param>
             <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.SubscriptionController.List(WebAPI.Models.Pricing.KalturaSubscriptionsFilter)">
+        <member name="M:WebAPI.Controllers.SubscriptionController.List(WebAPI.Models.Pricing.KalturaSubscriptionFilter)">
+            <summary>
+            Returns a list of subscriptions requested by Subscription ID or file ID
+            </summary>
+            <param name="filter">Filter request</param>
+            <remarks>Possible status codes:      
+              </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.SubscriptionController.ListOldStandard(WebAPI.Models.Pricing.KalturaSubscriptionsFilter)">
             <summary>
             Returns a list of subscriptions requested by Subscription ID or file ID
             </summary>
@@ -1723,7 +1731,7 @@
              <param name="request">Sequential API calls' definitions</param>
              <returns></returns>
         </member>
-        <member name="M:WebAPI.Controllers.SocialController.GetByToken(System.Int32,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
+        <member name="M:WebAPI.Controllers.SocialController.GetByTokenOldStandrd(System.Int32,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
             Return the user object with social information according to a provided external social token
             </summary>
@@ -1732,7 +1740,7 @@
             <param name="type">Social network type</param>
             <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.SocialController.Register(System.Int32,System.String,System.Boolean,System.Boolean,WebAPI.Models.Social.KalturaSocialNetwork)">
+        <member name="M:WebAPI.Controllers.SocialController.RegisterOldStandard(System.Int32,System.String,System.Boolean,System.Boolean,WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
             Create a new user in the system using a provided external social token
             </summary>
@@ -1743,7 +1751,7 @@
             <param name="subscribe_newsletter">Subscribes to newsletter</param>
             <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.SocialController.Merge(System.Int32,System.String,System.String,System.String,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
+        <member name="M:WebAPI.Controllers.SocialController.MergeOldStandard(System.Int32,System.String,System.String,System.String,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
             Connect an existing user in the system to an external social network user 
             </summary>
@@ -1755,7 +1763,7 @@
             <param name="partnerId">Partner identifier</param>
             <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.SocialController.Unmerge(System.String,System.String,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
+        <member name="M:WebAPI.Controllers.SocialController.UnmergeOldStandard(System.String,System.String,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
             Disconnect an existing user in the system from its  external social network user
             </summary>
@@ -1765,19 +1773,12 @@
             <param name="type">Social network type</param>
             <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.SocialController.Config(System.Int32,WebAPI.Models.Social.KalturaSocialNetwork)">
+        <member name="M:WebAPI.Controllers.SocialController.ConfigOldStandard(System.Int32,WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
             Retrieve the social network’s configuration information 
             </summary>        
             <param name="type">Social network type</param>
             <param name="partnerId">Partner identifier</param>
-            <returns></returns>
-        </member>
-        <member name="M:WebAPI.Controllers.SocialController.getConfiguration(WebAPI.Models.Social.KalturaSocialNetwork)">
-            <summary>
-            Retrieve the social network’s configuration information 
-            </summary>        
-            <param name="type">Social network type</param>
             <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.TransactionController.Purchase(System.Double,System.String,System.Int32,WebAPI.Models.ConditionalAccess.KalturaTransactionType,System.Int32,System.String,System.Int32,System.Nullable{System.Int32})">
@@ -3933,6 +3934,16 @@
             Holder object for channel enrichment enum
             </summary>    
         </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionFilter.SubscriptionIdIn">
+            <summary>
+            Comma separated subscription identifiers or file identifier (only 1) to get the subscriptions by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionFilter.MediaFileIdEqual">
+            <summary>
+            Media-file identifier to get the subscriptions by
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Pricing.KalturaAssetPrice.AssetId">
             <summary>
             Asset identifier  
@@ -4786,42 +4797,6 @@
         <member name="P:WebAPI.Models.Pricing.KalturaSubscription.UserTypes">
             <summary>
             List of permitted user types for the subscription
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Social.KalturaSocial.Status">
-            <summary>
-            User model status
-            Possible values: UNKNOWN, OK, ERROR, NOACTION, NOTEXIST, CONFLICT, MERGE, MERGEOK, NEWUSER, MINFRIENDS, INVITEOK, INVITEERROR, ACCESSDENIED, WRONGPASSWORDORUSERNAME, UNMERGEOK
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Social.KalturaSocial.UserId">
-            <summary>
-            User identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Social.KalturaSocial.SocialNetworkUsername">
-            <summary>
-            Facebook username
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Social.KalturaSocial.Pic">
-            <summary>
-            Facebook profile picture
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Social.KalturaSocial.Data">
-            <summary>
-            Data
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Social.KalturaSocial.MinFriends">
-            <summary>
-            Minimum number of friends limitation
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Social.KalturaSocial.SocialUser">
-            <summary>
-            Facebook user object
             </summary>
         </member>
         <member name="T:WebAPI.Models.Social.KalturaSocialConfig">
@@ -20274,6 +20249,15 @@
         <member name="M:WebAPI.Pricing.mdoule.GetSubscriptionsDataAsync(System.String,System.String,System.String[],System.String,System.String,System.String,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.Pricing.mdoule.GetSubscriptions(System.String,System.String,System.String[],System.String,System.String,System.String,WebAPI.Pricing.SubscriptionOrderBy)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.GetSubscriptionsAsync(System.String,System.String,System.String[],System.String,System.String,System.String,WebAPI.Pricing.SubscriptionOrderBy)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.GetSubscriptionsAsync(System.String,System.String,System.String[],System.String,System.String,System.String,WebAPI.Pricing.SubscriptionOrderBy,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.Pricing.mdoule.GetCollectionsData(System.String,System.String,System.String[],System.String,System.String,System.String)">
             <remarks/>
         </member>
@@ -20554,6 +20538,9 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.Pricing.mdoule.GetSubscriptionsDataCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Pricing.mdoule.GetSubscriptionsCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.Pricing.mdoule.GetCollectionsDataCompleted">
@@ -21414,6 +21401,15 @@
         <member name="F:WebAPI.Pricing.eTransactionType.Collection">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Pricing.SubscriptionOrderBy">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Pricing.SubscriptionOrderBy.StartDateAsc">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Pricing.SubscriptionOrderBy.StartDateDesc">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Pricing.GetCurrencyValuesCompletedEventHandler">
             <remarks/>
         </member>
@@ -21817,6 +21813,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Pricing.GetSubscriptionsDataCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.GetSubscriptionsCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.GetSubscriptionsCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.GetSubscriptionsCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Pricing.GetCollectionsDataCompletedEventHandler">

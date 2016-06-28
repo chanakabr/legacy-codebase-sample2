@@ -15,6 +15,7 @@ namespace WebAPI.Models.Catalog
     /// </summary>
     [Serializable]
     [OldStandard("requestId", "request_id")]
+    [Obsolete]
     public class KalturaAssetInfoListResponse : KalturaListResponse
     {
         /// <summary>
@@ -39,6 +40,7 @@ namespace WebAPI.Models.Catalog
     [OldStandard("startDate", "start_date")]
     [OldStandard("endDate", "end_date")]
     [OldStandard("extraParams", "extra_params")]
+    [Obsolete]
     public class KalturaAssetInfo : KalturaBaseAssetInfo, KalturaIAssetable
     {
         /// <summary>

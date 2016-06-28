@@ -36,15 +36,17 @@ namespace WebAPI.Controllers
             int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
             string udid = KSUtils.ExtractKSPayload().UDID;
             
-            KalturaAssetInfo asset;
+            KalturaAsset asset = null;
             try
             {
 
-                KalturaAssetInfoListResponse assetInfoListResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userId, domainId, udid, null, 0, 1, new List<int>() { (int)favorite.AssetId }, null);
-                asset = assetInfoListResponse.Objects.First();
+                KalturaAssetListResponse assetListResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userId, domainId, udid, null, 0, 1, new List<int>() { (int)favorite.AssetId }, KalturaAssetOrderBy.A_TO_Z);
+                if (assetListResponse != null)
+                    asset = assetListResponse.Objects.First();
 
                 // call client
-                ClientsManager.UsersClient().AddUserFavorite(groupId, userId, domainId, udid, asset.getType().ToString(), favorite.AssetId.ToString(), favorite.ExtraData);
+                if (asset != null)
+                    ClientsManager.UsersClient().AddUserFavorite(groupId, userId, domainId, udid, asset.getType().ToString(), favorite.AssetId.ToString(), favorite.ExtraData);
             }
             catch (ClientException ex)
             {

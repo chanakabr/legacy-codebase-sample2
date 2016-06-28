@@ -1217,6 +1217,32 @@
           <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
         </s:sequence>
       </s:complexType>
+      <s:element name="GetSubscriptions">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUsername" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="oSubCodes" type="tns:ArrayOfString" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="orderBy" type="tns:SubscriptionOrderBy" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:simpleType name="SubscriptionOrderBy">
+        <s:restriction base="s:string">
+          <s:enumeration value="StartDateAsc" />
+          <s:enumeration value="StartDateDesc" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="GetSubscriptionsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetSubscriptionsResult" type="tns:SubscriptionsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="GetCollectionsData">
         <s:complexType>
           <s:sequence>
@@ -1331,12 +1357,12 @@
               <s:element minOccurs="0" maxOccurs="1" name="UsageModule" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="Discount" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="CouponGroup" type="s:string" />
-              <s:element minOccurs="1" maxOccurs="1" name="SubscriptionOnly" type="s:boolean" />
+              <s:element minOccurs="1" maxOccurs="1" name="SubscriptionOnly" nillable="true" type="s:boolean" />
               <s:element minOccurs="0" maxOccurs="1" name="Descriptions" type="tns:ArrayOfKeyValuePair" />
-              <s:element minOccurs="1" maxOccurs="1" name="FirstDeviceLimitation" type="s:boolean" />
+              <s:element minOccurs="1" maxOccurs="1" name="FirstDeviceLimitation" nillable="true" type="s:boolean" />
               <s:element minOccurs="0" maxOccurs="1" name="ProductCode" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="FileTypes" type="tns:ArrayOfString" />
-              <s:element minOccurs="1" maxOccurs="1" name="IsActive" type="s:boolean" />
+              <s:element minOccurs="1" maxOccurs="1" name="IsActive" nillable="true" type="s:boolean" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -1356,7 +1382,7 @@
       </s:simpleType>
       <s:complexType name="IngestPriceCode">
         <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="Price" type="s:double" />
+          <s:element minOccurs="1" maxOccurs="1" name="Price" nillable="true" type="s:double" />
           <s:element minOccurs="0" maxOccurs="1" name="Currency" type="s:string" />
         </s:sequence>
       </s:complexType>
@@ -1428,20 +1454,20 @@
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="Titles" type="tns:ArrayOfKeyValuePair" />
               <s:element minOccurs="0" maxOccurs="1" name="Descriptions" type="tns:ArrayOfKeyValuePair" />
-              <s:element minOccurs="1" maxOccurs="1" name="StartDate" type="s:dateTime" />
-              <s:element minOccurs="1" maxOccurs="1" name="EndDate" type="s:dateTime" />
+              <s:element minOccurs="1" maxOccurs="1" name="StartDate" nillable="true" type="s:dateTime" />
+              <s:element minOccurs="1" maxOccurs="1" name="EndDate" nillable="true" type="s:dateTime" />
               <s:element minOccurs="0" maxOccurs="1" name="InternalDiscount" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="CouponGroup" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="ProductCode" type="s:string" />
-              <s:element minOccurs="1" maxOccurs="1" name="IsRenewable" type="s:boolean" />
+              <s:element minOccurs="1" maxOccurs="1" name="IsRenewable" nillable="true" type="s:boolean" />
               <s:element minOccurs="0" maxOccurs="1" name="PreviewModule" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="DomainLimitationModule" type="s:string" />
-              <s:element minOccurs="1" maxOccurs="1" name="GracePeriodMinutes" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="GracePeriodMinutes" nillable="true" type="s:int" />
               <s:element minOccurs="0" maxOccurs="1" name="PricePlansCodes" type="tns:ArrayOfString" />
               <s:element minOccurs="0" maxOccurs="1" name="Channels" type="tns:ArrayOfString" />
               <s:element minOccurs="0" maxOccurs="1" name="FileTypes" type="tns:ArrayOfString" />
-              <s:element minOccurs="1" maxOccurs="1" name="IsActive" type="s:boolean" />
-              <s:element minOccurs="1" maxOccurs="1" name="OrderNumber" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="IsActive" nillable="true" type="s:boolean" />
+              <s:element minOccurs="1" maxOccurs="1" name="OrderNumber" nillable="true" type="s:int" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -1497,11 +1523,11 @@
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="FullLifeCycle" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="ViewLifeCycle" type="s:string" />
-              <s:element minOccurs="1" maxOccurs="1" name="MaxViews" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="MaxViews" nillable="true" type="s:int" />
               <s:element minOccurs="0" maxOccurs="1" name="PriceCode" type="tns:IngestPriceCode" />
-              <s:element minOccurs="1" maxOccurs="1" name="IsRenewable" type="s:boolean" />
-              <s:element minOccurs="1" maxOccurs="1" name="RecurringPeriods" type="s:int" />
-              <s:element minOccurs="1" maxOccurs="1" name="IsActive" type="s:boolean" />
+              <s:element minOccurs="1" maxOccurs="1" name="IsRenewable" nillable="true" type="s:boolean" />
+              <s:element minOccurs="1" maxOccurs="1" name="RecurringPeriods" nillable="true" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="IsActive" nillable="true" type="s:boolean" />
               <s:element minOccurs="0" maxOccurs="1" name="Discount" type="s:string" />
             </s:sequence>
           </s:extension>
@@ -1901,6 +1927,12 @@
   </wsdl:message>
   <wsdl:message name="GetSubscriptionsDataSoapOut">
     <wsdl:part name="parameters" element="tns:GetSubscriptionsDataResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetSubscriptions" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetSubscriptionsResponse" />
   </wsdl:message>
   <wsdl:message name="GetCollectionsDataSoapIn">
     <wsdl:part name="parameters" element="tns:GetCollectionsData" />
@@ -2438,6 +2470,18 @@
   <wsdl:message name="GetSubscriptionsDataHttpPostOut">
     <wsdl:part name="Body" element="tns:SubscriptionsResponse" />
   </wsdl:message>
+  <wsdl:message name="GetSubscriptionsHttpPostIn">
+    <wsdl:part name="sWSUsername" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="oSubCodes" type="s1:StringArray" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="orderBy" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsHttpPostOut">
+    <wsdl:part name="Body" element="tns:SubscriptionsResponse" />
+  </wsdl:message>
   <wsdl:message name="GetCollectionsDataHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -2706,6 +2750,10 @@
       <wsdl:input message="tns:GetSubscriptionsDataSoapIn" />
       <wsdl:output message="tns:GetSubscriptionsDataSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetSubscriptions">
+      <wsdl:input message="tns:GetSubscriptionsSoapIn" />
+      <wsdl:output message="tns:GetSubscriptionsSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetCollectionsData">
       <wsdl:input message="tns:GetCollectionsDataSoapIn" />
       <wsdl:output message="tns:GetCollectionsDataSoapOut" />
@@ -2951,6 +2999,10 @@
     <wsdl:operation name="GetSubscriptionsData">
       <wsdl:input message="tns:GetSubscriptionsDataHttpPostIn" />
       <wsdl:output message="tns:GetSubscriptionsDataHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptions">
+      <wsdl:input message="tns:GetSubscriptionsHttpPostIn" />
+      <wsdl:output message="tns:GetSubscriptionsHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetCollectionsData">
       <wsdl:input message="tns:GetCollectionsDataHttpPostIn" />
@@ -3393,6 +3445,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetSubscriptionsData">
       <soap:operation soapAction="http://pricing.tvinci.com/GetSubscriptionsData" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptions">
+      <soap:operation soapAction="http://pricing.tvinci.com/GetSubscriptions" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -3952,6 +4013,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetSubscriptions">
+      <soap12:operation soapAction="http://pricing.tvinci.com/GetSubscriptions" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetCollectionsData">
       <soap12:operation soapAction="http://pricing.tvinci.com/GetCollectionsData" style="document" />
       <wsdl:input>
@@ -4497,6 +4567,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetSubscriptionsData">
       <http:operation location="/GetSubscriptionsData" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptions">
+      <http:operation location="/GetSubscriptions" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

@@ -29,7 +29,7 @@
 		<h2>Kaltura API</h2>
 		<table class="action" width="80%">
 			<tr>
-				<th class="service_action_title">KalturaFilter</th>
+				<th class="service_action_title">KalturaSubscriptionFilter</th>
 			</tr>
 			<tr>
 				<td class="title">Properties</td>
@@ -70,7 +70,38 @@
 					<table style="">
 						<tbody>
 							<tr>
-								<td class="inheritedFrom"><b>KalturaFilter</b></td>
+								<td class="inheritedFrom">
+									<b><img class="base-attribute" src="../images/collapsed.gif"> Inherited from <a href="KalturaFilter.html">KalturaFilter</a></b>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table style="display: none">
+						<tbody>
+							<tr>
+								<th class="subtitle">Name</th>
+								<th class="subtitle">Type</th>
+								<th class="subtitle">Writable</th>
+								<th class="subtitle">Restrictions</th>
+								<th class="subtitle">Description</th>
+							</tr>
+							<tr >
+								<td>orderBy</td>
+								<td><a href="../enums/KalturaSubscriptionOrderBy.html">KalturaSubscriptionOrderBy</a></td>
+								<td>V</td>
+								<td></td>
+								<td></td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<table style="">
+						<tbody>
+							<tr>
+								<td class="inheritedFrom"><b>KalturaSubscriptionFilter</b></td>
 							</tr>
 						</tbody>
 					</table>
@@ -84,18 +115,22 @@
 								<th class="subtitle">Description</th>
 							</tr>
 							<tr >
-								<td>orderBy</td>
+								<td>subscriptionIdIn</td>
+								<td>string</td>
+								<td>V</td>
+								<td></td>
+								<td>Comma separated subscription identifiers or file identifier (only 1) to get the subscriptions by</td>
+							</tr>
+							<tr class="odd">
+								<td>mediaFileIdEqual</td>
 								<td>int</td>
 								<td>V</td>
 								<td></td>
-								<td></td>
+								<td>Media-file identifier to get the subscriptions by</td>
 							</tr>
 						</tbody>
 					</table>
 				</td>
-			</tr>
-			<tr>
-				<td>Sub classes: <a href="KalturaRecordingContextFilter.html">KalturaRecordingContextFilter</a>, <a href="KalturaRecordingFilter.html">KalturaRecordingFilter</a>, <a href="KalturaExportTaskFilter.html">KalturaExportTaskFilter</a>, <a href="KalturaSubscriptionFilter.html">KalturaSubscriptionFilter</a>, <a href="KalturaFavoriteFilter.html">KalturaFavoriteFilter</a>, <a href="KalturaTransactionHistoryFilter.html">KalturaTransactionHistoryFilter</a></td>
 			</tr>
 		</table>
 	</div>

@@ -8,8 +8,10 @@ using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Mapping.ObjectsConvertor;
 using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
+using WebAPI.Pricing;
 using WebAPI.Utils;
 
 namespace WebAPI.Clients
@@ -30,19 +32,20 @@ namespace WebAPI.Clients
             }
         }
 
-        internal List<KalturaSubscription> GetSubscriptionsData(int groupId, List<string> subscriptionsIds, string udid, string languageCode)
+        internal List<KalturaSubscription> GetSubscriptionsData(int groupId, string[] subscriptionsIds, string udid, string languageCode, KalturaSubscriptionOrderBy orderBy)
         {
             WebAPI.Pricing.SubscriptionsResponse response = null;
             List<KalturaSubscription> subscriptions = new List<KalturaSubscription>();
 
             Group group = GroupsManager.GetGroup(groupId);
+            SubscriptionOrderBy wsOrderBy = PricingMappings.ConvertSubscriptionOrderBy(orderBy);
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Pricing.GetSubscriptionsData(group.PricingCredentials.Username, group.PricingCredentials.Password,
-                        subscriptionsIds.ToArray(), string.Empty, languageCode, udid);
+                    response = Pricing.GetSubscriptions(group.PricingCredentials.Username, group.PricingCredentials.Password,
+                        subscriptionsIds, string.Empty, languageCode, udid, wsOrderBy);
                 }
             }
             catch (Exception ex)
@@ -96,7 +99,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            subscriptions = WebAPI.Mapping.ObjectsConvertor.PricingMappings.ConvertToIntList(response.Ids);
+            subscriptions = PricingMappings.ConvertToIntList(response.Ids);
 
             return subscriptions;
         }

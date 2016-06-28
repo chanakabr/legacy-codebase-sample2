@@ -10,6 +10,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
+    [Obsolete]
     public class KalturaRuleFilter : KalturaOTTObject
     {
         /// <summary>

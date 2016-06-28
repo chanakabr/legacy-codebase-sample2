@@ -13,6 +13,7 @@ namespace WebAPI.Models.ConditionalAccess
     [OldStandard("subscriptionsIds", "subscriptions_ids")]
     [OldStandard("filesIds", "files_ids")]
     [OldStandard("shouldGetOnlyLowest", "should_get_only_lowest")]
+    [Obsolete]
     public class KalturaPricesFilter : KalturaOTTObject
     {
         /// <summary>

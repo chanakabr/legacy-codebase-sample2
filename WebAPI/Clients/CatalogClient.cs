@@ -63,6 +63,7 @@ namespace WebAPI.Clients
             return retVal;
         }
 
+        [Obsolete]
         public KalturaAssetInfoListResponse SearchAssets(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
             string filter, KalturaOrder? orderBy, List<int> assetTypes, string requestId, List<KalturaCatalogWith> with)
         {
@@ -405,6 +406,7 @@ namespace WebAPI.Clients
             return result;
         }
 
+        [Obsolete]
         public KalturaAssetInfoListResponse GetRelatedMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int mediaId, string filter, List<int> mediaTypes, List<KalturaCatalogWith> with)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
@@ -723,6 +725,7 @@ namespace WebAPI.Clients
             return result;
         }
 
+        [Obsolete]
         public KalturaAssetInfoListResponse GetMediaByIds(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, List<int> mediaIds, List<KalturaCatalogWith> with)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
@@ -811,6 +814,7 @@ namespace WebAPI.Clients
             return result;
         }
 
+        [Obsolete]
         public KalturaAssetInfoListResponse GetEPGByInternalIds(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, List<int> epgIds,
             List<KalturaCatalogWith> with)
         {
@@ -909,6 +913,7 @@ namespace WebAPI.Clients
             return result;
         }
 
+        [Obsolete]
         public KalturaAssetInfoListResponse GetEPGByExternalIds(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, List<string> epgIds,
             List<KalturaCatalogWith> with)
         {

@@ -8,6 +8,8 @@ using WebAPI.Models.General;
 using WebAPI.Managers.Models;
 using WebAPI.Utils;
 using WebAPI.Models.ConditionalAccess;
+using WebAPI.Models.Pricing;
+using WebAPI.Pricing;
 
 
 namespace WebAPI.Mapping.ObjectsConvertor
@@ -17,7 +19,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
         public static void RegisterMappings()
         {
             // CouponsGroup
-            Mapper.CreateMap<WebAPI.Pricing.CouponsGroup, Models.Pricing.KalturaCouponsGroup>()
+            Mapper.CreateMap<WebAPI.Pricing.CouponsGroup, KalturaCouponsGroup>()
                .ForMember(dest => dest.Descriptions, opt => opt.MapFrom(src => src.m_sDescription))
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dEndDate)))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_sGroupCode))
@@ -27,26 +29,26 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.MaxUsesNumberOnRenewableSub, opt => opt.MapFrom(src => src.m_nMaxRecurringUsesCountForCoupon));
 
             // Price
-            Mapper.CreateMap<WebAPI.Pricing.Price, Models.Pricing.KalturaPrice>()
+            Mapper.CreateMap<WebAPI.Pricing.Price, KalturaPrice>()
                .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.m_dPrice))
                .ForMember(dest => dest.Currency, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencyCD3))
                .ForMember(dest => dest.CurrencySign, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencySign)); ;
 
             // PriceCode
-            Mapper.CreateMap<WebAPI.Pricing.PriceCode, Models.Pricing.KalturaPriceDetails>()
+            Mapper.CreateMap<WebAPI.Pricing.PriceCode, KalturaPriceDetails>()
                .ForMember(dest => dest.Descriptions, opt => opt.MapFrom(src => src.m_sDescription))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nObjectID))
                .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.m_sCode))
                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oPrise));
 
             // DiscountModule
-            Mapper.CreateMap<WebAPI.Pricing.DiscountModule, Models.Pricing.KalturaDiscountModule>()
+            Mapper.CreateMap<WebAPI.Pricing.DiscountModule, KalturaDiscountModule>()
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dEndDate)))
                .ForMember(dest => dest.Percent, opt => opt.MapFrom(src => src.m_dPercent))
                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dStartDate)));
 
             // UsageModule
-            Mapper.CreateMap<WebAPI.Pricing.UsageModule, Models.Pricing.KalturaUsageModule>()
+            Mapper.CreateMap<WebAPI.Pricing.UsageModule, KalturaUsageModule>()
                .ForMember(dest => dest.CouponId, opt => opt.MapFrom(src => src.m_coupon_id))
                .ForMember(dest => dest.FullLifeCycle, opt => opt.MapFrom(src => src.m_tsMaxUsageModuleLifeCycle))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nObjectID))
@@ -63,7 +65,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
             // PreviewModule
-            Mapper.CreateMap<Pricing.PreviewModule, Models.Pricing.KalturaPreviewModule>()
+            Mapper.CreateMap<Pricing.PreviewModule, KalturaPreviewModule>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nID))
                .ForMember(dest => dest.LifeCycle, opt => opt.MapFrom(src => src.m_tsFullLifeCycle))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName))
@@ -90,7 +92,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName));
 
             // BundleCodeContainer to SlimChannel
-            Mapper.CreateMap<ConditionalAccess.SubscriptionsPricesContainer, Models.Pricing.KalturaSubscriptionPrice>()
+            Mapper.CreateMap<ConditionalAccess.SubscriptionsPricesContainer, KalturaSubscriptionPrice>()
                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.m_sSubscriptionCode))
                .ForMember(dest => dest.PurchaseStatus, opt => opt.MapFrom(src => ConvertPriceReasonToPurchaseStatus(src.m_PriceReason)))
                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oPrice))
@@ -98,7 +100,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
 
 
             // Subscription
-            Mapper.CreateMap<WebAPI.Pricing.Subscription, Models.Pricing.KalturaSubscription>()
+            Mapper.CreateMap<WebAPI.Pricing.Subscription, KalturaSubscription>()
                .ForMember(dest => dest.IsInfiniteRenewal, opt => opt.MapFrom(src => src.m_bIsInfiniteRecurring))
                .ForMember(dest => dest.IsRenewable, opt => opt.MapFrom(src => src.m_bIsRecurring))
                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dStartDate)))
@@ -127,7 +129,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.UserTypes, opt => opt.MapFrom(src => src.m_UserTypes));
 
             // KalturaPricePlan
-            Mapper.CreateMap<WebAPI.Pricing.UsageModule, Models.Pricing.KalturaPricePlan>()
+            Mapper.CreateMap<WebAPI.Pricing.UsageModule, KalturaPricePlan>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nObjectID))
                .ForMember(dest => dest.CouponId, opt => opt.MapFrom(src => src.m_coupon_id))
                .ForMember(dest => dest.FullLifeCycle, opt => opt.MapFrom(src => src.m_tsMaxUsageModuleLifeCycle))
@@ -143,7 +145,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.DiscountId, opt => opt.MapFrom(src => src.m_ext_discount_id));
 
             // ItemPriceContainer to PPVItemPriceDetails
-            Mapper.CreateMap<ConditionalAccess.ItemPriceContainer, Models.Pricing.KalturaPPVItemPriceDetails>()
+            Mapper.CreateMap<ConditionalAccess.ItemPriceContainer, KalturaPPVItemPriceDetails>()
                .ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.m_relevantCol))
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.m_dtEndDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(src.m_dtEndDate.Value) : 0))
                .ForMember(dest => dest.DiscountEndDate, opt => opt.MapFrom(src => src.m_dtDiscountEndDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(src.m_dtDiscountEndDate.Value) : 0))
@@ -164,18 +166,18 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.m_sProductCode));
 
             // ItemPriceContainer to PPVItemPriceDetails
-            Mapper.CreateMap<ConditionalAccess.MediaFileItemPricesContainer, Models.Pricing.KalturaItemPrice>()
+            Mapper.CreateMap<ConditionalAccess.MediaFileItemPricesContainer, KalturaItemPrice>()
                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.m_sProductCode))
                .ForMember(dest => dest.FileId, opt => opt.MapFrom(src => src.m_nMediaFileID))
                .ForMember(dest => dest.PPVPriceDetails, opt => opt.MapFrom(src => src.m_oItemPrices));
 
             // CouponData to CouponDetails
-            Mapper.CreateMap<Pricing.CouponData, Models.Pricing.KalturaCoupon>()
+            Mapper.CreateMap<Pricing.CouponData, KalturaCoupon>()
                .ForMember(dest => dest.CouponsGroup, opt => opt.MapFrom(src => src.m_oCouponGroup))
                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertCouponStatus(src.m_CouponStatus)));
 
             // PpvModule to KalturaPpvModule
-            Mapper.CreateMap<WebAPI.Pricing.PPVModule, Models.Pricing.KalturaPpv>()
+            Mapper.CreateMap<WebAPI.Pricing.PPVModule, KalturaPpv>()
                .ForMember(dest => dest.CouponsGroup, opt => opt.MapFrom(src => src.m_oCouponsGroup))
                .ForMember(dest => dest.Descriptions, opt => opt.MapFrom(src => src.m_sDescription))
                .ForMember(dest => dest.DiscountModule, opt => opt.MapFrom(src => src.m_oDiscountModule))
@@ -200,49 +202,49 @@ namespace WebAPI.Mapping.ObjectsConvertor
             return result;
         }
 
-        private static WebAPI.Models.Pricing.KalturaPurchaseStatus ConvertPriceReasonToPurchaseStatus(ConditionalAccess.PriceReason priceReason)
+        private static KalturaPurchaseStatus ConvertPriceReasonToPurchaseStatus(ConditionalAccess.PriceReason priceReason)
         {
-            WebAPI.Models.Pricing.KalturaPurchaseStatus result;
+            KalturaPurchaseStatus result;
             switch (priceReason)
             {
                 case WebAPI.ConditionalAccess.PriceReason.PPVPurchased:
-                    result = Models.Pricing.KalturaPurchaseStatus.ppv_purchased;
+                    result = KalturaPurchaseStatus.ppv_purchased;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.Free:
-                    result = Models.Pricing.KalturaPurchaseStatus.free;
+                    result = KalturaPurchaseStatus.free;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.ForPurchaseSubscriptionOnly:
-                    result = Models.Pricing.KalturaPurchaseStatus.for_purchase_subscription_only;
+                    result = KalturaPurchaseStatus.for_purchase_subscription_only;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.SubscriptionPurchased:
-                    result = Models.Pricing.KalturaPurchaseStatus.subscription_purchased;
+                    result = KalturaPurchaseStatus.subscription_purchased;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.ForPurchase:
-                    result = Models.Pricing.KalturaPurchaseStatus.for_purchase;
+                    result = KalturaPurchaseStatus.for_purchase;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.SubscriptionPurchasedWrongCurrency:
-                    result = Models.Pricing.KalturaPurchaseStatus.subscription_purchased_wrong_currency;
+                    result = KalturaPurchaseStatus.subscription_purchased_wrong_currency;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.PrePaidPurchased:
-                    result = Models.Pricing.KalturaPurchaseStatus.pre_paid_purchased;
+                    result = KalturaPurchaseStatus.pre_paid_purchased;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.GeoCommerceBlocked:
-                    result = Models.Pricing.KalturaPurchaseStatus.geo_commerce_blocked;
+                    result = KalturaPurchaseStatus.geo_commerce_blocked;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.EntitledToPreviewModule:
-                    result = Models.Pricing.KalturaPurchaseStatus.entitled_to_preview_module;
+                    result = KalturaPurchaseStatus.entitled_to_preview_module;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.FirstDeviceLimitation:
-                    result = Models.Pricing.KalturaPurchaseStatus.first_device_limitation;
+                    result = KalturaPurchaseStatus.first_device_limitation;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.CollectionPurchased:
-                    result = Models.Pricing.KalturaPurchaseStatus.collection_purchased;
+                    result = KalturaPurchaseStatus.collection_purchased;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.UserSuspended:
-                    result = Models.Pricing.KalturaPurchaseStatus.user_suspended;
+                    result = KalturaPurchaseStatus.user_suspended;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.NotForPurchase:
-                    result = Models.Pricing.KalturaPurchaseStatus.not_for_purchase;
+                    result = KalturaPurchaseStatus.not_for_purchase;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown purchase status");
@@ -251,29 +253,48 @@ namespace WebAPI.Mapping.ObjectsConvertor
             return result;
         }
 
-        private static WebAPI.Models.Pricing.KalturaCouponStatus ConvertCouponStatus(WebAPI.Pricing.CouponsStatus couponStatus)
+        private static KalturaCouponStatus ConvertCouponStatus(WebAPI.Pricing.CouponsStatus couponStatus)
         {
-            WebAPI.Models.Pricing.KalturaCouponStatus result;
+            KalturaCouponStatus result;
 
             switch (couponStatus)
             {
                 case WebAPI.Pricing.CouponsStatus.Valid:
-                    result = Models.Pricing.KalturaCouponStatus.VALID;
+                    result = KalturaCouponStatus.VALID;
                     break;
                 case WebAPI.Pricing.CouponsStatus.NotExists:
-                    result = Models.Pricing.KalturaCouponStatus.NOT_EXISTS;
+                    result = KalturaCouponStatus.NOT_EXISTS;
                     break;
                 case WebAPI.Pricing.CouponsStatus.AllreadyUsed:
-                    result = Models.Pricing.KalturaCouponStatus.ALREADY_USED;
+                    result = KalturaCouponStatus.ALREADY_USED;
                     break;
                 case WebAPI.Pricing.CouponsStatus.Expired:
-                    result = Models.Pricing.KalturaCouponStatus.EXPIRED;
+                    result = KalturaCouponStatus.EXPIRED;
                     break;
                 case WebAPI.Pricing.CouponsStatus.NotActive:
-                    result = Models.Pricing.KalturaCouponStatus.INACTIVE;
+                    result = KalturaCouponStatus.INACTIVE;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown coupon status");
+            }
+
+            return result;
+        }
+
+        public static SubscriptionOrderBy ConvertSubscriptionOrderBy(KalturaSubscriptionOrderBy orderBy)
+        {
+            SubscriptionOrderBy result;
+
+            switch (orderBy)
+            {
+                case KalturaSubscriptionOrderBy.START_DATE_ASC:
+                    result = SubscriptionOrderBy.StartDateAsc;
+                    break;
+                case KalturaSubscriptionOrderBy.START_DATE_DESC:
+                    result = SubscriptionOrderBy.StartDateDesc;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown export task order by");
             }
 
             return result;
