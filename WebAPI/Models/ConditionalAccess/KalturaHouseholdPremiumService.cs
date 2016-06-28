@@ -12,8 +12,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// <summary>
     /// Premium service
     /// </summary>
-    [Obsolete]
-    public class KalturaPremiumService : KalturaOTTObject
+    public class KalturaHouseholdPremiumService : KalturaOTTObject
     {
         /// <summary>
         /// Service identifier

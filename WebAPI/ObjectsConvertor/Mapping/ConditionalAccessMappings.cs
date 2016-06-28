@@ -249,6 +249,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                
             #endregion
 
+            //KalturaHouseholdPremiumService
+            Mapper.CreateMap<ConditionalAccess.ServiceObject, Models.ConditionalAccess.KalturaHouseholdPremiumService>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
         }
 
         #region Recording Help Methods

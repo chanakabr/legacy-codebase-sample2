@@ -7,6 +7,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Domains;
 using WebAPI.Utils;
@@ -14,17 +15,44 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/householdPremiumService/action")]
+    [OldStandard("listOldStandard", "list")]
     public class HouseholdPremiumServiceController : ApiController
     {
         /// <summary>
         /// Returns all the premium services allowed for the household
         /// </summary>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Route("listOldStandard"), HttpPost]
         [ApiAuthorize]
-        public List<KalturaPremiumService> List()
+        [Obsolete]
+        public List<KalturaPremiumService> ListOldStandard()
         {
             List<KalturaPremiumService> response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+            try
+            {
+                response = ClientsManager.ConditionalAccessClient().GetDomainServicesOldStandart(groupId, (int)householdId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Returns all the premium services allowed for the household
+        /// </summary>
+        /// <returns></returns>
+        [Route("list"), HttpPost]
+        [ApiAuthorize]
+        public KalturaHouseholdPremiumServiceListResponse List()
+        {
+            KalturaHouseholdPremiumServiceListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
             long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
