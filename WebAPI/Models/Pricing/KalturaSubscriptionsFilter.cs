@@ -10,6 +10,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
 {
+    [Obsolete]
     public class KalturaSubscriptionsFilter : KalturaOTTObject
     {
         /// <summary>
