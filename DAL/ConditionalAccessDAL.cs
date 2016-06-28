@@ -2973,12 +2973,12 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static DataTable GetExistingRecordingsByRecordingID(int groupID, long extRecordID)
+        public static DataTable GetExistingRecordingsByRecordingID(int groupID, long domainRecordID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetExistingRecordingsByRecordingID");
             sp.SetConnectionKey("CONNECTION_STRING");
             sp.AddParameter("@GroupID", groupID);
-            sp.AddParameter("@RecordID", extRecordID);
+            sp.AddParameter("@DomainRecordID", domainRecordID);
             DataTable dt = sp.Execute();
 
             return dt;

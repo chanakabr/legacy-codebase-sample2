@@ -4894,7 +4894,7 @@ namespace ConditionalAccess
                     return recording;
                 }
 
-                recording = DomainRecordingIdToRecordingMap[domainRecordingID];
+                recording = DomainRecordingIdToRecordingMap[domainRecordingID];               
                 recording.Id = domainRecordingID;
             }
             catch (Exception ex)
@@ -4930,6 +4930,8 @@ namespace ConditionalAccess
                 TstvRecordingStatus? recordingStatus = ConvertToTstvRecordingStatus(domainRecordingStatus);
                 DateTime epgStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE");
                 DateTime epgEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
+                string externalRecordingId = ODBCWrapper.Utils.GetSafeStr(dr, "EXTERNAL_RECORDING_ID");
+
                 if (!recordingStatus.HasValue)
                 {
                     log.ErrorFormat("Failed Convert DomainRecordingStatus: {0} to TstvRecordingStatus for recordingID: {1}, epgID: {2}",
@@ -4963,7 +4965,8 @@ namespace ConditionalAccess
                     EpgEndDate = epgEndDate,
                     CreateDate = createDate,
                     UpdateDate = updateDate,
-                    RecordingStatus = recordingStatus.Value
+                    RecordingStatus = recordingStatus.Value,
+                    ExternalRecordingId = externalRecordingId
                 };
 
                 // if recording status is Recorded then set ViewableUntilDate
