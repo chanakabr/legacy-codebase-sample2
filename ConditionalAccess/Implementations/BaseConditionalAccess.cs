@@ -18008,7 +18008,7 @@ namespace ConditionalAccess
                 Dictionary<long, Recording> domainProtectedRecordings = Utils.GetDomainProtectedRecordings(m_nGroupID, domainID);
                 // Check protection quota before applying protection on recording
                 ApiObjects.Response.Status protectionQuotaStatus = QuotaManager.Instance.CheckQuotaByTotalMinutes(m_nGroupID, domainID, availableProtectionMinutes, false, new List<Recording>() { recording }, domainProtectedRecordings != null? domainProtectedRecordings.Values.ToList() : new List<Recording>());
-                if (protectionQuotaStatus == null || protectionQuotaStatus.Code != (int)eResponseStatus.OK)
+                if (protectionQuotaStatus == null || protectionQuotaStatus.Code != (int)eResponseStatus.OK || recording.Status == null || recording.Status.Code != (int)eResponseStatus.OK)
                 {
                     log.DebugFormat("Domain Exceeded Protection Quota, DomainID: {0}, UserID: {1}, recordID: {2}", domainID, userID, domainRecordingID);
                     recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExceededProtectionQuota, eResponseStatus.ExceededProtectionQuota.ToString());
