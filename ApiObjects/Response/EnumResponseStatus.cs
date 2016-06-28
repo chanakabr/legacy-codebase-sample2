@@ -116,6 +116,7 @@ namespace ApiObjects.Response
         ExceededQuota = 3042,        
         RecordingStatusNotValid = 3043,
         ExceededProtectionQuota = 3044,
+        AccountProtectRecordNotEnabled = 3045,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,

@@ -43,7 +43,7 @@ namespace ApiObjects.TimeShiftedTv
             this.IsRecordingScheduleWindowEnabled = isRecordingScheduleWindowEnabled;
             this.PaddingAfterProgramEnds = paddingAfterProgramEnds;
             this.PaddingBeforeProgramStarts = paddingBeforeProgramStarts;
-            this.IsProtectionEnabled = IsProtectionEnabled;
+            this.IsProtectionEnabled = isProtectionEnabled;
             this.ProtectionPeriod = protectionPeriod;
             this.ProtectionQuotaPercentage = protectionQuotaPercentage;
             this.RecordingLifetimePeriod = recordingLifetimePeroid;
