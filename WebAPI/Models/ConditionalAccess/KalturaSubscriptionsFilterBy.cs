@@ -5,6 +5,7 @@ using System.Web;
 
 namespace WebAPI.Models.ConditionalAccess
 {
+    [Obsolete]
     public enum KalturaSubscriptionsFilterBy
     {
         subscriptions_ids,
