@@ -209,6 +209,11 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
         dr_quota.SetDefaultVal("---");
         theRecord.AddRecord(dr_quota);
 
+        DataRecordCheckBoxField dr_seriesRecording = new DataRecordCheckBoxField(true);
+        dr_seriesRecording.Initialize("Enable Series Recording ", "adm_table_header_nbg", "FormInput", "enable_series_recording", false);
+        dr_seriesRecording.SetDefault(1);
+        theRecord.AddRecord(dr_seriesRecording);
+
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
         dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
