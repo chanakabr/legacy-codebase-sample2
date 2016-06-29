@@ -1911,7 +1911,7 @@ namespace Catalog
                             else
                             {
                                 // Parse string into dictionary
-                                var partialDictionary = ESAggregationsResult.DeserializeAggrgations(aggregationsResults);
+                                var partialDictionary = ESAggregationsResult.DeserializeAggrgations<string>(aggregationsResults);
 
                                 // Run on partial dictionary and merge into main dictionary
                                 foreach (var mainPart in partialDictionary)

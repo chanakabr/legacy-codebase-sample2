@@ -15,9 +15,9 @@ namespace ElasticSearch.Searcher
 
         #region Parse Results
 
-        public static Dictionary<string, Dictionary<string, int>> DeserializeAggrgations(string json)
+        public static Dictionary<string, Dictionary<T, int>> DeserializeAggrgations<T>(string json)
         {
-            Dictionary<string, Dictionary<string, int>> result = new Dictionary<string, Dictionary<string, int>>();
+            Dictionary<string, Dictionary<T, int>> result = new Dictionary<string, Dictionary<T, int>>();
 
             if (!string.IsNullOrEmpty(json))
             {
@@ -34,14 +34,14 @@ namespace ElasticSearch.Searcher
 
                         var buckets = fvalue["buckets"];
 
-                        Dictionary<string, int> currentDictionary = new Dictionary<string, int>();
+                        Dictionary<T, int> currentDictionary = new Dictionary<T, int>();
                         foreach (JToken bucket in buckets)
                         {
                             try
                             {
                                 var key = bucket["key"];
                                 var count = bucket["doc_count"];
-                                currentDictionary[key.Value<string>()] = count.Value<int>();
+                                currentDictionary[key.Value<T>()] = count.Value<int>();
                             }
                             catch (Exception ex)
                             {

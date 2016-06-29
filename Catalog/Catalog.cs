@@ -66,6 +66,7 @@ namespace Catalog
         internal static readonly string STAT_ACTION_RATES = "rates";
         internal static readonly string STAT_ACTION_RATE_VALUE_FIELD = "rate_value";
         internal static readonly string STAT_SLIDING_WINDOW_FACET_NAME = "sliding_window";
+        internal static readonly string STAT_SLIDING_WINDOW_AGGREGATION_NAME = "sliding_window";
         private const string USE_OLD_IMAGE_SERVER_KEY = "USE_OLD_IMAGE_SERVER";
         private static readonly long UNIX_TIME_1980 = DateUtils.DateTimeToUnixTimestamp(new DateTime(1980, 1, 1, 0, 0, 0));
 
@@ -2988,32 +2989,33 @@ namespace Catalog
                 case StatsType.MEDIA:
                     {
                         List<string> facets = new List<string>(3);
-                        facets.Add(BuildSlidingWindowCountFacetRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_FIRST_PLAY)); // views count
-                        facets.Add(BuildSlidingWindowCountFacetRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_LIKE));
-                        facets.Add(BuildSlidingWindowStatisticsFacetRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_RATES, STAT_ACTION_RATE_VALUE_FIELD));
+                        facets.Add(BuildSlidingWindowCountAggregationRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_FIRST_PLAY)); // views count
+                        facets.Add(BuildSlidingWindowCountAggregationRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_LIKE));
+                        facets.Add(BuildSlidingWindowStatisticsAggregationRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_RATES, STAT_ACTION_RATE_VALUE_FIELD));
                         string esResp = esApi.MultiSearch(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, facets, null);
                         List<string> responses = ParseResponsesFromMultiFacet(esResp);
                         string currResp = responses[0];
-                        Dictionary<string, Dictionary<int, int>> viewsRaw = ESTermsFacet.IntegerFacetResults(ref currResp);
+                        Dictionary<string, Dictionary<int, int>> viewsRaw = ESAggregationsResult.DeserializeAggrgations<int>(currResp);
+                            //ESTermsFacet.IntegerFacetResults(ref currResp);
                         currResp = responses[1];
-                        Dictionary<string, Dictionary<int, int>> likesRaw = ESTermsFacet.IntegerFacetResults(ref currResp);
+                        Dictionary<string, Dictionary<int, int>> likesRaw = ESAggregationsResult.DeserializeAggrgations<int>(currResp);
                         currResp = responses[2];
-                        Dictionary<string, List<ESTermsStatsFacet.StatisticFacetResult>> ratesRaw = ESTermsStatsFacet.FacetResults(ref currResp);
+                        Dictionary<string, List<StatisticsAggregationResult>> ratesRaw = ESAggregationsResult.DeserializeStatisticsAggregations(currResp, "sub_stats");
 
                         Dictionary<int, int> views = null, likes = null;
-                        List<ESTermsStatsFacet.StatisticFacetResult> rates = null;
+                        List<StatisticsAggregationResult> rates = null;
                         viewsRaw.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out views);
                         likesRaw.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out likes);
                         ratesRaw.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out rates);
                         InjectResultsIntoAssetStatsResponse(assetIDsToStatsMapping, views != null ? views : new Dictionary<int, int>(0),
                             likes != null ? likes : new Dictionary<int, int>(0),
-                            rates != null ? rates : new List<ESTermsStatsFacet.StatisticFacetResult>(0));
+                            rates != null ? rates : new List<StatisticsAggregationResult>(0));
                         break;
                     }
                 case StatsType.EPG:
                     {
                         // in epg we bring just likes
-                        string likesFacet = BuildSlidingWindowCountFacetRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_LIKE);
+                        string likesFacet = BuildSlidingWindowCountAggregationRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_LIKE);
                         string esResp = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref likesFacet);
                         if (!string.IsNullOrEmpty(esResp))
                         {
@@ -3023,7 +3025,7 @@ namespace Catalog
                             if (likes != null && likes.Count > 0)
                             {
                                 InjectResultsIntoAssetStatsResponse(assetIDsToStatsMapping, new Dictionary<int, int>(0), likes,
-                                    new List<ESTermsStatsFacet.StatisticFacetResult>(0));
+                                    new List<StatisticsAggregationResult>(0));
                             }
                         }
                         break;
@@ -3038,7 +3040,7 @@ namespace Catalog
 
         private static void InjectResultsIntoAssetStatsResponse(Dictionary<int, AssetStatsResult> assetIDsToStatsMapping,
             Dictionary<int, int> views, Dictionary<int, int> likes,
-            List<ESTermsStatsFacet.StatisticFacetResult> rates)
+            List<StatisticsAggregationResult> rates)
         {
 
             // views and likes
@@ -3060,10 +3062,10 @@ namespace Catalog
             {
                 int assetId = 0;
 
-                if (Int32.TryParse(rates[i].term, out assetId) && assetId > 0 && assetIDsToStatsMapping.ContainsKey(assetId))
+                if (Int32.TryParse(rates[i].key, out assetId) && assetId > 0 && assetIDsToStatsMapping.ContainsKey(assetId))
                 {
                     assetIDsToStatsMapping[assetId].m_nVotes = rates[i].count;
-                    assetIDsToStatsMapping[assetId].m_dRate = rates[i].mean;
+                    assetIDsToStatsMapping[assetId].m_dRate = rates[i].avg;
                 }
 
             }
@@ -4093,10 +4095,10 @@ namespace Catalog
             return bRes;
         }
 
-        private static string BuildSlidingWindowCountFacetRequest(int groupID, List<int> mediaIDs, DateTime startDate, DateTime endDate,
+        private static string BuildSlidingWindowCountAggregationRequest(int groupID, List<int> mediaIDs, DateTime startDate, DateTime endDate,
             string action)
         {
-            #region Define Facet Query
+            #region Define Aggregation Query 
             ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery()
             {
                 PageIndex = 0,
@@ -4147,11 +4149,17 @@ namespace Catalog
 
             filteredQuery.Filter.FilterSettings = filter;
 
-            ESTermsFacet facet = new ESTermsFacet(STAT_SLIDING_WINDOW_FACET_NAME, "media_id", 10000);
-            facet.Query = filteredQuery;
+            ESBaseAggsItem aggregation = new ESBaseAggsItem()
+            {
+                Field = "media_id",
+                Name = STAT_SLIDING_WINDOW_AGGREGATION_NAME,
+                Type = eElasticAggregationType.terms
+            };
+
+            filteredQuery.Aggregations.Add(aggregation);
             #endregion
 
-            return facet.ToString();
+            return filteredQuery.ToString();
         }
 
         internal static List<int> SlidingWindowCountFacet(int nGroupId, List<int> lMediaIds, DateTime dtStartDate,
@@ -4160,7 +4168,7 @@ namespace Catalog
             List<int> result = new List<int>();
 
             // if no ordering is specified to BuildSlidingWindowCountFacetRequest function then default is order by count descending
-            string sFacetQuery = BuildSlidingWindowCountFacetRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate, action);
+            string sFacetQuery = BuildSlidingWindowCountAggregationRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate, action);
 
 
             //Search
@@ -4203,7 +4211,7 @@ namespace Catalog
         {
             Dictionary<int, int> result = new Dictionary<int, int>();
 
-            string sFacetQuery = BuildSlidingWindowCountFacetRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate, action);
+            string sFacetQuery = BuildSlidingWindowCountAggregationRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate, action);
 
 
             //Search
@@ -4241,10 +4249,10 @@ namespace Catalog
             return result;
         }
 
-        private static string BuildSlidingWindowStatisticsFacetRequest(int groupID, List<int> mediaIDs, DateTime startDate,
+        private static string BuildSlidingWindowStatisticsAggregationRequest(int groupID, List<int> mediaIDs, DateTime startDate,
             DateTime endDate, string action, string valueField)
         {
-            #region Define Facet Query
+            #region Define Aggregation Query
             ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery()
             {
                 PageIndex = 0,
@@ -4295,7 +4303,23 @@ namespace Catalog
             facet.Query = filteredQuery;
             #endregion
 
-            return facet.ToString();
+            var aggregation = new ESBaseAggsItem()
+            {
+                Name = STAT_SLIDING_WINDOW_AGGREGATION_NAME,
+                Field = "media_id",
+                Type = eElasticAggregationType.terms,
+            };
+
+            aggregation.SubAggrgations.Add(new ESBaseAggsItem()
+            {
+                Name = "sub_stats",
+                Type = eElasticAggregationType.stats,
+                Field = Catalog.STAT_ACTION_RATE_VALUE_FIELD
+            });
+
+            filteredQuery.Aggregations.Add(aggregation);
+
+            return filteredQuery.ToString();
         }
 
         internal static List<int> SlidingWindowStatisticsFacet(int nGroupId, List<int> lMediaIds, DateTime dtStartDate,
@@ -4303,7 +4327,7 @@ namespace Catalog
         {
             List<int> result = new List<int>();
 
-            string sFacetQuery = BuildSlidingWindowStatisticsFacetRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate,
+            string sFacetQuery = BuildSlidingWindowStatisticsAggregationRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate,
                 action, valueField);
 
             //Search
