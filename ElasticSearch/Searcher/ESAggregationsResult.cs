@@ -28,9 +28,9 @@ namespace ElasticSearch.Searcher
 
                     foreach (JToken token in aggregations)
                     {
-                        var facetKey = token.Value<JProperty>();
-                        var fkey = facetKey.Name;
-                        var fvalue = facetKey.Value;
+                        var aggregationKey = token.Value<JProperty>();
+                        var fkey = aggregationKey.Name;
+                        var fvalue = aggregationKey.Value;
 
                         var buckets = fvalue["buckets"];
 
@@ -85,9 +85,9 @@ namespace ElasticSearch.Searcher
 
                     foreach (JToken token in aggregations)
                     {
-                        var facetKey = token.Value<JProperty>();
-                        var fkey = facetKey.Name;
-                        var fvalue = facetKey.Value;
+                        var aggregationKey = token.Value<JProperty>();
+                        var fkey = aggregationKey.Name;
+                        var fvalue = aggregationKey.Value;
 
                         var buckets = fvalue["buckets"];
 
