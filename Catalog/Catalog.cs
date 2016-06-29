@@ -2988,15 +2988,16 @@ namespace Catalog
             {
                 case StatsType.MEDIA:
                     {
-                        List<string> facets = new List<string>(3);
-                        facets.Add(BuildSlidingWindowCountAggregationRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_FIRST_PLAY)); // views count
-                        facets.Add(BuildSlidingWindowCountAggregationRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_LIKE));
-                        facets.Add(BuildSlidingWindowStatisticsAggregationRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_RATES, STAT_ACTION_RATE_VALUE_FIELD));
-                        string esResp = esApi.MultiSearch(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, facets, null);
-                        List<string> responses = ParseResponsesFromMultiFacet(esResp);
+                        List<string> aggregations = new List<string>(3);
+                        aggregations.Add(BuildSlidingWindowCountAggregationRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_FIRST_PLAY)); // views count
+                        aggregations.Add(BuildSlidingWindowCountAggregationRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_LIKE));
+                        aggregations.Add(BuildSlidingWindowStatisticsAggregationRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_RATES, STAT_ACTION_RATE_VALUE_FIELD));
+
+                        string esResp = esApi.MultiSearch(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, aggregations, null);
+
+                        List<string> responses = ParseResponsesFromMultiAggregations(esResp);
                         string currResp = responses[0];
                         Dictionary<string, Dictionary<int, int>> viewsRaw = ESAggregationsResult.DeserializeAggrgations<int>(currResp);
-                            //ESTermsFacet.IntegerFacetResults(ref currResp);
                         currResp = responses[1];
                         Dictionary<string, Dictionary<int, int>> likesRaw = ESAggregationsResult.DeserializeAggrgations<int>(currResp);
                         currResp = responses[2];
@@ -3004,9 +3005,10 @@ namespace Catalog
 
                         Dictionary<int, int> views = null, likes = null;
                         List<StatisticsAggregationResult> rates = null;
-                        viewsRaw.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out views);
-                        likesRaw.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out likes);
-                        ratesRaw.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out rates);
+                        viewsRaw.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out views);
+                        likesRaw.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out likes);
+                        ratesRaw.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out rates);
+
                         InjectResultsIntoAssetStatsResponse(assetIDsToStatsMapping, views != null ? views : new Dictionary<int, int>(0),
                             likes != null ? likes : new Dictionary<int, int>(0),
                             rates != null ? rates : new List<StatisticsAggregationResult>(0));
@@ -3015,13 +3017,15 @@ namespace Catalog
                 case StatsType.EPG:
                     {
                         // in epg we bring just likes
-                        string likesFacet = BuildSlidingWindowCountAggregationRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_LIKE);
-                        string esResp = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref likesFacet);
-                        if (!string.IsNullOrEmpty(esResp))
+                        string likesAggregations = BuildSlidingWindowCountAggregationRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_LIKE);
+                        string searchResponse = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref likesAggregations);
+
+                        if (!string.IsNullOrEmpty(searchResponse))
                         {
-                            Dictionary<string, Dictionary<int, int>> likesRaw = ESTermsFacet.IntegerFacetResults(ref esResp);
+                            Dictionary<string, Dictionary<int, int>> likesRaw = ESAggregationsResult.DeserializeAggrgations<int>(searchResponse);
                             Dictionary<int, int> likes = null;
-                            likesRaw.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out likes);
+                            likesRaw.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out likes);
+
                             if (likes != null && likes.Count > 0)
                             {
                                 InjectResultsIntoAssetStatsResponse(assetIDsToStatsMapping, new Dictionary<int, int>(0), likes,
@@ -3071,7 +3075,7 @@ namespace Catalog
             }
         }
 
-        private static List<string> ParseResponsesFromMultiFacet(string esResp)
+        private static List<string> ParseResponsesFromMultiAggregations(string esResp)
         {
             List<string> res = new List<string>();
             if (!string.IsNullOrEmpty(esResp))
