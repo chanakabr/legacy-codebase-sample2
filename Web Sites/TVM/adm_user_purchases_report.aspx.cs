@@ -148,7 +148,7 @@ public partial class adm_user_purchases_report : System.Web.UI.Page
 
         string user = Session["user_id"].ToString();
 
-        ca_ws.BillingTransactions casResponse = p.GetUserBillingHistory(sWSUserName, sWSPass, user, 0, 1000);
+        ca_ws.BillingTransactions casResponse = p.GetUserBillingHistory(sWSUserName, sWSPass, user, 0, 1000, ca_ws.TransactionHistoryOrderBy.CreateDateDesc);
 
         if (casResponse == null || casResponse.resp == null || casResponse.resp.Code != 0 || casResponse.transactions == null)
         {
@@ -159,7 +159,7 @@ public partial class adm_user_purchases_report : System.Web.UI.Page
 
         if (transactionsResponse.m_nTransactionsCount > 1000)
         {
-            casResponse = p.GetUserBillingHistory(sWSUserName, sWSPass, user, 0, transactionsResponse.m_nTransactionsCount);
+            casResponse = p.GetUserBillingHistory(sWSUserName, sWSPass, user, 0, transactionsResponse.m_nTransactionsCount, ca_ws.TransactionHistoryOrderBy.CreateDateDesc);
 
             if (casResponse == null || casResponse.resp == null || casResponse.resp.Code != 0 || casResponse.transactions == null)
             {

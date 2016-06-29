@@ -175,7 +175,7 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
         dr_protection.Initialize("Enable Protection", "adm_table_header_nbg", "FormInput", "enable_protection", false);
         theRecord.AddRecord(dr_protection);
 
-        DataRecordShortIntField dr_protectionPeriod = new DataRecordShortIntField(true, 9, 9, 0);
+        DataRecordShortIntField dr_protectionPeriod = new DataRecordShortIntField(true, 9, 9, 1);
         dr_protectionPeriod.Initialize("Record Protection Period", "adm_table_header_nbg", "FormInput", "protection_period", false);
         dr_protectionPeriod.SetDefault(90);
         theRecord.AddRecord(dr_protectionPeriod);
@@ -185,12 +185,12 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
         dr_protectionQuotaPercentage.SetDefault(25);
         theRecord.AddRecord(dr_protectionQuotaPercentage);
 
-        DataRecordShortIntField dr_recordingLifetimePeriod = new DataRecordShortIntField(true, 9, 9, 0);
+        DataRecordShortIntField dr_recordingLifetimePeriod = new DataRecordShortIntField(true, 9, 9, 1);
         dr_recordingLifetimePeriod.Initialize("Recording Lifetime Period", "adm_table_header_nbg", "FormInput", "recording_lifetime_period", false);
         dr_recordingLifetimePeriod.SetDefault(182);
         theRecord.AddRecord(dr_recordingLifetimePeriod);
 
-        DataRecordShortIntField dr_cleanupNoticePeriod = new DataRecordShortIntField(true, 9, 9, 0);
+        DataRecordShortIntField dr_cleanupNoticePeriod = new DataRecordShortIntField(true, 9, 9, 1);
         dr_cleanupNoticePeriod.Initialize("Cleanup Notice Period", "adm_table_header_nbg", "FormInput", "cleanup_notice_period", false);
         dr_cleanupNoticePeriod.SetDefault(7);
         theRecord.AddRecord(dr_cleanupNoticePeriod);
