@@ -6,9 +6,13 @@ using System.Web;
 using Newtonsoft.Json;
 using WebAPI.Models.General;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 
 namespace WebAPI.Models.Social
 {
+    [OldStandard("firstName", "first_name")]
+    [OldStandard("lastName", "last_name")]
+    [OldStandard("userId", "user_id")]
     public class KalturaSocialUser : KalturaOTTObject
     {
         /// <summary>
@@ -30,17 +34,17 @@ namespace WebAPI.Models.Social
         /// <summary>
         /// First name
         /// </summary>
-        [DataMember(Name = "first_name")]
-        [JsonProperty("first_name")]
-        [XmlElement(ElementName = "first_name")]
+        [DataMember(Name = "firstName")]
+        [JsonProperty("firstName")]
+        [XmlElement(ElementName = "firstName")]
         public string FirstName { get; set; }
 
         /// <summary>
         /// Last name
         /// </summary>
-        [DataMember(Name = "last_name")]
-        [JsonProperty("last_name")]
-        [XmlElement(ElementName = "last_name")]
+        [DataMember(Name = "lastName")]
+        [JsonProperty("lastName")]
+        [XmlElement(ElementName = "lastName")]
         public string LastName { get; set; }
 
         /// <summary>
@@ -62,9 +66,9 @@ namespace WebAPI.Models.Social
         /// <summary>
         /// User identifier
         /// </summary>
-        [DataMember(Name = "user_id")]
-        [JsonProperty("user_id")]
-        [XmlElement(ElementName = "user_id")]
+        [DataMember(Name = "userId")]
+        [JsonProperty("userId")]
+        [XmlElement(ElementName = "userId")]
         public string UserId { get; set; }
 
         /// <summary>

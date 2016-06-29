@@ -7,9 +7,9 @@ namespace WebAPI.Models.Notifications
 {
     public enum KalturaAnnouncementRecipientsType
     {
-        All = 0,
-        LoggedIn = 1,
-        Guests = 2,
-        Other = 3
+        ALL = 0,
+        LOGGEDIN = 1,
+        GUESTS = 2,
+        OTHER = 3
     }
 }

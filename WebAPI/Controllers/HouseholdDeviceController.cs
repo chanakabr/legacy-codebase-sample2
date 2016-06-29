@@ -172,7 +172,7 @@ namespace WebAPI.Controllers
         [Obsolete]
         public KalturaDeviceRegistrationStatusHolder GetStatus()
         {
-            KalturaDeviceRegistrationStatus status = KalturaDeviceRegistrationStatus.not_registered;
+            KalturaDeviceRegistrationStatus status = KalturaDeviceRegistrationStatus.NOT_REGISTERED;
 
             int groupId = KS.GetFromRequest().GroupId;
             string udid = KSUtils.ExtractKSPayload().UDID;
@@ -244,7 +244,7 @@ namespace WebAPI.Controllers
             {
                 // check device registration status - return forbidden if device not in domain        
                 var deviceRegistrationStatus = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
-                if (deviceRegistrationStatus != KalturaDeviceRegistrationStatus.registered)
+                if (deviceRegistrationStatus != KalturaDeviceRegistrationStatus.REGISTERED)
                 {
                     throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.ServiceForbidden, "Service Forbidden");
                 }

@@ -7,8 +7,8 @@ namespace WebAPI.Models.API
 {
     public enum KalturaExportDataType
     {
-        vod,
-        epg,
-        users
+        VOD,
+        EPG,
+        USERS
     }
 }

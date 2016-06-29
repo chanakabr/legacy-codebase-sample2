@@ -155,8 +155,7 @@ namespace Validator.Managers.Schema
             if (property.Name.Contains('_'))
             {
                 logError("Error", property.DeclaringType, string.Format("Property {0}.{1} ({2}) name may not contain underscores", property.ReflectedType.Name, property.Name, property.PropertyType.Name));
-                if (strict)
-                    valid = false;
+                valid = false;
             }
 
             string apiName = getApiName(property);
@@ -169,16 +168,14 @@ namespace Validator.Managers.Schema
             {
                 if (apiName.Contains('_'))
                 {
-                    logError("Warning", property.DeclaringType, string.Format("Property {0}.{1} ({2}) data member ({3}) name may not contain underscores", property.ReflectedType.Name, property.Name, property.PropertyType.Name, apiName));
-                    if (strict)
-                        valid = false;
+                    logError("Error", property.DeclaringType, string.Format("Property {0}.{1} ({2}) data member ({3}) name may not contain underscores", property.ReflectedType.Name, property.Name, property.PropertyType.Name, apiName));
+                    valid = false;
                 }
 
                 if (!Char.IsLower(apiName, 0))
                 {
                     logError("Error", property.DeclaringType, string.Format("Property {0}.{1} ({2}) data member ({3}) must start with a small letter", property.ReflectedType.Name, property.Name, property.PropertyType.Name, apiName));
-                    if (strict)
-                        valid = false;
+                    valid = false;
                 }
             }
 
@@ -241,8 +238,23 @@ namespace Validator.Managers.Schema
                 if (!hasRightSuffix)
                 {
                     logError("Error", property.DeclaringType, string.Format("Filter property {0}.{1} ({2}) data member ({3}) must use on of the following suffixes: {4}", property.ReflectedType.Name, property.Name, property.PropertyType.Name, jsonProperty.PropertyName, String.Join(", ", availableFilterSuffixes)));
-                    if (strict)
-                        valid = false;
+                    valid = false;
+                }
+            }
+
+            if (type.BaseType.IsGenericType)
+            {
+                Type orderBy = type.BaseType.GetGenericArguments()[0];
+
+                foreach (var enumValue in Enum.GetValues(orderBy))
+                {
+                    string valueName = enumValue.ToString();
+                    if (!valueName.Equals("NONE") && !valueName.EndsWith("_ASC") && !valueName.EndsWith("_DESC"))
+                    {
+                        logError("Warning", orderBy, string.Format("Filter {2} order-by enum value {0}.{1} must use on of the following suffixes: _ASC, _DESC", orderBy.Name, valueName, type.Name));
+                        if (strict)
+                            valid = false;
+                    }
                 }
             }
 
@@ -270,16 +282,14 @@ namespace Validator.Managers.Schema
                 if (objectsProperty == null)
                 {
                     logError("Error", type, string.Format("List response {0} must implement objects attribute", type.Name));
-                    if (strict)
-                        valid = false;
+                    valid = false;
                 }
             }
 
             if (type.IsSubclassOf(typeof(KalturaFilterPager)))
             {
                 logError("Error", type, string.Format("Object {0} should not inherit KalturaFilterPager", type.Name));
-                if (strict)
-                    valid = false;
+                valid = false;
             }
 
             if (typeof(IKalturaFilter).IsAssignableFrom(type))
@@ -312,9 +322,8 @@ namespace Validator.Managers.Schema
 
             if (name.ToUpper() != name)
             {
-                logError("Warning", type, string.Format("Enum value {0}.{1} should be upper case", type.Name, name));
-                if (strict)
-                    valid = false;
+                logError("Error", type, string.Format("Enum value {0}.{1} should be upper case", type.Name, name));
+                valid = false;
             }
 
             return valid;
@@ -441,8 +450,7 @@ namespace Validator.Managers.Schema
             if (!Char.IsLower(param.Name, 0))
             {
                 logError("Error", controller, string.Format("Parameter {0} in method {1}.{2} ({3}) must start with a small letter", param.Name, serviceId, actionId, controller.Name));
-                if (strict)
-                    valid = false;
+                valid = false;
             }
 
             string description = string.Format("Parameter {0} in method {1}.{2} ({3})", param.Name, serviceId, actionId, controller.Name);
@@ -566,8 +574,7 @@ namespace Validator.Managers.Schema
                         if (!idParam.ParameterType.IsPrimitive && idParam.ParameterType != typeof(string))
                         {
                             logError("Error", controller, string.Format("Action {0}.{1} ({2}) id argument type is {3}, primitive is expected", serviceId, actionId, controller.Name, idParam.ParameterType.Name));
-                            if (strict)
-                                valid = false;
+                            valid = false;
                         }
 
                         var objectParam = parameters[1];
@@ -631,8 +638,7 @@ namespace Validator.Managers.Schema
                     if (arrayType.Name.ToLower() != expectedObjectType.ToLower())
                     {
                         logError("Error", controller, string.Format("Action {0}.{1} ({2}) returned list-response contains array of {3}, expected {4}", serviceId, actionId, controller.Name, arrayType.Name, expectedObjectType));
-                        if (strict)
-                            valid = false;
+                        valid = false;
                     }
                 }
             }

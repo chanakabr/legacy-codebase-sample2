@@ -3,8 +3,8 @@ namespace WebAPI.Models.Notification
 {
     public enum KalturaTopicAutomaticIssueNotification
     {
-        Inherit = 0,
-        Yes = 1,
-        No = 2
+        INHERIT = 0,
+        YES = 1,
+        NO = 2
     }
 }

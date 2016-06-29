@@ -138,9 +138,9 @@ namespace WebAPI.Models.API
     /// </summary>
     public enum KalturaRuleLevel
     {
-        invalid = 0,
-        user = 1,
-        household = 2,
-        account = 3
+        INVALID = 0,
+        USER = 1,
+        HOUSEHOLD = 2,
+        ACCOUNT = 3
     }
 }

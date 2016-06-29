@@ -7,7 +7,7 @@ namespace WebAPI.Models.Notification
 {
     public enum KalturaNotificationType
     {
-        announcement,
-        system
+        ANNOUNCEMENT,
+        SYSTEM
     }
 }
