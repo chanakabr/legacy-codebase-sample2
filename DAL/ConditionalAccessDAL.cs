@@ -2997,27 +2997,17 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static List<long> GetDomainProtectedRecordings(int groupID, long domainID, long unixTimeStampNow)
+        public static DataTable GetDomainProtectedRecordings(int groupID, long domainID, long unixTimeStampNow)
         {
-            List<long> recordingIds = null;
+            DataTable dt = null;
             ODBCWrapper.StoredProcedure spGetDomainProtectedRecordings = new ODBCWrapper.StoredProcedure("GetDomainProtectedRecordings");
             spGetDomainProtectedRecordings.SetConnectionKey("CONNECTION_STRING");
             spGetDomainProtectedRecordings.AddParameter("@GroupID", groupID);
             spGetDomainProtectedRecordings.AddParameter("@DomainID", domainID);
             spGetDomainProtectedRecordings.AddParameter("@UtcNowEpoch", unixTimeStampNow);
+            dt = spGetDomainProtectedRecordings.Execute();
 
-            DataTable dt = spGetDomainProtectedRecordings.Execute();
-            if (dt != null && dt.Rows != null)
-            {
-                recordingIds = new List<long>();
-                foreach (DataRow dr in dt.Rows)
-                {
-                    long recordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID");
-                    recordingIds.Add(recordingID);
-                }
-            }
-
-            return recordingIds;
+            return dt;
         }
 
         public static bool ProtectRecording(long recordingId, DateTime protectedUntilDate, long protectedUntilEpoch)
