@@ -4805,25 +4805,33 @@ namespace ConditionalAccess
 
         internal static Dictionary<long, Recording> GetDomainProtectedRecordings(int groupID, long domainID)
         {
-            Dictionary<long, Recording> recordingIdToRecordingMap = null;
-            List<long> recordingIds = ConditionalAccessDAL.GetDomainProtectedRecordings(groupID, domainID, TVinciShared.DateUtils.UnixTimeStampNow());
-            if (recordingIds != null)
+            Dictionary<long, Recording> domainProtectedRecordings = null;            
+            DataTable dt = ConditionalAccessDAL.GetDomainProtectedRecordings(groupID, domainID, TVinciShared.DateUtils.UnixTimeStampNow());
+            if (dt != null && dt.Rows != null)
             {
-                List<Recording> recordings = Recordings.RecordingsManager.Instance.GetRecordings(groupID, recordingIds);
-                if (recordings != null)
+                domainProtectedRecordings = new Dictionary<long,Recording>();                
+                foreach (DataRow dr in dt.Rows)
                 {
-                    recordingIdToRecordingMap = new Dictionary<long, Recording>();
-                    foreach (Recording record in recordings)
+                    long recordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+                    if (recordingID > 0)
                     {
-                        if (!recordingIdToRecordingMap.ContainsKey(record.Id))
+                        Recording protectedRecording = new Recording()
                         {
-                            recordingIdToRecordingMap.Add(record.Id, record);
+                            Id = recordingID,
+                            EpgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID"),
+                            EpgStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE"),
+                            EpgEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE"),
+                            Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
+                        };
+                        if (!domainProtectedRecordings.ContainsKey(recordingID))
+                        {
+                            domainProtectedRecordings.Add(recordingID, protectedRecording);
                         }
                     }
                 }
             }
 
-            return recordingIdToRecordingMap;
+            return domainProtectedRecordings;
         }
 
         internal static Dictionary<long, Recording> GetDomainRecordingIdsToRecordingsMap(int groupID, long domainID, List<long> domainRecordingIds)
