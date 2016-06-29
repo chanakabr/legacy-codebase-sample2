@@ -545,7 +545,6 @@
     <Content Include="testmeDoc\objects\KalturaAssetInfo.html" />
     <Content Include="testmeDoc\objects\KalturaAssetInfoListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaAssetsBookmarksResponse.html" />
-    <Content Include="testmeDoc\objects\KalturaAssetStatistics.html" />
     <Content Include="testmeDoc\objects\KalturaBaseAssetInfo.html" />
     <Content Include="testmeDoc\objects\KalturaBaseChannel.html" />
     <Content Include="testmeDoc\objects\KalturaBaseOTTUser.html" />
