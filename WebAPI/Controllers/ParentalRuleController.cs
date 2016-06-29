@@ -122,7 +122,7 @@ namespace WebAPI.Controllers
         /// <returns>Success or failure and reason</returns>
         [Route("enable"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("by", "entityReference")]
+        [OldStandard("entityReference", "by")]
         [OldStandard("ruleId", "rule_id")]
         [ValidationException(SchemaValidationType.ACTION_NAME)]
         public bool Enable(long ruleId, KalturaEntityReferenceBy entityReference)
@@ -165,7 +165,7 @@ namespace WebAPI.Controllers
         /// <returns>Success or failure and reason</returns>
         [Route("disable"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("by", "entityReference")]
+        [OldStandard("entityReference", "by")]
         [OldStandard("ruleId", "rule_id")]
         [ValidationException(SchemaValidationType.ACTION_NAME)]
         public bool Disable(long ruleId, KalturaEntityReferenceBy entityReference)
@@ -209,7 +209,7 @@ namespace WebAPI.Controllers
         /// <returns>Success / fail</returns>
         [Route("disableDefault"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("by", "entityReference")]
+        [OldStandard("entityReference", "by")]
         [ValidationException(SchemaValidationType.ACTION_NAME)]
         public bool DisableDefault(KalturaEntityReferenceBy entityReference)
         {
