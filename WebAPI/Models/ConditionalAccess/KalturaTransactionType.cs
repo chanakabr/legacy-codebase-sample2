@@ -8,8 +8,8 @@ namespace WebAPI.Models.ConditionalAccess
     [Serializable]
     public enum KalturaTransactionType
     {  
-        ppv,
-        subscription,
-        collection
+        PPV,
+        SUBSCRIPTION,
+        COLLECTION
     }
 }

@@ -56,7 +56,6 @@ namespace WebAPI.Controllers
         /// Retrieve the list of categories (hierarchical) and their associated channels
         /// </summary>
         /// <param name="id">Category Identifier</param>
-        /// <param name="language">Language Code</param>
         /// <remarks></remarks>
         [Route("get"), HttpPost]
         [ApiAuthorize]
@@ -74,7 +73,6 @@ namespace WebAPI.Controllers
         /// Retrieve the list of categories (hierarchical) and their associated channels
         /// </summary>
         /// <param name="id">Category Identifier</param>
-        /// <param name="language">Language Code</param>
         /// <remarks></remarks>
         [Route("get"), HttpPost]
         [ApiAuthorize]

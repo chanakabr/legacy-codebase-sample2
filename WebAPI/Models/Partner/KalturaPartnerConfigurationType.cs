@@ -7,9 +7,9 @@ namespace WebAPI.Models.Partner
 {
     public enum KalturaPartnerConfigurationType
     {
-        DefaultPaymentGateway,
-        EnablePaymentGatewaySelection,
-        OSSAdapter
+        DEFAULTPAYMENTGATEWAY,
+        ENABLEPAYMENTGATEWAYSELECTION,
+        OSSADAPTER
     }
 
     /// <summary>

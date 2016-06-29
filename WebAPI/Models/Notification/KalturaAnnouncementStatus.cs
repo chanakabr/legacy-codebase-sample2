@@ -7,9 +7,9 @@ namespace WebAPI.Models.Notifications
 {
     public enum KalturaAnnouncementStatus
     {
-        NotSent = 0,
-        Sending = 1,
-        Sent = 2,
-        Aborted = 3
+        NOTSENT = 0,
+        SENDING = 1,
+        SENT = 2,
+        ABORTED = 3
     }
 }

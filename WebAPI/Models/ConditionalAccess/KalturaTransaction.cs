@@ -6,9 +6,14 @@ using System.Web;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 using WebAPI.Models.General;
+using WebAPI.Managers.Schema;
 
 namespace WebAPI.Models.ConditionalAccess
 {
+    [OldStandard("paymentGatewayReferenceId", "payment_gateway_reference_id")]
+    [OldStandard("paymentGatewayResponseId", "payment_gateway_response_id")]
+    [OldStandard("failReasonCode", "fail_reason_code")]
+    [OldStandard("createdAt", "created_at")]
     public class KalturaTransaction : KalturaOTTObject
     {
         /// <summary>
@@ -23,18 +28,18 @@ namespace WebAPI.Models.ConditionalAccess
         /// Transaction reference ID received from the payment gateway. 
         /// Value is available only if the payment gateway provides this information.
         /// </summary>
-        [DataMember(Name = "payment_gateway_reference_id")]
-        [JsonProperty("payment_gateway_reference_id")]
-        [XmlElement(ElementName = "payment_gateway_reference_id")]
+        [DataMember(Name = "paymentGatewayReferenceId")]
+        [JsonProperty("paymentGatewayReferenceId")]
+        [XmlElement(ElementName = "paymentGatewayReferenceId")]
         public string PGReferenceID { get; set; }
 
         /// <summary>
         /// Response ID received from by the payment gateway. 
         /// Value is available only if the payment gateway provides this information.
         /// </summary>
-        [DataMember(Name = "payment_gateway_response_id")]
-        [JsonProperty("payment_gateway_response_id")]
-        [XmlElement(ElementName = "payment_gateway_response_id")]
+        [DataMember(Name = "paymentGatewayResponseId")]
+        [JsonProperty("paymentGatewayResponseId")]
+        [XmlElement(ElementName = "paymentGatewayResponseId")]
         public string PGResponseID { get; set; }
 
         /// <summary>
@@ -51,17 +56,17 @@ namespace WebAPI.Models.ConditionalAccess
         /// Insufficient funds = 20, Invalid account = 21, User unknown = 22, Reason unknown = 23, Unknown payment gateway response = 24,
         /// No response from payment gateway = 25, Exceeded retry limit = 26, Illegal client request = 27, Expired = 28
         /// </summary>
-        [DataMember(Name = "fail_reason_code")]
-        [JsonProperty("fail_reason_code")]
-        [XmlElement(ElementName = "fail_reason_code")]
+        [DataMember(Name = "failReasonCode")]
+        [JsonProperty("failReasonCode")]
+        [XmlElement(ElementName = "failReasonCode")]
         public int? FailReasonCode { get; set; }
 
         /// <summary>
         /// Entitlement creation date
         /// </summary>
-        [DataMember(Name = "created_at")]
-        [JsonProperty("created_at")]
-        [XmlElement(ElementName = "created_at")]
+        [DataMember(Name = "createdAt")]
+        [JsonProperty("createdAt")]
+        [XmlElement(ElementName = "createdAt")]
         public int? CreatedAt { get; set; }
     }
 }

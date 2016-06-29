@@ -7,7 +7,7 @@ namespace WebAPI.Models.Users
 {
     public enum KalturaHouseholdSuspentionState
     {
-        not_suspended = 0,
-        suspended = 1
+        NOT_SUSPENDED = 0,
+        SUSPENDED = 1
     }
 }

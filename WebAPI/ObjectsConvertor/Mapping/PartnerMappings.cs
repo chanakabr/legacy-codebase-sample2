@@ -26,13 +26,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             switch (partnerConfigurationHolder.type)
             {
-                case KalturaPartnerConfigurationType.DefaultPaymentGateway:
+                case KalturaPartnerConfigurationType.DEFAULTPAYMENTGATEWAY:
                     result = PartnerConfigurationType.DefaultPaymentGateway;
                     break;
-                case KalturaPartnerConfigurationType.EnablePaymentGatewaySelection:
+                case KalturaPartnerConfigurationType.ENABLEPAYMENTGATEWAYSELECTION:
                     result = PartnerConfigurationType.EnablePaymentGatewaySelection;
                     break;
-                case KalturaPartnerConfigurationType.OSSAdapter:
+                case KalturaPartnerConfigurationType.OSSADAPTER:
                     result = PartnerConfigurationType.OSSAdapter;
                     break;
                 default:

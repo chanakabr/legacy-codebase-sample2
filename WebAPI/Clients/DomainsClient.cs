@@ -103,14 +103,14 @@ namespace WebAPI.Clients
 
             if (users != null)
             {
-                if (with.Where(x => x.type == KalturaHouseholdWith.users_base_info).FirstOrDefault() != null)
+                if (with.Where(x => x.type == KalturaHouseholdWith.USERS_BASE_INFO).FirstOrDefault() != null)
                 {
                     household.Users = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => userIds.Contains(u.Id)));
                     household.MasterUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => masterUserIds.Contains(u.Id)));
                     household.DefaultUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => defaultUserIds.Contains(u.Id)));
                     household.PendingUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => pendingUserIds.Contains(u.Id)));
                 }
-                if (with.Where(x => x.type == KalturaHouseholdWith.users_full_info).FirstOrDefault() != null)
+                if (with.Where(x => x.type == KalturaHouseholdWith.USERS_FULL_INFO).FirstOrDefault() != null)
                 {
                     household.Users = Mapper.Map<List<KalturaOTTUser>>(users.Where(u => userIds.Contains(u.Id))).Select(usr => (KalturaBaseOTTUser)usr).ToList();
                     household.MasterUsers = Mapper.Map<List<KalturaOTTUser>>(users.Where(u => masterUserIds.Contains(u.Id))).Select(usr => (KalturaBaseOTTUser)usr).ToList();

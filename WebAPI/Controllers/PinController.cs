@@ -36,30 +36,30 @@ namespace WebAPI.Controllers
             {
                 int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
 
-                if (by == KalturaEntityReferenceBy.user)
+                if (by == KalturaEntityReferenceBy.USER)
                 {
                     string userId = KS.GetFromRequest().UserId;
 
-                    if (type == KalturaPinType.parental)
+                    if (type == KalturaPinType.PARENTAL)
                     {
                         // call client
                         pinResponse = ClientsManager.ApiClient().GetUserParentalPIN(groupId, userId, householdId);
                     }
-                    else if (type == KalturaPinType.purchase)
+                    else if (type == KalturaPinType.PURCHASE)
                     {
                         // call client
                         pinResponse = ClientsManager.ApiClient().GetUserPurchasePIN(groupId, userId, householdId); 
                     }
                 }
-                else if (by == KalturaEntityReferenceBy.household)
+                else if (by == KalturaEntityReferenceBy.HOUSEHOLD)
                 {
 
-                    if (type == KalturaPinType.parental)
+                    if (type == KalturaPinType.PARENTAL)
                     {
                         // call client
                         pinResponse = ClientsManager.ApiClient().GetDomainParentalPIN(groupId, householdId);
                     }
-                    else if (type == KalturaPinType.purchase)
+                    else if (type == KalturaPinType.PURCHASE)
                     {
                         // call client
                         pinResponse = ClientsManager.ApiClient().GetDomainPurchasePIN(groupId, householdId); 
@@ -93,31 +93,31 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (by == KalturaEntityReferenceBy.user)
+                if (by == KalturaEntityReferenceBy.USER)
                 {
                     string userId = KS.GetFromRequest().UserId;
 
-                    if (type == KalturaPinType.parental)
+                    if (type == KalturaPinType.PARENTAL)
                     {
                         // call client
                         success = ClientsManager.ApiClient().SetUserParentalPIN(groupId, userId, pin);
                     }
-                    else if (type == KalturaPinType.purchase)
+                    else if (type == KalturaPinType.PURCHASE)
                     {
                         // call client
                         success = ClientsManager.ApiClient().SetUserPurchasePIN(groupId, userId, pin);
                     }
                 }
-                else if (by == KalturaEntityReferenceBy.household)
+                else if (by == KalturaEntityReferenceBy.HOUSEHOLD)
                 {
                     int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
 
-                    if (type == KalturaPinType.parental)
+                    if (type == KalturaPinType.PARENTAL)
                     {
                         // call client
                         success = ClientsManager.ApiClient().SetDomainParentalRules(groupId, householdId, pin);
                     }
-                    else if (type == KalturaPinType.purchase)
+                    else if (type == KalturaPinType.PURCHASE)
                     {
                         // call client
                         success = ClientsManager.ApiClient().SetDomainPurchasePIN(groupId, householdId, pin);
@@ -158,12 +158,12 @@ namespace WebAPI.Controllers
             {
                 string userId = KS.GetFromRequest().UserId;
 
-                if (type == KalturaPinType.parental)
+                if (type == KalturaPinType.PARENTAL)
                 {
                     // call client
                     success = ClientsManager.ApiClient().ValidateParentalPIN(groupId, userId, pin);
                 }
-                else if (type == KalturaPinType.purchase)
+                else if (type == KalturaPinType.PURCHASE)
                 {
                     // call client
                     success = ClientsManager.ApiClient().ValidatePurchasePIN(groupId, userId, pin);

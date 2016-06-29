@@ -8,7 +8,7 @@ namespace WebAPI.Models.Users
     [Serializable]
     public enum KalturaUserAssetsListItemType
     {
-        all,
-        media
+        ALL,
+        MEDIA
     }
 }
