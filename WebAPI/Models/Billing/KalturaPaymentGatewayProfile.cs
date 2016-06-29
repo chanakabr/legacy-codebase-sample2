@@ -122,5 +122,27 @@ namespace WebAPI.Models.Billing
         [JsonProperty("renewStartMinutes")]
         [XmlElement(ElementName = "renewStartMinutes")]
         public int? RenewStartMinutes { get; set; }
+
+        internal int getId()
+        {
+            return Id.HasValue ? (int)Id : 0;
+        }
+    }
+
+    /// <summary>
+    /// PaymentGatewayProfile list
+    /// </summary>
+    [DataContract(Name = "PaymentGatewayProfiles", Namespace = "")]
+    [XmlRoot("PaymentGatewayProfiles")]
+    public class KalturaPaymentGatewayProfileListResponse : KalturaListResponse
+    {
+        /// <summary>
+        /// A list of payment-gateway profiles
+        /// </summary>
+        [DataMember(Name = "objects")]
+        [JsonProperty("objects")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaPaymentGatewayProfile> PaymentGatewayProfiles { get; set; }
     }
 }

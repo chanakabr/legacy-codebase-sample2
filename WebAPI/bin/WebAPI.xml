@@ -1418,7 +1418,17 @@
             "key1": {"value": "value2"}}
             </param>
         </member>
-        <member name="M:WebAPI.Controllers.PaymentGatewayProfileSettingsController.Add(System.Int32,SerializableDictionary{System.String,WebAPI.Models.General.KalturaStringValue})">
+        <member name="M:WebAPI.Controllers.PaymentGatewayProfileSettingsController.Add(WebAPI.Models.Billing.KalturaPaymentGatewayProfile)">
+            <summary>
+            Insert new settings for payment gateway for partner
+            </summary>
+            <remarks>
+            Possible status codes:       
+            Payment gateway params required = 6006
+            </remarks>
+            <param name="profile">Payment Gateway profile</param> 
+        </member>
+        <member name="M:WebAPI.Controllers.PaymentGatewayProfileSettingsController.AddOldStandard(System.Int32,SerializableDictionary{System.String,WebAPI.Models.General.KalturaStringValue})">
              <summary>
              Insert new settings for payment gateway for partner
              </summary>
@@ -1669,6 +1679,15 @@
              
             </remarks>
         </member>
+        <member name="M:WebAPI.Controllers.PaymentGatewayProfileController.ListOldStandard">
+            <summary>
+            Returns all payment gateways for partner : id + name
+            </summary>
+            <remarks>
+            Possible status codes:       
+             
+            </remarks>
+        </member>
         <member name="M:WebAPI.Controllers.PaymentGatewayProfileController.Delete(System.Int32)">
             <summary>
             Delete payment gateway by payment gateway id
@@ -1689,6 +1708,16 @@
             </remarks>
             <param name="paymentGateway">Payment Gateway Object</param>
         </member>
+        <member name="M:WebAPI.Controllers.PaymentGatewayProfileController.AddOldStandard(WebAPI.Models.Billing.KalturaPaymentGatewayProfile)">
+            <summary>
+            Insert new payment gateway for partner
+            </summary>
+            <remarks>
+            Possible status codes:       
+              External identifier is required = 6016, Name is required = 6020, Shared secret is required = 6021, External identifier must be unique = 6040, No payment gateway to insert = 6041
+            </remarks>
+            <param name="paymentGateway">Payment Gateway Object</param>
+        </member>
         <member name="M:WebAPI.Controllers.PaymentGatewayProfileController.Update(System.Int32,WebAPI.Models.Billing.KalturaPaymentGatewayProfile)">
             <summary>
             Update payment gateway details
@@ -1698,8 +1727,20 @@
             Action is not allowed = 5011, Payment gateway identifier is required = 6005, Name is required = 6020, Shared secret is required = 6021, External idntifier missing = 6016, 
             External identifier must be unique = 6040            
             </remarks>
-            <param name="payment_gateway_id">Payment Gateway Identifier</param> 
-            <param name="payment_gateway">Payment Gateway Object</param>       
+            <param name="paymentGatewayId">Payment Gateway Identifier</param> 
+            <param name="paymentGateway">Payment Gateway Object</param>       
+        </member>
+        <member name="M:WebAPI.Controllers.PaymentGatewayProfileController.UpdateOldStandard(System.Int32,WebAPI.Models.Billing.KalturaPaymentGatewayProfile)">
+            <summary>
+            Update payment gateway details
+            </summary>
+            <remarks>
+            Possible status codes:      
+            Action is not allowed = 5011, Payment gateway identifier is required = 6005, Name is required = 6020, Shared secret is required = 6021, External idntifier missing = 6016, 
+            External identifier must be unique = 6040            
+            </remarks>
+            <param name="paymentGatewayId">Payment Gateway Identifier</param> 
+            <param name="paymentGateway">Payment Gateway Object</param>       
         </member>
         <member name="M:WebAPI.Controllers.PaymentGatewayProfileController.GenerateSharedSecret(System.Int32)">
             <summary>
@@ -1717,7 +1758,7 @@
             </summary>
             <param name="alias">The payemnt gateway for which to return the registration URL/s for the household. If omitted – return the regisration URL for the household for the default payment gateway</param>                
             <param name="intent">Represent the client’s intent for working with the payment gateway. Intent options to be coordinated with the applicable payment gateway adapter.</param>                
-            <param name="extra_parameters">Additional parameters to send to the payment gateway adapter.</param>
+            <param name="extraParameters">Additional parameters to send to the payment gateway adapter.</param>
             <remarks>
             Possible status codes:       
             PaymentGatewayNotExist = 6008, SignatureMismatch = 6013
@@ -3077,6 +3118,16 @@
         <member name="P:WebAPI.Models.Billing.KalturaPaymentGatewayProfile.RenewStartMinutes">
             <summary>
             Renew Start Minutes
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Billing.KalturaPaymentGatewayProfileListResponse">
+            <summary>
+            PaymentGatewayProfile list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Billing.KalturaPaymentGatewayProfileListResponse.PaymentGatewayProfiles">
+            <summary>
+            A list of payment-gateway profiles
             </summary>
         </member>
         <member name="T:WebAPI.Models.API.KalturaParentalRuleListResponse">
@@ -12532,6 +12583,15 @@
         <member name="M:WebAPI.Billing.module.SetPaymentGatewayAsync(System.String,System.String,System.Int32,WebAPI.Billing.PaymentGateway,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.Billing.module.UpdatePaymentGateway(System.String,System.String,System.Int32,WebAPI.Billing.PaymentGateway)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.UpdatePaymentGatewayAsync(System.String,System.String,System.Int32,WebAPI.Billing.PaymentGateway)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.UpdatePaymentGatewayAsync(System.String,System.String,System.Int32,WebAPI.Billing.PaymentGateway,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.Billing.module.SetPaymentGWSettings(System.String,System.String,System.Int32,WebAPI.Billing.PaymentGatewaySettings[])">
             <remarks/>
         </member>
@@ -12568,6 +12628,15 @@
         <member name="M:WebAPI.Billing.module.InsertPaymentGatewayAsync(System.String,System.String,WebAPI.Billing.PaymentGateway,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.Billing.module.AddPaymentGateway(System.String,System.String,WebAPI.Billing.PaymentGateway)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.AddPaymentGatewayAsync(System.String,System.String,WebAPI.Billing.PaymentGateway)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.AddPaymentGatewayAsync(System.String,System.String,WebAPI.Billing.PaymentGateway,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.Billing.module.InsertPaymentGatewaySettings(System.String,System.String,System.Int32,WebAPI.Billing.PaymentGatewaySettings[])">
             <remarks/>
         </member>
@@ -12575,6 +12644,15 @@
             <remarks/>
         </member>
         <member name="M:WebAPI.Billing.module.InsertPaymentGatewaySettingsAsync(System.String,System.String,System.Int32,WebAPI.Billing.PaymentGatewaySettings[],System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.AddPaymentGatewaySettings(System.String,System.String,System.Int32,WebAPI.Billing.PaymentGatewaySettings[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.AddPaymentGatewaySettingsAsync(System.String,System.String,System.Int32,WebAPI.Billing.PaymentGatewaySettings[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.AddPaymentGatewaySettingsAsync(System.String,System.String,System.Int32,WebAPI.Billing.PaymentGatewaySettings[],System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Billing.module.GetPaymentGateway(System.String,System.String)">
@@ -12620,60 +12698,6 @@
             <remarks/>
         </member>
         <member name="M:WebAPI.Billing.module.GetSelectedHouseholdPaymentGatewayAsync(System.String,System.String,System.Int32,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Billing.module.InsertPaymentGWPending(System.String,System.String,WebAPI.Billing.PaymentGatewayPending)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Billing.module.InsertPaymentGWPendingAsync(System.String,System.String,WebAPI.Billing.PaymentGatewayPending)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Billing.module.InsertPaymentGWPendingAsync(System.String,System.String,WebAPI.Billing.PaymentGatewayPending,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Billing.module.SetPaymentGWPending(System.String,System.String,WebAPI.Billing.PaymentGatewayPending,System.Nullable{System.Int32})">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Billing.module.SetPaymentGWPendingAsync(System.String,System.String,WebAPI.Billing.PaymentGatewayPending,System.Nullable{System.Int32})">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Billing.module.SetPaymentGWPendingAsync(System.String,System.String,WebAPI.Billing.PaymentGatewayPending,System.Nullable{System.Int32},System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Billing.module.DeletePaymentGWPending(System.String,System.String,System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Billing.module.DeletePaymentGWPendingAsync(System.String,System.String,System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Billing.module.DeletePaymentGWPendingAsync(System.String,System.String,System.Int32,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Billing.module.InsertPaymentGWTransaction(System.String,System.String,System.Int32,System.Int32,WebAPI.Billing.PaymentGatewayTransaction)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Billing.module.InsertPaymentGWTransactionAsync(System.String,System.String,System.Int32,System.Int32,WebAPI.Billing.PaymentGatewayTransaction)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Billing.module.InsertPaymentGWTransactionAsync(System.String,System.String,System.Int32,System.Int32,WebAPI.Billing.PaymentGatewayTransaction,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Billing.module.SetPaymentGWTransaction(System.String,System.String,WebAPI.Billing.PaymentGatewayTransaction)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Billing.module.SetPaymentGWTransactionAsync(System.String,System.String,WebAPI.Billing.PaymentGatewayTransaction)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Billing.module.SetPaymentGWTransactionAsync(System.String,System.String,WebAPI.Billing.PaymentGatewayTransaction,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Billing.module.DeletePaymentGWTransaction(System.String,System.String,System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Billing.module.DeletePaymentGWTransactionAsync(System.String,System.String,System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Billing.module.DeletePaymentGWTransactionAsync(System.String,System.String,System.Int32,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Billing.module.SetHouseholdChargeID(System.String,System.String,System.String,System.Int32,System.String)">
@@ -12847,6 +12871,15 @@
         <member name="M:WebAPI.Billing.module.SetPaymentMethodHouseholdPaymentGatewayAsync(System.String,System.String,System.Int32,System.String,System.Int32,System.Int32,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.Billing.module.RemovePaymentMethodHouseholdPaymentGateway(System.String,System.String,System.Int32,System.String,System.Int32,System.Int32,System.Boolean)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.RemovePaymentMethodHouseholdPaymentGatewayAsync(System.String,System.String,System.Int32,System.String,System.Int32,System.Int32,System.Boolean)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.RemovePaymentMethodHouseholdPaymentGatewayAsync(System.String,System.String,System.Int32,System.String,System.Int32,System.Int32,System.Boolean,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.Billing.module.UpdateRecordedTransaction(System.String,System.String,System.Int32,System.String,System.String,System.String,System.Int32,System.String)">
             <remarks/>
         </member>
@@ -12922,6 +12955,9 @@
         <member name="E:WebAPI.Billing.module.SetPaymentGatewayCompleted">
             <remarks/>
         </member>
+        <member name="E:WebAPI.Billing.module.UpdatePaymentGatewayCompleted">
+            <remarks/>
+        </member>
         <member name="E:WebAPI.Billing.module.SetPaymentGWSettingsCompleted">
             <remarks/>
         </member>
@@ -12934,7 +12970,13 @@
         <member name="E:WebAPI.Billing.module.InsertPaymentGatewayCompleted">
             <remarks/>
         </member>
+        <member name="E:WebAPI.Billing.module.AddPaymentGatewayCompleted">
+            <remarks/>
+        </member>
         <member name="E:WebAPI.Billing.module.InsertPaymentGatewaySettingsCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Billing.module.AddPaymentGatewaySettingsCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.Billing.module.GetPaymentGatewayCompleted">
@@ -12950,24 +12992,6 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.Billing.module.GetSelectedHouseholdPaymentGatewayCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Billing.module.InsertPaymentGWPendingCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Billing.module.SetPaymentGWPendingCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Billing.module.DeletePaymentGWPendingCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Billing.module.InsertPaymentGWTransactionCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Billing.module.SetPaymentGWTransactionCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Billing.module.DeletePaymentGWTransactionCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.Billing.module.SetHouseholdChargeIDCompleted">
@@ -13025,6 +13049,9 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.Billing.module.SetPaymentMethodHouseholdPaymentGatewayCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Billing.module.RemovePaymentMethodHouseholdPaymentGatewayCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.Billing.module.UpdateRecordedTransactionCompleted">
@@ -13106,123 +13133,6 @@
             <remarks/>
         </member>
         <member name="F:WebAPI.Billing.PartnerConfigurationType.OSSAdapter">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Billing.PaymentGatewayItemResponse">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatewayItemResponse.Status">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatewayItemResponse.PaymentGateway">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Billing.PaymentGateway">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Billing.PaymentGatewayBase">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatewayBase.ID">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatewayBase.Name">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatewayBase.IsDefault">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatewayBase.SupportPaymentMethod">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGateway.IsActive">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGateway.AdapterUrl">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGateway.TransactUrl">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGateway.StatusUrl">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGateway.RenewUrl">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGateway.ExternalIdentifier">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGateway.PendingInterval">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGateway.PendingRetries">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGateway.RenewalIntervalMinutes">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGateway.RenewalStartMinutes">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGateway.SharedSecret">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGateway.Settings">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGateway.PaymentMethods">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Billing.PaymentGatewaySettings">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatewaySettings.key">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatewaySettings.value">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Billing.PaymentGatewaySelectedBy">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatewaySelectedBy.By">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatewaySelectedBy.PaymentMethods">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy.None">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy.Account">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy.Household">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Billing.PaymentGatwayPaymentMethods">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatwayPaymentMethods.PaymentMethod">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatwayPaymentMethods.HouseHoldPaymentMethods">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Billing.HouseholdPaymentMethod">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.HouseholdPaymentMethod.ID">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.HouseholdPaymentMethod.Details">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.HouseholdPaymentMethod.Selected">
             <remarks/>
         </member>
         <member name="T:WebAPI.Billing.UpdatePendingResponse">
@@ -13327,69 +13237,6 @@
         <member name="P:WebAPI.Billing.PaymentGatewayChargeIDResponse.ChargeID">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Billing.PaymentGatewayTransaction">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatewayTransaction.ID">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatewayTransaction.PaymentGatewayID">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatewayTransaction.ExternalTransactionId">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatewayTransaction.ExternalStatus">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatewayTransaction.ProductType">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatewayTransaction.ProductId">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatewayTransaction.BillingGuid">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatewayTransaction.ContentId">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatewayTransaction.Message">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatewayTransaction.State">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatewayTransaction.FailReason">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatewayTransaction.PaymentMethodId">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatewayTransaction.PaymentDetails">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatewayTransaction.PaymentMethod">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Billing.PaymentGatewayPending">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatewayPending.ID">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatewayPending.PaymentGatewayTransactionId">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatewayPending.NextRetryDate">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatewayPending.AdapterRetryCount">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentGatewayPending.BillingGuid">
-            <remarks/>
-        </member>
         <member name="T:WebAPI.Billing.HouseholdPaymentGatewayResponse">
             <remarks/>
         </member>
@@ -13400,6 +13247,114 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Billing.HouseholdPaymentGatewayResponse.SelectedBy">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.PaymentGatewayBase">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentGatewayBase.ID">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentGatewayBase.Name">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentGatewayBase.IsDefault">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentGatewayBase.SupportPaymentMethod">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.PaymentGatewaySelectedBy">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentGatewaySelectedBy.By">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentGatewaySelectedBy.PaymentMethods">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy.None">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy.Account">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy.Household">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.PaymentGatwayPaymentMethods">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentGatwayPaymentMethods.PaymentMethod">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentGatwayPaymentMethods.HouseHoldPaymentMethods">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.HouseholdPaymentMethod">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.HouseholdPaymentMethod.ID">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.HouseholdPaymentMethod.Details">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.HouseholdPaymentMethod.Selected">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.PaymentGateway">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentGateway.IsActive">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentGateway.AdapterUrl">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentGateway.TransactUrl">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentGateway.StatusUrl">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentGateway.RenewUrl">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentGateway.ExternalIdentifier">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentGateway.PendingInterval">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentGateway.PendingRetries">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentGateway.RenewalIntervalMinutes">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentGateway.RenewalStartMinutes">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentGateway.SharedSecret">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentGateway.Settings">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentGateway.PaymentMethods">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.PaymentGatewaySettings">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentGatewaySettings.key">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentGatewaySettings.value">
             <remarks/>
         </member>
         <member name="T:WebAPI.Billing.PaymentGatewayListResponse">
@@ -13418,6 +13373,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Billing.PaymentGatewayResponse.pgw">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.PaymentGatewayItemResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentGatewayItemResponse.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentGatewayItemResponse.PaymentGateway">
             <remarks/>
         </member>
         <member name="T:WebAPI.Billing.PaymentGatewaySettingsResponse">
@@ -13756,6 +13720,15 @@
         <member name="P:WebAPI.Billing.SetPaymentGatewayCompletedEventArgs.Result">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Billing.UpdatePaymentGatewayCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.UpdatePaymentGatewayCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.UpdatePaymentGatewayCompletedEventArgs.Result">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Billing.SetPaymentGWSettingsCompletedEventHandler">
             <remarks/>
         </member>
@@ -13792,6 +13765,15 @@
         <member name="P:WebAPI.Billing.InsertPaymentGatewayCompletedEventArgs.Result">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Billing.AddPaymentGatewayCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.AddPaymentGatewayCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.AddPaymentGatewayCompletedEventArgs.Result">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Billing.InsertPaymentGatewaySettingsCompletedEventHandler">
             <remarks/>
         </member>
@@ -13799,6 +13781,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Billing.InsertPaymentGatewaySettingsCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.AddPaymentGatewaySettingsCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.AddPaymentGatewaySettingsCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.AddPaymentGatewaySettingsCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Billing.GetPaymentGatewayCompletedEventHandler">
@@ -13844,60 +13835,6 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Billing.GetSelectedHouseholdPaymentGatewayCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Billing.InsertPaymentGWPendingCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Billing.InsertPaymentGWPendingCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.InsertPaymentGWPendingCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Billing.SetPaymentGWPendingCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Billing.SetPaymentGWPendingCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.SetPaymentGWPendingCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Billing.DeletePaymentGWPendingCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Billing.DeletePaymentGWPendingCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.DeletePaymentGWPendingCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Billing.InsertPaymentGWTransactionCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Billing.InsertPaymentGWTransactionCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.InsertPaymentGWTransactionCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Billing.SetPaymentGWTransactionCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Billing.SetPaymentGWTransactionCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.SetPaymentGWTransactionCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Billing.DeletePaymentGWTransactionCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Billing.DeletePaymentGWTransactionCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.DeletePaymentGWTransactionCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Billing.SetHouseholdChargeIDCompletedEventHandler">
@@ -14069,6 +14006,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Billing.SetPaymentMethodHouseholdPaymentGatewayCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.RemovePaymentMethodHouseholdPaymentGatewayCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.RemovePaymentMethodHouseholdPaymentGatewayCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.RemovePaymentMethodHouseholdPaymentGatewayCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Billing.UpdateRecordedTransactionCompletedEventHandler">

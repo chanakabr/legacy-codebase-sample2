@@ -150,6 +150,36 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
         }
 
+
+        public static Billing.PaymentGatewaySettings[] ConvertPaymentGatewaySettings(SerializableDictionary<string, KalturaStringValue> settings)
+        {
+            List<Billing.PaymentGatewaySettings> result = null;
+
+            if (settings != null && settings.Count > 0)
+            {
+                result = new List<PaymentGatewaySettings>();
+                Billing.PaymentGatewaySettings pc;
+                foreach (KeyValuePair<string, KalturaStringValue> data in settings)
+                {
+                    if (!string.IsNullOrEmpty(data.Key))
+                    {
+                        pc = new Billing.PaymentGatewaySettings();
+                        pc.key = data.Key;
+                        pc.value = data.Value.value;
+                        result.Add(pc);
+                    }
+                }
+            }
+            if (result != null && result.Count > 0)
+            {
+                return result.ToArray();
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         public static Dictionary<string, KalturaStringValue> ConvertPaymentGatewaySettings(Billing.PaymentGatewaySettings[] settings)
         {
             Dictionary<string, KalturaStringValue> result = null;
