@@ -551,7 +551,6 @@
     <Content Include="testmeDoc\objects\KalturaBillingTransaction.html" />
     <Content Include="testmeDoc\objects\KalturaBillingTransactionListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaBooleanValue.html" />
-    <Content Include="testmeDoc\objects\KalturaBuzzScore.html" />
     <Content Include="testmeDoc\objects\KalturaCDNAdapterProfile.html" />
     <Content Include="testmeDoc\objects\KalturaCDNAdapterProfileListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaCDNPartnerSettings.html" />
@@ -1101,14 +1100,12 @@
     <Content Include="testme\json\KalturaAssetInfo-subclasses.json" />
     <Content Include="testme\json\KalturaAssetInfoListResponse-subclasses.json" />
     <Content Include="testme\json\KalturaAssetsBookmarksResponse-subclasses.json" />
-    <Content Include="testme\json\KalturaAssetStatistics-subclasses.json" />
     <Content Include="testme\json\KalturaBaseAssetInfo-subclasses.json" />
     <Content Include="testme\json\KalturaBaseChannel-subclasses.json" />
     <Content Include="testme\json\KalturaBaseOTTUser-subclasses.json" />
     <Content Include="testme\json\KalturaBillingTransaction-subclasses.json" />
     <Content Include="testme\json\KalturaBillingTransactionListResponse-subclasses.json" />
     <Content Include="testme\json\KalturaBooleanValue-subclasses.json" />
-    <Content Include="testme\json\KalturaBuzzScore-subclasses.json" />
     <Content Include="testme\json\KalturaCDNAdapterProfile-subclasses.json" />
     <Content Include="testme\json\KalturaCDNAdapterProfileListResponse-subclasses.json" />
     <Content Include="testme\json\KalturaCDNPartnerSettings-subclasses.json" />
