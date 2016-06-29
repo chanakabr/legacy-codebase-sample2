@@ -28,14 +28,9 @@ using WebAPI.Models.MultiRequest;
 
 namespace WebAPI.Filters
 {
-    public class RequestParserException : Exception
+    public class RequestParserException : ApiException
     {
-        public RequestParserException(int code, string message) : base(message)
-        {
-            Code = code;
-        }
-
-        public int Code { get; set; }
+        public RequestParserException(int code, string msg) : base(code, msg) { }
     }
 
     public class RequestParser : ActionFilterAttribute
