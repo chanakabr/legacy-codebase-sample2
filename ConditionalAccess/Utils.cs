@@ -4171,14 +4171,13 @@ namespace ConditionalAccess
             TimeShiftedTvPartnerSettings settings = null;
             try
             {
-                settings = TvinciCache.WSCache.Instance.Get<TimeShiftedTvPartnerSettings>(key);
-                if (settings == null)
-                {
-                    lock (lck)
-                    {
-                        settings = TvinciCache.WSCache.Instance.Get<TimeShiftedTvPartnerSettings>(key);
-                        if (settings == null)
-                        {
+                
+                //if (!TvinciCache.WSCache.Instance.TryGet(key, out settings))
+                //{
+                //    lock (lck)
+                //    {                        
+                //        if (!TvinciCache.WSCache.Instance.TryGet(key, out settings))
+                //        {
                             log.Debug("Getting TSTV Settings from DB");
                             DataRow dr = DAL.ApiDAL.GetTimeShiftedTvPartnerSettings(groupID);
                             if (dr != null)
@@ -4207,10 +4206,14 @@ namespace ConditionalAccess
                                     TvinciCache.WSCache.Instance.Add(key, settings);
                                 }
                             }
-                        }
-                    }
-                }
-                log.DebugFormat("current TSTV settings values are: {0}", settings.ToString());
+                //        }
+                //    }
+                //}
+                //else if (settings == null)
+                //{
+                //    log.Error("TSTV settings is null");
+                //}
+                log.DebugFormat("current TSTV settings values are: {0}", settings != null ? settings.ToString() : "null");
             }            
 
             catch (Exception ex)
