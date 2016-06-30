@@ -142,14 +142,6 @@
       <Project>{4f57cbcf-abec-4645-a01a-3001f6be5c15}</Project>
       <Name>EPG_XDTVTransform</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ESIndexRebuildHandler\ESIndexRebuildHandler.csproj">
-      <Project>{4f2abad8-e96e-4687-b8bc-210b44f4aa59}</Project>
-      <Name>ESIndexRebuildHandler</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ESIndexUpdateHandler\ESIndexUpdateHandler.csproj">
-      <Project>{7740c5eb-21b0-423c-bbc3-bdea655a4b6e}</Project>
-      <Name>ESIndexUpdateHandler</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ExportHandler\ExportHandler.csproj">
       <Project>{0303bfd2-76fe-4d89-80d6-dc2f202317ad}</Project>
       <Name>ExportHandler</Name>
