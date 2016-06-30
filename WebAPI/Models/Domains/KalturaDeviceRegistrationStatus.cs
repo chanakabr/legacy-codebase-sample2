@@ -7,8 +7,8 @@ namespace WebAPI.Models.Domains
 {
     public enum KalturaDeviceRegistrationStatus
     {
-        NOT_REGISTERED,
-        REGISTERED,
-        REGISTERED_TO_ANOTHER_HOUSEHOLD
+        not_registered,
+        registered,
+        registered_to_another_household
     }
 }

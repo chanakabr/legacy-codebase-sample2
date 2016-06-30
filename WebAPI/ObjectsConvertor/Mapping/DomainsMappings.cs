@@ -93,16 +93,16 @@ namespace WebAPI.Mapping.ObjectsConvertor
             switch (type)
             {
                 case WebAPI.Domains.DomainStatus.OK:
-                    result = KalturaHouseholdState.OK;
+                    result = KalturaHouseholdState.ok;
                     break;
                 case WebAPI.Domains.DomainStatus.DomainCreatedWithoutNPVRAccount:
-                    result = KalturaHouseholdState.CREATED_WITHOUT_NPVR_ACCOUNT;
+                    result = KalturaHouseholdState.created_without_npvr_account;
                     break;
                 case WebAPI.Domains.DomainStatus.DomainSuspended:
-                    result = KalturaHouseholdState.SUSPENDED;
+                    result = KalturaHouseholdState.suspended;
                     break;
                 case WebAPI.Domains.DomainStatus.NoUsersInDomain:
-                    result = KalturaHouseholdState.NO_USERS_IN_HOUSEHOLD;
+                    result = KalturaHouseholdState.no_users_in_household;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown domain state");
@@ -116,16 +116,16 @@ namespace WebAPI.Mapping.ObjectsConvertor
             switch (type)
             {
                 case WebAPI.Domains.DomainRestriction.Unrestricted:
-                    result = KalturaHouseholdRestriction.NOT_RESTRICTED;
+                    result = KalturaHouseholdRestriction.not_restricted;
                     break;
                 case WebAPI.Domains.DomainRestriction.DeviceMasterRestricted:
-                    result = KalturaHouseholdRestriction.DEVICE_MASTER_RESTRICTED;
+                    result = KalturaHouseholdRestriction.device_master_restricted;
                     break;
                 case WebAPI.Domains.DomainRestriction.UserMasterRestricted:
-                    result = KalturaHouseholdRestriction.USER_MASTER_RESTRICTED;
+                    result = KalturaHouseholdRestriction.user_master_restricted;
                     break;
                 case WebAPI.Domains.DomainRestriction.DeviceUserMasterRestricted:
-                    result = KalturaHouseholdRestriction.DEVICE_USER_MASTER_RESTRICTED;
+                    result = KalturaHouseholdRestriction.device_user_master_restricted;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown domain_restriction value");
@@ -139,13 +139,13 @@ namespace WebAPI.Mapping.ObjectsConvertor
             switch (type)
             {
                 case WebAPI.Domains.DeviceState.Activated:
-                    result = KalturaDeviceState.ACTIVATED;
+                    result = KalturaDeviceState.activated;
                     break;
                 case WebAPI.Domains.DeviceState.Pending:
-                    result = KalturaDeviceState.PENDING;
+                    result = KalturaDeviceState.pending;
                     break;
                 case WebAPI.Domains.DeviceState.UnActivated:
-                    result = KalturaDeviceState.NOT_ACTIVATED;
+                    result = KalturaDeviceState.not_activated;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown device state");
@@ -159,13 +159,13 @@ namespace WebAPI.Mapping.ObjectsConvertor
             switch (status)
             {
                 case WebAPI.Domains.DeviceRegistrationStatus.NotRegistered:
-                    result = KalturaDeviceRegistrationStatus.NOT_REGISTERED;
+                    result = KalturaDeviceRegistrationStatus.not_registered;
                     break;
                 case WebAPI.Domains.DeviceRegistrationStatus.Registered:
-                    result = KalturaDeviceRegistrationStatus.REGISTERED;
+                    result = KalturaDeviceRegistrationStatus.registered;
                     break;
                 case WebAPI.Domains.DeviceRegistrationStatus.RegisteredToAnotherDomain:
-                    result = KalturaDeviceRegistrationStatus.REGISTERED_TO_ANOTHER_HOUSEHOLD;
+                    result = KalturaDeviceRegistrationStatus.registered_to_another_household;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown device registration status");
@@ -179,10 +179,10 @@ namespace WebAPI.Mapping.ObjectsConvertor
 
             switch (householdFrequencyType)
             {
-                case KalturaHouseholdFrequencyType.DEVICES:
+                case KalturaHouseholdFrequencyType.devices:
                     result = 1; 
                     break;
-                case KalturaHouseholdFrequencyType.USERS:
+                case KalturaHouseholdFrequencyType.users:
                     result = 2; 
                     break;
                 default:

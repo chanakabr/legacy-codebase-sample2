@@ -411,7 +411,11 @@ namespace WebAPI.Filters
                     if (t.IsEnum)
                     {
                         var paramAsString = reqParams[name].ToString();
-                        methodParams.Add(Enum.Parse(t, paramAsString, true));
+                        var names = t.GetEnumNames().ToList();
+                        if (names.Contains(paramAsString))
+                        {
+                            methodParams.Add(Enum.Parse(t, paramAsString, true));
+                        }
                     }
                     // nullable enum
                     else if (u != null && u.IsEnum)
@@ -419,11 +423,7 @@ namespace WebAPI.Filters
                         var paramAsString = reqParams[name] != null ? reqParams[name].ToString() : null;
                         if (paramAsString != null)
                         {
-                            var names = u.GetEnumNames().ToList();
-                            if (names.Contains(paramAsString))
-                            {
-                                methodParams.Add(Enum.Parse(u, paramAsString, true));
-                            }
+                            methodParams.Add(Enum.Parse(u, paramAsString, true));
                         }
                         else
                         {

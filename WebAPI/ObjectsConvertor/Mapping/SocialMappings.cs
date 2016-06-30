@@ -143,10 +143,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
             switch (type)
             {
                 case WebAPI.Social.DomainSuspentionStatus.OK:
-                    result = KalturaHouseholdSuspentionState.NOT_SUSPENDED;
+                    result = KalturaHouseholdSuspentionState.not_suspended;
                     break;
                 case WebAPI.Social.DomainSuspentionStatus.Suspended:
-                    result = KalturaHouseholdSuspentionState.SUSPENDED;
+                    result = KalturaHouseholdSuspentionState.suspended;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown domain suspention state");
@@ -160,10 +160,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
             switch (type)
             {
                 case WebAPI.Social.ResponseStatus.OK:
-                    result = KalturaUserState.OK;
+                    result = KalturaUserState.ok;
                     break;
                 case WebAPI.Social.ResponseStatus.UserWithNoDomain:
-                    result = KalturaUserState.USER_WITH_NO_HOUSEHOLD;
+                    result = KalturaUserState.user_with_no_household;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown user state");

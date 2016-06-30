@@ -6,8 +6,8 @@ namespace WebAPI.Models.Billing
     /// </summary>
     public enum KalturaHouseholdPaymentGatewaySelectedBy
     {
-        NONE,
-        ACCOUNT,        
-        HOUSEHOLD
+        none,
+        account,        
+        household
     }
 }

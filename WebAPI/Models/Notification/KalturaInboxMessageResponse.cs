@@ -13,6 +13,7 @@ namespace WebAPI.Models.Notification
     [XmlRoot("KalturaInboxMessageResponse")]
     public class KalturaInboxMessageResponse : KalturaListResponse
     {
+        /// <summary>
         /// Follow data list
         /// </summary>
         [DataMember(Name = "objects")]

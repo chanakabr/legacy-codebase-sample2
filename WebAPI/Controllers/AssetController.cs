@@ -204,8 +204,7 @@ namespace WebAPI.Controllers
         /// Returns media or EPG asset by media / EPG internal or external identifier
         /// </summary>
         /// <param name="id">Asset identifier</param>                
-        /// <param name="type">Asset type</param>                
-        /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
+        /// <param name="assetReferenceType">Asset type</param>
         /// <remarks></remarks>
         [Route("get"), HttpPost]
         [ApiAuthorize]

@@ -317,9 +317,6 @@ namespace Validator.Managers.Schema
             writer.WriteStartElement("classes");
             foreach (Type type in types)
             {
-                if (type.Name.Equals("KalturaSearchFilter"))
-                    Console.WriteLine();
-
                 if (!SchemaManager.Validate(type, true))
                     continue;
 

@@ -121,7 +121,14 @@
             <param name="pager">Paging the request</param>
             <remarks></remarks>
         </member>
-        <!-- Badly formed XML comment ignored for member "M:WebAPI.Controllers.AssetController.Get(System.String,WebAPI.Models.Catalog.KalturaAssetReferenceType)" -->
+        <member name="M:WebAPI.Controllers.AssetController.Get(System.String,WebAPI.Models.Catalog.KalturaAssetReferenceType)">
+            <summary>
+            Returns media or EPG asset by media / EPG internal or external identifier
+            </summary>
+            <param name="id">Asset identifier</param>                
+            <param name="assetReferenceType">Asset type</param>
+            <remarks></remarks>
+        </member>
         <member name="M:WebAPI.Controllers.AssetController.GetOldStandard(System.String,WebAPI.Models.Catalog.KalturaAssetReferenceType,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder})">
             <summary>
             Returns media or EPG asset by media / EPG internal or external identifier
@@ -335,7 +342,7 @@
             Possible status codes:  
             Adapter identifier is required = 10001, AdapterNotExists = 10000
             </remarks>
-            <param name="adapter_id">C-DVR adapter identifier</param>
+            <param name="adapterId">C-DVR adapter identifier</param>
         </member>
         <member name="M:WebAPI.Controllers.CdnPartnerSettingsController.Get">
             <summary>
@@ -631,7 +638,17 @@
             <returns>The notification settings that apply for the partner</returns>
             
         </member>
-        <!-- Badly formed XML comment ignored for member "M:WebAPI.Controllers.NotificationsPartnerSettingsController.Update(WebAPI.Models.Notification.KalturaPartnerNotificationSettings)" -->
+        <member name="M:WebAPI.Controllers.NotificationsPartnerSettingsController.Update(WebAPI.Models.Notification.KalturaPartnerNotificationSettings)">
+            <summary>
+            Update the account notification settings
+            </summary>
+            <param name="settings">Account notification settings model</param>
+            <remarks>        
+            Possible status codes: 
+            Push notification false = 8001 
+            </remarks>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.NotificationsSettingsController.Get">
             <summary>
             Retrieve the user’s notification settings.    
@@ -3880,7 +3897,11 @@
             List of inbox message.
             </summary>
         </member>
-        <!-- Badly formed XML comment ignored for member "P:WebAPI.Models.Notification.KalturaInboxMessageResponse.InboxMessages" -->
+        <member name="P:WebAPI.Models.Notification.KalturaInboxMessageResponse.InboxMessages">
+            <summary>
+            Follow data list
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Notification.KalturaFollowDataBase.AnnouncementId">
             <summary>
             Announcement Id
@@ -3961,7 +3982,11 @@
             The message template with placeholders
              </summary>
         </member>
-        <!-- Badly formed XML comment ignored for member "P:WebAPI.Models.Notification.KalturaMessageTemplate.DateFormat" -->
+        <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.DateFormat">
+            <summary>
+            Default date format for the date &amp; time entries used in the template
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.AssetType">
             <summary>
             Template type. Possible values: Series
@@ -4057,7 +4082,11 @@
             List of message follow data.
             </summary>
         </member>
-        <!-- Badly formed XML comment ignored for member "P:WebAPI.Models.Notification.KalturaPersonalFollowFeedResponse.PersonalFollowFeed" -->
+        <member name="P:WebAPI.Models.Notification.KalturaPersonalFollowFeedResponse.PersonalFollowFeed">
+            <summary>
+            Follow data list
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Notification.KalturaRegistryParameter.AnnouncementId">
             <summary>
             Announcement Id
@@ -4078,7 +4107,11 @@
             
             </summary>
         </member>
-        <!-- Badly formed XML comment ignored for member "P:WebAPI.Models.Notification.KalturaRegistryResponse.RegistryParameters" -->
+        <member name="P:WebAPI.Models.Notification.KalturaRegistryResponse.RegistryParameters">
+            <summary>
+            push web parameters
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Notification.KalturaTopic.Id">
             <summary>
             message id
@@ -4109,7 +4142,11 @@
             List of inbox message.
             </summary>
         </member>
-        <!-- Badly formed XML comment ignored for member "P:WebAPI.Models.Notification.KalturaTopicResponse.Topics" -->
+        <member name="P:WebAPI.Models.Notification.KalturaTopicResponse.Topics">
+            <summary>
+            Follow data list
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Partner.KalturaBillingPartnerConfig">
             <summary>
             Partner billing configuration
@@ -5177,6 +5214,11 @@
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings.CleanupNoticePeroid">
+            <summary>
+            The time in days before the recording lifetime is due from which the client should be able to warn user about deletion.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings.SeriesRecordingEnabled">
             <summary>
             The time in days before the recording lifetime is due from which the client should be able to warn user about deletion.
             </summary>
@@ -6559,6 +6601,15 @@
         <member name="M:WebAPI.Api.API.UpdateTimeShiftedTvPartnerSettingsAsync(System.String,System.String,WebAPI.Api.TimeShiftedTvPartnerSettings,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.Api.API.UpdateTimeShiftedTvEpgChannelsSettings(System.String,System.String,WebAPI.Api.TimeShiftedTvPartnerSettings)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdateTimeShiftedTvEpgChannelsSettingsAsync(System.String,System.String,WebAPI.Api.TimeShiftedTvPartnerSettings)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdateTimeShiftedTvEpgChannelsSettingsAsync(System.String,System.String,WebAPI.Api.TimeShiftedTvPartnerSettings,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.Api.API.GetCDNAdapters(System.String,System.String)">
             <remarks/>
         </member>
@@ -7862,6 +7913,9 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.Api.API.UpdateTimeShiftedTvPartnerSettingsCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.UpdateTimeShiftedTvEpgChannelsSettingsCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.Api.API.GetCDNAdaptersCompleted">
@@ -9418,55 +9472,19 @@
         <member name="F:WebAPI.Api.eMailTemplateType.AddDeviceToDomain">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Api.PurchaseMailRequest">
+        <member name="T:WebAPI.Api.CinepolisPurchaseMailRequest">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sPurchaseDate">
+        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sPurchaseDate">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sItemName">
+        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sItemName">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sPrice">
+        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sPrice">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTransactionNumber">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sPaymentMethod">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTaxVal">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTaxSubtotal">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTaxAmount">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sInvoiceNum">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sExternalTransationNum">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sAddress">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sUserEmail">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.PurchaseWithPreviewModuleRequest">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseWithPreviewModuleRequest.m_sPreviewModuleEndDate">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.PreviewModuleCancelOrRefundRequest">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.PurchaseFailRequest">
+        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sUsername">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.AddUserMailRequest">
@@ -9547,21 +9565,6 @@
         <member name="P:WebAPI.Api.ChangedPinMailRequest.m_sRuleName">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Api.CinepolisPurchaseMailRequest">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sPurchaseDate">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sItemName">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sPrice">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sUsername">
-            <remarks/>
-        </member>
         <member name="T:WebAPI.Api.SendAdminTokenRequest">
             <remarks/>
         </member>
@@ -9578,6 +9581,57 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.ChangePasswordMailRequest.m_sToken">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.PurchaseMailRequest">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sPurchaseDate">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sItemName">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sPrice">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTransactionNumber">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sPaymentMethod">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTaxVal">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTaxSubtotal">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTaxAmount">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sInvoiceNum">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sExternalTransationNum">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sAddress">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sUserEmail">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.PreviewModuleCancelOrRefundRequest">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.PurchaseWithPreviewModuleRequest">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseWithPreviewModuleRequest.m_sPreviewModuleEndDate">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.PurchaseFailRequest">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.SendPasswordMailRequest">
@@ -10549,6 +10603,9 @@
         <member name="P:WebAPI.Api.TimeShiftedTvPartnerSettings.CleanupNoticePeroid">
             <remarks/>
         </member>
+        <member name="P:WebAPI.Api.TimeShiftedTvPartnerSettings.IsSeriesRecordingEnabled">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Api.TimeShiftedTvPartnerSettingsResponse">
             <remarks/>
         </member>
@@ -11132,6 +11189,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.UpdateTimeShiftedTvPartnerSettingsCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.UpdateTimeShiftedTvEpgChannelsSettingsCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.UpdateTimeShiftedTvEpgChannelsSettingsCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.UpdateTimeShiftedTvEpgChannelsSettingsCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.GetCDNAdaptersCompletedEventHandler">

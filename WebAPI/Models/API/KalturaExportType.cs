@@ -7,7 +7,7 @@ namespace WebAPI.Models.API
 {
     public enum KalturaExportType
     {
-        FULL,
-        INCREMENTAL
+        full,
+        incremental
     }
 }

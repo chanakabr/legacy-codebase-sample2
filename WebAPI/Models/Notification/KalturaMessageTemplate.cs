@@ -24,7 +24,7 @@ namespace WebAPI.Models.Notification
         public string Message { get; set; }
 
         /// <summary>
-        /// Default date format for the date & time entries used in the template
+        /// Default date format for the date &amp; time entries used in the template
         /// </summary>
         [DataMember(Name = "dateFormat")]
         [JsonProperty(PropertyName = "dateFormat")]

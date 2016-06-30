@@ -16,6 +16,7 @@ namespace WebAPI.Models.Notification
     [XmlRoot("KalturaPersonalFollowFeedResponse")]
     public class KalturaPersonalFollowFeedResponse : KalturaListResponse
     {
+        /// <summary>
         /// Follow data list
         /// </summary>
         [DataMember(Name = "objects")]

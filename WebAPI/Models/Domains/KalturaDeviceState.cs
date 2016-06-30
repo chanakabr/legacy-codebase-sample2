@@ -7,8 +7,8 @@ namespace WebAPI.Models.Domains
 {
     public enum KalturaDeviceState
     {
-        PENDING,
-        ACTIVATED,
-        NOT_ACTIVATED,
+        pending,
+        activated,
+        not_activated,
     }
 }
