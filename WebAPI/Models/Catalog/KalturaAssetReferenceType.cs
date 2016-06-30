@@ -10,8 +10,8 @@ namespace WebAPI.Models.Catalog
     /// </summary>
     public enum KalturaAssetReferenceType
     {
-        MEDIA,
-        EPG_INTERNAL,
-        EPG_EXTERNAL,
+        media,
+        epg_internal,
+        epg_external,
     }
 }

@@ -228,7 +228,7 @@ namespace WebAPI.Controllers
 
                 switch (assetReferenceType)
                 {
-                    case KalturaAssetReferenceType.MEDIA:
+                    case KalturaAssetReferenceType.media:
                         {
                             int mediaId;
                             if (!int.TryParse(id, out mediaId))
@@ -247,7 +247,7 @@ namespace WebAPI.Controllers
                             response = mediaRes.Objects.First();
                         }
                         break;
-                    case KalturaAssetReferenceType.EPG_INTERNAL:
+                    case KalturaAssetReferenceType.epg_internal:
                         {
                             int epgId;
                             if (!int.TryParse(id, out epgId))
@@ -267,7 +267,7 @@ namespace WebAPI.Controllers
                             response = epgRes.Objects.First();
                         }
                         break;
-                    case KalturaAssetReferenceType.EPG_EXTERNAL:
+                    case KalturaAssetReferenceType.epg_external:
                         {
                             var epgRes = ClientsManager.CatalogClient().GetEPGByExternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
                               0, 1, new List<string> { id }, KalturaAssetOrderBy.NEWEST);
@@ -326,7 +326,7 @@ namespace WebAPI.Controllers
 
                 switch (type)
                 {
-                    case KalturaAssetReferenceType.MEDIA:
+                    case KalturaAssetReferenceType.media:
                         {
                             int mediaId;
                             if (!int.TryParse(id, out mediaId))
@@ -345,7 +345,7 @@ namespace WebAPI.Controllers
                             response = mediaRes.Objects.First();
                         }
                         break;
-                    case KalturaAssetReferenceType.EPG_INTERNAL:
+                    case KalturaAssetReferenceType.epg_internal:
                         {
                             int epgId;
                             if (!int.TryParse(id, out epgId))
@@ -365,7 +365,7 @@ namespace WebAPI.Controllers
                             response = epgRes.Objects.First();
                         }
                         break;
-                    case KalturaAssetReferenceType.EPG_EXTERNAL:
+                    case KalturaAssetReferenceType.epg_external:
                         {
                             var epgRes = ClientsManager.CatalogClient().GetEPGByExternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
                               0, 1, new List<string> { id }, with.Select(x => x.type).ToList());
