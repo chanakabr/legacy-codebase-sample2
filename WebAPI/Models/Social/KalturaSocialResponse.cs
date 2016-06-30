@@ -6,9 +6,15 @@ using System.Web;
 using Newtonsoft.Json;
 using WebAPI.Models.General;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 
 namespace WebAPI.Models.Social
 {
+    [OldStandard("userId", "user_id")]
+    [OldStandard("kalturaUsername", "kaltura_username")]
+    [OldStandard("socialUsername", "social_username")]
+    [OldStandard("minFriendsLimitation", "min_friends_limitation")]
+    [OldStandard("socialUser", "social_user")]
     public class KalturaSocialResponse : KalturaOTTObject
     {
         /// <summary>
@@ -23,25 +29,25 @@ namespace WebAPI.Models.Social
         /// <summary>
         /// User identifier
         /// </summary>
-        [DataMember(Name = "user_id")]
-        [JsonProperty("user_id")]
-        [XmlElement(ElementName = "user_id")]
+        [DataMember(Name = "userId")]
+        [JsonProperty("userId")]
+        [XmlElement(ElementName = "userId")]
         public string UserId { get; set; }
 
         /// <summary>
         /// Kaltura username
         /// </summary>
-        [DataMember(Name = "kaltura_username")]
-        [JsonProperty("kaltura_username")]
-        [XmlElement(ElementName = "kaltura_username")]
+        [DataMember(Name = "kalturaUsername")]
+        [JsonProperty("kalturaUsername")]
+        [XmlElement(ElementName = "kalturaUsername")]
         public string KalturaName { get; set; }
 
         /// <summary>
         /// Facebook username
         /// </summary>
-        [DataMember(Name = "social_username")]
-        [JsonProperty("social_username")]
-        [XmlElement(ElementName = "social_username")]
+        [DataMember(Name = "socialUsername")]
+        [JsonProperty("socialUsername")]
+        [XmlElement(ElementName = "socialUsername")]
         public string SocialNetworkUsername { get; set; }
 
         /// <summary>
@@ -63,9 +69,9 @@ namespace WebAPI.Models.Social
         /// <summary>
         /// Minimum number of friends limitation
         /// </summary>
-        [DataMember(Name = "min_friends_limitation")]
-        [JsonProperty("min_friends_limitation")]
-        [XmlElement(ElementName = "min_friends_limitation")]
+        [DataMember(Name = "minFriendsLimitation")]
+        [JsonProperty("minFriendsLimitation")]
+        [XmlElement(ElementName = "minFriendsLimitation")]
         public string MinFriends { get; set; }
 
         /// <summary>
@@ -79,9 +85,9 @@ namespace WebAPI.Models.Social
         /// <summary>
         /// Facebook user object
         /// </summary>
-        [DataMember(Name = "social_user")]
-        [JsonProperty("social_user")]
-        [XmlElement(ElementName = "social_user", IsNullable = true)]
+        [DataMember(Name = "socialUser")]
+        [JsonProperty("socialUser")]
+        [XmlElement(ElementName = "socialUser", IsNullable = true)]
         public KalturaSocialUser SocialUser { get; set; }
     }
 }

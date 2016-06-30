@@ -13,6 +13,7 @@ namespace WebAPI.Models.Notification
     [XmlRoot("KalturaRegistryResponse")]
     public class KalturaRegistryResponse : KalturaListResponse
     {
+        /// <summary>
         /// push web parameters
         /// </summary>
         [DataMember(Name = "objects")]

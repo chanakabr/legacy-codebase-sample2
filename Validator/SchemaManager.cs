@@ -155,8 +155,7 @@ namespace Validator.Managers.Schema
             if (property.Name.Contains('_'))
             {
                 logError("Error", property.DeclaringType, string.Format("Property {0}.{1} ({2}) name may not contain underscores", property.ReflectedType.Name, property.Name, property.PropertyType.Name));
-                if (strict)
-                    valid = false;
+                valid = false;
             }
 
             string apiName = getApiName(property);
@@ -169,7 +168,7 @@ namespace Validator.Managers.Schema
             {
                 if (apiName.Contains('_'))
                 {
-                    logError("Warning", property.DeclaringType, string.Format("Property {0}.{1} ({2}) data member ({3}) name may not contain underscores", property.ReflectedType.Name, property.Name, property.PropertyType.Name, apiName));
+                    logError("Error", property.DeclaringType, string.Format("Property {0}.{1} ({2}) data member ({3}) name may not contain underscores", property.ReflectedType.Name, property.Name, property.PropertyType.Name, apiName));
                     if (strict)
                         valid = false;
                 }
@@ -177,8 +176,7 @@ namespace Validator.Managers.Schema
                 if (!Char.IsLower(apiName, 0))
                 {
                     logError("Error", property.DeclaringType, string.Format("Property {0}.{1} ({2}) data member ({3}) must start with a small letter", property.ReflectedType.Name, property.Name, property.PropertyType.Name, apiName));
-                    if (strict)
-                        valid = false;
+                    valid = false;
                 }
             }
 
@@ -241,8 +239,7 @@ namespace Validator.Managers.Schema
                 if (!hasRightSuffix)
                 {
                     logError("Error", property.DeclaringType, string.Format("Filter property {0}.{1} ({2}) data member ({3}) must use on of the following suffixes: {4}", property.ReflectedType.Name, property.Name, property.PropertyType.Name, jsonProperty.PropertyName, String.Join(", ", availableFilterSuffixes)));
-                    if (strict)
-                        valid = false;
+                    valid = false;
                 }
             }
 
@@ -270,16 +267,14 @@ namespace Validator.Managers.Schema
                 if (objectsProperty == null)
                 {
                     logError("Error", type, string.Format("List response {0} must implement objects attribute", type.Name));
-                    if (strict)
-                        valid = false;
+                    valid = false;
                 }
             }
 
             if (type.IsSubclassOf(typeof(KalturaFilterPager)))
             {
                 logError("Error", type, string.Format("Object {0} should not inherit KalturaFilterPager", type.Name));
-                if (strict)
-                    valid = false;
+                valid = false;
             }
 
             if (typeof(IKalturaFilter).IsAssignableFrom(type))
@@ -306,32 +301,8 @@ namespace Validator.Managers.Schema
             return valid;
         }
 
-        private static bool ValidateEnumValue(Type type, string name, string value, bool strict)
-        {
-            bool valid = true;
-
-            if (name.ToUpper() != name)
-            {
-                logError("Warning", type, string.Format("Enum value {0}.{1} should be upper case", type.Name, name));
-                if (strict)
-                    valid = false;
-            }
-
-            return valid;
-        }
-
         private static bool ValidateEnum(Type type, bool strict)
         {
-            bool valid = true;
-
-            bool isIntEnum = type.GetCustomAttribute<KalturaIntEnumAttribute>() != null;
-
-            foreach (var enumValue in Enum.GetValues(type))
-            {
-                string value = isIntEnum ? ((int)Enum.Parse(type, enumValue.ToString())).ToString() : enumValue.ToString();
-                valid = ValidateEnumValue(type, enumValue.ToString(), value, strict) && valid;
-            }
-
             return true;
         }
 
@@ -441,8 +412,7 @@ namespace Validator.Managers.Schema
             if (!Char.IsLower(param.Name, 0))
             {
                 logError("Error", controller, string.Format("Parameter {0} in method {1}.{2} ({3}) must start with a small letter", param.Name, serviceId, actionId, controller.Name));
-                if (strict)
-                    valid = false;
+                valid = false;
             }
 
             string description = string.Format("Parameter {0} in method {1}.{2} ({3})", param.Name, serviceId, actionId, controller.Name);
@@ -566,8 +536,7 @@ namespace Validator.Managers.Schema
                         if (!idParam.ParameterType.IsPrimitive && idParam.ParameterType != typeof(string))
                         {
                             logError("Error", controller, string.Format("Action {0}.{1} ({2}) id argument type is {3}, primitive is expected", serviceId, actionId, controller.Name, idParam.ParameterType.Name));
-                            if (strict)
-                                valid = false;
+                            valid = false;
                         }
 
                         var objectParam = parameters[1];
@@ -608,7 +577,7 @@ namespace Validator.Managers.Schema
 
                     if (parameters.Length > 2)
                     {
-                        logError("Warning", controller, string.Format("Action {0}.{1} ({2}) only filter and pager arguments are expected", serviceId, actionId, controller.Name));
+                        logError("Error", controller, string.Format("Action {0}.{1} ({2}) only filter and pager arguments are expected", serviceId, actionId, controller.Name));
                         if (strict)
                             valid = false;
                     }
@@ -631,8 +600,7 @@ namespace Validator.Managers.Schema
                     if (arrayType.Name.ToLower() != expectedObjectType.ToLower())
                     {
                         logError("Error", controller, string.Format("Action {0}.{1} ({2}) returned list-response contains array of {3}, expected {4}", serviceId, actionId, controller.Name, arrayType.Name, expectedObjectType));
-                        if (strict)
-                            valid = false;
+                        valid = false;
                     }
                 }
             }

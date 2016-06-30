@@ -136,10 +136,12 @@ namespace WebAPI.Controllers
         /// Possible status codes:  
         /// Adapter identifier is required = 10001, AdapterNotExists = 10000
         /// </remarks>
-        /// <param name="adapter_id">C-DVR adapter identifier</param>
+        /// <param name="adapterId">C-DVR adapter identifier</param>
         [Route("generateSharedSecret"), HttpPost]
         [ApiAuthorize]
-        public KalturaCDVRAdapterProfile GenerateSharedSecret(int adapter_id)
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [OldStandard("adapterId", "adapter_id")]
+        public KalturaCDVRAdapterProfile GenerateSharedSecret(int adapterId)
         {
             KalturaCDVRAdapterProfile response = null;
 
@@ -148,7 +150,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().GenerateCDVRSharedSecret(groupId, adapter_id);
+                response = ClientsManager.ConditionalAccessClient().GenerateCDVRSharedSecret(groupId, adapterId);
             }
             catch (ClientException ex)
             {
