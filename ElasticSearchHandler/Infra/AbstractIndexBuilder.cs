@@ -55,7 +55,8 @@ namespace ElasticSearchHandler.IndexBuilders
                 {
                     return api.baseUrl;
                 }
-                else{
+                else
+                {
                     return null;
                 }
             }

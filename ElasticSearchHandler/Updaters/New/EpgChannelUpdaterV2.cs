@@ -36,13 +36,24 @@ namespace ElasticSearchHandler.Updaters
         {
             get
             {
-                throw new NotImplementedException();
+                if (esApi != null)
+                {
+                    return esApi.baseUrl;
+                }
+                else
+                {
+                    return null;
+                }
             }
             set
             {
-                throw new NotImplementedException();
+                if (esApi != null)
+                {
+                    esApi.baseUrl = value;
+                }
             }
         }
+
         #endregion
 
         #region Ctors

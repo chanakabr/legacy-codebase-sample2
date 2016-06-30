@@ -20,7 +20,7 @@ namespace ElasticSearchHandler.Updaters
 
         private int m_nGroupID;
         private ElasticSearch.Common.ESSerializerV2 m_oESSerializer;
-        private ElasticSearch.Common.ElasticSearchApi m_oESApi;
+        private ElasticSearch.Common.ElasticSearchApi esApi;
 
         public List<int> IDs { get; set; }
         public ApiObjects.eAction Action { get; set; }
@@ -29,11 +29,21 @@ namespace ElasticSearchHandler.Updaters
         {
             get
             {
-                throw new NotImplementedException();
+                if (esApi != null)
+                {
+                    return esApi.baseUrl;
+                }
+                else
+                {
+                    return null;
+                }
             }
             set
             {
-                throw new NotImplementedException();
+                if (esApi != null)
+                {
+                    esApi.baseUrl = value;
+                }
             }
         }
 
@@ -41,7 +51,7 @@ namespace ElasticSearchHandler.Updaters
         {
             m_nGroupID = nGroupID;
             m_oESSerializer = new ElasticSearch.Common.ESSerializerV2();
-            m_oESApi = new ElasticSearch.Common.ElasticSearchApi();
+            esApi = new ElasticSearch.Common.ElasticSearchApi();
         }
 
         public bool Start()
@@ -56,7 +66,7 @@ namespace ElasticSearchHandler.Updaters
                 return result;
             }
 
-            if (!m_oESApi.IndexExists(ElasticsearchTasksCommon.Utils.GetMediaGroupAliasStr(m_nGroupID)))
+            if (!esApi.IndexExists(ElasticsearchTasksCommon.Utils.GetMediaGroupAliasStr(m_nGroupID)))
             {
                 log.Error("Error - " + string.Format("Index of type media for group {0} does not exist", m_nGroupID));
                 return result;
@@ -88,14 +98,14 @@ namespace ElasticSearchHandler.Updaters
 
             ESDeleteResult deleteResult;
 
-            bool epgExists = m_oESApi.IndexExists(epgIndex);
+            bool epgExists = esApi.IndexExists(epgIndex);
 
-            List<string> mediaAliases = m_oESApi.GetAliases(mediaIndex);
+            List<string> mediaAliases = esApi.GetAliases(mediaIndex);
             List<string> epgAliases = null;
 
             if (epgExists)
             {
-                epgAliases = m_oESApi.GetAliases(epgIndex);
+                epgAliases = esApi.GetAliases(epgIndex);
             }
 
             // If we found aliases to both, or if we don't have EPG at all
@@ -111,7 +121,7 @@ namespace ElasticSearchHandler.Updaters
                 {
                     foreach (string index in mediaAliases)
                     {
-                        deleteResult = m_oESApi.DeleteDoc(PERCOLATOR, index, nChannelID.ToString());
+                        deleteResult = esApi.DeleteDoc(PERCOLATOR, index, nChannelID.ToString());
                         result &= deleteResult.Ok;
 
                         if (!deleteResult.Ok)
@@ -132,7 +142,7 @@ namespace ElasticSearchHandler.Updaters
                 {
                     foreach (string index in epgAliases)
                     {
-                        deleteResult = m_oESApi.DeleteDoc(PERCOLATOR, index, channelId.ToString());
+                        deleteResult = esApi.DeleteDoc(PERCOLATOR, index, channelId.ToString());
                         result &= deleteResult.Ok;
 
                         if (!deleteResult.Ok)
@@ -161,8 +171,8 @@ namespace ElasticSearchHandler.Updaters
                 return result;
             }
 
-            List<string> mediaAliases = m_oESApi.GetAliases(m_nGroupID.ToString());
-            List<string> epgAliases = m_oESApi.GetAliases(string.Format("{0}_epg", m_nGroupID));
+            List<string> mediaAliases = esApi.GetAliases(m_nGroupID.ToString());
+            List<string> epgAliases = esApi.GetAliases(string.Format("{0}_epg", m_nGroupID));
 
             if (mediaAliases != null && mediaAliases.Count > 0)
             {
@@ -208,7 +218,7 @@ namespace ElasticSearchHandler.Updaters
                         {
                             foreach (string alias in mediaAliases)
                             {
-                                result = m_oESApi.AddQueryToPercolator(alias, channel.m_nChannelID.ToString(), ref channelQuery);
+                                result = esApi.AddQueryToPercolator(alias, channel.m_nChannelID.ToString(), ref channelQuery);
                             }
                         }
 
@@ -216,7 +226,7 @@ namespace ElasticSearchHandler.Updaters
                         {
                             foreach (string alias in epgAliases)
                             {
-                                result = m_oESApi.AddQueryToPercolator(alias, channel.m_nChannelID.ToString(), ref channelQuery);
+                                result = esApi.AddQueryToPercolator(alias, channel.m_nChannelID.ToString(), ref channelQuery);
                             }
                         }
 
