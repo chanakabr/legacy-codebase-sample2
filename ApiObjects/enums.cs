@@ -673,4 +673,10 @@ namespace ApiObjects
         PurchaseDateAsc = 0,
         PurchaseDateDesc = 1
     }
+
+    public enum GenericRuleOrderBy
+    {
+        NameAsc = 0,
+        NameDesc = 1
+    }
 }
