@@ -7,9 +7,9 @@ namespace WebAPI.Models.Domains
 {
     public enum KalturaHouseholdState
     {
-        OK,
-        CREATED_WITHOUT_NPVR_ACCOUNT,
-        SUSPENDED,
-        NO_USERS_IN_HOUSEHOLD
+        ok,
+        created_without_npvr_account,
+        suspended,
+        no_users_in_household
     }
 }

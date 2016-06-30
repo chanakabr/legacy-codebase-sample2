@@ -11,18 +11,18 @@ namespace WebAPI.Models.API
 {
     public enum KalturaChannelEnrichment
     {
-        CLIENTLOCATION = 1,
-        USERID = 2,
-        HOUSEHOLDID = 4,
-        DEVICEID = 8,
-        DEVICETYPE = 16,
-        UTCOFFSET = 32,
-        LANGUAGE = 64,
-        NPVRSUPPORT = 128,
-        CATCHUP = 256,
-        PARENTAL = 512,
-        DTTREGION = 1024,
-        ATHOME = 2048
+        ClientLocation = 1,
+        UserId = 2,
+        HouseholdId = 4,
+        DeviceId = 8,
+        DeviceType = 16,
+        UTCOffset = 32,
+        Language = 64,
+        NPVRSupport = 128,
+        Catchup = 256,
+        Parental = 512,
+        DTTRegion = 1024,
+        AtHome = 2048
     }
 
     /// <summary>

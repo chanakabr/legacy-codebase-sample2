@@ -128,13 +128,13 @@ namespace WebAPI.Controllers
                 // validate input
                 switch (type)
                 {
-                    case KalturaNotificationType.ANNOUNCEMENT:
+                    case KalturaNotificationType.announcement:
                         long announcentId = 0;
                         if (!long.TryParse(identifier, out announcentId))
                             throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "illegal id");
                         break;
 
-                    case KalturaNotificationType.SYSTEM:
+                    case KalturaNotificationType.system:
                         if (identifier.ToLower() != "login")
                             throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "illegal id");
                         break;

@@ -50,12 +50,12 @@ namespace WebAPI.Controllers
 
                 switch (filter.EntityReferenceEqual)
                 {
-                    case KalturaEntityReferenceBy.USER:
+                    case KalturaEntityReferenceBy.user:
                     {
                         response = ClientsManager.ConditionalAccessClient().GetUserTransactionHistory(groupId, userID, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy);
                         break;
                     }
-                    case KalturaEntityReferenceBy.HOUSEHOLD:
+                    case KalturaEntityReferenceBy.household:
                     {
                         DateTime startDate = new DateTime(1753, 1, 1);
                         DateTime endDate = DateTime.MaxValue;
@@ -112,12 +112,12 @@ namespace WebAPI.Controllers
 
                 switch (filter.By)
                 {
-                    case KalturaEntityReferenceBy.USER:
+                    case KalturaEntityReferenceBy.user:
                         {
                             response = ClientsManager.ConditionalAccessClient().GetUserTransactionHistory(groupId, userID, filter.getPageIndex(), filter.getPageSize(), KalturaTransactionHistoryOrderBy.CREATE_DATE_DESC);
                             break;
                         }
-                    case KalturaEntityReferenceBy.HOUSEHOLD:
+                    case KalturaEntityReferenceBy.household:
                         {
                             DateTime startDate = new DateTime(1753, 1, 1);
                             DateTime endDate = DateTime.MaxValue;

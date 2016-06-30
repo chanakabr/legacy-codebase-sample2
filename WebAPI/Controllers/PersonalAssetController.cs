@@ -114,7 +114,7 @@ namespace WebAPI.Controllers
                 HttpContext ctx = HttpContext.Current;
                 List<Task> taskList = new List<Task>();
 
-                if (withTypes.Contains(KalturaPersonalAssetWith.BOOKMARK))
+                if (withTypes.Contains(KalturaPersonalAssetWith.bookmark))
                 {
                     #region Bookmarks
 
@@ -144,7 +144,7 @@ namespace WebAPI.Controllers
                     #endregion
                 }
 
-                if (withTypes.Contains(KalturaPersonalAssetWith.PRICING))
+                if (withTypes.Contains(KalturaPersonalAssetWith.pricing))
                 {
                     #region Pricing
 
@@ -163,7 +163,7 @@ namespace WebAPI.Controllers
                     #endregion
                 }
 
-                if (withTypes.Contains(KalturaPersonalAssetWith.FOLLOWING))
+                if (withTypes.Contains(KalturaPersonalAssetWith.following))
                 {
                     #region Following
 
@@ -185,7 +185,7 @@ namespace WebAPI.Controllers
                             {
                                 var asset = assets.Where(x => x.Id == item.AssetId).FirstOrDefault();
                                 if (asset != null)
-                                    followingAssets.Add(new KalturaSlimAsset() { Type = KalturaAssetType.MEDIA, Id = asset.Id.ToString() });
+                                    followingAssets.Add(new KalturaSlimAsset() { Type = KalturaAssetType.media, Id = asset.Id.ToString() });
                             }
                         }
                     });

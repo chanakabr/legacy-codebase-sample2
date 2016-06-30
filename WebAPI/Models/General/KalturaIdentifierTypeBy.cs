@@ -7,7 +7,7 @@ namespace WebAPI.Models.General
 {
     public enum KalturaIdentifierTypeBy
     {
-        INTERNAL_ID,
-        EXTERNAL_ID
+        internal_id,
+        external_id
     }
 }

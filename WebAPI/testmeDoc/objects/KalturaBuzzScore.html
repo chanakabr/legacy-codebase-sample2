@@ -29,7 +29,7 @@
 		<h2>Kaltura API</h2>
 		<table class="action" width="80%">
 			<tr>
-				<th class="service_action_title">KalturaEntitlementFilter</th>
+				<th class="service_action_title">KalturaBuzzScore</th>
 			</tr>
 			<tr>
 				<td class="title">Properties</td>
@@ -70,38 +70,7 @@
 					<table style="">
 						<tbody>
 							<tr>
-								<td class="inheritedFrom">
-									<b><img class="base-attribute" src="../images/collapsed.gif"> Inherited from <a href="KalturaFilter.html">KalturaFilter</a></b>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-					<table style="display: none">
-						<tbody>
-							<tr>
-								<th class="subtitle">Name</th>
-								<th class="subtitle">Type</th>
-								<th class="subtitle">Writable</th>
-								<th class="subtitle">Restrictions</th>
-								<th class="subtitle">Description</th>
-							</tr>
-							<tr >
-								<td>orderBy</td>
-								<td><a href="../enums/KalturaEntitlementOrderBy.html">KalturaEntitlementOrderBy</a></td>
-								<td>V</td>
-								<td></td>
-								<td></td>
-							</tr>
-						</tbody>
-					</table>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<table style="">
-						<tbody>
-							<tr>
-								<td class="inheritedFrom"><b>KalturaEntitlementFilter</b></td>
+								<td class="inheritedFrom"><b>KalturaBuzzScore</b></td>
 							</tr>
 						</tbody>
 					</table>
@@ -115,18 +84,25 @@
 								<th class="subtitle">Description</th>
 							</tr>
 							<tr >
-								<td>entitlementTypeEqual</td>
-								<td><a href="../enums/KalturaTransactionType.html">KalturaTransactionType</a></td>
+								<td>normalizedAvgScore</td>
+								<td>float</td>
 								<td>V</td>
 								<td></td>
-								<td>The type of the entitlements to return</td>
+								<td>Normalized average score</td>
 							</tr>
 							<tr class="odd">
-								<td>entityReferenceEqual</td>
-								<td><a href="../enums/KalturaEntityReferenceBy.html">KalturaEntityReferenceBy</a></td>
+								<td>updateDate</td>
+								<td>bigint</td>
 								<td>V</td>
 								<td></td>
-								<td>Reference type to filter by</td>
+								<td>Update date</td>
+							</tr>
+							<tr >
+								<td>avgScore</td>
+								<td>float</td>
+								<td>V</td>
+								<td></td>
+								<td>Average score</td>
 							</tr>
 						</tbody>
 					</table>

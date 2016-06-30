@@ -215,16 +215,16 @@ namespace WebAPI.Clients
             eAnnouncementRecipientsType recipients = eAnnouncementRecipientsType.Other;
             switch (announcement.Recipients)
             {
-                case Models.Notifications.KalturaAnnouncementRecipientsType.ALL:
+                case Models.Notifications.KalturaAnnouncementRecipientsType.All:
                     recipients = eAnnouncementRecipientsType.All;
                     break;
-                case Models.Notifications.KalturaAnnouncementRecipientsType.GUESTS:
+                case Models.Notifications.KalturaAnnouncementRecipientsType.Guests:
                     recipients = eAnnouncementRecipientsType.Guests;
                     break;
-                case Models.Notifications.KalturaAnnouncementRecipientsType.LOGGEDIN:
+                case Models.Notifications.KalturaAnnouncementRecipientsType.LoggedIn:
                     recipients = eAnnouncementRecipientsType.LoggedIn;
                     break;
-                case Models.Notifications.KalturaAnnouncementRecipientsType.OTHER:
+                case Models.Notifications.KalturaAnnouncementRecipientsType.Other:
                     recipients = eAnnouncementRecipientsType.Other;
                     break;
             }
@@ -232,16 +232,16 @@ namespace WebAPI.Clients
             eAnnouncementStatus status = eAnnouncementStatus.NotSent;
             switch (announcement.Status)
             {
-                case Models.Notifications.KalturaAnnouncementStatus.ABORTED:
+                case Models.Notifications.KalturaAnnouncementStatus.Aborted:
                     status = eAnnouncementStatus.Aborted;
                     break;
-                case Models.Notifications.KalturaAnnouncementStatus.NOTSENT:
+                case Models.Notifications.KalturaAnnouncementStatus.NotSent:
                     status = eAnnouncementStatus.NotSent;
                     break;
-                case Models.Notifications.KalturaAnnouncementStatus.SENDING:
+                case Models.Notifications.KalturaAnnouncementStatus.Sending:
                     status = eAnnouncementStatus.Sending;
                     break;
-                case Models.Notifications.KalturaAnnouncementStatus.SENT:
+                case Models.Notifications.KalturaAnnouncementStatus.Sent:
                     status = eAnnouncementStatus.Sent;
                     break;
             }
@@ -288,16 +288,16 @@ namespace WebAPI.Clients
             eAnnouncementRecipientsType recipients = eAnnouncementRecipientsType.Other;
             switch (announcement.Recipients)
             {
-                case Models.Notifications.KalturaAnnouncementRecipientsType.ALL:
+                case Models.Notifications.KalturaAnnouncementRecipientsType.All:
                     recipients = eAnnouncementRecipientsType.All;
                     break;
-                case Models.Notifications.KalturaAnnouncementRecipientsType.GUESTS:
+                case Models.Notifications.KalturaAnnouncementRecipientsType.Guests:
                     recipients = eAnnouncementRecipientsType.Guests;
                     break;
-                case Models.Notifications.KalturaAnnouncementRecipientsType.LOGGEDIN:
+                case Models.Notifications.KalturaAnnouncementRecipientsType.LoggedIn:
                     recipients = eAnnouncementRecipientsType.LoggedIn;
                     break;
-                case Models.Notifications.KalturaAnnouncementRecipientsType.OTHER:
+                case Models.Notifications.KalturaAnnouncementRecipientsType.Other:
                     recipients = eAnnouncementRecipientsType.Other;
                     break;
             }
@@ -305,16 +305,16 @@ namespace WebAPI.Clients
             eAnnouncementStatus status = eAnnouncementStatus.NotSent;
             switch (announcement.Status)
             {
-                case Models.Notifications.KalturaAnnouncementStatus.ABORTED:
+                case Models.Notifications.KalturaAnnouncementStatus.Aborted:
                     status = eAnnouncementStatus.Aborted;
                     break;
-                case Models.Notifications.KalturaAnnouncementStatus.NOTSENT:
+                case Models.Notifications.KalturaAnnouncementStatus.NotSent:
                     status = eAnnouncementStatus.NotSent;
                     break;
-                case Models.Notifications.KalturaAnnouncementStatus.SENDING:
+                case Models.Notifications.KalturaAnnouncementStatus.Sending:
                     status = eAnnouncementStatus.Sending;
                     break;
-                case Models.Notifications.KalturaAnnouncementStatus.SENT:
+                case Models.Notifications.KalturaAnnouncementStatus.Sent:
                     status = eAnnouncementStatus.Sent;
                     break;
             }
@@ -789,8 +789,8 @@ namespace WebAPI.Clients
             if (typeIn == null || typeIn.Count == 0)
             {
                 typeIn = new List<KalturaInboxMessageTypeHolder>();
-                typeIn.Add(new KalturaInboxMessageTypeHolder() { type = KalturaInboxMessageType.FOLLOWED });
-                typeIn.Add(new KalturaInboxMessageTypeHolder() { type = KalturaInboxMessageType.SYSTEMANNOUNCEMENT });
+                typeIn.Add(new KalturaInboxMessageTypeHolder() { type = KalturaInboxMessageType.Followed });
+                typeIn.Add(new KalturaInboxMessageTypeHolder() { type = KalturaInboxMessageType.SystemAnnouncement });
             }
 
             List<eMessageCategory> convertedtypeIn = typeIn.Select(x => NotificationMapping.ConvertInboxMessageType(x)).ToList();
@@ -1120,10 +1120,10 @@ namespace WebAPI.Clients
                 {
                     switch (type)
                     {
-                        case KalturaNotificationType.ANNOUNCEMENT:
+                        case KalturaNotificationType.announcement:
                             response = Notification.RegisterPushAnnouncementParameters(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, long.Parse(id), hash, ip);
                             break;
-                        case KalturaNotificationType.SYSTEM:
+                        case KalturaNotificationType.system:
                             if (id.ToLower() == "login")
                                 response = Notification.RegisterPushSystemParameters(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, hash, ip);
                             else

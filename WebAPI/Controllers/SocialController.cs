@@ -37,7 +37,7 @@ namespace WebAPI.Controllers
                 // call client
                 switch (type)
                 {
-                    case KalturaSocialNetwork.FACEBOOK:
+                    case KalturaSocialNetwork.facebook:
                         response = ClientsManager.SocialClient().FBUserData(partnerId, token);
                         break;
                     default:
@@ -92,7 +92,7 @@ namespace WebAPI.Controllers
                 // call client
                 switch (type)
                 {
-                    case KalturaSocialNetwork.FACEBOOK:
+                    case KalturaSocialNetwork.facebook:
                         response = ClientsManager.SocialClient().FBUserRegister(partnerId, token, extraParameters, ip);
                         break;
                     default:
@@ -131,7 +131,7 @@ namespace WebAPI.Controllers
                 // call client                
                 switch (type)
                 {
-                    case KalturaSocialNetwork.FACEBOOK:
+                    case KalturaSocialNetwork.facebook:
                         response = ClientsManager.SocialClient().FBUserMerge(partnerId, token, username, password, social_id);
                         break;
                     default:
@@ -167,7 +167,7 @@ namespace WebAPI.Controllers
                 // call client               
                 switch (type)
                 {
-                    case KalturaSocialNetwork.FACEBOOK:
+                    case KalturaSocialNetwork.facebook:
                         response = ClientsManager.SocialClient().FBUserUnmerge(groupId, token, username, password);
                         break;
                     default:
@@ -199,7 +199,7 @@ namespace WebAPI.Controllers
                 // call client               
                 switch (type)
                 {
-                    case KalturaSocialNetwork.FACEBOOK:
+                    case KalturaSocialNetwork.facebook:
                         response = ClientsManager.SocialClient().GetFacebookConfig(partnerId);
                         break;
                     default:

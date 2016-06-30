@@ -45,14 +45,14 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (filter.By == KalturaEntityReferenceBy.USER)
+                if (filter.By == KalturaEntityReferenceBy.user)
                 {
                     string userId = KS.GetFromRequest().UserId;
 
                     // call client
                     response = ClientsManager.ApiClient().GetUserParentalRules(groupId, userId);
                 }
-                else if (filter.By == KalturaEntityReferenceBy.HOUSEHOLD)
+                else if (filter.By == KalturaEntityReferenceBy.household)
                 {
                     // call client
                     response = ClientsManager.ApiClient().GetDomainParentalRules(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId));
@@ -91,14 +91,14 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (filter.EntityReferenceEqual == KalturaEntityReferenceBy.USER)
+                if (filter.EntityReferenceEqual == KalturaEntityReferenceBy.user)
                 {
                     string userId = KS.GetFromRequest().UserId;
 
                     // call client
                     response = ClientsManager.ApiClient().GetUserParentalRules(groupId, userId);
                 }
-                else if (filter.EntityReferenceEqual == KalturaEntityReferenceBy.HOUSEHOLD)
+                else if (filter.EntityReferenceEqual == KalturaEntityReferenceBy.household)
                 {
                     // call client
                     response = ClientsManager.ApiClient().GetDomainParentalRules(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId));
@@ -133,14 +133,14 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (entityReference == KalturaEntityReferenceBy.USER)
+                if (entityReference == KalturaEntityReferenceBy.user)
                 {
                     string userId = KS.GetFromRequest().UserId;
 
                     // call client
                     success = ClientsManager.ApiClient().SetUserParentalRule(groupId, userId, ruleId, 1);
                 }
-                else if (entityReference == KalturaEntityReferenceBy.HOUSEHOLD)
+                else if (entityReference == KalturaEntityReferenceBy.household)
                 {
                     // call client
                     success = ClientsManager.ApiClient().SetDomainParentalRules(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), ruleId, 1);
@@ -176,14 +176,14 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (entityReference == KalturaEntityReferenceBy.USER)
+                if (entityReference == KalturaEntityReferenceBy.user)
                 {
                     string userId = KS.GetFromRequest().UserId;
 
                     // call client
                     success = ClientsManager.ApiClient().SetUserParentalRule(groupId, userId, ruleId, 0);
                 }
-                else if (entityReference == KalturaEntityReferenceBy.HOUSEHOLD)
+                else if (entityReference == KalturaEntityReferenceBy.household)
                 {
                     // call client
                     success = ClientsManager.ApiClient().SetDomainParentalRules(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), ruleId, 0);
@@ -218,12 +218,12 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (entityReference == KalturaEntityReferenceBy.HOUSEHOLD)
+                if (entityReference == KalturaEntityReferenceBy.household)
                 {
                     // call client
                     success = ClientsManager.ApiClient().DisableDomainDefaultParentalRule(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId));
                 }
-                else if (entityReference == KalturaEntityReferenceBy.USER)
+                else if (entityReference == KalturaEntityReferenceBy.user)
                 {
                     string userId = KS.GetFromRequest().UserId;
 

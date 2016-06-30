@@ -7,7 +7,7 @@ namespace WebAPI.Models.API
 {
     public enum KalturaPinType
     {
-        PURCHASE,
-        PARENTAL
+        purchase,
+        parental
     }
 }

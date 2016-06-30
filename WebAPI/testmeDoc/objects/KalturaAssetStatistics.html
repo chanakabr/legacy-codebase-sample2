@@ -29,7 +29,7 @@
 		<h2>Kaltura API</h2>
 		<table class="action" width="80%">
 			<tr>
-				<th class="service_action_title">KalturaAssetListResponse</th>
+				<th class="service_action_title">KalturaAssetStatistics</th>
 			</tr>
 			<tr>
 				<td class="title">Properties</td>
@@ -70,13 +70,11 @@
 					<table style="">
 						<tbody>
 							<tr>
-								<td class="inheritedFrom">
-									<b><img class="base-attribute" src="../images/collapsed.gif"> Inherited from <a href="KalturaListResponse.html">KalturaListResponse</a></b>
-								</td>
+								<td class="inheritedFrom"><b>KalturaAssetStatistics</b></td>
 							</tr>
 						</tbody>
 					</table>
-					<table style="display: none">
+					<table style="">
 						<tbody>
 							<tr>
 								<th class="subtitle">Name</th>
@@ -86,40 +84,46 @@
 								<th class="subtitle">Description</th>
 							</tr>
 							<tr >
-								<td>totalCount</td>
+								<td>assetId</td>
 								<td>int</td>
 								<td>V</td>
 								<td></td>
-								<td>Total items</td>
+								<td>Unique identifier for the asset</td>
 							</tr>
-						</tbody>
-					</table>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<table style="">
-						<tbody>
-							<tr>
-								<td class="inheritedFrom"><b>KalturaAssetListResponse</b></td>
-							</tr>
-						</tbody>
-					</table>
-					<table style="">
-						<tbody>
-							<tr>
-								<th class="subtitle">Name</th>
-								<th class="subtitle">Type</th>
-								<th class="subtitle">Writable</th>
-								<th class="subtitle">Restrictions</th>
-								<th class="subtitle">Description</th>
-							</tr>
-							<tr >
-								<td>objects</td>
-								<td>array of <a href="KalturaAsset.html">KalturaAsset</a></td>
+							<tr class="odd">
+								<td>likes</td>
+								<td>int</td>
 								<td>V</td>
 								<td></td>
-								<td>Assets</td>
+								<td>Total number of likes for this asset</td>
+							</tr>
+							<tr >
+								<td>views</td>
+								<td>int</td>
+								<td>V</td>
+								<td></td>
+								<td>Total number of views for this asset</td>
+							</tr>
+							<tr class="odd">
+								<td>ratingCount</td>
+								<td>int</td>
+								<td>V</td>
+								<td></td>
+								<td>Number of people that rated the asset</td>
+							</tr>
+							<tr >
+								<td>rating</td>
+								<td>float</td>
+								<td>V</td>
+								<td></td>
+								<td>Average rating for the asset</td>
+							</tr>
+							<tr class="odd">
+								<td>buzzScore</td>
+								<td><a href="KalturaBuzzScore.html">KalturaBuzzScore</a></td>
+								<td>V</td>
+								<td></td>
+								<td>Buzz score</td>
 							</tr>
 						</tbody>
 					</table>

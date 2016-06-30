@@ -17,7 +17,6 @@ namespace WebAPI.Models.Catalog
     [Serializable]
     [OldStandard("startTime", "start_time")]
     [OldStandard("endTime", "end_time")]
-    [Obsolete]
     public class KalturaEpgChannelFilter : KalturaOTTObject
     {
         /// <summary>

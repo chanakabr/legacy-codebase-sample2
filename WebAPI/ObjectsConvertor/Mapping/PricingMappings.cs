@@ -97,7 +97,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.PurchaseStatus, opt => opt.MapFrom(src => ConvertPriceReasonToPurchaseStatus(src.m_PriceReason)))
                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oPrice))
                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.m_sSubscriptionCode))
-               .ForMember(dest => dest.ProductType, opt => opt.MapFrom(src => KalturaTransactionType.SUBSCRIPTION));
+               .ForMember(dest => dest.ProductType, opt => opt.MapFrom(src => KalturaTransactionType.subscription));
 
 
             // Subscription
@@ -209,43 +209,43 @@ namespace WebAPI.Mapping.ObjectsConvertor
             switch (priceReason)
             {
                 case WebAPI.ConditionalAccess.PriceReason.PPVPurchased:
-                    result = KalturaPurchaseStatus.PPV_PURCHASED;
+                    result = KalturaPurchaseStatus.ppv_purchased;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.Free:
-                    result = KalturaPurchaseStatus.FREE;
+                    result = KalturaPurchaseStatus.free;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.ForPurchaseSubscriptionOnly:
-                    result = KalturaPurchaseStatus.FOR_PURCHASE_SUBSCRIPTION_ONLY;
+                    result = KalturaPurchaseStatus.for_purchase_subscription_only;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.SubscriptionPurchased:
-                    result = KalturaPurchaseStatus.SUBSCRIPTION_PURCHASED;
+                    result = KalturaPurchaseStatus.subscription_purchased;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.ForPurchase:
-                    result = KalturaPurchaseStatus.FOR_PURCHASE;
+                    result = KalturaPurchaseStatus.for_purchase;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.SubscriptionPurchasedWrongCurrency:
-                    result = KalturaPurchaseStatus.SUBSCRIPTION_PURCHASED_WRONG_CURRENCY;
+                    result = KalturaPurchaseStatus.subscription_purchased_wrong_currency;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.PrePaidPurchased:
-                    result = KalturaPurchaseStatus.PRE_PAID_PURCHASED;
+                    result = KalturaPurchaseStatus.pre_paid_purchased;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.GeoCommerceBlocked:
-                    result = KalturaPurchaseStatus.GEO_COMMERCE_BLOCKED;
+                    result = KalturaPurchaseStatus.geo_commerce_blocked;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.EntitledToPreviewModule:
-                    result = KalturaPurchaseStatus.ENTITLED_TO_PREVIEW_MODULE;
+                    result = KalturaPurchaseStatus.entitled_to_preview_module;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.FirstDeviceLimitation:
-                    result = KalturaPurchaseStatus.FIRST_DEVICE_LIMITATION;
+                    result = KalturaPurchaseStatus.first_device_limitation;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.CollectionPurchased:
-                    result = KalturaPurchaseStatus.COLLECTION_PURCHASED;
+                    result = KalturaPurchaseStatus.collection_purchased;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.UserSuspended:
-                    result = KalturaPurchaseStatus.USER_SUSPENDED;
+                    result = KalturaPurchaseStatus.user_suspended;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.NotForPurchase:
-                    result = KalturaPurchaseStatus.NOT_FOR_PURCHASE;
+                    result = KalturaPurchaseStatus.not_for_purchase;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown purchase status");

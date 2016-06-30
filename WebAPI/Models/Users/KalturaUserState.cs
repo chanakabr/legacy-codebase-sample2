@@ -7,9 +7,9 @@ namespace WebAPI.Models.Users
 {
     public enum KalturaUserState
     {
-        OK,
-        USER_WITH_NO_HOUSEHOLD,
-        USER_CREATED_WITH_NO_ROLE,
-        USER_NOT_ACTIVATED
+        ok,
+        user_with_no_household,
+        user_created_with_no_role,
+        user_not_activated
     }
 }

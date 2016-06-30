@@ -17,7 +17,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/epgChannel/action")]
-    [Obsolete]
     public class EpgChannelController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -28,6 +27,7 @@ namespace WebAPI.Controllers
         /// <param name="filter">Filtering the epg channel request</param>        
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
+        /// <param name="language">Language code</param>        
         /// <remarks></remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]

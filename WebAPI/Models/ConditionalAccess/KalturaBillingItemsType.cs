@@ -7,11 +7,11 @@ namespace WebAPI.Models.ConditionalAccess
 {
     public enum KalturaBillingItemsType
     {
-        UNKNOWN = 0,
-        PPV = 1,
-        SUBSCRIPTION = 2,
-        PRE_PAID = 3,
-        PRE_PAID_EXPIRED = 4,
-        COLLECTION = 5
+        unknown = 0,
+        ppv = 1,
+        subscription = 2,
+        pre_paid = 3,
+        pre_paid_expired = 4,
+        collection = 5
     }
 }

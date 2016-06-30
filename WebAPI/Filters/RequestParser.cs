@@ -43,6 +43,10 @@ namespace WebAPI.Filters
         private static int accessTokenLength = TCMClient.Settings.Instance.GetValue<int>("access_token_length");
         private static string accessTokenKeyFormat = TCMClient.Settings.Instance.GetValue<string>("access_token_key_format");
 
+        private string globalKs = null;
+        private string globalUserId = null;
+        private string globalLanguage = null;
+
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME, true);
 
         private static Dictionary<string, Type> types = null;
@@ -411,7 +415,11 @@ namespace WebAPI.Filters
                     if (t.IsEnum)
                     {
                         var paramAsString = reqParams[name].ToString();
-                        methodParams.Add(Enum.Parse(t, paramAsString, true));
+                        var names = t.GetEnumNames().ToList();
+                        if (names.Contains(paramAsString))
+                        {
+                            methodParams.Add(Enum.Parse(t, paramAsString, true));
+                        }
                     }
                     // nullable enum
                     else if (u != null && u.IsEnum)

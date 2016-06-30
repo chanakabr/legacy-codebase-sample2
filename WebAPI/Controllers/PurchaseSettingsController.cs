@@ -38,14 +38,14 @@ namespace WebAPI.Controllers
             {
                 int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
 
-                if (by == KalturaEntityReferenceBy.USER)
+                if (by == KalturaEntityReferenceBy.user)
                 {
                     string userId = KS.GetFromRequest().UserId;   
 
                     // call client
                     purchaseResponse = ClientsManager.ApiClient().GetUserPurchaseSettings(groupId, userId, householdId);
                 }
-                else if (by == KalturaEntityReferenceBy.HOUSEHOLD)
+                else if (by == KalturaEntityReferenceBy.household)
                 {
                     // call client
                     purchaseResponse = ClientsManager.ApiClient().GetDomainPurchaseSettings(groupId, householdId);
@@ -78,14 +78,14 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (by == KalturaEntityReferenceBy.USER)
+                if (by == KalturaEntityReferenceBy.user)
                 {
                     string userId = KS.GetFromRequest().UserId;   
 
                     // call client
                     success = ClientsManager.ApiClient().SetUserPurchaseSettings(groupId, userId, setting);
                 }
-                else if (by == KalturaEntityReferenceBy.HOUSEHOLD)
+                else if (by == KalturaEntityReferenceBy.household)
                 {
                     // call client
                     success = ClientsManager.ApiClient().SetDomainPurchaseSettings(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), setting);

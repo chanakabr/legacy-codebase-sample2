@@ -151,7 +151,7 @@ namespace WebAPI.Managers
 
             // validate user
             KalturaOTTUser user = usersResponse.Where(u => u.Id.ToString() == userId).FirstOrDefault();
-            if (user == null || (user.UserState != KalturaUserState.OK && user.UserState != KalturaUserState.USER_WITH_NO_HOUSEHOLD))
+            if (user == null || (user.UserState != KalturaUserState.ok && user.UserState != KalturaUserState.user_with_no_household))
             {
                 log.ErrorFormat("RefreshAccessToken: user not valid. userId= {0}", userId);
                 throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.Unauthorized, "user not valid");
