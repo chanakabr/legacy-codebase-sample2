@@ -58,9 +58,6 @@ namespace ApiObjects
         public int IS_RECORDED;
 
         public string CRID;
-        public string SERIES_ID;
-        public int SEASON_NUMBER;
-        public int EPISODE_NUMBER;
 
         public void Initialize(long nEPG_ID, string nEPG_CHANNEL_ID, string nEPG_IDENTIFIER, string nNAME, string nDESCRIPTION, string nSTART_DATE, string nEND_DATE, string nPIC_URL,
             string nSTATUS, string nIS_ACTIVE, string nGROUP_ID, string nUPDATER_ID, string nUPDATE_DATE, string nPUBLISH_DATE, string nCREATE_DATE, List<EPGDictionary> nEPG_TAGS,
@@ -113,15 +110,13 @@ namespace ApiObjects
         public void Initialize(long nEPG_ID, string nEPG_CHANNEL_ID, string nEPG_IDENTIFIER, string nNAME, string nDESCRIPTION, string nSTART_DATE, string nEND_DATE, string nPIC_URL,
            string nSTATUS, string nIS_ACTIVE, string nGROUP_ID, string nUPDATER_ID, string nUPDATE_DATE, string nPUBLISH_DATE, string nCREATE_DATE, List<EPGDictionary> nEPG_TAGS,
            List<EPGDictionary> nEPG_META, string nmedia_id, int nLikeCounter, List<EpgPicture> epgPictures, int ENABLE_CDVR, int ENABLE_CATCH_UP, int ENABLE_START_OVER, int ENABLE_TRICK_PLAY,
-            int IS_RECORDED, string Crid, string SeriesId, int SeasonNumber, int EpisodeNumber)
+            int IS_RECORDED, string Crid)
         {
             Initialize(nEPG_ID, nEPG_CHANNEL_ID, nEPG_IDENTIFIER, nNAME, nDESCRIPTION, nSTART_DATE, nEND_DATE, nPIC_URL, nSTATUS, nIS_ACTIVE, nGROUP_ID, nUPDATER_ID, nUPDATE_DATE, nPUBLISH_DATE, nCREATE_DATE,
                 nEPG_TAGS, nEPG_META, nmedia_id, nLikeCounter, epgPictures, ENABLE_CDVR, ENABLE_CATCH_UP, ENABLE_START_OVER, ENABLE_TRICK_PLAY, IS_RECORDED);
 
             this.CRID = Crid;
-            this.SERIES_ID = SeriesId;
-            this.SEASON_NUMBER = SeasonNumber;
-            this.EPISODE_NUMBER = EpisodeNumber;
+          
         }
 
 

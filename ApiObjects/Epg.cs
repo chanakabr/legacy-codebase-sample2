@@ -92,16 +92,6 @@ namespace ApiObjects
         [JsonProperty("crid", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
         public string Crid { get; set; }
 
-        [JsonProperty("series_id", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public string SeriesId { get; set; }
-
-        [JsonProperty("season_number", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public int SeasonNumber { get; set; }
-
-        [JsonProperty("episode_number", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public int EpisodeNumber { get; set; }
-
-
         public EpgCB()
         {
             EpgID = 0;
@@ -137,9 +127,6 @@ namespace ApiObjects
             EnableTrickPlay = 0;
 
             Crid = string.Empty;
-            SeriesId = string.Empty;
-            SeasonNumber = 0;
-            EpisodeNumber = 0;
         }
 
               
@@ -175,7 +162,7 @@ namespace ApiObjects
                     this.EnableStartOver != obj.EnableStartOver || this.EnableTrickPlay != obj.EnableTrickPlay)
                     return false;
 
-                if (this.Crid != obj.Crid || this.SeriesId != obj.SeriesId || this.SeasonNumber != obj.SeasonNumber || this.EpisodeNumber != obj.EpisodeNumber)
+                if (this.Crid != obj.Crid)
                     return false;
 
                 #region Tags

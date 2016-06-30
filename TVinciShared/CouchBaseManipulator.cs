@@ -400,23 +400,7 @@ namespace TVinciShared
                     if (sFieldName.Trim() == "CRID" && (sType == "string" || sType == "long_string"))
                     {
                         epg.Crid = DBStrEncode(sVal);
-                    }
-                    if (sFieldName.Trim() == "series_id" && (sType == "string" || sType == "long_string"))
-                    {
-                        epg.SeriesId = DBStrEncode(sVal);
-                    }
-                    if (sFieldName.Trim() == "season_number" && sType == "int")
-                    {
-                        int season_number = 0;
-                        if (int.TryParse(sVal, out season_number))
-                            epg.SeasonNumber = season_number;
-                    }
-                    if (sFieldName.Trim() == "episode_number" && sType == "int")
-                    {
-                        int episode_number = 0;
-                        if (int.TryParse(sVal, out episode_number))
-                            epg.EpisodeNumber = episode_number;
-                    }
+                    }                  
                     nCounter++;
                 }
             }
