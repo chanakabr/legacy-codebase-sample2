@@ -169,7 +169,8 @@ namespace Validator.Managers.Schema
                 if (apiName.Contains('_'))
                 {
                     logError("Error", property.DeclaringType, string.Format("Property {0}.{1} ({2}) data member ({3}) name may not contain underscores", property.ReflectedType.Name, property.Name, property.PropertyType.Name, apiName));
-                    valid = false;
+                    if (strict)
+                        valid = false;
                 }
 
                 if (!Char.IsLower(apiName, 0))
@@ -242,22 +243,6 @@ namespace Validator.Managers.Schema
                 }
             }
 
-            if (type.BaseType.IsGenericType)
-            {
-                Type orderBy = type.BaseType.GetGenericArguments()[0];
-
-                foreach (var enumValue in Enum.GetValues(orderBy))
-                {
-                    string valueName = enumValue.ToString();
-                    if (!valueName.Equals("NONE") && !valueName.EndsWith("_ASC") && !valueName.EndsWith("_DESC"))
-                    {
-                        logError("Warning", orderBy, string.Format("Filter {2} order-by enum value {0}.{1} must use on of the following suffixes: _ASC, _DESC", orderBy.Name, valueName, type.Name));
-                        if (strict)
-                            valid = false;
-                    }
-                }
-            }
-
             return valid;
         }
 
@@ -316,31 +301,8 @@ namespace Validator.Managers.Schema
             return valid;
         }
 
-        private static bool ValidateEnumValue(Type type, string name, string value, bool strict)
-        {
-            bool valid = true;
-
-            if (name.ToUpper() != name)
-            {
-                logError("Error", type, string.Format("Enum value {0}.{1} should be upper case", type.Name, name));
-                valid = false;
-            }
-
-            return valid;
-        }
-
         private static bool ValidateEnum(Type type, bool strict)
         {
-            bool valid = true;
-
-            bool isIntEnum = type.GetCustomAttribute<KalturaIntEnumAttribute>() != null;
-
-            foreach (var enumValue in Enum.GetValues(type))
-            {
-                string value = isIntEnum ? ((int)Enum.Parse(type, enumValue.ToString())).ToString() : enumValue.ToString();
-                valid = ValidateEnumValue(type, enumValue.ToString(), value, strict) && valid;
-            }
-
             return true;
         }
 
@@ -615,7 +577,7 @@ namespace Validator.Managers.Schema
 
                     if (parameters.Length > 2)
                     {
-                        logError("Warning", controller, string.Format("Action {0}.{1} ({2}) only filter and pager arguments are expected", serviceId, actionId, controller.Name));
+                        logError("Error", controller, string.Format("Action {0}.{1} ({2}) only filter and pager arguments are expected", serviceId, actionId, controller.Name));
                         if (strict)
                             valid = false;
                     }

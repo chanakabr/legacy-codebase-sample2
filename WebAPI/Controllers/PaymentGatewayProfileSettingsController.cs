@@ -6,6 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.Billing;
 using WebAPI.Models.General;
 using WebAPI.Utils;
@@ -13,6 +14,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/paymentGatewayProfileSettings/action")]
+    [OldStandard("addOldStandard", "add")]
     public class PaymentGatewayProfileSettingsController : ApiController
     {
         /// <summary>
@@ -83,23 +85,19 @@ namespace WebAPI.Controllers
         /// Possible status codes:       
         /// Payment gateway params required = 6006
         /// </remarks>
-        /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
-        /// <param name="settings">Dictionary (string,KalturaStringValue) for partner specific settings: Format Example
-        /// "settings": { "key3": {"value": "value3"},
-        ///"key1": {"value": "value2"}}
-        ///</param>
+        /// <param name="profile">Payment Gateway profile</param> 
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public bool Add(int payment_gateway_id, SerializableDictionary<string, KalturaStringValue> settings)
+        public KalturaPaymentGatewayProfile Add(KalturaPaymentGatewayProfile profile)
         {
-            bool response = false;
+            KalturaPaymentGatewayProfile response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().InsertPaymentGatewaySettings(groupId, payment_gateway_id, settings);
+                response = ClientsManager.BillingClient().InsertPaymentGatewaySettings(groupId, profile.getId(), profile.Settings);
             }
             catch (ClientException ex)
             {
@@ -107,6 +105,38 @@ namespace WebAPI.Controllers
             }
 
             return response;
+        }
+
+        /// <summary>
+        /// Insert new settings for payment gateway for partner
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:       
+        /// Payment gateway params required = 6006
+        /// </remarks>
+        /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
+        /// <param name="settings">Dictionary (string,KalturaStringValue) for partner specific settings: Format Example
+        /// "settings": { "key3": {"value": "value3"},
+        ///"key1": {"value": "value2"}}
+        ///</param>
+        [Route("addOldStandard"), HttpPost]
+        [ApiAuthorize]
+        [Obsolete]
+        public bool AddOldStandard(int payment_gateway_id, SerializableDictionary<string, KalturaStringValue> settings)
+        {
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                ClientsManager.BillingClient().InsertPaymentGatewaySettings(groupId, payment_gateway_id, settings);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return true;
         }
 
         /// <summary>

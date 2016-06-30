@@ -7,6 +7,6 @@ namespace WebAPI.Models.General
     [KalturaIntEnum]
     public enum KalturaOTTAssetType
     {
-        SERIES= 0        
+        Series= 0        
     }
 }

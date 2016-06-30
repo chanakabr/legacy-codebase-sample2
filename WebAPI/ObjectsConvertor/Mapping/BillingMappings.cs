@@ -150,6 +150,36 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
         }
 
+
+        public static Billing.PaymentGatewaySettings[] ConvertPaymentGatewaySettings(SerializableDictionary<string, KalturaStringValue> settings)
+        {
+            List<Billing.PaymentGatewaySettings> result = null;
+
+            if (settings != null && settings.Count > 0)
+            {
+                result = new List<PaymentGatewaySettings>();
+                Billing.PaymentGatewaySettings pc;
+                foreach (KeyValuePair<string, KalturaStringValue> data in settings)
+                {
+                    if (!string.IsNullOrEmpty(data.Key))
+                    {
+                        pc = new Billing.PaymentGatewaySettings();
+                        pc.key = data.Key;
+                        pc.value = data.Value.value;
+                        result.Add(pc);
+                    }
+                }
+            }
+            if (result != null && result.Count > 0)
+            {
+                return result.ToArray();
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         public static Dictionary<string, KalturaStringValue> ConvertPaymentGatewaySettings(Billing.PaymentGatewaySettings[] settings)
         {
             Dictionary<string, KalturaStringValue> result = null;
@@ -175,13 +205,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
             switch (type)
             {
                 case WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy.Account:
-                    result = WebAPI.Models.Billing.KalturaHouseholdPaymentGatewaySelectedBy.ACCOUNT;
+                    result = WebAPI.Models.Billing.KalturaHouseholdPaymentGatewaySelectedBy.account;
                     break;
                 case WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy.Household:
-                    result = WebAPI.Models.Billing.KalturaHouseholdPaymentGatewaySelectedBy.HOUSEHOLD;
+                    result = WebAPI.Models.Billing.KalturaHouseholdPaymentGatewaySelectedBy.household;
                     break;
                 case WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy.None:
-                    result = WebAPI.Models.Billing.KalturaHouseholdPaymentGatewaySelectedBy.NONE;
+                    result = WebAPI.Models.Billing.KalturaHouseholdPaymentGatewaySelectedBy.none;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "unknown household payment gateway selected by");

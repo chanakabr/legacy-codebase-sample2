@@ -214,13 +214,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
             switch (assetType)
             {
                 case eAssetTypes.EPG:
-                    result = KalturaAssetType.EPG;
+                    result = KalturaAssetType.epg;
                     break;
                 case eAssetTypes.NPVR:
-                    result = KalturaAssetType.RECORDING;
+                    result = KalturaAssetType.recording;
                     break;
                 case eAssetTypes.MEDIA:
-                    result = KalturaAssetType.MEDIA;
+                    result = KalturaAssetType.media;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown Asset Type");
@@ -236,10 +236,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
             switch (userType)
             {
                 case eUserType.HOUSEHOLD:
-                    result = KalturaPositionOwner.HOUSEHOLD;
+                    result = KalturaPositionOwner.household;
                     break;
                 case eUserType.PERSONAL:
-                    result = KalturaPositionOwner.USER;
+                    result = KalturaPositionOwner.user;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown position owner");

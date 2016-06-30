@@ -8,9 +8,9 @@ namespace WebAPI.Models.Users
     [Serializable]
     public enum KalturaUserAssetsListType
     {
-        ALL,
-        WATCH,
-        PURCHASE,
-        LIBRARY,
+        all,
+        watch,
+        purchase,
+        library,
     }
 }

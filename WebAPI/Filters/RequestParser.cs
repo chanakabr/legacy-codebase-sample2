@@ -142,7 +142,7 @@ namespace WebAPI.Filters
 
                 InitKS(ks);
 
-                if (globalScope)
+                if (globalScope && HttpContext.Current.Items[REQUEST_GLOBAL_KS] == null)
                     HttpContext.Current.Items.Add(REQUEST_GLOBAL_KS, ks);
             }
             else if (HttpContext.Current.Items[REQUEST_GLOBAL_KS] != null)
@@ -166,7 +166,7 @@ namespace WebAPI.Filters
                 }
 
                 HttpContext.Current.Items.Add(REQUEST_USER_ID, userId);
-                if (globalScope)
+                if (globalScope && HttpContext.Current.Items[REQUEST_GLOBAL_USER_ID] == null)
                     HttpContext.Current.Items.Add(REQUEST_GLOBAL_USER_ID, userId);
             }
             else if (HttpContext.Current.Items[REQUEST_GLOBAL_USER_ID] != null)
@@ -189,7 +189,7 @@ namespace WebAPI.Filters
                 }
 
                 HttpContext.Current.Items.Add(REQUEST_LANGUAGE, language);
-                if (globalScope)
+                if (globalScope && HttpContext.Current.Items[REQUEST_GLOBAL_LANGUAGE] == null)
                     HttpContext.Current.Items.Add(REQUEST_GLOBAL_LANGUAGE, language);
             }
             else if (HttpContext.Current.Items[REQUEST_GLOBAL_LANGUAGE] != null)
@@ -411,7 +411,11 @@ namespace WebAPI.Filters
                     if (t.IsEnum)
                     {
                         var paramAsString = reqParams[name].ToString();
-                        methodParams.Add(Enum.Parse(t, paramAsString, true));
+                        var names = t.GetEnumNames().ToList();
+                        if (names.Contains(paramAsString))
+                        {
+                            methodParams.Add(Enum.Parse(t, paramAsString, true));
+                        }
                     }
                     // nullable enum
                     else if (u != null && u.IsEnum)
@@ -419,11 +423,7 @@ namespace WebAPI.Filters
                         var paramAsString = reqParams[name] != null ? reqParams[name].ToString() : null;
                         if (paramAsString != null)
                         {
-                            var names = u.GetEnumNames().ToList();
-                            if (names.Contains(paramAsString))
-                            {
-                                methodParams.Add(Enum.Parse(u, paramAsString, true));
-                            }
+                            methodParams.Add(Enum.Parse(u, paramAsString, true));
                         }
                         else
                         {
@@ -504,6 +504,21 @@ namespace WebAPI.Filters
 
                             methodParams.Add(param);
                         }
+                    }
+                    else if (t.IsSubclassOf(typeof(KalturaOTTObject)))
+                    {
+                        Dictionary<string, object> param;
+                        if (reqParams[name].GetType() == typeof(JObject) || reqParams[name].GetType().IsSubclassOf(typeof(JObject)))
+                        {
+                            param = ((JObject)reqParams[name]).ToObject<Dictionary<string, object>>();
+                        }
+                        else
+                        {
+                            param = (Dictionary<string, object>)reqParams[name];
+                        }
+
+                        KalturaOTTObject res = buildObject(t, param);
+                        methodParams.Add(res);
                     }
                     else
                     {

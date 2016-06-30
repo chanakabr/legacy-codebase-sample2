@@ -2352,7 +2352,7 @@ namespace WebAPI.Clients
                 {
                     if (assetsList != null)
                     {
-                       mediaIds = assetsList.Where(assetType => assetType.Type == Models.Catalog.KalturaAssetType.MEDIA
+                       mediaIds = assetsList.Where(assetType => assetType.Type == Models.Catalog.KalturaAssetType.media
                             && int.TryParse(assetType.Id, out mediaId)).Select(x => int.Parse(x.Id)).ToList();
                     }
 

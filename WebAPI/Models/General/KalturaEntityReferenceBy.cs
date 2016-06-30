@@ -7,7 +7,7 @@ namespace WebAPI.Models.General
 {
     public enum KalturaEntityReferenceBy
     {
-        USER,
-        HOUSEHOLD
+        user,
+        household
     }
 }

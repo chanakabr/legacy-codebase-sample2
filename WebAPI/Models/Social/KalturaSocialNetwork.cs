@@ -10,6 +10,6 @@ namespace WebAPI.Models.Social
     /// </summary>
     public enum KalturaSocialNetwork
     {
-        FACEBOOK = 0        
+        facebook = 0        
     }
 }
