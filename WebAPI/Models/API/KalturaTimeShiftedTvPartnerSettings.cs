@@ -140,5 +140,13 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "cleanupNoticePeroid", IsNullable = true)]
         public int? CleanupNoticePeroid { get; set; }
 
+        /// <summary>
+        /// The time in days before the recording lifetime is due from which the client should be able to warn user about deletion.
+        /// </summary>
+        [DataMember(Name = "seriesRecordingEnabled")]
+        [JsonProperty("seriesRecordingEnabled")]
+        [XmlElement(ElementName = "seriesRecordingEnabled ", IsNullable = true)]
+        public bool? SeriesRecordingEnabled { get; set; }
+
     }
 }
