@@ -6,6 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
@@ -14,6 +15,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/userAssetRule/action")]
+    [OldStandard("listOldStandard", "list")]
     public class UserAssetRuleController : ApiController
     {
         /// <summary>
@@ -23,9 +25,10 @@ namespace WebAPI.Controllers
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001, User not in household = 1005, Household does not exist = 1006</remarks>
         /// <param name="filter">Filter</param>
         /// <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
-        [Route("List"), HttpPost]
+        [Route("listOldStandard"), HttpPost]
         [ApiAuthorize]
-        public KalturaGenericRuleListResponse List(KalturaGenericRuleFilter filter)
+        [Obsolete]
+        public KalturaGenericRuleListResponse ListOldStandard(KalturaGenericRuleFilter filter)
         {
             List<KalturaGenericRule> response = null;
 
@@ -54,9 +57,63 @@ namespace WebAPI.Controllers
                 if ((AssetType)filter.AssetType == AssetType.epg)
                 {
                     // call client
-                    response = ClientsManager.ApiClient().GetEpgRules(groupId, userID, filter.getAssetId(), (int)HouseholdUtils.GetHouseholdIDByKS(groupId));
+                    response = ClientsManager.ApiClient().GetEpgRulesOldStandard(groupId, userID, filter.getAssetId(), (int)HouseholdUtils.GetHouseholdIDByKS(groupId));
                 }
                 else if ((AssetType)filter.AssetType == AssetType.media)
+                {
+                    // call client
+                    response = ClientsManager.ApiClient().GetMediaRulesOldStandard(groupId, userID, filter.getAssetId(), (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
+                }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return new KalturaGenericRuleListResponse() { GenericRules = response, TotalCount = response.Count };
+        }
+
+        /// <summary>
+        /// Retrieve all the rules (parental, geo, device or user-type) that applies for this user and asset.        
+        /// </summary>
+        /// <remarks>Possible status codes: 
+        /// User does not exist = 2000, User with no household = 2024, User suspended = 2001, User not in household = 1005, Household does not exist = 1006</remarks>
+        /// <param name="filter">Filter</param>
+        /// <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
+        [Route("list"), HttpPost]
+        [ApiAuthorize]
+        public KalturaUserAssetRuleListResponse List(KalturaUserAssetRuleFilter filter)
+        {
+            List<KalturaUserAssetRule> response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
+
+            // parameters validation
+            if (filter == null)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter cannot be null");
+            }
+
+            if (filter.AssetIdEqual == 0)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id cannot be empty");
+            }
+
+            if (!Enum.IsDefined(typeof(AssetType), filter.AssetTypeEqual))
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_type value is not defined");
+            }
+            try
+            {
+                string userID = KS.GetFromRequest().UserId;
+
+                if ((AssetType)filter.AssetTypeEqual == AssetType.epg)
+                {
+                    // call client
+                    response = ClientsManager.ApiClient().GetEpgRules(groupId, userID, filter.getAssetId(), (int)HouseholdUtils.GetHouseholdIDByKS(groupId));
+                }
+                else if ((AssetType)filter.AssetTypeEqual == AssetType.media)
                 {
                     // call client
                     response = ClientsManager.ApiClient().GetMediaRules(groupId, userID, filter.getAssetId(), (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
@@ -67,7 +124,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaGenericRuleListResponse() { GenericRules = response, TotalCount = response.Count };
+            return new KalturaUserAssetRuleListResponse() { Rules = response, TotalCount = response.Count };
         }
     }
 }

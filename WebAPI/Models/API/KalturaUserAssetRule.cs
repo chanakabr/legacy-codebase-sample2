@@ -11,9 +11,11 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.API
 {
     /// <summary>
-    /// User asset rule - representing different type of rules on an asset(Parental, Geo, User Type, Device)
+    /// Generic rule - representing different type of rules (Parental, Geo, User Type, Device)
     /// </summary>
-    public class KalturaUserAssetRule : KalturaOTTObject
+    [OldStandard("ruleType", "rule_type")]
+    [Obsolete]
+    public class KalturaGenericRule : KalturaOTTObject
     {
         /// <summary>
         /// Unique rule identifier

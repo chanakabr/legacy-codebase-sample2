@@ -1118,7 +1118,9 @@
     <Compile Include="Managers\Schema\OldStandard.cs" />
     <Compile Include="Managers\Schema\ValidationException.cs" />
     <Compile Include="Managers\Schema\SchemaValidationType.cs" />
-    <Compile Include="Models\API\KalturaParentalRuleProfile.cs" />
+    <Compile Include="Models\API\KalturaUserAssetRuleFilter.cs" />
+    <Compile Include="Models\API\KalturaUserAssetRuleListResponse.cs" />
+    <Compile Include="Models\API\KalturaUserAssetRule.cs" />
     <Compile Include="Models\API\KalturaParentalRuleFilter.cs" />
     <Compile Include="Models\API\KalturaExportTaskFilter.cs" />
     <Compile Include="Models\API\KalturaCDNPartnerSettings.cs" />
@@ -1126,7 +1128,7 @@
     <Compile Include="Models\API\KalturaCDNAdapterProfileListResponse.cs" />
     <Compile Include="Models\API\KalturaExportTaskOrderBy.cs" />
     <Compile Include="Models\API\KalturaParentalRuleOrderBy.cs" />
-    <Compile Include="Models\API\KalturaParentalRuleProfileListResponse.cs" />
+    <Compile Include="Models\API\KalturaUserAssetRuleOrderBy.cs" />
     <Compile Include="Models\Catalog\KalturaAssetFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAsset.cs" />
     <Compile Include="Models\Catalog\KalturaAssetOrderBy.cs" />

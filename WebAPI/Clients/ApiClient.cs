@@ -57,10 +57,10 @@ namespace WebAPI.Clients
 
         #region Parental Rules
 
-        internal List<KalturaParentalRuleProfile> GetGroupParentalRules(int groupId)
+        internal List<Models.API.KalturaParentalRule> GetGroupParentalRules(int groupId)
         {
             ParentalRulesResponse response = null;
-            List<KalturaParentalRuleProfile> rules = new List<KalturaParentalRuleProfile>();
+            List<Models.API.KalturaParentalRule> rules = new List<Models.API.KalturaParentalRule>();
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -87,7 +87,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.status.Code, response.status.Message);
             }
 
-            rules = AutoMapper.Mapper.Map<List<KalturaParentalRuleProfile>>(response.rules);
+            rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.KalturaParentalRule>>(response.rules);
 
             return rules;
         }
@@ -940,18 +940,23 @@ namespace WebAPI.Clients
             return success;
         }
 
-        internal List<Models.API.KalturaGenericRule> GetMediaRules(int groupId, string userId, long mediaId, int domainId, string udid)
+        [Obsolete]
+        internal List<Models.API.KalturaGenericRule> GetMediaRulesOldStandard(int groupId, string userId, long mediaId, int domainId, string udid, 
+            KalturaUserAssetRuleOrderBy orderBy = KalturaUserAssetRuleOrderBy.NAME_ASC)
         {
             GenericRuleResponse response = null;
             List<Models.API.KalturaGenericRule> rules = new List<Models.API.KalturaGenericRule>();
 
             Group group = GroupsManager.GetGroup(groupId);
 
+            //convert order by
+            GenericRuleOrderBy wsOrderBy = ApiMappings.ConvertUserAssetRuleOrderBy(orderBy);
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetMediaRules(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, mediaId, domainId, Utils.Utils.GetClientIP(), udid);
+                    response = Api.GetMediaRules(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, mediaId, domainId, Utils.Utils.GetClientIP(), udid, wsOrderBy);
                 }
             }
             catch (Exception ex)
@@ -975,18 +980,60 @@ namespace WebAPI.Clients
             return rules;
         }
 
-        internal List<Models.API.KalturaGenericRule> GetEpgRules(int groupId, string userId, long epgId, int domainId)
+        internal List<KalturaUserAssetRule> GetMediaRules(int groupId, string userId, long mediaId, int domainId, string udid, KalturaUserAssetRuleOrderBy orderBy = KalturaUserAssetRuleOrderBy.NAME_ASC)
         {
             GenericRuleResponse response = null;
-            List<Models.API.KalturaGenericRule> rules = new List<Models.API.KalturaGenericRule>();
+            List<KalturaUserAssetRule> rules = new List<KalturaUserAssetRule>();
 
             Group group = GroupsManager.GetGroup(groupId);
+
+            //convert order by
+            GenericRuleOrderBy wsOrderBy = ApiMappings.ConvertUserAssetRuleOrderBy(orderBy);
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetEpgRules(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, epgId, 0, domainId, Utils.Utils.GetClientIP());
+                    response = Api.GetMediaRules(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, mediaId, domainId, Utils.Utils.GetClientIP(), udid, wsOrderBy);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            rules = AutoMapper.Mapper.Map<List<KalturaUserAssetRule>>(response.Rules);
+
+            return rules;
+        }
+
+        [Obsolete]
+        internal List<Models.API.KalturaGenericRule> GetEpgRulesOldStandard(int groupId, string userId, long epgId, int domainId, KalturaUserAssetRuleOrderBy orderBy = KalturaUserAssetRuleOrderBy.NAME_ASC)
+        {
+            GenericRuleResponse response = null;
+            List<Models.API.KalturaGenericRule> rules = new List<Models.API.KalturaGenericRule>();
+
+            Group group = GroupsManager.GetGroup(groupId);
+            
+            //convert order by
+            GenericRuleOrderBy wsOrderBy = ApiMappings.ConvertUserAssetRuleOrderBy(orderBy);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GetEpgRules(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, epgId, 0, domainId, Utils.Utils.GetClientIP(), wsOrderBy);
                 }
             }
             catch (Exception ex)
@@ -1006,6 +1053,44 @@ namespace WebAPI.Clients
             }
 
             rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.KalturaGenericRule>>(response.Rules);
+
+            return rules;
+        }
+
+        internal List<KalturaUserAssetRule> GetEpgRules(int groupId, string userId, long epgId, int domainId, KalturaUserAssetRuleOrderBy orderBy = KalturaUserAssetRuleOrderBy.NAME_ASC)
+        {
+            GenericRuleResponse response = null;
+            List<KalturaUserAssetRule> rules = new List<KalturaUserAssetRule>();
+
+            Group group = GroupsManager.GetGroup(groupId);
+            
+            //convert order by
+            GenericRuleOrderBy wsOrderBy = ApiMappings.ConvertUserAssetRuleOrderBy(orderBy);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GetEpgRules(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, epgId, 0, domainId, Utils.Utils.GetClientIP(), wsOrderBy);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            rules = AutoMapper.Mapper.Map<List<KalturaUserAssetRule>>(response.Rules);
 
             return rules;
         }

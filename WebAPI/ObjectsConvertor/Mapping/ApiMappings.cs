@@ -72,27 +72,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.PurchaseSettingsType, opt => opt.MapFrom(src => ConvertPurchaseSetting(src.type)))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.purchase));
 
-            // Purchase Settings
             Mapper.CreateMap<WebAPI.Api.GenericRule, WebAPI.Models.API.KalturaGenericRule>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.RuleType, opt => opt.MapFrom(src => ConvertRuleType(src.RuleType)));
 
-            Mapper.CreateMap<WebAPI.Api.ParentalRule, WebAPI.Models.API.KalturaParentalRuleProfile>()
-                .ForMember(dest => dest.blockAnonymousAccess, opt => opt.MapFrom(src => src.blockAnonymousAccess))
-                .ForMember(dest => dest.description, opt => opt.MapFrom(src => src.description))
-                .ForMember(dest => dest.epgTagTypeId, opt => opt.MapFrom(src => src.epgTagTypeId))
-                .ForMember(dest => dest.epgTagValues, opt => opt.MapFrom(src => src.epgTagValues))
-                .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.id))
-                .ForMember(dest => dest.isDefault, opt => opt.MapFrom(src => src.isDefault))
-                .ForMember(dest => dest.mediaTagTypeId, opt => opt.MapFrom(src => src.mediaTagTypeId))
-                .ForMember(dest => dest.mediaTagValues, opt => opt.MapFrom(src => src.mediaTagValues))
-                .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.name))
-                .ForMember(dest => dest.order, opt => opt.MapFrom(src => src.order))
-                .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
-                .ForMember(dest => dest.ruleType, opt => opt.MapFrom(src => ConvertParentalRuleType(src.ruleType)));
-
+            //KalturaUserAssetRule
+            Mapper.CreateMap<WebAPI.Api.GenericRule, KalturaUserAssetRule>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.RuleType, opt => opt.MapFrom(src => ConvertRuleType(src.RuleType)));
             #endregion
 
             #region OSS Adapter
@@ -282,8 +273,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ProtectionPeriod, opt => opt.MapFrom(src => src.ProtectionPeriod))
                 .ForMember(dest => dest.ProtectionQuotaPercentage, opt => opt.MapFrom(src => src.ProtectionQuotaPercentage))
                 .ForMember(dest => dest.RecordingLifetimePeriod, opt => opt.MapFrom(src => src.RecordingLifetimePeriod))
-                .ForMember(dest => dest.CleanupNoticePeroid, opt => opt.MapFrom(src => src.CleanupNoticePeroid))
-                .ForMember(dest => dest.SeriesRecordingEnabled, opt => opt.MapFrom(src => src.IsSeriesRecordingEnabled));
+                .ForMember(dest => dest.CleanupNoticePeroid, opt => opt.MapFrom(src => src.CleanupNoticePeroid));
+                //.ForMember(dest => dest.SeriesRecordingEnabled, opt => opt.MapFrom(src => src.IsSeriesRecordingEnabled));
 
             //KalturaTimeShiftedTvPartnerSettings to TimeShiftedTvPartnerSettings
             Mapper.CreateMap<WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings, TimeShiftedTvPartnerSettings>()
@@ -301,8 +292,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ProtectionPeriod, opt => opt.MapFrom(src => src.ProtectionPeriod))
                 .ForMember(dest => dest.ProtectionQuotaPercentage, opt => opt.MapFrom(src => src.ProtectionQuotaPercentage))
                 .ForMember(dest => dest.RecordingLifetimePeriod, opt => opt.MapFrom(src => src.RecordingLifetimePeriod))
-                .ForMember(dest => dest.CleanupNoticePeroid, opt => opt.MapFrom(src => src.CleanupNoticePeroid))
-                .ForMember(dest => dest.IsSeriesRecordingEnabled, opt => opt.MapFrom(src => src.SeriesRecordingEnabled));
+                .ForMember(dest => dest.CleanupNoticePeroid, opt => opt.MapFrom(src => src.CleanupNoticePeroid));
+                //.ForMember(dest => dest.IsSeriesRecordingEnabled, opt => opt.MapFrom(src => src.SeriesRecordingEnabled));
 
             #endregion
 
@@ -1004,6 +995,25 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown export task order by");
+            }
+
+            return result;
+        }
+
+        public static GenericRuleOrderBy ConvertUserAssetRuleOrderBy(KalturaUserAssetRuleOrderBy orderBy)
+        {
+            GenericRuleOrderBy result;
+
+            switch (orderBy)
+            {
+                case KalturaUserAssetRuleOrderBy.NAME_ASC:
+                    result = GenericRuleOrderBy.NameAsc;
+                    break;
+                case KalturaUserAssetRuleOrderBy.NAME_DESC:
+                    result = GenericRuleOrderBy.NameAsc;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown user asset rule order by");
             }
 
             return result;

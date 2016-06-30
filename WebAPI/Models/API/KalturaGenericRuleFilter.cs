@@ -15,6 +15,7 @@ namespace WebAPI.Models.API
     /// </summary>
     [OldStandard("assetId", "asset_id")]
     [OldStandard("assetType", "asset_type")]
+    [Obsolete]
     public class KalturaGenericRuleFilter : KalturaOTTObject
     {
         /// <summary>

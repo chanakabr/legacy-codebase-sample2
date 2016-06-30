@@ -36,13 +36,13 @@ namespace WebAPI.Controllers
                 switch (filter.By)
                 {
                     case KalturaEntityReferenceBy.user:
-                        response = ClientsManager.UsersClient().GetItemFromList(groupId, new List<string>() { KS.GetFromRequest().UserId}, filter.ListType, filter.AssetType);
+                        response = ClientsManager.UsersClient().GetItemFromList(groupId, new List<string>() { KS.GetFromRequest().UserId}, filter.ListTypeEqual, filter.AssetTypeEqual);
                         break;
                     case KalturaEntityReferenceBy.household:
                         List<string> householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId);
                         if (householdUserIds != null && householdUserIds.Count > 0)
                         {
-                            response = ClientsManager.UsersClient().GetItemFromList(groupId, householdUserIds, filter.ListType, filter.AssetType);
+                            response = ClientsManager.UsersClient().GetItemFromList(groupId, householdUserIds, filter.ListTypeEqual, filter.AssetTypeEqual);
                         }
                         else
                         {

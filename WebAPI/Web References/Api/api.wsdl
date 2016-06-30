@@ -570,7 +570,6 @@
           <s:element minOccurs="1" maxOccurs="1" name="ProtectionQuotaPercentage" nillable="true" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="RecordingLifetimePeriod" nillable="true" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="CleanupNoticePeroid" nillable="true" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="IsSeriesRecordingEnabled" nillable="true" type="s:boolean" />
         </s:sequence>
       </s:complexType>
       <s:element name="UpdateTimeShiftedTvPartnerSettings">
@@ -586,22 +585,6 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="UpdateTimeShiftedTvPartnerSettingsResult" type="tns:Status" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="UpdateTimeShiftedTvEpgChannelsSettings">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="settings" type="tns:TimeShiftedTvPartnerSettings" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="UpdateTimeShiftedTvEpgChannelsSettingsResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="UpdateTimeShiftedTvEpgChannelsSettingsResult" type="tns:Status" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -2206,45 +2189,6 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="PurchaseMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTransactionNumber" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPaymentMethod" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxVal" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxSubtotal" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxAmount" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sInvoiceNum" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sExternalTransationNum" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sAddress" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sUserEmail" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="PurchaseFailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:PurchaseMailRequest" />
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="PurchaseWithPreviewModuleRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:PurchaseMailRequest">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPreviewModuleEndDate" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="PreviewModuleCancelOrRefundRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:PurchaseMailRequest" />
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="ChangePasswordMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
@@ -2261,6 +2205,18 @@
               <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sIP" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sDuration" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="CinepolisPurchaseMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -2330,14 +2286,41 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="CinepolisPurchaseMailRequest">
+      <s:complexType name="PurchaseMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sTransactionNumber" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPaymentMethod" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxVal" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxSubtotal" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxAmount" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sInvoiceNum" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sExternalTransationNum" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sAddress" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUserEmail" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="PurchaseFailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PurchaseMailRequest" />
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="PreviewModuleCancelOrRefundRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PurchaseMailRequest" />
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="PurchaseWithPreviewModuleRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PurchaseMailRequest">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPreviewModuleEndDate" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -3531,9 +3514,16 @@
             <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:long" />
             <s:element minOccurs="0" maxOccurs="1" name="ip" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="udid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="orderBy" type="tns:GenericRuleOrderBy" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:simpleType name="GenericRuleOrderBy">
+        <s:restriction base="s:string">
+          <s:enumeration value="NameAsc" />
+          <s:enumeration value="NameDesc" />
+        </s:restriction>
+      </s:simpleType>
       <s:element name="GetMediaRulesResponse">
         <s:complexType>
           <s:sequence>
@@ -3578,6 +3568,7 @@
             <s:element minOccurs="1" maxOccurs="1" name="channelMediaId" type="s:long" />
             <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:long" />
             <s:element minOccurs="0" maxOccurs="1" name="ip" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="orderBy" type="tns:GenericRuleOrderBy" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -4666,12 +4657,6 @@
   </wsdl:message>
   <wsdl:message name="UpdateTimeShiftedTvPartnerSettingsSoapOut">
     <wsdl:part name="parameters" element="tns:UpdateTimeShiftedTvPartnerSettingsResponse" />
-  </wsdl:message>
-  <wsdl:message name="UpdateTimeShiftedTvEpgChannelsSettingsSoapIn">
-    <wsdl:part name="parameters" element="tns:UpdateTimeShiftedTvEpgChannelsSettings" />
-  </wsdl:message>
-  <wsdl:message name="UpdateTimeShiftedTvEpgChannelsSettingsSoapOut">
-    <wsdl:part name="parameters" element="tns:UpdateTimeShiftedTvEpgChannelsSettingsResponse" />
   </wsdl:message>
   <wsdl:message name="GetCDNAdaptersSoapIn">
     <wsdl:part name="parameters" element="tns:GetCDNAdapters" />
@@ -6276,6 +6261,7 @@
     <wsdl:part name="domainId" type="s:string" />
     <wsdl:part name="ip" type="s:string" />
     <wsdl:part name="udid" type="s:string" />
+    <wsdl:part name="orderBy" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetMediaRulesHttpPostOut">
     <wsdl:part name="Body" element="tns:GenericRuleResponse" />
@@ -6288,6 +6274,7 @@
     <wsdl:part name="channelMediaId" type="s:string" />
     <wsdl:part name="domainId" type="s:string" />
     <wsdl:part name="ip" type="s:string" />
+    <wsdl:part name="orderBy" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetEpgRulesHttpPostOut">
     <wsdl:part name="Body" element="tns:GenericRuleResponse" />
@@ -6536,10 +6523,6 @@
     <wsdl:operation name="UpdateTimeShiftedTvPartnerSettings">
       <wsdl:input message="tns:UpdateTimeShiftedTvPartnerSettingsSoapIn" />
       <wsdl:output message="tns:UpdateTimeShiftedTvPartnerSettingsSoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="UpdateTimeShiftedTvEpgChannelsSettings">
-      <wsdl:input message="tns:UpdateTimeShiftedTvEpgChannelsSettingsSoapIn" />
-      <wsdl:output message="tns:UpdateTimeShiftedTvEpgChannelsSettingsSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="GetCDNAdapters">
       <wsdl:input message="tns:GetCDNAdaptersSoapIn" />
@@ -7703,15 +7686,6 @@
     </wsdl:operation>
     <wsdl:operation name="UpdateTimeShiftedTvPartnerSettings">
       <soap:operation soapAction="http://api.tvinci.com/UpdateTimeShiftedTvPartnerSettings" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="UpdateTimeShiftedTvEpgChannelsSettings">
-      <soap:operation soapAction="http://api.tvinci.com/UpdateTimeShiftedTvEpgChannelsSettings" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -9137,15 +9111,6 @@
     </wsdl:operation>
     <wsdl:operation name="UpdateTimeShiftedTvPartnerSettings">
       <soap12:operation soapAction="http://api.tvinci.com/UpdateTimeShiftedTvPartnerSettings" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="UpdateTimeShiftedTvEpgChannelsSettings">
-      <soap12:operation soapAction="http://api.tvinci.com/UpdateTimeShiftedTvEpgChannelsSettings" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
