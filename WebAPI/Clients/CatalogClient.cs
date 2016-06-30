@@ -1138,13 +1138,13 @@ namespace WebAPI.Clients
                 bool addToRequest = true;
                 switch (asset.Type)
                 {
-                    case KalturaAssetType.media:
+                    case KalturaAssetType.MEDIA:
                         assetInfo.AssetType = eAssetTypes.MEDIA;
                         break;
-                    case KalturaAssetType.recording:
+                    case KalturaAssetType.RECORDING:
                         assetInfo.AssetType = eAssetTypes.NPVR;
                         break;
-                    case KalturaAssetType.epg:
+                    case KalturaAssetType.EPG:
                         assetInfo.AssetType = eAssetTypes.EPG;
                         break;
                     default:
@@ -1291,20 +1291,20 @@ namespace WebAPI.Clients
         {
             int t;
 
-            if (assetType != KalturaAssetType.recording)                
+            if (assetType != KalturaAssetType.RECORDING)                
                 if (string.IsNullOrEmpty(assetId) || !int.TryParse(assetId, out t))
                     throw new ClientException((int)StatusCode.BadRequest, "Invalid Asset id");
 
             eAssetTypes CatalogAssetType = eAssetTypes.UNKNOWN;
             switch (assetType)
             {
-                case KalturaAssetType.epg:
+                case KalturaAssetType.EPG:
                     CatalogAssetType = eAssetTypes.EPG;
                     break;
-                case KalturaAssetType.media:
+                case KalturaAssetType.MEDIA:
                     CatalogAssetType = eAssetTypes.MEDIA;
                     break;
-                case KalturaAssetType.recording:
+                case KalturaAssetType.RECORDING:
                     CatalogAssetType = eAssetTypes.NPVR;
                     break;
             }

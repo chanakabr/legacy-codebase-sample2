@@ -42,10 +42,10 @@ namespace WebAPI.Controllers
             {
                 switch (asset_type)
                 {
-                    case KalturaAssetType.media:
+                    case KalturaAssetType.MEDIA:
                         response = ClientsManager.ConditionalAccessClient().GetLicensedLinks(groupId, userId, udid, content_id, base_url);
                         break;
-                    case KalturaAssetType.epg:
+                    case KalturaAssetType.EPG:
                         {
                             if (!stream_type.HasValue)
                             {
@@ -67,7 +67,7 @@ namespace WebAPI.Controllers
                             response = ClientsManager.ConditionalAccessClient().GetEPGLicensedLink(groupId, userId, udid, epgId, content_id, base_url, start_date.Value, stream_type.Value);
                         }
                         break;
-                    case KalturaAssetType.recording:
+                    case KalturaAssetType.RECORDING:
                         throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Not implemented");
                     default:
                         throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Not implemented");

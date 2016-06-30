@@ -12,9 +12,9 @@ namespace WebAPI.Models.Catalog
 {
     public enum KalturaCatalogWith
     {
-        images,
-        files,
-        stats
+        IMAGES,
+        FILES,
+        STATS
     }
 
     /// <summary>

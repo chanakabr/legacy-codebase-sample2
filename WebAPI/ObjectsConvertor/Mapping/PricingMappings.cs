@@ -96,7 +96,8 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.m_sSubscriptionCode))
                .ForMember(dest => dest.PurchaseStatus, opt => opt.MapFrom(src => ConvertPriceReasonToPurchaseStatus(src.m_PriceReason)))
                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oPrice))
-               .ForMember(dest => dest.ProductType, opt => opt.MapFrom(src => KalturaTransactionType.subscription));
+               .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.m_sSubscriptionCode))
+               .ForMember(dest => dest.ProductType, opt => opt.MapFrom(src => KalturaTransactionType.SUBSCRIPTION));
 
 
             // Subscription
@@ -208,43 +209,43 @@ namespace WebAPI.Mapping.ObjectsConvertor
             switch (priceReason)
             {
                 case WebAPI.ConditionalAccess.PriceReason.PPVPurchased:
-                    result = KalturaPurchaseStatus.ppv_purchased;
+                    result = KalturaPurchaseStatus.PPV_PURCHASED;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.Free:
-                    result = KalturaPurchaseStatus.free;
+                    result = KalturaPurchaseStatus.FREE;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.ForPurchaseSubscriptionOnly:
-                    result = KalturaPurchaseStatus.for_purchase_subscription_only;
+                    result = KalturaPurchaseStatus.FOR_PURCHASE_SUBSCRIPTION_ONLY;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.SubscriptionPurchased:
-                    result = KalturaPurchaseStatus.subscription_purchased;
+                    result = KalturaPurchaseStatus.SUBSCRIPTION_PURCHASED;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.ForPurchase:
-                    result = KalturaPurchaseStatus.for_purchase;
+                    result = KalturaPurchaseStatus.FOR_PURCHASE;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.SubscriptionPurchasedWrongCurrency:
-                    result = KalturaPurchaseStatus.subscription_purchased_wrong_currency;
+                    result = KalturaPurchaseStatus.SUBSCRIPTION_PURCHASED_WRONG_CURRENCY;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.PrePaidPurchased:
-                    result = KalturaPurchaseStatus.pre_paid_purchased;
+                    result = KalturaPurchaseStatus.PRE_PAID_PURCHASED;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.GeoCommerceBlocked:
-                    result = KalturaPurchaseStatus.geo_commerce_blocked;
+                    result = KalturaPurchaseStatus.GEO_COMMERCE_BLOCKED;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.EntitledToPreviewModule:
-                    result = KalturaPurchaseStatus.entitled_to_preview_module;
+                    result = KalturaPurchaseStatus.ENTITLED_TO_PREVIEW_MODULE;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.FirstDeviceLimitation:
-                    result = KalturaPurchaseStatus.first_device_limitation;
+                    result = KalturaPurchaseStatus.FIRST_DEVICE_LIMITATION;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.CollectionPurchased:
-                    result = KalturaPurchaseStatus.collection_purchased;
+                    result = KalturaPurchaseStatus.COLLECTION_PURCHASED;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.UserSuspended:
-                    result = KalturaPurchaseStatus.user_suspended;
+                    result = KalturaPurchaseStatus.USER_SUSPENDED;
                     break;
                 case WebAPI.ConditionalAccess.PriceReason.NotForPurchase:
-                    result = KalturaPurchaseStatus.not_for_purchase;
+                    result = KalturaPurchaseStatus.NOT_FOR_PURCHASE;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown purchase status");

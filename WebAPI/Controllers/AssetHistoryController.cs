@@ -29,7 +29,6 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">Filter parameters for filtering out the result</param>
         /// <param name="pager"><![CDATA[Page size and index. Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]></param>
-        /// <param name="language">Language code</param>
         /// <remarks>Possible status codes: 
         /// </remarks>
         [Route("list"), HttpPost]

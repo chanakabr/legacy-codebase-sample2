@@ -11,9 +11,9 @@ namespace WebAPI.Models.Catalog
 {
     public enum KalturaPersonalAssetWith
     {
-        bookmark,
-        pricing,
-        following
+        BOOKMARK,
+        PRICING,
+        FOLLOWING
     }
 
     /// <summary>

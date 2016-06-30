@@ -38,10 +38,10 @@ namespace WebAPI.Controllers
                 // call client
                 switch (filter.By)
                 {
-                    case KalturaEntityReferenceBy.user:
+                    case KalturaEntityReferenceBy.USER:
                         response = ClientsManager.UsersClient().GetItemFromList(groupId, new List<string>() { KS.GetFromRequest().UserId }, filter.ListTypeEqual, filter.AssetTypeEqual);
                         break;
-                    case KalturaEntityReferenceBy.household:
+                    case KalturaEntityReferenceBy.HOUSEHOLD:
                         List<string> householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId);
                         if (householdUserIds != null && householdUserIds.Count > 0)
                         {
@@ -84,10 +84,10 @@ namespace WebAPI.Controllers
                 // call client
                 switch (filter.By)
                 {
-                    case KalturaEntityReferenceBy.user:
+                    case KalturaEntityReferenceBy.USER:
                         response.UserAssetsLists = ClientsManager.UsersClient().GetItemFromList(groupId, new List<string>() { KS.GetFromRequest().UserId }, filter.ListTypeEqual, filter.AssetTypeEqual);
                         break;
-                    case KalturaEntityReferenceBy.household:
+                    case KalturaEntityReferenceBy.HOUSEHOLD:
                         List<string> householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId);
                         if (householdUserIds != null && householdUserIds.Count > 0)
                         {

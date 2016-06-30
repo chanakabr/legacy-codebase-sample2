@@ -45,14 +45,14 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (filter.By == KalturaEntityReferenceBy.user)
+                if (filter.By == KalturaEntityReferenceBy.USER)
                 {
                     string userId = KS.GetFromRequest().UserId;
 
                     // call client
                     response = ClientsManager.ApiClient().GetUserParentalRules(groupId, userId);
                 }
-                else if (filter.By == KalturaEntityReferenceBy.household)
+                else if (filter.By == KalturaEntityReferenceBy.HOUSEHOLD)
                 {
                     // call client
                     response = ClientsManager.ApiClient().GetDomainParentalRules(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId));
@@ -91,14 +91,14 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (filter.EntityReferenceEqual == KalturaEntityReferenceBy.user)
+                if (filter.EntityReferenceEqual == KalturaEntityReferenceBy.USER)
                 {
                     string userId = KS.GetFromRequest().UserId;
 
                     // call client
                     response = ClientsManager.ApiClient().GetUserParentalRules(groupId, userId);
                 }
-                else if (filter.EntityReferenceEqual == KalturaEntityReferenceBy.household)
+                else if (filter.EntityReferenceEqual == KalturaEntityReferenceBy.HOUSEHOLD)
                 {
                     // call client
                     response = ClientsManager.ApiClient().GetDomainParentalRules(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId));
@@ -122,7 +122,7 @@ namespace WebAPI.Controllers
         /// <returns>Success or failure and reason</returns>
         [Route("enable"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("by", "entityReference")]
+        [OldStandard("entityReference", "by")]
         [OldStandard("ruleId", "rule_id")]
         [ValidationException(SchemaValidationType.ACTION_NAME)]
         public bool Enable(long ruleId, KalturaEntityReferenceBy entityReference)
@@ -133,14 +133,14 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (entityReference == KalturaEntityReferenceBy.user)
+                if (entityReference == KalturaEntityReferenceBy.USER)
                 {
                     string userId = KS.GetFromRequest().UserId;
 
                     // call client
                     success = ClientsManager.ApiClient().SetUserParentalRule(groupId, userId, ruleId, 1);
                 }
-                else if (entityReference == KalturaEntityReferenceBy.household)
+                else if (entityReference == KalturaEntityReferenceBy.HOUSEHOLD)
                 {
                     // call client
                     success = ClientsManager.ApiClient().SetDomainParentalRules(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), ruleId, 1);
@@ -165,7 +165,7 @@ namespace WebAPI.Controllers
         /// <returns>Success or failure and reason</returns>
         [Route("disable"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("by", "entityReference")]
+        [OldStandard("entityReference", "by")]
         [OldStandard("ruleId", "rule_id")]
         [ValidationException(SchemaValidationType.ACTION_NAME)]
         public bool Disable(long ruleId, KalturaEntityReferenceBy entityReference)
@@ -176,14 +176,14 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (entityReference == KalturaEntityReferenceBy.user)
+                if (entityReference == KalturaEntityReferenceBy.USER)
                 {
                     string userId = KS.GetFromRequest().UserId;
 
                     // call client
                     success = ClientsManager.ApiClient().SetUserParentalRule(groupId, userId, ruleId, 0);
                 }
-                else if (entityReference == KalturaEntityReferenceBy.household)
+                else if (entityReference == KalturaEntityReferenceBy.HOUSEHOLD)
                 {
                     // call client
                     success = ClientsManager.ApiClient().SetDomainParentalRules(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), ruleId, 0);
@@ -209,7 +209,7 @@ namespace WebAPI.Controllers
         /// <returns>Success / fail</returns>
         [Route("disableDefault"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("by", "entityReference")]
+        [OldStandard("entityReference", "by")]
         [ValidationException(SchemaValidationType.ACTION_NAME)]
         public bool DisableDefault(KalturaEntityReferenceBy entityReference)
         {
@@ -218,12 +218,12 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (entityReference == KalturaEntityReferenceBy.household)
+                if (entityReference == KalturaEntityReferenceBy.HOUSEHOLD)
                 {
                     // call client
                     success = ClientsManager.ApiClient().DisableDomainDefaultParentalRule(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId));
                 }
-                else if (entityReference == KalturaEntityReferenceBy.user)
+                else if (entityReference == KalturaEntityReferenceBy.USER)
                 {
                     string userId = KS.GetFromRequest().UserId;
 

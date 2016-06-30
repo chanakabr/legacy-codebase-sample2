@@ -157,13 +157,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             switch (kalturaInboxMessageStatus)
             {
-                case KalturaInboxMessageStatus.Unread:
+                case KalturaInboxMessageStatus.UNREAD:
                     result = eMessageState.Unread;
                     break;
-                case KalturaInboxMessageStatus.Read:
+                case KalturaInboxMessageStatus.READ:
                     result = eMessageState.Read;
                     break;
-                case KalturaInboxMessageStatus.Deleted:
+                case KalturaInboxMessageStatus.DELETED:
                     result = eMessageState.Trashed;
                     break;
                 default:
@@ -180,13 +180,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
             switch (eMessageState)
             {
                 case eMessageState.Unread:
-                    result = KalturaInboxMessageStatus.Unread;
+                    result = KalturaInboxMessageStatus.UNREAD;
                     break;
                 case eMessageState.Read:
-                    result = KalturaInboxMessageStatus.Read;
+                    result = KalturaInboxMessageStatus.READ;
                     break;
                 case eMessageState.Trashed:
-                    result = KalturaInboxMessageStatus.Deleted;
+                    result = KalturaInboxMessageStatus.DELETED;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown inbox message status");
@@ -201,10 +201,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             switch (kalturaInboxMessageType)
             {
-                case KalturaInboxMessageType.SystemAnnouncement:
+                case KalturaInboxMessageType.SYSTEMANNOUNCEMENT:
                     result = eMessageCategory.SystemAnnouncement;
                     break;
-                case KalturaInboxMessageType.Followed:
+                case KalturaInboxMessageType.FOLLOWED:
                     result = eMessageCategory.Followed;
                     break;
                 default:
@@ -220,10 +220,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
             switch (eMessageCategory)
             {
                 case eMessageCategory.SystemAnnouncement:
-                    result = KalturaInboxMessageType.SystemAnnouncement;
+                    result = KalturaInboxMessageType.SYSTEMANNOUNCEMENT;
                     break;
                 case eMessageCategory.Followed:
-                    result = KalturaInboxMessageType.Followed;
+                    result = KalturaInboxMessageType.FOLLOWED;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown inbox message type");
@@ -243,16 +243,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
             switch (recipients)
             {
                 case eAnnouncementRecipientsType.All:
-                    result = KalturaAnnouncementRecipientsType.All;
+                    result = KalturaAnnouncementRecipientsType.ALL;
                     break;
                 case eAnnouncementRecipientsType.Guests:
-                    result = KalturaAnnouncementRecipientsType.Guests;
+                    result = KalturaAnnouncementRecipientsType.GUESTS;
                     break;
                 case eAnnouncementRecipientsType.LoggedIn:
-                    result = KalturaAnnouncementRecipientsType.LoggedIn;
+                    result = KalturaAnnouncementRecipientsType.LOGGEDIN;
                     break;
                 case eAnnouncementRecipientsType.Other:
-                    result = KalturaAnnouncementRecipientsType.Other;
+                    result = KalturaAnnouncementRecipientsType.OTHER;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown recipients Type");
@@ -267,16 +267,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
             switch (status)
             {
                 case eAnnouncementStatus.Aborted:
-                    result = KalturaAnnouncementStatus.Aborted;
+                    result = KalturaAnnouncementStatus.ABORTED;
                     break;
                 case eAnnouncementStatus.NotSent:
-                    result = KalturaAnnouncementStatus.NotSent;
+                    result = KalturaAnnouncementStatus.NOTSENT;
                     break;
                 case eAnnouncementStatus.Sending:
-                    result = KalturaAnnouncementStatus.Sending;
+                    result = KalturaAnnouncementStatus.SENDING;
                     break;
                 case eAnnouncementStatus.Sent:
-                    result = KalturaAnnouncementStatus.Sent;
+                    result = KalturaAnnouncementStatus.SENT;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown status Type");
@@ -292,7 +292,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             switch (assetType)
             {
                 case eOTTAssetTypes.Series:
-                    result = KalturaOTTAssetType.Series;
+                    result = KalturaOTTAssetType.SERIES;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown asset Type");
@@ -307,7 +307,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             switch (assetType)
             {
-                case KalturaOTTAssetType.Series:
+                case KalturaOTTAssetType.SERIES:
                     result = eOTTAssetTypes.Series;
                     break;
                 default:
@@ -373,10 +373,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             switch (inboxMessageTypeHolder.type)
             {
-                case KalturaInboxMessageType.SystemAnnouncement:
+                case KalturaInboxMessageType.SYSTEMANNOUNCEMENT:
                     messageCategory = eMessageCategory.SystemAnnouncement;
                     break;
-                case KalturaInboxMessageType.Followed:
+                case KalturaInboxMessageType.FOLLOWED:
                     messageCategory = eMessageCategory.Followed;
                     break;
                 default:
@@ -390,11 +390,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
         {
             switch (automaticIssueNotification)
             {
-                case KalturaTopicAutomaticIssueNotification.Yes:
+                case KalturaTopicAutomaticIssueNotification.YES:
                     return eTopicAutomaticIssueNotification.Yes;
-                case KalturaTopicAutomaticIssueNotification.No:
+                case KalturaTopicAutomaticIssueNotification.NO:
                     return eTopicAutomaticIssueNotification.No;
-                case KalturaTopicAutomaticIssueNotification.Inherit:
+                case KalturaTopicAutomaticIssueNotification.INHERIT:
                 default:
                     return eTopicAutomaticIssueNotification.Default;
             }

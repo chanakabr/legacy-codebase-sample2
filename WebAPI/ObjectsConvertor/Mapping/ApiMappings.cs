@@ -63,14 +63,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<WebAPI.Api.PinResponse, WebAPI.Models.API.KalturaPinResponse>()
                 .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
                 .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.parental));
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.PARENTAL));
 
             // Purchase Settings
             Mapper.CreateMap<WebAPI.Api.PurchaseSettingsResponse, WebAPI.Models.API.KalturaPurchaseSettingsResponse>()
                 .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
                 .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin))
                 .ForMember(dest => dest.PurchaseSettingsType, opt => opt.MapFrom(src => ConvertPurchaseSetting(src.type)))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.purchase));
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.PURCHASE));
 
             // Purchase Settings
             Mapper.CreateMap<WebAPI.Api.GenericRule, WebAPI.Models.API.KalturaGenericRule>()
@@ -282,7 +282,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ProtectionPeriod, opt => opt.MapFrom(src => src.ProtectionPeriod))
                 .ForMember(dest => dest.ProtectionQuotaPercentage, opt => opt.MapFrom(src => src.ProtectionQuotaPercentage))
                 .ForMember(dest => dest.RecordingLifetimePeriod, opt => opt.MapFrom(src => src.RecordingLifetimePeriod))
-                .ForMember(dest => dest.CleanupNoticePeroid, opt => opt.MapFrom(src => src.CleanupNoticePeroid));
+                .ForMember(dest => dest.CleanupNoticePeroid, opt => opt.MapFrom(src => src.CleanupNoticePeroid))
+                .ForMember(dest => dest.SeriesRecordingEnabled, opt => opt.MapFrom(src => src.IsSeriesRecordingEnabled));
 
             //KalturaTimeShiftedTvPartnerSettings to TimeShiftedTvPartnerSettings
             Mapper.CreateMap<WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings, TimeShiftedTvPartnerSettings>()
@@ -300,7 +301,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ProtectionPeriod, opt => opt.MapFrom(src => src.ProtectionPeriod))
                 .ForMember(dest => dest.ProtectionQuotaPercentage, opt => opt.MapFrom(src => src.ProtectionQuotaPercentage))
                 .ForMember(dest => dest.RecordingLifetimePeriod, opt => opt.MapFrom(src => src.RecordingLifetimePeriod))
-                .ForMember(dest => dest.CleanupNoticePeroid, opt => opt.MapFrom(src => src.CleanupNoticePeroid));
+                .ForMember(dest => dest.CleanupNoticePeroid, opt => opt.MapFrom(src => src.CleanupNoticePeroid))
+                .ForMember(dest => dest.IsSeriesRecordingEnabled, opt => opt.MapFrom(src => src.SeriesRecordingEnabled));
 
             #endregion
 
@@ -422,40 +424,40 @@ namespace WebAPI.ObjectsConvertor.Mapping
             switch (type)
             {
                 case ExternalRecommendationEngineEnrichment.AtHome:
-                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.AtHome };
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.ATHOME };
                     break;
                 case ExternalRecommendationEngineEnrichment.Catchup:
-                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.Catchup };
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.CATCHUP };
                     break;
                 case ExternalRecommendationEngineEnrichment.ClientLocation:
-                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.ClientLocation };
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.CLIENTLOCATION };
                     break;
                 case ExternalRecommendationEngineEnrichment.DeviceId:
-                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.DeviceId };
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.DEVICEID };
                     break;
                 case ExternalRecommendationEngineEnrichment.DeviceType:
-                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.DeviceType };
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.DEVICETYPE };
                     break;
                 case ExternalRecommendationEngineEnrichment.DTTRegion:
-                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.DTTRegion };
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.DTTREGION };
                     break;
                 case ExternalRecommendationEngineEnrichment.HouseholdId:
-                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.HouseholdId };
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.HOUSEHOLDID };
                     break;
                 case ExternalRecommendationEngineEnrichment.Language:
-                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.Language };
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.LANGUAGE };
                     break;
                 case ExternalRecommendationEngineEnrichment.NPVRSupport:
-                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.NPVRSupport };
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.NPVRSUPPORT };
                     break;
                 case ExternalRecommendationEngineEnrichment.Parental:
-                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.Parental };
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.PARENTAL };
                     break;
                 case ExternalRecommendationEngineEnrichment.UserId:
-                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.UserId };
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.USERID };
                     break;
                 case ExternalRecommendationEngineEnrichment.UTCOffset:
-                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.UTCOffset };
+                    result = new KalturaChannelEnrichmentHolder() { type = KalturaChannelEnrichment.UTCOFFSET };
                     break;
 
                 default:
@@ -498,40 +500,40 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             switch (type)
             {
-                case KalturaChannelEnrichment.AtHome:
+                case KalturaChannelEnrichment.ATHOME:
                     result = ExternalRecommendationEngineEnrichment.AtHome;
                     break;
-                case KalturaChannelEnrichment.Catchup:
+                case KalturaChannelEnrichment.CATCHUP:
                     result = ExternalRecommendationEngineEnrichment.Catchup;
                     break;
-                case KalturaChannelEnrichment.ClientLocation:
+                case KalturaChannelEnrichment.CLIENTLOCATION:
                     result = ExternalRecommendationEngineEnrichment.ClientLocation;
                     break;
-                case KalturaChannelEnrichment.DeviceId:
+                case KalturaChannelEnrichment.DEVICEID:
                     result = ExternalRecommendationEngineEnrichment.DeviceId ;
                     break;
-                case KalturaChannelEnrichment.DeviceType:
+                case KalturaChannelEnrichment.DEVICETYPE:
                     result = ExternalRecommendationEngineEnrichment.DeviceType;
                     break;
-                case KalturaChannelEnrichment.DTTRegion:
+                case KalturaChannelEnrichment.DTTREGION:
                     result = ExternalRecommendationEngineEnrichment.DTTRegion;
                     break;
-                case KalturaChannelEnrichment.HouseholdId:
+                case KalturaChannelEnrichment.HOUSEHOLDID:
                     result = ExternalRecommendationEngineEnrichment.HouseholdId;
                     break;
-                case KalturaChannelEnrichment.Language:
+                case KalturaChannelEnrichment.LANGUAGE:
                     result = ExternalRecommendationEngineEnrichment.Language;
                     break;
-                case KalturaChannelEnrichment.NPVRSupport:
+                case KalturaChannelEnrichment.NPVRSUPPORT:
                     result = ExternalRecommendationEngineEnrichment.NPVRSupport;
                     break;
-                case KalturaChannelEnrichment.Parental:
+                case KalturaChannelEnrichment.PARENTAL:
                     result = ExternalRecommendationEngineEnrichment.Parental;
                     break;
-                case KalturaChannelEnrichment.UserId:
+                case KalturaChannelEnrichment.USERID:
                     result = ExternalRecommendationEngineEnrichment.UserId;
                     break;
-                case KalturaChannelEnrichment.UTCOffset:
+                case KalturaChannelEnrichment.UTCOFFSET:
                     result = ExternalRecommendationEngineEnrichment.UTCOffset;
                     break;
                 default:
@@ -612,18 +614,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         private static WebAPI.Models.API.KalturaRuleLevel ConvertRuleLevel(WebAPI.Api.eRuleLevel? type)
         {
-            WebAPI.Models.API.KalturaRuleLevel result = WebAPI.Models.API.KalturaRuleLevel.invalid;
+            WebAPI.Models.API.KalturaRuleLevel result = WebAPI.Models.API.KalturaRuleLevel.INVALID;
 
             switch (type)
             {
                 case WebAPI.Api.eRuleLevel.User:
-                    result = WebAPI.Models.API.KalturaRuleLevel.user;
+                    result = WebAPI.Models.API.KalturaRuleLevel.USER;
                     break;
                 case WebAPI.Api.eRuleLevel.Domain:
-                    result = WebAPI.Models.API.KalturaRuleLevel.household;
+                    result = WebAPI.Models.API.KalturaRuleLevel.HOUSEHOLD;
                     break;
                 case WebAPI.Api.eRuleLevel.Group:
-                    result = WebAPI.Models.API.KalturaRuleLevel.account;
+                    result = WebAPI.Models.API.KalturaRuleLevel.ACCOUNT;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown rule level");
@@ -668,16 +670,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
             switch (type)
             {
                 case RuleType.Parental:
-                    result = WebAPI.Models.API.KalturaRuleType.parental;
+                    result = WebAPI.Models.API.KalturaRuleType.PARENTAL;
                     break;
                 case RuleType.Geo:
-                    result = WebAPI.Models.API.KalturaRuleType.geo;
+                    result = WebAPI.Models.API.KalturaRuleType.GEO;
                     break;
                 case RuleType.UserType:
-                    result = WebAPI.Models.API.KalturaRuleType.user_type;
+                    result = WebAPI.Models.API.KalturaRuleType.USER_TYPE;
                     break;
                 case RuleType.Device:
-                    result = WebAPI.Models.API.KalturaRuleType.device;
+                    result = WebAPI.Models.API.KalturaRuleType.DEVICE;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown rule type");
@@ -755,13 +757,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
             switch (type)
             {
                 case eBulkExportDataType.EPG:
-                    result = WebAPI.Models.API.KalturaExportDataType.epg;
+                    result = WebAPI.Models.API.KalturaExportDataType.EPG;
                     break;
                 case eBulkExportDataType.Users:
-                    result = WebAPI.Models.API.KalturaExportDataType.users;
+                    result = WebAPI.Models.API.KalturaExportDataType.USERS;
                     break;
                 case eBulkExportDataType.VOD:
-                    result = WebAPI.Models.API.KalturaExportDataType.vod;
+                    result = WebAPI.Models.API.KalturaExportDataType.VOD;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown bulk export data type");
@@ -777,10 +779,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
             switch (type)
             {
                 case eBulkExportExportType.Full:
-                    result = WebAPI.Models.API.KalturaExportType.full;
+                    result = WebAPI.Models.API.KalturaExportType.FULL;
                     break;
                 case eBulkExportExportType.Incremental:
-                    result = WebAPI.Models.API.KalturaExportType.incremental;
+                    result = WebAPI.Models.API.KalturaExportType.INCREMENTAL;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown bulk export export type");
@@ -795,13 +797,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             switch (type)
             {
-                case KalturaExportDataType.epg:
+                case KalturaExportDataType.EPG:
                     result = eBulkExportDataType.EPG;
                     break;
-                case KalturaExportDataType.users:
+                case KalturaExportDataType.USERS:
                     result = eBulkExportDataType.Users;
                     break;
-                case KalturaExportDataType.vod:
+                case KalturaExportDataType.VOD:
                     result = eBulkExportDataType.VOD;
                     break;
                 default:
@@ -817,10 +819,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             switch (type)
             {
-                case KalturaExportType.full:
+                case KalturaExportType.FULL:
                     result = eBulkExportExportType.Full;
                     break;
-                case KalturaExportType.incremental:
+                case KalturaExportType.INCREMENTAL:
                     result = eBulkExportExportType.Incremental;
                     break;
                 default:

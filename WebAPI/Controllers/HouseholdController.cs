@@ -78,7 +78,7 @@ namespace WebAPI.Controllers
                 // call client
                 response = ClientsManager.DomainsClient().GetDomainInfo(groupId, user.First().getHouseholdID());
 
-                if (with != null && with.Where(x => x.type == KalturaHouseholdWith.users_base_info || x.type == KalturaHouseholdWith.users_full_info).Count() > 0)
+                if (with != null && with.Where(x => x.type == KalturaHouseholdWith.USERS_BASE_INFO || x.type == KalturaHouseholdWith.USERS_FULL_INFO).Count() > 0)
                 {
                     ClientsManager.DomainsClient().EnrichHouseHold(with, response, groupId);
                 }
@@ -122,7 +122,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (filter.By == KalturaIdentifierTypeBy.internal_id)
+                if (filter.By == KalturaIdentifierTypeBy.INTERNAL_ID)
                 {
                     int householdId = 0;
                     if (int.TryParse(filter.Identifier, out householdId))
@@ -133,13 +133,13 @@ namespace WebAPI.Controllers
 
                 }
 
-                else if (filter.By == KalturaIdentifierTypeBy.external_id)
+                else if (filter.By == KalturaIdentifierTypeBy.EXTERNAL_ID)
                 {
                     // call client
                     response = ClientsManager.DomainsClient().GetDomainByCoGuid(groupId, filter.Identifier);
                 }
 
-                if (with != null && with.Where(x => x.type == KalturaHouseholdWith.users_base_info || x.type == KalturaHouseholdWith.users_full_info).Count() > 0)
+                if (with != null && with.Where(x => x.type == KalturaHouseholdWith.USERS_BASE_INFO || x.type == KalturaHouseholdWith.USERS_FULL_INFO).Count() > 0)
                 {
                     ClientsManager.DomainsClient().EnrichHouseHold(with, response, groupId);
                 }
@@ -439,7 +439,7 @@ namespace WebAPI.Controllers
             try
             {
 
-                if (filter.By == KalturaIdentifierTypeBy.internal_id)
+                if (filter.By == KalturaIdentifierTypeBy.INTERNAL_ID)
                 {
                     int householdId = 0;
                     if (int.TryParse(filter.Identifier, out householdId))
@@ -450,7 +450,7 @@ namespace WebAPI.Controllers
 
                 }
 
-                else if (filter.By == KalturaIdentifierTypeBy.external_id)
+                else if (filter.By == KalturaIdentifierTypeBy.EXTERNAL_ID)
                 {
                     // call client
                     return ClientsManager.DomainsClient().RemoveDomain(groupId, filter.Identifier);

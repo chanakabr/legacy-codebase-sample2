@@ -166,12 +166,12 @@ namespace WebAPI.Controllers
                 // call client
                 switch (filter.By)
                 {
-                    case KalturaEntityReferenceBy.user:
+                    case KalturaEntityReferenceBy.USER:
                         {
                             response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KS.GetFromRequest().UserId, filter.EntitlementType);
                         }
                         break;
-                    case KalturaEntityReferenceBy.household:
+                    case KalturaEntityReferenceBy.HOUSEHOLD:
                         {
                             response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.EntitlementType);
                         }
@@ -212,13 +212,13 @@ namespace WebAPI.Controllers
                 // call client
                 switch (filter.EntityReferenceEqual)
                 {
-                    case KalturaEntityReferenceBy.user:
+                    case KalturaEntityReferenceBy.USER:
                         {
                             response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KS.GetFromRequest().UserId, filter.EntitlementTypeEqual,
                                 false, pager.getPageSize(), pager.getPageIndex(), filter.OrderBy);
                         }
                         break;
-                    case KalturaEntityReferenceBy.household:
+                    case KalturaEntityReferenceBy.HOUSEHOLD:
                         {
                             response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.EntitlementTypeEqual,
                                 false, pager.getPageSize(), pager.getPageIndex(), filter.OrderBy);
@@ -262,12 +262,12 @@ namespace WebAPI.Controllers
                 // call client
                 switch (filter.By)
                 {
-                    case KalturaEntityReferenceBy.user:
+                    case KalturaEntityReferenceBy.USER:
                         {
                             response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KS.GetFromRequest().UserId, filter.EntitlementType, true, pager.getPageSize(), pager.getPageIndex());
                         }
                         break;
-                    case KalturaEntityReferenceBy.household:
+                    case KalturaEntityReferenceBy.HOUSEHOLD:
                         {
                             response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.EntitlementType, true, pager.getPageSize(), pager.getPageIndex());
                         }

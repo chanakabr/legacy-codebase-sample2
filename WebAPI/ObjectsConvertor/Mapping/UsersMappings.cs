@@ -182,13 +182,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
             switch (listType)
             {
                 case WebAPI.Users.ListType.Watch:
-                    result = KalturaUserAssetsListType.watch;
+                    result = KalturaUserAssetsListType.WATCH;
                     break;
                 case WebAPI.Users.ListType.Purchase:
-                    result = KalturaUserAssetsListType.purchase;
+                    result = KalturaUserAssetsListType.PURCHASE;
                     break;
                 case WebAPI.Users.ListType.Library:
-                    result = KalturaUserAssetsListType.library;
+                    result = KalturaUserAssetsListType.LIBRARY;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown user assets list type");
@@ -202,16 +202,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Users.ListType result;
             switch (listType)
             {
-                case KalturaUserAssetsListType.all:
+                case KalturaUserAssetsListType.ALL:
                     result = Users.ListType.All;
                     break;
-                case KalturaUserAssetsListType.watch:
+                case KalturaUserAssetsListType.WATCH:
                     result = Users.ListType.Watch;
                     break;
-                case KalturaUserAssetsListType.purchase:
+                case KalturaUserAssetsListType.PURCHASE:
                     result = Users.ListType.Purchase;
                     break;
-                case KalturaUserAssetsListType.library:
+                case KalturaUserAssetsListType.LIBRARY:
                     result = Users.ListType.Library;
                     break;
                 default:
@@ -226,10 +226,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             switch (itemType)
             {
-                case KalturaUserAssetsListItemType.all:
+                case KalturaUserAssetsListItemType.ALL:
                     result = Users.ItemType.All;
                     break;
-                case KalturaUserAssetsListItemType.media:
+                case KalturaUserAssetsListItemType.MEDIA:
                     result = Users.ItemType.Media;
                     break;
                 default:
@@ -245,7 +245,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             switch (itemType)
             {
                 case Users.ItemType.Media:
-                    result = KalturaUserAssetsListItemType.media;
+                    result = KalturaUserAssetsListItemType.MEDIA;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown user assets list item type");
@@ -267,20 +267,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
             KalturaUserState result;
             if (isActivationGracePeriod)
             {
-                result = KalturaUserState.user_not_activated;
+                result = KalturaUserState.USER_NOT_ACTIVATED;
             }
             else
             {
                 switch (type)
                 {
                     case WebAPI.Users.ResponseStatus.OK:
-                        result = KalturaUserState.ok;
+                        result = KalturaUserState.OK;
                         break;
                     case WebAPI.Users.ResponseStatus.UserWithNoDomain:
-                        result = KalturaUserState.user_with_no_household;
+                        result = KalturaUserState.USER_WITH_NO_HOUSEHOLD;
                         break;
                     case WebAPI.Users.ResponseStatus.UserCreatedWithNoRole:
-                        result = KalturaUserState.user_created_with_no_role;
+                        result = KalturaUserState.USER_CREATED_WITH_NO_ROLE;
                         break;
                     default:
                         throw new ClientException((int)StatusCode.Error, "Unknown user state");
@@ -295,10 +295,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
             switch (type)
             {
                 case WebAPI.Users.DomainSuspentionStatus.OK:
-                    result = KalturaHouseholdSuspentionState.not_suspended;
+                    result = KalturaHouseholdSuspentionState.NOT_SUSPENDED;
                     break;
                 case WebAPI.Users.DomainSuspentionStatus.Suspended:
-                    result = KalturaHouseholdSuspentionState.suspended;
+                    result = KalturaHouseholdSuspentionState.SUSPENDED;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown domain suspention state");

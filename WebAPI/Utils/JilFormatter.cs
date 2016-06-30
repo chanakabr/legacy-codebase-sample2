@@ -207,6 +207,11 @@ namespace WebAPI.Utils
                             {
                                 list.Add(WrappingHandler.prepareExceptionResponse(((ApiException)item).Code, ((ApiException)item).Message));
                             }
+                            else if (item.GetType().IsSubclassOf(typeof(Exception)))
+                            {
+                                InternalServerErrorException ex = new InternalServerErrorException();
+                                list.Add(WrappingHandler.prepareExceptionResponse(ex.Code, ex.Message));
+                            }
                         }
                         statusWrapper.Result = list;
                     }

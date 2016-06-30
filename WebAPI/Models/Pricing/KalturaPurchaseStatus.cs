@@ -7,18 +7,18 @@ namespace WebAPI.Models.Pricing
 {
     public enum KalturaPurchaseStatus
     {
-        ppv_purchased,
-        free,
-        for_purchase_subscription_only,
-        subscription_purchased,
-        for_purchase,
-        subscription_purchased_wrong_currency, 
-        pre_paid_purchased,
-        geo_commerce_blocked, 
-        entitled_to_preview_module, 
-        first_device_limitation, 
-        collection_purchased,
-        user_suspended,
-        not_for_purchase
+        PPV_PURCHASED,
+        FREE,
+        FOR_PURCHASE_SUBSCRIPTION_ONLY,
+        SUBSCRIPTION_PURCHASED,
+        FOR_PURCHASE,
+        SUBSCRIPTION_PURCHASED_WRONG_CURRENCY, 
+        PRE_PAID_PURCHASED,
+        GEO_COMMERCE_BLOCKED, 
+        ENTITLED_TO_PREVIEW_MODULE, 
+        FIRST_DEVICE_LIMITATION, 
+        COLLECTION_PURCHASED,
+        USER_SUSPENDED,
+        NOT_FOR_PURCHASE
     }
 }

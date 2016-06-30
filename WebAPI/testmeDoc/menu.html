@@ -71,6 +71,13 @@
 							<li class="action"><a href="actions/apptoken.get.html" target="main">get</a></li>
 							<li class="action"><a href="actions/apptoken.startSession.html" target="main">startSession</a></li>
 						</ul></li>
+					<li class="service" id="asset">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/asset.html" target="main">asset</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/asset.get.html" target="main">get</a></li>
+							<li class="action"><a href="actions/asset.list.html" target="main">list</a></li>
+						</ul></li>
 					<li class="service" id="cdvradapterprofile">
 						<img class="tree-item" src="images/collapsed.gif" />
 						<a class="tree-content" href="services/cdvradapterprofile.html" target="main">cDVRAdapterProfile</a>
@@ -106,6 +113,12 @@
 						<a class="tree-content" href="services/coupon.html" target="main">coupon</a>
 						<ul class="actions">
 							<li class="action"><a href="actions/coupon.get.html" target="main">get</a></li>
+						</ul></li>
+					<li class="service" id="entitlement">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/entitlement.html" target="main">entitlement</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/entitlement.list.html" target="main">list</a></li>
 						</ul></li>
 					<li class="service" id="exporttask">
 						<img class="tree-item" src="images/collapsed.gif" />
@@ -209,6 +222,15 @@
 							<li class="action"><a href="actions/ottuser.update.html" target="main">update</a></li>
 							<li class="action"><a href="actions/ottuser.updateLoginData.html" target="main">updateLoginData</a></li>
 						</ul></li>
+					<li class="service" id="parentalrule">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/parentalrule.html" target="main">parentalRule</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/parentalrule.disable.html" target="main">disable</a></li>
+							<li class="action"><a href="actions/parentalrule.disableDefault.html" target="main">disableDefault</a></li>
+							<li class="action"><a href="actions/parentalrule.enable.html" target="main">enable</a></li>
+							<li class="action"><a href="actions/parentalrule.list.html" target="main">list</a></li>
+						</ul></li>
 					<li class="service" id="paymentgateway">
 						<img class="tree-item" src="images/collapsed.gif" />
 						<a class="tree-content" href="services/paymentgateway.html" target="main">paymentGateway</a>
@@ -284,11 +306,12 @@
 				<ul>
 					<li id="object_KalturaAnnouncement"><a href="objects/KalturaAnnouncement.html" target="main">KalturaAnnouncement</a></li>
 					<li id="object_KalturaAppToken"><a href="objects/KalturaAppToken.html" target="main">KalturaAppToken</a></li>
+					<li id="object_KalturaAsset"><a href="objects/KalturaAsset.html" target="main">KalturaAsset</a></li>
 					<li id="object_KalturaAssetBookmark"><a href="objects/KalturaAssetBookmark.html" target="main">KalturaAssetBookmark</a></li>
 					<li id="object_KalturaAssetBookmarks"><a href="objects/KalturaAssetBookmarks.html" target="main">KalturaAssetBookmarks</a></li>
 					<li id="object_KalturaAssetInfo"><a href="objects/KalturaAssetInfo.html" target="main">KalturaAssetInfo</a></li>
 					<li id="object_KalturaAssetInfoListResponse"><a href="objects/KalturaAssetInfoListResponse.html" target="main">KalturaAssetInfoListResponse</a></li>
-					<li id="object_KalturaAssetStatistics"><a href="objects/KalturaAssetStatistics.html" target="main">KalturaAssetStatistics</a></li>
+					<li id="object_KalturaAssetListResponse"><a href="objects/KalturaAssetListResponse.html" target="main">KalturaAssetListResponse</a></li>
 					<li id="object_KalturaAssetsBookmarksResponse"><a href="objects/KalturaAssetsBookmarksResponse.html" target="main">KalturaAssetsBookmarksResponse</a></li>
 					<li id="object_KalturaBaseAssetInfo"><a href="objects/KalturaBaseAssetInfo.html" target="main">KalturaBaseAssetInfo</a></li>
 					<li id="object_KalturaBaseChannel"><a href="objects/KalturaBaseChannel.html" target="main">KalturaBaseChannel</a></li>
@@ -296,7 +319,6 @@
 					<li id="object_KalturaBillingTransaction"><a href="objects/KalturaBillingTransaction.html" target="main">KalturaBillingTransaction</a></li>
 					<li id="object_KalturaBillingTransactionListResponse"><a href="objects/KalturaBillingTransactionListResponse.html" target="main">KalturaBillingTransactionListResponse</a></li>
 					<li id="object_KalturaBooleanValue"><a href="objects/KalturaBooleanValue.html" target="main">KalturaBooleanValue</a></li>
-					<li id="object_KalturaBuzzScore"><a href="objects/KalturaBuzzScore.html" target="main">KalturaBuzzScore</a></li>
 					<li id="object_KalturaCDNAdapterProfile"><a href="objects/KalturaCDNAdapterProfile.html" target="main">KalturaCDNAdapterProfile</a></li>
 					<li id="object_KalturaCDNAdapterProfileListResponse"><a href="objects/KalturaCDNAdapterProfileListResponse.html" target="main">KalturaCDNAdapterProfileListResponse</a></li>
 					<li id="object_KalturaCDNPartnerSettings"><a href="objects/KalturaCDNPartnerSettings.html" target="main">KalturaCDNPartnerSettings</a></li>
@@ -394,11 +416,15 @@
 			<div id="objects">
 				<h2>Filter Objects</h2>
 				<ul>
+					<li id="object_KalturaAssetFilter"><a href="objects/KalturaAssetFilter.html" target="main">KalturaAssetFilter</a></li>
+					<li id="object_KalturaEntitlementFilter"><a href="objects/KalturaEntitlementFilter.html" target="main">KalturaEntitlementFilter</a></li>
 					<li id="object_KalturaExportTaskFilter"><a href="objects/KalturaExportTaskFilter.html" target="main">KalturaExportTaskFilter</a></li>
 					<li id="object_KalturaFavoriteFilter"><a href="objects/KalturaFavoriteFilter.html" target="main">KalturaFavoriteFilter</a></li>
 					<li id="object_KalturaFilter"><a href="objects/KalturaFilter.html" target="main">KalturaFilter</a></li>
+					<li id="object_KalturaParentalRuleFilter"><a href="objects/KalturaParentalRuleFilter.html" target="main">KalturaParentalRuleFilter</a></li>
 					<li id="object_KalturaRecordingContextFilter"><a href="objects/KalturaRecordingContextFilter.html" target="main">KalturaRecordingContextFilter</a></li>
 					<li id="object_KalturaRecordingFilter"><a href="objects/KalturaRecordingFilter.html" target="main">KalturaRecordingFilter</a></li>
+					<li id="object_KalturaSearchFilter"><a href="objects/KalturaSearchFilter.html" target="main">KalturaSearchFilter</a></li>
 					<li id="object_KalturaSubscriptionFilter"><a href="objects/KalturaSubscriptionFilter.html" target="main">KalturaSubscriptionFilter</a></li>
 					<li id="object_KalturaTransactionHistoryFilter"><a href="objects/KalturaTransactionHistoryFilter.html" target="main">KalturaTransactionHistoryFilter</a></li>
 				</ul>
@@ -410,12 +436,16 @@
 					<li id="object_KalturaAnnouncementStatus"><a href="enums/KalturaAnnouncementStatus.html" target="main">KalturaAnnouncementStatus</a></li>
 					<li id="object_KalturaAppTokenHashType"><a href="enums/KalturaAppTokenHashType.html" target="main">KalturaAppTokenHashType</a></li>
 					<li id="object_KalturaAppTokenStatus"><a href="enums/KalturaAppTokenStatus.html" target="main">KalturaAppTokenStatus</a></li>
+					<li id="object_KalturaAssetOrderBy"><a href="enums/KalturaAssetOrderBy.html" target="main">KalturaAssetOrderBy</a></li>
+					<li id="object_KalturaAssetOrderBy"><a href="enums/KalturaAssetOrderBy.html" target="main">KalturaAssetOrderBy</a></li>
+					<li id="object_KalturaAssetReferenceType"><a href="enums/KalturaAssetReferenceType.html" target="main">KalturaAssetReferenceType</a></li>
 					<li id="object_KalturaAssetType"><a href="enums/KalturaAssetType.html" target="main">KalturaAssetType</a></li>
 					<li id="object_KalturaBillingAction"><a href="enums/KalturaBillingAction.html" target="main">KalturaBillingAction</a></li>
 					<li id="object_KalturaBillingItemsType"><a href="enums/KalturaBillingItemsType.html" target="main">KalturaBillingItemsType</a></li>
 					<li id="object_KalturaChannelEnrichment"><a href="enums/KalturaChannelEnrichment.html" target="main">KalturaChannelEnrichment</a></li>
 					<li id="object_KalturaCouponStatus"><a href="enums/KalturaCouponStatus.html" target="main">KalturaCouponStatus</a></li>
 					<li id="object_KalturaDeviceState"><a href="enums/KalturaDeviceState.html" target="main">KalturaDeviceState</a></li>
+					<li id="object_KalturaEntitlementOrderBy"><a href="enums/KalturaEntitlementOrderBy.html" target="main">KalturaEntitlementOrderBy</a></li>
 					<li id="object_KalturaEntityReferenceBy"><a href="enums/KalturaEntityReferenceBy.html" target="main">KalturaEntityReferenceBy</a></li>
 					<li id="object_KalturaExportDataType"><a href="enums/KalturaExportDataType.html" target="main">KalturaExportDataType</a></li>
 					<li id="object_KalturaExportTaskOrderBy"><a href="enums/KalturaExportTaskOrderBy.html" target="main">KalturaExportTaskOrderBy</a></li>
@@ -426,11 +456,11 @@
 					<li id="object_KalturaHouseholdSuspentionState"><a href="enums/KalturaHouseholdSuspentionState.html" target="main">KalturaHouseholdSuspentionState</a></li>
 					<li id="object_KalturaInboxMessageStatus"><a href="enums/KalturaInboxMessageStatus.html" target="main">KalturaInboxMessageStatus</a></li>
 					<li id="object_KalturaInboxMessageType"><a href="enums/KalturaInboxMessageType.html" target="main">KalturaInboxMessageType</a></li>
+					<li id="object_KalturaParentalRuleOrderBy"><a href="enums/KalturaParentalRuleOrderBy.html" target="main">KalturaParentalRuleOrderBy</a></li>
 					<li id="object_KalturaParentalRuleType"><a href="enums/KalturaParentalRuleType.html" target="main">KalturaParentalRuleType</a></li>
 					<li id="object_KalturaPaymentMethodType"><a href="enums/KalturaPaymentMethodType.html" target="main">KalturaPaymentMethodType</a></li>
 					<li id="object_KalturaPositionOwner"><a href="enums/KalturaPositionOwner.html" target="main">KalturaPositionOwner</a></li>
 					<li id="object_KalturaPurchaseStatus"><a href="enums/KalturaPurchaseStatus.html" target="main">KalturaPurchaseStatus</a></li>
-					<li id="object_KalturaRecordingContextOrderBy"><a href="enums/KalturaRecordingContextOrderBy.html" target="main">KalturaRecordingContextOrderBy</a></li>
 					<li id="object_KalturaRecordingContextOrderBy"><a href="enums/KalturaRecordingContextOrderBy.html" target="main">KalturaRecordingContextOrderBy</a></li>
 					<li id="object_KalturaRecordingOrderBy"><a href="enums/KalturaRecordingOrderBy.html" target="main">KalturaRecordingOrderBy</a></li>
 					<li id="object_KalturaRecordingStatus"><a href="enums/KalturaRecordingStatus.html" target="main">KalturaRecordingStatus</a></li>

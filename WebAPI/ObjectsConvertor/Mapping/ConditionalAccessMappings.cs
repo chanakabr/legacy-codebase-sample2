@@ -394,13 +394,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
             WebAPI.ConditionalAccess.eTransactionType result;
             switch (clientTransactionType)
             {
-                case KalturaTransactionType.ppv:
+                case KalturaTransactionType.PPV:
                     result = WebAPI.ConditionalAccess.eTransactionType.PPV;
                     break;
-                case KalturaTransactionType.subscription:
+                case KalturaTransactionType.SUBSCRIPTION:
                     result = WebAPI.ConditionalAccess.eTransactionType.Subscription;
                     break;
-                case KalturaTransactionType.collection:
+                case KalturaTransactionType.COLLECTION:
                     result = WebAPI.ConditionalAccess.eTransactionType.Collection;
                     break;
                 default:

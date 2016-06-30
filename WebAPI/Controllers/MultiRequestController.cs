@@ -21,6 +21,7 @@ using WebAPI.Filters;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 using WebAPI.Models.MultiRequest;
+using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
@@ -186,9 +187,13 @@ namespace WebAPI.Controllers
                         object controllerInstance = Activator.CreateInstance(controller, null);
                         response = methodInfo.Invoke(controllerInstance, methodParams.ToArray());
                     }
-                    catch(Exception e)
+                    catch (ApiException e)
                     {
                         response = e;
+                    }
+                    catch (Exception e)
+                    {
+                        response = e.InnerException;
                     }
                 }
 
