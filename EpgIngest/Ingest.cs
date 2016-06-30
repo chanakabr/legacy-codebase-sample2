@@ -14,6 +14,7 @@ using Tvinci.Core.DAL;
 using TvinciImporter;
 using KLogMonitor;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace EpgIngest
 {
@@ -73,21 +74,7 @@ namespace EpgIngest
             }
             return epgchannel;
         }
-
-        //public void Initialize(EpgChannels epgChannel)
-        //{
-        //    m_Channels = epgChannel;
-        //    oEpgBL = EpgBL.Utils.GetInstance(m_Channels.parentgroupid);
-        //    lLanguage = Utils.GetLanguages(m_Channels.parentgroupid); // dictionary contains all language ids and its  code (string)
-        //    // get mapping tags and metas 
-        //    FieldEntityMapping = Utils.GetMappingFields(m_Channels.parentgroupid);
-        //    update_epg_package = TVinciShared.WS_Utils.GetTcmConfigValue("update_epg_package");
-        //    nCountPackage = ODBCWrapper.Utils.GetIntSafeVal(update_epg_package);
-        //    // get mapping between ratio_id and ratio 
-        //    Dictionary<string, string> sRatios = EpgDal.Get_PicsEpgRatios();
-        //    ratios = sRatios.ToDictionary(x => int.Parse(x.Key), x => x.Value);
-        //}
-
+       
         public string SaveChannelPrograms()
         {
             bool success = true;
@@ -191,10 +178,6 @@ namespace EpgIngest
                     newEpgItem.EnableStartOver = EnableLinearSetting(prog.enablestartover);
                     newEpgItem.EnableTrickPlay = EnableLinearSetting(prog.enabletrickplay);
                     newEpgItem.Crid = prog.crid;
-                    newEpgItem.SeriesId = prog.seriesid;
-                    newEpgItem.SeasonNumber = prog.seasonnumber;
-                    newEpgItem.EpisodeNumber = prog.episodenumber;
-
 
                     string picName = string.Empty;
                     #region Name  With languages
@@ -391,15 +374,39 @@ namespace EpgIngest
         {
             try
             {
+                FieldTypeEntity metaMapping = null;
+                bool checkReg = false;
+                Regex rgx = null;
                 Dictionary<string, List<string>> dEpgMetas = new Dictionary<string, List<string>>();
                 if (prog.metas != null)
                 {
                     foreach (metas meta in prog.metas)
-                    {
+                    { 
+                        checkReg = false;
+                        rgx = null;
+                       
+                        // get the regex expression to alias 
+                        metaMapping = FieldEntityMapping.Where(x => x.FieldType == FieldTypes.Meta && x.Name.ToLower() == meta.MetaType).FirstOrDefault();
+                        if (metaMapping != null && !string.IsNullOrEmpty(metaMapping.RegexExpression))
+                        {
+                            checkReg = true;
+                            rgx = new Regex("@" + metaMapping.RegexExpression);
+                        }
+
                         // get all relevant language 
                         List<MetaValues> metaValues = meta.MetaValues.Where(x => x.lang.ToLower() == language).ToList();
                         foreach (MetaValues value in metaValues)
                         {
+                            if (checkReg)
+                            {
+                                if (!rgx.IsMatch(value.Value))
+                                {
+                                    // write to log and leave this meta out 
+                                    log.ErrorFormat("GetEpgProgramMetas-fail the regex expression to metatype={0}, metaValue={1}, regexExpression={2}, external_id ={3} ",
+                                        meta.MetaType, value.Value, metaMapping.RegexExpression, prog.external_id);
+                                    continue;
+                                }
+                            }
                             if (dEpgMetas.ContainsKey(meta.MetaType))
                             {
                                 dEpgMetas[meta.MetaType].Add(value.Value);
@@ -424,14 +431,38 @@ namespace EpgIngest
         {
             try
             {
+                FieldTypeEntity tagMapping = null;
+                bool checkReg = false;
+                Regex rgx = null;
                 Dictionary<string, List<string>> dEpgTags = new Dictionary<string, List<string>>();
                 if (prog.tags != null)
                 {
                     foreach (tags tag in prog.tags)
                     {
+                        checkReg = false;
+                        rgx = null;
+                        // get the regex expression to alias 
+                        tagMapping = FieldEntityMapping.Where(x => x.FieldType == FieldTypes.Tag && x.Name.ToLower() == tag.TagType).FirstOrDefault();
+                        if (tagMapping != null && !string.IsNullOrEmpty(tagMapping.RegexExpression))
+                        {
+                            checkReg = true;
+                            rgx = new Regex("@" + tagMapping.RegexExpression);
+                        }
+
                         List<TagValues> tagValues = tag.TagValues.Where(x => x.lang.ToLower() == language).ToList();
                         foreach (TagValues value in tagValues)
                         {
+                            if (checkReg)
+                            {
+                                if (!rgx.IsMatch(value.Value))
+                                {
+                                    // write to log and leave this meta out 
+                                    log.ErrorFormat("GetEpgProgramTags-fail the regex expression to metatype={0}, metaValue={1}, regexExpression={2}, external_id ={3} ",
+                                        tag.TagType, value.Value, tagMapping.RegexExpression, prog.external_id);
+                                    continue;
+                                }
+                            }
+
                             if (dEpgTags.ContainsKey(tag.TagType))
                             {
                                 dEpgTags[tag.TagType].Add(value.Value);

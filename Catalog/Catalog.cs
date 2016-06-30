@@ -1173,7 +1173,7 @@ namespace Catalog
         /// <returns></returns>
         private static HashSet<string> GetUnifiedSearchKey(string originalKey, Group group, out bool isTagOrMeta)
         {
-            isTagOrMeta = false;
+            isTagOrMeta = false;          
 
             HashSet<string> searchKeys = new HashSet<string>();
 
@@ -1202,6 +1202,29 @@ namespace Catalog
                 {
                     isTagOrMeta = true;
                     searchKeys.Add(string.Format("metas.{0}", meta.ToLower()));
+                    break;
+                }
+            }
+
+            // get alias + regex expression 
+            List<FieldTypeEntity> FieldEpgAliasMapping = CatalogDAL.GetAliasMappingFields(group.m_nParentGroupID);
+
+            foreach (FieldTypeEntity FieldEpgAlias in FieldEpgAliasMapping.Where(x=>x.FieldType == FieldTypes.Tag))
+            {
+                if (FieldEpgAlias.Alias.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                {
+                     isTagOrMeta = true;
+                    searchKeys.Add(string.Format("tags.{0}", FieldEpgAlias.Name.ToLower()));
+                    break;
+                }                
+            }
+
+            foreach (FieldTypeEntity FieldEpgAlias in FieldEpgAliasMapping.Where(x => x.FieldType == FieldTypes.Meta))
+            {
+                if (FieldEpgAlias.Alias.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                {
+                    isTagOrMeta = true;
+                    searchKeys.Add(string.Format("metas.{0}", FieldEpgAlias.Name.ToLower()));
                     break;
                 }
             }

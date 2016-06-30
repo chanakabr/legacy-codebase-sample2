@@ -438,16 +438,6 @@ public partial class programme {
     
     private string cridField;
     
-    private string seriesidField;
-    
-    private int seasonnumberField;
-    
-    private bool seasonnumberFieldSpecified;
-    
-    private int episodenumberField;
-    
-    private bool episodenumberFieldSpecified;
-    
     private string startField;
     
     private string stopField;
@@ -803,61 +793,6 @@ public partial class programme {
         }
         set {
             this.cridField = value;
-        }
-    }
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlElementAttribute("series-id")]
-    public string seriesid {
-        get {
-            return this.seriesidField;
-        }
-        set {
-            this.seriesidField = value;
-        }
-    }
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlElementAttribute("season-number")]
-    public int seasonnumber {
-        get {
-            return this.seasonnumberField;
-        }
-        set {
-            this.seasonnumberField = value;
-        }
-    }
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlIgnoreAttribute()]
-    public bool seasonnumberSpecified {
-        get {
-            return this.seasonnumberFieldSpecified;
-        }
-        set {
-            this.seasonnumberFieldSpecified = value;
-        }
-    }
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlElementAttribute("episode-number")]
-    public int episodenumber {
-        get {
-            return this.episodenumberField;
-        }
-        set {
-            this.episodenumberField = value;
-        }
-    }
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlIgnoreAttribute()]
-    public bool episodenumberSpecified {
-        get {
-            return this.episodenumberFieldSpecified;
-        }
-        set {
-            this.episodenumberFieldSpecified = value;
         }
     }
     
