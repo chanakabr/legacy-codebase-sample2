@@ -429,17 +429,16 @@ namespace ElasticSearch.Common
 
         public List<KeyValuePair<T, string>> CreateBulkIndexRequest<T>(string sIndex, string sType, List<KeyValuePair<T, string>> lObjects, string sRouting = null)
         {
-            log.Debug("STart ES Update - Start Bulk Update ");
+            log.Debug("Start ES Update - Start Bulk Update");
+
             StringBuilder sBulkRequest = new StringBuilder();
             List<KeyValuePair<T, string>> sInvalidRecords = new List<KeyValuePair<T, string>>();
-
 
             if (lObjects != null)
             {
                 foreach (KeyValuePair<T, string> sObj in lObjects)
                 {
                     sBulkRequest.Append("{ \"index\": { ");
-
 
                     sBulkRequest.AppendFormat("\"_index\": \"{0}\"", sIndex);
                     sBulkRequest.AppendFormat(", \"_type\": \"{0}\"", sType);
@@ -448,6 +447,7 @@ namespace ElasticSearch.Common
                     {
                         sBulkRequest.AppendFormat(", \"_routing\": \"{0}\"", sRouting);
                     }
+
                     sBulkRequest.AppendFormat(",\"_id\" : \"{0}\"", sObj.Key);
 
                     sBulkRequest.Append(" } }\n");
@@ -459,7 +459,7 @@ namespace ElasticSearch.Common
             int nStatus = 0;
             string sParams = sBulkRequest.ToString();
             string sRetVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sParams, true);
-            log.Debug("Finish ES Update - " + sRetVal);
+            log.Debug("Finish ElasticSearch Bulk Request - " + sRetVal);
             //Will need to add treatment on objects that returned with an "ok": false
 
             return sInvalidRecords;

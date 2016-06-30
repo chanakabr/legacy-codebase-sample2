@@ -835,7 +835,8 @@ namespace ElasticSearch.Common
                 " \"name\": \"{6}\", \"description\": \"{7}\", \"cache_date\": \"{8}\", \"date_routing\": \"{9}\", \"create_date\": \"{10}\", \"update_date\": \"{11}\", \"search_end_date\": \"{12}\",",
                 oEpg.EpgID, oEpg.GroupID, oEpg.ChannelID, (oEpg.isActive) ? 1 : 0, oEpg.StartDate.ToString("yyyyMMddHHmmss"), oEpg.EndDate.ToString("yyyyMMddHHmmss"),
                 Common.Utils.ReplaceDocumentReservedCharacters(ref name), Common.Utils.ReplaceDocumentReservedCharacters(ref description),
-                /* cache_date*/ DateTime.UtcNow.ToString("yyyyMMddHHmmss"), /* date_routing */ oEpg.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
+                /* cache_date*/ DateTime.UtcNow.ToString("yyyyMMddHHmmss"), 
+                /* date_routing */ oEpg.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
                 oEpg.CreateDate.ToString("yyyyMMddHHmmss"),
                 oEpg.UpdateDate.ToString("yyyyMMddHHmmss"),
                 oEpg.SearchEndDate.ToString("yyyyMMddHHmmss")

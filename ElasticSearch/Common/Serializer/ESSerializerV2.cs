@@ -627,8 +627,6 @@ namespace ElasticSearch.Common
             mappingObj.AddProperty(tags);
 
             return mappingObj.ToString();
-
         }
-
     }
 }
