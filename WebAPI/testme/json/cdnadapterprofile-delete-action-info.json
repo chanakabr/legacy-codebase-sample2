@@ -1,1 +1,0 @@
-{"actionParams":[{"type":"int","isSimpleType":true,"isComplexType":false,"isFile":false,"isEnum":false,"isStringEnum":false,"isArray":false,"isAbstract":false,"description":"CDN adapter identifier","name":"adapterId","isOptional":false}],"description":"Delete CDN adapter by CDN adapter id"}
