@@ -323,7 +323,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
         protected virtual void AddEPGsToIndex(string index, string type, Dictionary<ulong, EpgCB> programs)
         {
-            List<KeyValuePair<ulong, string>> epgList = new List<KeyValuePair<ulong, string>>();
+            List<ESBulkRequestObj<ulong>> bulkRequests = new List<ESBulkRequestObj<ulong>>();
 
             // GetLinear Channel Values 
             ElasticSearchTaskUtils.GetLinearChannelValues(programs.Values.ToList(), groupId);
@@ -337,24 +337,32 @@ namespace ElasticSearchHandler.IndexBuilders
                 {
                     // Serialize EPG object to string
                     string serializedEpg = SerializeEPGObject(epg);
-                    epgList.Add(new KeyValuePair<ulong, string>(
-                        GetDocumentId(epg.EpgID), serializedEpg));
+
+                    bulkRequests.Add(new ESBulkRequestObj<ulong>()
+                    {
+                        docID = epg.EpgID,
+                        document = serializedEpg,
+                        index = index,
+                        Operation = eOperation.index,
+                        routing = epg.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
+                        type = type
+                    });
                 }
 
                 // If we exceeded maximum size of bulk 
-                if (epgList.Count >= sizeOfBulk)
+                if (bulkRequests.Count >= sizeOfBulk)
                 {
                     // create bulk request now and clear list
-                    api.CreateBulkIndexRequest(index, type, epgList);
+                    api.CreateBulkIndexRequest(bulkRequests);
 
-                    epgList.Clear();
+                    bulkRequests.Clear();
                 }
             }
 
             // If we have anything left that is less than the size of the bulk
-            if (epgList.Count > 0)
+            if (bulkRequests.Count > 0)
             {
-                api.CreateBulkIndexRequest(index, type, epgList);
+                api.CreateBulkIndexRequest(bulkRequests);
             }
         }
 
