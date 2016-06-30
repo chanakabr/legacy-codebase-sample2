@@ -275,6 +275,7 @@ namespace ElasticsearchTasksCommon
                         {
                             epg.EndDate = ODBCWrapper.Utils.GetDateSafeVal(row["END_DATE"]);
                         }
+                        epg.Crid = ODBCWrapper.Utils.GetSafeStr(row["crid"]);
 
                         //Metas
                         if (ds.Tables.Count >= 3 && ds.Tables[2] != null && ds.Tables[2].Rows != null && ds.Tables[2].Rows.Count > 0)
