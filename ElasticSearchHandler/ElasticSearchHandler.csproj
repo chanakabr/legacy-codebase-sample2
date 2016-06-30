@@ -83,6 +83,7 @@
     <Compile Include="Updaters\Dual\DualRecordingUpdater.cs" />
     <Compile Include="Updaters\Dual\DualEpgUpdater.cs" />
     <Compile Include="Updaters\Dual\DualMediaUpdater.cs" />
+    <Compile Include="Updaters\Dual\DualUpdater.cs" />
     <Compile Include="Updaters\New\ChannelUpdaterV2.cs" />
     <Compile Include="Updaters\New\EpgChannelUpdaterV2.cs" />
     <Compile Include="Updaters\New\EpgUpdaterV2.cs" />

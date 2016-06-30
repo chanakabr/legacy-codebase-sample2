@@ -275,47 +275,5 @@ namespace ElasticSearchHandler.Updaters
         {
             return ElasticsearchTasksCommon.Utils.GetEpgGroupAliasStr(groupId);
         }
-        
-        //private bool UpdateEpgChannel(List<int> epgChannelIDs)
-        //{
-        //    bool result = false;
-
-        //    try
-        //    {
-        //        // get all languages per group
-        //        Group group = GroupsCache.Instance().GetGroup(this.groupId);
-
-        //        if (group == null)
-        //        {
-        //            log.ErrorFormat("Couldn't get group {0}", this.groupId);
-        //            return false;
-        //        }
-        //        if (epgChannelIDs == null || epgChannelIDs.Count == 0)
-        //        {
-        //            log.ErrorFormat("No epgChannelIDs sent for group {0}", this.groupId);
-        //            return false;
-        //        }
-
-        //        // get all epg programs related to epg channel      
-        //        int days = TCMClient.Settings.Instance.GetValue<int>("Channel_StartDate_Days");
-        //        if (days == 0)
-        //            days = DAYS;
-                
-        //        DateTime fromUTCDay = DateTime.UtcNow.AddDays(-days);                 
-        //         DateTime toUTCDay = new DateTime(2100,12,01);
-
-        //         List<int> epgIds = Tvinci.Core.DAL.EpgDal.GetEpgProgramsByChannelIds(this.groupId, epgChannelIDs, fromUTCDay, toUTCDay);
-
-        //        result = UpdateEpg(epgIds);
-                
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        log.Error("Error - " + string.Format("Update EPGs threw an exception. Exception={0};Stack={1}", ex.Message, ex.StackTrace), ex);
-        //        throw ex;
-        //    }
-
-        //    return result;
-        //}
     }
 }
