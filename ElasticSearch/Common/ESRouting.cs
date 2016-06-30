@@ -15,7 +15,13 @@ namespace ElasticSearch.Common
             StringBuilder sb = new StringBuilder();
             sb.Append("\"_routing\": {");
             string sRequired = required ? "true" : "false";
-            sb.AppendFormat("\"required\": {0}, \"path\": \"{1}\"", sRequired, path);
+            sb.AppendFormat("\"required\": {0}", sRequired);
+
+            if (!string.IsNullOrEmpty(path))
+            {
+                sb.AppendFormat(", \"path\": \"{0}\"", path);
+            }
+
             sb.Append("}");
             
             return sb.ToString();

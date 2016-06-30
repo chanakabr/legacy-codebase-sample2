@@ -16,7 +16,7 @@ namespace ElasticSearch.Common
             m_lProperties = new List<IMappingProperty>();
         }
 
-        public void SetRoting(ESRouting routing)
+        public void SetRouting(ESRouting routing)
         {
             if (routing != null)
                 m_oRouting = routing;

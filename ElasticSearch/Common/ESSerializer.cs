@@ -459,10 +459,9 @@ namespace ElasticSearch.Common
 
             ESRouting routing = new ESRouting()
             {
-                path = "date_routing",
                 required = true
             };
-            mappingObj.SetRoting(routing);
+            mappingObj.SetRouting(routing);
 
             #region Add basic type mappings - (e.g. epg_id, group_id, description etc)
             mappingObj.AddProperty(new BasicMappingPropertyV1()
