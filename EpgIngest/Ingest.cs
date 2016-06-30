@@ -390,7 +390,7 @@ namespace EpgIngest
                         if (metaMapping != null && !string.IsNullOrEmpty(metaMapping.RegexExpression))
                         {
                             checkReg = true;
-                            rgx = new Regex("@" + metaMapping.RegexExpression);
+                            rgx = new Regex(metaMapping.RegexExpression);
                         }
 
                         // get all relevant language 
@@ -446,7 +446,7 @@ namespace EpgIngest
                         if (tagMapping != null && !string.IsNullOrEmpty(tagMapping.RegexExpression))
                         {
                             checkReg = true;
-                            rgx = new Regex("@" + tagMapping.RegexExpression);
+                            rgx = new Regex(tagMapping.RegexExpression);
                         }
 
                         List<TagValues> tagValues = tag.TagValues.Where(x => x.lang.ToLower() == language).ToList();
