@@ -23,7 +23,7 @@ namespace ElasticSearchHandler.Updaters
         #region Data Members
 
         private int groupID;
-        private ElasticSearch.Common.ESSerializer esSerializer;
+        private ElasticSearch.Common.ESSerializerV1 esSerializer;
         private ElasticSearch.Common.ElasticSearchApi esApi;
 
         #endregion
@@ -62,7 +62,7 @@ namespace ElasticSearchHandler.Updaters
         public MediaUpdaterV1(int groupID)
         {
             this.groupID = groupID;
-            esSerializer = new ElasticSearch.Common.ESSerializer();
+            esSerializer = new ElasticSearch.Common.ESSerializerV1();
             esApi = new ElasticSearch.Common.ElasticSearchApi();
         }
 
