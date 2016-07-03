@@ -271,7 +271,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    BillingTransactions response = m_Module.GetUserBillingHistory(m_wsUserName, m_wsPassword, sSiteGuid, startIndex, count);
+                    BillingTransactions response = m_Module.GetUserBillingHistory(m_wsUserName, m_wsPassword, sSiteGuid, startIndex, count, TransactionHistoryOrderBy.CreateDateDesc);
                     if (response != null)
                     {
                         retVal = response.transactions;
@@ -874,7 +874,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    DomainTransactionsHistoryResponse response = m_Module.GetDomainTransactionsHistory(m_wsUserName, m_wsPassword, domainID, startDate, endDate, 500, 0);
+                    DomainTransactionsHistoryResponse response = m_Module.GetDomainTransactionsHistory(m_wsUserName, m_wsPassword, domainID, startDate, endDate, 500, 0, TransactionHistoryOrderBy.CreateDateDesc);
                     if (response != null)
                     {
                         retVal = new Objects.Responses.ConditionalAccess.DomainTransactionsHistoryResponse(response);

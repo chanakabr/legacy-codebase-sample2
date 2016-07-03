@@ -841,7 +841,7 @@ namespace TVPApi
             {
                 PageIndex = pageIndex,
                 PageSize = pageSize,
-                OrderObj = new OrderObj()
+                OrderObj = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj()
                 {
                     m_eOrderBy = CatalogHelper.GetCatalogOrderBy((TVPPro.SiteManager.Context.Enums.eOrderBy)Enum.Parse(typeof(TVPPro.SiteManager.Context.Enums.eOrderBy), orderBy.ToString())),
                     m_eOrderDir = CatalogHelper.GetCatalogOrderDirection((TVPPro.SiteManager.DataLoaders.SearchMediaLoader.eOrderDirection)Enum.Parse(typeof(TVPPro.SiteManager.DataLoaders.SearchMediaLoader.eOrderDirection), orderDir.ToString())),
@@ -910,10 +910,10 @@ namespace TVPApi
                         TagsMetas = tagsMetas,
                         CutWith = cutWith,
                         SiteGuid = initObj.SiteGuid,
-                        OrderObj = new OrderObj()
+                        OrderObj = new Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj()
                         {
                             m_eOrderBy = CatalogHelper.GetCatalogOrderBy((TVPPro.SiteManager.Context.Enums.eOrderBy)Enum.Parse(typeof(TVPPro.SiteManager.Context.Enums.eOrderBy), orderBy.ToString())),
-                            m_eOrderDir = OrderDir.ASC
+                            m_eOrderDir = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir.ASC
                         },
                         DomainID = initObj.DomainID
                     };
@@ -1020,7 +1020,8 @@ namespace TVPApi
         }
 
         //Get all channel medias
-        public static List<Media> GetMediaList(InitializationObject initObj, string user, string pass, long ID, string picSize, int pageSize, int pageIndex, int groupID, LoaderType loaderType, ref long mediaCount, OrderObj orderObj, int[] reqMediaTypes = null, List<KeyValue> tagsMetas = null, CutWith cutWith = CutWith.AND)
+        public static List<Media> GetMediaList(InitializationObject initObj, string user, string pass, long ID, string picSize, int pageSize, int pageIndex, int groupID, LoaderType loaderType, ref long mediaCount, 
+            Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj orderObj, int[] reqMediaTypes = null, List<KeyValue> tagsMetas = null, CutWith cutWith = CutWith.AND)
         {
             List<Media> retVal = new List<Media>();
             dsItemInfo mediaInfo;
@@ -1109,7 +1110,7 @@ namespace TVPApi
             return GetMediaList(initObj, user, pass, ID, picSize, pageSize, pageIndex, groupID, loaderType, ref mediaCount, orderBy, reqMediaTypes, tagsMetas, cutWith, freeParam);
         }
 
-        public static List<Media> GetMediaList(InitializationObject initObj, string user, string pass, long ID, string picSize, int pageSize, int pageIndex, int groupID, LoaderType loaderType, OrderObj orderObj, int[] reqMediaTypes = null, List<KeyValue> tagsMetas = null, CutWith cutWith = CutWith.AND)
+        public static List<Media> GetMediaList(InitializationObject initObj, string user, string pass, long ID, string picSize, int pageSize, int pageIndex, int groupID, LoaderType loaderType, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj orderObj, int[] reqMediaTypes = null, List<KeyValue> tagsMetas = null, CutWith cutWith = CutWith.AND)
         {
             long mediaCount = 0;
             return GetMediaList(initObj, user, pass, ID, picSize, pageSize, pageIndex, groupID, loaderType, ref mediaCount, orderObj, reqMediaTypes, tagsMetas, cutWith);
@@ -1542,7 +1543,8 @@ namespace TVPApi
             return retVal;
         }
 
-        public static List<Media> GetOrderedChannelMultiFilter(InitializationObject initObj, long channelID, string picSize, int pageSize, int pageIndex, int groupID, OrderObj orderObj, List<TagMetaPair> tagsMetas, TVPApiModule.Objects.Enums.eCutWith cutWith)
+        public static List<Media> GetOrderedChannelMultiFilter(InitializationObject initObj, long channelID, string picSize, int pageSize, int pageIndex, int groupID,
+            Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderObj orderObj, List<TagMetaPair> tagsMetas, TVPApiModule.Objects.Enums.eCutWith cutWith)
         {
 
             // convert TagMetaPair to KeyValue 
