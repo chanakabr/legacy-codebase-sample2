@@ -101,7 +101,8 @@ namespace EpgIngest
             dt.Columns.Add("ENABLE_CATCH_UP", typeof(int));
             dt.Columns.Add("ENABLE_START_OVER", typeof(int));
             dt.Columns.Add("ENABLE_TRICK_PLAY", typeof(int));
-
+            dt.Columns.Add("CRID", typeof(string));
+         
             return dt;
         }
         
@@ -130,6 +131,7 @@ namespace EpgIngest
             dt.Columns.Add("ENABLE_CATCH_UP", typeof(int));
             dt.Columns.Add("ENABLE_START_OVER", typeof(int));
             dt.Columns.Add("ENABLE_TRICK_PLAY", typeof(int));
+            dt.Columns.Add("CRID", typeof(string));
             return dt;
         }
 
@@ -179,6 +181,8 @@ namespace EpgIngest
                         row["ENABLE_CDVR"] = epg.EnableCDVR;
                         row["ENABLE_START_OVER"] = epg.EnableStartOver;
                         row["ENABLE_TRICK_PLAY"] = epg.EnableTrickPlay;
+                        row["CRID"] = epg.Crid;                    
+
                         dtEPG.Rows.Add(row);
                     }
                 }

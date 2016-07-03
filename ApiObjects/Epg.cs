@@ -86,11 +86,11 @@ namespace ApiObjects
         public DateTime SearchEndDate { get; set; }
 
         [JsonProperty("is_recorded", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public int IsRecorded
-        {
-            get;
-            set;
-        }
+        public int IsRecorded { get; set; }
+
+        //from Storm version
+        [JsonProperty("crid", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        public string Crid { get; set; }
 
         public EpgCB()
         {
@@ -125,6 +125,8 @@ namespace ApiObjects
             EnableCatchUp = 0;
             EnableStartOver = 0;
             EnableTrickPlay = 0;
+
+            Crid = string.Empty;
         }
 
               
@@ -158,6 +160,9 @@ namespace ApiObjects
                 }
                 if (this.EnableCatchUp != obj.EnableCatchUp || this.EnableCDVR != obj.EnableCDVR || 
                     this.EnableStartOver != obj.EnableStartOver || this.EnableTrickPlay != obj.EnableTrickPlay)
+                    return false;
+
+                if (this.Crid != obj.Crid)
                     return false;
 
                 #region Tags

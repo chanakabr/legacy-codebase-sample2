@@ -4271,5 +4271,51 @@ namespace Tvinci.Core.DAL
             return cdvrId;
         }
 
+
+        /*Get all metas and tags for EPGs by groupID And it's mapping in the xml file*/
+        public static List<FieldTypeEntity> GetAliasMappingFields(int groupID)
+        {
+            List<FieldTypeEntity> aliasMapping = new List<FieldTypeEntity>();
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("GetAliasMappingFields");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count >= 2)
+                {
+                    DataTable dtMeta = ds.Tables[0];
+                    DataTable dtTag = ds.Tables[1];
+
+                    foreach (DataRow dr in dtMeta.Rows)
+                    {
+                        FieldTypeEntity item = new FieldTypeEntity();
+                        item.Name = ODBCWrapper.Utils.GetSafeStr(dr, "Name");
+                        item.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "field_id"); // meta type id
+                        item.FieldType = FieldTypes.Meta;
+                        item.Alias = ODBCWrapper.Utils.GetSafeStr(dr, "alias_name");
+                        item.RegexExpression = ODBCWrapper.Utils.GetSafeStr(dr, "regex_expression");
+                        aliasMapping.Add(item);
+                    }
+
+                    foreach (DataRow dr in dtTag.Rows)
+                    {
+                        FieldTypeEntity item = new FieldTypeEntity();
+                        item.Name = ODBCWrapper.Utils.GetSafeStr(dr, "Name");
+                        item.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "field_id"); // tag type id
+                        item.FieldType = FieldTypes.Tag;
+                        item.Alias = ODBCWrapper.Utils.GetSafeStr(dr, "alias_name");
+                        item.RegexExpression = ODBCWrapper.Utils.GetSafeStr(dr, "regex_expression");
+                        aliasMapping.Add(item);
+                    }
+                }
+            }
+            catch
+            {
+                aliasMapping = null;
+            }
+            return aliasMapping;
+        }
     }
 }

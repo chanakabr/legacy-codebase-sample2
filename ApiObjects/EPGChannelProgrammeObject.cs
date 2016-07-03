@@ -13,9 +13,9 @@ namespace ApiObjects
         public string Value;
 
     }
-   
+
     public enum EPGUnit
-    { 
+    {
         Days,
         Hours,
         Current
@@ -25,7 +25,7 @@ namespace ApiObjects
     public class EPGChannelProgrammeObject
     {
 
-        public long EPG_ID;      
+        public long EPG_ID;
         public string EPG_CHANNEL_ID;
         public string EPG_IDENTIFIER;
         public string NAME;
@@ -42,12 +42,12 @@ namespace ApiObjects
         public string PUBLISH_DATE;
         public string CREATE_DATE;
         public int LIKE_COUNTER;
-        
+
         public List<EPGDictionary> EPG_TAGS;
         public List<EPGDictionary> EPG_Meta;
 
         public List<EpgPicture> EPG_PICTURES;
-        
+
         public string media_id;
 
         public int ENABLE_CDVR;
@@ -57,8 +57,10 @@ namespace ApiObjects
         public int ENABLE_TRICK_PLAY;
         public int IS_RECORDED;
 
-        public void Initialize(long nEPG_ID, string nEPG_CHANNEL_ID, string nEPG_IDENTIFIER, string nNAME, string nDESCRIPTION, string nSTART_DATE, string nEND_DATE, string nPIC_URL, 
-            string nSTATUS, string nIS_ACTIVE, string nGROUP_ID, string nUPDATER_ID, string nUPDATE_DATE, string nPUBLISH_DATE, string nCREATE_DATE, List<EPGDictionary> nEPG_TAGS, 
+        public string CRID;
+
+        public void Initialize(long nEPG_ID, string nEPG_CHANNEL_ID, string nEPG_IDENTIFIER, string nNAME, string nDESCRIPTION, string nSTART_DATE, string nEND_DATE, string nPIC_URL,
+            string nSTATUS, string nIS_ACTIVE, string nGROUP_ID, string nUPDATER_ID, string nUPDATE_DATE, string nPUBLISH_DATE, string nCREATE_DATE, List<EPGDictionary> nEPG_TAGS,
             List<EPGDictionary> nEPG_META, string nmedia_id, int nLikeCounter)
         {
             EPG_ID = nEPG_ID;
@@ -72,7 +74,7 @@ namespace ApiObjects
             STATUS = nSTATUS;
             IS_ACTIVE = nIS_ACTIVE;
             GROUP_ID = nGROUP_ID;
-            UPDATER_ID = nUPDATER_ID; 
+            UPDATER_ID = nUPDATER_ID;
             UPDATE_DATE = nUPDATE_DATE;
             PUBLISH_DATE = nPUBLISH_DATE;
             CREATE_DATE = nCREATE_DATE;
@@ -84,9 +86,9 @@ namespace ApiObjects
         }
         public void Initialize(long nEPG_ID, string nEPG_CHANNEL_ID, string nEPG_IDENTIFIER, string nNAME, string nDESCRIPTION, string nSTART_DATE, string nEND_DATE, string nPIC_URL,
             string nSTATUS, string nIS_ACTIVE, string nGROUP_ID, string nUPDATER_ID, string nUPDATE_DATE, string nPUBLISH_DATE, string nCREATE_DATE, List<EPGDictionary> nEPG_TAGS,
-            List<EPGDictionary> nEPG_META, string nmedia_id, int nLikeCounter , List<EpgPicture> epgPictures)
+            List<EPGDictionary> nEPG_META, string nmedia_id, int nLikeCounter, List<EpgPicture> epgPictures)
         {
-            Initialize(nEPG_ID, nEPG_CHANNEL_ID, nEPG_IDENTIFIER, nNAME, nDESCRIPTION, nSTART_DATE, nEND_DATE, nPIC_URL, nSTATUS, nIS_ACTIVE, nGROUP_ID, nUPDATER_ID, nUPDATE_DATE, 
+            Initialize(nEPG_ID, nEPG_CHANNEL_ID, nEPG_IDENTIFIER, nNAME, nDESCRIPTION, nSTART_DATE, nEND_DATE, nPIC_URL, nSTATUS, nIS_ACTIVE, nGROUP_ID, nUPDATER_ID, nUPDATE_DATE,
                 nPUBLISH_DATE, nCREATE_DATE, nEPG_TAGS, nEPG_META, nmedia_id, nLikeCounter);
             EPG_PICTURES = epgPictures;
         }
@@ -105,6 +107,18 @@ namespace ApiObjects
             this.ENABLE_TRICK_PLAY = ENABLE_TRICK_PLAY;
             this.IS_RECORDED = IS_RECORDED;
         }
+        public void Initialize(long nEPG_ID, string nEPG_CHANNEL_ID, string nEPG_IDENTIFIER, string nNAME, string nDESCRIPTION, string nSTART_DATE, string nEND_DATE, string nPIC_URL,
+           string nSTATUS, string nIS_ACTIVE, string nGROUP_ID, string nUPDATER_ID, string nUPDATE_DATE, string nPUBLISH_DATE, string nCREATE_DATE, List<EPGDictionary> nEPG_TAGS,
+           List<EPGDictionary> nEPG_META, string nmedia_id, int nLikeCounter, List<EpgPicture> epgPictures, int ENABLE_CDVR, int ENABLE_CATCH_UP, int ENABLE_START_OVER, int ENABLE_TRICK_PLAY,
+            int IS_RECORDED, string Crid)
+        {
+            Initialize(nEPG_ID, nEPG_CHANNEL_ID, nEPG_IDENTIFIER, nNAME, nDESCRIPTION, nSTART_DATE, nEND_DATE, nPIC_URL, nSTATUS, nIS_ACTIVE, nGROUP_ID, nUPDATER_ID, nUPDATE_DATE, nPUBLISH_DATE, nCREATE_DATE,
+                nEPG_TAGS, nEPG_META, nmedia_id, nLikeCounter, epgPictures, ENABLE_CDVR, ENABLE_CATCH_UP, ENABLE_START_OVER, ENABLE_TRICK_PLAY, IS_RECORDED);
+
+            this.CRID = Crid;
+          
+        }
+
 
         public class EPGChannelProgrammeObjectStartDateComparer : IComparer<EPGChannelProgrammeObject>
         {

@@ -37,25 +37,24 @@ namespace EpgIngest
             try
             {
                 List<FieldTypeEntity> AllFieldTypeMapping = new List<FieldTypeEntity>();
-                List<FieldTypeEntity> AllFieldType = new List<FieldTypeEntity>();
                 GroupManager groupManager = new GroupManager();
                 List<int> lSubTree = groupManager.GetSubGroup(nGroupID);
 
                 DataSet ds = EpgDal.GetEpgMappingFields(lSubTree, nGroupID);
 
-                if (ds != null && ds.Tables != null && ds.Tables.Count >= 4)
+                if (ds != null && ds.Tables != null && ds.Tables.Count >= 5)
                 {
                     if (ds.Tables[0] != null)//basic
                     {
-                        InitializeMappingFields(ds.Tables[0], ds.Tables[3], FieldTypes.Basic, ref AllFieldTypeMapping);
+                        InitializeMappingFields(ds.Tables[0], ds.Tables[3], null,FieldTypes.Basic, ref AllFieldTypeMapping);
                     }
                     if (ds.Tables[1] != null)//metas
                     {
-                        InitializeMappingFields(ds.Tables[1], ds.Tables[3], FieldTypes.Meta, ref AllFieldTypeMapping);
+                        InitializeMappingFields(ds.Tables[1], ds.Tables[3], ds.Tables[5] ,FieldTypes.Meta, ref AllFieldTypeMapping);
                     }
                     if (ds.Tables[2] != null)//Tags
                     {
-                        InitializeMappingFields(ds.Tables[2], ds.Tables[3], FieldTypes.Tag, ref AllFieldTypeMapping);
+                        InitializeMappingFields(ds.Tables[2], ds.Tables[3], ds.Tables[5], FieldTypes.Tag, ref AllFieldTypeMapping);
                     }
 
                 }
@@ -165,8 +164,9 @@ namespace EpgIngest
 
 
         // initialize each item with all external_ref  
-        private static void InitializeMappingFields(DataTable dataTable, DataTable dataTableRef, FieldTypes fieldTypes, ref List<FieldTypeEntity> AllFieldTypeMapping)
+        private static void InitializeMappingFields(DataTable dataTable, DataTable dataTableRef, DataTable dataTableAlias, FieldTypes fieldTypes, ref List<FieldTypeEntity> AllFieldTypeMapping)
         {
+            
             foreach (DataRow dr in dataTable.Rows)
             {
                 FieldTypeEntity item = new FieldTypeEntity();
@@ -176,6 +176,10 @@ namespace EpgIngest
 
                 if (fieldTypes != FieldTypes.Basic)
                 {
+                    DataRow drAlias = dataTableAlias.Select("type = " + (int)fieldTypes + " and field_id = " + item.ID).FirstOrDefault();
+                    item.Alias = ODBCWrapper.Utils.GetSafeStr(drAlias, "name");
+                    item.RegexExpression = ODBCWrapper.Utils.GetSafeStr(drAlias, "regex_expression");
+
                     foreach (var x in dataTableRef.Select("type = " + (int)fieldTypes + " and field_id = " + item.ID))
                     {
 

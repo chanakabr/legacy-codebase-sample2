@@ -387,7 +387,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Epg\xmltv.dtd" />
+    <None Include="Epg\xmltv.dtd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Epg\xmltv.xsd">
       <SubType>Designer</SubType>
     </None>
