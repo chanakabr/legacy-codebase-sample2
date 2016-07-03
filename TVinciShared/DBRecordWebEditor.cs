@@ -3096,6 +3096,11 @@ namespace TVinciShared
         string m_sQueryString;
         string m_sFieldType;
         DataTable m_dtQueryDT;
+        protected string m_filedPrivateName;
+        public void setFiledName(string name)
+        {
+            m_filedPrivateName = name;
+        }
         public DataRecordRadioField(string sRefTable, string sTextField, string sValueField, string sWhereField, object sWhereVal)
             : base()
         {
@@ -3248,6 +3253,7 @@ namespace TVinciShared
             //sTmp += "<td width=10px nowrap></td>";
             sTmp += "<td class=\"align1\" id=td_selector" + nID.ToString() + ">";
             sTmp += GetSelectsHtml(nID);
+            sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_fieldName' value='" + m_filedPrivateName + "'/>";
             sTmp += "</td>";
             //sTmp += "<td width=100% nowrap></td>";
             sTmp += "</tr>";

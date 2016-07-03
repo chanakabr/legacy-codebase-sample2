@@ -436,6 +436,8 @@ public partial class programme {
     
     private string enabletrickplayField;
     
+    private string cridField;
+    
     private string startField;
     
     private string stopField;
@@ -781,6 +783,16 @@ public partial class programme {
         }
         set {
             this.enabletrickplayField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public string crid {
+        get {
+            return this.cridField;
+        }
+        set {
+            this.cridField = value;
         }
     }
     

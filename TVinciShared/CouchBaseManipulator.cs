@@ -397,6 +397,10 @@ namespace TVinciShared
 
                         enable = 0;
                     }
+                    if (sFieldName.Trim() == "CRID" && (sType == "string" || sType == "long_string"))
+                    {
+                        epg.Crid = DBStrEncode(sVal);
+                    }                  
                     nCounter++;
                 }
             }
