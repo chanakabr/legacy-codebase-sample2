@@ -465,7 +465,7 @@ public partial class adm_channels_new : System.Web.UI.Page
                     {
                         string sName = oName.ToString();
                         string sField = "META" + i.ToString() + "_STR";
-                        DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 255);
+                        DataRecordLongTextField dr_name = new DataRecordLongTextField("ltr", true, 60, 3);
                         dr_name.Initialize(sName, "adm_table_header_nbg", "FormInput", sField, false);
                         theRecord.AddRecord(dr_name);
                     }
