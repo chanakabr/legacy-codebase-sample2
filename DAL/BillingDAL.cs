@@ -1457,7 +1457,7 @@ namespace DAL
             }
         }
 
-        public static bool InsertPaymentGW(int groupID, PaymentGateway pgw)
+        public static PaymentGateway InsertPaymentGW(int groupID, PaymentGateway pgw)
         {
             try
             {
@@ -1481,14 +1481,16 @@ namespace DAL
                 DataTable dt = CreateDataTable(pgw.Settings);
                 sp.AddDataTableParameter("@KeyValueList", dt);
 
-                bool isInsert = sp.ExecuteReturnValue<bool>();
-                return isInsert;
+                DataSet ds = sp.ExecuteDataSet();
+
+                return CreatePaymentGateway(ds);
             }
             catch (Exception ex)
             {
                 log.Error(string.Empty, ex);
-                return false;
             }
+
+            return null;
         }
 
         public static bool InsertPaymentGatewaySettings(int groupID, int paymentGWID, List<PaymentGatewaySettings> settings)
