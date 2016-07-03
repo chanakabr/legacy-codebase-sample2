@@ -874,7 +874,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var webServiceResponse = m_Module.GetMediaRules(m_wsUserName, m_wsPassword, siteGuid, mediaId, domainId, ip, udid);
+                    var webServiceResponse = m_Module.GetMediaRules(m_wsUserName, m_wsPassword, siteGuid, mediaId, domainId, ip, udid, GenericRuleOrderBy.NameAsc);
                     response = new Objects.Responses.GenericRulesResponse(webServiceResponse);
                 }
             }
@@ -895,7 +895,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var webServiceResponse = m_Module.GetEpgRules(m_wsUserName, m_wsPassword, siteGuid, epgId, channelMediaId, domainId, ip);
+                    var webServiceResponse = m_Module.GetEpgRules(m_wsUserName, m_wsPassword, siteGuid, epgId, channelMediaId, domainId, ip, GenericRuleOrderBy.NameAsc);
                     response = new Objects.Responses.GenericRulesResponse(webServiceResponse);
                 }
             }
