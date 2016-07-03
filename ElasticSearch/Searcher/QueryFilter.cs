@@ -18,7 +18,14 @@ namespace ElasticSearch.Searcher
         
         public bool IsEmpty()
         {
-            return FilterSettings.IsEmpty();
+            if (FilterSettings == null)
+            {
+                return true;
+            }
+            else
+            {
+                return FilterSettings.IsEmpty();
+            }
         }
 
         public override string ToString()

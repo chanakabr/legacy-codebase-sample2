@@ -516,7 +516,13 @@ namespace ElasticSearch.Common
                 index = eMappingIndex.not_analyzed,
                 format = DATE_FORMAT
             });
-
+            mappingObj.AddProperty(new BasicMappingPropertyV2()
+            {
+                name = "crid",
+                index = eMappingIndex.not_analyzed,
+                null_value = "",
+                type = eESFieldType.STRING
+            });
             #endregion
 
             #region Add tags mapping
