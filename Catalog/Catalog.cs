@@ -77,6 +77,7 @@ namespace Catalog
 			            "name",
 			            "description",
 			            "epg_channel_id",
+                        "crid",
                         "...."
 		            };
 

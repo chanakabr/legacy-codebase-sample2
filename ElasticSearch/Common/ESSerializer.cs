@@ -595,6 +595,13 @@ namespace ElasticSearch.Common
                 type = eESFieldType.DATE,
                 analyzed = false
             });
+            mappingObj.AddProperty(new BasicMappingProperty()
+            {
+                name = "crid",
+                analyzed = false,
+                null_value = "",
+                type = eESFieldType.STRING
+            });
 
             #endregion
 
