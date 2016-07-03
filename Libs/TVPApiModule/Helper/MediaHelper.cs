@@ -886,7 +886,9 @@ namespace TVPApi
         }
 
         //Get all channel medias
-        public static List<Media> GetMediaList(InitializationObject initObj, string user, string pass, long ID, string picSize, int pageSize, int pageIndex, int groupID, LoaderType loaderType, ref long mediaCount, OrderBy orderBy, int[] reqMediaTypes = null, List<KeyValue> tagsMetas = null, CutWith cutWith = CutWith.AND, string freeParam = null)
+        public static List<Media> GetMediaList(InitializationObject initObj, string user, string pass, 
+            long ID, string picSize, int pageSize, int pageIndex, int groupID, LoaderType loaderType, ref long mediaCount, 
+            OrderBy orderBy, int[] reqMediaTypes = null, List<KeyValue> tagsMetas = null, CutWith cutWith = CutWith.AND, string freeParam = null)
         {
             List<Media> retVal = new List<Media>();
             dsItemInfo mediaInfo;
@@ -921,19 +923,19 @@ namespace TVPApi
                     //isPaged = true;
                     break;
                 case LoaderType.Related:
-                    APIRelatedMediaLoader relatedLoader = new APIRelatedMediaLoader(ID, user, pass) 
-                    { 
-                        GroupID = groupID, 
-                        Platform = initObj.Platform, 
-                        PicSize = picSize, 
-                        WithInfo = true, 
-                        PageSize = pageSize, 
-                        PageIndex = pageIndex, 
-                        IsPosterPic = false, 
-                        DeviceUDID = initObj.UDID, 
-                        MediaTypes = reqMediaTypes, 
-                        Language = initObj.Locale.LocaleLanguage, 
-                        SiteGuid = initObj.SiteGuid, 
+                    APIRelatedMediaLoader relatedLoader = new APIRelatedMediaLoader(ID, user, pass)
+                    {
+                        GroupID = groupID,
+                        Platform = initObj.Platform,
+                        PicSize = picSize,
+                        WithInfo = true,
+                        PageSize = pageSize,
+                        PageIndex = pageIndex,
+                        IsPosterPic = false,
+                        DeviceUDID = initObj.UDID,
+                        MediaTypes = reqMediaTypes,
+                        Language = initObj.Locale.LocaleLanguage,
+                        SiteGuid = initObj.SiteGuid,
                         DomainID = initObj.DomainID
                     };
                     mediaInfo = relatedLoader.Execute();
