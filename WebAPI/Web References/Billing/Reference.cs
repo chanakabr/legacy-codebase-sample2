@@ -3637,7 +3637,7 @@ namespace WebAPI.Billing {
         
         private Status respField;
         
-        private PaymentGatewayBase[] pgwField;
+        private PaymentGateway[] pgwField;
         
         /// <remarks/>
         public Status resp {
@@ -3650,7 +3650,7 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public PaymentGatewayBase[] pgw {
+        public PaymentGateway[] pgw {
             get {
                 return this.pgwField;
             }

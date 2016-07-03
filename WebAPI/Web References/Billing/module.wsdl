@@ -712,12 +712,7 @@
       <s:complexType name="PaymentGatewayResponse">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="resp" type="tns:Status" />
-          <s:element minOccurs="0" maxOccurs="1" name="pgw" type="tns:ArrayOfPaymentGatewayBase" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="ArrayOfPaymentGatewayBase">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="PaymentGatewayBase" nillable="true" type="tns:PaymentGatewayBase" />
+          <s:element minOccurs="0" maxOccurs="1" name="pgw" type="tns:ArrayOfPaymentGateway" />
         </s:sequence>
       </s:complexType>
       <s:element name="SetHouseholdPaymentGateway">
