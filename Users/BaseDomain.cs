@@ -228,17 +228,21 @@ namespace Users
             {
                 // create new device
                 Device device = new Device(udid, brandId, m_nGroupID, deviceName, domainId);
-                bool res = device.Initialize(udid, deviceName);
+                device.Initialize(udid, deviceName);
 
                 // add device to domain
                 DomainResponseStatus domainResponseStatus = domain.AddDeviceToDomain(m_nGroupID, domainId, udid, deviceName, brandId, ref device);
 
-                if (res && domainResponseStatus == DomainResponseStatus.OK)
+                if (domainResponseStatus == DomainResponseStatus.OK)
                 {
                     // update domain info (to include new device)
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     response.Device = new DeviceResponseObject();
                     response.Device.m_oDevice = device;
+                }
+                else
+                {
+                    response.Status = new ApiObjects.Response.Status((int)domainResponseStatus, domainResponseStatus.ToString());
                 }
             }
 
