@@ -8,20 +8,20 @@ namespace WebAPI.Models.Catalog
 {
     public enum KalturaAssetOrderBy
     {
-        RELEVANCY,
+        RELEVANCY_DESC,
 
-        A_TO_Z,
+        NAME_ASC,
 
-        Z_TO_A,
+        NAME_DESC,
 
-        VIEWS,
+        VIEWS_DESC,
 
-        RATINGS,
+        RATINGS_DESC,
 
-        VOTES,
+        VOTES_DESC,
 
-        NEWEST,
+        START_DATE_DESC,
 
-        OLDEST_FIRST
+        START_DATE_ASC
     }
 }

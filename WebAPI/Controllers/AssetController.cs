@@ -236,7 +236,7 @@ namespace WebAPI.Controllers
                                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id must be numeric when type is media");
                             }
                             var mediaRes = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
-                                0, 1, new List<int>() { mediaId }, KalturaAssetOrderBy.NEWEST);
+                                0, 1, new List<int>() { mediaId }, KalturaAssetOrderBy.START_DATE_DESC);
 
                             // if no response - return not found status 
                             if (mediaRes == null || mediaRes.Objects == null || mediaRes.Objects.Count == 0)
@@ -256,7 +256,7 @@ namespace WebAPI.Controllers
                             }
 
                             var epgRes = ClientsManager.CatalogClient().GetEPGByInternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
-                               0, 1, new List<int> { epgId }, KalturaAssetOrderBy.NEWEST);
+                               0, 1, new List<int> { epgId }, KalturaAssetOrderBy.START_DATE_DESC);
 
                             // if no response - return not found status 
                             if (epgRes == null || epgRes.Objects == null || epgRes.Objects.Count == 0)
@@ -270,7 +270,7 @@ namespace WebAPI.Controllers
                     case KalturaAssetReferenceType.epg_external:
                         {
                             var epgRes = ClientsManager.CatalogClient().GetEPGByExternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
-                              0, 1, new List<string> { id }, KalturaAssetOrderBy.NEWEST);
+                              0, 1, new List<string> { id }, KalturaAssetOrderBy.START_DATE_DESC);
 
                             // if no response - return not found status 
                             if (epgRes == null || epgRes.Objects == null || epgRes.Objects.Count == 0)

@@ -43,7 +43,7 @@ namespace WebAPI.Models.Catalog
 
         public override KalturaAssetOrderBy GetDefaultOrderByValue()
         {
-            return KalturaAssetOrderBy.RELEVANCY;
+            return KalturaAssetOrderBy.RELEVANCY_DESC;
         }
 
         /// <summary>

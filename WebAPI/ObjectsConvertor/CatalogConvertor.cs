@@ -240,35 +240,35 @@ namespace WebAPI.ObjectsConvertor
 
             switch (order)
             {
-                case KalturaAssetOrderBy.A_TO_Z:
+                case KalturaAssetOrderBy.NAME_ASC:
                     result.m_eOrderBy = OrderBy.NAME;
                     result.m_eOrderDir = OrderDir.ASC;
                     break;
-                case KalturaAssetOrderBy.Z_TO_A:
+                case KalturaAssetOrderBy.NAME_DESC:
                     result.m_eOrderBy = OrderBy.NAME;
                     result.m_eOrderDir = OrderDir.DESC;
                     break;
-                case KalturaAssetOrderBy.VIEWS:
+                case KalturaAssetOrderBy.VIEWS_DESC:
                     result.m_eOrderBy = OrderBy.VIEWS;
                     result.m_eOrderDir = OrderDir.DESC;
                     break;
-                case KalturaAssetOrderBy.RATINGS:
+                case KalturaAssetOrderBy.RATINGS_DESC:
                     result.m_eOrderBy = OrderBy.RATING;
                     result.m_eOrderDir = OrderDir.DESC;
                     break;
-                case KalturaAssetOrderBy.VOTES:
+                case KalturaAssetOrderBy.VOTES_DESC:
                     result.m_eOrderBy = OrderBy.VOTES_COUNT;
                     result.m_eOrderDir = OrderDir.DESC;
                     break;
-                case KalturaAssetOrderBy.NEWEST:
+                case KalturaAssetOrderBy.START_DATE_DESC:
                     result.m_eOrderBy = OrderBy.START_DATE;
                     result.m_eOrderDir = OrderDir.DESC;
                     break;
-                case KalturaAssetOrderBy.RELEVANCY:
+                case KalturaAssetOrderBy.RELEVANCY_DESC:
                     result.m_eOrderBy = OrderBy.RELATED;
                     result.m_eOrderDir = OrderDir.DESC;
                     break;
-                case KalturaAssetOrderBy.OLDEST_FIRST:
+                case KalturaAssetOrderBy.START_DATE_ASC:
                     result.m_eOrderBy = OrderBy.START_DATE;
                     result.m_eOrderDir = OrderDir.ASC;
                     break;

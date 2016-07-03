@@ -6,9 +6,9 @@ using System.Web;
 namespace WebAPI.Models.ConditionalAccess
 {
 
-    public enum KalturaPriceOrderBy
+    public enum KalturaProductPriceOrderBy
     {
-        CREATE_DATE_ASC,
-        CREATE_DATE_DESC
+        PRODUCT_ID_ASC,
+        PRODUCT_ID_DESC
     }
 }
