@@ -10,25 +10,25 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    public class KalturaPriceFilter : KalturaFilter<KalturaPriceOrderBy>
+    public class KalturaProductPriceFilter : KalturaFilter<KalturaProductPriceOrderBy>
     {
         /// <summary>
         /// Subscriptions Identifiers 
         /// </summary>
-        [DataMember(Name = "subscriptionsIdIn")]
-        [JsonProperty("subscriptionsIdIn")]
-        [XmlArray(ElementName = "subscriptionsIdIn", IsNullable = true)]
+        [DataMember(Name = "subscriptionIdIn")]
+        [JsonProperty("subscriptionIdIn")]
+        [XmlArray(ElementName = "subscriptionIdIn", IsNullable = true)]
         [XmlArrayItem("item")]
-        public List<KalturaIntegerValue> SubscriptionsIdIn { get; set; }
+        public List<KalturaIntegerValue> SubscriptionIdIn { get; set; }
 
         /// <summary>
         /// Media files Identifiers 
         /// </summary>
-        [DataMember(Name = "filesIdIn")]
-        [JsonProperty("filesIdIn")]
-        [XmlArray(ElementName = "filesIdIn", IsNullable = true)]
+        [DataMember(Name = "fileIdIn")]
+        [JsonProperty("fileIdIn")]
+        [XmlArray(ElementName = "fileIdIn", IsNullable = true)]
         [XmlArrayItem("item")]
-        public List<KalturaIntegerValue> FilesIdIn { get; set; }
+        public List<KalturaIntegerValue> FileIdIn { get; set; }
 
         /// <summary>
         /// A flag that indicates if only the lowest price of an item should return
@@ -52,9 +52,9 @@ namespace WebAPI.Models.ConditionalAccess
             return isLowest.HasValue ? (bool)isLowest : false;
         }
 
-        public override KalturaPriceOrderBy GetDefaultOrderByValue()
+        public override KalturaProductPriceOrderBy GetDefaultOrderByValue()
         {
-            return KalturaPriceOrderBy.CREATE_DATE_ASC;
+            return KalturaProductPriceOrderBy.PRODUCT_ID_ASC;
         }
     }
 }

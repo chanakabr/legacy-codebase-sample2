@@ -12,9 +12,9 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Prices list
     /// </summary>
-    [DataContract(Name = "KalturaProductsPriceListResponse", Namespace = "")]
-    [XmlRoot("KalturaProductsPriceListResponse")]
-    public class KalturaProductsPriceListResponse : KalturaListResponse
+    [DataContract(Name = "KalturaProductPriceListResponse", Namespace = "")]
+    [XmlRoot("KalturaProductPriceListResponse")]
+    public class KalturaProductPriceListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of prices

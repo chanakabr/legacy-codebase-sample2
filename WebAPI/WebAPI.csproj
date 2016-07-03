@@ -1044,6 +1044,7 @@
     <Compile Include="Controllers\CDNAdapterProfileController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
     <Compile Include="Controllers\CDNPartnerSettingsController.cs" />
+    <Compile Include="Controllers\ProductPriceController.cs" />
     <Compile Include="Controllers\SystemController.cs" />
     <Compile Include="Controllers\HouseholdQuotaController.cs" />
     <Compile Include="Controllers\InboxMessageController.cs" />
@@ -1135,7 +1136,7 @@
     <Compile Include="Models\ConditionalAccess\KalturaHouseholdPremiumService.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaHouseholdPremiumServiceListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPriceOrderBy.cs" />
-    <Compile Include="Models\ConditionalAccess\KalturaPriceFilter.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaProductPriceFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaEntitlementFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaEntitlementOrderBy.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransactionHistoryFilter.cs" />
@@ -1279,6 +1280,8 @@
     <Compile Include="Models\Partner\KalturaPartnerConfiguration.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Models\Pricing\KalturaPpvPrice.cs" />
+    <Compile Include="Models\Pricing\KalturaProductPriceListResponse.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionFilter.cs" />
     <Compile Include="Models\Pricing\KalturaAssetPrice.cs" />
     <Compile Include="Models\Pricing\KalturaCoupon.cs" />

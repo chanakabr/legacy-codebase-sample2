@@ -10,6 +10,7 @@ using WebAPI.Utils;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Pricing;
 using WebAPI.Pricing;
+using WebAPI.ConditionalAccess;
 
 
 namespace WebAPI.Mapping.ObjectsConvertor
@@ -190,6 +191,28 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.m_Product_Code))
                .ForMember(dest => dest.UsageModule, opt => opt.MapFrom(src => src.m_oUsageModule))
                .ForMember(dest => dest.FirstDeviceLimitation, opt => opt.MapFrom(src => src.m_bFirstDeviceLimitation));
+
+             //KalturaPpvPrice
+            Mapper.CreateMap<ConditionalAccess.ItemPriceContainer, KalturaPpvPrice>()
+               .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.m_sProductCode))
+               .ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.m_relevantCol))
+               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.m_dtEndDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(src.m_dtEndDate.Value) : 0))
+               .ForMember(dest => dest.DiscountEndDate, opt => opt.MapFrom(src => src.m_dtDiscountEndDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(src.m_dtDiscountEndDate.Value) : 0))
+               .ForMember(dest => dest.FirstDeviceName, opt => opt.MapFrom(src => src.m_sFirstDeviceNameFound))
+               .ForMember(dest => dest.FullPrice, opt => opt.MapFrom(src => src.m_oFullPrice))
+               .ForMember(dest => dest.IsInCancelationPeriod, opt => opt.MapFrom(src => src.m_bCancelWindow))
+               .ForMember(dest => dest.IsSubscriptionOnly, opt => opt.MapFrom(src => src.m_bSubscriptionOnly))
+               .ForMember(dest => dest.PPVDescriptions, opt => opt.MapFrom(src => src.m_oPPVDescription))
+               .ForMember(dest => dest.PPVModuleId, opt => opt.MapFrom(src => src.m_sPPVModuleCode))
+               .ForMember(dest => dest.PrePaidId, opt => opt.MapFrom(src => src.m_relevantPP))
+               .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oPrice))
+               .ForMember(dest => dest.PurchasedMediaFileId, opt => opt.MapFrom(src => src.m_lPurchasedMediaFileID))
+               .ForMember(dest => dest.PurchaseStatus, opt => opt.MapFrom(src => ConvertPriceReasonToPurchaseStatus(src.m_PriceReason)))
+               .ForMember(dest => dest.PurchaseUserId, opt => opt.MapFrom(src => src.m_sPurchasedBySiteGuid))
+               .ForMember(dest => dest.RelatedMediaFileIds, opt => opt.MapFrom(src => src.m_lRelatedMediaFileIDs))
+               .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.m_dtStartDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(src.m_dtStartDate.Value) : 0))
+               .ForMember(dest => dest.SubscriptionId, opt => opt.MapFrom(src => src.m_relevantSub.m_sObjectCode))
+               .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.m_sProductCode));
         }
 
         public static List<int> ConvertToIntList(int[] list)
@@ -299,6 +322,51 @@ namespace WebAPI.Mapping.ObjectsConvertor
             }
 
             return result;
+        }
+
+        public static List<KalturaPpvPrice> ConvertPpvPrice(MediaFileItemPricesContainer[] itemPrices)
+        {
+            List<KalturaPpvPrice> prices = null;
+            if (itemPrices != null)
+            {
+                prices = new List<KalturaPpvPrice>();
+                
+                foreach (var item in itemPrices)
+                {
+                    if (item.m_oItemPrices != null)
+                    {
+                        foreach (var ppvPrice in item.m_oItemPrices)
+                        {
+                            prices.Add(new KalturaPpvPrice()
+                                {
+                                    CollectionId = ppvPrice.m_relevantCol != null ? ppvPrice.m_relevantCol.m_CollectionCode : null,
+                                    DiscountEndDate = ppvPrice.m_dtDiscountEndDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(ppvPrice.m_dtDiscountEndDate.Value) : 0,
+                                    EndDate = ppvPrice.m_dtEndDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(ppvPrice.m_dtEndDate.Value) : 0,
+                                    FileId = item.m_nMediaFileID,
+                                    FirstDeviceName = ppvPrice.m_sFirstDeviceNameFound,
+                                    FullPrice = AutoMapper.Mapper.Map<KalturaPrice>(ppvPrice.m_oFullPrice),
+                                    IsInCancelationPeriod = ppvPrice.m_bCancelWindow,
+                                    IsSubscriptionOnly = ppvPrice.m_bSubscriptionOnly,
+                                    PPVDescriptions = AutoMapper.Mapper.Map<List<KalturaTranslationToken>>(ppvPrice.m_oPPVDescription),
+                                    PPVModuleId = ppvPrice.m_sPPVModuleCode,
+                                    PrePaidId = ppvPrice.m_relevantPP != null ? ppvPrice.m_relevantPP.m_ObjectCode.ToString() : null,
+                                    Price = AutoMapper.Mapper.Map<KalturaPrice>(ppvPrice.m_oPrice),
+                                    ProductCode = ppvPrice.m_sProductCode,
+                                    ProductId = item.m_sProductCode,
+                                    ProductType = KalturaTransactionType.ppv,
+                                    PurchasedMediaFileId = ppvPrice.m_lPurchasedMediaFileID,
+                                    PurchaseStatus = ConvertPriceReasonToPurchaseStatus(ppvPrice.m_PriceReason),
+                                    PurchaseUserId = ppvPrice.m_sPurchasedBySiteGuid,
+                                    RelatedMediaFileIds = AutoMapper.Mapper.Map<List<KalturaIntegerValue>>(ppvPrice.m_lRelatedMediaFileIDs),
+                                    StartDate = ppvPrice.m_dtStartDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(ppvPrice.m_dtStartDate.Value) : 0,
+                                    SubscriptionId = ppvPrice.m_relevantSub != null ? ppvPrice.m_relevantSub.m_sObjectCode : null
+                                });
+                        }
+                    }
+                }
+
+            }
+            return prices;
         }
     }
 }
