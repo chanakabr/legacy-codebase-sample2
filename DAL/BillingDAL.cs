@@ -1218,9 +1218,9 @@ namespace DAL
             }
         }
 
-        public static List<PaymentGatewayBase> GetPaymentGWList(int groupID, int status = 1, int isActive = 1)
+        public static List<PaymentGateway> GetPaymentGWList(int groupID, int status = 1, int isActive = 1)
         {
-            List<PaymentGatewayBase> res = new List<PaymentGatewayBase>();
+            List<PaymentGateway> res = new List<PaymentGateway>();
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentGatewayList");
@@ -1233,16 +1233,32 @@ namespace DAL
                     DataTable dtPG = ds.Tables[0];
                     if (dtPG != null && dtPG.Rows != null && dtPG.Rows.Count > 0)
                     {
-                        PaymentGatewayBase pgw = null;
+                        PaymentGateway paymentGateway = null;
                         foreach (DataRow dr in dtPG.Rows)
                         {
-                            pgw = new PaymentGatewayBase();
-                            pgw.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
-                            pgw.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
-                            pgw.IsDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default") != 0 ? true : false;
-                            pgw.SupportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_payment_method_support") != 0 ? true : false;
+                            paymentGateway = new PaymentGateway();
 
-                            res.Add(pgw);
+                            paymentGateway.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                            paymentGateway.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                            paymentGateway.Selected = ODBCWrapper.Utils.GetIntSafeVal(dr, "selected");
+                            int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
+                            paymentGateway.IsDefault = isDefault == 1 ? true : false;
+                            paymentGateway.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "external_identifier");
+                            paymentGateway.PendingInterval = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "pending_interval");
+                            paymentGateway.PendingRetries = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "pending_retries");
+                            paymentGateway.SharedSecret = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "shared_secret");
+                            paymentGateway.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
+                            paymentGateway.TransactUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "transact_url");
+                            paymentGateway.StatusUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "status_url");
+                            paymentGateway.RenewUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "renew_url");
+                            paymentGateway.Status = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "status");
+                            paymentGateway.RenewalIntervalMinutes = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "renewal_interval_minutes");
+                            paymentGateway.RenewalStartMinutes = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "renewal_start_minutes");
+                            paymentGateway.IsActive = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
+                            int supportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_payment_method_support");
+                            paymentGateway.SupportPaymentMethod = supportPaymentMethod == 1;
+
+                            res.Add(paymentGateway);
                         }
                     }
                 }
@@ -1250,7 +1266,7 @@ namespace DAL
             catch (Exception ex)
             {
                 log.Error(string.Empty, ex);
-                res = new List<PaymentGatewayBase>();
+                res = new List<PaymentGateway>();
             }
             return res;
         }
