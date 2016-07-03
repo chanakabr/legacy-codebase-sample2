@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         /// <summary>
-        /// Add a new future scheduled system announcment push notification
+        /// Add a new future scheduled system announcement push notification
         /// </summary>
         /// <param name="announcement">The announcement to be added.
         /// timezone parameter should be taken from the 'name of timezone' from: https://msdn.microsoft.com/en-us/library/ms912391(v=winembedded.11).aspx
