@@ -574,7 +574,17 @@ namespace ElasticSearch.Common
                         {
                             lResult = jToken.Select(item =>
                             {
-                                return (string)item.ToString();
+                                var itemId = item["_id"];
+
+                                if (itemId != null)
+                                {
+                                    return itemId.ToString();
+                                }
+                                else
+                                {
+                                    return item.ToString();
+                                }
+                                //return (string)item["_id"].ToString().ToString();
                             }
                             ).ToList();
                         }
