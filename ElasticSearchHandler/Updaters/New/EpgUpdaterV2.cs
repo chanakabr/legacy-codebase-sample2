@@ -185,7 +185,8 @@ namespace ElasticSearchHandler.Updaters
                                     index = alias,
                                     type = GetDocumentType(),
                                     Operation = eOperation.index,
-                                    document = serializedEpg
+                                    document = serializedEpg,
+                                    routing = epg.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
                                 });
                             }
 
