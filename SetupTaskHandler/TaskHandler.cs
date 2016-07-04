@@ -82,6 +82,30 @@ namespace SetupTaskHandler
 
                         break;
 
+                    case ApiObjects.eSetupTask.InsertExpiredRecordingsTasks:
+
+                        string casUrl = TVinciShared.WS_Utils.GetTcmConfigValue("WS_CAS");
+                        using (SetupTaskHandler.WS_ConditionalAccess.module cas = new SetupTaskHandler.WS_ConditionalAccess.module())
+                        {
+                            if (!string.IsNullOrEmpty(casUrl))
+                            {
+                                cas.Url = casUrl;
+                            }
+
+                            cas.Timeout = 600000;
+                            success = cas.HandleExpiredRecordings();
+
+                            if (!success)
+                            {
+                                log.Error("HandleExpiredRecordings failed");
+                            }
+                            else
+                            {
+                                log.Debug("HandleExpiredRecordings finished successfully");
+                            }
+                        }
+                        break;
+
                     default:
                         break;
                 }
