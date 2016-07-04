@@ -11,6 +11,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Catalog
 {
     [OldStandard("objects", "assets")]
+    [Obsolete]
     public class KalturaEPGChannelAssetsListResponse : KalturaListResponse
     {
         /// <summary>

@@ -10,24 +10,9 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.ConditionalAccess
 {
     /// <summary>
-    /// Premium service
+    /// Houshold premium service
     /// </summary>
-    public class KalturaHouseholdPremiumService : KalturaOTTObject
+    public class KalturaHouseholdPremiumService : KalturaPremiumService
     {
-        /// <summary>
-        /// Service identifier
-        /// </summary>
-        [DataMember(Name = "id")]
-        [JsonProperty("id")]
-        [XmlElement(ElementName = "id")]
-        public long? Id { get; set; }
-
-        /// <summary>
-        /// Service name / description
-        /// </summary>
-        [DataMember(Name = "name")]
-        [JsonProperty("name")]
-        [XmlElement(ElementName = "name")]
-        public string Name { get; set; }
     }
 }
