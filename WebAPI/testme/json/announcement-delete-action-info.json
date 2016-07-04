@@ -1,0 +1,1 @@
+{"actionParams":[{"type":"bigint","isSimpleType":true,"isComplexType":false,"isFile":false,"isEnum":false,"isStringEnum":false,"isArray":false,"isAbstract":false,"description":"Id of the announcement.","name":"id","isOptional":false}],"description":"Delete an existing announcing. Announcement cannot be delete while being sent."}

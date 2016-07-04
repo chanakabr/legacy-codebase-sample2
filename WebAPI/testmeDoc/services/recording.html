@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
+	<title>Kaltura - TestMe Console Documentation</title>
+	<link rel="stylesheet" type="text/css" href="../css/main.css" />
+</head>
+<body>
+	<div id="doc">
+		<h2>Kaltura API</h2>
+		<table id="serviceInfo">
+			<tr>
+				<td class="title">Service Name</td>
+				<td class="odd">recording</td>
+			</tr>
+			<tr>
+				<td class="title">Description</td>
+				<td><br />
+				</td>
+			</tr>
+			<tr>
+				<td class="title">Actions</td>
+				<td class="odd">
+					<table cellspacing="0" class="service_actions">
+						<tr>
+							<th>Name</th>
+							<th>Description</th>
+						</tr>
+						<tr>
+							<td><a href="../actions/recording.add.html">add</td>
+							<td>Issue a record request for a program</td>
+						</tr>
+						<tr>
+							<td><a href="../actions/recording.cancel.html">cancel</td>
+							<td>Cancel a previously requested recording. Cancel recording can be called for recording in status Scheduled or Recording Only</td>
+						</tr>
+						<tr>
+							<td><a href="../actions/recording.delete.html">delete</td>
+							<td>Delete one or more user recording(s). Delete recording can be called only for recordings in status Recorded</td>
+						</tr>
+						<tr>
+							<td><a href="../actions/recording.get.html">get</td>
+							<td>Returns recording object by internal identifier</td>
+						</tr>
+						<tr>
+							<td><a href="../actions/recording.getContext.html">getContext</td>
+							<td>Return recording information and status for collection of program for a user.
+            Specify per programs if it can be recorded or not.
+            If program record request was already issued – return recording status</td>
+						</tr>
+						<tr>
+							<td><a href="../actions/recording.list.html">list</td>
+							<td>Return a list of recordings for the household with optional filter by status and KSQL.</td>
+						</tr>
+						<tr>
+							<td><a href="../actions/recording.protect.html">protect</td>
+							<td>Protects an existing recording from the cleanup process for the defined protection period</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</div>
+</body>
+</html>

@@ -1,0 +1,1 @@
+{"actionParams":[{"type":"bigint","isSimpleType":true,"isComplexType":false,"isFile":false,"isEnum":false,"isStringEnum":false,"isArray":false,"isAbstract":false,"description":"Recording identifier","name":"id","isOptional":false}],"description":"Protects an existing recording from the cleanup process for the defined protection period"}
