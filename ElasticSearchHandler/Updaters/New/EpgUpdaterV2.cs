@@ -10,6 +10,7 @@ using KLogMonitor;
 using System.Reflection;
 using Catalog;
 using Catalog.Cache;
+using ElasticSearch.Searcher;
 
 namespace ElasticSearchHandler.Updaters
 {
@@ -250,38 +251,19 @@ namespace ElasticSearchHandler.Updaters
 
             if (epgIDs != null & epgIDs.Count > 0)
             {
-                List<ESBulkRequestObj<int>> bulkRequests = new List<ESBulkRequestObj<int>>();
                 string alias = GetAlias();
 
-                foreach (var epgId in epgIDs)
+                ESTerms terms = new ESTerms(true)
                 {
-                    // Get document with empty routing so it checks all shards
-                    string epgDocument = esApi.GetDoc(alias, GetDocumentType(), epgId.ToString(), string.Empty);
+                    Key = "epg_id"
+                };
 
-                    if (!string.IsNullOrEmpty(epgDocument))
-                    {
-                        var jObject = Newtonsoft.Json.Linq.JObject.Parse(epgDocument);
+                terms.Value.AddRange(epgIDs.Select(id => id.ToString()));
 
-                        if (jObject != null)
-                        {
-                            var routing = jObject["_routing"];
+                ESQuery query = new ESQuery(terms);
+                string queryString = query.ToString();
 
-                            if (routing != null)
-                            {
-                                bulkRequests.Add(new ESBulkRequestObj<int>()
-                                {
-                                    docID = epgId,
-                                    index = alias,
-                                    type = GetDocumentType(),
-                                    Operation = eOperation.delete,
-                                    routing = routing.ToString()
-                                });
-                            }
-                        }
-                    }
-                }
-
-                esApi.CreateBulkIndexRequest(bulkRequests);
+                esApi.DeleteDocsByQuery(alias, GetDocumentType(), ref queryString);
 
                 result = true;
             }
