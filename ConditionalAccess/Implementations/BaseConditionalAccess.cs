@@ -6,6 +6,7 @@ using ApiObjects.CDNAdapter;
 using ApiObjects.MediaIndexingObjects;
 using ApiObjects.PlayCycle;
 using ApiObjects.Response;
+using ApiObjects.ScheduledTasks;
 using ApiObjects.TimeShiftedTv;
 using ConditionalAccess.Response;
 using ConditionalAccess.TvinciPricing;
@@ -50,6 +51,12 @@ namespace ConditionalAccess
         protected const string BILLING_CONNECTION_STRING = "BILLING_CONNECTION";
         private const string ROUTING_KEY_RECORDINGS_CLEANUP = "PROCESS_RECORDINGS_CLEANUP";
         private const int RECORDING_CLEANUP_EXECUTE_GAP_HOURS = 24;
+        private const string EXPIRED_RECORDINGS = "expiredRecordings";
+        private const int SCHEDULED_TASKS_DEFAULT_GAP_HOURS = 24;
+        private const string EXPIRED_ROUTING_KEY = "PROCESS_EXPIRED_RECORDINGS";
+        private const string RECORDING_SCHEDULED_TASKS = "recordingScheduledTasks";
+        private const int RECORDING_SCHEDULED_TASKS_DEFAULT = 1;
+        private const string RECORDING_TASKS_ROUTING_KEY = "PROCESS_RECORDING_SCHEDULED_TASKS";
 
         //errors
         private const string CONFLICTED_PARAMS = "Conflicted params";
@@ -18211,6 +18218,167 @@ namespace ConditionalAccess
             }  
 
             return response;
+        }
+
+        public bool HandleExpiredRecordings()
+        {
+            bool result = false;
+            int scheduledTaskIntervalMin = 0;
+            bool shouldInsertToQueue = false;
+
+            try
+            {
+                // try to get interval for next run take default
+                ScheduledTaskLastRunResponse expiredRecordingsLastRunResponse = GetLastScheduleTaksSuccessfulRun(EXPIRED_RECORDINGS);
+                if (expiredRecordingsLastRunResponse.Status.Code == (int)eResponseStatus.OK && expiredRecordingsLastRunResponse.NextRunIntervalInMinutes > 0)
+                {
+                    scheduledTaskIntervalMin = expiredRecordingsLastRunResponse.NextRunIntervalInMinutes;
+                    if (expiredRecordingsLastRunResponse.LastSuccessfulRunDate.AddMinutes(scheduledTaskIntervalMin) < DateTime.UtcNow)
+                    {
+                        shouldInsertToQueue = true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    shouldInsertToQueue = true;
+                    scheduledTaskIntervalMin = SCHEDULED_TASKS_DEFAULT_GAP_HOURS * 60;
+                }
+
+                // get current utc epoch
+                long utcNowEpoch = TVinciShared.DateUtils.UnixTimeStampNow();
+                // get first batch
+                int totalRecordingsExpired = ConditionalAccessDAL.InsertExpiredRecordingsTasks(utcNowEpoch);
+
+                // update successful run date
+                if (totalRecordingsExpired > -1)
+                {
+                    result = true;
+
+                    if (!ConditionalAccessDAL.UpdateScheduledTaskSuccessfulRun(EXPIRED_RECORDINGS, DateTime.UtcNow, totalRecordingsExpired, scheduledTaskIntervalMin))
+                    {
+                        log.Error("Failed updating expired recordings run details");
+                    }
+                    else
+                    {
+                        log.Debug("Successfully updated expired recordings run details");
+                    }
+                }
+                else
+                {
+                    log.Error("Failed inserting expired recordings tasks");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in HandleExpiredRecordings: ex = {0}, ST = {1}", ex.Message, ex.StackTrace);
+            }
+            finally
+            {
+                if (shouldInsertToQueue)
+                {
+                    if (scheduledTaskIntervalMin == 0)
+                    {
+                        scheduledTaskIntervalMin = SCHEDULED_TASKS_DEFAULT_GAP_HOURS * 60;
+                    }
+
+                    DateTime nextExecutionDate = DateTime.UtcNow.AddMinutes(scheduledTaskIntervalMin);
+                    SetupTasksQueue queue = new SetupTasksQueue();
+                    CelerySetupTaskData data = new CelerySetupTaskData(0, eSetupTask.InsertExpiredRecordingsTasks, new Dictionary<string, object>()) { ETA = nextExecutionDate };
+                    result = queue.Enqueue(data, EXPIRED_ROUTING_KEY);
+                }
+            }
+
+            return result;
+        }
+
+        public ScheduledTaskLastRunResponse GetLastScheduleTaksSuccessfulRun(string scheduleTaskName)
+        {
+            ScheduledTaskLastRunResponse response = ConditionalAccessDAL.GetLastScheduleTaksSuccessfulRunDetails(scheduleTaskName);
+            if (response.Status.Code != (int)eResponseStatus.OK)
+            {
+                log.ErrorFormat("Error while trying to get last scheduled task successful run details, scheduleTaskName: {0}, status code: {1}, status message: {2}", scheduleTaskName, response.Status.Code, response.Status.Message);
+            }
+
+            return response;
+        }
+
+        public bool HandleRecordingScheduledTasks()
+        {
+            bool result = false;
+            int scheduledTaskIntervalMin = 0;
+            bool shouldInsertToQueue = false;
+
+            try
+            {
+                // try to get interval for next run take default
+                ScheduledTaskLastRunResponse recordingScheduledTasksLastRunResponse = GetLastScheduleTaksSuccessfulRun(RECORDING_SCHEDULED_TASKS);
+                if (recordingScheduledTasksLastRunResponse.Status.Code == (int)eResponseStatus.OK && recordingScheduledTasksLastRunResponse.NextRunIntervalInMinutes > 0)
+                {
+                    scheduledTaskIntervalMin = recordingScheduledTasksLastRunResponse.NextRunIntervalInMinutes;
+                    if (recordingScheduledTasksLastRunResponse.LastSuccessfulRunDate.AddMinutes(scheduledTaskIntervalMin) < DateTime.UtcNow)
+                    {
+                        shouldInsertToQueue = true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    shouldInsertToQueue = true;
+                    scheduledTaskIntervalMin = RECORDING_SCHEDULED_TASKS_DEFAULT;
+                }
+
+                // get current utc epoch
+                long utcNowEpoch = TVinciShared.DateUtils.UnixTimeStampNow();
+                // get first batch
+                HashSet<long> recordingIdsToSchedule = ConditionalAccessDAL.GetExpiredRecordingsTasks(utcNowEpoch);
+                int totalRecordingScheduledTasks = 0;
+                // update successful run date
+                if (recordingIdsToSchedule != null)
+                {
+                    result = true;
+
+                    if (!ConditionalAccessDAL.UpdateScheduledTaskSuccessfulRun(RECORDING_SCHEDULED_TASKS, DateTime.UtcNow, totalRecordingScheduledTasks, scheduledTaskIntervalMin))
+                    {
+                        log.Error("Failed updating recording scheduled tasks run details");
+                    }
+                    else
+                    {
+                        log.Debug("Successfully updated recording scheduled task run details");
+                    }
+                }
+                else
+                {
+                    log.Error("Failed inserting recording scheduled task");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in HandleRecordingScheduledTasks: ex = {0}, ST = {1}", ex.Message, ex.StackTrace);
+            }
+            finally
+            {
+                if (shouldInsertToQueue)
+                {
+                    if (scheduledTaskIntervalMin == 0)
+                    {
+                        scheduledTaskIntervalMin = RECORDING_SCHEDULED_TASKS_DEFAULT;
+                    }
+
+                    DateTime nextExecutionDate = DateTime.UtcNow.AddMinutes(scheduledTaskIntervalMin);
+                    SetupTasksQueue queue = new SetupTasksQueue();
+                    CelerySetupTaskData data = new CelerySetupTaskData(0, eSetupTask.RecordingScheduledTasks, new Dictionary<string, object>()) { ETA = nextExecutionDate };
+                    result = queue.Enqueue(data, RECORDING_TASKS_ROUTING_KEY);
+                }
+            }
+
+            return result;
         }
     }
 }

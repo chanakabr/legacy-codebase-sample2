@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using ApiObjects.TimeShiftedTv;
 using KLogMonitor;
 using System.Reflection;
+using ApiObjects.ScheduledTasks;
 
 namespace DAL
 {
@@ -3146,6 +3147,129 @@ namespace DAL
             }
 
             return response;
+        }
+
+        public static ScheduledTaskLastRunResponse GetLastScheduleTaksSuccessfulRunDetails(string scheduleTaskName)
+        {
+            ScheduledTaskLastRunResponse response = null;
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
+            int limitRetries = RETRY_LIMIT;
+            Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
+            string scheduledTaksKey = UtilsDal.GetScheduledTaksKeyByName(scheduleTaskName);
+            if (string.IsNullOrEmpty(scheduledTaksKey))
+            {
+                response = new ScheduledTaskLastRunResponse() { Status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, "Failed UtilsDal.GetScheduledTaksKeyByName") };
+                return response;
+            }
+            try
+            {
+                int numOfRetries = 0;
+                while (numOfRetries < limitRetries)
+                {
+                    response = cbClient.Get<ScheduledTaskLastRunResponse>(scheduledTaksKey, out getResult);
+                    if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
+                    {
+                        response = new ScheduledTaskLastRunResponse() { Status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, "CouchBase KeyNotFound") };
+                        log.ErrorFormat("Error while trying to get last successful scheduled task run date, scheduleTaskName: {0}, key: {1}", scheduleTaskName, scheduledTaksKey);
+                        break;
+                    }
+                    else if (getResult == Couchbase.IO.ResponseStatus.Success)
+                    {
+                        log.DebugFormat("ScheduledTaskLastRunResponse with scheduleTaskName: {0} and key {1} was found with value {2}", scheduleTaskName, scheduledTaksKey, response.ToString());
+                        break;
+                    }
+                    else
+                    {
+                        log.ErrorFormat("Retrieving ScheduledTaskLastRunResponse with scheduleTaskName: {0} and key {1} failed with status: {2}, retryAttempt: {3}, maxRetries: {4}", scheduleTaskName, scheduledTaksKey, getResult, numOfRetries, limitRetries);
+                        numOfRetries++;
+                        System.Threading.Thread.Sleep(1000);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to get last successful schedule task details, scheduleTaskName: {0}, ex: {1}", scheduleTaskName, ex);
+            }
+
+            if (response == null)
+            {
+                response = new ScheduledTaskLastRunResponse() { Status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, "Failed Getting ScheduledTaskLastRunResponse from CB") };
+            }
+
+            return response;
+        }
+
+        public static bool UpdateScheduledTaskSuccessfulRun(string scheduleTaskName, DateTime lastSuccessfulRunDate, int impactedItems, int nextRunIntervalInMinutes)
+        {
+            bool result = false;
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
+            int limitRetries = RETRY_LIMIT;
+            string scheduledTaksKey = UtilsDal.GetScheduledTaksKeyByName(scheduleTaskName);
+            if (string.IsNullOrEmpty(scheduledTaksKey))
+            {                
+                log.ErrorFormat("Failed UtilsDal.GetScheduledTaksKeyByName for ScheduleTaskName: {0}", scheduleTaskName);
+                return false;
+            }
+            try
+            {
+                int numOfRetries = 0;
+                ScheduledTaskLastRunResponse scheduledTaskRunDetails = new ScheduledTaskLastRunResponse(lastSuccessfulRunDate, impactedItems, nextRunIntervalInMinutes);
+                while (!result && numOfRetries < limitRetries)
+                {
+                    result = cbClient.Set(scheduledTaksKey, scheduledTaskRunDetails);
+                    if (!result)
+                    {
+                        numOfRetries++;
+                        log.ErrorFormat("Error while updating successful scheduled task run details. scheduleTaskName: {0}, number of tries: {1}/{2}. ScheduledTaskLastRunResponse: {3}",
+                                         scheduleTaskName, numOfRetries, limitRetries, scheduledTaskRunDetails.ToString());
+
+                        System.Threading.Thread.Sleep(1000);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while updating successful scheduled task run details, ScheduleTaskName: {0}, ex: {1}", scheduleTaskName, ex);
+            }
+
+            return result;
+        }
+
+        public static int InsertExpiredRecordingsTasks(long unixTimeStampNow)
+        {
+            int impactedItems = -1;
+            ODBCWrapper.StoredProcedure spInsertExpiredRecordingsTasks = new ODBCWrapper.StoredProcedure("InsertExpiredRecordingsTasks");
+            spInsertExpiredRecordingsTasks.SetConnectionKey("CONNECTION_STRING");
+            spInsertExpiredRecordingsTasks.AddParameter("@UtcNowEpoch", unixTimeStampNow);
+
+            impactedItems = spInsertExpiredRecordingsTasks.ExecuteReturnValue<int>();
+
+            return impactedItems;
+        }
+
+        public static HashSet<long> GetExpiredRecordingsTasks(long unixTimeStampNow)
+        {
+            HashSet<long> recordingIds = null;            
+            ODBCWrapper.StoredProcedure spGetExpiredRecordingsTasks = new ODBCWrapper.StoredProcedure("GetExpiredRecordingsTasks");
+            spGetExpiredRecordingsTasks.SetConnectionKey("CONNECTION_STRING");
+            spGetExpiredRecordingsTasks.AddParameter("@UtcNowEpoch", unixTimeStampNow);
+
+            DataTable dt = spGetExpiredRecordingsTasks.Execute();
+
+            if (dt != null && dt.Rows != null)
+            {
+                recordingIds = new HashSet<long>();
+                foreach (DataRow dr in dt.Rows)
+                {
+                    long recordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID", 0);
+                    if (recordingId > 0 && !recordingIds.Contains(recordingId))
+                    {
+                        recordingIds.Add(recordingId);
+                    }
+                }
+            }
+
+            return recordingIds;
         }
     }
 }

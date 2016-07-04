@@ -700,5 +700,19 @@ namespace DAL
         {
             return "recordings_cleanup";
         }
+
+        public static string GetScheduledTaksKeyByName(string scheduleTaskName)
+        {
+            string key = string.Empty;
+            switch (scheduleTaskName)
+            {
+                case "expiredRecordings":
+                    key = "expired_recordings";
+                    break;
+                default:
+                    break;
+            }
+            return key;
+        }
     }
 }
