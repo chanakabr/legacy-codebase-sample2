@@ -1116,6 +1116,7 @@
     <Compile Include="Managers\Models\AppToken.cs" />
     <Compile Include="Managers\Models\KSUtils.cs" />
     <Compile Include="Managers\RolesManager.cs" />
+    <Compile Include="Managers\Schema\OnlyNewStandard.cs" />
     <Compile Include="Managers\Schema\OldStandard.cs" />
     <Compile Include="Managers\Schema\ValidationException.cs" />
     <Compile Include="Managers\Schema\SchemaValidationType.cs" />
