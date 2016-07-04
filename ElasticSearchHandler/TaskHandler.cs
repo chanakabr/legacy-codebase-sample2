@@ -67,7 +67,7 @@ namespace ElasticSearchHandler
                     {
                         updater.Action = request.Action;
                         updater.IDs = request.DocumentIDs;
-
+                        
                         bool result = updater.Start();
 
                         if (result)

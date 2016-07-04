@@ -160,7 +160,6 @@ namespace ElasticSearchHandler
             }
         }
 
-
         // Get linear channel settings from catalog cache 
         public static void GetLinearChannelValues(List<EpgCB> lEpg, int groupID)
         {

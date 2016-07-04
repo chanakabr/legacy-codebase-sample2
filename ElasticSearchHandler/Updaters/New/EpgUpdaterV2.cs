@@ -253,15 +253,32 @@ namespace ElasticSearchHandler.Updaters
                 List<ESBulkRequestObj<int>> bulkRequests = new List<ESBulkRequestObj<int>>();
                 string alias = GetAlias();
 
-                foreach (int epgId in epgIDs)
+                foreach (var epgId in epgIDs)
                 {
-                    bulkRequests.Add(new ESBulkRequestObj<int>()
+                    // Get document with empty routing so it checks all shards
+                    string epgDocument = esApi.GetDoc(alias, GetDocumentType(), epgId.ToString(), string.Empty);
+
+                    if (!string.IsNullOrEmpty(epgDocument))
                     {
-                        docID = (int)GetDocumentId(epgId),
-                        index = alias,
-                        type = GetDocumentType(),
-                        Operation = eOperation.delete
-                    });
+                        var jObject = Newtonsoft.Json.Linq.JObject.Parse(epgDocument);
+
+                        if (jObject != null)
+                        {
+                            var routing = jObject["_routing"];
+
+                            if (routing != null)
+                            {
+                                bulkRequests.Add(new ESBulkRequestObj<int>()
+                                {
+                                    docID = epgId,
+                                    index = alias,
+                                    type = GetDocumentType(),
+                                    Operation = eOperation.delete,
+                                    routing = routing.ToString()
+                                });
+                            }
+                        }
+                    }
                 }
 
                 esApi.CreateBulkIndexRequest(bulkRequests);
