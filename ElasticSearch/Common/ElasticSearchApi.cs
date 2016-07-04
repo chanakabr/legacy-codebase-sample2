@@ -46,7 +46,28 @@ namespace ElasticSearch.Common
             if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sType))
                 return sRes;
 
-            string sUrl = string.Format("{0}/{1}/{2}/{3}", ES_URL, sIndex, sType, sDocId);
+            string sUrl = string.Format("{0}/{1}/{2}/{3}", baseUrl, sIndex, sType, sDocId);
+            int nStatus = 0;
+
+            sRes = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
+
+            if (nStatus != 200)
+            {
+                log.Error("Error - " + string.Format("Get record failed. url={0};docID={1}", sUrl, sDocId));
+                sRes = string.Empty;
+            }
+
+            return sRes;
+        }
+
+        public string GetDoc(string sIndex, string sType, string sDocId, string routing)
+        {
+            string sRes = string.Empty;
+
+            if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sType))
+                return sRes;
+
+            string sUrl = string.Format("{0}/{1}/{2}/{3}?routing={4}", baseUrl, sIndex, sType, sDocId, routing);
             int nStatus = 0;
 
             sRes = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
