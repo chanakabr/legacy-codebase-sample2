@@ -644,7 +644,7 @@ namespace DAL
         }
 
         public static bool Get_AllUsersPurchases(List<int> p_lstUserIDs, List<int> p_lstFileIds, int p_nFileID, string p_sPPVCode, ref int p_nPPVID, ref string p_sSubCode,
-            ref string p_sPPCode, ref int p_nWaiver, ref DateTime p_dCreateDate, ref string p_sPurchasedBySiteGuid, ref int p_nPurchasedAsMediaFileID, ref DateTime? p_dtStartDate, int domainID = 0)
+            ref string p_sPPCode, ref int p_nWaiver, ref DateTime p_dCreateDate, ref string p_sPurchasedBySiteGuid, ref int p_nPurchasedAsMediaFileID, ref DateTime? p_dtStartDate, ref DateTime? p_dtEndDate, int domainID = 0)
         {
             bool res = false;
             ODBCWrapper.StoredProcedure spGet_AllUsersPurchases = new ODBCWrapper.StoredProcedure("Get_AllUsersPurchases");
@@ -655,7 +655,7 @@ namespace DAL
             spGet_AllUsersPurchases.AddParameter("@DomainID", domainID);
 
             DataSet ds = spGet_AllUsersPurchases.ExecuteDataSet();
-
+            
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
                 DataTable dt = ds.Tables[0];
@@ -680,6 +680,7 @@ namespace DAL
                             p_nWaiver = ODBCWrapper.Utils.GetIntSafeVal(dr, "WAIVER");
                             p_dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
                             p_dtStartDate = ODBCWrapper.Utils.ExtractNullableDateTime(dr, "START_DATE");
+                            p_dtEndDate = ODBCWrapper.Utils.ExtractNullableDateTime(dr, "END_DATE");  
                         }
                     }
                 }

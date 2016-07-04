@@ -1798,12 +1798,12 @@ namespace ConditionalAccess
                         if (userEntitlements != null && userEntitlements.userPpvEntitlements.EntitlementsDictionary != null)
                         {
                             isEntitled = IsUserEntitled(lstFileIDs, ppvModule.m_sObjectCode, ref ppvID, ref sSubCode, ref sPPCode, ref nWaiver,
-                                                        ref dPurchaseDate, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref p_dtStartDate, userEntitlements.userPpvEntitlements.EntitlementsDictionary);
+                                                        ref dPurchaseDate, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref p_dtStartDate, ref p_dtEndDate, userEntitlements.userPpvEntitlements.EntitlementsDictionary);
                         }
                         else
                         {
                             isEntitled = ConditionalAccessDAL.Get_AllUsersPurchases(allUserIDsInDomain, lstFileIDs, nMediaFileID, ppvModule.m_sObjectCode, ref ppvID, ref sSubCode,
-                                                                                ref sPPCode, ref nWaiver, ref dPurchaseDate, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref p_dtStartDate, domainID);
+                                                                                ref sPPCode, ref nWaiver, ref dPurchaseDate, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref p_dtStartDate, ref p_dtEndDate, domainID);
                         }
                     }
 
@@ -3503,11 +3503,11 @@ namespace ConditionalAccess
                         res = nNumOfPayments;
                 }
             }
-            return res;
-        }
+            return res;  
+        }   
 
         private static bool IsUserEntitled(List<int> p_lstFileIds, string p_sPPVCode, ref int p_nPPVID, ref string p_sSubCode,
-            ref string p_sPPCode, ref int p_nWaiver, ref DateTime p_dCreateDate, ref string p_sPurchasedBySiteGuid, ref int p_nPurchasedAsMediaFileID, ref DateTime? p_dtStartDate,
+            ref string p_sPPCode, ref int p_nWaiver, ref DateTime p_dCreateDate, ref string p_sPurchasedBySiteGuid, ref int p_nPurchasedAsMediaFileID, ref DateTime? p_dtStartDate, ref DateTime? p_dtEndDate,
             Dictionary<string, EntitlementObject> entitlements)
         {
             bool res = false;
@@ -3521,9 +3521,10 @@ namespace ConditionalAccess
                         EntitlementObject entitlement = entitlements[entitlementKey];
                         p_nPPVID = entitlement.ID;
                         p_sSubCode = entitlement.subscriptionCode;
-                        p_sPPCode = entitlement.relPP.ToString();
+                        p_sPPCode = entitlement.relPP.ToString();     
                         p_nWaiver = entitlement.waiver;
                         p_dtStartDate = entitlement.startDate;
+                        p_dtEndDate = entitlement.endDate;
                         p_dCreateDate = entitlement.createDate;
                         p_sPurchasedBySiteGuid = entitlement.purchasedBySiteGuid;
                         p_nPurchasedAsMediaFileID = entitlement.purchasedAsMediaFileID;
