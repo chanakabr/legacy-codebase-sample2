@@ -6,7 +6,7 @@
     <members>
         <member name="M:WebAPI.Controllers.AnnouncementController.Add(WebAPI.Models.Notifications.KalturaAnnouncement)">
             <summary>
-            Add a new future scheduled system announcment push notification
+            Add a new future scheduled system announcement push notification
             </summary>
             <param name="announcement">The announcement to be added.
             timezone parameter should be taken from the 'name of timezone' from: https://msdn.microsoft.com/en-us/library/ms912391(v=winembedded.11).aspx
@@ -357,6 +357,13 @@
             </summary>
             <returns></returns>
             <remarks>Possible status codes: CDN partner settings not found = 5025</remarks>   
+        </member>
+        <member name="M:WebAPI.Controllers.ProductPriceController.List(WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter)">
+            <summary>
+            Returns a price and a purchase status for each subscription or/and media file, for a given user (if passed) and with the consideration of a coupon code (if passed). 
+            </summary>
+            <param name="filter">Request filter</param>
+            <remarks></remarks>
         </member>
         <member name="M:WebAPI.Controllers.SystemController.GetCountry(System.String)">
             <summary>
@@ -814,6 +821,12 @@
             </remarks>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.HouseholdPremiumServiceController.ListOldStandard">
+            <summary>
+            Returns all the premium services allowed for the household
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.HouseholdPremiumServiceController.List">
             <summary>
             Returns all the premium services allowed for the household
@@ -1158,7 +1171,16 @@
             </summary>
             <param name="userIdToSwitch">The identifier of the user to change</param>
         </member>
-        <member name="M:WebAPI.Controllers.UserAssetRuleController.List(WebAPI.Models.API.KalturaGenericRuleFilter)">
+        <member name="M:WebAPI.Controllers.UserAssetRuleController.ListOldStandard(WebAPI.Models.API.KalturaGenericRuleFilter)">
+            <summary>
+            Retrieve all the rules (parental, geo, device or user-type) that applies for this user and asset.        
+            </summary>
+            <remarks>Possible status codes: 
+            User does not exist = 2000, User with no household = 2024, User suspended = 2001, User not in household = 1005, Household does not exist = 1006</remarks>
+            <param name="filter">Filter</param>
+            <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
+        </member>
+        <member name="M:WebAPI.Controllers.UserAssetRuleController.List(WebAPI.Models.API.KalturaUserAssetRuleFilter)">
             <summary>
             Retrieve all the rules (parental, geo, device or user-type) that applies for this user and asset.        
             </summary>
@@ -2146,6 +2168,11 @@
             <param name="usersGroup">list of users separated by ';'</param>
             <returns>True if the action is permitted, false otherwise, and a users group list (if exists) for this action</returns>
         </member>
+        <member name="T:WebAPI.Models.API.KalturaUserAssetRuleFilter">
+            <summary>
+            User asset rule filter
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.General.KalturaFilter`1">
             <summary>
             Base filter
@@ -2159,6 +2186,61 @@
         <member name="P:WebAPI.Models.General.KalturaFilter`1.OrderBy">
             <summary>
             order by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaUserAssetRuleFilter.AssetIdEqual">
+            <summary>
+            Asset identifier to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaUserAssetRuleFilter.AssetTypeEqual">
+            <summary>
+            Asset type to filter by - 0 = EPG, 1 = media
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaUserAssetRuleListResponse">
+            <summary>
+            GenericRules list
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaListResponse">
+            <summary>
+            Base list wrapper
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaListResponse.TotalCount">
+            <summary>
+            Total items
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaUserAssetRuleListResponse.Rules">
+            <summary>
+            A list of generic rules
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaGenericRule">
+            <summary>
+            Generic rule - representing different type of rules (Parental, Geo, User Type, Device)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaGenericRule.Id">
+            <summary>
+            Unique rule identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaGenericRule.RuleType">
+            <summary>
+            Rule type - possible values: Rule type – Parental, Geo, UserType, Device
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaGenericRule.Name">
+            <summary>
+            Rule display name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaGenericRule.Description">
+            <summary>
+            Additional description for the specific rule
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaParentalRuleFilter.EntityReferenceEqual">
@@ -2231,22 +2313,12 @@
             CDN shared secret
             </summary>
         </member>
-        <member name="T:WebAPI.Models.General.KalturaListResponse">
-            <summary>
-            Base list wrapper
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaListResponse.TotalCount">
-            <summary>
-            Total items
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.API.KalturaCDNAdapterProfileListResponse.Adapters">
             <summary>
             Adapters
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaSearchFilter.KSql">
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFilter.KSql">
             <summary>
             <![CDATA[
             Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
@@ -2261,7 +2333,7 @@
             (maximum length of entire filter is 1024 characters)]]>
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaSearchFilter.TypesIn">
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFilter.TypesIn">
             <summary>
             List of asset types to search within. 
             Possible values: 0 – EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).
@@ -2359,6 +2431,56 @@
             A collection of additional key value pairs that are available per asset type. Possible keys: 
             For 0 (EPG linear programs): epg_channel_id - The EPG channel ID, epg_id - The EPG identifier, related_media_id - The linear media ID.
             For other : start_date, final_date, external_ids
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaHouseholdPremiumService">
+            <summary>
+            Houshold premium service
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaPremiumService">
+            <summary>
+            Premium service
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPremiumService.Id">
+            <summary>
+            Service identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPremiumService.Name">
+            <summary>
+            Service name / description
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaHouseholdPremiumServiceListResponse">
+            <summary>
+            Premium services list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaHouseholdPremiumServiceListResponse.PremiumServices">
+            <summary>
+            A list of premium services
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter.SubscriptionIdIn">
+            <summary>
+            Subscriptions Identifiers 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter.FileIdIn">
+            <summary>
+            Media files Identifiers 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter.isLowest">
+            <summary>
+            A flag that indicates if only the lowest price of an item should return
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter.CouponCodeEqual">
+            <summary>
+            Discount coupon code
             </summary>
         </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaEntitlementFilter">
@@ -2572,27 +2694,27 @@
             Enrichments
             </summary>
         </member>
-        <member name="T:WebAPI.Models.API.KalturaGenericRule">
+        <member name="T:WebAPI.Models.API.KalturaUserAssetRule">
             <summary>
-            Generic rule - representing different type of rules (Parental, Geo, User Type, Device)
+            User asset rule - representing different type of rules on an asset(Parental, Geo, User Type, Device)
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaGenericRule.Id">
+        <member name="P:WebAPI.Models.API.KalturaUserAssetRule.Id">
             <summary>
             Unique rule identifier
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaGenericRule.RuleType">
+        <member name="P:WebAPI.Models.API.KalturaUserAssetRule.RuleType">
             <summary>
             Rule type - possible values: Rule type – Parental, Geo, UserType, Device
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaGenericRule.Name">
+        <member name="P:WebAPI.Models.API.KalturaUserAssetRule.Name">
             <summary>
             Rule display name
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaGenericRule.Description">
+        <member name="P:WebAPI.Models.API.KalturaUserAssetRule.Description">
             <summary>
             Additional description for the specific rule
             </summary>
@@ -4172,6 +4294,126 @@
             Holder object for channel enrichment enum
             </summary>    
         </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaPpvPrice">
+            <summary>
+            PPV price details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaProductPrice.ProductId">
+            <summary>
+            Product identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaProductPrice.ProductType">
+            <summary>
+            Product Type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaProductPrice.Price">
+            <summary>
+            Product price 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaProductPrice.PurchaseStatus">
+            <summary>
+            Product purchase status  
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.FileId">
+            <summary>
+            Media file identifier  
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.PPVModuleId">
+            <summary>
+            The associated PPV module identifier  
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.IsSubscriptionOnly">
+            <summary>
+            Denotes whether this object is available only as part of a subscription or can be sold separately
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.FullPrice">
+            <summary>
+            The full price of the item (with no discounts)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.SubscriptionId">
+            <summary>
+            The identifier of the relevant subscription
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.CollectionId">
+            <summary>
+            The identifier of the relevant collection
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.PrePaidId">
+            <summary>
+            The identifier of the relevant pre paid
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.PPVDescriptions">
+            <summary>
+            A list of the descriptions of the PPV module on different languages (language code and translation)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.PurchaseUserId">
+            <summary>
+            If the item already purchased - the identifier of the user (in the household) who purchased this item 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.PurchasedMediaFileId">
+            <summary>
+            If the item already purchased - the identifier of the purchased file
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.RelatedMediaFileIds">
+            <summary>
+            Related media files identifiers (different types)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.StartDate">
+            <summary>
+            If the item already purchased - since when the user can start watching the item
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.EndDate">
+            <summary>
+            If the item already purchased - until when the user can watch the item
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.DiscountEndDate">
+            <summary>
+            Discount end date
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.FirstDeviceName">
+            <summary>
+            If the item already purchased and played - the name of the device on which it was first played 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.IsInCancelationPeriod">
+            <summary>
+            If waiver period is enabled - donates whether the user is still in the cancelation window
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.ProductCode">
+            <summary>
+            The PPV product code
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaProductPriceListResponse">
+            <summary>
+            Prices list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaProductPriceListResponse.ProductsPrices">
+            <summary>
+            A list of prices
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionFilter.SubscriptionIdIn">
             <summary>
             Comma separated subscription identifiers or file identifier (only 1) to get the subscriptions by
@@ -4457,16 +4699,6 @@
             PPV price details
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaProductPrice.ProductId">
-            <summary>
-            Product identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaProductPrice.ProductType">
-            <summary>
-            Product Type
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.Pricing.KalturaItemPrice.FileId">
             <summary>
             Media file identifier  
@@ -4525,21 +4757,6 @@
         <member name="P:WebAPI.Models.Pricing.KalturaPriceDetails.Descriptions">
             <summary>
             A list of the descriptions for this price on different languages (language code and translation)
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaPremiumService">
-            <summary>
-            Premium service
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPremiumService.Id">
-            <summary>
-            Service identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPremiumService.Name">
-            <summary>
-            Service name / description
             </summary>
         </member>
         <member name="T:WebAPI.Models.Pricing.KalturaPricePlan">
@@ -4632,16 +4849,6 @@
             Subscription price details
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionPrice.PurchaseStatus">
-            <summary>
-            Subscription purchase status  
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionPrice.Price">
-            <summary>
-            Subscription price 
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionsFilter.Ids">
             <summary>
             Subscription identifiers or file identifier (only 1) to get the subscriptions by
@@ -4654,12 +4861,12 @@
         </member>
         <member name="T:WebAPI.Models.Pricing.KalturaProductsPriceListResponse">
             <summary>
-            SubscriptionsPrices list
+            Prices list
             </summary>
         </member>
         <member name="P:WebAPI.Models.Pricing.KalturaProductsPriceListResponse.ProductsPrices">
             <summary>
-            A list of subscriptions prices
+            A list of prices
             </summary>
         </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaEntitlementListResponse">
@@ -5223,6 +5430,16 @@
             The time in days before the recording lifetime is due from which the client should be able to warn user about deletion.
             </summary>
         </member>
+        <member name="T:WebAPI.Models.Users.KalturaUserAssetsListListResponse">
+            <summary>
+            User assets list 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaUserAssetsListListResponse.UserAssetsLists">
+            <summary> 
+            A list of favorites
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Users.KalturaFavoriteFilter">
             <summary>
             Favorite request filter 
@@ -5318,12 +5535,12 @@
             Users identifiers
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaUserAssetsListFilter.ListType">
+        <member name="P:WebAPI.Models.Users.KalturaUserAssetsListFilter.ListTypeEqual">
             <summary>
             The requested list type
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaUserAssetsListFilter.AssetType">
+        <member name="P:WebAPI.Models.Users.KalturaUserAssetsListFilter.AssetTypeEqual">
             <summary>
             The requested asset type
             </summary>
@@ -6601,15 +6818,6 @@
         <member name="M:WebAPI.Api.API.UpdateTimeShiftedTvPartnerSettingsAsync(System.String,System.String,WebAPI.Api.TimeShiftedTvPartnerSettings,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.UpdateTimeShiftedTvEpgChannelsSettings(System.String,System.String,WebAPI.Api.TimeShiftedTvPartnerSettings)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.UpdateTimeShiftedTvEpgChannelsSettingsAsync(System.String,System.String,WebAPI.Api.TimeShiftedTvPartnerSettings)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.UpdateTimeShiftedTvEpgChannelsSettingsAsync(System.String,System.String,WebAPI.Api.TimeShiftedTvPartnerSettings,System.Object)">
-            <remarks/>
-        </member>
         <member name="M:WebAPI.Api.API.GetCDNAdapters(System.String,System.String)">
             <remarks/>
         </member>
@@ -7510,22 +7718,22 @@
         <member name="M:WebAPI.Api.API.DisableDomainDefaultParentalRuleAsync(System.String,System.String,System.Int32,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.GetMediaRules(System.String,System.String,System.String,System.Int64,System.Int64,System.String,System.String)">
+        <member name="M:WebAPI.Api.API.GetMediaRules(System.String,System.String,System.String,System.Int64,System.Int64,System.String,System.String,WebAPI.Api.GenericRuleOrderBy)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.GetMediaRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.String,System.String)">
+        <member name="M:WebAPI.Api.API.GetMediaRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.String,System.String,WebAPI.Api.GenericRuleOrderBy)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.GetMediaRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.String,System.String,System.Object)">
+        <member name="M:WebAPI.Api.API.GetMediaRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.String,System.String,WebAPI.Api.GenericRuleOrderBy,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.GetEpgRules(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.String)">
+        <member name="M:WebAPI.Api.API.GetEpgRules(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.String,WebAPI.Api.GenericRuleOrderBy)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.GetEpgRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.String)">
+        <member name="M:WebAPI.Api.API.GetEpgRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.String,WebAPI.Api.GenericRuleOrderBy)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.GetEpgRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.String,System.Object)">
+        <member name="M:WebAPI.Api.API.GetEpgRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.String,WebAPI.Api.GenericRuleOrderBy,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Api.API.GetUserParentalRuleTags(System.String,System.String,System.String,System.Int64)">
@@ -7913,9 +8121,6 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.Api.API.UpdateTimeShiftedTvPartnerSettingsCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.UpdateTimeShiftedTvEpgChannelsSettingsCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.Api.API.GetCDNAdaptersCompleted">
@@ -9472,19 +9677,55 @@
         <member name="F:WebAPI.Api.eMailTemplateType.AddDeviceToDomain">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Api.CinepolisPurchaseMailRequest">
+        <member name="T:WebAPI.Api.PurchaseMailRequest">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sPurchaseDate">
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sPurchaseDate">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sItemName">
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sItemName">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sPrice">
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sPrice">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sUsername">
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTransactionNumber">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sPaymentMethod">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTaxVal">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTaxSubtotal">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTaxAmount">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sInvoiceNum">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sExternalTransationNum">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sAddress">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sUserEmail">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.PurchaseWithPreviewModuleRequest">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseWithPreviewModuleRequest.m_sPreviewModuleEndDate">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.PreviewModuleCancelOrRefundRequest">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.PurchaseFailRequest">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.AddUserMailRequest">
@@ -9565,6 +9806,21 @@
         <member name="P:WebAPI.Api.ChangedPinMailRequest.m_sRuleName">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Api.CinepolisPurchaseMailRequest">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sPurchaseDate">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sItemName">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sPrice">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sUsername">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Api.SendAdminTokenRequest">
             <remarks/>
         </member>
@@ -9581,57 +9837,6 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.ChangePasswordMailRequest.m_sToken">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.PurchaseMailRequest">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sPurchaseDate">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sItemName">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sPrice">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTransactionNumber">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sPaymentMethod">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTaxVal">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTaxSubtotal">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTaxAmount">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sInvoiceNum">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sExternalTransationNum">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sAddress">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sUserEmail">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.PreviewModuleCancelOrRefundRequest">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.PurchaseWithPreviewModuleRequest">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseWithPreviewModuleRequest.m_sPreviewModuleEndDate">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.PurchaseFailRequest">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.SendPasswordMailRequest">
@@ -10603,9 +10808,6 @@
         <member name="P:WebAPI.Api.TimeShiftedTvPartnerSettings.CleanupNoticePeroid">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.TimeShiftedTvPartnerSettings.IsSeriesRecordingEnabled">
-            <remarks/>
-        </member>
         <member name="T:WebAPI.Api.TimeShiftedTvPartnerSettingsResponse">
             <remarks/>
         </member>
@@ -11002,6 +11204,15 @@
         <member name="F:WebAPI.Api.eBusinessModule.Subscription">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Api.GenericRuleOrderBy">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.GenericRuleOrderBy.NameAsc">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.GenericRuleOrderBy.NameDesc">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Api.BulkExportTaskOrderBy">
             <remarks/>
         </member>
@@ -11189,15 +11400,6 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.UpdateTimeShiftedTvPartnerSettingsCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.UpdateTimeShiftedTvEpgChannelsSettingsCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.UpdateTimeShiftedTvEpgChannelsSettingsCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.UpdateTimeShiftedTvEpgChannelsSettingsCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.GetCDNAdaptersCompletedEventHandler">

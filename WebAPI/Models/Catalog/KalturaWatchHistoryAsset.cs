@@ -14,6 +14,7 @@ namespace WebAPI.Models.Catalog
     /// Watch history asset wrapper
     /// </summary>
     [Serializable]
+    [Obsolete]
     public class KalturaWatchHistoryAssetWrapper : KalturaListResponse, KalturaIAssetable
     {
         /// <summary>
@@ -37,6 +38,7 @@ namespace WebAPI.Models.Catalog
     [Serializable]
     [OldStandard("watchedDate", "watched_date")]
     [OldStandard("finishedWatching", "finished_watching")]
+    [Obsolete]
     public class KalturaWatchHistoryAsset : KalturaOTTObject
     {
         /// <summary>

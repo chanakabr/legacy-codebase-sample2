@@ -1,0 +1,517 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
+	<title>Kaltura - TestMe Console Documentation</title>
+	<link rel="stylesheet" type="text/css" href="css/main.css" />
+	<script type="text/javascript" src="../testme/js/jquery-1.3.1.min.js"></script>
+	<script type="text/javascript">
+	
+	function collapseService($service){
+		$service.removeClass("expended");
+		var $img = $service.children();
+		var src = $img.attr("src").replace("expended", "collapsed");
+		$img.attr("src", src);
+	}
+	
+	function expandService($service){
+		$service.addClass("expended");
+		var $img = $service.children();
+		var src = $img.attr("src").replace("collapsed", "expended");
+		$img.attr("src", src);
+	}
+	
+	$(function() {
+		$(".tree-content").click(function(){
+			var $service = $(this).parent();
+			expandService($service);
+		});
+		
+		$(".tree-item").click(function(){
+			var $service = $(this).parent();
+			if($service.hasClass("expended")){
+				collapseService($service);
+			}
+			else {
+				expandService($service);
+			}
+		});
+	});
+	</script>
+</head>
+<body>
+	<div class="left">
+		<div class="left-content">
+			<div id="general">
+				<h2>General</h2>
+				<ul>
+					<li><a href="general/overview.html" target="main">Overview</a></li>
+					<li><a href="general/terminology.html" target="main">Terminology</a></li>
+					<li><a href="general/inout.html" target="main">Request/Response structure</a></li>
+					<li><a href="general/multirequest.html" target="main">multiRequest</a></li>
+					<li><a href="general/notifications.html" target="main">Notifications</a></li>
+				</ul>
+			</div>
+			<div id="services">
+				<h2>Services</h2>
+				<ul class="services">
+					<li class="service" id="announcement">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/announcement.html" target="main">announcement</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/announcement.delete.html" target="main">delete</a></li>
+							<li class="action"><a href="actions/announcement.updateStatus.html" target="main">updateStatus</a></li>
+						</ul></li>
+					<li class="service" id="apptoken">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/apptoken.html" target="main">appToken</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/apptoken.add.html" target="main">add</a></li>
+							<li class="action"><a href="actions/apptoken.delete.html" target="main">delete</a></li>
+							<li class="action"><a href="actions/apptoken.get.html" target="main">get</a></li>
+							<li class="action"><a href="actions/apptoken.startSession.html" target="main">startSession</a></li>
+						</ul></li>
+					<li class="service" id="asset">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/asset.html" target="main">asset</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/asset.get.html" target="main">get</a></li>
+							<li class="action"><a href="actions/asset.list.html" target="main">list</a></li>
+						</ul></li>
+					<li class="service" id="cdvradapterprofile">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/cdvradapterprofile.html" target="main">cDVRAdapterProfile</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/cdvradapterprofile.add.html" target="main">add</a></li>
+							<li class="action"><a href="actions/cdvradapterprofile.delete.html" target="main">delete</a></li>
+							<li class="action"><a href="actions/cdvradapterprofile.generateSharedSecret.html" target="main">generateSharedSecret</a></li>
+						</ul></li>
+					<li class="service" id="cdnadapterprofile">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/cdnadapterprofile.html" target="main">cdnAdapterProfile</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/cdnadapterprofile.add.html" target="main">add</a></li>
+							<li class="action"><a href="actions/cdnadapterprofile.delete.html" target="main">delete</a></li>
+							<li class="action"><a href="actions/cdnadapterprofile.list.html" target="main">list</a></li>
+							<li class="action"><a href="actions/cdnadapterprofile.update.html" target="main">update</a></li>
+						</ul></li>
+					<li class="service" id="cdnpartnersettings">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/cdnpartnersettings.html" target="main">cdnPartnerSettings</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/cdnpartnersettings.get.html" target="main">get</a></li>
+							<li class="action"><a href="actions/cdnpartnersettings.update.html" target="main">update</a></li>
+						</ul></li>
+					<li class="service" id="channel">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/channel.html" target="main">channel</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/channel.delete.html" target="main">delete</a></li>
+							<li class="action"><a href="actions/channel.get.html" target="main">get</a></li>
+						</ul></li>
+					<li class="service" id="coupon">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/coupon.html" target="main">coupon</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/coupon.get.html" target="main">get</a></li>
+						</ul></li>
+					<li class="service" id="entitlement">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/entitlement.html" target="main">entitlement</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/entitlement.list.html" target="main">list</a></li>
+						</ul></li>
+					<li class="service" id="exporttask">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/exporttask.html" target="main">exportTask</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/exporttask.add.html" target="main">add</a></li>
+							<li class="action"><a href="actions/exporttask.delete.html" target="main">delete</a></li>
+							<li class="action"><a href="actions/exporttask.get.html" target="main">get</a></li>
+							<li class="action"><a href="actions/exporttask.list.html" target="main">list</a></li>
+							<li class="action"><a href="actions/exporttask.update.html" target="main">update</a></li>
+						</ul></li>
+					<li class="service" id="externalchannelprofile">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/externalchannelprofile.html" target="main">externalChannelProfile</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/externalchannelprofile.add.html" target="main">add</a></li>
+							<li class="action"><a href="actions/externalchannelprofile.delete.html" target="main">delete</a></li>
+						</ul></li>
+					<li class="service" id="favorite">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/favorite.html" target="main">favorite</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/favorite.add.html" target="main">add</a></li>
+							<li class="action"><a href="actions/favorite.delete.html" target="main">delete</a></li>
+							<li class="action"><a href="actions/favorite.list.html" target="main">list</a></li>
+						</ul></li>
+					<li class="service" id="followtvseries">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/followtvseries.html" target="main">followTvSeries</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/followtvseries.delete.html" target="main">delete</a></li>
+						</ul></li>
+					<li class="service" id="homenetwork">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/homenetwork.html" target="main">homeNetwork</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/homenetwork.add.html" target="main">add</a></li>
+						</ul></li>
+					<li class="service" id="household">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/household.html" target="main">household</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/household.add.html" target="main">add</a></li>
+							<li class="action"><a href="actions/household.get.html" target="main">get</a></li>
+						</ul></li>
+					<li class="service" id="householddevice">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/householddevice.html" target="main">householdDevice</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/householddevice.add.html" target="main">add</a></li>
+							<li class="action"><a href="actions/householddevice.addByPin.html" target="main">addByPin</a></li>
+							<li class="action"><a href="actions/householddevice.delete.html" target="main">delete</a></li>
+							<li class="action"><a href="actions/householddevice.get.html" target="main">get</a></li>
+						</ul></li>
+					<li class="service" id="householdlimitations">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/householdlimitations.html" target="main">householdLimitations</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/householdlimitations.get.html" target="main">get</a></li>
+						</ul></li>
+					<li class="service" id="householdpremiumservice">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/householdpremiumservice.html" target="main">householdPremiumService</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/householdpremiumservice.list.html" target="main">list</a></li>
+						</ul></li>
+					<li class="service" id="householduser">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/householduser.html" target="main">householdUser</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/householduser.add.html" target="main">add</a></li>
+							<li class="action"><a href="actions/householduser.delete.html" target="main">delete</a></li>
+						</ul></li>
+					<li class="service" id="inboxmessage">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/inboxmessage.html" target="main">inboxMessage</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/inboxmessage.get.html" target="main">get</a></li>
+						</ul></li>
+					<li class="service" id="ossadapterprofile">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/ossadapterprofile.html" target="main">ossAdapterProfile</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/ossadapterprofile.add.html" target="main">add</a></li>
+							<li class="action"><a href="actions/ossadapterprofile.delete.html" target="main">delete</a></li>
+						</ul></li>
+					<li class="service" id="ottcategory">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/ottcategory.html" target="main">ottCategory</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/ottcategory.get.html" target="main">get</a></li>
+						</ul></li>
+					<li class="service" id="ottuser">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/ottuser.html" target="main">ottUser</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/ottuser.activate.html" target="main">activate</a></li>
+							<li class="action"><a href="actions/ottuser.delete.html" target="main">delete</a></li>
+							<li class="action"><a href="actions/ottuser.facebookLogin.html" target="main">facebookLogin</a></li>
+							<li class="action"><a href="actions/ottuser.get.html" target="main">get</a></li>
+							<li class="action"><a href="actions/ottuser.login.html" target="main">login</a></li>
+							<li class="action"><a href="actions/ottuser.loginWithPin.html" target="main">loginWithPin</a></li>
+							<li class="action"><a href="actions/ottuser.register.html" target="main">register</a></li>
+							<li class="action"><a href="actions/ottuser.resendActivationToken.html" target="main">resendActivationToken</a></li>
+							<li class="action"><a href="actions/ottuser.resetPassword.html" target="main">resetPassword</a></li>
+							<li class="action"><a href="actions/ottuser.setInitialPassword.html" target="main">setInitialPassword</a></li>
+							<li class="action"><a href="actions/ottuser.update.html" target="main">update</a></li>
+							<li class="action"><a href="actions/ottuser.updateLoginData.html" target="main">updateLoginData</a></li>
+						</ul></li>
+					<li class="service" id="parentalrule">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/parentalrule.html" target="main">parentalRule</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/parentalrule.disable.html" target="main">disable</a></li>
+							<li class="action"><a href="actions/parentalrule.disableDefault.html" target="main">disableDefault</a></li>
+							<li class="action"><a href="actions/parentalrule.enable.html" target="main">enable</a></li>
+							<li class="action"><a href="actions/parentalrule.list.html" target="main">list</a></li>
+						</ul></li>
+					<li class="service" id="paymentgateway">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/paymentgateway.html" target="main">paymentGateway</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/paymentgateway.delete.html" target="main">delete</a></li>
+						</ul></li>
+					<li class="service" id="paymentgatewayprofile">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/paymentgatewayprofile.html" target="main">paymentGatewayProfile</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/paymentgatewayprofile.add.html" target="main">add</a></li>
+							<li class="action"><a href="actions/paymentgatewayprofile.delete.html" target="main">delete</a></li>
+							<li class="action"><a href="actions/paymentgatewayprofile.getConfiguration.html" target="main">getConfiguration</a></li>
+							<li class="action"><a href="actions/paymentgatewayprofile.list.html" target="main">list</a></li>
+							<li class="action"><a href="actions/paymentgatewayprofile.update.html" target="main">update</a></li>
+						</ul></li>
+					<li class="service" id="ppv">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/ppv.html" target="main">ppv</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/ppv.get.html" target="main">get</a></li>
+						</ul></li>
+					<li class="service" id="productprice">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/productprice.html" target="main">productPrice</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/productprice.list.html" target="main">list</a></li>
+						</ul></li>
+					<li class="service" id="recommendationprofile">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/recommendationprofile.html" target="main">recommendationProfile</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/recommendationprofile.add.html" target="main">add</a></li>
+							<li class="action"><a href="actions/recommendationprofile.delete.html" target="main">delete</a></li>
+						</ul></li>
+					<li class="service" id="recording">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/recording.html" target="main">recording</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/recording.add.html" target="main">add</a></li>
+							<li class="action"><a href="actions/recording.cancel.html" target="main">cancel</a></li>
+							<li class="action"><a href="actions/recording.delete.html" target="main">delete</a></li>
+							<li class="action"><a href="actions/recording.get.html" target="main">get</a></li>
+							<li class="action"><a href="actions/recording.getContext.html" target="main">getContext</a></li>
+							<li class="action"><a href="actions/recording.list.html" target="main">list</a></li>
+							<li class="action"><a href="actions/recording.protect.html" target="main">protect</a></li>
+						</ul></li>
+					<li class="service" id="session">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/session.html" target="main">session</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/session.switchUser.html" target="main">switchUser</a></li>
+						</ul></li>
+					<li class="service" id="subscription">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/subscription.html" target="main">subscription</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/subscription.list.html" target="main">list</a></li>
+						</ul></li>
+					<li class="service" id="topic">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/topic.html" target="main">topic</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/topic.delete.html" target="main">delete</a></li>
+							<li class="action"><a href="actions/topic.get.html" target="main">get</a></li>
+						</ul></li>
+					<li class="service" id="transactionhistory">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/transactionhistory.html" target="main">transactionHistory</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/transactionhistory.list.html" target="main">list</a></li>
+						</ul></li>
+					<li class="service" id="userassetrule">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/userassetrule.html" target="main">userAssetRule</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/userassetrule.list.html" target="main">list</a></li>
+						</ul></li>
+					<li class="service" id="userassetslistitem">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/userassetslistitem.html" target="main">userAssetsListItem</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/userassetslistitem.add.html" target="main">add</a></li>
+						</ul></li>
+				</ul>
+			</div>
+			<div id="objects">
+				<h2>General Objects</h2>
+				<ul>
+					<li id="object_KalturaAnnouncement"><a href="objects/KalturaAnnouncement.html" target="main">KalturaAnnouncement</a></li>
+					<li id="object_KalturaAppToken"><a href="objects/KalturaAppToken.html" target="main">KalturaAppToken</a></li>
+					<li id="object_KalturaAsset"><a href="objects/KalturaAsset.html" target="main">KalturaAsset</a></li>
+					<li id="object_KalturaAssetBookmark"><a href="objects/KalturaAssetBookmark.html" target="main">KalturaAssetBookmark</a></li>
+					<li id="object_KalturaAssetBookmarks"><a href="objects/KalturaAssetBookmarks.html" target="main">KalturaAssetBookmarks</a></li>
+					<li id="object_KalturaAssetListResponse"><a href="objects/KalturaAssetListResponse.html" target="main">KalturaAssetListResponse</a></li>
+					<li id="object_KalturaAssetsBookmarksResponse"><a href="objects/KalturaAssetsBookmarksResponse.html" target="main">KalturaAssetsBookmarksResponse</a></li>
+					<li id="object_KalturaBaseAssetInfo"><a href="objects/KalturaBaseAssetInfo.html" target="main">KalturaBaseAssetInfo</a></li>
+					<li id="object_KalturaBaseChannel"><a href="objects/KalturaBaseChannel.html" target="main">KalturaBaseChannel</a></li>
+					<li id="object_KalturaBaseOTTUser"><a href="objects/KalturaBaseOTTUser.html" target="main">KalturaBaseOTTUser</a></li>
+					<li id="object_KalturaBillingTransaction"><a href="objects/KalturaBillingTransaction.html" target="main">KalturaBillingTransaction</a></li>
+					<li id="object_KalturaBillingTransactionListResponse"><a href="objects/KalturaBillingTransactionListResponse.html" target="main">KalturaBillingTransactionListResponse</a></li>
+					<li id="object_KalturaBooleanValue"><a href="objects/KalturaBooleanValue.html" target="main">KalturaBooleanValue</a></li>
+					<li id="object_KalturaCDNAdapterProfile"><a href="objects/KalturaCDNAdapterProfile.html" target="main">KalturaCDNAdapterProfile</a></li>
+					<li id="object_KalturaCDNAdapterProfileListResponse"><a href="objects/KalturaCDNAdapterProfileListResponse.html" target="main">KalturaCDNAdapterProfileListResponse</a></li>
+					<li id="object_KalturaCDNPartnerSettings"><a href="objects/KalturaCDNPartnerSettings.html" target="main">KalturaCDNPartnerSettings</a></li>
+					<li id="object_KalturaCDVRAdapterProfile"><a href="objects/KalturaCDVRAdapterProfile.html" target="main">KalturaCDVRAdapterProfile</a></li>
+					<li id="object_KalturaChannel"><a href="objects/KalturaChannel.html" target="main">KalturaChannel</a></li>
+					<li id="object_KalturaChannelEnrichmentHolder"><a href="objects/KalturaChannelEnrichmentHolder.html" target="main">KalturaChannelEnrichmentHolder</a></li>
+					<li id="object_KalturaCountry"><a href="objects/KalturaCountry.html" target="main">KalturaCountry</a></li>
+					<li id="object_KalturaCoupon"><a href="objects/KalturaCoupon.html" target="main">KalturaCoupon</a></li>
+					<li id="object_KalturaCouponsGroup"><a href="objects/KalturaCouponsGroup.html" target="main">KalturaCouponsGroup</a></li>
+					<li id="object_KalturaDevice"><a href="objects/KalturaDevice.html" target="main">KalturaDevice</a></li>
+					<li id="object_KalturaDeviceFamily"><a href="objects/KalturaDeviceFamily.html" target="main">KalturaDeviceFamily</a></li>
+					<li id="object_KalturaDeviceFamilyBase"><a href="objects/KalturaDeviceFamilyBase.html" target="main">KalturaDeviceFamilyBase</a></li>
+					<li id="object_KalturaDiscountModule"><a href="objects/KalturaDiscountModule.html" target="main">KalturaDiscountModule</a></li>
+					<li id="object_KalturaDoubleValue"><a href="objects/KalturaDoubleValue.html" target="main">KalturaDoubleValue</a></li>
+					<li id="object_KalturaEntitlement"><a href="objects/KalturaEntitlement.html" target="main">KalturaEntitlement</a></li>
+					<li id="object_KalturaEntitlementListResponse"><a href="objects/KalturaEntitlementListResponse.html" target="main">KalturaEntitlementListResponse</a></li>
+					<li id="object_KalturaExportTask"><a href="objects/KalturaExportTask.html" target="main">KalturaExportTask</a></li>
+					<li id="object_KalturaExportTaskListResponse"><a href="objects/KalturaExportTaskListResponse.html" target="main">KalturaExportTaskListResponse</a></li>
+					<li id="object_KalturaExternalChannelProfile"><a href="objects/KalturaExternalChannelProfile.html" target="main">KalturaExternalChannelProfile</a></li>
+					<li id="object_KalturaFavorite"><a href="objects/KalturaFavorite.html" target="main">KalturaFavorite</a></li>
+					<li id="object_KalturaFavoriteListResponse"><a href="objects/KalturaFavoriteListResponse.html" target="main">KalturaFavoriteListResponse</a></li>
+					<li id="object_KalturaFeed"><a href="objects/KalturaFeed.html" target="main">KalturaFeed</a></li>
+					<li id="object_KalturaFilterPager"><a href="objects/KalturaFilterPager.html" target="main">KalturaFilterPager</a></li>
+					<li id="object_KalturaFollowDataBase"><a href="objects/KalturaFollowDataBase.html" target="main">KalturaFollowDataBase</a></li>
+					<li id="object_KalturaFollowDataTvSeries"><a href="objects/KalturaFollowDataTvSeries.html" target="main">KalturaFollowDataTvSeries</a></li>
+					<li id="object_KalturaHomeNetwork"><a href="objects/KalturaHomeNetwork.html" target="main">KalturaHomeNetwork</a></li>
+					<li id="object_KalturaHousehold"><a href="objects/KalturaHousehold.html" target="main">KalturaHousehold</a></li>
+					<li id="object_KalturaHouseholdDeviceFamilyLimitations"><a href="objects/KalturaHouseholdDeviceFamilyLimitations.html" target="main">KalturaHouseholdDeviceFamilyLimitations</a></li>
+					<li id="object_KalturaHouseholdLimitations"><a href="objects/KalturaHouseholdLimitations.html" target="main">KalturaHouseholdLimitations</a></li>
+					<li id="object_KalturaHouseholdPaymentMethod"><a href="objects/KalturaHouseholdPaymentMethod.html" target="main">KalturaHouseholdPaymentMethod</a></li>
+					<li id="object_KalturaHouseholdPremiumService"><a href="objects/KalturaHouseholdPremiumService.html" target="main">KalturaHouseholdPremiumService</a></li>
+					<li id="object_KalturaHouseholdPremiumServiceListResponse"><a href="objects/KalturaHouseholdPremiumServiceListResponse.html" target="main">KalturaHouseholdPremiumServiceListResponse</a></li>
+					<li id="object_KalturaHouseholdUser"><a href="objects/KalturaHouseholdUser.html" target="main">KalturaHouseholdUser</a></li>
+					<li id="object_KalturaInboxMessage"><a href="objects/KalturaInboxMessage.html" target="main">KalturaInboxMessage</a></li>
+					<li id="object_KalturaInboxMessageResponse"><a href="objects/KalturaInboxMessageResponse.html" target="main">KalturaInboxMessageResponse</a></li>
+					<li id="object_KalturaIntegerValue"><a href="objects/KalturaIntegerValue.html" target="main">KalturaIntegerValue</a></li>
+					<li id="object_KalturaItemPrice"><a href="objects/KalturaItemPrice.html" target="main">KalturaItemPrice</a></li>
+					<li id="object_KalturaItemPriceListResponse"><a href="objects/KalturaItemPriceListResponse.html" target="main">KalturaItemPriceListResponse</a></li>
+					<li id="object_KalturaKeyValue"><a href="objects/KalturaKeyValue.html" target="main">KalturaKeyValue</a></li>
+					<li id="object_KalturaListFollowDataTvSeriesResponse"><a href="objects/KalturaListFollowDataTvSeriesResponse.html" target="main">KalturaListFollowDataTvSeriesResponse</a></li>
+					<li id="object_KalturaListResponse"><a href="objects/KalturaListResponse.html" target="main">KalturaListResponse</a></li>
+					<li id="object_KalturaLoginResponse"><a href="objects/KalturaLoginResponse.html" target="main">KalturaLoginResponse</a></li>
+					<li id="object_KalturaLoginSession"><a href="objects/KalturaLoginSession.html" target="main">KalturaLoginSession</a></li>
+					<li id="object_KalturaLongValue"><a href="objects/KalturaLongValue.html" target="main">KalturaLongValue</a></li>
+					<li id="object_KalturaMediaFile"><a href="objects/KalturaMediaFile.html" target="main">KalturaMediaFile</a></li>
+					<li id="object_KalturaMediaImage"><a href="objects/KalturaMediaImage.html" target="main">KalturaMediaImage</a></li>
+					<li id="object_KalturaMessageAnnouncementListResponse"><a href="objects/KalturaMessageAnnouncementListResponse.html" target="main">KalturaMessageAnnouncementListResponse</a></li>
+					<li id="object_KalturaOSSAdapterBaseProfile"><a href="objects/KalturaOSSAdapterBaseProfile.html" target="main">KalturaOSSAdapterBaseProfile</a></li>
+					<li id="object_KalturaOSSAdapterProfile"><a href="objects/KalturaOSSAdapterProfile.html" target="main">KalturaOSSAdapterProfile</a></li>
+					<li id="object_KalturaOTTCategory"><a href="objects/KalturaOTTCategory.html" target="main">KalturaOTTCategory</a></li>
+					<li id="object_KalturaOTTUser"><a href="objects/KalturaOTTUser.html" target="main">KalturaOTTUser</a></li>
+					<li id="object_KalturaOTTUserListResponse"><a href="objects/KalturaOTTUserListResponse.html" target="main">KalturaOTTUserListResponse</a></li>
+					<li id="object_KalturaOTTUserType"><a href="objects/KalturaOTTUserType.html" target="main">KalturaOTTUserType</a></li>
+					<li id="object_KalturaPPVItemPriceDetails"><a href="objects/KalturaPPVItemPriceDetails.html" target="main">KalturaPPVItemPriceDetails</a></li>
+					<li id="object_KalturaParentalRule"><a href="objects/KalturaParentalRule.html" target="main">KalturaParentalRule</a></li>
+					<li id="object_KalturaParentalRuleListResponse"><a href="objects/KalturaParentalRuleListResponse.html" target="main">KalturaParentalRuleListResponse</a></li>
+					<li id="object_KalturaPaymentGatewayBaseProfile"><a href="objects/KalturaPaymentGatewayBaseProfile.html" target="main">KalturaPaymentGatewayBaseProfile</a></li>
+					<li id="object_KalturaPaymentGatewayConfiguration"><a href="objects/KalturaPaymentGatewayConfiguration.html" target="main">KalturaPaymentGatewayConfiguration</a></li>
+					<li id="object_KalturaPaymentGatewayProfile"><a href="objects/KalturaPaymentGatewayProfile.html" target="main">KalturaPaymentGatewayProfile</a></li>
+					<li id="object_KalturaPaymentGatewayProfileListResponse"><a href="objects/KalturaPaymentGatewayProfileListResponse.html" target="main">KalturaPaymentGatewayProfileListResponse</a></li>
+					<li id="object_KalturaPaymentMethod"><a href="objects/KalturaPaymentMethod.html" target="main">KalturaPaymentMethod</a></li>
+					<li id="object_KalturaPersonalAsset"><a href="objects/KalturaPersonalAsset.html" target="main">KalturaPersonalAsset</a></li>
+					<li id="object_KalturaPersonalAssetListResponse"><a href="objects/KalturaPersonalAssetListResponse.html" target="main">KalturaPersonalAssetListResponse</a></li>
+					<li id="object_KalturaPersonalFollowFeed"><a href="objects/KalturaPersonalFollowFeed.html" target="main">KalturaPersonalFollowFeed</a></li>
+					<li id="object_KalturaPersonalFollowFeedResponse"><a href="objects/KalturaPersonalFollowFeedResponse.html" target="main">KalturaPersonalFollowFeedResponse</a></li>
+					<li id="object_KalturaPpv"><a href="objects/KalturaPpv.html" target="main">KalturaPpv</a></li>
+					<li id="object_KalturaPpvPrice"><a href="objects/KalturaPpvPrice.html" target="main">KalturaPpvPrice</a></li>
+					<li id="object_KalturaPremiumService"><a href="objects/KalturaPremiumService.html" target="main">KalturaPremiumService</a></li>
+					<li id="object_KalturaPreviewModule"><a href="objects/KalturaPreviewModule.html" target="main">KalturaPreviewModule</a></li>
+					<li id="object_KalturaPrice"><a href="objects/KalturaPrice.html" target="main">KalturaPrice</a></li>
+					<li id="object_KalturaPriceDetails"><a href="objects/KalturaPriceDetails.html" target="main">KalturaPriceDetails</a></li>
+					<li id="object_KalturaPricePlan"><a href="objects/KalturaPricePlan.html" target="main">KalturaPricePlan</a></li>
+					<li id="object_KalturaProductPrice"><a href="objects/KalturaProductPrice.html" target="main">KalturaProductPrice</a></li>
+					<li id="object_KalturaProductPriceListResponse"><a href="objects/KalturaProductPriceListResponse.html" target="main">KalturaProductPriceListResponse</a></li>
+					<li id="object_KalturaProductsPriceListResponse"><a href="objects/KalturaProductsPriceListResponse.html" target="main">KalturaProductsPriceListResponse</a></li>
+					<li id="object_KalturaRecommendationProfile"><a href="objects/KalturaRecommendationProfile.html" target="main">KalturaRecommendationProfile</a></li>
+					<li id="object_KalturaRecording"><a href="objects/KalturaRecording.html" target="main">KalturaRecording</a></li>
+					<li id="object_KalturaRecordingContext"><a href="objects/KalturaRecordingContext.html" target="main">KalturaRecordingContext</a></li>
+					<li id="object_KalturaRecordingContextListResponse"><a href="objects/KalturaRecordingContextListResponse.html" target="main">KalturaRecordingContextListResponse</a></li>
+					<li id="object_KalturaRecordingListResponse"><a href="objects/KalturaRecordingListResponse.html" target="main">KalturaRecordingListResponse</a></li>
+					<li id="object_KalturaRegistryParameter"><a href="objects/KalturaRegistryParameter.html" target="main">KalturaRegistryParameter</a></li>
+					<li id="object_KalturaRegistryResponse"><a href="objects/KalturaRegistryResponse.html" target="main">KalturaRegistryResponse</a></li>
+					<li id="object_KalturaSessionInfo"><a href="objects/KalturaSessionInfo.html" target="main">KalturaSessionInfo</a></li>
+					<li id="object_KalturaSlimAsset"><a href="objects/KalturaSlimAsset.html" target="main">KalturaSlimAsset</a></li>
+					<li id="object_KalturaSlimAssetInfoWrapper"><a href="objects/KalturaSlimAssetInfoWrapper.html" target="main">KalturaSlimAssetInfoWrapper</a></li>
+					<li id="object_KalturaStringValue"><a href="objects/KalturaStringValue.html" target="main">KalturaStringValue</a></li>
+					<li id="object_KalturaStringValueArray"><a href="objects/KalturaStringValueArray.html" target="main">KalturaStringValueArray</a></li>
+					<li id="object_KalturaSubscription"><a href="objects/KalturaSubscription.html" target="main">KalturaSubscription</a></li>
+					<li id="object_KalturaSubscriptionListResponse"><a href="objects/KalturaSubscriptionListResponse.html" target="main">KalturaSubscriptionListResponse</a></li>
+					<li id="object_KalturaSubscriptionPrice"><a href="objects/KalturaSubscriptionPrice.html" target="main">KalturaSubscriptionPrice</a></li>
+					<li id="object_KalturaTopic"><a href="objects/KalturaTopic.html" target="main">KalturaTopic</a></li>
+					<li id="object_KalturaTopicResponse"><a href="objects/KalturaTopicResponse.html" target="main">KalturaTopicResponse</a></li>
+					<li id="object_KalturaTranslationToken"><a href="objects/KalturaTranslationToken.html" target="main">KalturaTranslationToken</a></li>
+					<li id="object_KalturaUsageModule"><a href="objects/KalturaUsageModule.html" target="main">KalturaUsageModule</a></li>
+					<li id="object_KalturaUserAssetRule"><a href="objects/KalturaUserAssetRule.html" target="main">KalturaUserAssetRule</a></li>
+					<li id="object_KalturaUserAssetRuleListResponse"><a href="objects/KalturaUserAssetRuleListResponse.html" target="main">KalturaUserAssetRuleListResponse</a></li>
+					<li id="object_KalturaUserAssetsList"><a href="objects/KalturaUserAssetsList.html" target="main">KalturaUserAssetsList</a></li>
+					<li id="object_KalturaUserAssetsListItem"><a href="objects/KalturaUserAssetsListItem.html" target="main">KalturaUserAssetsListItem</a></li>
+					<li id="object_KalturaUserAssetsListListResponse"><a href="objects/KalturaUserAssetsListListResponse.html" target="main">KalturaUserAssetsListListResponse</a></li>
+					<li id="object_KalturaUserBillingTransaction"><a href="objects/KalturaUserBillingTransaction.html" target="main">KalturaUserBillingTransaction</a></li>
+					<li id="object_KalturaValue"><a href="objects/KalturaValue.html" target="main">KalturaValue</a></li>
+				</ul>
+			</div>
+			<div id="objects">
+				<h2>Filter Objects</h2>
+				<ul>
+					<li id="object_KalturaAssetFilter"><a href="objects/KalturaAssetFilter.html" target="main">KalturaAssetFilter</a></li>
+					<li id="object_KalturaEntitlementFilter"><a href="objects/KalturaEntitlementFilter.html" target="main">KalturaEntitlementFilter</a></li>
+					<li id="object_KalturaExportTaskFilter"><a href="objects/KalturaExportTaskFilter.html" target="main">KalturaExportTaskFilter</a></li>
+					<li id="object_KalturaFavoriteFilter"><a href="objects/KalturaFavoriteFilter.html" target="main">KalturaFavoriteFilter</a></li>
+					<li id="object_KalturaFilter"><a href="objects/KalturaFilter.html" target="main">KalturaFilter</a></li>
+					<li id="object_KalturaParentalRuleFilter"><a href="objects/KalturaParentalRuleFilter.html" target="main">KalturaParentalRuleFilter</a></li>
+					<li id="object_KalturaProductPriceFilter"><a href="objects/KalturaProductPriceFilter.html" target="main">KalturaProductPriceFilter</a></li>
+					<li id="object_KalturaRecordingContextFilter"><a href="objects/KalturaRecordingContextFilter.html" target="main">KalturaRecordingContextFilter</a></li>
+					<li id="object_KalturaRecordingFilter"><a href="objects/KalturaRecordingFilter.html" target="main">KalturaRecordingFilter</a></li>
+					<li id="object_KalturaSubscriptionFilter"><a href="objects/KalturaSubscriptionFilter.html" target="main">KalturaSubscriptionFilter</a></li>
+					<li id="object_KalturaTransactionHistoryFilter"><a href="objects/KalturaTransactionHistoryFilter.html" target="main">KalturaTransactionHistoryFilter</a></li>
+					<li id="object_KalturaUserAssetRuleFilter"><a href="objects/KalturaUserAssetRuleFilter.html" target="main">KalturaUserAssetRuleFilter</a></li>
+				</ul>
+			</div>
+			<div id="enums">
+				<h2>Enums</h2>
+				<ul>
+					<li id="object_KalturaAnnouncementRecipientsType"><a href="enums/KalturaAnnouncementRecipientsType.html" target="main">KalturaAnnouncementRecipientsType</a></li>
+					<li id="object_KalturaAnnouncementStatus"><a href="enums/KalturaAnnouncementStatus.html" target="main">KalturaAnnouncementStatus</a></li>
+					<li id="object_KalturaAppTokenHashType"><a href="enums/KalturaAppTokenHashType.html" target="main">KalturaAppTokenHashType</a></li>
+					<li id="object_KalturaAppTokenStatus"><a href="enums/KalturaAppTokenStatus.html" target="main">KalturaAppTokenStatus</a></li>
+					<li id="object_KalturaAssetOrderBy"><a href="enums/KalturaAssetOrderBy.html" target="main">KalturaAssetOrderBy</a></li>
+					<li id="object_KalturaAssetOrderBy"><a href="enums/KalturaAssetOrderBy.html" target="main">KalturaAssetOrderBy</a></li>
+					<li id="object_KalturaAssetReferenceType"><a href="enums/KalturaAssetReferenceType.html" target="main">KalturaAssetReferenceType</a></li>
+					<li id="object_KalturaAssetType"><a href="enums/KalturaAssetType.html" target="main">KalturaAssetType</a></li>
+					<li id="object_KalturaBillingAction"><a href="enums/KalturaBillingAction.html" target="main">KalturaBillingAction</a></li>
+					<li id="object_KalturaBillingItemsType"><a href="enums/KalturaBillingItemsType.html" target="main">KalturaBillingItemsType</a></li>
+					<li id="object_KalturaChannelEnrichment"><a href="enums/KalturaChannelEnrichment.html" target="main">KalturaChannelEnrichment</a></li>
+					<li id="object_KalturaCouponStatus"><a href="enums/KalturaCouponStatus.html" target="main">KalturaCouponStatus</a></li>
+					<li id="object_KalturaDeviceState"><a href="enums/KalturaDeviceState.html" target="main">KalturaDeviceState</a></li>
+					<li id="object_KalturaEntitlementOrderBy"><a href="enums/KalturaEntitlementOrderBy.html" target="main">KalturaEntitlementOrderBy</a></li>
+					<li id="object_KalturaEntityReferenceBy"><a href="enums/KalturaEntityReferenceBy.html" target="main">KalturaEntityReferenceBy</a></li>
+					<li id="object_KalturaExportDataType"><a href="enums/KalturaExportDataType.html" target="main">KalturaExportDataType</a></li>
+					<li id="object_KalturaExportTaskOrderBy"><a href="enums/KalturaExportTaskOrderBy.html" target="main">KalturaExportTaskOrderBy</a></li>
+					<li id="object_KalturaExportType"><a href="enums/KalturaExportType.html" target="main">KalturaExportType</a></li>
+					<li id="object_KalturaFavoriteOrderBy"><a href="enums/KalturaFavoriteOrderBy.html" target="main">KalturaFavoriteOrderBy</a></li>
+					<li id="object_KalturaHouseholdPaymentGatewaySelectedBy"><a href="enums/KalturaHouseholdPaymentGatewaySelectedBy.html" target="main">KalturaHouseholdPaymentGatewaySelectedBy</a></li>
+					<li id="object_KalturaHouseholdRestriction"><a href="enums/KalturaHouseholdRestriction.html" target="main">KalturaHouseholdRestriction</a></li>
+					<li id="object_KalturaHouseholdState"><a href="enums/KalturaHouseholdState.html" target="main">KalturaHouseholdState</a></li>
+					<li id="object_KalturaHouseholdSuspentionState"><a href="enums/KalturaHouseholdSuspentionState.html" target="main">KalturaHouseholdSuspentionState</a></li>
+					<li id="object_KalturaInboxMessageStatus"><a href="enums/KalturaInboxMessageStatus.html" target="main">KalturaInboxMessageStatus</a></li>
+					<li id="object_KalturaInboxMessageType"><a href="enums/KalturaInboxMessageType.html" target="main">KalturaInboxMessageType</a></li>
+					<li id="object_KalturaParentalRuleOrderBy"><a href="enums/KalturaParentalRuleOrderBy.html" target="main">KalturaParentalRuleOrderBy</a></li>
+					<li id="object_KalturaParentalRuleType"><a href="enums/KalturaParentalRuleType.html" target="main">KalturaParentalRuleType</a></li>
+					<li id="object_KalturaPaymentMethodType"><a href="enums/KalturaPaymentMethodType.html" target="main">KalturaPaymentMethodType</a></li>
+					<li id="object_KalturaPositionOwner"><a href="enums/KalturaPositionOwner.html" target="main">KalturaPositionOwner</a></li>
+					<li id="object_KalturaProductPriceOrderBy"><a href="enums/KalturaProductPriceOrderBy.html" target="main">KalturaProductPriceOrderBy</a></li>
+					<li id="object_KalturaPurchaseStatus"><a href="enums/KalturaPurchaseStatus.html" target="main">KalturaPurchaseStatus</a></li>
+					<li id="object_KalturaRecordingContextOrderBy"><a href="enums/KalturaRecordingContextOrderBy.html" target="main">KalturaRecordingContextOrderBy</a></li>
+					<li id="object_KalturaRecordingOrderBy"><a href="enums/KalturaRecordingOrderBy.html" target="main">KalturaRecordingOrderBy</a></li>
+					<li id="object_KalturaRecordingStatus"><a href="enums/KalturaRecordingStatus.html" target="main">KalturaRecordingStatus</a></li>
+					<li id="object_KalturaRecordingType"><a href="enums/KalturaRecordingType.html" target="main">KalturaRecordingType</a></li>
+					<li id="object_KalturaRuleLevel"><a href="enums/KalturaRuleLevel.html" target="main">KalturaRuleLevel</a></li>
+					<li id="object_KalturaRuleType"><a href="enums/KalturaRuleType.html" target="main">KalturaRuleType</a></li>
+					<li id="object_KalturaSessionType"><a href="enums/KalturaSessionType.html" target="main">KalturaSessionType</a></li>
+					<li id="object_KalturaSubscriptionOrderBy"><a href="enums/KalturaSubscriptionOrderBy.html" target="main">KalturaSubscriptionOrderBy</a></li>
+					<li id="object_KalturaTopicAutomaticIssueNotification"><a href="enums/KalturaTopicAutomaticIssueNotification.html" target="main">KalturaTopicAutomaticIssueNotification</a></li>
+					<li id="object_KalturaTransactionHistoryOrderBy"><a href="enums/KalturaTransactionHistoryOrderBy.html" target="main">KalturaTransactionHistoryOrderBy</a></li>
+					<li id="object_KalturaTransactionType"><a href="enums/KalturaTransactionType.html" target="main">KalturaTransactionType</a></li>
+					<li id="object_KalturaUserAssetRuleOrderBy"><a href="enums/KalturaUserAssetRuleOrderBy.html" target="main">KalturaUserAssetRuleOrderBy</a></li>
+					<li id="object_KalturaUserAssetsListItemType"><a href="enums/KalturaUserAssetsListItemType.html" target="main">KalturaUserAssetsListItemType</a></li>
+					<li id="object_KalturaUserAssetsListType"><a href="enums/KalturaUserAssetsListType.html" target="main">KalturaUserAssetsListType</a></li>
+					<li id="object_KalturaUserState"><a href="enums/KalturaUserState.html" target="main">KalturaUserState</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

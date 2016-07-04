@@ -1,0 +1,1 @@
+{"actionParams":[{"type":"bigint","isSimpleType":true,"isComplexType":false,"isFile":false,"isEnum":false,"isStringEnum":false,"isArray":false,"isAbstract":false,"description":"The identifier of the task to delete","name":"id","isOptional":false}],"description":"Deletes an existing bulk export task by task identifier"}
