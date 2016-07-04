@@ -431,39 +431,8 @@ namespace ElasticSearch.Common
         }
     }
 
-    public class FieldsMappingPropertyV2 : IMappingProperty
+    public class FieldsMappingPropertyV2 : BasicMappingPropertyV2
     {
-        public eESFieldType type
-        {
-            get;
-            protected set;
-        }
-        public string null_value
-        {
-            get;
-            set;
-        }
-        public string analyzer
-        {
-            get;
-            set;
-        }
-        public string name
-        {
-            get;
-            set;
-        }
-        public bool store
-        {
-            get;
-            set;
-        }
-
-        public eMappingIndex index
-        {
-            get;
-            set;
-        }
         public List<IMappingProperty> fields
         {
             get;
@@ -503,6 +472,27 @@ namespace ElasticSearch.Common
             sb.Append("{");
 
             sb.AppendFormat("\"type\": \"{0}\"", type.ToString().ToLower());
+
+            if (type == eESFieldType.STRING)
+            {
+                sb.AppendFormat(",\"null_value\": \"{0}\"", null_value);
+            }
+
+            if (!string.IsNullOrEmpty(format))
+            {
+                sb.AppendFormat(",\"format\": \"{0}\"", format);
+            }
+
+            sb.AppendFormat(",\"index\": \"{0}\"", index);
+
+            if (index == eMappingIndex.analyzed)
+            {
+                if (!string.IsNullOrEmpty(search_analyzer))
+                    sb.AppendFormat(",\"search_analyzer\": \"{0}\"", search_analyzer);
+
+                if (!string.IsNullOrEmpty(analyzer))
+                    sb.AppendFormat(",\"analyzer\": \"{0}\"", analyzer);
+            }
 
             if (fields.Count > 0)
             {
