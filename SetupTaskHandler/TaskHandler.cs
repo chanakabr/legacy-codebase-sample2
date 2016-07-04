@@ -33,11 +33,36 @@ namespace SetupTaskHandler
                 switch (request.Mission.Value)
                 {
                     case ApiObjects.eSetupTask.BuildIPToCountry:
-
+                    {
                         var worker = new IPToCountryIndexBuilder();
-                        success = worker.BuildIndex();
-                        break;
 
+                        bool v1Success = true;
+                        bool v2Success = true;
+
+                        string urlV1 = TVinciShared.WS_Utils.GetTcmConfigValue("ES_URL_V1");
+                        string urlV2 = TVinciShared.WS_Utils.GetTcmConfigValue("ES_URL_V2");
+
+                        if (string.IsNullOrEmpty(urlV1) && string.IsNullOrEmpty(urlV2))
+                        {
+                            success = worker.BuildIndex();
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrEmpty(urlV1))
+                            {
+                                v1Success = worker.BuildIndex(urlV1, 1);
+                            }
+
+                            if (!string.IsNullOrEmpty(urlV2))
+                            {
+                                v2Success = worker.BuildIndex(urlV2, 2);
+                            }
+
+                            success = v1Success && v2Success;
+                        }
+
+                        break;
+                    }
                     case ApiObjects.eSetupTask.NotificationCleanupIteration:
 
                         //Call Notifications WCF service

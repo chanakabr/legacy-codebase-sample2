@@ -15,18 +15,42 @@ namespace SetupTaskHandler
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         
-        protected ESSerializer serializer;
+        protected BaseESSeralizer serializer;
         protected ElasticSearchApi api;
 
         public IPToCountryIndexBuilder()
         {
-            serializer = new ElasticSearch.Common.ESSerializer();
+            serializer = null;
             api = new ElasticSearchApi();
         }
 
-        public bool BuildIndex()
+        public bool BuildIndex(string elasticSearchUrl = "", int version = 1)
         {
             bool result = false;
+
+            if (!string.IsNullOrEmpty(elasticSearchUrl))
+            {
+                api.baseUrl = elasticSearchUrl;
+            }
+
+            switch (version)
+            {
+                case 1:
+                {
+                    serializer = new ESSerializerV1();
+                    break;
+                }
+                case 2:
+                {
+                    serializer = new ESSerializerV2();
+                    break;
+                }
+                default:
+                {
+                    serializer = new ESSerializerV1();
+                    break;
+                }
+            }
 
             string newIndex = "utils";
             string type = "iptocountry";
