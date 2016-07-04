@@ -104,6 +104,7 @@
     <Compile Include="Searcher\ESMatchAllQuery.cs" />
     <Compile Include="Searcher\ESMatchQuery.cs" />
     <Compile Include="Searcher\ESMediaQueryBuilder.cs" />
+    <Compile Include="Searcher\ESQuery.cs" />
     <Compile Include="Searcher\ESStatisticsQueryBuilder.cs" />
     <Compile Include="Searcher\ESUnifiedQueryBuilder.cs" />
     <Compile Include="Searcher\FilterCompositeType.cs" />

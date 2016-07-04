@@ -390,7 +390,19 @@ namespace ElasticSearch.Common
             ESRouting routing = new ESRouting()
             {
                 path = null,
-                required = true
+                //
+                //  !!! ATTENTION !!!
+                //
+                // routing is not required in this version of ES
+                // This ie because it enforces routing to be specified in EVERY ACTION
+                // INCLUDING DELETE REQUESTS
+                // EVEN IF WE DON'T KNOW THE ROUTING KEY
+                // So in order to avoid this, I don't want the routing to be required
+                // It will be used when inserting and searching
+                // But not when deleting
+                // Alright?
+                //
+                required = false
             };
 
             mappingObj.SetRouting(routing);
