@@ -584,7 +584,6 @@ namespace ElasticSearch.Common
                                 {
                                     return item.ToString();
                                 }
-                                //return (string)item["_id"].ToString().ToString();
                             }
                             ).ToList();
                         }
