@@ -10,7 +10,7 @@ namespace WebAPI.Managers.Schema
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
     public class OldStandardAttribute : Attribute
     {
-        private const string version = "3.6.287.31667";
+        private const string version = "3.6.287.21521";
 
         public OldStandardAttribute(string newMember, string oldMember)
         {
