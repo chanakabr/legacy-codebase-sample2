@@ -211,7 +211,7 @@ namespace Validator.Managers.Schema
 
         private string GetAssemblyVersion()
         {
-            string assemblyFilename = validatorAssembly.CodeBase;
+            string assemblyFilename = assembly.CodeBase;
 
             const string prefix = "file:///";
 
