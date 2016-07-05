@@ -34,6 +34,8 @@ namespace SetupTaskHandler
                 {
                     case ApiObjects.eSetupTask.BuildIPToCountry:
                     {
+                        #region IP to Country
+
                         var worker = new IPToCountryIndexBuilder();
 
                         bool v1Success = true;
@@ -62,8 +64,12 @@ namespace SetupTaskHandler
                         }
 
                         break;
+
+                        #endregion
                     }
                     case ApiObjects.eSetupTask.NotificationCleanupIteration:
+                    {
+                        #region Notification Clean Iteration
 
                         //Call Notifications WCF service
                         string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("ws_notifications");
@@ -80,10 +86,14 @@ namespace SetupTaskHandler
                             else
                                 log.Error("NotificationCleanupIteration: Error received when trying to run cleanup notifications");
                         }
-                        break;
+                        break; 
 
+                        #endregion
+                    }
                     case ApiObjects.eSetupTask.RecordingsCleanup:
-                        
+                    {
+                        #region Recordings Cleanup
+
                         string url = TVinciShared.WS_Utils.GetTcmConfigValue("WS_CAS");
                         using (SetupTaskHandler.WS_ConditionalAccess.module cas = new SetupTaskHandler.WS_ConditionalAccess.module())
                         {
@@ -107,6 +117,22 @@ namespace SetupTaskHandler
 
                         break;
 
+                        #endregion
+                    }
+                    case ApiObjects.eSetupTask.MigrateStatistics:
+                    {   
+
+                        bool v1Success = true;
+                        bool v2Success = true;
+
+                        string urlV1 = TVinciShared.WS_Utils.GetTcmConfigValue("ES_URL_V1");
+                        string urlV2 = TVinciShared.WS_Utils.GetTcmConfigValue("ES_URL_V2");
+
+                        var worker = new StatisticsMigrationTool(urlV1, urlV2);
+                        success = worker.Migrate(request.GroupID);
+
+                        break;
+                    }
                     default:
                         break;
                 }
