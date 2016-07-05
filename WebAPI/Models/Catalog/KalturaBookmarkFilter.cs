@@ -16,18 +16,21 @@ namespace WebAPI.Models.Catalog
     /// Filtering Assets requests
     /// </summary>
     [Serializable]
-    [OldStandard("assets", "Assets")]
-    [Obsolete]
-    public class KalturaAssetsFilter : KalturaOTTObject
+    public class KalturaBookmarkFilter : KalturaFilter<KalturaBookmarkOrderBy>
     {
 
         /// <summary>
         /// List of assets identifier
         /// </summary>
-        [DataMember(Name = "assets")]
-        [JsonProperty(PropertyName = "assets")]
-        [XmlArray(ElementName = "assets", IsNullable = true)]
+        [DataMember(Name = "assetIn")]
+        [JsonProperty(PropertyName = "assetIn")]
+        [XmlArray(ElementName = "assetIn", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
-        public List<KalturaSlimAsset> Assets { get; set; }
+        public List<KalturaSlimAsset> AssetIn { get; set; }
+
+        public override KalturaBookmarkOrderBy GetDefaultOrderByValue()
+        {
+            return KalturaBookmarkOrderBy.POSITION_ASC;
+        }
     }
 }

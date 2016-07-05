@@ -1126,7 +1126,8 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetsBookmarksResponse GetAssetsBookmarks(string siteGuid, int groupId, int domainId, string udid, List<KalturaSlimAsset> assets)
+        [Obsolete]
+        public KalturaAssetsBookmarksResponse GetAssetsBookmarksOldStandard(string siteGuid, int groupId, int domainId, string udid, List<KalturaSlimAsset> assets)
         {
             List<KalturaAssetBookmarks> result = null;
             List<AssetBookmarkRequest> assetsToRequestPositions = new List<AssetBookmarkRequest>();
@@ -1185,10 +1186,76 @@ namespace WebAPI.Clients
             {
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
-            
+
             result = Mapper.Map<List<KalturaAssetBookmarks>>(response.AssetsBookmarks);
 
             return new KalturaAssetsBookmarksResponse() { AssetsBookmarks = result, TotalCount = response.m_nTotalItems };
+
+        }
+
+        public KalturaBookmarkListResponse GetAssetsBookmarks(string siteGuid, int groupId, int domainId, string udid, List<KalturaSlimAsset> assets, KalturaBookmarkOrderBy orderBy)
+        {
+            List<KalturaBookmark> result = null;
+            List<AssetBookmarkRequest> assetsToRequestPositions = new List<AssetBookmarkRequest>();
+
+            foreach (KalturaSlimAsset asset in assets)
+            {
+                AssetBookmarkRequest assetInfo = new AssetBookmarkRequest();
+                assetInfo.AssetID = asset.Id;
+                bool addToRequest = true;
+                switch (asset.Type)
+                {
+                    case KalturaAssetType.media:
+                        assetInfo.AssetType = eAssetTypes.MEDIA;
+                        break;
+                    case KalturaAssetType.recording:
+                        assetInfo.AssetType = eAssetTypes.NPVR;
+                        break;
+                    case KalturaAssetType.epg:
+                        assetInfo.AssetType = eAssetTypes.EPG;
+                        break;
+                    default:
+                        assetInfo.AssetType = eAssetTypes.UNKNOWN;
+                        addToRequest = false;
+                        break;
+                }
+                if (addToRequest)
+                {
+                    assetsToRequestPositions.Add(assetInfo);
+                }
+            }
+
+            AssetsBookmarksRequest request = new AssetsBookmarksRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_sSiteGuid = siteGuid,
+                m_nGroupID = groupId,
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                domainId = domainId,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid
+                },
+                Data = new AssetsBookmarksRequestData()
+                {
+                    Assets = assetsToRequestPositions
+                }
+            };
+
+            AssetsBookmarksResponse response = null;
+            if (!CatalogUtils.GetBaseResponse(CatalogClientModule, request, out response) || response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            result = CatalogMappings.ConvertBookmarks(response.AssetsBookmarks, orderBy);
+
+            return new KalturaBookmarkListResponse() { AssetsBookmarks = result, TotalCount = response.m_nTotalItems };
 
         }
 

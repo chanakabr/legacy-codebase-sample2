@@ -1131,6 +1131,10 @@
     <Compile Include="Models\API\KalturaExportTaskOrderBy.cs" />
     <Compile Include="Models\API\KalturaParentalRuleOrderBy.cs" />
     <Compile Include="Models\API\KalturaUserAssetRuleOrderBy.cs" />
+    <Compile Include="Models\Catalog\KalturaBookmarkOrderBy.cs" />
+    <Compile Include="Models\Catalog\KalturaBookmarkFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaBookmark.cs" />
+    <Compile Include="Models\Catalog\KalturaBookmarkListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaAssetFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAsset.cs" />
     <Compile Include="Models\Catalog\KalturaAssetOrderBy.cs" />

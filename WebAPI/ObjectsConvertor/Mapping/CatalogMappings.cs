@@ -78,7 +78,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.DESCRIPTION))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(DateTime.ParseExact(src.START_DATE, "dd/MM/yyyy HH:mm:ss", null))))
-                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(DateTime.ParseExact(src.END_DATE, "dd/MM/yyyy HH:mm:ss", null))))                
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(DateTime.ParseExact(src.END_DATE, "dd/MM/yyyy HH:mm:ss", null))))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.EPG_Meta)))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.EPG_TAGS)))
                 .ForMember(dest => dest.ExtraParams, opt => opt.MapFrom(src => BuildExtraParamsDictionary(src)));
@@ -154,7 +154,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.m_oBasicDataField.m_sUserNameField))
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.m_oBasicDataField.m_sFirstNameField))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.m_oBasicDataField.m_sLastNameField));
-        
+
             //UnifiedSearchResult to KalturaSlimAsset
             Mapper.CreateMap<UnifiedSearchResult, WebAPI.Models.Catalog.KalturaSlimAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
@@ -205,6 +205,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.m_oProgram.EPG_TAGS)))
                 .ForMember(dest => dest.ExtraParams, opt => opt.MapFrom(src => BuildExtraParamsDictionary(src.m_oProgram)))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_oProgram.EPG_PICTURES));
+
         }
 
         //eAssetTypes to KalturaAssetType
@@ -435,6 +436,48 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return metas;
+        }
+
+        public static List<KalturaBookmark> ConvertBookmarks(List<AssetBookmarks> assetBookmarks, KalturaBookmarkOrderBy orderBy)
+        {
+            List<KalturaBookmark> bookmarks = null;
+            if (assetBookmarks != null)
+            {
+                bookmarks = new List<KalturaBookmark>();
+
+                foreach (var assetBookmark in assetBookmarks)
+                {
+                    if (assetBookmark.Bookmarks != null)
+                    {
+                        foreach (var catalogBookmark in assetBookmark.Bookmarks)
+                        {
+                            bookmarks.Add(new KalturaBookmark()
+                            {
+                                Id = assetBookmark.AssetID,
+                                IsFinishedWatching = catalogBookmark.IsFinishedWatching,
+                                Position = catalogBookmark.Location,
+                                PositionOwner = ConvertPositionOwner(catalogBookmark.UserType),
+                                Type = ConvertAssetType(assetBookmark.AssetType),
+                                User = Mapper.Map<WebAPI.Models.Users.KalturaBaseOTTUser>(catalogBookmark.User)
+                            });
+                        }
+                    }
+                }
+
+                switch (orderBy)
+                {
+                    case KalturaBookmarkOrderBy.POSITION_ASC:
+                        bookmarks = bookmarks.OrderBy(b => b.Position).ToList();
+                        break;
+                    case KalturaBookmarkOrderBy.POSITION_DESC:
+                        bookmarks = bookmarks.OrderByDescending(b => b.Position).ToList();
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+            return bookmarks;
         }
     }
 }

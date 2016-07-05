@@ -136,7 +136,7 @@ namespace WebAPI.Controllers
                         }
 
                         // Call catalog
-                        bookmarksResponse = ClientsManager.CatalogClient().GetAssetsBookmarks(userID, groupId, domainId, udid, assetsBookmarksRequest);
+                        bookmarksResponse = ClientsManager.CatalogClient().GetAssetsBookmarksOldStandard(userID, groupId, domainId, udid, assetsBookmarksRequest);
                     });
 
                     taskList.Add(task);
