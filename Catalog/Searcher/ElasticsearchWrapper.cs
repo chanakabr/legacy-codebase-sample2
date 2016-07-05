@@ -816,19 +816,7 @@ namespace Catalog
 
                 if (jsonObj != null)
                 {
-                    doc = new ElasticSearchApi.ESAssetDocument();
-                    JToken tempToken;
-
-                    doc.id = ((tempToken = jsonObj.SelectToken("_id")) == null ? string.Empty : (string)tempToken);
-                    doc.index = ((tempToken = jsonObj.SelectToken("_index")) == null ? string.Empty : (string)tempToken);
-                    doc.type = ((tempToken = jsonObj.SelectToken("_type")) == null ? string.Empty : (string)tempToken);
-                    doc.asset_id = ((tempToken = jsonObj.SelectToken("_source.media_id")) == null ? 0 : (int)tempToken);
-                    doc.group_id = ((tempToken = jsonObj.SelectToken("_source.group_id")) == null ? 0 : (int)tempToken);
-                    doc.name = ((tempToken = jsonObj.SelectToken("_source.name")) == null ? string.Empty : (string)tempToken);
-                    doc.cache_date = ((tempToken = jsonObj.SelectToken("_source.cache_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
-                                    DateTime.ParseExact((string)tempToken, DATE_FORMAT, null));
-                    doc.update_date = ((tempToken = jsonObj.SelectToken("_source.update_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
-                                    DateTime.ParseExact((string)tempToken, DATE_FORMAT, null));
+                    doc = DecodeSingleAssetJsonObject(jsonObj, "_source");
                 }
             }
             catch (Exception ex)
@@ -919,191 +907,12 @@ namespace Catalog
                     {
                         documents = new List<ElasticSearchApi.ESAssetDocument>();
 
+                        string prefix = "fields";
                         foreach (var item in jsonObj.SelectToken("hits.hits"))
                         {
-                            string typeString = ((tempToken = item.SelectToken("_type")) == null ? string.Empty : (string)tempToken);
-                            eAssetTypes assetType = UnifiedSearchResult.ParseType(typeString);
+                            var newDocument = DecodeSingleAssetJsonObject(item, prefix);
 
-                            string assetIdField = string.Empty;
-
-                            switch (assetType)
-                            {
-                                case eAssetTypes.MEDIA:
-                                {
-                                    assetIdField = "fields.media_id";
-                                    break;
-                                }
-                                case eAssetTypes.EPG:
-                                {
-                                    assetIdField = "fields.epg_id";
-                                    break;
-                                }
-                                case eAssetTypes.NPVR:
-                                {
-                                    assetIdField = "fields.recording_id";
-                                    break;
-                                }
-                                default:
-                                {
-                                    break;
-                                }
-                            }
-
-                            string id = ((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken);
-                            string index = ((tempToken = item.SelectToken("_index")) == null ? string.Empty : (string)tempToken);
-                            int assetId = 0;
-                            int groupId = 0;
-                            string name = string.Empty;
-                            DateTime cacheDate = new DateTime(1970, 1, 1, 0, 0, 0);
-                            DateTime updateDate = new DateTime(1970, 1, 1, 0, 0, 0);
-                            DateTime startDate = new DateTime(1970, 1, 1, 0, 0, 0);
-                            int mediaTypeId = 0;
-                            string epgIdentifier = string.Empty;
-
-                            JArray tempArray = null;
-
-                            tempToken = item.SelectToken(assetIdField);
-                            
-                            if (tempToken != null)
-                            {
-                                tempArray = tempToken as JArray;
-
-                                if (tempArray != null && tempArray.Count > 0)
-                                {
-                                    assetId = (int)tempArray[0];
-                                }
-                                else
-                                {
-                                    assetId = (int)tempToken;
-                                }
-                            }
-
-                            tempToken = item.SelectToken("fields.group_id");
-
-                            if (tempToken != null)
-                            {
-                                tempArray = tempToken as JArray;
-
-                                if (tempArray != null && tempArray.Count > 0)
-                                {
-                                    groupId = (int)tempArray[0];
-                                }
-                                else
-                                {
-                                    groupId = (int)tempToken;
-                                }
-                            }
-
-                            tempToken = item.SelectToken("fields.name");
-
-                            if (tempToken != null)
-                            {
-                                tempArray = tempToken as JArray;
-
-                                if (tempArray != null && tempArray.Count > 0)
-                                {
-                                    name = (string)tempArray[0];
-                                }
-                                else
-                                {
-                                    name = (string)tempToken;
-                                }
-                            }
-
-                            tempToken = item.SelectToken("fields.cache_date");
-
-                            if (tempToken != null)
-                            {
-                                tempArray = tempToken as JArray;
-
-                                if (tempArray != null && tempArray.Count > 0)
-                                {
-                                    cacheDate = DateTime.ParseExact((string)tempArray[0], DATE_FORMAT, null);
-                                }
-                                else
-                                {
-                                    cacheDate = DateTime.ParseExact((string)tempToken[0], DATE_FORMAT, null);
-                                }
-                            }
-
-                            tempToken = item.SelectToken("fields.update_date");
-
-                            if (tempToken != null)
-                            {
-                                tempArray = tempToken as JArray;
-
-                                if (tempArray != null && tempArray.Count > 0)
-                                {
-                                    updateDate = DateTime.ParseExact((string)tempArray[0], DATE_FORMAT, null);
-                                }
-                                else
-                                {
-                                    updateDate = DateTime.ParseExact((string)tempToken[0], DATE_FORMAT, null);
-                                }
-                            }
-
-                            tempToken = item.SelectToken("fields.start_date");
-
-                            if (tempToken != null)
-                            {
-                                tempArray = tempToken as JArray;
-
-                                if (tempArray != null && tempArray.Count > 0)
-                                {
-                                    startDate = DateTime.ParseExact((string)tempArray[0], DATE_FORMAT, null);
-                                }
-                                else
-                                {
-                                    startDate = DateTime.ParseExact((string)tempToken[0], DATE_FORMAT, null);
-                                }
-                            }
-
-                            tempToken = item.SelectToken("fields.media_type_id");
-
-                            if (tempToken != null)
-                            {
-                                tempArray = tempToken as JArray;
-
-                                if (tempArray != null && tempArray.Count > 0)
-                                {
-                                    mediaTypeId = (int)tempArray[0];
-                                }
-                                else
-                                {
-                                    mediaTypeId = (int)tempToken;
-                                }
-                            }
-
-                            tempToken = item.SelectToken("fields.epg_identifier");
-
-                            if (tempToken != null)
-                            {
-                                tempArray = tempToken as JArray;
-
-                                if (tempArray != null && tempArray.Count > 0)
-                                {
-                                    epgIdentifier = (string)tempArray[0];
-                                }
-                                else
-                                {
-                                    epgIdentifier = (string)tempToken;
-                                }
-                            }
-
-                            documents.Add(new ElasticSearchApi.ESAssetDocument()
-                              {
-                                  id = id,
-                                  index = index,
-                                  type = typeString,
-                                  asset_id = assetId,
-                                  group_id = groupId,
-                                  name = name,
-                                  cache_date = cacheDate,
-                                  update_date = updateDate,
-                                  start_date = startDate,
-                                  media_type_id = mediaTypeId,
-                                  epg_identifier = epgIdentifier,
-                              });
+                            documents.Add(newDocument);
                         }
                     }
                 }
@@ -1114,6 +923,207 @@ namespace Catalog
             }
 
             return documents;
+        }
+
+        private static ElasticSearchApi.ESAssetDocument DecodeSingleAssetJsonObject(JToken item, string fieldNamePrefix)
+        {
+            JToken tempToken = null;
+            string typeString = ((tempToken = item.SelectToken("_type")) == null ? string.Empty : (string)tempToken);
+            eAssetTypes assetType = UnifiedSearchResult.ParseType(typeString);
+
+            string assetIdField = string.Empty;
+
+            switch (assetType)
+            {
+                case eAssetTypes.MEDIA:
+                {
+                    assetIdField = AddPrefixToFieldName("media_id", fieldNamePrefix);
+                    break;
+                }
+                case eAssetTypes.EPG:
+                {
+                    assetIdField = AddPrefixToFieldName("epg_id", fieldNamePrefix);
+                    break;
+                }
+                case eAssetTypes.NPVR:
+                {
+                    assetIdField = AddPrefixToFieldName("recording_id", fieldNamePrefix);
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+            }
+
+            string id = ((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken);
+            string index = ((tempToken = item.SelectToken("_index")) == null ? string.Empty : (string)tempToken);
+            int assetId = 0;
+            int groupId = 0;
+            string name = string.Empty;
+            DateTime cacheDate = new DateTime(1970, 1, 1, 0, 0, 0);
+            DateTime updateDate = new DateTime(1970, 1, 1, 0, 0, 0);
+            DateTime startDate = new DateTime(1970, 1, 1, 0, 0, 0);
+            int mediaTypeId = 0;
+            string epgIdentifier = string.Empty;
+
+            JArray tempArray = null;
+
+            tempToken = item.SelectToken(assetIdField);
+
+            if (tempToken != null)
+            {
+                tempArray = tempToken as JArray;
+
+                if (tempArray != null && tempArray.Count > 0)
+                {
+                    assetId = (int)tempArray[0];
+                }
+                else
+                {
+                    assetId = (int)tempToken;
+                }
+            }
+
+            tempToken = item.SelectToken(AddPrefixToFieldName("group_id", fieldNamePrefix));
+
+            if (tempToken != null)
+            {
+                tempArray = tempToken as JArray;
+
+                if (tempArray != null && tempArray.Count > 0)
+                {
+                    groupId = (int)tempArray[0];
+                }
+                else
+                {
+                    groupId = (int)tempToken;
+                }
+            }
+
+            tempToken = item.SelectToken(AddPrefixToFieldName("name", fieldNamePrefix));
+
+            if (tempToken != null)
+            {
+                tempArray = tempToken as JArray;
+
+                if (tempArray != null && tempArray.Count > 0)
+                {
+                    name = (string)tempArray[0];
+                }
+                else
+                {
+                    name = (string)tempToken;
+                }
+            }
+
+            tempToken = item.SelectToken(AddPrefixToFieldName("cache_date", fieldNamePrefix));
+
+            if (tempToken != null)
+            {
+                tempArray = tempToken as JArray;
+
+                if (tempArray != null && tempArray.Count > 0)
+                {
+                    cacheDate = DateTime.ParseExact((string)tempArray[0], DATE_FORMAT, null);
+                }
+                else
+                {
+                    cacheDate = DateTime.ParseExact((string)tempToken, DATE_FORMAT, null);
+                }
+            }
+
+            tempToken = item.SelectToken(AddPrefixToFieldName("update_date", fieldNamePrefix));
+
+            if (tempToken != null)
+            {
+                tempArray = tempToken as JArray;
+
+                if (tempArray != null && tempArray.Count > 0)
+                {
+                    updateDate = DateTime.ParseExact((string)tempArray[0], DATE_FORMAT, null);
+                }
+                else
+                {
+                    updateDate = DateTime.ParseExact((string)tempToken, DATE_FORMAT, null);
+                }
+            }
+
+            tempToken = item.SelectToken(AddPrefixToFieldName("start_date", fieldNamePrefix));
+
+            if (tempToken != null)
+            {
+                tempArray = tempToken as JArray;
+
+                if (tempArray != null && tempArray.Count > 0)
+                {
+                    startDate = DateTime.ParseExact((string)tempArray[0], DATE_FORMAT, null);
+                }
+                else
+                {
+                    startDate = DateTime.ParseExact((string)tempToken, DATE_FORMAT, null);
+                }
+            }
+
+            tempToken = item.SelectToken(AddPrefixToFieldName("media_type_id", fieldNamePrefix));
+
+            if (tempToken != null)
+            {
+                tempArray = tempToken as JArray;
+
+                if (tempArray != null && tempArray.Count > 0)
+                {
+                    mediaTypeId = (int)tempArray[0];
+                }
+                else
+                {
+                    mediaTypeId = (int)tempToken;
+                }
+            }
+
+            tempToken = item.SelectToken(AddPrefixToFieldName("epg_identifier", fieldNamePrefix));
+
+            if (tempToken != null)
+            {
+                tempArray = tempToken as JArray;
+
+                if (tempArray != null && tempArray.Count > 0)
+                {
+                    epgIdentifier = (string)tempArray[0];
+                }
+                else
+                {
+                    epgIdentifier = (string)tempToken;
+                }
+            }
+
+            var newDocument = new ElasticSearchApi.ESAssetDocument()
+            {
+                id = id,
+                index = index,
+                type = typeString,
+                asset_id = assetId,
+                group_id = groupId,
+                name = name,
+                cache_date = cacheDate,
+                update_date = updateDate,
+                start_date = startDate,
+                media_type_id = mediaTypeId,
+                epg_identifier = epgIdentifier,
+            };
+            return newDocument;
+        }
+
+        private static string AddPrefixToFieldName(string fieldName, string prefix)
+        {
+            string result = fieldName;
+
+            if (!string.IsNullOrEmpty(prefix))
+            {
+                result = string.Format("{0}.{1}", prefix, fieldName);
+            }
+
+            return result;
         }
 
         private List<ElasticSearchApi.ESAssetDocument> DecodeEpgSearchJsonObject(string sObj, ref int totalItems)
