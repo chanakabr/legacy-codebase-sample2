@@ -311,10 +311,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
             extraParams.Add("epg_id", new KalturaStringValue() { value = epg.EPG_IDENTIFIER });
             extraParams.Add("related_media_id", new KalturaStringValue() { value = epg.media_id });
 
-            extraParams.Add("enable_cdvr", new KalturaStringValue() { value = epg.ENABLE_CDVR == 1 ? "True": "False" });
+            extraParams.Add("enable_cdvr", new KalturaStringValue() { value = epg.ENABLE_CDVR == 1 ? "True" : "False" });
             extraParams.Add("enable_catch_up", new KalturaStringValue() { value = epg.ENABLE_CATCH_UP == 1 ? "True" : "False" });
             extraParams.Add("enable_start_over", new KalturaStringValue() { value = epg.ENABLE_START_OVER == 1 ? "True" : "False" });
             extraParams.Add("enable_trick_play", new KalturaStringValue() { value = epg.ENABLE_TRICK_PLAY == 1 ? "True" : "False" });
+            extraParams.Add("crid", new KalturaStringValue() { value = epg.CRID });
 
             return extraParams;
         }
