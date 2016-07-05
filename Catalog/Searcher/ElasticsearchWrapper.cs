@@ -657,11 +657,14 @@ namespace Catalog
             {
                 DateTime startDate = epgSearch.m_dStartDate;
                 DateTime endDate = epgSearch.m_dEndDate;
-                DateTime searchEndDate = epgSearch.m_dSearchEndDate;
 
                 CatalogCache catalogCache = CatalogCache.Instance();
                 int nParentGroupID = catalogCache.GetParentGroup(epgSearch.m_nGroupID);
-
+                if (catalogCache.IsTstvSettingsExists(nParentGroupID))
+                {
+                    epgSearch.m_bSearchEndDate = true;
+                }
+                DateTime searchEndDate = epgSearch.m_dSearchEndDate;
 
                 ESEpgQueryBuilder epgQueryBuilder = new ESEpgQueryBuilder()
                 {
