@@ -86,7 +86,14 @@ namespace ElasticSearchHandler.IndexBuilders
                 sizeOfBulk = 50;
             }
 
-            success = api.BuildIndex(newIndexName, 0, 0, analyzers, filters, tokenizers);
+            int maxResults = TVinciShared.WS_Utils.GetTcmIntValue("MAX_RESULTS");
+
+            if (maxResults == 0)
+            {
+                maxResults = 100000;
+            }
+
+            success = api.BuildIndex(newIndexName, 0, 0, analyzers, filters, tokenizers, maxResults);
 
             #region create mapping
             foreach (ApiObjects.LanguageObj language in group.GetLangauges())

@@ -71,7 +71,14 @@ namespace ElasticSearchHandler.IndexBuilders
 
             GetAnalyzers(group.GetLangauges(), out analyzers, out filters, out tokenizers);
 
-            bool actionResult = api.BuildIndex(newIndexName, numOfShards, numOfReplicas, analyzers, filters, tokenizers);
+            int maxResults = TVinciShared.WS_Utils.GetTcmIntValue("MAX_RESULTS");
+
+            if (maxResults == 0)
+            {
+                maxResults = 100000;
+            }
+
+            bool actionResult = api.BuildIndex(newIndexName, numOfShards, numOfReplicas, analyzers, filters, tokenizers, maxResults);
 
             if (!actionResult)
             {
