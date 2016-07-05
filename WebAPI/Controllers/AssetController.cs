@@ -671,7 +671,7 @@ namespace WebAPI.Controllers
         /// Search values are limited to 20 characters each.
         /// (maximum length of entire filter is 1024 characters)]]></param>
         /// <remarks>Possible status codes: 
-        /// BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, 
+        /// BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, Channel does not exist = 4018
         /// </remarks>
         [Route("channel"), HttpPost]
         [ApiAuthorize]
