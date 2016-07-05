@@ -14,6 +14,7 @@ namespace WebAPI.Models.Pricing
     /// Subscription price details
     /// </summary>
     [OldStandard("purchaseStatus", "purchase_status")]
+    [OldStandard("price", "price")]
     public class KalturaSubscriptionPrice : KalturaProductPrice
     {
         /// <summary>
@@ -23,7 +24,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("price")]
         [XmlElement(ElementName = "price", IsNullable = true)]
         [Obsolete]
-        public KalturaPrice Price { get { return base.Price; } }
+        public KalturaPrice Price { get { return base.Price; } set { base.Price = value; }}
 
         /// <summary>
         /// Product purchase status  
@@ -32,6 +33,6 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("purchaseStatus")]
         [XmlElement(ElementName = "purchaseStatus")]
         [Obsolete]
-        public KalturaPurchaseStatus PurchaseStatus { get { return base.PurchaseStatus; } }
+        public KalturaPurchaseStatus PurchaseStatus { get { return base.PurchaseStatus; } set { base.PurchaseStatus = value; } }
     }
 }
