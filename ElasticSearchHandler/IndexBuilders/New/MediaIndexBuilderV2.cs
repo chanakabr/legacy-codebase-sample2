@@ -159,7 +159,19 @@ namespace ElasticSearchHandler.IndexBuilders
                         }
                         if (bulkList.Count >= sizeOfBulk)
                         {
-                            Task<object> t = Task<object>.Factory.StartNew(() => api.CreateBulkRequest(bulkList));
+                            Task t = Task.Factory.StartNew(() => 
+                                {
+                                    var invalidResults = api.CreateBulkRequest(bulkList);
+
+                                    if (invalidResults != null && invalidResults.Count > 0)
+                                    {
+                                        foreach (var item in invalidResults)
+                                        {
+                                            log.ErrorFormat("Error - Could not add Media to ES index. GroupID={0};Type={1};ID={2};error={3};",
+                                                groupId, MEDIA, item.Key, item.Value);
+                                        }
+                                    }
+                                });
                             t.Wait();
                             bulkList = new List<ESBulkRequestObj<int>>();
                         }
@@ -168,7 +180,19 @@ namespace ElasticSearchHandler.IndexBuilders
 
                 if (bulkList.Count > 0)
                 {
-                    Task<object> t = Task<object>.Factory.StartNew(() => api.CreateBulkRequest(bulkList));
+                    Task t = Task.Factory.StartNew(() =>
+                    {
+                        var invalidResults = api.CreateBulkRequest(bulkList);
+
+                        if (invalidResults != null && invalidResults.Count > 0)
+                        {
+                            foreach (var item in invalidResults)
+                            {
+                                log.ErrorFormat("Error - Could not add Media to ES index. GroupID={0};Type={1};ID={2};error={3};",
+                                    groupId, MEDIA, item.Key, item.Value);
+                            }
+                        }
+                    });
                     t.Wait();
                 }
             }

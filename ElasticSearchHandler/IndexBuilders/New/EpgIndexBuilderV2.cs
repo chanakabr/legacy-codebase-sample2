@@ -353,7 +353,16 @@ namespace ElasticSearchHandler.IndexBuilders
                 if (bulkRequests.Count >= sizeOfBulk)
                 {
                     // create bulk request now and clear list
-                    api.CreateBulkRequest(bulkRequests);
+                    var invalidResults = api.CreateBulkRequest(bulkRequests);
+
+                    if (invalidResults != null && invalidResults.Count > 0)
+                    {
+                        foreach (var item in invalidResults)
+                        {
+                            log.ErrorFormat("Error - Could not add EPG to ES index. GroupID={0};Type={1};EPG_ID={2};error={3};",
+                                groupId, EPG, item.Key, item.Value);
+                        }
+                    }
 
                     bulkRequests.Clear();
                 }
@@ -362,7 +371,16 @@ namespace ElasticSearchHandler.IndexBuilders
             // If we have anything left that is less than the size of the bulk
             if (bulkRequests.Count > 0)
             {
-                api.CreateBulkRequest(bulkRequests);
+                var invalidResults = api.CreateBulkRequest(bulkRequests);
+
+                if (invalidResults != null && invalidResults.Count > 0)
+                {
+                    foreach (var item in invalidResults)
+                    {
+                        log.ErrorFormat("Error - Could not add EPG to ES index. GroupID={0};Type={1};EPG_ID={2};error={3};",
+                            groupId, EPG, item.Key, item.Value);
+                    }
+                }
             }
         }
 

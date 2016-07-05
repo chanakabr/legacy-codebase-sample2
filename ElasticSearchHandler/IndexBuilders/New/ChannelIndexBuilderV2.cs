@@ -89,7 +89,19 @@ namespace ElasticSearchHandler.IndexBuilders
 
                             if (bulkList.Count >= sizeOfBulk)
                             {
-                                Task<object> t = Task<object>.Factory.StartNew(() => api.CreateBulkRequest(bulkList));
+                                Task t = Task.Factory.StartNew(() =>
+                                {
+                                    var invalidResults = api.CreateBulkRequest(bulkList);
+
+                                    if (invalidResults != null && invalidResults.Count > 0)
+                                    {
+                                        foreach (var item in invalidResults)
+                                        {
+                                            log.ErrorFormat("Error - Could not add channel to ES index. GroupID={0};ID={1};error={2};",
+                                                groupId, item.Key, item.Value);
+                                        }
+                                    }
+                                });
                                 t.Wait();
                                 bulkList = new List<ESBulkRequestObj<string>>();
                             }
@@ -98,7 +110,19 @@ namespace ElasticSearchHandler.IndexBuilders
 
                     if (bulkList.Count > 0)
                     {
-                        Task<object> t = Task<object>.Factory.StartNew(() => api.CreateBulkRequest(bulkList));
+                        Task t = Task.Factory.StartNew(() =>
+                        {
+                            var invalidResults = api.CreateBulkRequest(bulkList);
+
+                            if (invalidResults != null && invalidResults.Count > 0)
+                            {
+                                foreach (var item in invalidResults)
+                                {
+                                    log.ErrorFormat("Error - Could not add channel to ES index. GroupID={0};ID={1};error={2};",
+                                        groupId, item.Key, item.Value);
+                                }
+                            }
+                        });
                         t.Wait();
                     }
                 }
