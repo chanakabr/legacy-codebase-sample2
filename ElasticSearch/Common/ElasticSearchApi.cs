@@ -81,52 +81,67 @@ namespace ElasticSearch.Common
             return sRes;
         }
 
-        public bool BuildIndex(string sIndex, int nShards, int nReplicas,
-            List<string> lAnalyzers, List<string> lFilters, List<string> tokenizers = null)
+        public bool BuildIndex(string index, int shards, int replicas,
+            List<string> analyzers, List<string> filters, List<string> tokenizers = null, int maxResultWindow = 0)
         {
             bool bRes = false;
 
-            if (string.IsNullOrEmpty(sIndex))
+            if (string.IsNullOrEmpty(index))
                 return bRes;
 
-            StringBuilder sBuildIndex = new StringBuilder();
+            StringBuilder stringBuilder = new StringBuilder();
 
-            sBuildIndex.Append(@"{ ""settings"": {");
+            stringBuilder.Append(@"{ ""settings"": {");
 
             bool bShards = false;
-            if (nShards > 0 && nReplicas > 0)
+            if ((shards > 0 && replicas > 0) || maxResultWindow > 0)
             {
                 bShards = true;
-                sBuildIndex.Append(@"""index"": {");
-                sBuildIndex.AppendFormat(" \"number_of_shards\": {0}, \"number_of_replicas\": {1}", nShards, nReplicas);
-                sBuildIndex.Append("} ");
+                stringBuilder.Append(@"""index"": {");
+
+                if (shards > 0 && replicas > 0)
+                {
+                    stringBuilder.AppendFormat(" \"number_of_shards\": {0}, \"number_of_replicas\": {1}", shards, replicas);
+
+                    if (maxResultWindow > 0)
+                    {
+                        stringBuilder.Append(",");
+                    }
+                }
+
+                if (maxResultWindow > 0)
+                {
+                    stringBuilder.AppendFormat("\"max_result_window\" : {0}", maxResultWindow);
+                }
+
+                stringBuilder.Append("} ");
             }
 
             #region add analyzers/filters/tokenizers
 
             if (bShards)
-                sBuildIndex.Append(",");
+                stringBuilder.Append(",");
 
-            sBuildIndex.Append("\"analysis\": {");
+            stringBuilder.Append("\"analysis\": {");
             bool bAnalyzer = false;
-            if (lAnalyzers != null && lAnalyzers.Count > 0)
+            if (analyzers != null && analyzers.Count > 0)
             {
                 bAnalyzer = true;
-                sBuildIndex.Append("\"analyzer\":{");
-                sBuildIndex.Append(string.Join(",", lAnalyzers));
-                sBuildIndex.Append("}");
+                stringBuilder.Append("\"analyzer\":{");
+                stringBuilder.Append(string.Join(",", analyzers));
+                stringBuilder.Append("}");
             }
 
             bool hasFilter = false;
 
-            if (lFilters != null && lFilters.Count > 0)
+            if (filters != null && filters.Count > 0)
             {
                 if (bAnalyzer)
-                    sBuildIndex.Append(",");
+                    stringBuilder.Append(",");
 
-                sBuildIndex.Append("\"filter\":{");
-                sBuildIndex.Append(string.Join(",", lFilters));
-                sBuildIndex.Append("}");
+                stringBuilder.Append("\"filter\":{");
+                stringBuilder.Append(string.Join(",", filters));
+                stringBuilder.Append("}");
 
                 hasFilter = true;
             }
@@ -135,29 +150,29 @@ namespace ElasticSearch.Common
             {
                 if (bAnalyzer || hasFilter)
                 {
-                    sBuildIndex.Append(",");
+                    stringBuilder.Append(",");
                 }
 
-                sBuildIndex.Append("\"tokenizer\":{");
-                sBuildIndex.Append(string.Join(",", tokenizers));
-                sBuildIndex.Append("}");
+                stringBuilder.Append("\"tokenizer\":{");
+                stringBuilder.Append(string.Join(",", tokenizers));
+                stringBuilder.Append("}");
             }
 
-            sBuildIndex.Append("}");
+            stringBuilder.Append("}");
             #endregion
 
-            sBuildIndex.Append("} }");
+            stringBuilder.Append("} }");
 
-            string sUrl = string.Format("{0}/{1}", baseUrl, sIndex);
+            string sUrl = string.Format("{0}/{1}", baseUrl, index);
             int nStatus = 0;
 
-            string sResponse = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sBuildIndex.ToString(), true);
+            string sResponse = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, stringBuilder.ToString(), true);
 
             bRes = (nStatus == 200) ? true : false;
 
             if (!bRes)
             {
-                log.ErrorFormat("Error when building index {0}. Response is: {1}", sIndex, sResponse);
+                log.ErrorFormat("Error when building index {0}. Response is: {1}", index, sResponse);
             }
 
             return bRes;

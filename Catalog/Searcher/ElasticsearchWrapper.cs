@@ -1849,7 +1849,7 @@ namespace Catalog
                 {
                     Name = "stats",
                     Field = "media_id",
-                    Type = eElasticAggregationType.terms,
+                    Type = eElasticAggregationType.terms
                 };
 
                 aggregations.SubAggrgations.Add(new ESBaseAggsItem()
@@ -1865,7 +1865,7 @@ namespace Catalog
                 {
                     Name = "stats",
                     Field = "media_id",
-                    Type = eElasticAggregationType.terms,
+                    Type = eElasticAggregationType.terms
                 };
             }
 

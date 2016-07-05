@@ -47,6 +47,7 @@ namespace ElasticSearch.Searcher
         List<KeyValuePair<string, string>> AdditionalInnerParameters;
 
         public bool IsNumeric;
+        public int Size;
 
         #endregion
 
@@ -54,6 +55,7 @@ namespace ElasticSearch.Searcher
 
         public ESBaseAggsItem()
         {
+            this.Size = 0;
             this.SubAggrgations = new List<ESBaseAggsItem>();
             this.AdditionalInnerParameters = new List<KeyValuePair<string, string>>();
         }
@@ -113,6 +115,11 @@ namespace ElasticSearch.Searcher
             sb.AppendFormat("\"{0}\":", this.Type);
             sb.Append("{");
             sb.AppendFormat("\"field\": \"{0}\"", this.Field);
+
+            if (this.Size > -1)
+            {
+                sb.AppendFormat(",\"size\": {0}", this.Size);
+            }
 
             if (this.AdditionalInnerParameters != null && this.AdditionalInnerParameters.Count > 0)
             {
