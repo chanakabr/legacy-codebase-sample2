@@ -2419,15 +2419,16 @@ namespace Catalog
 
                         if (lBulkObj.Count >= sizeOfBulk)
                         {
-                            Task<List<ESBulkRequestObj<string>>> t = Task<List<ESBulkRequestObj<string>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(lBulkObj));
+                            Task<object> t = Task<object>.Factory.StartNew(() => api.CreateBulkRequest(lBulkObj));
                             t.Wait();
+                            
                             lBulkObj = new List<ESBulkRequestObj<string>>();
                         }
                 }
 
                 if (lBulkObj.Count > 0)
                 {
-                    Task<List<ESBulkRequestObj<string>>> t = Task<List<ESBulkRequestObj<string>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(lBulkObj));
+                    Task<object> t = Task<object>.Factory.StartNew(() => api.CreateBulkRequest(lBulkObj));
                     t.Wait();
                 }
 

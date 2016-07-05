@@ -404,86 +404,112 @@ namespace ElasticSearch.Common
             return bRes;
         }
 
-        public List<ESBulkRequestObj<T>> CreateBulkIndexRequest<T>(List<ESBulkRequestObj<T>> lBulkRequest)
+        public List<KeyValuePair<string, string>> CreateBulkRequest<T>(List<ESBulkRequestObj<T>> bulkRequests)
         {
-            log.Debug("STart ES Update - Start Bulk Update ");
-            StringBuilder sBulkRequest = new StringBuilder();
-            List<ESBulkRequestObj<T>> sInvalidRecords = new List<ESBulkRequestObj<T>>();
+            log.Debug("Start Elastic Search Bulk requests");
+            StringBuilder requestString = new StringBuilder();
+            List<KeyValuePair<string, string>> invalidRecords = new List<KeyValuePair<string, string>>();
 
-
-            if (lBulkRequest != null)
+            if (bulkRequests != null)
             {
-                foreach (var bulkObj in lBulkRequest)
+                foreach (var bulk in bulkRequests)
                 {
-                    sBulkRequest.Append("{ \"");
-                    sBulkRequest.Append(bulkObj.Operation.ToString());
-                    sBulkRequest.Append("\": { ");
+                    requestString.Append("{ \"");
+                    requestString.Append(bulk.Operation.ToString());
+                    requestString.Append("\": { ");
 
+                    requestString.AppendFormat("\"_index\": \"{0}\"", bulk.index);
+                    requestString.AppendFormat(", \"_type\": \"{0}\"", bulk.type);
 
-                    sBulkRequest.AppendFormat("\"_index\": \"{0}\"", bulkObj.index);
-                    sBulkRequest.AppendFormat(", \"_type\": \"{0}\"", bulkObj.type);
-
-                    if (!string.IsNullOrEmpty(bulkObj.routing))
+                    if (!string.IsNullOrEmpty(bulk.routing))
                     {
-                        sBulkRequest.AppendFormat(", \"_routing\": \"{0}\"", bulkObj.routing);
+                        requestString.AppendFormat(", \"_routing\": \"{0}\"", bulk.routing);
                     }
-                    sBulkRequest.AppendFormat(",\"_id\" : \"{0}\"", bulkObj.docID);
+                    requestString.AppendFormat(",\"_id\" : \"{0}\"", bulk.docID);
 
-                    sBulkRequest.Append(" } }\n");
+                    requestString.Append(" } }\n");
 
-                    if (!string.IsNullOrEmpty(bulkObj.document))
+                    if (!string.IsNullOrEmpty(bulk.document))
                     {
-                        sBulkRequest.AppendFormat("{0}\n", bulkObj.document);
+                        requestString.AppendFormat("{0}\n", bulk.document);
                     }
                 }
             }
 
-            string sUrl = string.Format("{0}/_bulk", baseUrl);
-            int nStatus = 0;
-            string sParams = sBulkRequest.ToString();
-            string sRetVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sParams, true);
-            log.Debug("Finish ES Update - " + sRetVal);
+            string url = string.Format("{0}/_bulk", baseUrl);
+            int httpStatus = 0;
+            string bodyRequest = requestString.ToString();
+            string response = SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, bodyRequest, true);
+
+            log.Debug("Finish Elastic Search Bulk requests. result is " + response);
+
+            try
+            {
+                var json = JObject.Parse(response);
+
+                if (json != null)
+                {
+                    var errors = json["errors"];
+
+                    //json["items"][0].First.First.ToString()
+                    // If there are errors, report it
+                    if (errors != null && Convert.ToBoolean(errors))
+                    {
+                        var items = json["items"];
+
+                        var type = typeof(T);
+
+                        foreach (var item in items)
+                        {
+                            if (item.First != null && item.First.First != null)
+                            {
+                                var itemError = item.First.First["error"];
+                                var id = item.First.First["_id"];
+
+                                if (itemError != null)
+                                {
+                                    invalidRecords.Add(new KeyValuePair<string, string>(id.ToString(), itemError.ToString()));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed parsing Elastic Search bulk request, error = {0}", ex);
+            }
             //Will need to add treatment on objects that returned with an "ok": false
 
-            return sInvalidRecords;
+            return invalidRecords;
         }
 
-        public List<KeyValuePair<T, string>> CreateBulkIndexRequest<T>(string sIndex, string sType, List<KeyValuePair<T, string>> lObjects, string sRouting = null)
+        public List<KeyValuePair<string, string>> CreateBulkIndexRequest<T>(string sIndex, string sType, List<KeyValuePair<T, string>> lObjects, string sRouting = null)
         {
             log.Debug("Start ES Update - Start Bulk Update");
 
             StringBuilder sBulkRequest = new StringBuilder();
-            List<KeyValuePair<T, string>> sInvalidRecords = new List<KeyValuePair<T, string>>();
 
-            if (lObjects != null)
+            List<ESBulkRequestObj<T>> bulkRequests = new List<ESBulkRequestObj<T>>();
+
+            foreach (var item in lObjects)
             {
-                foreach (KeyValuePair<T, string> sObj in lObjects)
+                bulkRequests.Add(new ESBulkRequestObj<T>()
                 {
-                    sBulkRequest.Append("{ \"index\": { ");
-
-                    sBulkRequest.AppendFormat("\"_index\": \"{0}\"", sIndex);
-                    sBulkRequest.AppendFormat(", \"_type\": \"{0}\"", sType);
-
-                    if (!string.IsNullOrEmpty(sRouting))
-                    {
-                        sBulkRequest.AppendFormat(", \"_routing\": \"{0}\"", sRouting);
-                    }
-
-                    sBulkRequest.AppendFormat(",\"_id\" : \"{0}\"", sObj.Key);
-
-                    sBulkRequest.Append(" } }\n");
-                    sBulkRequest.AppendFormat("{0}\n", sObj.Value);
-                }
+                    docID = item.Key,
+                    document = item.Value,
+                    index = sIndex,
+                    type = sType,
+                    routing = sRouting,
+                    Operation = eOperation.index
+                });
             }
 
-            string sUrl = string.Format("{0}/_bulk", baseUrl);
-            int nStatus = 0;
-            string sParams = sBulkRequest.ToString();
-            string sRetVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sParams, true);
-            log.Debug("Finish ElasticSearch Bulk Request - " + sRetVal);
-            //Will need to add treatment on objects that returned with an "ok": false
+            List<KeyValuePair<T, string>> sInvalidRecords = new List<KeyValuePair<T, string>>();
 
-            return sInvalidRecords;
+            var requestResult = CreateBulkRequest(bulkRequests);
+
+            return requestResult;
         }
 
         public string Search(string sIndex, string sType, ref string sSearchQuery, List<string> routing = null)
