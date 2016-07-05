@@ -46,7 +46,7 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id cannot be empty");
             }
 
-            if (!Enum.IsDefined(typeof(AssetType), filter.AssetType))
+            if (!filter.AssetType.HasValue || !Enum.IsDefined(typeof(AssetType), filter.AssetType))
             {
                  throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_type value is not defined");
             }
@@ -100,7 +100,7 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id cannot be empty");
             }
 
-            if (!Enum.IsDefined(typeof(AssetType), filter.AssetTypeEqual))
+            if (!filter.AssetTypeEqual.HasValue || !Enum.IsDefined(typeof(AssetType), filter.AssetTypeEqual))
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_type value is not defined");
             }

@@ -98,9 +98,10 @@ namespace WebAPI.Filters
 
             Dictionary<string, string> oldStandardActions = OldStandardAttribute.getOldMembers(controller);
             string action = actionName;
-            if (oldStandardActions != null && oldStandardActions.ContainsValue(actionName))
+            string lowerActionName = actionName.ToLower();
+            if (oldStandardActions != null && oldStandardActions.ContainsValue(lowerActionName))
             {
-                action = oldStandardActions.FirstOrDefault(value => value.Value == actionName).Key;
+                action = oldStandardActions.FirstOrDefault(value => value.Value == lowerActionName).Key;
             }
 
             if (serviceName.Equals("multirequest", StringComparison.CurrentCultureIgnoreCase))
