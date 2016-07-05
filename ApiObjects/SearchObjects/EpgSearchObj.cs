@@ -10,6 +10,7 @@ namespace ApiObjects.SearchObjects
     public class EpgSearchObj :  BaseSearchObject
     {
         public bool m_bSearchOnlyDatesAndChannels;
+        public bool m_bSearchEndDate;
         public bool m_bIsCurrent;
         public int m_nNextTop;
         public int m_nPrevTop;
@@ -60,6 +61,8 @@ namespace ApiObjects.SearchObjects
             m_nNextTop = 0;
             m_nPrevTop = 0;
             m_bIsCurrent = false;
+
+            m_bSearchEndDate = false;
         }
 
         public bool ContainSearchKey(string key, ref SearchValue searchVal)
