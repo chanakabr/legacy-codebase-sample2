@@ -168,8 +168,9 @@ namespace Users
 
 
             // try to get the DomainLimitID
+            int nDomainID = -1;
             int nDomainLimitID = DomainDal.Get_DomainLimitID(nGroupID);
-            bool bInserRes = DomainDal.InsertNewDomain(sName, sDescription, nGroupID, dDateTime, nDomainLimitID, sCoGuid);
+            bool bInserRes = DomainDal.InsertNewDomain(sName, sDescription, nGroupID, dDateTime, nDomainLimitID, ref nDomainID, sCoGuid);
 
             if (!bInserRes)
             {
@@ -177,15 +178,15 @@ namespace Users
                 return this;
             }
 
-            int nDomainID = -1;
+            
             int nIsActive = 0;
             int nStatus = 0;
             int regionId = 0;
 
             Domain domainDbObj = this;
 
-            bool resDbObj = DomainDal.GetDomainDbObject(nGroupID, dDateTime, ref sName, ref sDescription, ref nDomainID, ref nIsActive, ref nStatus, ref sCoGuid, ref regionId);
-
+            bool resDbObj = DomainDal.GetDomainDbObject(nGroupID, dDateTime, ref sName, ref sDescription, nDomainID, ref nIsActive, ref nStatus, ref sCoGuid, ref regionId);          
+ 
             m_sName = sName;
             m_sDescription = sDescription;
             m_nDomainID = nDomainID;
