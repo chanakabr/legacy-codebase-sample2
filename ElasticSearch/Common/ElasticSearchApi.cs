@@ -404,12 +404,19 @@ namespace ElasticSearch.Common
             return bRes;
         }
 
+        /// <summary>
+        /// Creates and sends an ElasticSearch bulk request bulk request. Returns the requests that failed and their errors.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="bulkRequests"></param>
+        /// <returns></returns>
         public List<KeyValuePair<string, string>> CreateBulkRequest<T>(List<ESBulkRequestObj<T>> bulkRequests)
         {
             log.Debug("Start Elastic Search Bulk requests");
             StringBuilder requestString = new StringBuilder();
             List<KeyValuePair<string, string>> invalidRecords = new List<KeyValuePair<string, string>>();
 
+            // Serialize/Build elastic search request body
             if (bulkRequests != null)
             {
                 foreach (var bulk in bulkRequests)
@@ -436,13 +443,16 @@ namespace ElasticSearch.Common
                 }
             }
 
+            // send request to ES server
             string url = string.Format("{0}/_bulk", baseUrl);
             int httpStatus = 0;
             string bodyRequest = requestString.ToString();
+
             string response = SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, bodyRequest, true);
 
             log.Debug("Finish Elastic Search Bulk requests. result is " + response);
 
+            // Find out if there are errors
             try
             {
                 var json = JObject.Parse(response);
@@ -484,7 +494,17 @@ namespace ElasticSearch.Common
             return invalidRecords;
         }
 
-        public List<KeyValuePair<string, string>> CreateBulkIndexRequest<T>(string sIndex, string sType, List<KeyValuePair<T, string>> lObjects, string sRouting = null)
+        /// <summary>
+        /// Creates and sends an ElasticSearch bulk request bulk request. Returns the requests that failed and their errors.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="index"></param>
+        /// <param name="type"></param>
+        /// <param name="objects"></param>
+        /// <param name="routing"></param>
+        /// <returns></returns>
+        public List<KeyValuePair<string, string>> CreateBulkIndexRequest<T>(
+            string index, string type, List<KeyValuePair<T, string>> objects, string routing = null)
         {
             log.Debug("Start ES Update - Start Bulk Update");
 
@@ -492,21 +512,23 @@ namespace ElasticSearch.Common
 
             List<ESBulkRequestObj<T>> bulkRequests = new List<ESBulkRequestObj<T>>();
 
-            foreach (var item in lObjects)
+            // Create a bulk request object from each of the objects in the parameter list
+            foreach (var item in objects)
             {
                 bulkRequests.Add(new ESBulkRequestObj<T>()
                 {
                     docID = item.Key,
                     document = item.Value,
-                    index = sIndex,
-                    type = sType,
-                    routing = sRouting,
+                    index = index,
+                    type = type,
+                    routing = routing,
                     Operation = eOperation.index
                 });
             }
 
             List<KeyValuePair<T, string>> sInvalidRecords = new List<KeyValuePair<T, string>>();
 
+            // Use other method to perform request
             var requestResult = CreateBulkRequest(bulkRequests);
 
             return requestResult;
