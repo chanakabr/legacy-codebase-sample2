@@ -448,7 +448,8 @@ namespace ApiObjects
         BuildIPToCountry,
         InitializeFreeItemUpdateQueue,
         NotificationCleanupIteration,
-        RecordingsCleanup
+        RecordingsCleanup,
+        MigrateStatistics
     }
 
 
