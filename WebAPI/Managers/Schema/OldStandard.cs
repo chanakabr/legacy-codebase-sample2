@@ -15,7 +15,7 @@ namespace WebAPI.Managers.Schema
         public OldStandardAttribute(string newMember, string oldMember)
         {
             this.newMember = newMember;
-            this.oldMember = oldMember;
+            this.oldMember = oldMember.ToLower();
         }
 
         public string newMember { get; set; }
