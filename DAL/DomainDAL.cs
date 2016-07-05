@@ -600,10 +600,12 @@ namespace DAL
             return true;
         }
 
-
         public static bool InsertNewDomain(string sName, string sDescription, int nGroupID, DateTime dDateTime, int nDomainLimitID, string sCoGuid = null, int? nOperatorID = null)
         {
             bool bInserRes = false;
+
+
+
             ODBCWrapper.InsertQuery insertQuery = null;
             try
             {
@@ -650,6 +652,38 @@ namespace DAL
             return bInserRes;
         }
 
+        public static bool GetDomainDbObject(int groupID, DateTime dateTime, ref string name, ref string description, int domainID, ref int isActive, ref int status, ref string coGuid, ref int regionId)
+        {
+            bool res = false;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("__Get_DomainDataByID");
+                sp.SetConnectionKey("USERS_CONNECTION_STRING");
+                sp.AddParameter("@GroupId", groupID);
+                sp.AddParameter("@Id", domainID);
+
+                DataTable dt = sp.Execute();
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {                    
+                    DataRow dr = dt.Rows[0];
+                    name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                    description = ODBCWrapper.Utils.GetSafeStr(dr, "description");
+                    domainID = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
+                    isActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
+                    status = ODBCWrapper.Utils.GetIntSafeVal(dr, "status");
+                    coGuid = ODBCWrapper.Utils.GetSafeStr(dr, "CoGuid");
+                    regionId = ODBCWrapper.Utils.GetIntSafeVal(dr, "Region_ID");
+                    res = true;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return res;
+        }
 
         public static bool GetDomainDbObject(int nGroupID, DateTime dDateTime, ref string sName, ref string sDbDescription, 
             ref int nDbDomainID, ref int nDbIsActive, ref int nDbStatus, ref string sCoGuid, ref int regionId)
