@@ -95,7 +95,7 @@ namespace SetupTaskHandler
 
                         if (bulkObjects.Count >= 5000)
                         {
-                            Task<List<ESBulkRequestObj<int>>> t = Task<List<ESBulkRequestObj<int>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(bulkObjects));
+                            Task<object> t = Task<object>.Factory.StartNew(() => api.CreateBulkRequest(bulkObjects));
                             t.Wait();
                             bulkObjects = new List<ESBulkRequestObj<int>>();
                         }
@@ -103,7 +103,7 @@ namespace SetupTaskHandler
 
                     if (bulkObjects.Count > 0)
                     {
-                        Task<List<ESBulkRequestObj<int>>> t = Task<List<ESBulkRequestObj<int>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(bulkObjects));
+                        Task<object> t = Task<object>.Factory.StartNew(() => api.CreateBulkRequest(bulkObjects));
                         t.Wait();
                     }
                 }

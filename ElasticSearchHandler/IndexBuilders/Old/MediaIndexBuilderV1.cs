@@ -132,7 +132,7 @@ namespace ElasticSearchHandler.IndexBuilders
             if (groupMedias != null)
             {
                 log.Debug("Info - " + string.Format("Start indexing medias. total medias={0}", groupMedias.Count));
-                List<ESBulkRequestObj<int>> lBulkObj = new List<ESBulkRequestObj<int>>();
+                List<ESBulkRequestObj<int>> bulkList = new List<ESBulkRequestObj<int>>();
 
                 foreach (int mediaId in groupMedias.Keys)
                 {
@@ -148,7 +148,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                             string sType = ElasticSearchTaskUtils.GetTanslationType(MEDIA, group.GetLanguage(languageId));
 
-                            lBulkObj.Add(new ESBulkRequestObj<int>()
+                            bulkList.Add(new ESBulkRequestObj<int>()
                             {
                                 docID = media.m_nMediaID,
                                 index = newIndexName,
@@ -156,18 +156,18 @@ namespace ElasticSearchHandler.IndexBuilders
                                 document = serializedMedia
                             });
                         }
-                        if (lBulkObj.Count >= sizeOfBulk)
+                        if (bulkList.Count >= sizeOfBulk)
                         {
-                            Task<List<ESBulkRequestObj<int>>> t = Task<List<ESBulkRequestObj<int>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(lBulkObj));
+                            Task<object> t = Task<object>.Factory.StartNew(() => api.CreateBulkRequest(bulkList));
                             t.Wait();
-                            lBulkObj = new List<ESBulkRequestObj<int>>();
+                            bulkList = new List<ESBulkRequestObj<int>>();
                         }
                     }
                 }
 
-                if (lBulkObj.Count > 0)
+                if (bulkList.Count > 0)
                 {
-                    Task<List<ESBulkRequestObj<int>>> t = Task<List<ESBulkRequestObj<int>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(lBulkObj));
+                    Task<object> t = Task<object>.Factory.StartNew(() => api.CreateBulkRequest(bulkList));
                     t.Wait();
                 }
             }

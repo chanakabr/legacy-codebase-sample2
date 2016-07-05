@@ -18,7 +18,6 @@ namespace ElasticSearchHandler.IndexBuilders
 {
     public class ChannelIndexBuilderV2 : AbstractIndexBuilder
     {
-        protected static readonly string PERCOLATOR_TYPE = ".percolator";
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -59,7 +58,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                     string query = filteredQuery.ToString();
 
-                    string searchResults = api.Search(indexName, PERCOLATOR_TYPE, ref query);
+                    string searchResults = api.Search(indexName, ElasticSearch.Common.Utils.ES_PERCOLATOR_TYPE, ref query);
 
                     List<string> currentChannelIds = ElasticSearch.Common.Utils.GetDocumentIds(searchResults);
 
@@ -84,13 +83,13 @@ namespace ElasticSearchHandler.IndexBuilders
                             {
                                 docID = channelId,
                                 index = indexName,
-                                type = PERCOLATOR_TYPE,
+                                type = ElasticSearch.Common.Utils.ES_PERCOLATOR_TYPE,
                                 Operation = eOperation.delete
                             });
 
                             if (bulkList.Count >= sizeOfBulk)
                             {
-                                Task<List<ESBulkRequestObj<string>>> t = Task<List<ESBulkRequestObj<string>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(bulkList));
+                                Task<object> t = Task<object>.Factory.StartNew(() => api.CreateBulkRequest(bulkList));
                                 t.Wait();
                                 bulkList = new List<ESBulkRequestObj<string>>();
                             }
@@ -99,7 +98,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                     if (bulkList.Count > 0)
                     {
-                        Task<List<ESBulkRequestObj<string>>> t = Task<List<ESBulkRequestObj<string>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(bulkList));
+                        Task<object> t = Task<object>.Factory.StartNew(() => api.CreateBulkRequest(bulkList));
                         t.Wait();
                     }
                 }
@@ -186,7 +185,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                             if (channelRequests.Count > 50)
                             {
-                                api.CreateBulkIndexRequest(newIndexName, PERCOLATOR_TYPE, channelRequests);
+                                api.CreateBulkIndexRequest(newIndexName, ElasticSearch.Common.Utils.ES_PERCOLATOR_TYPE, channelRequests);
                                 channelRequests.Clear();
                             }
                         }
@@ -199,7 +198,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                     if (channelRequests.Count > 0)
                     {
-                        api.CreateBulkIndexRequest(newIndexName, PERCOLATOR_TYPE, channelRequests);
+                        api.CreateBulkIndexRequest(newIndexName, ElasticSearch.Common.Utils.ES_PERCOLATOR_TYPE, channelRequests);
                     }
                 }
                 catch (Exception ex)

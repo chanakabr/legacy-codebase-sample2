@@ -91,7 +91,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                             if (bulkList.Count >= sizeOfBulk)
                             {
-                                Task<List<ESBulkRequestObj<string>>> t = Task<List<ESBulkRequestObj<string>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(bulkList));
+                                Task<object> t = Task<object>.Factory.StartNew(() => api.CreateBulkRequest(bulkList));
                                 t.Wait();
                                 bulkList = new List<ESBulkRequestObj<string>>();
                             }
@@ -100,7 +100,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                     if (bulkList.Count > 0)
                     {
-                        Task<List<ESBulkRequestObj<string>>> t = Task<List<ESBulkRequestObj<string>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(bulkList));
+                        Task<object> t = Task<object>.Factory.StartNew(() => api.CreateBulkRequest(bulkList));
                         t.Wait();
                     }
                 }

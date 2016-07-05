@@ -190,15 +190,15 @@ namespace ElasticSearchHandler.Updaters
                             }
 
                             // send request to ES API
-                            var invalidResults = esApi.CreateBulkIndexRequest(bulkRequests);
+                            var invalidResults = esApi.CreateBulkRequest(bulkRequests);
 
                             if (invalidResults != null && invalidResults.Count > 0)
                             {
                                 foreach (var invalidResult in invalidResults)
                                 {
                                     log.Error("Error - " + string.Format(
-                                        "Could not update EPG in ES. GroupID={0};Type={1};EPG_ID={2};serializedObj={3};",
-                                        groupId, EPG, invalidResult.docID, invalidResult.document));
+                                        "Could not update EPG in ES. GroupID={0};Type={1};EPG_ID={2};error={3};",
+                                        groupId, EPG, invalidResult.Key, invalidResult.Value));
                                 }
 
                                 result = false;
@@ -263,7 +263,7 @@ namespace ElasticSearchHandler.Updaters
                     });
                 }
 
-                esApi.CreateBulkIndexRequest(bulkRequests);
+                esApi.CreateBulkRequest(bulkRequests);
 
                 result = true;
             }

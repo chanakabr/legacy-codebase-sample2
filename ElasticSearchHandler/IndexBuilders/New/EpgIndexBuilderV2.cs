@@ -218,7 +218,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                             if (channelRequests.Count > 50)
                             {
-                                api.CreateBulkIndexRequest("_percolator", newIndexName, channelRequests);
+                                api.CreateBulkIndexRequest(newIndexName, ElasticSearch.Common.Utils.ES_PERCOLATOR_TYPE, channelRequests);
                                 channelRequests.Clear();
                             }
                         }
@@ -226,7 +226,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                     if (channelRequests.Count > 0)
                     {
-                        api.CreateBulkIndexRequest("_percolator", newIndexName, channelRequests);
+                        api.CreateBulkIndexRequest(newIndexName, ElasticSearch.Common.Utils.ES_PERCOLATOR_TYPE, channelRequests);
                     }
                 }
                 catch (Exception ex)
@@ -353,7 +353,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 if (bulkRequests.Count >= sizeOfBulk)
                 {
                     // create bulk request now and clear list
-                    api.CreateBulkIndexRequest(bulkRequests);
+                    api.CreateBulkRequest(bulkRequests);
 
                     bulkRequests.Clear();
                 }
@@ -362,7 +362,7 @@ namespace ElasticSearchHandler.IndexBuilders
             // If we have anything left that is less than the size of the bulk
             if (bulkRequests.Count > 0)
             {
-                api.CreateBulkIndexRequest(bulkRequests);
+                api.CreateBulkRequest(bulkRequests);
             }
         }
 
