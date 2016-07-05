@@ -13,8 +13,25 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Subscription price details
     /// </summary>
+    [OldStandard("purchaseStatus", "purchase_status")]
     public class KalturaSubscriptionPrice : KalturaProductPrice
     {
-        
+        /// <summary>
+        /// Product price 
+        /// </summary>
+        [DataMember(Name = "price")]
+        [JsonProperty("price")]
+        [XmlElement(ElementName = "price", IsNullable = true)]
+        [Obsolete]
+        public KalturaPrice Price { get { return base.Price; } }
+
+        /// <summary>
+        /// Product purchase status  
+        /// </summary>
+        [DataMember(Name = "purchaseStatus")]
+        [JsonProperty("purchaseStatus")]
+        [XmlElement(ElementName = "purchaseStatus")]
+        [Obsolete]
+        public KalturaPurchaseStatus PurchaseStatus { get { return base.PurchaseStatus; } }
     }
 }
