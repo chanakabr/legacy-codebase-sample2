@@ -273,8 +273,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ProtectionPeriod, opt => opt.MapFrom(src => src.ProtectionPeriod))
                 .ForMember(dest => dest.ProtectionQuotaPercentage, opt => opt.MapFrom(src => src.ProtectionQuotaPercentage))
                 .ForMember(dest => dest.RecordingLifetimePeriod, opt => opt.MapFrom(src => src.RecordingLifetimePeriod))
-                .ForMember(dest => dest.CleanupNoticePeroid, opt => opt.MapFrom(src => src.CleanupNoticePeroid));
-                //.ForMember(dest => dest.SeriesRecordingEnabled, opt => opt.MapFrom(src => src.IsSeriesRecordingEnabled));
+                .ForMember(dest => dest.CleanupNoticePeroid, opt => opt.MapFrom(src => src.CleanupNoticePeroid))
+                .ForMember(dest => dest.SeriesRecordingEnabled, opt => opt.MapFrom(src => src.IsSeriesRecordingEnabled));
 
             //KalturaTimeShiftedTvPartnerSettings to TimeShiftedTvPartnerSettings
             Mapper.CreateMap<WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings, TimeShiftedTvPartnerSettings>()
@@ -292,8 +292,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ProtectionPeriod, opt => opt.MapFrom(src => src.ProtectionPeriod))
                 .ForMember(dest => dest.ProtectionQuotaPercentage, opt => opt.MapFrom(src => src.ProtectionQuotaPercentage))
                 .ForMember(dest => dest.RecordingLifetimePeriod, opt => opt.MapFrom(src => src.RecordingLifetimePeriod))
-                .ForMember(dest => dest.CleanupNoticePeroid, opt => opt.MapFrom(src => src.CleanupNoticePeroid));
-                //.ForMember(dest => dest.IsSeriesRecordingEnabled, opt => opt.MapFrom(src => src.SeriesRecordingEnabled));
+                .ForMember(dest => dest.CleanupNoticePeroid, opt => opt.MapFrom(src => src.CleanupNoticePeroid))
+                .ForMember(dest => dest.IsSeriesRecordingEnabled, opt => opt.MapFrom(src => src.SeriesRecordingEnabled));
 
             #endregion
 
