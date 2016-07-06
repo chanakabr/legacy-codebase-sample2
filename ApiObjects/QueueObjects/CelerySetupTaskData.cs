@@ -51,8 +51,6 @@ namespace ApiObjects
             this.mission = mission;
             this.data = new JObject();
 
-            JObject jsonArgument = new JObject();
-
             if (this.dynamicData != null)
             {
                 // Run on all data and convert it to Json
@@ -64,7 +62,7 @@ namespace ApiObjects
 
             this.args.Add(this.GroupId);
             this.args.Add(this.mission.ToString());
-            this.args.Add(jsonArgument);
+            this.args.Add(this.data);
         }
     }
 }
