@@ -2,10 +2,7 @@
 using Newtonsoft.Json;
 using RemoteTasksCommon;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace ESIndexUpdateHandler
 {
@@ -35,18 +32,21 @@ namespace ESIndexUpdateHandler
                     if (bResult)
                     {
                         res = "success";
+                        log.DebugFormat("Successfully perform {0} action on asset of type {1} with id: [{2}] did not finish successfully", request.Action.ToString(), request.Type.ToString(), string.Join(",", request.DocIDs));
                     }
                     else
                     {
-                        throw new Exception(string.Format("Performing {0} action on asset of type {1} with id: [{2}] did not finish successfully.", request.Action.ToString(), request.Type.ToString(), string.Join(",",request.DocIDs)));
+                        log.ErrorFormat("Failed perform {0} action on asset of type {1} with id: [{2}] did not finish successfully", request.Action.ToString(), request.Type.ToString(), string.Join(",", request.DocIDs));
+                        throw new Exception(string.Format("Performing {0} action on asset of type {1} with id: [{2}] did not finish successfully.", request.Action.ToString(), request.Type.ToString(), string.Join(",", request.DocIDs)));
                     }
                 }
             }
             catch (Exception ex)
             {
+                log.ErrorFormat("Error while perform action. data: {0}, Exception:{1}", data, ex);
                 throw ex;
             }
-            
+
             return res;
         }
     }

@@ -69,6 +69,7 @@ namespace ImageUploadHandler
             }
             catch (Exception ex)
             {
+                log.ErrorFormat("error inserting image. data: {0}, Exception:{1}", data, ex);
                 throw ex;
             }
 
