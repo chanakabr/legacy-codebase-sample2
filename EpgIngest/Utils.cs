@@ -27,7 +27,7 @@ namespace EpgIngest
             }
             catch (Exception ex)
             {
-                log.Error("", ex);
+                log.ErrorFormat("Failed getting group:({0}) languages. Exception:{1}", nGroupID, ex);
                 return new List<LanguageObj>();
             }
         }

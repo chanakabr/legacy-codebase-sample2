@@ -84,12 +84,12 @@ namespace Catalog
         FAIL = 2
     }
 
-    public enum eIngestType
-    {
-        Tvinci = 0,
-        Adi = 1,
-        KalturaEpg = 2
-    }
+    //public enum eIngestType
+    //{
+    //    Tvinci = 0,
+    //    Adi = 1,
+    //    KalturaEpg = 2
+    //}
 
     public enum eBundleType
     {
