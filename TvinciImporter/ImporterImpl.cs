@@ -567,7 +567,7 @@ namespace TvinciImporter
                 {
                     log.DebugFormat("ProcessEPGItem - Action:Delete Error: EPGSchedID not exist");
                     AddError(ref sErrorMessage, "Cant delete. the item is not exist");
-                    ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngsetWarnings.EPGSchedIdNotExist, Message = EPG_SCHED_ID_NOT_EXIST });
+                    ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngestWarnings.EPGSchedIdNotExist, Message = EPG_SCHED_ID_NOT_EXIST });
                     return false;
                 }
 
@@ -1591,13 +1591,13 @@ namespace TvinciImporter
             string entryId = GetItemParameterVal(ref theItem, "entry_id");
             if (string.IsNullOrEmpty(entryId))
             {
-                ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngsetWarnings.MissingEntryId, Message = MISSING_ENTRY_ID });
+                ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngestWarnings.MissingEntryId, Message = MISSING_ENTRY_ID });
             }
 
             string sAction = GetItemParameterVal(ref theItem, "action").Trim().ToLower();
             if (string.IsNullOrEmpty(sAction))
             {
-                ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngsetWarnings.MissingAction, Message = MISSING_ACTION });
+                ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngestWarnings.MissingAction, Message = MISSING_ACTION });
             }
 
             string sIsActive = GetItemParameterVal(ref theItem, "is_active").Trim().ToLower();
@@ -1616,7 +1616,7 @@ namespace TvinciImporter
                 {
                     log.Debug("ProcessItem - Action:Delete Error: media not exist");
                     AddError(ref sErrorMessage, "Cant delete. the item is not exist");
-                    ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngsetWarnings.MediaIdNotExist, Message = MEDIA_ID_NOT_EXIST });
+                    ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngestWarnings.MediaIdNotExist, Message = MEDIA_ID_NOT_EXIST });
                     return false;
                 }
                 //delete media
@@ -1644,7 +1644,7 @@ namespace TvinciImporter
                 {
                     AddError(ref sErrorMessage, "Item type not recognized");
                     log.DebugFormat("ProcessItem - Item type not recognized. mediaId:{0}", nMediaID);
-                    ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngsetWarnings.NotRecognizedItemType, Message = ITEM_TYPE_NOT_RECOGNIZED });
+                    ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngestWarnings.NotRecognizedItemType, Message = ITEM_TYPE_NOT_RECOGNIZED });
                 }
 
                 string sEpgIdentifier = GetNodeValue(ref theItem, "basic/epg_identifier");
@@ -1654,7 +1654,7 @@ namespace TvinciImporter
                 {
                     AddError(ref sErrorMessage, "Watch permission rule not recognized");
                     log.DebugFormat("ProcessItem - Watch permission rule not recognized. mediaId:{0}, WatchPerRule:{1}", nMediaID, sWatchPerRule);
-                    ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngsetWarnings.NotRecognizedWatchPermissionRule, Message = WATCH_PERMISSION_RULE_NOT_RECOGNIZED });
+                    ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngestWarnings.NotRecognizedWatchPermissionRule, Message = WATCH_PERMISSION_RULE_NOT_RECOGNIZED });
                 }
 
                 string sGeoBlockRule = GetNodeValue(ref theItem, "basic/rules/geo_block_rule");
@@ -1663,7 +1663,7 @@ namespace TvinciImporter
                 {
                     AddError(ref sErrorMessage, "Geo block rule not recognized");
                     log.DebugFormat("ProcessItem - Geo block rule not recognized. mediaId:{0}, GeoBlockRule:{1}", nMediaID, sGeoBlockRule);
-                    ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngsetWarnings.NotRecognizedGeoBlockRule, Message = GEO_BLOCK_RULE_NOT_RECOGNIZED });
+                    ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngestWarnings.NotRecognizedGeoBlockRule, Message = GEO_BLOCK_RULE_NOT_RECOGNIZED });
                 }
 
                 string sDeviceRule = GetNodeValue(ref theItem, "basic/rules/device_rule");
@@ -1672,7 +1672,7 @@ namespace TvinciImporter
                 {
                     AddError(ref sErrorMessage, "Device rule not recognized");
                     log.DebugFormat("ProcessItem - Device rule not recognized. mediaId:{0}, DeviceRule:{1}", nMediaID, sDeviceRule);
-                    ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngsetWarnings.NotRecognizedDeviceRule, Message = DEVICE_RULE_NOT_RECOGNIZED });
+                    ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngestWarnings.NotRecognizedDeviceRule, Message = DEVICE_RULE_NOT_RECOGNIZED });
                 }
 
                 string sPlayersRule = GetNodeValue(ref theItem, "basic/rules/players_rule");
@@ -1681,7 +1681,7 @@ namespace TvinciImporter
                 {
                     AddError(ref sErrorMessage, "Players rule not recognized");
                     log.DebugFormat("ProcessItem - Players rule not recognized. mediaId:{0}, PlayersRule:{1}", nMediaID, sPlayersRule);
-                    ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngsetWarnings.NotRecognizedPlayersRule, Message = PLAYERS_RULE_NOT_RECOGNIZED });
+                    ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngestWarnings.NotRecognizedPlayersRule, Message = PLAYERS_RULE_NOT_RECOGNIZED });
                 }
 
                 string sCatalogStartDate = GetNodeValue(ref theItem, "basic/dates/catalog_start");
@@ -1740,7 +1740,7 @@ namespace TvinciImporter
                     picId = DownloadPic(ratiosThumb[ratioKey], string.Empty, nGroupID, nMediaID, sMainLang, "RATIOPIC", false, ratioKey, ratioSizesList[ratioKey]);
                     if (picId == 0)
                     {
-                        ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngsetWarnings.FailedDownloadPic, Message = FAILED_DOWNLOAD_PIC });
+                        ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngestWarnings.FailedDownloadPic, Message = FAILED_DOWNLOAD_PIC });
                     }
                 }
                 UpdateInsertBasicSubLangData(nGroupID, nMediaID, sMainLang, ref theItemName, ref theItemDesc);
@@ -4830,7 +4830,7 @@ namespace TvinciImporter
                                 else
                                 {
                                     log.ErrorFormat("UpdateIndex: Failed. CoGuid:{0}, MediaID:{1}, isActive:{2}, ErrorMessage:{3}", sCoGuid, nMediaID, isActive.ToString(), sErrorMessage);
-                                    ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngsetWarnings.UpdateIndexFailed, Message = UPDATE_INDEX_FAILED });
+                                    ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngestWarnings.UpdateIndexFailed, Message = UPDATE_INDEX_FAILED });
                                 }
 
                                 // update notification 
@@ -4892,7 +4892,7 @@ namespace TvinciImporter
                                 log.ErrorFormat("Error import channel. GID: {0}", nGroupID);
                                 sNotifyXML += "<error>No such channel</error>";
                                 sNotifyXML += "</channel>";
-                                ingestAssetStatus.Status.Code = (int)IngsetWarnings.ErrorExportChannel;
+                                ingestAssetStatus.Status.Code = (int)IngestWarnings.ErrorExportChannel;
                                 ingestAssetStatus.Status.Message = ERROR_EXPORT_CHANNEL;
                                 continue;
                             }
