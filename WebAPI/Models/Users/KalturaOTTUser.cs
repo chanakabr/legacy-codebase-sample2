@@ -15,10 +15,7 @@ namespace WebAPI.Models.Users
     /// </summary>
     [DataContract(Name = "user")]
     [OldStandard("householdId", "household_id")]
-    [OldStandard("facebookId", "facebook_id")]
-    [OldStandard("facebookImage", "facebook_image")]
     [OldStandard("affiliateCode", "affiliate_code")]
-    [OldStandard("facebookToken", "facebook_token")]
     [OldStandard("externalId", "external_id")]
     [OldStandard("userType", "user_type")]
     [OldStandard("dynamicData", "dynamic_data")]
@@ -89,6 +86,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "facebookId")]
         [JsonProperty("facebookId")]
         [XmlElement(ElementName = "facebookId")]
+        [Obsolete]
         public string FacebookId { get; set; }
 
         /// <summary>
@@ -97,6 +95,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "facebookImage")]
         [JsonProperty("facebookImage")]
         [XmlElement(ElementName = "facebookImage")]
+        [Obsolete]
         public string FacebookImage { get; set; }
 
         /// <summary>
@@ -113,6 +112,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "facebookToken")]
         [JsonProperty("facebookToken")]
         [XmlElement(ElementName = "facebookToken")]
+        [Obsolete]
         public string FacebookToken { get; set; }
 
         /// <summary>

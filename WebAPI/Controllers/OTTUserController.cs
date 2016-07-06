@@ -167,7 +167,7 @@ namespace WebAPI.Controllers
         /// User does not exist = 2000
         /// </remarks>
         [Route("facebookLogin"), HttpPost]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [Obsolete]
         public KalturaLoginResponse FacebookLogin(int partnerId, string token, string udid = null)
         {
             KalturaOTTUser response = null;

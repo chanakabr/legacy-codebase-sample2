@@ -14,7 +14,7 @@ namespace WebAPI.Exceptions
     public class ApiException : HttpResponseException
     {
         public int Code { get; set; }
-        public string Message { get; set; }
+        new public string Message { get; set; }
         public class ExceptionPayload
         {
             public ExceptionPayload() 

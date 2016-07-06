@@ -1131,6 +1131,10 @@
     <Compile Include="Models\API\KalturaExportTaskOrderBy.cs" />
     <Compile Include="Models\API\KalturaParentalRuleOrderBy.cs" />
     <Compile Include="Models\API\KalturaUserAssetRuleOrderBy.cs" />
+    <Compile Include="Models\Catalog\KalturaBookmarkOrderBy.cs" />
+    <Compile Include="Models\Catalog\KalturaBookmarkFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaBookmark.cs" />
+    <Compile Include="Models\Catalog\KalturaBookmarkListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaAssetFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAsset.cs" />
     <Compile Include="Models\Catalog\KalturaAssetOrderBy.cs" />
@@ -1318,6 +1322,8 @@
     <Compile Include="Models\Pricing\KalturaPrice.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdWith.cs" />
     <Compile Include="Models\Pricing\KalturaSubscription.cs" />
+    <Compile Include="Models\Social\KalturaFacebookSocial.cs" />
+    <Compile Include="Models\Social\KalturaSocial.cs" />
     <Compile Include="Models\Social\KalturaSocialConfig.cs" />
     <Compile Include="Models\Social\KalturaSocialResponse.cs" />
     <Compile Include="Models\Social\KalturaSocialUser.cs" />

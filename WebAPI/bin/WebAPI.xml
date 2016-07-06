@@ -231,7 +231,7 @@
             Search values are limited to 20 characters each.
             (maximum length of entire filter is 1024 characters)]]></param>
             <remarks>Possible status codes: 
-            BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, 
+            BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, Channel does not exist = 4018
             </remarks>
         </member>
         <member name="M:WebAPI.Controllers.AssetController.ExternalChannel(System.Int32,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.Nullable{WebAPI.Models.Catalog.KalturaOrder},WebAPI.Models.General.KalturaFilterPager,System.String,System.String)">
@@ -1270,7 +1270,18 @@
             <remarks>Possible status codes: 
             Device not exists = 1019</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.BookmarkController.List(WebAPI.Models.Catalog.KalturaAssetsFilter)">
+        <member name="M:WebAPI.Controllers.BookmarkController.ListOldStandard(WebAPI.Models.Catalog.KalturaAssetsFilter)">
+            <summary>
+            Returns player position record/s for the requested asset and the requesting user. 
+            If default user makes the request – player position records are provided for all of the users in the household.
+            If non-default user makes the request - player position records are provided for the requesting user and the default user of the household.
+            </summary>
+            <param name="filter">Filter option for the last position</param>
+            <returns></returns>
+            <remarks>Possible status codes: User not exists in domain = 1020, Invalid user = 1026, Invalid asset type = 4021
+            </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.BookmarkController.List(WebAPI.Models.Catalog.KalturaBookmarkFilter)">
             <summary>
             Returns player position record/s for the requested asset and the requesting user. 
             If default user makes the request – player position records are provided for all of the users in the household.
@@ -1823,7 +1834,44 @@
             <param name="type">Social network type</param>
             <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.SocialController.Register(System.Int32,System.String,System.Boolean,System.Boolean,WebAPI.Models.Social.KalturaSocialNetwork)">
+        <member name="M:WebAPI.Controllers.SocialController.GetByTokenOldStandard(System.Int32,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
+            <summary>
+            Return the user object with social information according to a provided external social token
+            </summary>
+            <param name="partnerId">Partner identifier</param>
+            <param name="token">Social token</param>
+            <param name="type">Social network type</param>
+            <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001</remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.SocialController.Get(WebAPI.Models.Social.KalturaSocialNetwork)">
+            <summary>
+            List social accounts
+            </summary>
+            <param name="type">social type to get</param>
+            <remarks></remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.SocialController.Login(System.Int32,System.String,WebAPI.Models.Social.KalturaSocialNetwork,System.String)">
+            <summary>
+            Login using social token
+            </summary>        
+            <param name="partnerId">Partner identifier</param>
+            <param name="token">Social token</param>
+            <param name="type">Social network</param>
+            <param name="udid">Device UDID</param>
+            <remarks>        
+            User does not exist = 2000
+            </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.SocialController.Register(System.Int32,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
+            <summary>
+            Create a new user in the system using a provided external social token
+            </summary>
+            <param name="token">social token</param>
+            <param name="partnerId">Partner identifier</param>
+            <param name="type">Social network type</param>
+            <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.SocialController.RegisterOldStandard(System.Int32,System.String,System.Boolean,System.Boolean,WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
             Create a new user in the system using a provided external social token
             </summary>
@@ -1834,7 +1882,15 @@
             <param name="subscribe_newsletter">Subscribes to newsletter</param>
             <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.SocialController.Merge(System.Int32,System.String,System.String,System.String,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
+        <member name="M:WebAPI.Controllers.SocialController.Merge(System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
+            <summary>
+            Connect an existing user in the system to an external social network user 
+            </summary>
+            <param name="token">social token</param>
+            <param name="type">Social network type</param>
+            <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.SocialController.MergeOldStandard(System.Int32,System.String,System.String,System.String,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
             Connect an existing user in the system to an external social network user 
             </summary>
@@ -1846,7 +1902,14 @@
             <param name="partnerId">Partner identifier</param>
             <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.SocialController.Unmerge(System.String,System.String,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
+        <member name="M:WebAPI.Controllers.SocialController.Unmerge(WebAPI.Models.Social.KalturaSocialNetwork)">
+            <summary>
+            Disconnect an existing user in the system from its external social network user
+            </summary>
+            <param name="type">Social network type</param>
+            <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.SocialController.UnmergeOldStandard(System.String,System.String,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
             Disconnect an existing user in the system from its  external social network user
             </summary>
@@ -1856,7 +1919,7 @@
             <param name="type">Social network type</param>
             <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.SocialController.Config(System.Int32,WebAPI.Models.Social.KalturaSocialNetwork)">
+        <member name="M:WebAPI.Controllers.SocialController.GetConfiguration(System.Int32,WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
             Retrieve the social network’s configuration information 
             </summary>        
@@ -2316,6 +2379,61 @@
         <member name="P:WebAPI.Models.API.KalturaCDNAdapterProfileListResponse.Adapters">
             <summary>
             Adapters
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaBookmarkFilter">
+            <summary>
+            Filtering Assets requests
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBookmarkFilter.AssetIn">
+            <summary>
+            List of assets identifier
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaSlimAsset">
+            <summary>
+            Slim Asset Details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaSlimAsset.Id">
+            <summary>
+            Internal identifier of the asset
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaSlimAsset.Type">
+            <summary>
+            The type of the asset. Possible values: media, recording, epg
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBookmark.User">
+             <summary>
+            User object
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBookmark.Position">
+             <summary>
+            The position of the user in the specific asset (in seconds)
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBookmark.PositionOwner">
+             <summary>
+            Indicates who is the owner of this position
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBookmark.IsFinishedWatching">
+             <summary>
+            Specifies whether the user's current position exceeded 95% of the duration
+             </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaBookmarkListResponse">
+            <summary>
+            List of assets and their bookmarks
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBookmarkListResponse.AssetsBookmarks">
+            <summary>
+            Assets
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetFilter.KSql">
@@ -3132,21 +3250,6 @@
         <member name="P:WebAPI.Models.Catalog.KalturaPersonalAsset.Following">
             <summary>
             Is followed by user. 
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Catalog.KalturaSlimAsset">
-            <summary>
-            Slim Asset Details
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaSlimAsset.Id">
-            <summary>
-            Internal identifier of the asset
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaSlimAsset.Type">
-            <summary>
-            The type of the asset. Possible values: media, recording, epg
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaBaseChannel">
@@ -4849,6 +4952,16 @@
             Subscription price details
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionPrice.Price">
+            <summary>
+            Product price 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionPrice.PurchaseStatus">
+            <summary>
+            Product purchase status  
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionsFilter.Ids">
             <summary>
             Subscription identifiers or file identifier (only 1) to get the subscriptions by
@@ -5242,6 +5355,62 @@
         <member name="P:WebAPI.Models.Pricing.KalturaSubscription.UserTypes">
             <summary>
             List of permitted user types for the subscription
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocial.ID">
+            <summary>
+            Facebook identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocial.Name">
+            <summary>
+            Full name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocial.FirstName">
+            <summary>
+            First name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocial.LastName">
+            <summary>
+            Last name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocial.Email">
+            <summary>
+            User email
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocial.Gender">
+            <summary>
+            Gender
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocial.UserId">
+            <summary>
+            User identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocial.Birthday">
+            <summary>
+            User birthday
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocial.Status">
+            <summary>
+            User model status
+            Possible values: UNKNOWN, OK, ERROR, NOACTION, NOTEXIST, CONFLICT, MERGE, MERGEOK, NEWUSER, MINFRIENDS, INVITEOK, INVITEERROR, ACCESSDENIED, WRONGPASSWORDORUSERNAME, UNMERGEOK
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocial.PictureUrl">
+            <summary>
+            Profile picture URL
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocial.SocialUser">
+            <summary>
+            Facebook user object
             </summary>
         </member>
         <member name="T:WebAPI.Models.Social.KalturaSocialConfig">
@@ -22409,6 +22578,15 @@
         <member name="M:WebAPI.Social.module.FBUserDataAsync(System.String,System.String,System.String,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.Social.module.FBUserDataByUserId(System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Social.module.FBUserDataByUserIdAsync(System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Social.module.FBUserDataByUserIdAsync(System.String,System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.Social.module.FBUserRegister(System.String,System.String,System.String,WebAPI.Social.KeyValuePair[],System.String)">
             <remarks/>
         </member>
@@ -22425,6 +22603,15 @@
             <remarks/>
         </member>
         <member name="M:WebAPI.Social.module.FBUserMergeAsync(System.String,System.String,System.String,System.String,System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Social.module.FBUserMergeByUserId(System.String,System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Social.module.FBUserMergeByUserIdAsync(System.String,System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Social.module.FBUserMergeByUserIdAsync(System.String,System.String,System.String,System.String,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Social.module.FBObjectRequest(System.String,System.String,WebAPI.Social.FacebookObjectRequest)">
@@ -22506,6 +22693,15 @@
             <remarks/>
         </member>
         <member name="M:WebAPI.Social.module.FBUserUnmergeAsync(System.String,System.String,System.String,System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Social.module.FBUserUnmergeByUserId(System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Social.module.FBUserUnmergeByUserIdAsync(System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Social.module.FBUserUnmergeByUserIdAsync(System.String,System.String,System.String,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Social.module.FBTokenValidation(System.String,System.String,System.String)">
@@ -22601,10 +22797,16 @@
         <member name="E:WebAPI.Social.module.FBUserDataCompleted">
             <remarks/>
         </member>
+        <member name="E:WebAPI.Social.module.FBUserDataByUserIdCompleted">
+            <remarks/>
+        </member>
         <member name="E:WebAPI.Social.module.FBUserRegisterCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.Social.module.FBUserMergeCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Social.module.FBUserMergeByUserIdCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.Social.module.FBObjectRequestCompleted">
@@ -22632,6 +22834,9 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.Social.module.FBUserUnmergeCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Social.module.FBUserUnmergeByUserIdCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.Social.module.FBTokenValidationCompleted">
@@ -23549,6 +23754,15 @@
         <member name="P:WebAPI.Social.FBUserDataCompletedEventArgs.Result">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Social.FBUserDataByUserIdCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.FBUserDataByUserIdCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.FBUserDataByUserIdCompletedEventArgs.Result">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Social.FBUserRegisterCompletedEventHandler">
             <remarks/>
         </member>
@@ -23565,6 +23779,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Social.FBUserMergeCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.FBUserMergeByUserIdCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.FBUserMergeByUserIdCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.FBUserMergeByUserIdCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Social.FBObjectRequestCompletedEventHandler">
@@ -23646,6 +23869,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Social.FBUserUnmergeCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.FBUserUnmergeByUserIdCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.FBUserUnmergeByUserIdCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.FBUserUnmergeByUserIdCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Social.FBTokenValidationCompletedEventHandler">
