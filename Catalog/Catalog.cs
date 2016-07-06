@@ -2401,6 +2401,10 @@ namespace Catalog
                     var queue = new CatalogQueue();
 
                     isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", group.m_nParentGroupID, objectType.ToString()));
+                    if (isUpdateIndexSucceeded)
+                        log.DebugFormat("successfully enqueue epg upload. data: {0}", data);
+                    else
+                        log.ErrorFormat("Failed enqueue of epg upload. data: {0}", data);
 
                     // Backward compatibility
                     if (objectType == eObjectType.EPG)

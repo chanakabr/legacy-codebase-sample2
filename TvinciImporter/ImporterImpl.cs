@@ -1,6 +1,8 @@
 ﻿using ApiObjects;
+using ApiObjects.Catalog;
 using ApiObjects.DRM;
 using ApiObjects.Notification;
+using ApiObjects.Response;
 using DAL;
 using KLogMonitor;
 using Newtonsoft.Json;
@@ -30,6 +32,20 @@ namespace TvinciImporter
         protected const string ROUTING_KEY_PROCESS_IMAGE_UPLOAD = "PROCESS_IMAGE_UPLOAD\\{0}";
         protected const string ROUTING_KEY_PROCESS_FREE_ITEM_UPDATE = "PROCESS_FREE_ITEM_UPDATE\\{0}";
 
+        private const string MISSING_EXTERNAL_IDENTIFIER = "External identifier is missing ";
+        private const string MISSING_ENTRY_ID = "entry_id is missing";
+        private const string MISSING_ACTION = "action is missing";
+        private const string ITEM_TYPE_NOT_RECOGNIZED = "Item type not recognized";
+        private const string WATCH_PERMISSION_RULE_NOT_RECOGNIZED = "Watch permission rule not recognized";
+        private const string GEO_BLOCK_RULE_NOT_RECOGNIZED = "Geo block rule not recognized";
+        private const string DEVICE_RULE_NOT_RECOGNIZED = "Device rule not recognized";
+        private const string PLAYERS_RULE_NOT_RECOGNIZED = "Players rule not recognized ";
+        private const string FAILED_DOWNLOAD_PIC = "Failed download pic";
+        private const string UPDATE_INDEX_FAILED = "Update index failed";
+        private const string ERROR_EXPORT_CHANNEL = "ErrorExportChannel";
+        private const string MEDIA_ID_NOT_EXIST = "Media Id not exist";
+        private const string EPG_SCHED_ID_NOT_EXIST = "EPG schedule id not exist";
+
         static string m_sLocker = "";
         static protected bool IsNodeExists(ref XmlNode theItem, string sXpath)
         {
@@ -48,8 +64,10 @@ namespace TvinciImporter
                 theNodeVal = theItem.SelectSingleNode(sXpath);
             else
                 theNodeVal = theItem;
+
             if (theNodeVal != null && theNodeVal.FirstChild != null)
                 sNodeVal = theNodeVal.FirstChild.Value;
+
             return sNodeVal;
         }
 
@@ -97,6 +115,8 @@ namespace TvinciImporter
                     }
                 }
             }
+
+            log.DebugFormat("GetNodeParameterVal parameter:{0}, value:{1}", sParameterName, sVal);
             return sVal;
         }
 
@@ -227,6 +247,8 @@ namespace TvinciImporter
             }
             selectQuery.Finish();
             selectQuery = null;
+
+            log.DebugFormat("GetMediaIDByCoGuid: mediaId: {0}", nMediaID);
             return nMediaID;
         }
 
@@ -515,33 +537,47 @@ namespace TvinciImporter
             updateQuery = null;
         }
 
-        static protected bool ProcessEPGItem(XmlNode theItem, Int32 nEPGChannelId, ref Int32 nEPGSchedID, ref string sEPGIdentifier, ref string sErrorMessage, Int32 nGroupID)
+        static protected bool ProcessEPGItem(XmlNode theItem, Int32 nEPGChannelId, ref Int32 nEPGSchedID, ref string sEPGIdentifier, ref string sErrorMessage, Int32 nGroupID, ref IngestAssetStatus ingestAssetStatus)
         {
-            bool bOK = true;
             sErrorMessage = "";
             sEPGIdentifier = GetItemParameterVal(ref theItem, "epg_identifier");
             if (sEPGIdentifier == "")
             {
                 AddError(ref sErrorMessage, "Missing epg_identifier");
+                ingestAssetStatus.Status.Code = (int)eResponseStatus.MissingExternalIdentifier;
+                ingestAssetStatus.Status.Message = MISSING_EXTERNAL_IDENTIFIER;
                 return false;
             }
+
+            //update log topic with EPGIdentifier
+            OperationContext.Current.IncomingMessageProperties[Constants.TOPIC] = string.Format("ingest import epg_identifier:{0}", sEPGIdentifier);
+
+            ingestAssetStatus.Status.Code = (int)eResponseStatus.OK;
+            ingestAssetStatus.Status.Message = eResponseStatus.OK.ToString();
+            ingestAssetStatus.ExternalAssetId = sEPGIdentifier;
 
             string sAction = GetItemParameterVal(ref theItem, "action").Trim().ToLower();
 
             if (sAction == "delete")
             {
                 nEPGSchedID = GetEPGSchedIDByEPGIdentifier(nGroupID, sEPGIdentifier);
+                ingestAssetStatus.InternalAssetId = nEPGSchedID;
+
                 if (nEPGSchedID == 0)
                 {
-                    AddError(ref sErrorMessage, "Cant delete an unexisting item");
+                    log.DebugFormat("ProcessEPGItem - Action:Delete Error: EPGSchedID not exist");
+                    AddError(ref sErrorMessage, "Cant delete. the item is not exist");
+                    ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngsetWarnings.EPGSchedIdNotExist, Message = EPG_SCHED_ID_NOT_EXIST });
                     return false;
                 }
+
+                log.DebugFormat("Delete EPGSchedID:{0}", nEPGSchedID);
                 DeleteEPGSched(nEPGSchedID);
             }
             else if (sAction == "insert" || sAction == "update")
             {
 
-                Int32 nMediaID = GetMediaIDByEPGGuid(nGroupID, sEPGIdentifier);
+                Int32 nMediaID = GetMediaIDByEPGGuid(nGroupID, sEPGIdentifier); //TODO: check with Ira mediaid?
 
                 string sStartDate = GetNodeValue(ref theItem, "start");
                 string sEndDate = GetNodeValue(ref theItem, "end");
@@ -558,12 +594,13 @@ namespace TvinciImporter
 
                 string sThumb = GetNodeParameterVal(ref theItem, "thumb", "url");
 
-                bOK = UpdateInsertBasicEPGMainLangData(nGroupID, nEPGChannelId, ref nEPGSchedID, sEPGIdentifier, dStartDate,
+                UpdateInsertBasicEPGMainLangData(nGroupID, nEPGChannelId, ref nEPGSchedID, sEPGIdentifier, dStartDate,
                     dEndDate, sThumb, sMainLang, ref theItemName, ref theItemDesc);
-                if (bOK == true)
-                    bOK = UpdateInsertBasicEPGSubLangData(nGroupID, nEPGSchedID, sMainLang, ref theItemName, ref theItemDesc);
+
+                UpdateInsertBasicEPGSubLangData(nGroupID, nEPGSchedID, sMainLang, ref theItemName, ref theItemDesc);
             }
-            return bOK;
+
+            return true;
         }
 
         // Used for building dictionary which contain all the orderBy values depends on group
@@ -1531,36 +1568,63 @@ namespace TvinciImporter
 
         }
 
-        static protected bool ProcessItem(XmlNode theItem, ref string sCoGuid, ref Int32 nMediaID, ref string sErrorMessage, Int32 nGroupID, ref bool isActive)
+        static protected bool ProcessItem(XmlNode theItem, ref string sCoGuid, ref Int32 nMediaID, ref string sErrorMessage, Int32 nGroupID, ref bool isActive, ref IngestAssetStatus ingestAssetStatus)
         {
-            log.DebugFormat("ProcessItem - Start groupId {0} ", nGroupID);
-            bool bOK = true;
             sErrorMessage = "";
+
             sCoGuid = GetItemParameterVal(ref theItem, "co_guid");
-            if (sCoGuid == "")
+            if (string.IsNullOrEmpty(sCoGuid))
             {
                 AddError(ref sErrorMessage, "Missing co_guid");
+                ingestAssetStatus.Status.Code = (int)eResponseStatus.MissingExternalIdentifier;
+                ingestAssetStatus.Status.Message = MISSING_EXTERNAL_IDENTIFIER;
                 return false;
             }
+
+            //update log topic with media's co guid
+            OperationContext.Current.IncomingMessageProperties[Constants.TOPIC] = string.Format("ingest import co_guid:{0}", sCoGuid);
+
+            ingestAssetStatus.ExternalAssetId = sCoGuid;
+            ingestAssetStatus.Status.Code = (int)eResponseStatus.OK;
+            ingestAssetStatus.Status.Message = eResponseStatus.OK.ToString();
+
             string entryId = GetItemParameterVal(ref theItem, "entry_id");
+            if (string.IsNullOrEmpty(entryId))
+            {
+                ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngsetWarnings.MissingEntryId, Message = MISSING_ENTRY_ID });
+            }
+
             string sAction = GetItemParameterVal(ref theItem, "action").Trim().ToLower();
+            if (string.IsNullOrEmpty(sAction))
+            {
+                ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngsetWarnings.MissingAction, Message = MISSING_ACTION });
+            }
+
             string sIsActive = GetItemParameterVal(ref theItem, "is_active").Trim().ToLower();
             isActive = sIsActive.Trim().ToLower() == "true";
+
+            if (string.IsNullOrEmpty(sIsActive))
+            {
+                log.DebugFormat("ProcessItem media co-guid: {0}, isActive: {1}.", sCoGuid, isActive.ToString());
+            }
+
+            nMediaID = GetMediaIDByCoGuid(nGroupID, sCoGuid);
+
             if (sAction == "delete")
             {
-
-                nMediaID = GetMediaIDByCoGuid(nGroupID, sCoGuid);
                 if (nMediaID == 0)
                 {
-                    AddError(ref sErrorMessage, "Cant delete an unexisting item");
+                    log.Debug("ProcessItem - Action:Delete Error: media not exist");
+                    AddError(ref sErrorMessage, "Cant delete. the item is not exist");
+                    ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngsetWarnings.MediaIdNotExist, Message = MEDIA_ID_NOT_EXIST });
                     return false;
                 }
+                //delete media
+                log.DebugFormat("Delete Media:{0}", nMediaID);
                 DeleteMedia(nMediaID);
             }
             else if (sAction == "insert" || sAction == "update")
             {
-
-                nMediaID = GetMediaIDByCoGuid(nGroupID, sCoGuid);
                 string sEraseFiles = GetNodeParameterVal(ref theItem, ".", "erase");
                 if (nMediaID != 0 && sEraseFiles != "false")
                 {
@@ -1568,45 +1632,56 @@ namespace TvinciImporter
                     ClearMediaTranslateValues(nMediaID);
                     //ClearMediaTags(nMediaID , 0);
                     ClearMediaFiles(nMediaID);
+                    log.DebugFormat("ProcessItem - Action insert/update clear media files, values.. mediaId:{0}", nMediaID);
                 }
 
                 string sItemType = GetNodeValue(ref theItem, "basic/media_type");
+                log.DebugFormat("ProcessItem media co-guid: {0}, media_type: {1}.", sCoGuid, sItemType);
 
                 Int32 nItemType = GetItemTypeIdByName(nGroupID, sItemType);
 
                 if (nItemType == 0 && sEraseFiles != "false")
                 {
-                    bOK = false;
-                    AddError(ref sErrorMessage, "Item type not recongnized");
+                    AddError(ref sErrorMessage, "Item type not recognized");
+                    log.DebugFormat("ProcessItem - Item type not recognized. mediaId:{0}", nMediaID);
+                    ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngsetWarnings.NotRecognizedItemType, Message = ITEM_TYPE_NOT_RECOGNIZED });
                 }
+
                 string sEpgIdentifier = GetNodeValue(ref theItem, "basic/epg_identifier");
                 string sWatchPerRule = GetNodeValue(ref theItem, "basic/rules/watch_per_rule");
                 Int32 nWatchPerRule = GetWatchPerRuleByName(nGroupID, sWatchPerRule);
                 if (nWatchPerRule == 0 && sWatchPerRule.Trim() != "")
                 {
-                    bOK = false;
-                    AddError(ref sErrorMessage, "Watch permission rule not recongnized");
+                    AddError(ref sErrorMessage, "Watch permission rule not recognized");
+                    log.DebugFormat("ProcessItem - Watch permission rule not recognized. mediaId:{0}, WatchPerRule:{1}", nMediaID, sWatchPerRule);
+                    ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngsetWarnings.NotRecognizedWatchPermissionRule, Message = WATCH_PERMISSION_RULE_NOT_RECOGNIZED });
                 }
+
                 string sGeoBlockRule = GetNodeValue(ref theItem, "basic/rules/geo_block_rule");
                 Int32 nGeoBlockRule = GetGeoBlockRuleByName(nGroupID, sGeoBlockRule);
                 if (nGeoBlockRule == 0 && sGeoBlockRule.Trim() != "")
                 {
-                    bOK = false;
-                    AddError(ref sErrorMessage, "Geo block rule not recongnized");
+                    AddError(ref sErrorMessage, "Geo block rule not recognized");
+                    log.DebugFormat("ProcessItem - Geo block rule not recognized. mediaId:{0}, GeoBlockRule:{1}", nMediaID, sGeoBlockRule);
+                    ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngsetWarnings.NotRecognizedGeoBlockRule, Message = GEO_BLOCK_RULE_NOT_RECOGNIZED });
                 }
+
                 string sDeviceRule = GetNodeValue(ref theItem, "basic/rules/device_rule");
                 Int32 nDeviceRule = GetDeviceRuleByName(nGroupID, sDeviceRule);
                 if (nDeviceRule == 0 && sDeviceRule.Trim().Length > 0)
                 {
-                    bOK = false;
-                    AddError(ref sErrorMessage, "Device rule not recongnized");
+                    AddError(ref sErrorMessage, "Device rule not recognized");
+                    log.DebugFormat("ProcessItem - Device rule not recognized. mediaId:{0}, DeviceRule:{1}", nMediaID, sDeviceRule);
+                    ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngsetWarnings.NotRecognizedDeviceRule, Message = DEVICE_RULE_NOT_RECOGNIZED });
                 }
+
                 string sPlayersRule = GetNodeValue(ref theItem, "basic/rules/players_rule");
                 Int32 nPlayersRule = GetPlayersRuleByName(nGroupID, sPlayersRule);
                 if (nPlayersRule == 0 && sPlayersRule.Trim() != "")
                 {
-                    bOK = false;
-                    AddError(ref sErrorMessage, "Players rule not recongnized");
+                    AddError(ref sErrorMessage, "Players rule not recognized");
+                    log.DebugFormat("ProcessItem - Players rule not recognized. mediaId:{0}, PlayersRule:{1}", nMediaID, sPlayersRule);
+                    ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngsetWarnings.NotRecognizedPlayersRule, Message = PLAYERS_RULE_NOT_RECOGNIZED });
                 }
 
                 string sCatalogStartDate = GetNodeValue(ref theItem, "basic/dates/catalog_start");
@@ -1617,7 +1692,6 @@ namespace TvinciImporter
 
                 DateTime dStartDate = GetDateTimeFromStrUTF(sStartDate, DateTime.UtcNow);
                 DateTime dCatalogStartDate = GetDateTimeFromStrUTF(sCatalogStartDate, dStartDate);//catalog_start_date default value is start_date
-
                 DateTime dCreate = GetDateTimeFromStrUTF(sCreateDate, DateTime.UtcNow);
                 DateTime dCatalogEndDate = GetDateTimeFromStrUTF(sCatalogEndDate, new DateTime(2099, 1, 1));
                 DateTime dFinalEndDate = GetDateTimeFromStrUTF(sFinalEndDate, dCatalogEndDate);
@@ -1642,6 +1716,9 @@ namespace TvinciImporter
                     nPlayersRule, nDeviceRule, dCatalogStartDate, dStartDate, dCatalogEndDate, dFinalEndDate, sMainLang, ref theItemName,
                     ref theItemDesc, isActive, dCreate, entryId);
 
+                //update InternalAssetId 
+                ingestAssetStatus.InternalAssetId = nMediaID;
+
                 // get all ratio and ratio's pic url from input xml
                 Dictionary<string, string> ratioStrThumb = SetRatioStrThumb(thePicRatios);
 
@@ -1653,29 +1730,31 @@ namespace TvinciImporter
                 //set default ratio with size
                 if (!string.IsNullOrEmpty(sThumb))
                 {
+                    log.DebugFormat("ProcessItem - Thumb Url:{0}, mediaId:{1}", sThumb, nMediaID);
                     theItemName = DownloadThumbPic(nMediaID, nGroupID, sThumb, theItemName, sMainLang, ratiosThumb);
                 }
 
+                int picId = 0;
                 foreach (int ratioKey in ratiosThumb.Keys)
                 {
-                    DownloadPic(ratiosThumb[ratioKey], string.Empty, nGroupID, nMediaID, sMainLang, "RATIOPIC", false, ratioKey, ratioSizesList[ratioKey]);
+                    picId = DownloadPic(ratiosThumb[ratioKey], string.Empty, nGroupID, nMediaID, sMainLang, "RATIOPIC", false, ratioKey, ratioSizesList[ratioKey]);
+                    if (picId == 0)
+                    {
+                        ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngsetWarnings.FailedDownloadPic, Message = FAILED_DOWNLOAD_PIC });
+                    }
                 }
-
                 UpdateInsertBasicSubLangData(nGroupID, nMediaID, sMainLang, ref theItemName, ref theItemDesc);
                 UpdateStringMainLangData(nGroupID, nMediaID, sMainLang, ref theStrings);
                 UpdateStringSubLangData(nGroupID, nMediaID, sMainLang, ref theStrings);
-
                 UpdateDoublesData(nGroupID, nMediaID, sMainLang, ref theDoubles, ref sErrorMessage);
                 UpdateBoolsData(nGroupID, nMediaID, sMainLang, ref theBools, ref sErrorMessage);
-
                 UpdateMetas(nGroupID, nMediaID, sMainLang, ref theMetas, ref sErrorMessage);
-
                 UpdateFiles(nGroupID, sMainLang, nMediaID, ref theFiles, ref sErrorMessage);
 
                 ProtocolsFuncs.SeperateMediaTexts(nMediaID);
             }
 
-            return bOK;
+            return true;
         }
 
         private static XmlNode DownloadThumbPic(int mediaId, int groupId, string thumb, XmlNode itemName, string mainLang, Dictionary<int, string> ratiosThumb)
@@ -1824,6 +1903,8 @@ namespace TvinciImporter
 
         static public Int32 DownloadEPGPic(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID, int ratioID = 0)
         {
+            int picId = 0;
+
             if (string.IsNullOrEmpty(sThumb))
             {
                 log.Debug("File download - picture name is empty. nChannelID: " + nChannelID.ToString());
@@ -1836,18 +1917,29 @@ namespace TvinciImporter
                 // use old/new image server
                 if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, "USE_OLD_IMAGE_SERVER", ';'))
                 {
-                    return DownloadEPGPicToQueue(sThumb, sName, nGroupID, nEPGSchedID, nChannelID, ratioID);
+                    picId = DownloadEPGPicToQueue(sThumb, sName, nGroupID, nEPGSchedID, nChannelID, ratioID);
                 }
                 else
                 {
-                    return DownloadEPGPicToImageServer(sThumb, sName, nGroupID, nChannelID, ratioID);
+                    picId = DownloadEPGPicToImageServer(sThumb, sName, nGroupID, nChannelID, ratioID);
                 }
-
             }
             else
             {
-                return DownloadEPGPicToUploader(sThumb, sName, nGroupID, nEPGSchedID, nChannelID, ratioID);
+                picId = DownloadEPGPicToUploader(sThumb, sName, nGroupID, nEPGSchedID, nChannelID, ratioID);
             }
+
+            if (picId == 0)
+                log.ErrorFormat("Failed download pic- EPGSchedID:{0}, channelID:{1}, ratioId{2}, url:{3}", nEPGSchedID, nChannelID, ratioID, sThumb);
+            else
+            {
+                if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, "USE_OLD_IMAGE_SERVER", ';'))
+                    log.DebugFormat("Successfully download pic- EPGSchedID:{0}, channelID:{1}, ratioId{2}, url:{3}", nEPGSchedID, nChannelID, ratioID, sThumb);
+                else
+                    log.DebugFormat("Successfully processed image -EPGSchedID:{0}, channelID:{1}, ratioId{2}, url:{3}", nEPGSchedID, nChannelID, ratioID, sThumb);
+            }
+
+            return picId;
         }
 
         public static bool InsertNewEPGMultiPic(string epgIdentifier, int picID, int ratioID, int nGroupID, int nChannelID)
@@ -2075,11 +2167,11 @@ namespace TvinciImporter
 
                 if (!enqueueSuccessful)
                 {
-                    log.ErrorFormat("Failed enqueue of image upload {0}", data);
+                    log.ErrorFormat("Failed enqueue of image upload. data: {0}", data);
                 }
                 else
                 {
-                    log.DebugFormat("image upload: data: {0}", data);
+                    log.DebugFormat("successfully enqueue image upload. data: {0}", data);
                 }
             }
             catch (Exception exc)
@@ -2418,16 +2510,17 @@ namespace TvinciImporter
 
         static public Int32 DownloadPic(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID, List<string> ratioSize = null)
         {
+            int picId = 0;
+
             string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
             if (!string.IsNullOrEmpty(sUseQueue) && sUseQueue.ToLower().Equals("true"))
             {
                 if (string.IsNullOrEmpty(sPic))
                 {
-                    log.Debug("File download - picture name is empty. mediaID: " + nMediaID.ToString());
+                    log.DebugFormat("File download - picture name is empty. mediaID:{0}", nMediaID);
                     return 0;
                 }
 
-                int picId = 0;
 
                 // use old/new image server
                 if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, "USE_OLD_IMAGE_SERVER", ';'))
@@ -2453,14 +2546,23 @@ namespace TvinciImporter
                         updateQuery = null;
                     }
                 }
-
-                return picId;
-
             }
             else
             {
-                return DownloadPicToUploader(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID);
+                picId = DownloadPicToUploader(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID);
             }
+
+            if (picId == 0)
+                log.ErrorFormat("Failed download pic- mediaId:{0}, ratioId{1}, url:{2}", nMediaID, ratioID, sPic);
+            else
+            {
+                if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, "USE_OLD_IMAGE_SERVER", ';'))
+                    log.DebugFormat("Successfully download pic- mediaId:{0}, ratioId{1}, url:{2}", nMediaID, ratioID, sPic);
+                else
+                    log.DebugFormat("Successfully processed image - mediaId:{0}, ratioId{1}, url:{2}", nMediaID, ratioID, sPic);
+            }
+
+            return picId;
         }
 
         static public Int32 DownloadPicToUploader(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID)
@@ -3492,6 +3594,9 @@ namespace TvinciImporter
             Int32 nPicType = ProtocolsFuncs.GetFileTypeID(sPicType, nGroupID);
             Int32 nQualityID = ProtocolsFuncs.GetFileQualityID(sQuality);
             Int32 nMediaFileID = IngestionUtils.GetPicMediaFileID(nPicType, nMediaID, nGroupID, nQualityID, true);
+
+            log.DebugFormat("Enter pic media file -  PicType:{0}, QualityID:{1}, MediaFileID:{2}", nPicType, nQualityID, nMediaFileID);
+
             if (nMediaFileID != 0)
             {
                 ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media_files");
@@ -4391,7 +4496,6 @@ namespace TvinciImporter
             string sName = GetMultiLangValue(sMainLang, ref theItemNames);
             string sDescription = GetMultiLangValue(sMainLang, ref theItemDesc);
 
-
             if (nMediaID == 0)
             {
                 ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("media");
@@ -4425,8 +4529,6 @@ namespace TvinciImporter
                 insertQuery.Finish();
                 insertQuery = null;
                 nMediaID = GetMediaIDByCoGuid(nGroupID, sCoGuid);
-
-
             }
             else
             {
@@ -4472,6 +4574,11 @@ namespace TvinciImporter
                 updateQuery = null;
             }
 
+            log.DebugFormat("End UpdateInsertBasicMainLangData. GID:{0}, MediaID:{1}, ItemType:{2}, CoGuid:{3}, EpgIdentifier:{4}, WatchPerRule:{5}, GeoBlockRule:{6}, "
+               + "PlayersRule:{7}, DeviceRule:{8}, CatalogStartDate:{9}, StartDate:{10}, CatalogEndDate:{11}, FinalEndDate:{12}, MainLang:{13}, isActive:{14}, Create:{15}, "
+               + "entryId:{16}, Name:{17}, Description:{18}.",
+               nGroupID, nMediaID, nItemType, sCoGuid, sEpgIdentifier, nWatchPerRule, nGeoBlockRule, nPlayersRule, nDeviceRule, dCatalogStartDate.ToString(),
+               dStartDate.ToString(), dCatalogEndDate.ToString(), dFinalEndDate.ToString(), sMainLang, isActive, dCreate.ToString(), entryId, sName, sDescription);
             return true;
         }
 
@@ -4503,6 +4610,10 @@ namespace TvinciImporter
             nEPGSchedID = GetEPGSchedIDByEPGIdentifier(nGroupID, sEpgIdentifier);
             string sName = GetMultiLangValue(sMainLang, ref theItemNames);
             string sDescription = GetMultiLangValue(sMainLang, ref theItemDesc);
+
+            log.DebugFormat("Start UpdateInsertBasicEPGMainLangData. GID:{0}, ChannelID:{1}, EPGSchedID:{2}, EpgIdentifier:{3}, StartDate:{4}, EndDate:{5}, Thumb:{6}, "
+             + "MainLang:{7}, Name:{8}, Description:{9}.",
+             nGroupID, nChannelID, nEPGSchedID, sEpgIdentifier, sEpgIdentifier, dStartDate.ToString(), dEndDate.ToString(), sThumb, sMainLang, sName, sDescription);
 
             if (nEPGSchedID == 0)
             {
@@ -4557,6 +4668,9 @@ namespace TvinciImporter
                 updateQuery = null;
             }
 
+            log.DebugFormat("After UpdateInsertBasicEPGMainLangData. GID:{0}, ChannelID:{1}, EPGSchedID:{2}, EpgIdentifier:{3}, StartDate:{4}, EndDate:{5}, Thumb:{6}, "
+           + "MainLang:{7}, Name:{8}, Description:{9}.",
+           nGroupID, nChannelID, nEPGSchedID, sEpgIdentifier, sEpgIdentifier, dStartDate.ToString(), dEndDate.ToString(), sThumb, sMainLang, sName, sDescription);
             return true;
         }
 
@@ -4620,109 +4734,219 @@ namespace TvinciImporter
             return true;
         }
 
+        static public bool TryParseXml(string feedXml, int groupId, out XmlDocument feedXmlDocument, IngestResponse response)
+        {
+            feedXmlDocument = new XmlDocument();
+
+            try
+            {
+                feedXmlDocument.LoadXml(feedXml);
+                return true;
+            }
+            catch (XmlException ex)
+            {
+                response.IngestStatus = new Status() { Code = (int)eResponseStatus.IllegalXml, Message = "XML file with wrong format" };
+                log.ErrorFormat("XML file with wrong format: {0}. GID:{1}. Exception: {2}", feedXml, groupId, ex);
+            }
+            catch (Exception ex)
+            {
+                response.IngestStatus = new Status() { Code = (int)eResponseStatus.IllegalXml, Message = "Error while loading file" };
+                log.ErrorFormat("Failed loading file: {0}. GID:{1}. Exception: {2}", feedXml, groupId, ex);
+            }
+
+            return false;
+        }
+
         static public bool DoTheWorkInner(string sXML, Int32 nGroupID, string sNotifyURL, ref string sNotifyXML, bool uploadDirectory)
         {
+            IngestResponse ingestResponse = null;
+            return DoTheWorkInner(sXML, nGroupID, sNotifyURL, ref sNotifyXML, uploadDirectory, out ingestResponse);
+        }
+        static public bool DoTheWorkInner(string sXML, Int32 nGroupID, string sNotifyURL, ref string sNotifyXML, bool uploadDirectory, out IngestResponse ingestResponse)
+        {
+            bool isSuccess = false;
+            XmlDocument theDoc = null;
+            IngestAssetStatus ingestAssetStatus = null;
 
-            XmlDocument theDoc = new XmlDocument();
-
-            theDoc.LoadXml(sXML);
-            try
+            ingestResponse = new IngestResponse()
             {
-                int nParentGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "parent_group_id", nGroupID, "MAIN_CONNECTION_STRING").ToString());
-                if (nParentGroupID == 1)
-                {
-                    nParentGroupID = nGroupID;
-                }
-                XmlNodeList theItems = theDoc.SelectNodes("/feed/export/media");
+                IngestStatus = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() },
+                AssetsStatus = new List<IngestAssetStatus>()
+            };
 
-                Int32 nCount1 = theItems.Count;
-                for (int i = 0; i < nCount1; i++)
-                {
-                    string sCoGuid = "";
-                    string sErrorMessage = "";
-                    Int32 nMediaID = 0;
-                    bool isActive = false;
-                    bool bProcess = ProcessItem(theItems[i], ref sCoGuid, ref nMediaID, ref sErrorMessage, nGroupID, ref isActive);
-                    log.Debug("Import finished - Index: " + i.ToString());
-                    if (bProcess == false)
-                    {
-                        sNotifyXML += "<media co_guid=\"" + sCoGuid + "\" status=\"FAILED\" message=\"" + sErrorMessage + "\" tvm_id=\"" + nMediaID.ToString() + "\"/>";
-                        break;
-                    }
-                    else
-                    {
-                        sNotifyXML += "<media co_guid=\"" + sCoGuid + "\" status=\"OK\" message=\"" + ProtocolsFuncs.XMLEncode(sErrorMessage, true) + "\" tvm_id=\"" + nMediaID.ToString() + "\"/>";
+            log.DebugFormat("Start Load Feed. GID:{0}", nGroupID);
 
-                        // Update record in Catalog (see the flow inside Update Index
-                        bool resultMQ = ImporterImpl.UpdateIndex(new List<int>() { nMediaID }, nParentGroupID, eAction.Update);
-
-                        // update notification 
-                        if (isActive)
-                            UpdateNotificationsRequests(nGroupID, nMediaID);
-                    }
-                }
-                if (uploadDirectory)
-                {
-                    UploadDirectory(nGroupID);
-                }
-                else
-                {
-                    UploadQueue.UploadQueueHelper.SetJobsForUpload(nGroupID);
-                }
-
-            }
-            catch (Exception ex)
+            // ValidateXml
+            // in case Xml not valid
+            if (TryParseXml(sXML, nGroupID, out theDoc, ingestResponse))
             {
-                sNotifyXML += "<exception message=\"" + ProtocolsFuncs.XMLEncode(ex.Message, true) + "\"/>";
-            }
-            try
-            {
-                XmlNodeList theChannelItems = theDoc.SelectNodes("/feed/export/channel");
-
-                Int32 nCount2 = theChannelItems.Count;
-                for (int i = 0; i < nCount2; i++)
+                try
                 {
-                    string sErrorMessage = "";
-                    XmlNode theChannelItem = theChannelItems[i];
-                    string sTVMID = GetItemParameterVal(ref theChannelItem, "tvm_id");
-                    Int32 nEPGChannelID = 0;
-
-                    sNotifyXML += "<channel tvm_id=\"" + sTVMID + "\">";
-
-                    if (sTVMID != "")
-                        nEPGChannelID = int.Parse(sTVMID);
-                    else
+                    int nParentGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "parent_group_id", nGroupID, "MAIN_CONNECTION_STRING").ToString());
+                    if (nParentGroupID == 1)
                     {
-                        sNotifyXML += "<error>No such channel</error>";
-                        sNotifyXML += "</channel>";
-                        continue;
+                        nParentGroupID = nGroupID;
                     }
 
-                    XmlNodeList theEntryItems = theChannelItem.SelectNodes("entry");
+                    XmlNodeList mediaItems = theDoc.SelectNodes("/feed/export/media");
+                    log.DebugFormat("Total medias count : {0}. GID:{1}", mediaItems.Count, nGroupID);
 
-                    Int32 nCount3 = theEntryItems.Count;
-                    for (int j = 0; j < nCount3; j++)
+                    for (int mediaIndex = 0; mediaIndex < mediaItems.Count; mediaIndex++)
                     {
-                        Int32 nEPGSchedId = 0;
-                        string sEPGIdentifier = "";
-                        bool bProcess = ProcessEPGItem(theEntryItems[j], nEPGChannelID, ref nEPGSchedId, ref sEPGIdentifier, ref sErrorMessage, nGroupID);
-                        if (bProcess == false)
+                        //create ingestAssetStatus for saving Media load data and status
+                        ingestAssetStatus = new IngestAssetStatus()
                         {
-                            sNotifyXML += "<entry co_guid=\"" + sEPGIdentifier + "\" status=\"FAILED\" message=\"" + sErrorMessage + "\" tvm_entry_id=\"" + nEPGSchedId.ToString() + "\"/>";
-                            break;
+                            Warnings = new List<Status>(),
+                            Status = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() }
+                        };
+                        ingestResponse.AssetsStatus.Add(ingestAssetStatus);
+
+                        Int32 nMediaID = 0;
+
+                        try
+                        {
+                            string sCoGuid = "";
+                            string sErrorMessage = "";
+                            bool isActive = false;
+                            bool bProcess = ProcessItem(mediaItems[mediaIndex], ref sCoGuid, ref nMediaID, ref sErrorMessage, nGroupID, ref isActive, ref ingestAssetStatus);
+
+                            if (bProcess == false)
+                            {
+                                log.ErrorFormat("Error import mediaIndex{0}. CoGuid:{1}, MediaID:{2}, ErrorMessage:{3}", mediaIndex, sCoGuid, nMediaID, sErrorMessage);
+                                sNotifyXML += "<media co_guid=\"" + sCoGuid + "\" status=\"FAILED\" message=\"" + sErrorMessage + "\" tvm_id=\"" + nMediaID.ToString() + "\"/>";
+                                continue;
+                            }
+                            else
+                            {
+                                ingestAssetStatus.Status.Code = (int)eResponseStatus.OK;
+                                ingestAssetStatus.Status.Message = eResponseStatus.OK.ToString();
+                                log.DebugFormat("succeeded export media. CoGuid:{0}, MediaID:{1}, ErrorMessage:{2}", sCoGuid, nMediaID, isActive.ToString(), sErrorMessage);
+                                sNotifyXML += "<media co_guid=\"" + sCoGuid + "\" status=\"OK\" message=\"" + ProtocolsFuncs.XMLEncode(sErrorMessage, true) + "\" tvm_id=\"" + nMediaID.ToString() + "\"/>";
+
+                                // Update record in Catalog (see the flow inside Update Index
+                                bool resultMQ = ImporterImpl.UpdateIndex(new List<int>() { nMediaID }, nParentGroupID, eAction.Update);
+                                if (resultMQ)
+                                    log.DebugFormat("UpdateIndex: Succeeded. CoGuid:{0}, MediaID:{1}, isActive:{2}, ErrorMessage:{3}", sCoGuid, nMediaID, isActive.ToString(), sErrorMessage);
+                                else
+                                {
+                                    log.ErrorFormat("UpdateIndex: Failed. CoGuid:{0}, MediaID:{1}, isActive:{2}, ErrorMessage:{3}", sCoGuid, nMediaID, isActive.ToString(), sErrorMessage);
+                                    ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngsetWarnings.UpdateIndexFailed, Message = UPDATE_INDEX_FAILED });
+                                }
+
+                                // update notification 
+                                if (isActive)
+                                    UpdateNotificationsRequests(nGroupID, nMediaID);
+                            }
                         }
-                        else
-                            sNotifyXML += "<entry co_guid=\"" + sEPGIdentifier + "\" status=\"OK\" message=\"" + ProtocolsFuncs.XMLEncode(sErrorMessage, true) + "\" tvm_entry_id=\"" + nEPGSchedId.ToString() + "\"/>";
+                        catch (Exception exc)
+                        {
+                            log.ErrorFormat("Failed process MediaID: {0}. Exception:{2}", nMediaID, exc);
+                        }
                     }
-                    sNotifyXML += "</channel>";
+
+                    if (uploadDirectory)
+                    {
+                        UploadDirectory(nGroupID);
+                    }
+                    else
+                    {
+                        UploadQueue.UploadQueueHelper.SetJobsForUpload(nGroupID);
+                    }
+
+                    isSuccess = true;
+                }
+                catch (Exception ex)
+                {
+
+                    log.ErrorFormat("Error while import media xml:{0}. GID:{1}", sXML, nGroupID);
+                    sNotifyXML += "<exception message=\"" + ProtocolsFuncs.XMLEncode(ex.Message, true) + "\"/>";
+                }
+
+                try
+                {
+                    XmlNodeList channelItems = theDoc.SelectNodes("/feed/export/channel");
+                    log.DebugFormat("Total channels count: {0}. GID:{1}", channelItems.Count, nGroupID);
+
+                    for (int channelIndex = 0; channelIndex < channelItems.Count; channelIndex++)
+                    {
+                        Int32 nEPGChannelID = 0;
+                        ingestAssetStatus = new IngestAssetStatus() { Warnings = new List<Status>(), Status = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() } };
+                        ingestResponse.AssetsStatus.Add(ingestAssetStatus);
+
+                        try
+                        {
+                            string sErrorMessage = "";
+                            XmlNode theChannelItem = channelItems[channelIndex];
+                            string sTVMID = GetItemParameterVal(ref theChannelItem, "tvm_id");
+
+                            sNotifyXML += "<channel tvm_id=\"" + sTVMID + "\">";
+
+                            if (sTVMID != "")
+                            {
+                                log.DebugFormat("Succeeded import EPGChannelID:{0}. GID:{1}", sTVMID, nGroupID);
+                                nEPGChannelID = int.Parse(sTVMID);
+                                ingestAssetStatus.InternalAssetId = nEPGChannelID;
+                            }
+                            else
+                            {
+                                log.ErrorFormat("Error import channel. GID: {0}", nGroupID);
+                                sNotifyXML += "<error>No such channel</error>";
+                                sNotifyXML += "</channel>";
+                                ingestAssetStatus.Status.Code = (int)IngsetWarnings.ErrorExportChannel;
+                                ingestAssetStatus.Status.Message = ERROR_EXPORT_CHANNEL;
+                                continue;
+                            }
+
+                            XmlNodeList entryItems = theChannelItem.SelectNodes("entry");
+                            log.DebugFormat("Total entries count : {0}. GID: {1}", entryItems.Count, nGroupID);
+
+                            for (int entryIndex = 0; entryIndex < entryItems.Count; entryIndex++)
+                            {
+                                Int32 nEPGSchedId = 0;
+                                string sEPGIdentifier = "";
+                                bool bProcess = ProcessEPGItem(entryItems[entryIndex], nEPGChannelID, ref nEPGSchedId, ref sEPGIdentifier, ref sErrorMessage, nGroupID, ref ingestAssetStatus);
+
+                                if (bProcess == false)
+                                {
+                                    log.ErrorFormat("Error import epg. EPGChannelID:{0}, EPGSchedId:{1}, EPGIdentifier:{2}, ErrorMessage:{3}", nEPGChannelID, nEPGSchedId, sEPGIdentifier, sErrorMessage);
+                                    sNotifyXML += "<entry co_guid=\"" + sEPGIdentifier + "\" status=\"FAILED\" message=\"" + sErrorMessage + "\" tvm_entry_id=\"" + nEPGSchedId.ToString() + "\"/>";
+                                    continue;
+                                }
+                                else
+                                {
+                                    ingestAssetStatus.Status.Code = (int)eResponseStatus.OK;
+                                    ingestAssetStatus.Status.Message = eResponseStatus.OK.ToString();
+                                    log.DebugFormat("succeeded import epg.EPGChannelID:{0}, EPGSchedId:{1}, EPGIdentifier:{2}, ErrorMessage:{3}", nEPGChannelID, nEPGSchedId, sEPGIdentifier, sErrorMessage);
+                                    sNotifyXML += "<entry co_guid=\"" + sEPGIdentifier + "\" status=\"OK\" message=\"" + ProtocolsFuncs.XMLEncode(sErrorMessage, true) + "\" tvm_entry_id=\"" + nEPGSchedId.ToString() + "\"/>";
+                                }
+                            }
+                            sNotifyXML += "</channel>";
+                        }
+                        catch (Exception exc)
+                        {
+                            log.ErrorFormat("Failed process channel: {0}. GID: {1}. Exception:{2}", nEPGChannelID, nGroupID, exc);
+                        }
+                    }
+
+                    isSuccess = true;
+                }
+
+                catch (Exception ex)
+                {
+                    sNotifyXML += "<exception message=\"" + ProtocolsFuncs.XMLEncode(ex.Message, true) + "\"/>";
                 }
             }
-            catch (Exception ex)
+            else
             {
-                sNotifyXML += "<exception message=\"" + ProtocolsFuncs.XMLEncode(ex.Message, true) + "\"/>";
+                isSuccess = false;
             }
 
-            return true;
+            if (isSuccess)
+            {
+                ingestResponse.IngestStatus.Code = (int)eResponseStatus.OK;
+                ingestResponse.IngestStatus.Message = eResponseStatus.OK.ToString();
+            }
+            return isSuccess;
         }
 
         static public bool DoTheWorkInner(string sXML, Int32 nGroupID, string sNotifyURL, ref string sNotifyXML)

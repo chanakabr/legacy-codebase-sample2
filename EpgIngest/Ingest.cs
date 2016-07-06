@@ -15,6 +15,7 @@ using TvinciImporter;
 using KLogMonitor;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.ServiceModel;
 
 namespace EpgIngest
 {
@@ -37,9 +38,23 @@ namespace EpgIngest
         {
         }
 
-        public void Initialize(string Data)
+        public bool Initialize(string Data, int groupId, IngestResponse ingestResponse = null)
         {
+            ingestResponse = new IngestResponse()
+            {
+                IngestStatus = new ApiObjects.Response.Status() { Code = (int)ApiObjects.Response.eResponseStatus.Error, Message = ApiObjects.Response.eResponseStatus.Error.ToString() },
+                AssetsStatus = new List<IngestAssetStatus>()
+            };
+
             m_Channels = SerializeEpgChannel(Data);
+            if (m_Channels == null)
+            {
+                ingestResponse.IngestStatus.Code = (int)ApiObjects.Response.eResponseStatus.IllegalXml;
+                ingestResponse.IngestStatus.Message = "Error while loading data";
+                log.ErrorFormat("Failed loading data: {0}. GID:{1}.", Data, groupId);
+                return false;
+            }
+
             oEpgBL = EpgBL.Utils.GetInstance(m_Channels.parentgroupid);
             lLanguage = Utils.GetLanguages(m_Channels.parentgroupid); // dictionary contains all language ids and its  code (string)
             // get mapping tags and metas 
@@ -49,6 +64,8 @@ namespace EpgIngest
             // get mapping between ratio_id and ratio 
             Dictionary<string, string> sRatios = EpgDal.Get_PicsEpgRatios();
             ratios = sRatios.ToDictionary(x => int.Parse(x.Key), x => x.Value);
+
+            return true;
         }
 
         private EpgChannels SerializeEpgChannel(string Data)
@@ -69,12 +86,12 @@ namespace EpgIngest
             }
             catch (Exception ex)
             {
-                log.Error("SerializeEpgChannel - " + string.Format("exception={0}", ex.Message), ex);
+                log.Error("SerializeEpgChannel", ex);
                 epgchannel = null;
             }
             return epgchannel;
         }
-       
+
         public string SaveChannelPrograms()
         {
             bool success = true;
@@ -84,14 +101,14 @@ namespace EpgIngest
                 string channelID;
                 EpgChannelType epgChannelType;
 
-                // get the kaltura+ type to each channel by its external id                
+                // get the kaltura + type to each channel by its external id                
                 List<string> channelExternalIds = m_Channels.channel.Select(x => x.id).ToList<string>();
                 Dictionary<string, List<EpgChannelObj>> epgChannelDict = EpgDal.GetAllEpgChannelsDic(m_Channels.groupid, channelExternalIds);
 
                 //Run for each channel - 
                 foreach (KeyValuePair<string, List<EpgChannelObj>> channel in epgChannelDict)
                 {
-                    // get all proframs related to specific channel 
+                    // get all programs related to specific channel 
                     List<programme> programs = m_Channels.programme.Where(x => x.channel == channel.Key).ToList();
 
                     foreach (EpgChannelObj epgChannelObj in channel.Value)
@@ -133,6 +150,10 @@ namespace EpgIngest
             Dictionary<string, List<KeyValuePair<string, EpgCB>>> dEpg = new Dictionary<string, List<KeyValuePair<string, EpgCB>>>();// EpgIdentifier , <Language, EpgCB>
             Dictionary<string, List<KeyValuePair<string, string>>> dMetas = new Dictionary<string, List<KeyValuePair<string, string>>>(); // metaType, List<language, metaValue>
             Dictionary<string, List<EpgTagTranslate>> dTags = new Dictionary<string, List<EpgTagTranslate>>(); // tagType, List<EpgTagTranslate>
+
+            //update log topic with kaltura channelID
+            OperationContext.Current.IncomingMessageProperties[Constants.TOPIC] = string.Format("save channel programs for kalturaChannelID:{0}", kalturaChannelID);
+
 
             #region each program  create CB objects
 
@@ -298,6 +319,10 @@ namespace EpgIngest
                 oEpgBL.RemoveGroupPrograms(docIds);
                 List<ulong> programIds = lProgramsID.Select(i => (ulong)i).ToList();
                 bool resultEpgIndex = UpdateEpgIndex(programIds, m_Channels.parentgroupid, ApiObjects.eAction.Delete);
+                if (resultEpgIndex)
+                    log.DebugFormat("Succeeded. delete programIds:[{0}], kalturaChannelID:{1}", string.Join(",", programIds), kalturaChannelID);
+                else
+                    log.ErrorFormat("Error. delete programIds:[{0}], kalturaChannelID:{1}", string.Join(",", programIds), kalturaChannelID);
             }
 
             foreach (List<KeyValuePair<string, EpgCB>> lEpg in dEpg.Values)
@@ -307,6 +332,7 @@ namespace EpgIngest
                     nCount++;
 
                     #region Insert EpgProgram to CB
+                    
                     string epgID = string.Empty;
                     bool isMainLang = epg.Value.Language.ToLower() == m_Channels.mainlang.ToLower() ? true : false;
                     if (epg.Value.EpgID <= 0)
@@ -314,6 +340,11 @@ namespace EpgIngest
                         log.ErrorFormat("epgId is {0} for epg with identifier {1} and coguid {2}", epg.Value.EpgID, epg.Value.EpgIdentifier, epg.Value.CoGuid);
                     }
                     bool bInsert = oEpgBL.InsertEpg(epg.Value, isMainLang, out epgID);
+                    if (bInsert)
+                        log.DebugFormat("Succeeded. insert EpgProgram to CB. EpgID:{0}, EpgIdentifier:{1}, CoGuid {2}", epg.Value.EpgID, epg.Value.EpgIdentifier, epg.Value.CoGuid);
+                    else
+                        log.ErrorFormat("Error. insert EpgProgram to CB. EpgID:{0}, EpgIdentifier:{1}, CoGuid {2}", epg.Value.EpgID, epg.Value.EpgIdentifier, epg.Value.CoGuid);
+
                     #endregion
 
                     #region Insert EpgProgram ES
@@ -325,6 +356,11 @@ namespace EpgIngest
                             epgIds.Add(epg.Value.EpgID);
                         }
                         bool resultEpgIndex = UpdateEpgIndex(epgIds, m_Channels.parentgroupid, ApiObjects.eAction.Update);
+                        if (resultEpgIndex)
+                            log.DebugFormat("Succeeded. insert EpgProgram to ES. EpgID:{0}, EpgIdentifier:{1}, CoGuid {2}", epg.Value.EpgID, epg.Value.EpgIdentifier, epg.Value.CoGuid);
+                        else
+                            log.ErrorFormat("Error. insert EpgProgram to ES. EpgID:{0}, EpgIdentifier:{1}, CoGuid {2}", epg.Value.EpgID, epg.Value.EpgIdentifier, epg.Value.CoGuid);
+
                         epgIds = new List<ulong>();
                         nCount = 0;
                     }
@@ -343,9 +379,14 @@ namespace EpgIngest
             if (nCount > 0 && epgIds != null && epgIds.Count > 0)
             {
                 bool resultEpgIndex = UpdateEpgIndex(epgIds, m_Channels.parentgroupid, ApiObjects.eAction.Update);
+                if (resultEpgIndex)
+                    log.DebugFormat("Succeeded. insert EpgProgram to ES. parent GID:{0}, epgIds Count:{1}", m_Channels.parentgroupid, epgIds.Count);
+                else
+                    log.ErrorFormat("Error. insert EpgProgram to ES. parent GID:{0}, epgIds Count:{1}", m_Channels.parentgroupid, epgIds.Count);
+
             }
 
-            //start Upload proccess Queue
+            //start Upload process Queue
             UploadQueue.UploadQueueHelper.SetJobsForUpload(m_Channels.parentgroupid);
 
             success = true;
@@ -381,10 +422,10 @@ namespace EpgIngest
                 if (prog.metas != null)
                 {
                     foreach (metas meta in prog.metas)
-                    { 
+                    {
                         checkReg = false;
                         rgx = null;
-                       
+
                         // get the regex expression to alias 
                         metaMapping = FieldEntityMapping.Where(x => x.FieldType == FieldTypes.Meta && x.Name.ToLower() == meta.MetaType).FirstOrDefault();
                         if (metaMapping != null && !string.IsNullOrEmpty(metaMapping.RegexExpression))

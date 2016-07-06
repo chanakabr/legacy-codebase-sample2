@@ -144,7 +144,7 @@ namespace ApiObjects.Response
         ProgramDoesntExist = 4022,
         ActionNotRecognized = 4023,
         InvalidAssetId = 4024,
-        CountryNotFound = 4025,
+        CountryNotFound = 4025,       
 
         // Api 5000 - 5999
         NoPinDefined = 5001,
@@ -230,7 +230,7 @@ namespace ApiObjects.Response
         Conflict = 7000,
         MinFriendsLimitation = 7001,
 
-        // notification 8000-899
+        // notification 8000-8999
         NoNotificationSettingsSent = 8000,
         PushNotificationFalse = 8001, //"push notification false can't combine with push system announcements true";
         NoNotificationPartnerSettings = 8002,
@@ -271,11 +271,15 @@ namespace ApiObjects.Response
         InvalidCurrency = 9015,
         ModuleNotExists = 9016,
 
-        // Adapters 10000-11000
+        // Adapters 10000-10999
         AdapterNotExists = 10000,
         AdapterIdentifierRequired = 10001,
         AdapterIsRequired = 10002,
         NoAdapterToInsert = 10003,
 
+        // Ingest 11000-11999
+        IllegalXml = 11000,
+        MissingExternalIdentifier = 11001,
+        UnknownIngestType = 11002
     }
 }
