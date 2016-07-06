@@ -13,7 +13,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/householdUser/action")]
-    [OldStandard("addOldStandard", "add")]
+    [OldStandardAction("addOldStandard", "add")]
     public class HouseholdUserController : ApiController
     {
         /// <summary>

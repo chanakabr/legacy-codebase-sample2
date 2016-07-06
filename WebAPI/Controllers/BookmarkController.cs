@@ -16,7 +16,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/bookmark/action")]
-    [OldStandard("listOldStandard", "list")]
+    [OldStandardAction("listOldStandard", "list")]
     public class BookmarkController : ApiController
     {
         /// <summary>

@@ -16,7 +16,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/transactionHistory/action")]
-    [OldStandard("listOldStandard", "list")]
+    [OldStandardAction("listOldStandard", "list")]
     public class TransactionHistoryController : ApiController
     {
         /// <summary>

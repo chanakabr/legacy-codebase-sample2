@@ -12,7 +12,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/entitlement/action")]
-    [OldStandard("listOldStandard", "list")]
+    [OldStandardAction("listOldStandard", "list")]
     public class EntitlementController : ApiController
     {
         /// <summary>
