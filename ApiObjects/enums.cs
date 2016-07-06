@@ -335,7 +335,6 @@ namespace ApiObjects
         All
     }
 
-<<<<<<< HEAD
     [Serializable]
     public enum eTransactionState
     {
@@ -357,7 +356,7 @@ namespace ApiObjects
 
         [EnumMember]
         Household
-=======
+    }
     public enum MediaPlayActions
     {
         PLAY = 1,
@@ -373,6 +372,5 @@ namespace ApiObjects
         BITRATE_CHANGE = 40,
         ERROR = 18,
         NONE = 99
->>>>>>> origin/Maverick
     }
 }
