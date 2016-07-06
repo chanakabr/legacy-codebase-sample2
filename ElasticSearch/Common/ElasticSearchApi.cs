@@ -504,7 +504,6 @@ namespace ElasticSearch.Common
             {
                 log.ErrorFormat("Failed parsing Elastic Search bulk request, error = {0}", ex);
             }
-            //Will need to add treatment on objects that returned with an "ok": false
 
             return invalidRecords;
         }

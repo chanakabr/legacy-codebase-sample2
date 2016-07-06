@@ -325,9 +325,9 @@ namespace ElasticSearch.Common
                                 FieldsMappingPropertyV2 multiField = new ElasticSearch.Common.FieldsMappingPropertyV2()
                                 {
                                     name = sMetaName,
-                                    type = eESFieldType.STRING,
+                                    type = eMetaType,
                                     index = eMappingIndex.not_analyzed,
-                                    null_value = ""
+                                    null_value = sNullValue
                                 };
                                 multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
                                 {
@@ -623,9 +623,9 @@ namespace ElasticSearch.Common
                     FieldsMappingPropertyV2 multiField = new ElasticSearch.Common.FieldsMappingPropertyV2()
                     {
                         name = sMetaName,
-                        type = eESFieldType.STRING,
+                        type = eMetaType,
                         index = eMappingIndex.not_analyzed,
-                        null_value = ""
+                        null_value = sNullValue
                     };
                     multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
                     {
