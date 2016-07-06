@@ -390,6 +390,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Importers\BusinessModulesImporter.cs" />
+    <Compile Include="IngestController.cs" />
     <Compile Include="Models\BusinessModuleIngestResponse.cs" />
     <Compile Include="Models\Status.cs" />
     <Compile Include="Models\StatusCodes.cs" />
@@ -465,6 +466,32 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadataStorage Include="Service References\Catalog\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\tvmcore\ADIFeeder\ADIFeeder.csproj">
+      <Project>{0b1d4349-8059-48f7-bf8b-31fb1e7a2260}</Project>
+      <Name>ADIFeeder</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\ApiObjects\ApiObjects.csproj">
+      <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
+      <Name>ApiObjects</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\EpgIngest\EpgIngest.csproj">
+      <Project>{13504508-227b-4099-9987-3df3d2f8e792}</Project>
+      <Name>EpgIngest</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\ScheduledTasks\ScheduledTasks.csproj">
+      <Project>{4eb719ed-06b1-4c05-a7ca-269d802105ea}</Project>
+      <Name>ScheduledTasks</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\TvinciImporter\TvinciImporter.csproj">
+      <Project>{0a7d54e6-41a3-4f53-bbdd-81fd9a67a2c1}</Project>
+      <Name>TvinciImporter</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\TVinciShared\TVinciShared.csproj">
+      <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
+      <Name>TVinciShared</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
