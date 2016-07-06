@@ -17,9 +17,9 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/favorite/action")]
-    [OldStandard("addOldStandard", "add")]
-    [OldStandard("deleteOldStandard", "delete")]
-    [OldStandard("listOldStandard", "list")]
+    [OldStandardAction("addOldStandard", "add")]
+    [OldStandardAction("deleteOldStandard", "delete")]
+    [OldStandardAction("listOldStandard", "list")]
     public class FavoriteController : ApiController
     {
         /// <summary>

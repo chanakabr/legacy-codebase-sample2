@@ -15,7 +15,7 @@ namespace WebAPI.Managers.Schema
         public OldStandardAttribute(string newMember, string oldMember)
         {
             this.newMember = newMember;
-            this.oldMember = oldMember.ToLower();
+            this.oldMember = oldMember;
         }
 
         public string newMember { get; set; }
@@ -68,6 +68,13 @@ namespace WebAPI.Managers.Schema
                 return null;
 
             return map;
+        }
+    }
+
+    public class OldStandardActionAttribute : OldStandardAttribute
+    {
+        public OldStandardActionAttribute(string newMember, string oldMember) : base(newMember, oldMember.ToLower())
+        {
         }
     }
 }

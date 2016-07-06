@@ -24,11 +24,11 @@ namespace WebAPI.Controllers
     /// 
     /// </summary>
     [RoutePrefix("_service/ottUser/action")]
-    [OldStandard("register", "add")]
-    [OldStandard("updateLoginData", "changePassword")]
-    [OldStandard("setPassword", "resetPassword")]
-    [OldStandard("resetPassword", "sendPassword")]
-    [OldStandard("getOldStandard", "get")]
+    [OldStandardAction("register", "add")]
+    [OldStandardAction("updateLoginData", "changePassword")]
+    [OldStandardAction("setPassword", "resetPassword")]
+    [OldStandardAction("resetPassword", "sendPassword")]
+    [OldStandardAction("getOldStandard", "get")]
     public class OttUserController : ApiController
     {
         /// <summary>

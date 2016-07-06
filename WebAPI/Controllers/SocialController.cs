@@ -17,11 +17,11 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/social/action")]
-    [OldStandard("getByTokenOldStandard", "getByToken")]
-    [OldStandard("mergeOldStandard", "merge")]
-    [OldStandard("unmergeOldStandard", "unmerge")]
-    [OldStandard("registerOldStandard", "register")]
-    [OldStandard("getConfiguration", "config")]
+    [OldStandardAction("getByTokenOldStandard", "getByToken")]
+    [OldStandardAction("mergeOldStandard", "merge")]
+    [OldStandardAction("unmergeOldStandard", "unmerge")]
+    [OldStandardAction("registerOldStandard", "register")]
+    [OldStandardAction("getConfiguration", "config")]
     public class SocialController : ApiController
     {
         /// <summary>

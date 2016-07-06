@@ -20,7 +20,7 @@ using WebAPI.Managers.Schema;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/subscription/action")]
-    [OldStandard("listOldStandard", "list")]
+    [OldStandardAction("listOldStandard", "list")]
     public class SubscriptionController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
