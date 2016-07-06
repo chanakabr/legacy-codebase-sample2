@@ -1491,8 +1491,11 @@ namespace Tvinci.Core.DAL
                 return null;
 
             Random r = new Random();
+            List<string> playActions = new List<string>() { MediaPlayActions.FINISH.ToString().ToLower(), MediaPlayActions.SWOOSH.ToString().ToLower(), MediaPlayActions.STOP.ToString().ToLower() };
+
             DomainMediaMark domainMarks = JsonConvert.DeserializeObject<DomainMediaMark>(data);
-            domainMarks.devices = domainMarks.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow && x.playType == ePlay.ToString()).ToList();
+            domainMarks.devices = domainMarks.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow && x.playType == ePlay.ToString() &&
+                !playActions.Contains(x.AssetAction.ToLower())).ToList();
 
             //Cleaning old ones...
             int limitRetries = RETRY_LIMIT;
