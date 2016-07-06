@@ -1,15 +1,11 @@
-﻿using Ingest.Clients.ClientManager;
+﻿using ApiObjects;
+using ApiObjects.Catalog;
+using Ingest.Clients.ClientManager;
 using Ingest.Importers;
 using Ingest.Models;
 using KLogMonitor;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization;
 using System.ServiceModel;
-using System.ServiceModel.Web;
-using System.Text;
 
 namespace Ingest
 {
@@ -39,6 +35,24 @@ namespace Ingest
             {
                 log.ErrorFormat("IngestBusinessModules: Failed to get group id for username: {0}, password: {1}", username, password);
             }
+            return response;
+        }
+
+        public IngestResponse IngestTvinciData(IngestRequest request)
+        {
+            return IngestController.IngestData(request, eIngestType.Tvinci);
+        }
+
+        public IngestResponse IngestAdiData(IngestRequest request)
+        {
+            return IngestController.IngestData(request, eIngestType.Adi);
+        }
+
+        [ServiceKnownType(typeof(EpgIngestResponse))]
+        public IngestResponse IngestKalturaEpg(IngestRequest request)
+        {
+            log.Topic = "EPGIngest";
+            IngestResponse response = (IngestResponse)IngestController.IngestData(request, eIngestType.KalturaEpg);
             return response;
         }
     }
