@@ -693,7 +693,8 @@ namespace Catalog
                 {
                     string sQuery = queries[0];
                     searchRes = m_oESApi.Search(sGroupAlias, ES_EPG_TYPE, ref sQuery, lRouting);
-                    lDocs = DecodeEpgSearchJsonObject(searchRes, ref nTotalRecords);
+                    lDocs = DecodeAssetSearchJsonObject(searchRes, ref nTotalRecords);
+                        //DecodeEpgSearchJsonObject(searchRes, ref nTotalRecords);
                 }
                 else
                 {
@@ -797,7 +798,7 @@ namespace Catalog
             string searchRes = m_oESApi.Search(sGroupAlias, ES_EPG_TYPE, ref sQuery, lRouting);
 
             int nTotalRecords = 0;
-            List<ElasticSearchApi.ESAssetDocument> lDocs = DecodeEpgSearchJsonObject(searchRes, ref nTotalRecords);
+            List<ElasticSearchApi.ESAssetDocument> lDocs = DecodeAssetSearchJsonObject(searchRes, ref nTotalRecords);
 
             if (lDocs != null)
             {
@@ -877,7 +878,7 @@ namespace Catalog
                     List<ElasticSearchApi.ESAssetDocument> tempDocs;
                     List<List<ElasticSearchApi.ESAssetDocument>> l = jsonObj.SelectToken("responses").Select(item =>
                     {
-                        tempDocs = DecodeEpgSearchJsonObject(item.ToString(), ref tempTotal);
+                        tempDocs = DecodeAssetSearchJsonObject(item.ToString(), ref tempTotal);
                         nTotalItems += tempTotal;
                         if (tempDocs != null && tempDocs.Count > 0)
                             documents.AddRange(tempDocs);
