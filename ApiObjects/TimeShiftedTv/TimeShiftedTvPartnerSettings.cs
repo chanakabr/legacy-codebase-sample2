@@ -24,6 +24,7 @@ namespace ApiObjects.TimeShiftedTv
         public int? ProtectionQuotaPercentage { get; set; }
         public int? RecordingLifetimePeriod { get; set; }
         public int? CleanupNoticePeroid { get; set; }
+        public bool? IsSeriesRecordingEnabled { get; set; }
 
         public TimeShiftedTvPartnerSettings()
         {
@@ -31,7 +32,7 @@ namespace ApiObjects.TimeShiftedTv
 
         public TimeShiftedTvPartnerSettings(bool? isCatchUpEnabled, bool? isCdvrEnabled, bool? isStartOverEnabled, bool? isTrickPlayEnabled, bool? isRecordingScheduleWindowEnabled,
             long? catchUpBufferLength, long? trickPlayBufferLength, long? recordingScheduleWindowBuffer, long? paddingAfterProgramEnds, long? paddingBeforeProgramStarts,
-            bool? isProtectionEnabled, int? protectionPeriod, int? protectionQuotaPercentage, int? recordingLifetimePeroid, int? cleanupNoticePeroid)
+            bool? isProtectionEnabled, int? protectionPeriod, int? protectionQuotaPercentage, int? recordingLifetimePeroid, int? cleanupNoticePeroid, bool? isSeriesRecordingEnabled)
         {
             this.IsCatchUpEnabled = isCatchUpEnabled;
             this.IsCdvrEnabled = isCdvrEnabled;
@@ -48,6 +49,7 @@ namespace ApiObjects.TimeShiftedTv
             this.ProtectionQuotaPercentage = protectionQuotaPercentage;
             this.RecordingLifetimePeriod = recordingLifetimePeroid;
             this.CleanupNoticePeroid = cleanupNoticePeroid;
+            this.IsSeriesRecordingEnabled = isSeriesRecordingEnabled;
         }
 
         public override string ToString()
@@ -68,6 +70,7 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("ProtectionQuotaPercentage: {0}, ", ProtectionQuotaPercentage.HasValue ? ProtectionQuotaPercentage.Value.ToString() : "Null"));
             sb.Append(string.Format("RecordingLifetimePeroid: {0}, ", RecordingLifetimePeriod.HasValue ? RecordingLifetimePeriod.Value.ToString() : "Null"));
             sb.Append(string.Format("CleanupNoticePeroid: {0}, ", CleanupNoticePeroid.HasValue ? CleanupNoticePeroid.Value.ToString() : "Null"));
+            sb.Append(string.Format("IsSeriesRecordingEnabled: {0}, ", IsSeriesRecordingEnabled.HasValue ? IsSeriesRecordingEnabled.Value.ToString() : "Null"));
                         
             return sb.ToString();
         }
