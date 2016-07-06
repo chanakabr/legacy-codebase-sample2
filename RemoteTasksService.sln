@@ -91,6 +91,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InitiateNotificationActionH
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecordingTaskHandler", "RecordingTaskHandler\RecordingTaskHandler.csproj", "{97B5D68D-D64B-459E-A206-7BE9C99635E3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpiredRecordingsHandler", "ExpiredRecordingsHandler\ExpiredRecordingsHandler.csproj", "{31891544-6D09-4956-95AE-92536510EDD3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -635,6 +637,18 @@ Global
 		{97B5D68D-D64B-459E-A206-7BE9C99635E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{97B5D68D-D64B-459E-A206-7BE9C99635E3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{97B5D68D-D64B-459E-A206-7BE9C99635E3}.Release|x86.ActiveCfg = Release|Any CPU
+		{31891544-6D09-4956-95AE-92536510EDD3}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{31891544-6D09-4956-95AE-92536510EDD3}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{31891544-6D09-4956-95AE-92536510EDD3}.Basic|x86.ActiveCfg = Release|Any CPU
+		{31891544-6D09-4956-95AE-92536510EDD3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31891544-6D09-4956-95AE-92536510EDD3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31891544-6D09-4956-95AE-92536510EDD3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{31891544-6D09-4956-95AE-92536510EDD3}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{31891544-6D09-4956-95AE-92536510EDD3}.Local|Any CPU.Build.0 = Release|Any CPU
+		{31891544-6D09-4956-95AE-92536510EDD3}.Local|x86.ActiveCfg = Release|Any CPU
+		{31891544-6D09-4956-95AE-92536510EDD3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31891544-6D09-4956-95AE-92536510EDD3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31891544-6D09-4956-95AE-92536510EDD3}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

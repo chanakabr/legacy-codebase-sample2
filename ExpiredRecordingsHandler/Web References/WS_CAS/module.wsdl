@@ -978,7 +978,6 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="expiredRecording" type="tns:ExpiredRecordingScheduledTask" />
-            <s:element minOccurs="1" maxOccurs="1" name="recordingDuration" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>

@@ -13,7 +13,7 @@
 // 
 #pragma warning disable 1591
 
-namespace SetupTaskHandler.WS_ConditionalAccess {
+namespace ExpiredRecordingsHandler.WS_CAS {
     using System;
     using System.Web.Services;
     using System.Diagnostics;
@@ -278,7 +278,7 @@ namespace SetupTaskHandler.WS_ConditionalAccess {
         
         /// <remarks/>
         public module() {
-            this.Url = global::SetupTaskHandler.Properties.Settings.Default.SetupTaskHandler_WS_ConditionalAccess_module;
+            this.Url = global::ExpiredRecordingsHandler.Properties.Settings.Default.ExpiredRecordingsHandler_WS_CAS_module;
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;
@@ -2005,26 +2005,24 @@ namespace SetupTaskHandler.WS_ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/HandleExpiredRecording", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public bool HandleExpiredRecording(ExpiredRecordingScheduledTask expiredRecording, int recordingDuration) {
+        public bool HandleExpiredRecording(ExpiredRecordingScheduledTask expiredRecording) {
             object[] results = this.Invoke("HandleExpiredRecording", new object[] {
-                        expiredRecording,
-                        recordingDuration});
+                        expiredRecording});
             return ((bool)(results[0]));
         }
         
         /// <remarks/>
-        public void HandleExpiredRecordingAsync(ExpiredRecordingScheduledTask expiredRecording, int recordingDuration) {
-            this.HandleExpiredRecordingAsync(expiredRecording, recordingDuration, null);
+        public void HandleExpiredRecordingAsync(ExpiredRecordingScheduledTask expiredRecording) {
+            this.HandleExpiredRecordingAsync(expiredRecording, null);
         }
         
         /// <remarks/>
-        public void HandleExpiredRecordingAsync(ExpiredRecordingScheduledTask expiredRecording, int recordingDuration, object userState) {
+        public void HandleExpiredRecordingAsync(ExpiredRecordingScheduledTask expiredRecording, object userState) {
             if ((this.HandleExpiredRecordingOperationCompleted == null)) {
                 this.HandleExpiredRecordingOperationCompleted = new System.Threading.SendOrPostCallback(this.OnHandleExpiredRecordingOperationCompleted);
             }
             this.InvokeAsync("HandleExpiredRecording", new object[] {
-                        expiredRecording,
-                        recordingDuration}, this.HandleExpiredRecordingOperationCompleted, userState);
+                        expiredRecording}, this.HandleExpiredRecordingOperationCompleted, userState);
         }
         
         private void OnHandleExpiredRecordingOperationCompleted(object arg) {

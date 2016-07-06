@@ -93,15 +93,15 @@ namespace SetupTaskHandler
                             }
 
                             cas.Timeout = 600000;
-                            success = cas.HandleExpiredRecordings();
+                            success = cas.HandleRecordingsLifetime();
 
                             if (!success)
                             {
-                                log.Error("HandleExpiredRecordings failed");
+                                log.Error("HandleRecordingsLifetime failed");
                             }
                             else
                             {
-                                log.Debug("HandleExpiredRecordings finished successfully");
+                                log.Debug("HandleRecordingsLifetime finished successfully");
                             }
                         }
                         break;
