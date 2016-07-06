@@ -1,7 +1,7 @@
 ﻿
 namespace ApiObjects.Catalog
 {
-    public enum IngsetWarnings
+    public enum IngestWarnings
     {
         MissingEntryId,
         MissingAction,
