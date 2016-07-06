@@ -33,7 +33,7 @@ namespace SetupTaskHandler
             newApi = new ElasticSearchApi(urlV2);
         }
 
-        internal bool Migrate(int groupId)
+        internal bool Migrate(int groupId, DateTime? startDate)
         {
             bool success = false;
             
@@ -64,7 +64,33 @@ namespace SetupTaskHandler
             int from = 0;
 
             ESMatchAllQuery matchAllQuery = new ESMatchAllQuery();
-            ESQuery query = new ESQuery(matchAllQuery)
+            BoolQuery boolQuery = new BoolQuery();
+
+            // Filter out media hits, we don't want to migrate them
+            ESTerm mediaHitTerm = new ESTerm(false)
+            {
+                Key = "action",
+                Value = "mediahit"
+            };
+
+            boolQuery.AddNot(mediaHitTerm);
+
+            // if we have a start date
+            if (startDate != null && startDate.HasValue)
+            {
+                ESRange startDateRange = new ESRange(false)
+                {
+                    Key = "action_date"
+                };
+
+                startDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(
+                    eRangeComp.GTE,
+                    startDate.Value.ToString("yyyyMMddHHmmss")));
+
+                boolQuery.AddChild(startDateRange, ApiObjects.SearchObjects.CutWith.AND);
+            }
+
+            ESQuery query = new ESQuery(boolQuery)
             {
                 Size = sizeOfBulk
             };

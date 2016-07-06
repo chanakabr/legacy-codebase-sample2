@@ -120,18 +120,32 @@ namespace SetupTaskHandler
                         #endregion
                     }
                     case ApiObjects.eSetupTask.MigrateStatistics:
-                    {   
-
-                        bool v1Success = true;
-                        bool v2Success = true;
+                    {
+                        #region Migrate Statistics
 
                         string urlV1 = TVinciShared.WS_Utils.GetTcmConfigValue("ES_URL_V1");
                         string urlV2 = TVinciShared.WS_Utils.GetTcmConfigValue("ES_URL_V2");
 
+                        DateTime? startDate = null;
+
+                        if (request.DynamicData.ContainsKey("START_DATE"))
+                        {
+                            string startDateString = request.DynamicData["START_DATE"].ToString();
+                            DateTime temp;
+
+                            DateTime.TryParseExact(startDateString, "yyyyMMddHHmmss",
+                                System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None,
+                                out temp);
+
+                            startDate = temp;
+                        }
+
                         var worker = new StatisticsMigrationTool(urlV1, urlV2);
-                        success = worker.Migrate(request.GroupID);
+                        success = worker.Migrate(request.GroupID, startDate);
 
                         break;
+
+                        #endregion
                     }
                     default:
                         break;
