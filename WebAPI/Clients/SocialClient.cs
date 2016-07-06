@@ -33,6 +33,46 @@ namespace WebAPI.Clients
             }
         }
 
+        internal KalturaFacebookSocial FBData(int groupId, string token)
+        {
+            FacebookResponse wsResponse = null;
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    wsResponse = Client.FBUserData(group.SocialCredentials.Username, group.SocialCredentials.Password, token);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling social service. ws address: {0}, exception: {1}", Client.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (wsResponse == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (wsResponse.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(wsResponse.Status.Code, wsResponse.Status.Message);
+            }
+
+            // convert response
+            KalturaFacebookSocial clientResponse = AutoMapper.Mapper.Map<KalturaFacebookSocial>(wsResponse.ResponseData);
+
+            return clientResponse;
+        }
+
+        [Obsolete]
         internal KalturaSocialResponse FBUserData(int groupId, string token)
         {
             FacebookResponse wsResponse = null;
@@ -73,6 +113,86 @@ namespace WebAPI.Clients
             return clientResponse;
         }
 
+        internal KalturaFacebookSocial FBUserDataByUserId(int groupId, string userId)
+        {
+            FacebookResponse wsResponse = null;
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    wsResponse = Client.FBUserDataByUserId(group.SocialCredentials.Username, group.SocialCredentials.Password, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling social service. ws address: {0}, exception: {1}", Client.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (wsResponse == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (wsResponse.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(wsResponse.Status.Code, wsResponse.Status.Message);
+            }
+
+            // convert response
+            KalturaFacebookSocial clientResponse = AutoMapper.Mapper.Map<KalturaFacebookSocial>(wsResponse.ResponseData);
+            return clientResponse;
+        }
+
+        internal KalturaFacebookSocial FBRegister(int groupId, string token, List<WebAPI.Social.KeyValuePair> extraParameters, string ip)
+        {
+            {
+                FacebookResponse wsResponse = null;
+
+                // get group ID
+                Group group = GroupsManager.GetGroup(groupId);
+
+                try
+                {
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                    {
+                        // fire request
+                        wsResponse = Client.FBUserRegister(group.SocialCredentials.Username, group.SocialCredentials.Password, token, extraParameters.ToArray(), ip);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Exception received while calling social service. ws address: {0}, exception: {1}", Client.Url, ex);
+                    ErrorUtils.HandleWSException(ex);
+                }
+
+                if (wsResponse == null)
+                {
+                    // general exception
+                    throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                }
+
+                if (wsResponse.Status.Code != (int)StatusCode.OK)
+                {
+                    // internal web service exception
+                    throw new ClientException(wsResponse.Status.Code, wsResponse.Status.Message);
+                }
+
+                // convert response
+                KalturaFacebookSocial clientResponse = AutoMapper.Mapper.Map<KalturaFacebookSocial>(wsResponse.ResponseData);
+
+                return clientResponse;
+            }
+        }
+
+        [Obsolete]
         internal KalturaSocialResponse FBUserRegister(int groupId, string token, List<WebAPI.Social.KeyValuePair> extraParameters, string ip)
         {
             {
@@ -115,6 +235,7 @@ namespace WebAPI.Clients
             }
         }
 
+        [Obsolete]
         internal KalturaSocialResponse FBUserMerge(int groupId, string token, string username, string password, string facebookId)
         {
             FacebookResponse wsResponse = null;
@@ -155,6 +276,46 @@ namespace WebAPI.Clients
             return clientResponse;
         }
 
+        internal KalturaFacebookSocial FBUserMerge(int groupId, string userId, string token)
+        {
+            FacebookResponse wsResponse = null;
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    wsResponse = Client.FBUserMergeByUserId(group.SocialCredentials.Username, group.SocialCredentials.Password, userId, token);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling social service. ws address: {0}, exception: {1}", Client.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (wsResponse == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (wsResponse.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(wsResponse.Status.Code, wsResponse.Status.Message);
+            }
+
+            // convert response
+            KalturaFacebookSocial clientResponse = AutoMapper.Mapper.Map<KalturaFacebookSocial>(wsResponse.ResponseData);
+
+            return clientResponse;
+        }
+
+        [Obsolete]
         internal KalturaSocialResponse FBUserUnmerge(int groupId, string token, string username, string password)
         {
             FacebookResponse wsResponse = null;
@@ -191,6 +352,45 @@ namespace WebAPI.Clients
 
             // convert response
             clientResponse = AutoMapper.Mapper.Map<KalturaSocialResponse>(wsResponse.ResponseData);
+
+            return clientResponse;
+        }
+
+        internal KalturaFacebookSocial FBUserUnmerge(int groupId, string userId)
+        {
+            FacebookResponse wsResponse = null;
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    wsResponse = Client.FBUserUnmergeByUserId(group.SocialCredentials.Username, group.SocialCredentials.Password, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling social service. ws address: {0}, exception: {1}", Client.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (wsResponse == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (wsResponse.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(wsResponse.Status.Code, wsResponse.Status.Message);
+            }
+
+            // convert response
+            KalturaFacebookSocial clientResponse = AutoMapper.Mapper.Map<KalturaFacebookSocial>(wsResponse.ResponseData);
 
             return clientResponse;
         }

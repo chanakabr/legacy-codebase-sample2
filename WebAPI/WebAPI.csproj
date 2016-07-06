@@ -1322,6 +1322,8 @@
     <Compile Include="Models\Pricing\KalturaPrice.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdWith.cs" />
     <Compile Include="Models\Pricing\KalturaSubscription.cs" />
+    <Compile Include="Models\Social\KalturaFacebookSocial.cs" />
+    <Compile Include="Models\Social\KalturaSocial.cs" />
     <Compile Include="Models\Social\KalturaSocialConfig.cs" />
     <Compile Include="Models\Social\KalturaSocialResponse.cs" />
     <Compile Include="Models\Social\KalturaSocialUser.cs" />
