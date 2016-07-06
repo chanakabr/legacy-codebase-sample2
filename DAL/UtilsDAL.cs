@@ -706,13 +706,21 @@ namespace DAL
             string key = string.Empty;
             switch (scheduleTaskName)
             {
-                case "expiredRecordings":
-                    key = "expired_recordings";
+                case "recordingsLifetime":
+                    key = "recordings_lifetime";
+                    break;
+                case "recordingsScheduledTasks":
+                    key = "recordings_scheduledTasks";
                     break;
                 default:
                     break;
             }
             return key;
+        }
+
+        public static string GetDomainQuotaKey(long domainId)
+        {
+            return string.Format("domain_{0}_quota", domainId);
         }
     }
 }

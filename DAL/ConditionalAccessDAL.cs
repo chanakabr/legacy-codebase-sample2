@@ -3247,29 +3247,153 @@ namespace DAL
             return impactedItems;
         }
 
-        public static HashSet<long> GetExpiredRecordingsTasks(long unixTimeStampNow)
-        {
-            HashSet<long> recordingIds = null;            
+        public static DataTable GetExpiredRecordingsTasks(long unixTimeStampNow)
+        {            
             ODBCWrapper.StoredProcedure spGetExpiredRecordingsTasks = new ODBCWrapper.StoredProcedure("GetExpiredRecordingsTasks");
             spGetExpiredRecordingsTasks.SetConnectionKey("CONNECTION_STRING");
             spGetExpiredRecordingsTasks.AddParameter("@UtcNowEpoch", unixTimeStampNow);
 
-            DataTable dt = spGetExpiredRecordingsTasks.Execute();
+            return spGetExpiredRecordingsTasks.Execute();
+        }
 
-            if (dt != null && dt.Rows != null)
+        public static DataTable GetExpiredDomainsRecordings(long recordingId, long unixTimeStampNow)
+        {
+            ODBCWrapper.StoredProcedure spGetExpiredDomainsRecordings = new ODBCWrapper.StoredProcedure("GetExpiredDomainsRecordings");
+            spGetExpiredDomainsRecordings.SetConnectionKey("CONNECTION_STRING");
+            spGetExpiredDomainsRecordings.AddParameter("@RecordingId", recordingId);
+            spGetExpiredDomainsRecordings.AddParameter("@UtcNowEpoch", unixTimeStampNow);            
+
+            return spGetExpiredDomainsRecordings.Execute();            
+        }
+
+        public static long GetRecordingMinProtectedEpoch(long recordingId, long unixTimeStampNow)
+        {
+            long minProtectedUntilEpoch = -1;
+            ODBCWrapper.StoredProcedure spGetRecordingMinProtectedEpoch = new ODBCWrapper.StoredProcedure("GetRecordingMinProtectedEpoch");
+            spGetRecordingMinProtectedEpoch.SetConnectionKey("CONNECTION_STRING");
+            spGetRecordingMinProtectedEpoch.AddParameter("@RecordingId", recordingId);
+            spGetRecordingMinProtectedEpoch.AddParameter("@UtcNowEpoch", unixTimeStampNow);
+
+            DataTable dt = spGetRecordingMinProtectedEpoch.Execute();
+            if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
             {
-                recordingIds = new HashSet<long>();
-                foreach (DataRow dr in dt.Rows)
+                minProtectedUntilEpoch = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "minProtectedUntilEpoch", 0);
+            }
+
+            return minProtectedUntilEpoch;
+        }
+
+        public static bool InsertExpiredRecordingNextTask(long recordingId, int groupId, long minProtectionEpoch, DateTime minProtectionDate)
+        {            
+            ODBCWrapper.StoredProcedure spInsertExpiredRecordingNextTask = new ODBCWrapper.StoredProcedure("InsertExpiredRecordingNextTask");
+            spInsertExpiredRecordingNextTask.SetConnectionKey("CONNECTION_STRING");
+            spInsertExpiredRecordingNextTask.AddParameter("@RecordingId", recordingId);
+            spInsertExpiredRecordingNextTask.AddParameter("@GroupId", groupId);
+            spInsertExpiredRecordingNextTask.AddParameter("@MinProtectionEpoch", minProtectionEpoch);
+            spInsertExpiredRecordingNextTask.AddParameter("@MinProtectionDate", minProtectionDate);
+
+            return spInsertExpiredRecordingNextTask.ExecuteReturnValue<bool>();            
+        }
+
+        public static bool UpdateExpiredRecordingScheduledTask(long p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static int GetRecordingDuration(long recordingId)
+        {
+            int recordingDuration = -1;
+            ODBCWrapper.StoredProcedure spGetRecordingDuration = new ODBCWrapper.StoredProcedure("GetRecordingDuration");
+            spGetRecordingDuration.SetConnectionKey("CONNECTION_STRING");
+            spGetRecordingDuration.AddParameter("@ID", recordingId);
+
+            DataTable dt = spGetRecordingDuration.Execute();
+            if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+            {
+                recordingDuration = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "DURATION", 0);
+            }
+
+            return recordingDuration;
+        }
+
+        public static int GetDomainsQuota(long domainId)
+        {
+            int quota = -1;
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
+            int limitRetries = RETRY_LIMIT;
+            Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
+            string domainQuotaKey = UtilsDal.GetDomainQuotaKey(domainId);
+            if (string.IsNullOrEmpty(domainQuotaKey))
+            {
+                log.ErrorFormat("Failed getting domainQuotaKey for domainId: {0}", domainId);
+                return -1;
+            }
+
+            try
+            {
+                int numOfRetries = 0;
+                while (numOfRetries < limitRetries)
                 {
-                    long recordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID", 0);
-                    if (recordingId > 0 && !recordingIds.Contains(recordingId))
+                    quota = cbClient.Get<int>(domainQuotaKey, out getResult);
+                    if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
+                    {                        
+                        log.ErrorFormat("Error while trying to get domain quota, domainId: {0}, key: {1}", domainId, domainQuotaKey);
+                        break;
+                    }
+                    else if (getResult == Couchbase.IO.ResponseStatus.Success)
+                    {                        
+                        break;
+                    }
+                    else
                     {
-                        recordingIds.Add(recordingId);
+                        log.ErrorFormat("Retrieving domain quota with domainId: {0} and key {1} failed with status: {2}, retryAttempt: {3}, maxRetries: {4}", domainId, domainQuotaKey, getResult, numOfRetries, limitRetries);
+                        numOfRetries++;
+                        System.Threading.Thread.Sleep(1000);
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to get domain quota, domainId: {0}, ex: {1}", domainId, ex);
+            }
 
-            return recordingIds;
+            return quota;
         }
+
+        public static bool UpdateDomainQuota(long domainId, int updatedQuota)
+        {
+            bool result = false;
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
+            int limitRetries = RETRY_LIMIT;
+            string domainQuotaKey = UtilsDal.GetDomainQuotaKey(domainId);
+            if (string.IsNullOrEmpty(domainQuotaKey))
+            {
+                log.ErrorFormat("Failed getting domainQuotaKey for domainId: {0}", domainId);
+                return result;
+            }
+
+            try
+            {
+                int numOfRetries = 0;                
+                while (!result && numOfRetries < limitRetries)
+                {
+                    result = cbClient.Set(domainQuotaKey, updatedQuota);
+                    if (!result)
+                    {
+                        numOfRetries++;
+                        log.ErrorFormat("Error while updating domain quota. number of tries: {0}/{1}. domainId: {2}, updatedQuota: {3}", numOfRetries, limitRetries, domainId, updatedQuota);
+
+                        System.Threading.Thread.Sleep(1000);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while updating domain quota, domainId: {0}, updatedQuota: {1}, ex: {2}", domainId, updatedQuota, ex);
+            }
+
+            return result;
+        }
+
     }
 }

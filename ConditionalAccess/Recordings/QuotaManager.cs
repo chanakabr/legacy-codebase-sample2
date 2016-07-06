@@ -9,12 +9,14 @@ using ApiObjects.TimeShiftedTv;
 using DAL;
 using KLogMonitor;
 using System.Reflection;
+using Synchronizer;
 
 namespace Recordings
 {
     public class QuotaManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static CouchbaseSynchronizer synchronizer = null;
 
         #region SingleTon
         
@@ -42,7 +44,8 @@ namespace Recordings
 
         static QuotaManager()
         {
-
+            synchronizer = new CouchbaseSynchronizer(1000, 60);
+            synchronizer.SynchronizedAct += Quota_SynchronizedAct;
         }
 
         #endregion
@@ -82,19 +85,19 @@ namespace Recordings
             // Now deduct the time of all the new/requested recordings
             foreach (var recording in newRecordings)
             {
-                int currentEpgMinutes = 0;
+                int currentEpgSeconds = 0;
                 int initialMinutesLeft = minutesLeft;
 
                 TimeSpan span = recording.EpgEndDate - recording.EpgStartDate;
 
-                currentEpgMinutes = (int)span.TotalMinutes;
+                currentEpgSeconds = (int)Math.Round((span.TotalSeconds/60), MidpointRounding.ToEven);
 
-                int tempMinutes = minutesLeft - currentEpgMinutes;
+                int tempMinutes = minutesLeft - currentEpgSeconds;
 
                 // Mark this, current-specific, recording as failed
                 if (tempMinutes < 0)
                 {
-                    log.DebugFormat("Requested EPG exceeds domain's quota. EPG duration is {0} minutes and there are {1} minutes available.", currentEpgMinutes, initialMinutesLeft);
+                    log.DebugFormat("Requested EPG exceeds domain's quota. EPG duration is {0} minutes and there are {1} minutes available.", currentEpgSeconds, initialMinutesLeft);
                     recording.Status = new Status((int)eResponseStatus.ExceededQuota, eResponseStatus.ExceededQuota.ToString());
                 }
 
@@ -129,9 +132,9 @@ namespace Recordings
             };
 
             return response;
-        }
+        }        
 
-        internal Status CheckQuotaByTotalMinutes(int groupId, long householdId, int totalMinutes, bool isAggregative, List<Recording> newRecordings, List<Recording> currentRecordings)
+        public Status CheckQuotaByTotalMinutes(int groupId, long householdId, int totalMinutes, bool isAggregative, List<Recording> newRecordings, List<Recording> currentRecordings)
         {
             Status status = new Status((int)eResponseStatus.OK);
             bool shouldContinue = true;
@@ -158,6 +161,19 @@ namespace Recordings
             }
 
             return status;
+        }
+
+        public bool UpdateDomainQuota(long domainId, int currentQuota, int updatedQuota)
+        {
+            bool result = false;
+            string syncKey = string.Format("QuotaManager_d{0}", domainId);
+            Dictionary<string, object> syncParmeters = new Dictionary<string, object>();
+            syncParmeters.Add("domainId", domainId);
+            syncParmeters.Add("previousQuota", currentQuota);
+            syncParmeters.Add("updatedQuota", updatedQuota);
+            result = synchronizer.DoAction(syncKey, syncParmeters);
+
+            return result;
         }
 
         #endregion
@@ -192,6 +208,31 @@ namespace Recordings
             }
 
             return status;
+        }
+
+        private static bool Quota_SynchronizedAct(Dictionary<string, object> parameters)
+        {
+            bool result = true;
+
+            if (parameters != null && parameters.Count > 0)
+            {
+                long domainId = (long)parameters["domainId"];
+                int previousQuota = (int)parameters["previousQuota"];
+                int UpdatedQuota = (int)parameters["updatedQuota"];
+
+                int currentQuota = ConditionalAccess.Utils.GetDomainQuota(domainId);
+                if (currentQuota == previousQuota)
+                {
+                    result = DAL.ConditionalAccessDAL.UpdateDomainQuota(domainId,UpdatedQuota);
+                }
+                else
+                {
+                    log.ErrorFormat("Failed updating domain quota, domainId: {0}, previousQuota: {1}, updatedQuota: {2}, currentQuota: {3}", domainId, previousQuota, UpdatedQuota, currentQuota);
+                }
+            }
+
+            return result;
+
         }
 
         #endregion

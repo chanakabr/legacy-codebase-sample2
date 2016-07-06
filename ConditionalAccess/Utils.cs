@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
+using ApiObjects.ScheduledTasks;
 using ApiObjects.TimeShiftedTv;
 using ConditionalAccess.TvinciDomains;
 using ConditionalAccess.TvinciPricing;
@@ -5036,7 +5037,42 @@ namespace ConditionalAccess
             }
 
             return result;
-        }        
+        }
 
+        internal static Dictionary<long, ExpiredRecordingScheduledTask> GetExpiredRecordingsTasks(long unixTimeStampNow)
+        {
+            Dictionary<long, ExpiredRecordingScheduledTask> expiredRecordings = null;
+            DataTable dt = ConditionalAccessDAL.GetExpiredRecordingsTasks(unixTimeStampNow);
+            if (dt != null && dt.Rows != null)
+            {
+                expiredRecordings = new Dictionary<long, ExpiredRecordingScheduledTask>();
+                foreach (DataRow dr in dt.Rows)
+                {
+                    long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
+                    if (id > 0 && !expiredRecordings.ContainsKey(id))
+                    {
+                        long recordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID", 0);
+                        int groupId = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_ID", 0);
+                        DateTime scheduledExpirationDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "scheduled_expiration_date");
+                        long scheduledExpirationEpoch = ODBCWrapper.Utils.GetLongSafeVal(dr, "scheduled_expiration_epoch", 0);
+                        ExpiredRecordingScheduledTask expiredRecording = new ExpiredRecordingScheduledTask()
+                        {
+                            Id = id,
+                            RecordingId = recordingId,
+                            ScheduledExpirationDate = scheduledExpirationDate,
+                            ScheduledExpirationEpoch = scheduledExpirationEpoch
+                        };
+                        expiredRecordings.Add(id, expiredRecording);
+                    }
+                }
+            }
+
+            return expiredRecordings;
+        }
+
+        internal static int GetDomainQuota(long domainId)
+        {
+            return ConditionalAccessDAL.GetDomainsQuota(domainId);
+        }
     }
 }
