@@ -10,7 +10,7 @@ using System.Text;
 
 namespace Ingest
 {
-    [ServiceContract]
+    [ServiceContract(Namespace = "")]    
     public interface IService
     {
 
