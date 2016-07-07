@@ -166,7 +166,7 @@ namespace ElasticSearchHandler.IndexBuilders
                             }
                             catch (Exception ex)
                             {
-                                throw ex;
+                                log.ErrorFormat("Failed indexing channel. ID = {0}, message = {1}", currentChannel.m_nChannelID, ex.Message, ex);
                             }
                         }
                         else

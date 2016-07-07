@@ -502,7 +502,29 @@ namespace ElasticsearchTasksCommon
                 log.Error("Error - Could not load group from cache in GetGroupMedias");
             }
 
-            UpdateNodeTreeFields(ref definitions.filterPhrase, definitions, group);
+            //Catalog.Request.InternalChannelRequest dummyChannelRequet = new Catalog.Request.InternalChannelRequest(
+            //    channel.m_nChannelID.ToString(),
+            //    string.Empty,
+            //    channel.m_nGroupID,
+            //    0, 0, string.Empty, string.Empty, string.Empty,
+            //    new Filter(),
+            //    string.Empty,
+            //    new OrderObj());
+            //Catalog.Catalog.BuildInternalChannelSearchObject(channel, dummyChannelRequet, group);
+
+            var dummyRequest = new Catalog.Request.BaseRequest()
+            {
+                domainId = 0,
+                m_nGroupID = channel.m_nParentGroupID,
+                m_nPageIndex = 0,
+                m_nPageSize = 0,
+                m_oFilter = new Filter(),
+                m_sSiteGuid = string.Empty,
+                m_sUserIP = string.Empty
+            };
+
+            Catalog.Catalog.UpdateNodeTreeFields(dummyRequest,
+                ref definitions.filterPhrase, definitions, group);
 
             return definitions;
         }
