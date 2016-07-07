@@ -62,6 +62,7 @@ namespace WebAPI.Controllers
                 Type type = parameter.GetType();
                 var properties = type.GetProperties();
                 result = null;
+                bool found = false;
                 foreach (PropertyInfo property in properties)
                 {
                     string name = getApiName(property);
@@ -69,8 +70,11 @@ namespace WebAPI.Controllers
                         continue;
 
                     result = property.GetValue(parameter);
+                    found = true;
                     break;
                 }
+                if (!found)
+                    throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidMultirequestToken, "Invalid multirequest token");
             }
             else if (parameter.GetType() == typeof(Dictionary<string, object>))
             {
