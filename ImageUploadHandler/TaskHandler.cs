@@ -49,6 +49,8 @@ namespace ImageUploadHandler
                     // update image status
                     UpdateImageStatus(request, WS_API.eTableStatus.Failed);
 
+                    log.ErrorFormat("error inserting image. data: {0}", data);
+
                     throw new Exception(string.Format("error inserting image. data: {0}", data));
                 }
                 else
@@ -67,6 +69,7 @@ namespace ImageUploadHandler
             }
             catch (Exception ex)
             {
+                log.ErrorFormat("error inserting image. data: {0}, Exception:{1}", data, ex);
                 throw ex;
             }
 

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
 using ImageResizer;
+using KLogMonitor;
 using Newtonsoft.Json;
 using RemoteTasksCommon;
 
@@ -10,6 +12,8 @@ namespace ImageResizeHandler
 {
     public class TaskHandler : ITaskHandler
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         private string generateSlug(string phrase)
         {
             string str = removeAccent(phrase).ToLower();
@@ -53,7 +57,7 @@ namespace ImageResizeHandler
                 if (_useFileSystem)
                 {
                     bool isMutexAlreadyReleased = false;
-                    
+
                     string fileName = generateSlug(System.IO.Path.GetFullPath(uri.LocalPath));
 
                     Mutex mutex = new Mutex(false, "IRHM_" + fileName);
@@ -153,12 +157,15 @@ namespace ImageResizeHandler
 
                     Byte[] bytes = dest.ToArray();
 
+                    if (bytes != null && bytes.Length > 0)
+                        log.DebugFormat("successfully resized image. source: {0}, dest: {1}, resizeSettings: {2}", source, dest, JsonConvert.SerializeObject(resizeSettings));
+
                     res = Convert.ToBase64String(bytes);
                 }
             }
             catch (Exception ex)
             {
-                //write log
+                log.ErrorFormat("Error while resizing image", ex);
                 throw ex;
             }
 
