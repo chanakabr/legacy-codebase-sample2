@@ -162,10 +162,13 @@ namespace WebAPI.Controllers
                 pager = new KalturaFilterPager();
 
             if (filter == null)
+            {
                 filter = new KalturaAssetFilter();
-
-            if (filter.TypesIn == null)
-                filter.TypesIn = new List<KalturaIntegerValue>();
+            }
+            else
+            {
+                filter.Validate();
+            }
 
             if (!string.IsNullOrEmpty(filter.KSql) && filter.KSql.Length > 1024)
             {
@@ -177,7 +180,7 @@ namespace WebAPI.Controllers
                 // no related media id - search
                 if (string.IsNullOrEmpty(filter.RelatedMediaIdEqual))
                 {
-                    response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, filter.KSql, filter.OrderBy, filter.TypesIn.Select(x => x.value).ToList());
+                    response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, filter.KSql, filter.OrderBy, filter.getTypeIn(), filter.getEpgChannelIdIn());
                 }
                 // related
                 else
@@ -189,7 +192,7 @@ namespace WebAPI.Controllers
                     }
 
                     response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
-                    language, pager.getPageIndex(), pager.PageSize, mediaId, filter.KSql, filter.TypesIn.Select(x => x.value).ToList(), filter.OrderBy);
+                    language, pager.getPageIndex(), pager.PageSize, mediaId, filter.KSql, filter.getTypeIn(), filter.OrderBy);
                 }
             }
             catch (ClientException ex)

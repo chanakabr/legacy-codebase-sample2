@@ -151,7 +151,7 @@ namespace WebAPI.Clients
         }
 
         public KalturaAssetListResponse SearchAssets(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
-            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes)
+            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -159,6 +159,22 @@ namespace WebAPI.Clients
 
             // get group configuration 
             Group group = GroupsManager.GetGroup(groupId);
+
+            // build failover cache key
+            StringBuilder key = new StringBuilder();
+            key.AppendFormat("Unified_search_g={0}_ps={1}_pi={2}_ob={3}_od={4}_ov={5}_f={6}", groupId, pageSize, pageIndex, order.m_eOrderBy, order.m_eOrderDir, order.m_sOrderValue, filter);
+
+            if (assetTypes != null && assetTypes.Count > 0)
+            {
+                key.AppendFormat("_at={0}", string.Join(",", assetTypes.Select(at => at.ToString()).ToArray()));
+            }
+
+            if (epgChannelIds != null && epgChannelIds.Count > 0)
+            {
+                string strEpgChannelIds = string.Join(",", epgChannelIds.Select(at => at.ToString()).ToArray());
+                key.AppendFormat("_ec={0}", strEpgChannelIds);
+                filter += string.Format(" epg_channel_id:'{0}'", strEpgChannelIds);
+            }
 
             // build request
             UnifiedSearchRequest request = new UnifiedSearchRequest()
@@ -182,12 +198,6 @@ namespace WebAPI.Clients
                 m_sSiteGuid = siteGuid,
                 domainId = domainId
             };
-
-            // build failover cache key
-            StringBuilder key = new StringBuilder();
-            key.AppendFormat("Unified_search_g={0}_ps={1}_pi={2}_ob={3}_od={4}_ov={5}_f={6}", groupId, pageSize, pageIndex, order.m_eOrderBy, order.m_eOrderDir, order.m_sOrderValue, filter);
-            if (assetTypes != null && assetTypes.Count > 0)
-                key.AppendFormat("_at={0}", string.Join(",", assetTypes.Select(at => at.ToString()).ToArray()));
 
             // fire unified search request
             UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();

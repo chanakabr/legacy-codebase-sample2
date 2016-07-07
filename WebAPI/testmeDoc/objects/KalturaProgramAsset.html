@@ -29,7 +29,7 @@
 		<h2>Kaltura API</h2>
 		<table class="action" width="80%">
 			<tr>
-				<th class="service_action_title">KalturaAsset</th>
+				<th class="service_action_title">KalturaProgramAsset</th>
 			</tr>
 			<tr>
 				<td class="title">Properties</td>
@@ -137,11 +137,13 @@
 					<table style="">
 						<tbody>
 							<tr>
-								<td class="inheritedFrom"><b>KalturaAsset</b></td>
+								<td class="inheritedFrom">
+									<b><img class="base-attribute" src="../images/collapsed.gif"> Inherited from <a href="KalturaAsset.html">KalturaAsset</a></b>
+								</td>
 							</tr>
 						</tbody>
 					</table>
-					<table style="">
+					<table style="display: none">
 						<tbody>
 							<tr>
 								<th class="subtitle">Name</th>
@@ -211,7 +213,54 @@
 				</td>
 			</tr>
 			<tr>
-				<td>Sub classes: <a href="KalturaProgramAsset.html">KalturaProgramAsset</a>, <a href="KalturaMediaAsset.html">KalturaMediaAsset</a></td>
+				<td>
+					<table style="">
+						<tbody>
+							<tr>
+								<td class="inheritedFrom"><b>KalturaProgramAsset</b></td>
+							</tr>
+						</tbody>
+					</table>
+					<table style="">
+						<tbody>
+							<tr>
+								<th class="subtitle">Name</th>
+								<th class="subtitle">Type</th>
+								<th class="subtitle">Writable</th>
+								<th class="subtitle">Restrictions</th>
+								<th class="subtitle">Description</th>
+							</tr>
+							<tr >
+								<td>epgChannelId</td>
+								<td>bigint</td>
+								<td>V</td>
+								<td></td>
+								<td>EPG channel identifier</td>
+							</tr>
+							<tr class="odd">
+								<td>epgId</td>
+								<td>string</td>
+								<td>V</td>
+								<td></td>
+								<td>EPG identifier</td>
+							</tr>
+							<tr >
+								<td>relatedMediaId</td>
+								<td>bigint</td>
+								<td>V</td>
+								<td></td>
+								<td>Ralated media identifier</td>
+							</tr>
+							<tr class="odd">
+								<td>crid</td>
+								<td>string</td>
+								<td>V</td>
+								<td></td>
+								<td>Unique identifier for the program</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
 			</tr>
 		</table>
 	</div>

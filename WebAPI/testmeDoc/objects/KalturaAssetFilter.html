@@ -131,15 +131,22 @@
             (maximum length of entire filter is 1024 characters)</td>
 							</tr>
 							<tr class="odd">
-								<td>typesIn</td>
-								<td>array of <a href="KalturaIntegerValue.html">KalturaIntegerValue</a></td>
+								<td>typeIn</td>
+								<td>string</td>
 								<td>V</td>
 								<td></td>
-								<td>List of asset types to search within. 
+								<td>Comma separated list of asset types to search within. 
             Possible values: 0 – EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).
             If omitted – all types should be included.</td>
 							</tr>
 							<tr >
+								<td>epgChannelIdIn</td>
+								<td>string</td>
+								<td>V</td>
+								<td></td>
+								<td>Comma separated list of EPG channel ids to search within.</td>
+							</tr>
+							<tr class="odd">
 								<td>relatedMediaIdEqual</td>
 								<td>string</td>
 								<td>V</td>
