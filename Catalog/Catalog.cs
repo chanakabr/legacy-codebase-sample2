@@ -5767,7 +5767,7 @@ namespace Catalog
         /// <param name="filterTree"></param>
         /// <param name="definitions"></param>
         /// <param name="group"></param>
-        internal static void UpdateNodeTreeFields(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions, Group group)
+        public static void UpdateNodeTreeFields(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions, Group group)
         {
             if (group != null)
             {
@@ -5809,7 +5809,7 @@ namespace Catalog
         /// <param name="definitions"></param>
         /// <param name="group"></param>
         /// <param name="node"></param>
-        private static void TreatLeaf(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions,
+        public static void TreatLeaf(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions,
             Group group, BooleanPhraseNode node, Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping)
         {
             bool shouldUseCache = WS_Utils.GetTcmBoolValue("Use_Search_Cache");
