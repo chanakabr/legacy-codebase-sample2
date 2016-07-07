@@ -38,6 +38,8 @@ namespace ApiObjects.TimeShiftedTv
 
         public DateTime UpdateDate { get; set; }
 
+        public string Crid { get; set; }
+
         public Recording()
         {
             Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());

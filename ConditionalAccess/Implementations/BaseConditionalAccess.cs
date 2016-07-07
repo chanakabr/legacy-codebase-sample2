@@ -18212,5 +18212,115 @@ namespace ConditionalAccess
 
             return response;
         }
+
+        public ApiObjects.Response.Status CompleteHouseholdSeriesRecordings(string userId, int householdId, int availibleQuota)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            // 1. make sure the household is ok (? - already done before)
+            ConditionalAccess.TvinciDomains.Domain domain;
+            long domainID = 0;
+            ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userId, ref domainID, out domain);
+
+            // Validate user and domain
+            if (validationStatus.Code != (int)eResponseStatus.OK)
+            {
+                log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}", domainID, userId);
+                return validationStatus;
+            }
+            
+            // 2. get the household available quota (? - or use the param)
+            
+            // 3. get household series / seasons
+            List<DomainSeriesRecording> series = ConditionalAccessDAL.GetDomainSeriesRecordings(m_nGroupID, householdId);
+            
+            // 4. get household recordings
+            Dictionary<long, Recording> householdRecordings = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, householdId, null);
+
+            // 5. get all the relevant (series + seasons + CRID not in the list of household recordings) programs to record from ES - search query
+
+            // get the names of the series and seasons tags/metas of the group
+            var metaTagsMappings = Tvinci.Core.DAL.CatalogDAL.GetAliasMappingFields(m_nGroupID);
+            if (metaTagsMappings != null || metaTagsMappings.Count == 0)
+            {
+                log.ErrorFormat("failed to 'GetAliasMappingFields' for seriesId. groupId = {0} ", m_nGroupID);
+                //TODO: add status for this case? 
+                return response;
+            }
+
+            var feild = metaTagsMappings.Where(m => m.Name == "series_id").FirstOrDefault();
+            
+            {
+                log.ErrorFormat("alias for series_id was not found. group_id = {0}", m_nGroupID);
+                //TODO: add status for this case? 
+                return response;
+            }
+
+            string seriesIdAlias = feild.Alias, SeasonNumberAlias = string.Empty;
+
+            feild = metaTagsMappings.Where(m => m.Name == "season_number").FirstOrDefault();
+            if (feild != null)
+            {
+                SeasonNumberAlias = feild.Alias;
+            }
+
+            // build the filter query for the search
+            StringBuilder filter = new StringBuilder("(OR ");
+            foreach (var serie in series)
+            {
+                // with season
+                if (serie.SeasonNumber != 0 && !string.IsNullOrEmpty(SeasonNumberAlias))
+                    filter.AppendFormat("(And {0} = '{1}' {2} = '{3}')", SeasonNumberAlias, serie.SeasonNumber, seriesIdAlias, serie.SeriesId);
+                // without season
+                else
+                filter.AppendFormat("{0} = '{1}' ", seriesIdAlias, serie.SeriesId);
+            }
+
+            filter.Append(")");
+
+            // build the excluded CRIDs list
+            List<string> excludedCrids = null;
+
+            if (householdRecordings != null)
+            {
+                householdRecordings.Values.Select(r => r.Crid).ToList();
+            }
+
+            // get the programs from catalog
+            List<EPGChannelProgrammeObject> relevantProgramsForRecord = Utils.SearchEpgWithExcludedCrids(m_nGroupID, filter.ToString(), excludedCrids,
+                new ApiObjects.SearchObjects.OrderObj()
+                {
+                    m_eOrderBy = ApiObjects.SearchObjects.OrderBy.START_DATE,
+                    m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC
+                });
+
+            // 6. get the catch-up buffers for the programs from (5) (? - is the catchup buffer on the program is enough? )
+
+            // 7. calculate which recording should be recorded for the household based on quota and catch-up buffer
+            List<EPGChannelProgrammeObject> ProgramsToRecord = new List<EPGChannelProgrammeObject>();
+            DateTime startDate, endDate;
+            int programLengthSeconds = 0;
+            foreach (var program in relevantProgramsForRecord)
+            {
+                startDate = DateTime.ParseExact(program.START_DATE, "dd/MM/yyyy HH:mm:ss", null);
+                endDate = DateTime.ParseExact(program.END_DATE, "dd/MM/yyyy HH:mm:ss", null);
+                
+                // TODO: add the padding 
+                programLengthSeconds = (int)(endDate - startDate).TotalSeconds;
+
+                if (programLengthSeconds < availibleQuota)
+                {
+                    // TODO:
+                }
+            }
+
+            // 8. record the selected programs for the household
+            foreach (var programToRecord in ProgramsToRecord)
+            {
+                Record(userId, programToRecord.EPG_ID);
+            }
+
+            return response;
+        }
     }
 }

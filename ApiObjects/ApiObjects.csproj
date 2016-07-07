@@ -362,6 +362,7 @@
     <Compile Include="TagResponseObject.cs" />
     <Compile Include="HouseholdBillingRequest.cs" />
     <Compile Include="TimeShiftedTv\DomainQuotaResponse.cs" />
+    <Compile Include="TimeShiftedTv\DomainSeriesRecording.cs" />
     <Compile Include="TimeShiftedTv\QuotaManagementModel.cs" />
     <Compile Include="TimeShiftedTv\Recording.cs" />
     <Compile Include="TimeShiftedTv\RecordingCleanupResponse.cs" />

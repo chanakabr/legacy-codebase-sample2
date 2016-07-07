@@ -5036,7 +5036,97 @@ namespace ConditionalAccess
             }
 
             return result;
-        }        
+        }
+
+        internal static List<EPGChannelProgrammeObject> SearchEpgWithExcludedCrids(int groupID, string filter, List<string> excludedCrids, ApiObjects.SearchObjects.OrderObj orderBy)
+        {
+            WS_Catalog.IserviceClient client = null;
+            List<EPGChannelProgrammeObject> programs = null;
+
+            // get program ids
+            try
+            {
+                WS_Catalog.UnifiedSearchRequest request = new WS_Catalog.UnifiedSearchRequest()
+                {
+                    m_nGroupID = groupID,
+                    m_nPageIndex = 0,
+                    m_nPageSize = 0,
+                    assetTypes = new int[1] { 0 },
+                    filterQuery = filter,
+                    order = orderBy,
+                    m_oFilter = new WS_Catalog.Filter()
+                    {
+                        m_bOnlyActiveMedia = true
+                    },
+                    //excludedCrids = excludedCrids
+                };
+                FillCatalogSignature(request);
+                client = new WS_Catalog.IserviceClient();
+                string sCatalogUrl = GetWSURL("WS_Catalog");
+                if (string.IsNullOrEmpty(sCatalogUrl))
+                {
+                    log.Error("Catalog Url is null or empty");
+                    return programs;
+                }
+
+                client.Endpoint.Address = new System.ServiceModel.EndpointAddress(sCatalogUrl);
+
+                WS_Catalog.UnifiedSearchResponse response = client.GetResponse(request) as WS_Catalog.UnifiedSearchResponse;
+
+                if (response == null || response.status == null)
+                {
+                    log.ErrorFormat("Got empty response from Catalog 'GetResponse' for 'UnifiedSearchRequest'");
+                    return programs;
+                }
+                if (response.status.Code != (int)eResponseStatus.OK)
+                {
+                    log.ErrorFormat("Got error response from catalog 'GetResponse' for 'UnifiedSearchRequest'. response: code = {0}, message = {1}", response.status.Code, response.status.Message); 
+                    return programs;
+                }
+
+                // get programs
+                if (response.searchResults != null && response.searchResults.Length > 0)
+                {
+                    AssetInfoRequest programsRequest = new AssetInfoRequest()
+                    {
+                        m_nGroupID = groupID,
+                        m_nPageIndex = 0,
+                        m_nPageSize = 0,
+                        m_oFilter = new WS_Catalog.Filter()
+                        {
+                            m_bOnlyActiveMedia = true
+                        },
+                        epgIds = response.searchResults.Select(p => long.Parse(p.AssetId)).ToArray()
+                    };
+                    FillCatalogSignature(request);
+
+                    AssetInfoResponse programsRespnse = client.GetResponse(programsRequest) as AssetInfoResponse;
+
+                    if (programsRespnse == null || programsRespnse.epgList == null)
+                    {
+                        log.ErrorFormat("Got empty response from Catalog 'GetResponse' for 'AssetInfoRequest'");
+                        return programs;
+                    }
+
+                    programs = programsRespnse.epgList.Select(p => p.m_oProgram).ToList();
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error("Failed UnifiedSearchRequest Request To Catalog", ex);
+            }
+
+            finally
+            {
+                if (client != null)
+                {
+                    client.Close();
+                }
+            }
+
+            return programs;
+        }
 
     }
 }
