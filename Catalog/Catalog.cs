@@ -1174,7 +1174,7 @@ namespace Catalog
         /// <param name="group"></param>
         /// <param name="isTagOrMeta"></param>
         /// <returns></returns>
-        private static HashSet<string> GetUnifiedSearchKey(string originalKey, Group group, out bool isTagOrMeta)
+        public static HashSet<string> GetUnifiedSearchKey(string originalKey, Group group, out bool isTagOrMeta)
         {
             isTagOrMeta = false;          
 
