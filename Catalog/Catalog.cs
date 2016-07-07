@@ -2169,25 +2169,61 @@ namespace Catalog
                         break;
                 }
 
-                searchObject.m_lFilterTagsAndMetas = ConvertKeyValuePairsToSearchValues(request.m_lFilterTags);
+                searchObject.m_lFilterTagsAndMetas = 
+                    ConvertKeyValuePairsToSearchValues(request.m_lFilterTags, request.m_nGroupID, request.m_eFilterCutWith);
             }
         }
 
-        private static List<SearchValue> ConvertKeyValuePairsToSearchValues(List<KeyValue> keyValues)
+        private static List<SearchValue> ConvertKeyValuePairsToSearchValues(List<KeyValue> keyValues, int groupId, CutWith cutWith)
         {
             List<SearchValue> returnedSearchValues = null;
 
             if (keyValues != null && keyValues.Count > 0)
             {
+                Group group = GroupsCache.Instance().GetGroup(groupId);
+
                 returnedSearchValues = new List<SearchValue>();
                 foreach (KeyValue keyValue in keyValues)
                 {
                     if (!string.IsNullOrEmpty(keyValue.m_sKey) && !string.IsNullOrEmpty(keyValue.m_sValue))
                     {
-                        SearchValue searchVal = new SearchValue();
-                        searchVal.m_sKey = keyValue.m_sKey;
-                        searchVal.m_lValue = new List<string> { keyValue.m_sValue };
-                        returnedSearchValues.Add(searchVal);
+                        bool isTagOrMeta;
+                        var searchKeys = GetUnifiedSearchKey(keyValue.m_sKey, group, out isTagOrMeta);
+
+                        switch (cutWith)
+                        {
+                            case CutWith.OR:
+                            {
+                                foreach (var currentKey in searchKeys)
+                                {
+                                    SearchValue search = new SearchValue();
+                                    search.m_sKey = currentKey;
+                                    search.m_lValue = new List<string> { keyValue.m_sValue };
+                                    returnedSearchValues.Add(search);
+                                }
+
+                                break;
+                            }
+                            case CutWith.AND:
+                            {
+                                SearchValue search = new SearchValue();
+
+                                string searchKey = keyValue.m_sKey;
+
+                                if (isTagOrMeta)
+                                {
+                                    searchKey = searchKeys.First();
+                                }
+
+                                search.m_sKey = searchKey;
+                                search.m_lValue = new List<string> { keyValue.m_sValue };
+
+                                returnedSearchValues.Add(search);
+                                break;
+                            }
+                            default:
+                            break;
+                        }
                     }
                 }
             }
@@ -2243,30 +2279,52 @@ namespace Catalog
             SearchValue search = new SearchValue();
             if (channelSearchValues != null && channelSearchValues.Count > 0)
             {
+                Group group = GroupsCache.Instance().GetGroup(searchObject.m_nGroupId);
+
                 foreach (SearchValue searchValue in channelSearchValues)
                 {
                     if (!string.IsNullOrEmpty(searchValue.m_sKey))
                     {
-                        search = new SearchValue();
-                        search.m_sKey = searchValue.m_sKey;
-                        search.m_lValue = searchValue.m_lValue;
-                        search.m_sKeyPrefix = searchValue.m_sKeyPrefix;
-                        search.m_eInnerCutWith = searchValue.m_eInnerCutWith;
+                        bool isTagOrMeta;
+                        var searchKeys = GetUnifiedSearchKey(searchValue.m_sKey, group, out isTagOrMeta);
 
                         switch (cutWith)
                         {
                             case CutWith.OR:
+                            {
+                                foreach (var currentKey in searchKeys)
                                 {
+                                    search = new SearchValue();
+                                    search.m_sKey = currentKey;
+                                    search.m_lValue = searchValue.m_lValue;
+                                    search.m_sKeyPrefix = searchValue.m_sKeyPrefix;
+                                    search.m_eInnerCutWith = searchValue.m_eInnerCutWith;
                                     m_dOr.Add(search);
-                                    break;
                                 }
-                            case CutWith.AND:
-                                {
-                                    m_dAnd.Add(search);
-                                    break;
-                                }
-                            default:
+
                                 break;
+                            }
+                            case CutWith.AND:
+                            {
+                                search = new SearchValue();
+
+                                string searchKey = searchValue.m_sKey;
+
+                                if (isTagOrMeta)
+                                {
+                                    searchKey = searchKeys.First();
+                                }
+
+                                search.m_sKey = searchKey;
+                                search.m_lValue = searchValue.m_lValue;
+                                search.m_sKeyPrefix = searchValue.m_sKeyPrefix;
+                                search.m_eInnerCutWith = searchValue.m_eInnerCutWith;
+
+                                m_dAnd.Add(search);
+                                break;
+                            }
+                            default:
+                            break;
                         }
                     }
                 }

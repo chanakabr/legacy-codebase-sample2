@@ -301,7 +301,6 @@ namespace Catalog.Request
             {
                 foreach (KeyValue orKeyValue in m_OrList)
                 {
-                    bool isTagOrMeta = false;
                     SearchValue search = new SearchValue();
                     search.m_sKey = orKeyValue.m_sKey;
                     search.m_lValue = new List<string> { orKeyValue.m_sValue };
@@ -311,26 +310,28 @@ namespace Catalog.Request
                     {
                         if (tag.Equals(search.m_sKey, StringComparison.OrdinalIgnoreCase))
                         {
-                            isTagOrMeta = true;
                             search.m_sKey = string.Format("tags.{0}", search.m_sKey);
                             break;
                         }
                     }
 
-                    if (!isTagOrMeta)
+                    m_dOr.Add(search);
+
+                    foreach (var meta in group.m_oEpgGroupSettings.m_lMetasName)
                     {
-                        foreach (var meta in group.m_oEpgGroupSettings.m_lMetasName)
+                        if (meta.Equals(search.m_sKey, StringComparison.OrdinalIgnoreCase))
                         {
-                            if (meta.Equals(search.m_sKey, StringComparison.OrdinalIgnoreCase))
-                            {
-                                isTagOrMeta = true;
-                                search.m_sKey = string.Format("metas.{0}", search.m_sKey);
-                                break;
-                            }
+                            search = new SearchValue();
+                            search.m_sKey = orKeyValue.m_sKey;
+                            search.m_lValue = new List<string> { orKeyValue.m_sValue };
+                            search.m_sValue = orKeyValue.m_sValue;
+
+                            search.m_sKey = string.Format("metas.{0}", search.m_sKey);
+
+                            m_dOr.Add(search);
+                            break;
                         }
                     }
-
-                    m_dOr.Add(search);
                 }
             }
         }
