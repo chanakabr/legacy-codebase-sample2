@@ -22,6 +22,9 @@ namespace WebAPI.Models.Users
     [OldStandard("isHouseholdMaster", "is_household_master")]
     [OldStandard("suspentionState", "suspention_state")]
     [OldStandard("userState", "user_state")]
+    [OldStandard("facebookId", "facebook_id")]
+    [OldStandard("facebookImage", "facebook_image")]
+    [OldStandard("facebookToken", "facebook_token")]
     public class KalturaOTTUser : KalturaBaseOTTUser
     {
         /// <summary>
