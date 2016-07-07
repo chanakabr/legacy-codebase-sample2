@@ -699,7 +699,7 @@ namespace ElasticSearch.Searcher
             }
             else if (oOrderObj.m_eOrderBy == OrderBy.ID)
             {
-                sSort.Append(" \"_id\": ");
+                sSort.Append(" \"_uid\": ");
             }
             else if (oOrderObj.m_eOrderBy == OrderBy.RELATED)
             {
@@ -726,7 +726,7 @@ namespace ElasticSearch.Searcher
                 sSort.Append(", \"_score\"");
 
             // Always add sort by _id to avoid ES weirdness of same sort-value 
-            sSort.Append(", { \"_id\": { \"order\": \"desc\" } }");
+            sSort.Append(", { \"_uid\": { \"order\": \"desc\" } }");
 
             sSort.Append(" ]");
 

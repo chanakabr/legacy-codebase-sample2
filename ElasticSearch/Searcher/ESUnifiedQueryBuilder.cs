@@ -1881,7 +1881,7 @@ namespace ElasticSearch.Searcher
             }
             else if (order.m_eOrderBy == OrderBy.ID)
             {
-                sortBuilder.Append(" \"_id\": ");
+                sortBuilder.Append(" \"_uid\": ");
             }
             else if (order.m_eOrderBy == OrderBy.RELATED || order.m_eOrderBy == OrderBy.NONE)
             {
@@ -1909,7 +1909,7 @@ namespace ElasticSearch.Searcher
             if (order.m_eOrderBy != OrderBy.ID)
             {
                 // Always add sort by _id to avoid ES weirdness of same sort-value 
-                sortBuilder.Append(", { \"_id\": { \"order\": \"desc\" } }");
+                sortBuilder.Append(", { \"_uid\": { \"order\": \"desc\" } }");
             }
 
             sortBuilder.Append(" ]");

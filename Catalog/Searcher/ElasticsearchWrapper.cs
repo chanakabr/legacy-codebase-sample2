@@ -1604,7 +1604,6 @@ namespace Catalog
             filterSettings.AddChild(endDateRange);
             filterSettings.AddChild(tagsFilter);
             filteredQuery.Filter.FilterSettings = filterSettings;
-
  
             // Create an aggregation search object for each association tag we have
             foreach (var associationTag in associationTags)
@@ -1627,7 +1626,6 @@ namespace Catalog
                     Field = string.Format("tags.{0}", associationTag.Value).ToLower(),
                     Type = eElasticAggregationType.terms
                 };
-
 
                 ESBaseAggsItem subAggregation2 = new ESBaseAggsItem()
                 {
