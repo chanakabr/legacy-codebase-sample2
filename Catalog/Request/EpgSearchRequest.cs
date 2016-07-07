@@ -12,6 +12,7 @@ using EpgBL;
 using KLogMonitor;
 using Tvinci.Core.DAL;
 using Catalog.Cache;
+using GroupsCacheManager;
 
 namespace Catalog.Request
 {
@@ -170,7 +171,7 @@ namespace Catalog.Request
         }
 
         public EpgSearchObj BuildEPGSearchObject()
-        {           
+        {
             EpgSearchObj res = null;
             ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
 
@@ -205,7 +206,7 @@ namespace Catalog.Request
             searcherEpgSearch.m_dStartDate = m_dStartDate;
 
             searcherEpgSearch.m_dSearchEndDate = DateTime.UtcNow;
-           
+
 
             //deafult values for OrderBy object 
             searcherEpgSearch.m_bDesc = true;
@@ -241,9 +242,9 @@ namespace Catalog.Request
 
             searcherEpgSearch.m_nPageIndex = m_nPageIndex;
             searcherEpgSearch.m_nPageSize = m_nPageSize;
-          
+
             searcherEpgSearch.m_oEpgChannelIDs = m_oEPGChannelIDs;
-            
+
             searcherEpgSearch.m_nNextTop = 0;
             searcherEpgSearch.m_nPrevTop = 0;
             searcherEpgSearch.m_bIsCurrent = false;
@@ -257,14 +258,41 @@ namespace Catalog.Request
 
         private void EpgSearchAddParams(ref List<SearchValue> m_dAnd, ref List<SearchValue> m_dOr)
         {
+            Group group = GroupsCache.Instance().GetGroup(m_nGroupID);
+
             if (m_AndList != null)
             {
                 foreach (KeyValue andKeyValue in m_AndList)
                 {
+                    bool isTagOrMeta = false;
                     SearchValue search = new SearchValue();
                     search.m_sKey = andKeyValue.m_sKey;
                     search.m_lValue = new List<string> { andKeyValue.m_sValue };
                     search.m_sValue = andKeyValue.m_sValue;
+
+                    foreach (var tag in group.m_oEpgGroupSettings.m_lTagsName)
+                    {
+                        if (tag.Equals(search.m_sKey, StringComparison.OrdinalIgnoreCase))
+                        {
+                            isTagOrMeta = true;
+                            search.m_sKey = string.Format("tags.{0}", search.m_sKey);
+                            break;
+                        }
+                    }
+
+                    if (!isTagOrMeta)
+                    {
+                        foreach (var meta in group.m_oEpgGroupSettings.m_lMetasName)
+                        {
+                            if (meta.Equals(search.m_sKey, StringComparison.OrdinalIgnoreCase))
+                            {
+                                isTagOrMeta = true;
+                                search.m_sKey = string.Format("metas.{0}", search.m_sKey);
+                                break;
+                            }
+                        }
+                    }
+
                     m_dAnd.Add(search);
                 }
             }
@@ -273,14 +301,38 @@ namespace Catalog.Request
             {
                 foreach (KeyValue orKeyValue in m_OrList)
                 {
+                    bool isTagOrMeta = false;
                     SearchValue search = new SearchValue();
                     search.m_sKey = orKeyValue.m_sKey;
                     search.m_lValue = new List<string> { orKeyValue.m_sValue };
                     search.m_sValue = orKeyValue.m_sValue;
+
+                    foreach (var tag in group.m_oEpgGroupSettings.m_lTagsName)
+                    {
+                        if (tag.Equals(search.m_sKey, StringComparison.OrdinalIgnoreCase))
+                        {
+                            isTagOrMeta = true;
+                            search.m_sKey = string.Format("tags.{0}", search.m_sKey);
+                            break;
+                        }
+                    }
+
+                    if (!isTagOrMeta)
+                    {
+                        foreach (var meta in group.m_oEpgGroupSettings.m_lMetasName)
+                        {
+                            if (meta.Equals(search.m_sKey, StringComparison.OrdinalIgnoreCase))
+                            {
+                                isTagOrMeta = true;
+                                search.m_sKey = string.Format("metas.{0}", search.m_sKey);
+                                break;
+                            }
+                        }
+                    }
+
                     m_dOr.Add(search);
                 }
             }
         }
     }
-
 }
