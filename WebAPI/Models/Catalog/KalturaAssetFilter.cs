@@ -32,14 +32,22 @@ namespace WebAPI.Models.Catalog
         public string KSql { get; set; }
 
         /// <summary>
-        /// List of asset types to search within. 
+        /// Comma separated list of asset types to search within. 
         /// Possible values: 0 – EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).
         /// If omitted – all types should be included.
         /// </summary>
-        [DataMember(Name = "typesIn")]
-        [JsonProperty("typesIn")]
-        [XmlElement(ElementName = "typesIn", IsNullable = true)]
-        public List<KalturaIntegerValue> TypesIn { get; set; }
+        [DataMember(Name = "typeIn")]
+        [JsonProperty("typeIn")]
+        [XmlElement(ElementName = "typeIn", IsNullable = true)]
+        public string TypeIn { get; set; }
+
+        /// <summary>
+        /// Comma separated list of EPG channel ids to search within. 
+        /// </summary>
+        [DataMember(Name = "epgChannelIdIn")]
+        [JsonProperty("epgChannelIdIn")]
+        [XmlElement(ElementName = "epgChannelIdIn", IsNullable = true)]
+        public string EpgChannelIdIn { get; set; }
 
         public override KalturaAssetOrderBy GetDefaultOrderByValue()
         {
@@ -53,6 +61,59 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("relatedMediaIdEqual")]
         [XmlElement(ElementName = "relatedMediaIdEqual", IsNullable = true)]
         public string RelatedMediaIdEqual { get; set; }
+
+        internal List<int> getTypeIn()
+        {
+            if (string.IsNullOrEmpty(TypeIn))
+                return null;
+
+            List<int> values = new List<int>();
+            string[] stringValues = TypeIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string stringValue in stringValues)
+            {
+                int value;
+                if (int.TryParse(stringValue, out value))
+                {
+                    values.Add(value);
+                }
+                else
+                {
+                    throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, string.Format("Filter.TypeIn contains invalid id {0}", value));
+                }
+            }
+
+            return values;
+        }
+
+
+        internal List<int> getEpgChannelIdIn()
+        {
+            if (string.IsNullOrEmpty(EpgChannelIdIn))
+                return null;
+
+            List<int> values = new List<int>();
+            string[] stringValues = EpgChannelIdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string stringValue in stringValues)
+            {
+                int value;
+                if (int.TryParse(stringValue, out value))
+                {
+                    values.Add(value);
+                }
+                else
+                {
+                    throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, string.Format("Filter.EpgChannelIdIn contains invalid id {0}", value));
+                }
+            }
+
+            return values;
+        }
+
+        internal void Validate()
+        {
+            if (!string.IsNullOrEmpty(EpgChannelIdIn) && !string.IsNullOrEmpty(RelatedMediaIdEqual))
+                throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, string.Format("Filter.EpgChannelIdIn cannot be used together with filter.RelatedMediaIdEqual"));
+        }
     }
 }
 
