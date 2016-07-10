@@ -657,6 +657,11 @@ namespace ElasticSearch.Common
                         {
                             lResult = jToken.Select(item =>
                             {
+                                if (item is JValue)
+                                {
+                                    return item.ToString();
+                                }
+
                                 var itemId = item["_id"];
 
                                 if (itemId != null)
