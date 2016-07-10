@@ -17285,7 +17285,7 @@ namespace ConditionalAccess
                 // validate epgs entitlement and add to response
                 ValidateEpgForRecording(userID, domainID, ref response, epgs, validEpgsForRecording);
 
-                int totalMinutes = Utils.GetQuota(this.m_nGroupID, domainID);
+                int totalSeconds = Utils.GetQuota(this.m_nGroupID, domainID) * 60;
 
                 List<TstvRecordingStatus> recordingStatuses = new List<TstvRecordingStatus>()
                 {
@@ -17301,7 +17301,7 @@ namespace ConditionalAccess
                                                                                     && recording.Status.Code == (int)eResponseStatus.OK
                                                                                     && Utils.IsValidRecordingStatus(recording.RecordingStatus, true)).ToList();
 
-                var temporaryStatus = QuotaManager.Instance.CheckQuotaByTotalMinutes(this.m_nGroupID, domainID, totalMinutes, isAggregative, recordingsToCheckQuota, currentRecordings);
+                var temporaryStatus = QuotaManager.Instance.CheckQuotaByTotalSeconds(this.m_nGroupID, domainID, totalSeconds, isAggregative, recordingsToCheckQuota, currentRecordings);
                 if (temporaryStatus == null)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error);
@@ -17995,7 +17995,7 @@ namespace ConditionalAccess
                 }
 
                 // Get domains quota
-                int domainsQuota = Utils.GetQuota(this.m_nGroupID, domainID);
+                int domainsQuotaInSeconds = Utils.GetQuota(this.m_nGroupID, domainID) * 60;
 
                 // Get protection quota percentages                
                 if (accountSettings == null || !accountSettings.ProtectionQuotaPercentage.HasValue)
@@ -18007,11 +18007,11 @@ namespace ConditionalAccess
                 }
 
                 // Calculate total protection quota (round up according to spec)
-                int availableProtectionMinutes = (int)Math.Ceiling((double)((domainsQuota * accountSettings.ProtectionQuotaPercentage.Value) / 100));
+                int availableProtectionSeconds = (int)Math.Ceiling((double)((domainsQuotaInSeconds * accountSettings.ProtectionQuotaPercentage.Value) / 100));
                 // Get domain used protection minutes
                 Dictionary<long, Recording> domainProtectedRecordings = Utils.GetDomainProtectedRecordings(m_nGroupID, domainID);
                 // Check protection quota before applying protection on recording
-                ApiObjects.Response.Status protectionQuotaStatus = QuotaManager.Instance.CheckQuotaByTotalMinutes(m_nGroupID, domainID, availableProtectionMinutes, false, new List<Recording>() { recording }, domainProtectedRecordings != null? domainProtectedRecordings.Values.ToList() : new List<Recording>());
+                ApiObjects.Response.Status protectionQuotaStatus = QuotaManager.Instance.CheckQuotaByTotalSeconds(m_nGroupID, domainID, availableProtectionSeconds, false, new List<Recording>() { recording }, domainProtectedRecordings != null? domainProtectedRecordings.Values.ToList() : new List<Recording>());
                 if (protectionQuotaStatus == null || protectionQuotaStatus.Code != (int)eResponseStatus.OK || recording.Status == null || recording.Status.Code != (int)eResponseStatus.OK)
                 {
                     log.DebugFormat("Domain Exceeded Protection Quota, DomainID: {0}, UserID: {1}, recordID: {2}", domainID, userID, domainRecordingID);
