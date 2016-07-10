@@ -2285,46 +2285,71 @@ namespace Catalog
                 {
                     if (!string.IsNullOrEmpty(searchValue.m_sKey))
                     {
-                        bool isTagOrMeta;
-                        var searchKeys = GetUnifiedSearchKey(searchValue.m_sKey, group, out isTagOrMeta);
-
-                        switch (cutWith)
+                        if (!string.IsNullOrEmpty(searchValue.m_sKeyPrefix))
                         {
-                            case CutWith.OR:
+                            search = new SearchValue();
+                            search.m_sKey = searchValue.m_sKey;
+                            search.m_lValue = searchValue.m_lValue;
+                            search.m_sKeyPrefix = searchValue.m_sKeyPrefix;
+                            search.m_eInnerCutWith = searchValue.m_eInnerCutWith;
+
+                            switch (cutWith)
                             {
-                                foreach (var currentKey in searchKeys)
+                                case CutWith.WCF_ONLY_DEFAULT_VALUE:
+                                break;
+                                case CutWith.OR:
+                                    m_dOr.Add(search);
+                                    break;
+                                case CutWith.AND:
+                                    m_dAnd.Add(search);
+                                    break;
+                                default:
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            bool isTagOrMeta;
+                            var searchKeys = GetUnifiedSearchKey(searchValue.m_sKey, group, out isTagOrMeta);
+
+                            switch (cutWith)
+                            {
+                                case CutWith.OR:
+                                {
+                                    foreach (var currentKey in searchKeys)
+                                    {
+                                        search = new SearchValue();
+                                        search.m_sKey = currentKey;
+                                        search.m_lValue = searchValue.m_lValue;
+                                        search.m_sKeyPrefix = searchValue.m_sKeyPrefix;
+                                        search.m_eInnerCutWith = searchValue.m_eInnerCutWith;
+                                        m_dOr.Add(search);
+                                    }
+
+                                    break;
+                                }
+                                case CutWith.AND:
                                 {
                                     search = new SearchValue();
-                                    search.m_sKey = currentKey;
+
+                                    string searchKey = searchValue.m_sKey;
+
+                                    if (isTagOrMeta)
+                                    {
+                                        searchKey = searchKeys.First();
+                                    }
+
+                                    search.m_sKey = searchKey;
                                     search.m_lValue = searchValue.m_lValue;
                                     search.m_sKeyPrefix = searchValue.m_sKeyPrefix;
                                     search.m_eInnerCutWith = searchValue.m_eInnerCutWith;
-                                    m_dOr.Add(search);
-                                }
 
+                                    m_dAnd.Add(search);
+                                    break;
+                                }
+                                default:
                                 break;
                             }
-                            case CutWith.AND:
-                            {
-                                search = new SearchValue();
-
-                                string searchKey = searchValue.m_sKey;
-
-                                if (isTagOrMeta)
-                                {
-                                    searchKey = searchKeys.First();
-                                }
-
-                                search.m_sKey = searchKey;
-                                search.m_lValue = searchValue.m_lValue;
-                                search.m_sKeyPrefix = searchValue.m_sKeyPrefix;
-                                search.m_eInnerCutWith = searchValue.m_eInnerCutWith;
-
-                                m_dAnd.Add(search);
-                                break;
-                            }
-                            default:
-                            break;
                         }
                     }
                 }
