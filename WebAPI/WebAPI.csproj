@@ -721,7 +721,6 @@
     <Content Include="testmeDoc\objects\KalturaSlimAssetInfoWrapper.html" />
     <Content Include="testmeDoc\objects\KalturaSocial.html" />
     <Content Include="testmeDoc\objects\KalturaSocialConfig.html" />
-    <Content Include="testmeDoc\objects\KalturaSocialUser.html" />
     <Content Include="testmeDoc\objects\KalturaStringValue.html" />
     <Content Include="testmeDoc\objects\KalturaStringValueArray.html" />
     <Content Include="testmeDoc\objects\KalturaSubscription.html" />
@@ -1374,7 +1373,6 @@
     <Content Include="testme\json\KalturaSlimAssetInfoWrapper-subclasses.json" />
     <Content Include="testme\json\KalturaSocial-subclasses.json" />
     <Content Include="testme\json\KalturaSocialConfig-subclasses.json" />
-    <Content Include="testme\json\KalturaSocialUser-subclasses.json" />
     <Content Include="testme\json\KalturaStringValue-subclasses.json" />
     <Content Include="testme\json\KalturaStringValueArray-subclasses.json" />
     <Content Include="testme\json\KalturaSubscription-subclasses.json" />
