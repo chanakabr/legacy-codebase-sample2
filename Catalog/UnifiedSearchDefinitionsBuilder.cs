@@ -215,6 +215,15 @@ namespace Catalog
                 }
 
                 #endregion
+
+                #region Excluded CRIDs
+
+                if (request.excludedCrids != null && request.excludedCrids.Count > 0)
+                {
+                    definitions.excludedCrids = request.excludedCrids;
+                }
+
+                #endregion
             }
             catch (Exception ex)
             {

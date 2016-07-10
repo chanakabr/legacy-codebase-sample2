@@ -18213,7 +18213,7 @@ namespace ConditionalAccess
             return response;
         }
 
-        public ApiObjects.Response.Status CompleteHouseholdSeriesRecordings(string userId, int householdId, int availibleQuota)
+        public ApiObjects.Response.Status CompleteHouseholdSeriesRecordings(string userId, int householdId, long availibleQuota)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -18229,6 +18229,14 @@ namespace ConditionalAccess
                 return validationStatus;
             }
             
+            // 1.5. if recording is enabled only in advanced - nothing to do
+            var tstvSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+            if (tstvSettings.IsRecordingScheduleWindowEnabled.HasValue && tstvSettings.IsRecordingScheduleWindowEnabled.Value && tstvSettings.RecordingScheduleWindow >= 0)
+            {
+                response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                return response;
+            }
+
             // 2. get the household available quota (? - or use the param)
             
             // 3. get household series / seasons
@@ -18249,7 +18257,7 @@ namespace ConditionalAccess
             }
 
             var feild = metaTagsMappings.Where(m => m.Name == "series_id").FirstOrDefault();
-            
+            if (feild == null)
             {
                 log.ErrorFormat("alias for series_id was not found. group_id = {0}", m_nGroupID);
                 //TODO: add status for this case? 
@@ -18299,18 +18307,21 @@ namespace ConditionalAccess
             // 7. calculate which recording should be recorded for the household based on quota and catch-up buffer
             List<EPGChannelProgrammeObject> ProgramsToRecord = new List<EPGChannelProgrammeObject>();
             DateTime startDate, endDate;
-            int programLengthSeconds = 0;
+            long programLengthSeconds = 0;
             foreach (var program in relevantProgramsForRecord)
             {
                 startDate = DateTime.ParseExact(program.START_DATE, "dd/MM/yyyy HH:mm:ss", null);
                 endDate = DateTime.ParseExact(program.END_DATE, "dd/MM/yyyy HH:mm:ss", null);
+                programLengthSeconds = (long)(endDate - startDate).TotalSeconds;
                 
-                // TODO: add the padding 
-                programLengthSeconds = (int)(endDate - startDate).TotalSeconds;
+                //add the padding 
+                programLengthSeconds = tstvSettings.PaddingBeforeProgramStarts.HasValue ? programLengthSeconds + tstvSettings.PaddingBeforeProgramStarts.Value : programLengthSeconds;
+                programLengthSeconds = tstvSettings.PaddingAfterProgramEnds.HasValue ? programLengthSeconds + tstvSettings.PaddingAfterProgramEnds.Value : programLengthSeconds;
 
                 if (programLengthSeconds < availibleQuota)
                 {
-                    // TODO:
+                    ProgramsToRecord.Add(program);
+                    availibleQuota -= programLengthSeconds;
                 }
             }
 

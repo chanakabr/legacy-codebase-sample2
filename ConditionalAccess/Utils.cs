@@ -5058,7 +5058,7 @@ namespace ConditionalAccess
                     {
                         m_bOnlyActiveMedia = true
                     },
-                    //excludedCrids = excludedCrids
+                    excludedCrids = excludedCrids != null ? excludedCrids.ToArray() : null
                 };
                 FillCatalogSignature(request);
                 client = new WS_Catalog.IserviceClient();

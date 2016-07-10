@@ -52,6 +52,9 @@ namespace Catalog.Request
         [DataMember]
         public List<KeyValuePair<eAssetTypes, long>> specificAssets;
 
+        [DataMember]
+        public List<string> excludedCrids;
+
         #endregion
 
         #region Ctor

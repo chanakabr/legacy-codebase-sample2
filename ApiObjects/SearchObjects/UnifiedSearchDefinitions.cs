@@ -266,6 +266,13 @@ namespace ApiObjects.SearchObjects
         [JsonProperty()]
         [DataMember]
         public bool shouldUseSearchEndDate;
+
+        /// <summary>
+        /// Lists of specific assets that should be returned in query
+        /// </summary>
+        [JsonProperty()]
+        [DataMember]
+        public List<string> excludedCrids;
         #endregion
 
         #region Ctor
