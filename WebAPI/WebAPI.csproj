@@ -354,7 +354,6 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\Catalog\Service2.disco" />
-    <Content Include="Service References\Catalog\Service4.disco" />
     <None Include="Service References\Catalog\Service5.disco" />
     <Content Include="Service References\Catalog\WebAPI.Catalog.BaseResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
