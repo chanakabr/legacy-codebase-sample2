@@ -74,10 +74,7 @@ namespace WebAPI.Controllers
         {
             KalturaBookmarkListResponse response = null;
 
-            if (filter.AssetIn == null || filter.AssetIn.Count == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Assets cannot be empty");
-            }
+            filter.Validate();
 
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -87,7 +84,7 @@ namespace WebAPI.Controllers
                 string udid = KSUtils.ExtractKSPayload().UDID;
                 int domain = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
 
-                response = ClientsManager.CatalogClient().GetAssetsBookmarks(userID, groupId, domain, udid, filter.AssetIn, filter.OrderBy);
+                response = ClientsManager.CatalogClient().GetAssetsBookmarks(userID, groupId, domain, udid, filter.getAssetIn(), filter.OrderBy);
 
             }
             catch (ClientException ex)

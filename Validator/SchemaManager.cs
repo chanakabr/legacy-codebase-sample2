@@ -230,7 +230,7 @@ namespace Validator.Managers.Schema
                 {
                     if (!property.PropertyType.IsGenericType || property.PropertyType.GetGenericTypeDefinition() != typeof(Nullable<>))
                     {
-                        logError("Warning", property.DeclaringType, string.Format("Filter property {0}.{1} ({2}) data member ({3}) must be primitive, string or enum", property.ReflectedType.Name, property.Name, property.PropertyType.Name, jsonProperty.PropertyName));
+                        logError("Error", property.DeclaringType, string.Format("Filter property {0}.{1} ({2}) data member ({3}) must be primitive, string or enum", property.ReflectedType.Name, property.Name, property.PropertyType.Name, jsonProperty.PropertyName));
                         if (strict)
                             valid = false;
                     }
