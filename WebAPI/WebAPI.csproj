@@ -456,7 +456,6 @@
     <Content Include="testmeDoc\actions\apptoken.startSession.html" />
     <Content Include="testmeDoc\actions\asset.get.html" />
     <Content Include="testmeDoc\actions\asset.list.html" />
-    <Content Include="testmeDoc\actions\bookmark.list.html" />
     <Content Include="testmeDoc\actions\cdnadapterprofile.add.html" />
     <Content Include="testmeDoc\actions\cdnadapterprofile.delete.html" />
     <Content Include="testmeDoc\actions\cdnadapterprofile.list.html" />
@@ -554,7 +553,6 @@
     <Content Include="testmeDoc\enums\KalturaAssetType.html" />
     <Content Include="testmeDoc\enums\KalturaBillingAction.html" />
     <Content Include="testmeDoc\enums\KalturaBillingItemsType.html" />
-    <Content Include="testmeDoc\enums\KalturaBookmarkOrderBy.html" />
     <Content Include="testmeDoc\enums\KalturaChannelEnrichment.html" />
     <Content Include="testmeDoc\enums\KalturaCouponStatus.html" />
     <Content Include="testmeDoc\enums\KalturaDeviceState.html" />
@@ -620,7 +618,6 @@
     <Content Include="testmeDoc\objects\KalturaBillingTransaction.html" />
     <Content Include="testmeDoc\objects\KalturaBillingTransactionListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaBookmark.html" />
-    <Content Include="testmeDoc\objects\KalturaBookmarkFilter.html" />
     <Content Include="testmeDoc\objects\KalturaBookmarkListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaBooleanValue.html" />
     <Content Include="testmeDoc\objects\KalturaCDNAdapterProfile.html" />
@@ -743,7 +740,6 @@
     <Content Include="testmeDoc\services\announcement.html" />
     <Content Include="testmeDoc\services\apptoken.html" />
     <Content Include="testmeDoc\services\asset.html" />
-    <Content Include="testmeDoc\services\bookmark.html" />
     <Content Include="testmeDoc\services\cdnadapterprofile.html" />
     <Content Include="testmeDoc\services\cdnpartnersettings.html" />
     <Content Include="testmeDoc\services\cdvradapterprofile.html" />
@@ -1203,8 +1199,6 @@
     <Content Include="testme\json\asset-actions.json" />
     <Content Include="testme\json\asset-get-action-info.json" />
     <Content Include="testme\json\asset-list-action-info.json" />
-    <Content Include="testme\json\bookmark-actions.json" />
-    <Content Include="testme\json\bookmark-list-action-info.json" />
     <Content Include="testme\json\cdnadapterprofile-actions.json" />
     <Content Include="testme\json\cdnadapterprofile-add-action-info.json" />
     <Content Include="testme\json\cdnadapterprofile-delete-action-info.json" />
@@ -1272,7 +1266,6 @@
     <Content Include="testme\json\KalturaBillingTransaction-subclasses.json" />
     <Content Include="testme\json\KalturaBillingTransactionListResponse-subclasses.json" />
     <Content Include="testme\json\KalturaBookmark-subclasses.json" />
-    <Content Include="testme\json\KalturaBookmarkFilter-subclasses.json" />
     <Content Include="testme\json\KalturaBookmarkListResponse-subclasses.json" />
     <Content Include="testme\json\KalturaBooleanValue-subclasses.json" />
     <Content Include="testme\json\KalturaCDNAdapterProfile-subclasses.json" />
