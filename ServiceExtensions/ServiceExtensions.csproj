@@ -67,7 +67,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LoggerWCFDispatcher.cs" />
+    <Compile Include="ClientEndpointBehavior.cs" />
+    <Compile Include="ClientMessageInspector.cs" />
     <Compile Include="MessageBehaviourExtension.cs" />
     <Compile Include="MessageInspector.cs" />
     <Compile Include="WSExtension.cs" />
