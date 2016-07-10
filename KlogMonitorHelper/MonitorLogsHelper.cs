@@ -58,10 +58,10 @@ namespace KlogMonitorHelper
             else
             {
                 // get request ID
-                if (OperationContext.Current.IncomingMessageHeaders.FindHeader(KLogMonitor.Constants.REQUEST_ID_KEY.ToString(), string.Empty) == -1)
+                if (HttpContext.Current.Request.Headers[KLogMonitor.Constants.REQUEST_ID_KEY.ToString()] == null)
                     HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] = Guid.NewGuid().ToString();
                 else
-                    HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] = OperationContext.Current.IncomingMessageHeaders.GetHeader<string>(KLogMonitor.Constants.REQUEST_ID_KEY.ToString(), string.Empty);
+                    HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] = HttpContext.Current.Request.Headers[KLogMonitor.Constants.REQUEST_ID_KEY.ToString()];
 
                 // get user agent
                 if (HttpContext.Current.Request.UserAgent != null)
