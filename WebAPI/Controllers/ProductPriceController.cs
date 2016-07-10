@@ -49,7 +49,7 @@ namespace WebAPI.Controllers
                 if (filter.SubscriptionIdIn != null && filter.SubscriptionIdIn.Count() > 0)
                 {
                     // call client
-                    subscriptionPrices = ClientsManager.ConditionalAccessClient().GetSubscriptionsPrices(groupId, filter.SubscriptionIdIn.Select(x => x.value), KS.GetFromRequest().UserId, filter.CouponCodeEqual,
+                    subscriptionPrices = ClientsManager.ConditionalAccessClient().GetSubscriptionsPrices(groupId, filter.getSubscriptionIdIn(), KS.GetFromRequest().UserId, filter.CouponCodeEqual,
                         udid, language, filter.getShouldGetOnlyLowest());
                     productPrices.AddRange(subscriptionPrices);
                 }
@@ -57,7 +57,7 @@ namespace WebAPI.Controllers
                 if (filter.FileIdIn != null && filter.FileIdIn.Count() > 0)
                 {
                     // call client
-                    ppvPrices = ClientsManager.ConditionalAccessClient().GetPpvPrices(groupId, filter.FileIdIn.Select(x => x.value).ToList(), KS.GetFromRequest().UserId, filter.CouponCodeEqual,
+                    ppvPrices = ClientsManager.ConditionalAccessClient().GetPpvPrices(groupId, filter.getFileIdIn(), KS.GetFromRequest().UserId, filter.CouponCodeEqual,
                         udid, language, filter.getShouldGetOnlyLowest());
                     productPrices.AddRange(ppvPrices);
                 }

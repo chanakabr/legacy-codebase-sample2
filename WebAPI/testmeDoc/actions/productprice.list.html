@@ -52,14 +52,8 @@
 [
 	filter: {
 		objectType: "KalturaProductPriceFilter",
-		subscriptionIdIn: [{
-			objectType: "KalturaIntegerValue",
-			value: value
-		}],
-		fileIdIn: [{
-			objectType: "KalturaIntegerValue",
-			value: value
-		}],
+		subscriptionIdIn: "value",
+		fileIdIn: "value",
 		isLowest: value,
 		couponCodeEqual: "value"
 	}

@@ -2656,12 +2656,12 @@
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter.SubscriptionIdIn">
             <summary>
-            Subscriptions Identifiers 
+            Comma separated subscriptions identifiers 
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter.FileIdIn">
             <summary>
-            Media files Identifiers 
+            Comma separated media files identifiers 
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter.isLowest">
@@ -3577,7 +3577,7 @@
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingContextFilter.AssetIdIn">
             <summary>
-            Asset Id's
+            Comma separated asset ids
             </summary>
         </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaRecordingContextListResponse">
