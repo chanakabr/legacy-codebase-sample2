@@ -2391,6 +2391,16 @@
             List of assets identifier
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBookmarkFilter.AssetIdIn">
+            <summary>
+            Comma separated list of assets identifiers
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBookmarkFilter.AssetTypeEqual">
+            <summary>
+            Asset type
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaSlimAsset">
             <summary>
             Slim Asset Details
