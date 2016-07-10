@@ -14,9 +14,9 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/paymentGatewayProfile/action")]
-    [OldStandard("listOldStandard", "list")]
-    [OldStandard("addOldStandard", "add")]
-    [OldStandard("updateOldStandard", "update")]
+    [OldStandardAction("listOldStandard", "list")]
+    [OldStandardAction("addOldStandard", "add")]
+    [OldStandardAction("updateOldStandard", "update")]
     public class PaymentGatewayProfileController : ApiController
     {
         /// <summary>

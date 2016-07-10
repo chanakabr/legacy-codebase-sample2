@@ -70,13 +70,13 @@ namespace WebAPI.Controllers
                     throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter cannot be null");
                 }
 
-                if (filter.AssetIdIn == null || filter.AssetIdIn.Count == 0)
+                if (string.IsNullOrEmpty(filter.AssetIdIn))
                 {
                     throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter ids cannot be empty");
                 }          
 
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().QueryRecords(groupId, userId, filter.AssetIdIn.Select(x => x.value).ToArray());
+                response = ClientsManager.ConditionalAccessClient().QueryRecords(groupId, userId, filter.getAssetIdIn());
             }
             catch (ClientException ex)
             {

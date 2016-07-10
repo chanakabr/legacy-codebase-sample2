@@ -1,0 +1,219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
+	<title>Kaltura - TestMe Console Documentation</title>
+	<link rel="stylesheet" type="text/css" href="../css/main.css" />
+	<script type="text/javascript" src="../../testme/js/jquery-1.3.1.min.js"></script>
+	<script type="text/javascript">
+	
+		$(document).ready(function() {
+			$(".base-attribute").click(function() {
+				var classHeaderTable = $(this).parents("table:first");
+				var propertiesTable = classHeaderTable.parent().find("table:last");
+				if ($(this).attr("src").indexOf("collapsed.gif") >= 0) {
+				$(this).attr("src", "../images/expended.gif");
+					propertiesTable.show();
+				}
+				else {
+					$(this).attr("src", "../images/collapsed.gif");
+					propertiesTable.hide();
+				}
+			});
+		});
+	
+	</script>
+</head>
+<body>
+	<div id="doc">
+		<h2>Kaltura API</h2>
+		<table class="action" width="80%">
+			<tr>
+				<th class="service_action_title">KalturaPPVItemPriceDetails</th>
+			</tr>
+			<tr>
+				<td class="title">Properties</td>
+			</tr>
+			<tr>
+				<td>
+					<table style="">
+						<tbody>
+							<tr>
+								<td class="inheritedFrom">
+									<b><img class="base-attribute" src="../images/collapsed.gif"> Inherited from KalturaObjectBase</b>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table style="display: none">
+						<tbody>
+							<tr>
+								<th class="subtitle">Name</th>
+								<th class="subtitle">Type</th>
+								<th class="subtitle">Writable</th>
+								<th class="subtitle">Restrictions</th>
+								<th class="subtitle">Description</th>
+							</tr>
+							<tr>
+								<td>relatedObjects</td>
+								<td>map of <a href="KalturaListResponse.html">KalturaListResponse</a></td>
+								<td></td>
+								<td></td>
+								<td></td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<table style="">
+						<tbody>
+							<tr>
+								<td class="inheritedFrom"><b>KalturaPPVItemPriceDetails</b></td>
+							</tr>
+						</tbody>
+					</table>
+					<table style="">
+						<tbody>
+							<tr>
+								<th class="subtitle">Name</th>
+								<th class="subtitle">Type</th>
+								<th class="subtitle">Writable</th>
+								<th class="subtitle">Restrictions</th>
+								<th class="subtitle">Description</th>
+							</tr>
+							<tr >
+								<td>ppvModuleId</td>
+								<td>string</td>
+								<td>V</td>
+								<td></td>
+								<td>The associated PPV module identifier</td>
+							</tr>
+							<tr class="odd">
+								<td>isSubscriptionOnly</td>
+								<td>bool</td>
+								<td>V</td>
+								<td></td>
+								<td>Denotes whether this object is available only as part of a subscription or can be sold separately</td>
+							</tr>
+							<tr >
+								<td>price</td>
+								<td><a href="KalturaPrice.html">KalturaPrice</a></td>
+								<td>V</td>
+								<td></td>
+								<td>The calculated price of the item after discounts (as part of a purchased subscription by the user or by using a coupon)</td>
+							</tr>
+							<tr class="odd">
+								<td>fullPrice</td>
+								<td><a href="KalturaPrice.html">KalturaPrice</a></td>
+								<td>V</td>
+								<td></td>
+								<td>The full price of the item (with no discounts)</td>
+							</tr>
+							<tr >
+								<td>purchaseStatus</td>
+								<td><a href="../enums/KalturaPurchaseStatus.html">KalturaPurchaseStatus</a></td>
+								<td>V</td>
+								<td></td>
+								<td>Subscription purchase status</td>
+							</tr>
+							<tr class="odd">
+								<td>subscriptionId</td>
+								<td>string</td>
+								<td>V</td>
+								<td></td>
+								<td>The identifier of the relevant subscription</td>
+							</tr>
+							<tr >
+								<td>collectionId</td>
+								<td>string</td>
+								<td>V</td>
+								<td></td>
+								<td>The identifier of the relevant collection</td>
+							</tr>
+							<tr class="odd">
+								<td>prePaidId</td>
+								<td>string</td>
+								<td>V</td>
+								<td></td>
+								<td>The identifier of the relevant pre paid</td>
+							</tr>
+							<tr >
+								<td>ppvDescriptions</td>
+								<td>array of <a href="KalturaTranslationToken.html">KalturaTranslationToken</a></td>
+								<td>V</td>
+								<td></td>
+								<td>A list of the descriptions of the PPV module on different languages (language code and translation)</td>
+							</tr>
+							<tr class="odd">
+								<td>purchaseUserId</td>
+								<td>string</td>
+								<td>V</td>
+								<td></td>
+								<td>If the item already purchased - the identifier of the user (in the household) who purchased this item</td>
+							</tr>
+							<tr >
+								<td>purchasedMediaFileId</td>
+								<td>int</td>
+								<td>V</td>
+								<td></td>
+								<td>If the item already purchased - the identifier of the purchased file</td>
+							</tr>
+							<tr class="odd">
+								<td>relatedMediaFileIds</td>
+								<td>array of <a href="KalturaIntegerValue.html">KalturaIntegerValue</a></td>
+								<td>V</td>
+								<td></td>
+								<td>Related media files identifiers (different types)</td>
+							</tr>
+							<tr >
+								<td>startDate</td>
+								<td>bigint</td>
+								<td>V</td>
+								<td></td>
+								<td>If the item already purchased - since when the user can start watching the item</td>
+							</tr>
+							<tr class="odd">
+								<td>endDate</td>
+								<td>bigint</td>
+								<td>V</td>
+								<td></td>
+								<td>If the item already purchased - until when the user can watch the item</td>
+							</tr>
+							<tr >
+								<td>discountEndDate</td>
+								<td>bigint</td>
+								<td>V</td>
+								<td></td>
+								<td>Discount end date</td>
+							</tr>
+							<tr class="odd">
+								<td>firstDeviceName</td>
+								<td>string</td>
+								<td>V</td>
+								<td></td>
+								<td>If the item already purchased and played - the name of the device on which it was first played</td>
+							</tr>
+							<tr >
+								<td>isInCancelationPeriod</td>
+								<td>bool</td>
+								<td>V</td>
+								<td></td>
+								<td>If waiver period is enabled - donates whether the user is still in the cancelation window</td>
+							</tr>
+							<tr class="odd">
+								<td>ppvProductCode</td>
+								<td>string</td>
+								<td>V</td>
+								<td></td>
+								<td>The PPV product code</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</div>
+</body>
+</html>

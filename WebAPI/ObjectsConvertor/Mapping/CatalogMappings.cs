@@ -78,7 +78,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.DESCRIPTION))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(DateTime.ParseExact(src.START_DATE, "dd/MM/yyyy HH:mm:ss", null))))
-                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(DateTime.ParseExact(src.END_DATE, "dd/MM/yyyy HH:mm:ss", null))))                
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(DateTime.ParseExact(src.END_DATE, "dd/MM/yyyy HH:mm:ss", null))))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.EPG_Meta)))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.EPG_TAGS)))
                 .ForMember(dest => dest.ExtraParams, opt => opt.MapFrom(src => BuildExtraParamsDictionary(src)));
@@ -154,7 +154,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.m_oBasicDataField.m_sUserNameField))
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.m_oBasicDataField.m_sFirstNameField))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.m_oBasicDataField.m_sLastNameField));
-        
+
             //UnifiedSearchResult to KalturaSlimAsset
             Mapper.CreateMap<UnifiedSearchResult, WebAPI.Models.Catalog.KalturaSlimAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
@@ -166,8 +166,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sCountryNameField))
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.m_sCountryCodeField));
 
-            //EPG to KalturaAsset
-            Mapper.CreateMap<EPGChannelProgrammeObject, KalturaAsset>()
+            //BaseObject to KalturaAsset
+            Mapper.CreateMap<BaseObject, KalturaAsset>()
+                .Include<ProgramObj, KalturaProgramAsset>()
+                .Include<MediaObj, KalturaMediaAsset>();
+
+            //EPG to KalturaProgramAsset
+            Mapper.CreateMap<EPGChannelProgrammeObject, KalturaProgramAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.EPG_ID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.NAME))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.DESCRIPTION))
@@ -176,11 +181,38 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(DateTime.ParseExact(src.END_DATE, "dd/MM/yyyy HH:mm:ss", null))))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.EPG_Meta)))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.EPG_TAGS)))
-                .ForMember(dest => dest.ExtraParams, opt => opt.MapFrom(src => BuildExtraParamsDictionary(src)))
-                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.EPG_PICTURES));
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.EPG_PICTURES))
+                .ForMember(dest => dest.EpgChannelId, opt => opt.MapFrom(src => src.EPG_CHANNEL_ID))
+                .ForMember(dest => dest.EpgId, opt => opt.MapFrom(src => src.EPG_IDENTIFIER))
+                .ForMember(dest => dest.RelatedMediaId, opt => opt.MapFrom(src => src.media_id))
+                .ForMember(dest => dest.EnableCdvr, opt => opt.MapFrom(src => src.ENABLE_CDVR == 1))
+                .ForMember(dest => dest.EnableCatchUp, opt => opt.MapFrom(src => src.ENABLE_CATCH_UP == 1))
+                .ForMember(dest => dest.EnableStartOver, opt => opt.MapFrom(src => src.ENABLE_START_OVER == 1))
+                .ForMember(dest => dest.EnableTrickPlay, opt => opt.MapFrom(src => src.ENABLE_TRICK_PLAY == 1))
+                .ForMember(dest => dest.Crid, opt => opt.MapFrom(src => src.CRID));
 
-            //Media to KalturaAsset
-            Mapper.CreateMap<MediaObj, KalturaAsset>()
+            //EPG to KalturaProgramAsset
+            Mapper.CreateMap<ProgramObj, KalturaProgramAsset>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_oProgram.NAME))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_oProgram.DESCRIPTION))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(DateTime.ParseExact(src.m_oProgram.START_DATE, "dd/MM/yyyy HH:mm:ss", null))))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(DateTime.ParseExact(src.m_oProgram.END_DATE, "dd/MM/yyyy HH:mm:ss", null))))
+                .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.m_oProgram.EPG_Meta)))
+                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.m_oProgram.EPG_TAGS)))
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_oProgram.EPG_PICTURES))
+                .ForMember(dest => dest.EpgChannelId, opt => opt.MapFrom(src => src.m_oProgram.EPG_CHANNEL_ID))
+                .ForMember(dest => dest.EpgId, opt => opt.MapFrom(src => src.m_oProgram.EPG_IDENTIFIER))
+                .ForMember(dest => dest.RelatedMediaId, opt => opt.MapFrom(src => src.m_oProgram.media_id))
+                .ForMember(dest => dest.EnableCdvr, opt => opt.MapFrom(src => src.m_oProgram.ENABLE_CDVR == 1))
+                .ForMember(dest => dest.EnableCatchUp, opt => opt.MapFrom(src => src.m_oProgram.ENABLE_CATCH_UP == 1))
+                .ForMember(dest => dest.EnableStartOver, opt => opt.MapFrom(src => src.m_oProgram.ENABLE_START_OVER == 1))
+                .ForMember(dest => dest.EnableTrickPlay, opt => opt.MapFrom(src => src.m_oProgram.ENABLE_TRICK_PLAY == 1))
+                .ForMember(dest => dest.Crid, opt => opt.MapFrom(src => src.m_oProgram.CRID));
+
+            //Media to KalturaMediaAsset
+            Mapper.CreateMap<MediaObj, KalturaMediaAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_sDescription))
@@ -189,9 +221,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.m_oMediaType.m_nTypeID))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.m_lMetas)))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.m_lTags)))
-                .ForMember(dest => dest.ExtraParams, opt => opt.MapFrom(src => BuildExtraParamsDictionary(src)))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_lPicture))
-                .ForMember(dest => dest.MediaFiles, opt => opt.MapFrom(src => src.m_lFiles));
+                .ForMember(dest => dest.MediaFiles, opt => opt.MapFrom(src => src.m_lFiles))
+                .ForMember(dest => dest.SystemStartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dStartDate)))
+                .ForMember(dest => dest.SystemFinalDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dFinalDate)))
+                .ForMember(dest => dest.ExternalIds, opt => opt.MapFrom(src => src.m_ExternalIDs))
+                .ForMember(dest => dest.EnableCdvr, opt => opt.MapFrom(src => src.EnableCDVR))
+                .ForMember(dest => dest.EnableCatchUp, opt => opt.MapFrom(src => src.EnableCatchUp))
+                .ForMember(dest => dest.EnableStartOver, opt => opt.MapFrom(src => src.EnableStartOver))
+                .ForMember(dest => dest.EnableTrickPlay, opt => opt.MapFrom(src => src.EnableTrickPlay))
+                .ForMember(dest => dest.CatchUpBuffer, opt => opt.MapFrom(src => src.CatchUpBuffer))
+                .ForMember(dest => dest.TrickPlayBuffer, opt => opt.MapFrom(src => src.TrickPlayBuffer));
 
             //EPG to AssetInfo
             Mapper.CreateMap<ProgramObj, KalturaAssetInfo>()
@@ -205,6 +245,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.m_oProgram.EPG_TAGS)))
                 .ForMember(dest => dest.ExtraParams, opt => opt.MapFrom(src => BuildExtraParamsDictionary(src.m_oProgram)))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_oProgram.EPG_PICTURES));
+
         }
 
         //eAssetTypes to KalturaAssetType
@@ -311,10 +352,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
             extraParams.Add("epg_id", new KalturaStringValue() { value = epg.EPG_IDENTIFIER });
             extraParams.Add("related_media_id", new KalturaStringValue() { value = epg.media_id });
 
-            extraParams.Add("enable_cdvr", new KalturaStringValue() { value = epg.ENABLE_CDVR == 1 ? "True": "False" });
+            extraParams.Add("enable_cdvr", new KalturaStringValue() { value = epg.ENABLE_CDVR == 1 ? "True" : "False" });
             extraParams.Add("enable_catch_up", new KalturaStringValue() { value = epg.ENABLE_CATCH_UP == 1 ? "True" : "False" });
             extraParams.Add("enable_start_over", new KalturaStringValue() { value = epg.ENABLE_START_OVER == 1 ? "True" : "False" });
             extraParams.Add("enable_trick_play", new KalturaStringValue() { value = epg.ENABLE_TRICK_PLAY == 1 ? "True" : "False" });
+            extraParams.Add("crid", new KalturaStringValue() { value = epg.CRID });
 
             return extraParams;
         }
@@ -434,6 +476,48 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return metas;
+        }
+
+        public static List<KalturaBookmark> ConvertBookmarks(List<AssetBookmarks> assetBookmarks, KalturaBookmarkOrderBy orderBy)
+        {
+            List<KalturaBookmark> bookmarks = null;
+            if (assetBookmarks != null)
+            {
+                bookmarks = new List<KalturaBookmark>();
+
+                foreach (var assetBookmark in assetBookmarks)
+                {
+                    if (assetBookmark.Bookmarks != null)
+                    {
+                        foreach (var catalogBookmark in assetBookmark.Bookmarks)
+                        {
+                            bookmarks.Add(new KalturaBookmark()
+                            {
+                                Id = assetBookmark.AssetID,
+                                IsFinishedWatching = catalogBookmark.IsFinishedWatching,
+                                Position = catalogBookmark.Location,
+                                PositionOwner = ConvertPositionOwner(catalogBookmark.UserType),
+                                Type = ConvertAssetType(assetBookmark.AssetType),
+                                User = Mapper.Map<WebAPI.Models.Users.KalturaBaseOTTUser>(catalogBookmark.User)
+                            });
+                        }
+                    }
+                }
+
+                switch (orderBy)
+                {
+                    case KalturaBookmarkOrderBy.POSITION_ASC:
+                        bookmarks = bookmarks.OrderBy(b => b.Position).ToList();
+                        break;
+                    case KalturaBookmarkOrderBy.POSITION_DESC:
+                        bookmarks = bookmarks.OrderByDescending(b => b.Position).ToList();
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+            return bookmarks;
         }
     }
 }

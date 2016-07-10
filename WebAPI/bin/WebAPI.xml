@@ -6,7 +6,7 @@
     <members>
         <member name="M:WebAPI.Controllers.AnnouncementController.Add(WebAPI.Models.Notifications.KalturaAnnouncement)">
             <summary>
-            Add a new future scheduled system announcment push notification
+            Add a new future scheduled system announcement push notification
             </summary>
             <param name="announcement">The announcement to be added.
             timezone parameter should be taken from the 'name of timezone' from: https://msdn.microsoft.com/en-us/library/ms912391(v=winembedded.11).aspx
@@ -231,7 +231,7 @@
             Search values are limited to 20 characters each.
             (maximum length of entire filter is 1024 characters)]]></param>
             <remarks>Possible status codes: 
-            BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, 
+            BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, Channel does not exist = 4018
             </remarks>
         </member>
         <member name="M:WebAPI.Controllers.AssetController.ExternalChannel(System.Int32,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.Nullable{WebAPI.Models.Catalog.KalturaOrder},WebAPI.Models.General.KalturaFilterPager,System.String,System.String)">
@@ -357,6 +357,13 @@
             </summary>
             <returns></returns>
             <remarks>Possible status codes: CDN partner settings not found = 5025</remarks>   
+        </member>
+        <member name="M:WebAPI.Controllers.ProductPriceController.List(WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter)">
+            <summary>
+            Returns a price and a purchase status for each subscription or/and media file, for a given user (if passed) and with the consideration of a coupon code (if passed). 
+            </summary>
+            <param name="filter">Request filter</param>
+            <remarks></remarks>
         </member>
         <member name="M:WebAPI.Controllers.SystemController.GetCountry(System.String)">
             <summary>
@@ -814,6 +821,12 @@
             </remarks>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.HouseholdPremiumServiceController.ListOldStandard">
+            <summary>
+            Returns all the premium services allowed for the household
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.HouseholdPremiumServiceController.List">
             <summary>
             Returns all the premium services allowed for the household
@@ -1158,7 +1171,16 @@
             </summary>
             <param name="userIdToSwitch">The identifier of the user to change</param>
         </member>
-        <member name="M:WebAPI.Controllers.UserAssetRuleController.List(WebAPI.Models.API.KalturaGenericRuleFilter)">
+        <member name="M:WebAPI.Controllers.UserAssetRuleController.ListOldStandard(WebAPI.Models.API.KalturaGenericRuleFilter)">
+            <summary>
+            Retrieve all the rules (parental, geo, device or user-type) that applies for this user and asset.        
+            </summary>
+            <remarks>Possible status codes: 
+            User does not exist = 2000, User with no household = 2024, User suspended = 2001, User not in household = 1005, Household does not exist = 1006</remarks>
+            <param name="filter">Filter</param>
+            <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
+        </member>
+        <member name="M:WebAPI.Controllers.UserAssetRuleController.List(WebAPI.Models.API.KalturaUserAssetRuleFilter)">
             <summary>
             Retrieve all the rules (parental, geo, device or user-type) that applies for this user and asset.        
             </summary>
@@ -1248,7 +1270,18 @@
             <remarks>Possible status codes: 
             Device not exists = 1019</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.BookmarkController.List(WebAPI.Models.Catalog.KalturaAssetsFilter)">
+        <member name="M:WebAPI.Controllers.BookmarkController.ListOldStandard(WebAPI.Models.Catalog.KalturaAssetsFilter)">
+            <summary>
+            Returns player position record/s for the requested asset and the requesting user. 
+            If default user makes the request – player position records are provided for all of the users in the household.
+            If non-default user makes the request - player position records are provided for the requesting user and the default user of the household.
+            </summary>
+            <param name="filter">Filter option for the last position</param>
+            <returns></returns>
+            <remarks>Possible status codes: User not exists in domain = 1020, Invalid user = 1026, Invalid asset type = 4021
+            </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.BookmarkController.List(WebAPI.Models.Catalog.KalturaBookmarkFilter)">
             <summary>
             Returns player position record/s for the requested asset and the requesting user. 
             If default user makes the request – player position records are provided for all of the users in the household.
@@ -1801,7 +1834,44 @@
             <param name="type">Social network type</param>
             <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.SocialController.Register(System.Int32,System.String,System.Boolean,System.Boolean,WebAPI.Models.Social.KalturaSocialNetwork)">
+        <member name="M:WebAPI.Controllers.SocialController.GetByTokenOldStandard(System.Int32,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
+            <summary>
+            Return the user object with social information according to a provided external social token
+            </summary>
+            <param name="partnerId">Partner identifier</param>
+            <param name="token">Social token</param>
+            <param name="type">Social network type</param>
+            <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001</remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.SocialController.Get(WebAPI.Models.Social.KalturaSocialNetwork)">
+            <summary>
+            List social accounts
+            </summary>
+            <param name="type">social type to get</param>
+            <remarks></remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.SocialController.Login(System.Int32,System.String,WebAPI.Models.Social.KalturaSocialNetwork,System.String)">
+            <summary>
+            Login using social token
+            </summary>        
+            <param name="partnerId">Partner identifier</param>
+            <param name="token">Social token</param>
+            <param name="type">Social network</param>
+            <param name="udid">Device UDID</param>
+            <remarks>        
+            User does not exist = 2000
+            </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.SocialController.Register(System.Int32,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
+            <summary>
+            Create a new user in the system using a provided external social token
+            </summary>
+            <param name="token">social token</param>
+            <param name="partnerId">Partner identifier</param>
+            <param name="type">Social network type</param>
+            <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.SocialController.RegisterOldStandard(System.Int32,System.String,System.Boolean,System.Boolean,WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
             Create a new user in the system using a provided external social token
             </summary>
@@ -1812,7 +1882,15 @@
             <param name="subscribe_newsletter">Subscribes to newsletter</param>
             <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.SocialController.Merge(System.Int32,System.String,System.String,System.String,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
+        <member name="M:WebAPI.Controllers.SocialController.Merge(System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
+            <summary>
+            Connect an existing user in the system to an external social network user 
+            </summary>
+            <param name="token">social token</param>
+            <param name="type">Social network type</param>
+            <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.SocialController.MergeOldStandard(System.Int32,System.String,System.String,System.String,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
             Connect an existing user in the system to an external social network user 
             </summary>
@@ -1824,7 +1902,14 @@
             <param name="partnerId">Partner identifier</param>
             <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.SocialController.Unmerge(System.String,System.String,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
+        <member name="M:WebAPI.Controllers.SocialController.Unmerge(WebAPI.Models.Social.KalturaSocialNetwork)">
+            <summary>
+            Disconnect an existing user in the system from its external social network user
+            </summary>
+            <param name="type">Social network type</param>
+            <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.SocialController.UnmergeOldStandard(System.String,System.String,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
             Disconnect an existing user in the system from its  external social network user
             </summary>
@@ -1834,7 +1919,7 @@
             <param name="type">Social network type</param>
             <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.SocialController.Config(System.Int32,WebAPI.Models.Social.KalturaSocialNetwork)">
+        <member name="M:WebAPI.Controllers.SocialController.GetConfiguration(System.Int32,WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
             Retrieve the social network’s configuration information 
             </summary>        
@@ -2146,6 +2231,11 @@
             <param name="usersGroup">list of users separated by ';'</param>
             <returns>True if the action is permitted, false otherwise, and a users group list (if exists) for this action</returns>
         </member>
+        <member name="T:WebAPI.Models.API.KalturaUserAssetRuleFilter">
+            <summary>
+            User asset rule filter
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.General.KalturaFilter`1">
             <summary>
             Base filter
@@ -2159,6 +2249,61 @@
         <member name="P:WebAPI.Models.General.KalturaFilter`1.OrderBy">
             <summary>
             order by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaUserAssetRuleFilter.AssetIdEqual">
+            <summary>
+            Asset identifier to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaUserAssetRuleFilter.AssetTypeEqual">
+            <summary>
+            Asset type to filter by - 0 = EPG, 1 = media
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaUserAssetRuleListResponse">
+            <summary>
+            GenericRules list
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaListResponse">
+            <summary>
+            Base list wrapper
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaListResponse.TotalCount">
+            <summary>
+            Total items
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaUserAssetRuleListResponse.Rules">
+            <summary>
+            A list of generic rules
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaGenericRule">
+            <summary>
+            Generic rule - representing different type of rules (Parental, Geo, User Type, Device)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaGenericRule.Id">
+            <summary>
+            Unique rule identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaGenericRule.RuleType">
+            <summary>
+            Rule type - possible values: Rule type – Parental, Geo, UserType, Device
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaGenericRule.Name">
+            <summary>
+            Rule display name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaGenericRule.Description">
+            <summary>
+            Additional description for the specific rule
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaParentalRuleFilter.EntityReferenceEqual">
@@ -2231,22 +2376,77 @@
             CDN shared secret
             </summary>
         </member>
-        <member name="T:WebAPI.Models.General.KalturaListResponse">
-            <summary>
-            Base list wrapper
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaListResponse.TotalCount">
-            <summary>
-            Total items
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.API.KalturaCDNAdapterProfileListResponse.Adapters">
             <summary>
             Adapters
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaSearchFilter.KSql">
+        <member name="T:WebAPI.Models.Catalog.KalturaBookmarkFilter">
+            <summary>
+            Filtering Assets requests
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBookmarkFilter.AssetIn">
+            <summary>
+            List of assets identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBookmarkFilter.AssetIdIn">
+            <summary>
+            Comma separated list of assets identifiers
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBookmarkFilter.AssetTypeEqual">
+            <summary>
+            Asset type
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaSlimAsset">
+            <summary>
+            Slim Asset Details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaSlimAsset.Id">
+            <summary>
+            Internal identifier of the asset
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaSlimAsset.Type">
+            <summary>
+            The type of the asset. Possible values: media, recording, epg
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBookmark.User">
+             <summary>
+            User object
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBookmark.Position">
+             <summary>
+            The position of the user in the specific asset (in seconds)
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBookmark.PositionOwner">
+             <summary>
+            Indicates who is the owner of this position
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBookmark.IsFinishedWatching">
+             <summary>
+            Specifies whether the user's current position exceeded 95% of the duration
+             </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaBookmarkListResponse">
+            <summary>
+            List of assets and their bookmarks
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBookmarkListResponse.AssetsBookmarks">
+            <summary>
+            Assets
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFilter.KSql">
             <summary>
             <![CDATA[
             Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
@@ -2261,11 +2461,16 @@
             (maximum length of entire filter is 1024 characters)]]>
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaSearchFilter.TypesIn">
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFilter.TypeIn">
             <summary>
-            List of asset types to search within. 
+            Comma separated list of asset types to search within. 
             Possible values: 0 – EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).
             If omitted – all types should be included.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFilter.EpgChannelIdIn">
+            <summary>
+            Comma separated list of EPG channel ids to search within. 
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetFilter.RelatedMediaIdEqual">
@@ -2354,11 +2559,129 @@
             Date and time represented as epoch. For VOD – till when the asset be available in the catalog. For EPG/Linear – program end time and date
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAsset.ExtraParams">
+        <member name="P:WebAPI.Models.Catalog.KalturaAsset.EnableCdvr">
             <summary>
-            A collection of additional key value pairs that are available per asset type. Possible keys: 
-            For 0 (EPG linear programs): epg_channel_id - The EPG channel ID, epg_id - The EPG identifier, related_media_id - The linear media ID.
-            For other : start_date, final_date, external_ids
+            Enable cDVR
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAsset.EnableCatchUp">
+            <summary>
+            Enable catch-up
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAsset.EnableStartOver">
+            <summary>
+            Enable start over
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAsset.EnableTrickPlay">
+            <summary>
+            Enable trick-play
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaProgramAsset">
+            <summary>
+            Program-asset info
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.EpgChannelId">
+            <summary>
+            EPG channel identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.EpgId">
+            <summary>
+            EPG identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.RelatedMediaId">
+            <summary>
+            Ralated media identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.Crid">
+            <summary>
+            Unique identifier for the program
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaMediaAsset">
+            <summary>
+            Media-asset info
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.SystemStartDate">
+            <summary>
+            Date and time represented as epoch.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.SystemFinalDate">
+            <summary>
+            Date and time represented as epoch.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.ExternalIds">
+            <summary>
+            External identifiers
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.CatchUpBuffer">
+            <summary>
+            Catch-up buffer
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.TrickPlayBuffer">
+            <summary>
+            Trick-play buffer
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaHouseholdPremiumService">
+            <summary>
+            Houshold premium service
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaPremiumService">
+            <summary>
+            Premium service
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPremiumService.Id">
+            <summary>
+            Service identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPremiumService.Name">
+            <summary>
+            Service name / description
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaHouseholdPremiumServiceListResponse">
+            <summary>
+            Premium services list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaHouseholdPremiumServiceListResponse.PremiumServices">
+            <summary>
+            A list of premium services
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter.SubscriptionIdIn">
+            <summary>
+            Comma separated subscriptions identifiers 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter.FileIdIn">
+            <summary>
+            Comma separated media files identifiers 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter.isLowest">
+            <summary>
+            A flag that indicates if only the lowest price of an item should return
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter.CouponCodeEqual">
+            <summary>
+            Discount coupon code
             </summary>
         </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaEntitlementFilter">
@@ -2572,27 +2895,27 @@
             Enrichments
             </summary>
         </member>
-        <member name="T:WebAPI.Models.API.KalturaGenericRule">
+        <member name="T:WebAPI.Models.API.KalturaUserAssetRule">
             <summary>
-            Generic rule - representing different type of rules (Parental, Geo, User Type, Device)
+            User asset rule - representing different type of rules on an asset(Parental, Geo, User Type, Device)
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaGenericRule.Id">
+        <member name="P:WebAPI.Models.API.KalturaUserAssetRule.Id">
             <summary>
             Unique rule identifier
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaGenericRule.RuleType">
+        <member name="P:WebAPI.Models.API.KalturaUserAssetRule.RuleType">
             <summary>
             Rule type - possible values: Rule type – Parental, Geo, UserType, Device
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaGenericRule.Name">
+        <member name="P:WebAPI.Models.API.KalturaUserAssetRule.Name">
             <summary>
             Rule display name
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaGenericRule.Description">
+        <member name="P:WebAPI.Models.API.KalturaUserAssetRule.Description">
             <summary>
             Additional description for the specific rule
             </summary>
@@ -3012,21 +3335,6 @@
             Is followed by user. 
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Catalog.KalturaSlimAsset">
-            <summary>
-            Slim Asset Details
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaSlimAsset.Id">
-            <summary>
-            Internal identifier of the asset
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaSlimAsset.Type">
-            <summary>
-            The type of the asset. Possible values: media, recording, epg
-            </summary>
-        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaBaseChannel">
             <summary>
             Slim channel
@@ -3279,7 +3587,7 @@
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingContextFilter.AssetIdIn">
             <summary>
-            Asset Id's
+            Comma separated asset ids
             </summary>
         </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaRecordingContextListResponse">
@@ -4172,6 +4480,126 @@
             Holder object for channel enrichment enum
             </summary>    
         </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaPpvPrice">
+            <summary>
+            PPV price details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaProductPrice.ProductId">
+            <summary>
+            Product identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaProductPrice.ProductType">
+            <summary>
+            Product Type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaProductPrice.Price">
+            <summary>
+            Product price 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaProductPrice.PurchaseStatus">
+            <summary>
+            Product purchase status  
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.FileId">
+            <summary>
+            Media file identifier  
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.PPVModuleId">
+            <summary>
+            The associated PPV module identifier  
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.IsSubscriptionOnly">
+            <summary>
+            Denotes whether this object is available only as part of a subscription or can be sold separately
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.FullPrice">
+            <summary>
+            The full price of the item (with no discounts)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.SubscriptionId">
+            <summary>
+            The identifier of the relevant subscription
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.CollectionId">
+            <summary>
+            The identifier of the relevant collection
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.PrePaidId">
+            <summary>
+            The identifier of the relevant pre paid
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.PPVDescriptions">
+            <summary>
+            A list of the descriptions of the PPV module on different languages (language code and translation)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.PurchaseUserId">
+            <summary>
+            If the item already purchased - the identifier of the user (in the household) who purchased this item 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.PurchasedMediaFileId">
+            <summary>
+            If the item already purchased - the identifier of the purchased file
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.RelatedMediaFileIds">
+            <summary>
+            Related media files identifiers (different types)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.StartDate">
+            <summary>
+            If the item already purchased - since when the user can start watching the item
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.EndDate">
+            <summary>
+            If the item already purchased - until when the user can watch the item
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.DiscountEndDate">
+            <summary>
+            Discount end date
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.FirstDeviceName">
+            <summary>
+            If the item already purchased and played - the name of the device on which it was first played 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.IsInCancelationPeriod">
+            <summary>
+            If waiver period is enabled - donates whether the user is still in the cancelation window
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpvPrice.ProductCode">
+            <summary>
+            The PPV product code
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaProductPriceListResponse">
+            <summary>
+            Prices list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaProductPriceListResponse.ProductsPrices">
+            <summary>
+            A list of prices
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionFilter.SubscriptionIdIn">
             <summary>
             Comma separated subscription identifiers or file identifier (only 1) to get the subscriptions by
@@ -4457,16 +4885,6 @@
             PPV price details
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaProductPrice.ProductId">
-            <summary>
-            Product identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaProductPrice.ProductType">
-            <summary>
-            Product Type
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.Pricing.KalturaItemPrice.FileId">
             <summary>
             Media file identifier  
@@ -4525,21 +4943,6 @@
         <member name="P:WebAPI.Models.Pricing.KalturaPriceDetails.Descriptions">
             <summary>
             A list of the descriptions for this price on different languages (language code and translation)
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaPremiumService">
-            <summary>
-            Premium service
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPremiumService.Id">
-            <summary>
-            Service identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPremiumService.Name">
-            <summary>
-            Service name / description
             </summary>
         </member>
         <member name="T:WebAPI.Models.Pricing.KalturaPricePlan">
@@ -4632,14 +5035,14 @@
             Subscription price details
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionPrice.PurchaseStatus">
-            <summary>
-            Subscription purchase status  
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionPrice.Price">
             <summary>
-            Subscription price 
+            Product price 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionPrice.PurchaseStatus">
+            <summary>
+            Product purchase status  
             </summary>
         </member>
         <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionsFilter.Ids">
@@ -4654,12 +5057,12 @@
         </member>
         <member name="T:WebAPI.Models.Pricing.KalturaProductsPriceListResponse">
             <summary>
-            SubscriptionsPrices list
+            Prices list
             </summary>
         </member>
         <member name="P:WebAPI.Models.Pricing.KalturaProductsPriceListResponse.ProductsPrices">
             <summary>
-            A list of subscriptions prices
+            A list of prices
             </summary>
         </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaEntitlementListResponse">
@@ -5037,6 +5440,57 @@
             List of permitted user types for the subscription
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocial.ID">
+            <summary>
+            Facebook identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocial.Name">
+            <summary>
+            Full name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocial.FirstName">
+            <summary>
+            First name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocial.LastName">
+            <summary>
+            Last name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocial.Email">
+            <summary>
+            User email
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocial.Gender">
+            <summary>
+            Gender
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocial.UserId">
+            <summary>
+            User identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocial.Birthday">
+            <summary>
+            User birthday
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocial.Status">
+            <summary>
+            User model status
+            Possible values: UNKNOWN, OK, ERROR, NOACTION, NOTEXIST, CONFLICT, MERGE, MERGEOK, NEWUSER, MINFRIENDS, INVITEOK, INVITEERROR, ACCESSDENIED, WRONGPASSWORDORUSERNAME, UNMERGEOK
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocial.PictureUrl">
+            <summary>
+            Profile picture URL
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Social.KalturaSocialConfig">
             <summary>
             Returns social configuration for the partner 
@@ -5223,6 +5677,16 @@
             The time in days before the recording lifetime is due from which the client should be able to warn user about deletion.
             </summary>
         </member>
+        <member name="T:WebAPI.Models.Users.KalturaUserAssetsListListResponse">
+            <summary>
+            User assets list 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaUserAssetsListListResponse.UserAssetsLists">
+            <summary> 
+            A list of favorites
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Users.KalturaFavoriteFilter">
             <summary>
             Favorite request filter 
@@ -5318,12 +5782,12 @@
             Users identifiers
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaUserAssetsListFilter.ListType">
+        <member name="P:WebAPI.Models.Users.KalturaUserAssetsListFilter.ListTypeEqual">
             <summary>
             The requested list type
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaUserAssetsListFilter.AssetType">
+        <member name="P:WebAPI.Models.Users.KalturaUserAssetsListFilter.AssetTypeEqual">
             <summary>
             The requested asset type
             </summary>
@@ -7510,22 +7974,22 @@
         <member name="M:WebAPI.Api.API.DisableDomainDefaultParentalRuleAsync(System.String,System.String,System.Int32,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.GetMediaRules(System.String,System.String,System.String,System.Int64,System.Int64,System.String,System.String)">
+        <member name="M:WebAPI.Api.API.GetMediaRules(System.String,System.String,System.String,System.Int64,System.Int64,System.String,System.String,WebAPI.Api.GenericRuleOrderBy)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.GetMediaRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.String,System.String)">
+        <member name="M:WebAPI.Api.API.GetMediaRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.String,System.String,WebAPI.Api.GenericRuleOrderBy)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.GetMediaRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.String,System.String,System.Object)">
+        <member name="M:WebAPI.Api.API.GetMediaRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.String,System.String,WebAPI.Api.GenericRuleOrderBy,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.GetEpgRules(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.String)">
+        <member name="M:WebAPI.Api.API.GetEpgRules(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.String,WebAPI.Api.GenericRuleOrderBy)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.GetEpgRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.String)">
+        <member name="M:WebAPI.Api.API.GetEpgRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.String,WebAPI.Api.GenericRuleOrderBy)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.GetEpgRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.String,System.Object)">
+        <member name="M:WebAPI.Api.API.GetEpgRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.String,WebAPI.Api.GenericRuleOrderBy,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Api.API.GetUserParentalRuleTags(System.String,System.String,System.String,System.Int64)">
@@ -9134,6 +9598,9 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.EPGChannelProgrammeObject.IS_RECORDED">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.EPGChannelProgrammeObject.CRID">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.RecordedEPGChannelProgrammeObject">
@@ -11000,6 +11467,15 @@
             <remarks/>
         </member>
         <member name="F:WebAPI.Api.eBusinessModule.Subscription">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GenericRuleOrderBy">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.GenericRuleOrderBy.NameAsc">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.GenericRuleOrderBy.NameDesc">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.BulkExportTaskOrderBy">
@@ -22207,6 +22683,15 @@
         <member name="M:WebAPI.Social.module.FBUserDataAsync(System.String,System.String,System.String,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.Social.module.FBUserDataByUserId(System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Social.module.FBUserDataByUserIdAsync(System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Social.module.FBUserDataByUserIdAsync(System.String,System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.Social.module.FBUserRegister(System.String,System.String,System.String,WebAPI.Social.KeyValuePair[],System.String)">
             <remarks/>
         </member>
@@ -22223,6 +22708,15 @@
             <remarks/>
         </member>
         <member name="M:WebAPI.Social.module.FBUserMergeAsync(System.String,System.String,System.String,System.String,System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Social.module.FBUserMergeByUserId(System.String,System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Social.module.FBUserMergeByUserIdAsync(System.String,System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Social.module.FBUserMergeByUserIdAsync(System.String,System.String,System.String,System.String,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Social.module.FBObjectRequest(System.String,System.String,WebAPI.Social.FacebookObjectRequest)">
@@ -22304,6 +22798,15 @@
             <remarks/>
         </member>
         <member name="M:WebAPI.Social.module.FBUserUnmergeAsync(System.String,System.String,System.String,System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Social.module.FBUserUnmergeByUserId(System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Social.module.FBUserUnmergeByUserIdAsync(System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Social.module.FBUserUnmergeByUserIdAsync(System.String,System.String,System.String,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Social.module.FBTokenValidation(System.String,System.String,System.String)">
@@ -22399,10 +22902,16 @@
         <member name="E:WebAPI.Social.module.FBUserDataCompleted">
             <remarks/>
         </member>
+        <member name="E:WebAPI.Social.module.FBUserDataByUserIdCompleted">
+            <remarks/>
+        </member>
         <member name="E:WebAPI.Social.module.FBUserRegisterCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.Social.module.FBUserMergeCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Social.module.FBUserMergeByUserIdCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.Social.module.FBObjectRequestCompleted">
@@ -22430,6 +22939,9 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.Social.module.FBUserUnmergeCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Social.module.FBUserUnmergeByUserIdCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.Social.module.FBTokenValidationCompleted">
@@ -23347,6 +23859,15 @@
         <member name="P:WebAPI.Social.FBUserDataCompletedEventArgs.Result">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Social.FBUserDataByUserIdCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.FBUserDataByUserIdCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.FBUserDataByUserIdCompletedEventArgs.Result">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Social.FBUserRegisterCompletedEventHandler">
             <remarks/>
         </member>
@@ -23363,6 +23884,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Social.FBUserMergeCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.FBUserMergeByUserIdCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.FBUserMergeByUserIdCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.FBUserMergeByUserIdCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Social.FBObjectRequestCompletedEventHandler">
@@ -23444,6 +23974,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Social.FBUserUnmergeCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.FBUserUnmergeByUserIdCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.FBUserUnmergeByUserIdCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.FBUserUnmergeByUserIdCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Social.FBTokenValidationCompletedEventHandler">

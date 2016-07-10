@@ -15,7 +15,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/userAssetRule/action")]
-    [OldStandard("listOldStandard", "list")]
+    [OldStandardAction("listOldStandard", "list")]
     public class UserAssetRuleController : ApiController
     {
         /// <summary>
@@ -46,7 +46,7 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id cannot be empty");
             }
 
-            if (!Enum.IsDefined(typeof(AssetType), filter.AssetType))
+            if (!filter.AssetType.HasValue || !Enum.IsDefined(typeof(AssetType), filter.AssetType))
             {
                  throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_type value is not defined");
             }
@@ -100,7 +100,7 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id cannot be empty");
             }
 
-            if (!Enum.IsDefined(typeof(AssetType), filter.AssetTypeEqual))
+            if (!filter.AssetTypeEqual.HasValue || !Enum.IsDefined(typeof(AssetType), filter.AssetTypeEqual))
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_type value is not defined");
             }

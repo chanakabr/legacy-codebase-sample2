@@ -23,8 +23,8 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/asset/action")]
-    [OldStandard("listOldStandard", "list")]
-    [OldStandard("getOldStandard", "get")]
+    [OldStandardAction("listOldStandard", "list")]
+    [OldStandardAction("getOldStandard", "get")]
     public class AssetController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -162,10 +162,13 @@ namespace WebAPI.Controllers
                 pager = new KalturaFilterPager();
 
             if (filter == null)
+            {
                 filter = new KalturaAssetFilter();
-
-            if (filter.TypesIn == null)
-                filter.TypesIn = new List<KalturaIntegerValue>();
+            }
+            else
+            {
+                filter.Validate();
+            }
 
             if (!string.IsNullOrEmpty(filter.KSql) && filter.KSql.Length > 1024)
             {
@@ -177,7 +180,7 @@ namespace WebAPI.Controllers
                 // no related media id - search
                 if (string.IsNullOrEmpty(filter.RelatedMediaIdEqual))
                 {
-                    response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, filter.KSql, filter.OrderBy, filter.TypesIn.Select(x => x.value).ToList());
+                    response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, filter.KSql, filter.OrderBy, filter.getTypeIn(), filter.getEpgChannelIdIn());
                 }
                 // related
                 else
@@ -189,7 +192,7 @@ namespace WebAPI.Controllers
                     }
 
                     response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
-                    language, pager.getPageIndex(), pager.PageSize, mediaId, filter.KSql, filter.TypesIn.Select(x => x.value).ToList(), filter.OrderBy);
+                    language, pager.getPageIndex(), pager.PageSize, mediaId, filter.KSql, filter.getTypeIn(), filter.OrderBy);
                 }
             }
             catch (ClientException ex)
@@ -671,7 +674,7 @@ namespace WebAPI.Controllers
         /// Search values are limited to 20 characters each.
         /// (maximum length of entire filter is 1024 characters)]]></param>
         /// <remarks>Possible status codes: 
-        /// BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, 
+        /// BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, Channel does not exist = 4018
         /// </remarks>
         [Route("channel"), HttpPost]
         [ApiAuthorize]

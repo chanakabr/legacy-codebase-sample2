@@ -13,22 +13,22 @@ namespace WebAPI.Models.ConditionalAccess
     public class KalturaProductPriceFilter : KalturaFilter<KalturaProductPriceOrderBy>
     {
         /// <summary>
-        /// Subscriptions Identifiers 
+        /// Comma separated subscriptions identifiers 
         /// </summary>
         [DataMember(Name = "subscriptionIdIn")]
         [JsonProperty("subscriptionIdIn")]
         [XmlArray(ElementName = "subscriptionIdIn", IsNullable = true)]
         [XmlArrayItem("item")]
-        public List<KalturaIntegerValue> SubscriptionIdIn { get; set; }
+        public string SubscriptionIdIn { get; set; }
 
         /// <summary>
-        /// Media files Identifiers 
+        /// Comma separated media files identifiers 
         /// </summary>
         [DataMember(Name = "fileIdIn")]
         [JsonProperty("fileIdIn")]
         [XmlArray(ElementName = "fileIdIn", IsNullable = true)]
         [XmlArrayItem("item")]
-        public List<KalturaIntegerValue> FileIdIn { get; set; }
+        public string FileIdIn { get; set; }
 
         /// <summary>
         /// A flag that indicates if only the lowest price of an item should return
@@ -55,6 +55,52 @@ namespace WebAPI.Models.ConditionalAccess
         public override KalturaProductPriceOrderBy GetDefaultOrderByValue()
         {
             return KalturaProductPriceOrderBy.PRODUCT_ID_ASC;
+        }
+
+        internal List<int> getFileIdIn()
+        {
+            if (string.IsNullOrEmpty(FileIdIn))
+                return null;
+
+            List<int> values = new List<int>();
+            string[] stringValues = FileIdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string stringValue in stringValues)
+            {
+                int value;
+                if (int.TryParse(stringValue, out value))
+                {
+                    values.Add(value);
+                }
+                else
+                {
+                    throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, string.Format("Filter.FileIdIn contains invalid id {0}", value));
+                }
+            }
+
+            return values;
+        }
+
+        internal List<int> getSubscriptionIdIn()
+        {
+            if (string.IsNullOrEmpty(SubscriptionIdIn))
+                return null;
+
+            List<int> values = new List<int>();
+            string[] stringValues = SubscriptionIdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string stringValue in stringValues)
+            {
+                int value;
+                if (int.TryParse(stringValue, out value))
+                {
+                    values.Add(value);
+                }
+                else
+                {
+                    throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, string.Format("Filter.SubscriptionIdIn contains invalid id {0}", value));
+                }
+            }
+
+            return values;
         }
     }
 }

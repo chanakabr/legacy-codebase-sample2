@@ -14,7 +14,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/householdDevice/action")]
-    [OldStandard("addOldStandard", "add")]
+    [OldStandardAction("addOldStandard", "add")]
     public class HouseholdDeviceController : ApiController
     {
         /// <summary>

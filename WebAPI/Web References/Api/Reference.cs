@@ -72,6 +72,8 @@ namespace WebAPI.Api {
         
         private System.Threading.SendOrPostCallback UpdateTimeShiftedTvPartnerSettingsOperationCompleted;
         
+        private System.Threading.SendOrPostCallback UpdateTimeShiftedTvEpgChannelsSettingsOperationCompleted;
+        
         private System.Threading.SendOrPostCallback GetCDNAdaptersOperationCompleted;
         
         private System.Threading.SendOrPostCallback DeleteCDNAdapterOperationCompleted;
@@ -445,6 +447,9 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         public event UpdateTimeShiftedTvPartnerSettingsCompletedEventHandler UpdateTimeShiftedTvPartnerSettingsCompleted;
+        
+        /// <remarks/>
+        public event UpdateTimeShiftedTvEpgChannelsSettingsCompletedEventHandler UpdateTimeShiftedTvEpgChannelsSettingsCompleted;
         
         /// <remarks/>
         public event GetCDNAdaptersCompletedEventHandler GetCDNAdaptersCompleted;
@@ -1533,6 +1538,39 @@ namespace WebAPI.Api {
             if ((this.UpdateTimeShiftedTvPartnerSettingsCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.UpdateTimeShiftedTvPartnerSettingsCompleted(this, new UpdateTimeShiftedTvPartnerSettingsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/UpdateTimeShiftedTvEpgChannelsSettings", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status UpdateTimeShiftedTvEpgChannelsSettings(string sWSUserName, string sWSPassword, TimeShiftedTvPartnerSettings settings) {
+            object[] results = this.Invoke("UpdateTimeShiftedTvEpgChannelsSettings", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        settings});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void UpdateTimeShiftedTvEpgChannelsSettingsAsync(string sWSUserName, string sWSPassword, TimeShiftedTvPartnerSettings settings) {
+            this.UpdateTimeShiftedTvEpgChannelsSettingsAsync(sWSUserName, sWSPassword, settings, null);
+        }
+        
+        /// <remarks/>
+        public void UpdateTimeShiftedTvEpgChannelsSettingsAsync(string sWSUserName, string sWSPassword, TimeShiftedTvPartnerSettings settings, object userState) {
+            if ((this.UpdateTimeShiftedTvEpgChannelsSettingsOperationCompleted == null)) {
+                this.UpdateTimeShiftedTvEpgChannelsSettingsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdateTimeShiftedTvEpgChannelsSettingsOperationCompleted);
+            }
+            this.InvokeAsync("UpdateTimeShiftedTvEpgChannelsSettings", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        settings}, this.UpdateTimeShiftedTvEpgChannelsSettingsOperationCompleted, userState);
+        }
+        
+        private void OnUpdateTimeShiftedTvEpgChannelsSettingsOperationCompleted(object arg) {
+            if ((this.UpdateTimeShiftedTvEpgChannelsSettingsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.UpdateTimeShiftedTvEpgChannelsSettingsCompleted(this, new UpdateTimeShiftedTvEpgChannelsSettingsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -8967,6 +9005,8 @@ namespace WebAPI.Api {
         
         private int iS_RECORDEDField;
         
+        private string cRIDField;
+        
         /// <remarks/>
         public long EPG_ID {
             get {
@@ -9236,6 +9276,16 @@ namespace WebAPI.Api {
             }
             set {
                 this.iS_RECORDEDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string CRID {
+            get {
+                return this.cRIDField;
+            }
+            set {
+                this.cRIDField = value;
             }
         }
     }
@@ -10058,17 +10108,17 @@ namespace WebAPI.Api {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisPurchaseMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddUserMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddDeviceMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(EmailNotificationRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangedPinMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisPurchaseMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendAdminTokenRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangePasswordMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendPasswordMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisRenewalFailMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(WelcomeMailRequest))]
@@ -10251,15 +10301,12 @@ namespace WebAPI.Api {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class PurchaseMailRequest : MailRequestObj {
+    public partial class CinepolisPurchaseMailRequest : MailRequestObj {
         
         private string m_sPurchaseDateField;
         
@@ -10267,23 +10314,7 @@ namespace WebAPI.Api {
         
         private string m_sPriceField;
         
-        private string m_sTransactionNumberField;
-        
-        private string m_sPaymentMethodField;
-        
-        private string m_sTaxValField;
-        
-        private string m_sTaxSubtotalField;
-        
-        private string m_sTaxAmountField;
-        
-        private string m_sInvoiceNumField;
-        
-        private string m_sExternalTransationNumField;
-        
-        private string m_sAddressField;
-        
-        private string m_sUserEmailField;
+        private string m_sUsernameField;
         
         /// <remarks/>
         public string m_sPurchaseDate {
@@ -10316,133 +10347,14 @@ namespace WebAPI.Api {
         }
         
         /// <remarks/>
-        public string m_sTransactionNumber {
+        public string m_sUsername {
             get {
-                return this.m_sTransactionNumberField;
+                return this.m_sUsernameField;
             }
             set {
-                this.m_sTransactionNumberField = value;
+                this.m_sUsernameField = value;
             }
         }
-        
-        /// <remarks/>
-        public string m_sPaymentMethod {
-            get {
-                return this.m_sPaymentMethodField;
-            }
-            set {
-                this.m_sPaymentMethodField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sTaxVal {
-            get {
-                return this.m_sTaxValField;
-            }
-            set {
-                this.m_sTaxValField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sTaxSubtotal {
-            get {
-                return this.m_sTaxSubtotalField;
-            }
-            set {
-                this.m_sTaxSubtotalField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sTaxAmount {
-            get {
-                return this.m_sTaxAmountField;
-            }
-            set {
-                this.m_sTaxAmountField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sInvoiceNum {
-            get {
-                return this.m_sInvoiceNumField;
-            }
-            set {
-                this.m_sInvoiceNumField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sExternalTransationNum {
-            get {
-                return this.m_sExternalTransationNumField;
-            }
-            set {
-                this.m_sExternalTransationNumField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sAddress {
-            get {
-                return this.m_sAddressField;
-            }
-            set {
-                this.m_sAddressField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sUserEmail {
-            get {
-                return this.m_sUserEmailField;
-            }
-            set {
-                this.m_sUserEmailField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class PurchaseWithPreviewModuleRequest : PurchaseMailRequest {
-        
-        private string m_sPreviewModuleEndDateField;
-        
-        /// <remarks/>
-        public string m_sPreviewModuleEndDate {
-            get {
-                return this.m_sPreviewModuleEndDateField;
-            }
-            set {
-                this.m_sPreviewModuleEndDateField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class PreviewModuleCancelOrRefundRequest : PurchaseMailRequest {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class PurchaseFailRequest : PurchaseMailRequest {
     }
     
     /// <remarks/>
@@ -10751,63 +10663,6 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class CinepolisPurchaseMailRequest : MailRequestObj {
-        
-        private string m_sPurchaseDateField;
-        
-        private string m_sItemNameField;
-        
-        private string m_sPriceField;
-        
-        private string m_sUsernameField;
-        
-        /// <remarks/>
-        public string m_sPurchaseDate {
-            get {
-                return this.m_sPurchaseDateField;
-            }
-            set {
-                this.m_sPurchaseDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sItemName {
-            get {
-                return this.m_sItemNameField;
-            }
-            set {
-                this.m_sItemNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sPrice {
-            get {
-                return this.m_sPriceField;
-            }
-            set {
-                this.m_sPriceField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sUsername {
-            get {
-                return this.m_sUsernameField;
-            }
-            set {
-                this.m_sUsernameField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class SendAdminTokenRequest : MailRequestObj {
         
         private string m_sTokenField;
@@ -10866,6 +10721,201 @@ namespace WebAPI.Api {
                 this.m_sTokenField = value;
             }
         }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class PurchaseMailRequest : MailRequestObj {
+        
+        private string m_sPurchaseDateField;
+        
+        private string m_sItemNameField;
+        
+        private string m_sPriceField;
+        
+        private string m_sTransactionNumberField;
+        
+        private string m_sPaymentMethodField;
+        
+        private string m_sTaxValField;
+        
+        private string m_sTaxSubtotalField;
+        
+        private string m_sTaxAmountField;
+        
+        private string m_sInvoiceNumField;
+        
+        private string m_sExternalTransationNumField;
+        
+        private string m_sAddressField;
+        
+        private string m_sUserEmailField;
+        
+        /// <remarks/>
+        public string m_sPurchaseDate {
+            get {
+                return this.m_sPurchaseDateField;
+            }
+            set {
+                this.m_sPurchaseDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sItemName {
+            get {
+                return this.m_sItemNameField;
+            }
+            set {
+                this.m_sItemNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sPrice {
+            get {
+                return this.m_sPriceField;
+            }
+            set {
+                this.m_sPriceField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sTransactionNumber {
+            get {
+                return this.m_sTransactionNumberField;
+            }
+            set {
+                this.m_sTransactionNumberField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sPaymentMethod {
+            get {
+                return this.m_sPaymentMethodField;
+            }
+            set {
+                this.m_sPaymentMethodField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sTaxVal {
+            get {
+                return this.m_sTaxValField;
+            }
+            set {
+                this.m_sTaxValField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sTaxSubtotal {
+            get {
+                return this.m_sTaxSubtotalField;
+            }
+            set {
+                this.m_sTaxSubtotalField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sTaxAmount {
+            get {
+                return this.m_sTaxAmountField;
+            }
+            set {
+                this.m_sTaxAmountField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sInvoiceNum {
+            get {
+                return this.m_sInvoiceNumField;
+            }
+            set {
+                this.m_sInvoiceNumField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sExternalTransationNum {
+            get {
+                return this.m_sExternalTransationNumField;
+            }
+            set {
+                this.m_sExternalTransationNumField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sAddress {
+            get {
+                return this.m_sAddressField;
+            }
+            set {
+                this.m_sAddressField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sUserEmail {
+            get {
+                return this.m_sUserEmailField;
+            }
+            set {
+                this.m_sUserEmailField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class PreviewModuleCancelOrRefundRequest : PurchaseMailRequest {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class PurchaseWithPreviewModuleRequest : PurchaseMailRequest {
+        
+        private string m_sPreviewModuleEndDateField;
+        
+        /// <remarks/>
+        public string m_sPreviewModuleEndDate {
+            get {
+                return this.m_sPreviewModuleEndDateField;
+            }
+            set {
+                this.m_sPreviewModuleEndDateField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class PurchaseFailRequest : PurchaseMailRequest {
     }
     
     /// <remarks/>
@@ -14248,6 +14298,8 @@ namespace WebAPI.Api {
         
         private System.Nullable<int> cleanupNoticePeroidField;
         
+        private System.Nullable<bool> isSeriesRecordingEnabledField;
+        
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
         public System.Nullable<bool> IsCatchUpEnabled {
@@ -14410,6 +14462,17 @@ namespace WebAPI.Api {
             }
             set {
                 this.cleanupNoticePeroidField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<bool> IsSeriesRecordingEnabled {
+            get {
+                return this.isSeriesRecordingEnabledField;
+            }
+            set {
+                this.isSeriesRecordingEnabledField = value;
             }
         }
     }
@@ -15978,6 +16041,32 @@ namespace WebAPI.Api {
         private object[] results;
         
         internal UpdateTimeShiftedTvPartnerSettingsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void UpdateTimeShiftedTvEpgChannelsSettingsCompletedEventHandler(object sender, UpdateTimeShiftedTvEpgChannelsSettingsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class UpdateTimeShiftedTvEpgChannelsSettingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal UpdateTimeShiftedTvEpgChannelsSettingsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }

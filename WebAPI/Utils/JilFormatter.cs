@@ -38,8 +38,11 @@ namespace WebAPI.Utils
             foreach (PropertyInfo property in properties)
             {
                 object value = property.GetValue(ottObject);
-                if (value == null)
+                if (value == null || 
+                    (property.CustomAttributes != null && property.CustomAttributes.Where(a => a.AttributeType == typeof(OnlyNewStandardAttribute)).FirstOrDefault() != null))
                     continue;
+
+                
 
                 string name = getApiName(property);
 

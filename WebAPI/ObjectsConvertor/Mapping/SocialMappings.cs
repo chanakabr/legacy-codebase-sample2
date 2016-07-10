@@ -16,6 +16,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
         public static void RegisterMappings()
         {
             // FacebookResponse to ClientFacebookResponse
+            Mapper.CreateMap<WebAPI.Social.FacebookResponseObject, WebAPI.Models.Social.KalturaFacebookSocial>()
+                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.fbUser.id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.fbUser.name))
+                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.fbUser.first_name))
+                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.fbUser.last_name))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.fbUser.email))
+                .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.fbUser.gender))
+                .ForMember(dest => dest.Birthday, opt => opt.MapFrom(src => src.fbUser.Birthday))
+                .ForMember(dest => dest.PictureUrl, opt => opt.MapFrom(src => src.pic))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.status))
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid));
+
             Mapper.CreateMap<WebAPI.Social.FacebookResponseObject, WebAPI.Models.Social.KalturaSocialResponse>()
                 .ForMember(dest => dest.Data, opt => opt.MapFrom(src => src.data))
                 .ForMember(dest => dest.SocialNetworkUsername, opt => opt.MapFrom(src => src.facebookName))

@@ -16,8 +16,8 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/exportTask/action")]
-    [OldStandard("listOldStandard", "list")]
-    [OldStandard("updateOldStandard", "update")]
+    [OldStandardAction("listOldStandard", "list")]
+    [OldStandardAction("updateOldStandard", "update")]
     public class ExportTaskController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());

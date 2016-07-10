@@ -24,11 +24,11 @@ namespace WebAPI.Controllers
     /// 
     /// </summary>
     [RoutePrefix("_service/ottUser/action")]
-    [OldStandard("register", "add")]
-    [OldStandard("updateLoginData", "changePassword")]
-    [OldStandard("setPassword", "resetPassword")]
-    [OldStandard("resetPassword", "sendPassword")]
-    [OldStandard("getOldStandard", "get")]
+    [OldStandardAction("register", "add")]
+    [OldStandardAction("updateLoginData", "changePassword")]
+    [OldStandardAction("setPassword", "resetPassword")]
+    [OldStandardAction("resetPassword", "sendPassword")]
+    [OldStandardAction("getOldStandard", "get")]
     public class OttUserController : ApiController
     {
         /// <summary>
@@ -167,7 +167,7 @@ namespace WebAPI.Controllers
         /// User does not exist = 2000
         /// </remarks>
         [Route("facebookLogin"), HttpPost]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [Obsolete]
         public KalturaLoginResponse FacebookLogin(int partnerId, string token, string udid = null)
         {
             KalturaOTTUser response = null;

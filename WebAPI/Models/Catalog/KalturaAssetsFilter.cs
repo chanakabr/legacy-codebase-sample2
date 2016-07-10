@@ -17,6 +17,7 @@ namespace WebAPI.Models.Catalog
     /// </summary>
     [Serializable]
     [OldStandard("assets", "Assets")]
+    [Obsolete]
     public class KalturaAssetsFilter : KalturaOTTObject
     {
 

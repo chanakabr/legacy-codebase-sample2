@@ -19,6 +19,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/personalAsset/action")]
+    [Obsolete]
     public class PersonalAssetController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -136,7 +137,7 @@ namespace WebAPI.Controllers
                         }
 
                         // Call catalog
-                        bookmarksResponse = ClientsManager.CatalogClient().GetAssetsBookmarks(userID, groupId, domainId, udid, assetsBookmarksRequest);
+                        bookmarksResponse = ClientsManager.CatalogClient().GetAssetsBookmarksOldStandard(userID, groupId, domainId, udid, assetsBookmarksRequest);
                     });
 
                     taskList.Add(task);

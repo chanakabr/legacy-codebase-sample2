@@ -151,7 +151,7 @@ namespace WebAPI.Clients
         }
 
         public KalturaAssetListResponse SearchAssets(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
-            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes)
+            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -159,6 +159,22 @@ namespace WebAPI.Clients
 
             // get group configuration 
             Group group = GroupsManager.GetGroup(groupId);
+
+            // build failover cache key
+            StringBuilder key = new StringBuilder();
+            key.AppendFormat("Unified_search_g={0}_ps={1}_pi={2}_ob={3}_od={4}_ov={5}_f={6}", groupId, pageSize, pageIndex, order.m_eOrderBy, order.m_eOrderDir, order.m_sOrderValue, filter);
+
+            if (assetTypes != null && assetTypes.Count > 0)
+            {
+                key.AppendFormat("_at={0}", string.Join(",", assetTypes.Select(at => at.ToString()).ToArray()));
+            }
+
+            if (epgChannelIds != null && epgChannelIds.Count > 0)
+            {
+                string strEpgChannelIds = string.Join(",", epgChannelIds.Select(at => at.ToString()).ToArray());
+                key.AppendFormat("_ec={0}", strEpgChannelIds);
+                filter += string.Format(" epg_channel_id:'{0}'", strEpgChannelIds);
+            }
 
             // build request
             UnifiedSearchRequest request = new UnifiedSearchRequest()
@@ -182,12 +198,6 @@ namespace WebAPI.Clients
                 m_sSiteGuid = siteGuid,
                 domainId = domainId
             };
-
-            // build failover cache key
-            StringBuilder key = new StringBuilder();
-            key.AppendFormat("Unified_search_g={0}_ps={1}_pi={2}_ob={3}_od={4}_ov={5}_f={6}", groupId, pageSize, pageIndex, order.m_eOrderBy, order.m_eOrderDir, order.m_sOrderValue, filter);
-            if (assetTypes != null && assetTypes.Count > 0)
-                key.AppendFormat("_at={0}", string.Join(",", assetTypes.Select(at => at.ToString()).ToArray()));
 
             // fire unified search request
             UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
@@ -1126,7 +1136,8 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetsBookmarksResponse GetAssetsBookmarks(string siteGuid, int groupId, int domainId, string udid, List<KalturaSlimAsset> assets)
+        [Obsolete]
+        public KalturaAssetsBookmarksResponse GetAssetsBookmarksOldStandard(string siteGuid, int groupId, int domainId, string udid, List<KalturaSlimAsset> assets)
         {
             List<KalturaAssetBookmarks> result = null;
             List<AssetBookmarkRequest> assetsToRequestPositions = new List<AssetBookmarkRequest>();
@@ -1185,10 +1196,76 @@ namespace WebAPI.Clients
             {
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
-            
+
             result = Mapper.Map<List<KalturaAssetBookmarks>>(response.AssetsBookmarks);
 
             return new KalturaAssetsBookmarksResponse() { AssetsBookmarks = result, TotalCount = response.m_nTotalItems };
+
+        }
+
+        public KalturaBookmarkListResponse GetAssetsBookmarks(string siteGuid, int groupId, int domainId, string udid, List<KalturaSlimAsset> assets, KalturaBookmarkOrderBy orderBy)
+        {
+            List<KalturaBookmark> result = null;
+            List<AssetBookmarkRequest> assetsToRequestPositions = new List<AssetBookmarkRequest>();
+
+            foreach (KalturaSlimAsset asset in assets)
+            {
+                AssetBookmarkRequest assetInfo = new AssetBookmarkRequest();
+                assetInfo.AssetID = asset.Id;
+                bool addToRequest = true;
+                switch (asset.Type)
+                {
+                    case KalturaAssetType.media:
+                        assetInfo.AssetType = eAssetTypes.MEDIA;
+                        break;
+                    case KalturaAssetType.recording:
+                        assetInfo.AssetType = eAssetTypes.NPVR;
+                        break;
+                    case KalturaAssetType.epg:
+                        assetInfo.AssetType = eAssetTypes.EPG;
+                        break;
+                    default:
+                        assetInfo.AssetType = eAssetTypes.UNKNOWN;
+                        addToRequest = false;
+                        break;
+                }
+                if (addToRequest)
+                {
+                    assetsToRequestPositions.Add(assetInfo);
+                }
+            }
+
+            AssetsBookmarksRequest request = new AssetsBookmarksRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_sSiteGuid = siteGuid,
+                m_nGroupID = groupId,
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                domainId = domainId,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid
+                },
+                Data = new AssetsBookmarksRequestData()
+                {
+                    Assets = assetsToRequestPositions
+                }
+            };
+
+            AssetsBookmarksResponse response = null;
+            if (!CatalogUtils.GetBaseResponse(CatalogClientModule, request, out response) || response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            result = CatalogMappings.ConvertBookmarks(response.AssetsBookmarks, orderBy);
+
+            return new KalturaBookmarkListResponse() { AssetsBookmarks = result, TotalCount = response.m_nTotalItems };
 
         }
 

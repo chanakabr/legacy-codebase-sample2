@@ -10,7 +10,7 @@ namespace WebAPI.Managers.Schema
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
     public class OldStandardAttribute : Attribute
     {
-        private const string version = "3.6.287.31667";
+        private const string version = "3.6.287.21521";
 
         public OldStandardAttribute(string newMember, string oldMember)
         {
@@ -68,6 +68,13 @@ namespace WebAPI.Managers.Schema
                 return null;
 
             return map;
+        }
+    }
+
+    public class OldStandardActionAttribute : OldStandardAttribute
+    {
+        public OldStandardActionAttribute(string newMember, string oldMember) : base(newMember, oldMember.ToLower())
+        {
         }
     }
 }

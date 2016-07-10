@@ -98,14 +98,18 @@ namespace WebAPI.Filters
 
             Dictionary<string, string> oldStandardActions = OldStandardAttribute.getOldMembers(controller);
             string action = actionName;
-            if (oldStandardActions != null && oldStandardActions.ContainsValue(actionName))
-            {
-                action = oldStandardActions.FirstOrDefault(value => value.Value == actionName).Key;
-            }
 
             if (serviceName.Equals("multirequest", StringComparison.CurrentCultureIgnoreCase))
             {
                 action = "Do";
+            }
+            else
+            {
+                string lowerActionName = actionName.ToLower();
+                if (oldStandardActions != null && oldStandardActions.ContainsValue(lowerActionName))
+                {
+                    action = oldStandardActions.FirstOrDefault(value => value.Value == lowerActionName).Key;
+                }
             }
 
             methodInfo = controller.GetMethod(action, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
