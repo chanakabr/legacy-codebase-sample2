@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
+using System.ServiceModel.Description;
 using System.Web;
 using WebAPI.Clients;
+using WebAPI.Notifications;
 using WebAPI.Users;
 
 namespace WebAPI.ClientManagers.Client
@@ -38,23 +40,22 @@ namespace WebAPI.ClientManagers.Client
                     client = new UsersClient() { Module = new UsersService() { Url = url } };
                     break;
                 case ClientType.Notification:
+
                     client = new NotificationsClient()
                     {
-                        Module = new WebAPI.Notifications.NotificationServiceClient(
-                            new BasicHttpBinding()
-                            {
-                                OpenTimeout = new TimeSpan(0, 10, 0),
-                                ReceiveTimeout = new TimeSpan(0, 10, 0),
-                                MaxReceivedMessageSize = 2147483647,
-                                MessageEncoding = WSMessageEncoding.Text
-                            }, new EndpointAddress(url))
+                        Module = new WebAPI.Notifications.NotificationServiceClient()
                     };
+                    ((NotificationServiceClient)client.Module).Endpoint.Address = new EndpointAddress(url);
+
                     break;
                 case ClientType.Catalog:
+
                     client = new CatalogClient()
                     {
-                        Module = new Catalog.IserviceClient(string.Empty, url)
+                        Module = new Catalog.IserviceClient()
                     };
+                    ((Catalog.IserviceClient)client.Module).Endpoint.Address = new EndpointAddress(url);
+
                     break;
                 default:
                     break;
