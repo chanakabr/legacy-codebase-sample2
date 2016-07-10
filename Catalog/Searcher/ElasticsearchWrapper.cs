@@ -657,11 +657,14 @@ namespace Catalog
             {
                 DateTime startDate = epgSearch.m_dStartDate;
                 DateTime endDate = epgSearch.m_dEndDate;
-                DateTime searchEndDate = epgSearch.m_dSearchEndDate;
 
                 CatalogCache catalogCache = CatalogCache.Instance();
                 int nParentGroupID = catalogCache.GetParentGroup(epgSearch.m_nGroupID);
-
+                if (catalogCache.IsTstvSettingsExists(nParentGroupID))
+                {
+                    epgSearch.m_bSearchEndDate = true;
+                }
+                DateTime searchEndDate = epgSearch.m_dSearchEndDate;
 
                 ESEpgQueryBuilder epgQueryBuilder = new ESEpgQueryBuilder()
                 {
@@ -1475,7 +1478,7 @@ namespace Catalog
                 {
                     // the name of the tag will be the facet name
                     FacetName = associationTag.Value,
-                    KeyField = string.Format("tags.{0}", associationTag.Value),
+                    KeyField = string.Format("tags.{0}", associationTag.Value.ToLower()),
                     ValueField = "start_date",
                     FacetFilter = facetFilter
                 };

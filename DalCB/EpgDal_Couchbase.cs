@@ -25,7 +25,21 @@ namespace DalCB
         public EpgDal_Couchbase(int nGroupID)
         {
             m_nGroupID = nGroupID;
-            cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.EPG);
+
+            try
+            {
+                cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.EPG);
+
+                if (cbManager == null)
+                {
+                    log.ErrorFormat("Error creating couchbaseManager for GID:{0}. Couchbase bucket EPG", nGroupID);
+                }
+            }
+            catch (Exception exc)
+            {
+                log.ErrorFormat("Error creating couchbaseManager for GID:{0}. Couchbase bucket EPG. Exception:{1}", nGroupID, exc);
+                throw exc;
+            }
         }
 
         private string GetLogFileName()
@@ -574,7 +588,7 @@ namespace DalCB
             {
                 try
                 {
-                    bRes = (dtExpiresAt.HasValue) ? 
+                    bRes = (dtExpiresAt.HasValue) ?
                         cbManager.SetWithVersion(sDocID, JsonConvert.SerializeObject(epg, Formatting.None), cas, (uint)(dtExpiresAt.Value - DateTime.UtcNow).TotalSeconds) :
                         cbManager.SetWithVersion(sDocID, JsonConvert.SerializeObject(epg, Formatting.None), cas);
                 }
