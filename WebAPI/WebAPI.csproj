@@ -82,6 +82,10 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\tvincicommon\External\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="ServiceExtensions, Version=3.4.583.23166, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\TVinciCommon\External\ServiceExtensions.dll</HintPath>
+    </Reference>
     <Reference Include="Sigil, Version=4.4.0.0, Culture=neutral, PublicKeyToken=2d06c3494341c8ab, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\tvincicommon\External\Sigil.dll</HintPath>

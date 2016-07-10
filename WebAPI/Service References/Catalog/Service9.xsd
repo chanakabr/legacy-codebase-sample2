@@ -1,18 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Implementations" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Implementations" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd11" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" />
-  <xs:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" />
-  <xs:complexType name="OrcaItem">
-    <xs:complexContent mixed="false">
-      <xs:extension xmlns:q1="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" base="q1:BaseCrowdsourceItem">
-        <xs:sequence />
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="OrcaItem" nillable="true" type="tns:OrcaItem" />
+  <xs:import schemaLocation="http://localhost/Catalog_V4_0/Service.svc?xsd=xsd13" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" />
+  <xs:import schemaLocation="http://localhost/Catalog_V4_0/Service.svc?xsd=xsd7" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" />
   <xs:complexType name="RealTimeViewsItem">
     <xs:complexContent mixed="false">
-      <xs:extension xmlns:q2="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" base="q2:BaseCrowdsourceItem">
+      <xs:extension xmlns:q1="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" base="q1:BaseCrowdsourceItem">
         <xs:sequence>
           <xs:element minOccurs="0" name="EpgStartTime" type="xs:long" />
           <xs:element minOccurs="0" name="ProgramId" type="xs:long" />
@@ -27,9 +19,9 @@
   <xs:element name="RealTimeViewsItem" nillable="true" type="tns:RealTimeViewsItem" />
   <xs:complexType name="SlidingWindowItem">
     <xs:complexContent mixed="false">
-      <xs:extension xmlns:q3="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" base="q3:BaseCrowdsourceItem">
+      <xs:extension xmlns:q2="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" base="q2:BaseCrowdsourceItem">
         <xs:sequence>
-          <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="Action" type="q4:OrderBy" />
+          <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="Action" type="q3:OrderBy" />
           <xs:element minOccurs="0" name="ActionDescription" nillable="true" type="xs:string" />
           <xs:element minOccurs="0" name="ActionVal" type="xs:double" />
           <xs:element minOccurs="0" name="Period" type="xs:int" />
@@ -40,4 +32,12 @@
     </xs:complexContent>
   </xs:complexType>
   <xs:element name="SlidingWindowItem" nillable="true" type="tns:SlidingWindowItem" />
+  <xs:complexType name="OrcaItem">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q4="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" base="q4:BaseCrowdsourceItem">
+        <xs:sequence />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="OrcaItem" nillable="true" type="tns:OrcaItem" />
 </xs:schema>

@@ -1,14 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ApiObjects" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ApiObjects" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
-  <xs:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd8" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Epg" />
-  <xs:simpleType name="EpgSearchType">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="ByDate" />
-      <xs:enumeration value="Current" />
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:element name="EpgSearchType" nillable="true" type="tns:EpgSearchType" />
+  <xs:import schemaLocation="http://localhost/Catalog_V4_0/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Response" />
+  <xs:import schemaLocation="http://localhost/Catalog_V4_0/Service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:import schemaLocation="http://localhost/Catalog_V4_0/Service.svc?xsd=xsd9" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Epg" />
+  <xs:complexType name="ArrayOfIngestAssetStatus">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="IngestAssetStatus" nillable="true" type="tns:IngestAssetStatus" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfIngestAssetStatus" nillable="true" type="tns:ArrayOfIngestAssetStatus" />
+  <xs:complexType name="IngestAssetStatus">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ExternalAssetId" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="InternalAssetId" type="xs:int" />
+      <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="Status" nillable="true" type="q1:Status" />
+      <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="Warnings" nillable="true" type="q2:ArrayOfStatus" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="IngestAssetStatus" nillable="true" type="tns:IngestAssetStatus" />
   <xs:simpleType name="eAssetTypes">
     <xs:restriction base="xs:string">
       <xs:enumeration value="UNKNOWN">
@@ -42,6 +51,20 @@
     </xs:restriction>
   </xs:simpleType>
   <xs:element name="eAssetTypes" nillable="true" type="tns:eAssetTypes" />
+  <xs:simpleType name="EpgSearchType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ByDate" />
+      <xs:enumeration value="Current" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="EpgSearchType" nillable="true" type="tns:EpgSearchType" />
+  <xs:simpleType name="StatsType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="MEDIA" />
+      <xs:enumeration value="EPG" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="StatsType" nillable="true" type="tns:StatsType" />
   <xs:simpleType name="Language">
     <xs:restriction base="xs:string">
       <xs:enumeration value="English" />
@@ -55,6 +78,7 @@
     <xs:sequence>
       <xs:element minOccurs="0" name="CHANNEL_CATCH_UP_BUFFER" type="xs:long" />
       <xs:element minOccurs="0" name="CREATE_DATE" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="CRID" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="DESCRIPTION" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="ENABLE_CATCH_UP" type="xs:int" />
       <xs:element minOccurs="0" name="ENABLE_CDVR" type="xs:int" />
@@ -65,7 +89,7 @@
       <xs:element minOccurs="0" name="EPG_ID" type="xs:long" />
       <xs:element minOccurs="0" name="EPG_IDENTIFIER" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="EPG_Meta" nillable="true" type="tns:ArrayOfEPGDictionary" />
-      <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/ApiObjects.Epg" minOccurs="0" name="EPG_PICTURES" nillable="true" type="q1:ArrayOfEpgPicture" />
+      <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/ApiObjects.Epg" minOccurs="0" name="EPG_PICTURES" nillable="true" type="q3:ArrayOfEpgPicture" />
       <xs:element minOccurs="0" name="EPG_TAGS" nillable="true" type="tns:ArrayOfEPGDictionary" />
       <xs:element minOccurs="0" name="GROUP_ID" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="IS_ACTIVE" nillable="true" type="xs:string" />
@@ -107,13 +131,6 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="ArrayOfEPGChannelProgrammeObject" nillable="true" type="tns:ArrayOfEPGChannelProgrammeObject" />
-  <xs:simpleType name="StatsType">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="MEDIA" />
-      <xs:enumeration value="EPG" />
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:element name="StatsType" nillable="true" type="tns:StatsType" />
   <xs:simpleType name="NPVRSearchBy">
     <xs:restriction base="xs:string">
       <xs:enumeration value="Other" />

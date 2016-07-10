@@ -1,253 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xs:schema xmlns:ser="http://schemas.microsoft.com/2003/10/Serialization/" xmlns:tns="http://schemas.datacontract.org/2004/07/NotificationObj" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/NotificationObj" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:import schemaLocation="http://localhost/Notifications_V4_0/NotificationService.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
-  <xs:import schemaLocation="http://localhost/Notifications_V4_0/NotificationService.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
-  <xs:import schemaLocation="http://localhost/Notifications_V4_0/NotificationService.svc?xsd=xsd7" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
-  <xs:import schemaLocation="http://localhost/Notifications_V4_0/NotificationService.svc?xsd=xsd6" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Response" />
-  <xs:simpleType name="NotificationTriggerType">
+  <xs:simpleType name="OrderDir">
     <xs:restriction base="xs:string">
-      <xs:enumeration value="Renewal">
+      <xs:enumeration value="ASC" />
+      <xs:enumeration value="DESC" />
+      <xs:enumeration value="NONE" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="OrderDir" nillable="true" type="tns:OrderDir" />
+  <xs:complexType name="OrderObj">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="lu_min_period_id" type="xs:int" />
+      <xs:element minOccurs="0" name="m_bIsSlidingWindowField" type="xs:boolean" />
+      <xs:element minOccurs="0" name="m_eOrderBy" type="tns:OrderBy" />
+      <xs:element minOccurs="0" name="m_eOrderDir" type="tns:OrderDir" />
+      <xs:element minOccurs="0" name="m_sOrderValue" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="OrderObj" nillable="true" type="tns:OrderObj" />
+  <xs:simpleType name="OrderBy">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ID" />
+      <xs:enumeration value="VIEWS">
         <xs:annotation>
           <xs:appinfo>
-            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">1</EnumerationValue>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">-7</EnumerationValue>
           </xs:appinfo>
         </xs:annotation>
       </xs:enumeration>
-      <xs:enumeration value="PaymentFailure">
+      <xs:enumeration value="RATING">
         <xs:annotation>
           <xs:appinfo>
-            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">2</EnumerationValue>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">-8</EnumerationValue>
           </xs:appinfo>
         </xs:annotation>
       </xs:enumeration>
-      <xs:enumeration value="FollowUpByTag">
+      <xs:enumeration value="VOTES_COUNT">
         <xs:annotation>
           <xs:appinfo>
-            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">3</EnumerationValue>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">-80</EnumerationValue>
           </xs:appinfo>
         </xs:annotation>
       </xs:enumeration>
-      <xs:enumeration value="BadgeUpdate">
+      <xs:enumeration value="LIKE_COUNTER">
         <xs:annotation>
           <xs:appinfo>
-            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">4</EnumerationValue>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">-9</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="START_DATE">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">-10</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="NAME">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">-11</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="CREATE_DATE">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">-12</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="META">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">100</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="RANDOM">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">-6</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="RELATED">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">31</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="NONE">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">101</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="RECOMMENDATION">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">-13</EnumerationValue>
           </xs:appinfo>
         </xs:annotation>
       </xs:enumeration>
     </xs:restriction>
   </xs:simpleType>
-  <xs:element name="NotificationTriggerType" nillable="true" type="tns:NotificationTriggerType" />
-  <xs:simpleType name="NotificationMessageType">
-    <xs:annotation>
-      <xs:appinfo>
-        <ActualType Name="unsignedByte" Namespace="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/2003/10/Serialization/" />
-      </xs:appinfo>
-    </xs:annotation>
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="All" />
-      <xs:enumeration value="Push" />
-      <xs:enumeration value="Alert" />
-      <xs:enumeration value="Live" />
-      <xs:enumeration value="Pull" />
-      <xs:enumeration value="Email" />
-      <xs:enumeration value="SMS" />
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:element name="NotificationMessageType" nillable="true" type="tns:NotificationMessageType" />
-  <xs:simpleType name="NotificationMessageViewStatus">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="All" />
-      <xs:enumeration value="Unread" />
-      <xs:enumeration value="Read" />
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:element name="NotificationMessageViewStatus" nillable="true" type="tns:NotificationMessageViewStatus" />
-  <xs:complexType name="ArrayOfNotificationMessage">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="NotificationMessage" nillable="true" type="tns:NotificationMessage" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="ArrayOfNotificationMessage" nillable="true" type="tns:ArrayOfNotificationMessage" />
-  <xs:complexType name="NotificationMessage">
-    <xs:sequence>
-      <xs:element minOccurs="0" name="Actions" nillable="true" type="tns:ArrayOfNotificationRequestAction" />
-      <xs:element minOccurs="0" name="AppName" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="DeviceID" type="xs:long" />
-      <xs:element minOccurs="0" name="ID" type="ser:guid" />
-      <xs:element minOccurs="0" name="MessageText" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="NotificationID" type="xs:long" />
-      <xs:element minOccurs="0" name="NotificationMessageID" type="xs:long" />
-      <xs:element minOccurs="0" name="NotificationRequestID" type="xs:long" />
-      <xs:element minOccurs="0" name="PublishDate" type="xs:dateTime" />
-      <xs:element minOccurs="0" name="Status" type="tns:NotificationMessageStatus" />
-      <xs:element minOccurs="0" name="TagNotificationParams" nillable="true" type="tns:ExtraParams" />
-      <xs:element minOccurs="0" name="Title" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="Type" type="tns:NotificationMessageType" />
-      <xs:element minOccurs="0" name="UdID" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="UserID" type="xs:long" />
-      <xs:element minOccurs="0" name="ViewStatus" type="tns:NotificationMessageViewStatus" />
-      <xs:element minOccurs="0" name="nBadge" type="xs:int" />
-      <xs:element minOccurs="0" name="nGroupID" type="xs:long" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="NotificationMessage" nillable="true" type="tns:NotificationMessage" />
-  <xs:complexType name="ArrayOfNotificationRequestAction">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="NotificationRequestAction" nillable="true" type="tns:NotificationRequestAction" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="ArrayOfNotificationRequestAction" nillable="true" type="tns:ArrayOfNotificationRequestAction" />
-  <xs:complexType name="NotificationRequestAction">
-    <xs:sequence>
-      <xs:element name="_x003C_ID_x003E_k__BackingField" type="xs:long" />
-      <xs:element name="_x003C_Link_x003E_k__BackingField" nillable="true" type="xs:string" />
-      <xs:element name="_x003C_Text_x003E_k__BackingField" nillable="true" type="xs:string" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="NotificationRequestAction" nillable="true" type="tns:NotificationRequestAction" />
-  <xs:simpleType name="NotificationMessageStatus">
-    <xs:annotation>
-      <xs:appinfo>
-        <ActualType Name="unsignedByte" Namespace="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/2003/10/Serialization/" />
-      </xs:appinfo>
-    </xs:annotation>
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="NotStarted">
-        <xs:annotation>
-          <xs:appinfo>
-            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">1</EnumerationValue>
-          </xs:appinfo>
-        </xs:annotation>
-      </xs:enumeration>
-      <xs:enumeration value="InProgress">
-        <xs:annotation>
-          <xs:appinfo>
-            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">2</EnumerationValue>
-          </xs:appinfo>
-        </xs:annotation>
-      </xs:enumeration>
-      <xs:enumeration value="Successful">
-        <xs:annotation>
-          <xs:appinfo>
-            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">3</EnumerationValue>
-          </xs:appinfo>
-        </xs:annotation>
-      </xs:enumeration>
-      <xs:enumeration value="Failed">
-        <xs:annotation>
-          <xs:appinfo>
-            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">4</EnumerationValue>
-          </xs:appinfo>
-        </xs:annotation>
-      </xs:enumeration>
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:element name="NotificationMessageStatus" nillable="true" type="tns:NotificationMessageStatus" />
-  <xs:complexType name="ExtraParams">
-    <xs:sequence>
-      <xs:element xmlns:q1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" name="_x003C_TagDict_x003E_k__BackingField" nillable="true" type="q1:ArrayOfKeyValueOfstringArrayOfintty7Ep6D1" />
-      <xs:element xmlns:q2="http://schemas.microsoft.com/2003/10/Serialization/Arrays" name="_x003C_dTagDict_x003E_k__BackingField" nillable="true" type="q2:ArrayOfKeyValueOfstringArrayOfTagIDValueok2Lvmes" />
-      <xs:element name="_x003C_dateFormat_x003E_k__BackingField" nillable="true" type="xs:string" />
-      <xs:element name="_x003C_mediaID_x003E_k__BackingField" type="xs:int" />
-      <xs:element name="_x003C_mediaPicURL_x003E_k__BackingField" nillable="true" type="xs:string" />
-      <xs:element xmlns:q3="http://schemas.microsoft.com/2003/10/Serialization/Arrays" name="_x003C_notificationsID_x003E_k__BackingField" nillable="true" type="q3:ArrayOflong" />
-      <xs:element name="_x003C_subjectEmail_x003E_k__BackingField" nillable="true" type="xs:string" />
-      <xs:element name="_x003C_templateEmail_x003E_k__BackingField" nillable="true" type="xs:string" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="ExtraParams" nillable="true" type="tns:ExtraParams" />
-  <xs:complexType name="ArrayOfTagIDValue">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="TagIDValue" nillable="true" type="tns:TagIDValue" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="ArrayOfTagIDValue" nillable="true" type="tns:ArrayOfTagIDValue" />
-  <xs:complexType name="TagIDValue">
-    <xs:sequence>
-      <xs:element name="_x003C_tagTypeName_x003E_k__BackingField" nillable="true" type="xs:string" />
-      <xs:element name="_x003C_tagValueId_x003E_k__BackingField" type="xs:int" />
-      <xs:element name="_x003C_tagValueName_x003E_k__BackingField" nillable="true" type="xs:string" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="TagIDValue" nillable="true" type="tns:TagIDValue" />
-  <xs:complexType name="SendVia">
-    <xs:sequence>
-      <xs:element minOccurs="0" name="is_device" type="xs:int" />
-      <xs:element minOccurs="0" name="is_email" type="xs:int" />
-      <xs:element minOccurs="0" name="is_sms" type="xs:int" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="SendVia" nillable="true" type="tns:SendVia" />
-  <xs:complexType name="MessageAnnouncement">
-    <xs:sequence>
-      <xs:element minOccurs="0" name="AnnouncementId" type="xs:int" />
-      <xs:element minOccurs="0" name="Enabled" type="xs:boolean" />
-      <xs:element minOccurs="0" name="Message" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="MessageAnnouncementId" type="xs:int" />
-      <xs:element minOccurs="0" name="MessageReference" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="Name" nillable="true" type="xs:string" />
-      <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="Recipients" type="q4:eAnnouncementRecipientsType" />
-      <xs:element minOccurs="0" name="StartTime" type="xs:long" />
-      <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="Status" type="q5:eAnnouncementStatus" />
-      <xs:element minOccurs="0" name="Timezone" nillable="true" type="xs:string" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="MessageAnnouncement" nillable="true" type="tns:MessageAnnouncement" />
-  <xs:complexType name="AddMessageAnnouncementResponse">
-    <xs:sequence>
-      <xs:element minOccurs="0" name="Id" type="xs:int" />
-      <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="Status" nillable="true" type="q6:Status" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="AddMessageAnnouncementResponse" nillable="true" type="tns:AddMessageAnnouncementResponse" />
-  <xs:complexType name="GetAllMessageAnnouncementsResponse">
-    <xs:sequence>
-      <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="Status" nillable="true" type="q7:Status" />
-      <xs:element minOccurs="0" name="messageAnnouncements" nillable="true" type="tns:ArrayOfMessageAnnouncement" />
-      <xs:element minOccurs="0" name="totalCount" type="xs:int" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="GetAllMessageAnnouncementsResponse" nillable="true" type="tns:GetAllMessageAnnouncementsResponse" />
-  <xs:complexType name="ArrayOfMessageAnnouncement">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="MessageAnnouncement" nillable="true" type="tns:MessageAnnouncement" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="ArrayOfMessageAnnouncement" nillable="true" type="tns:ArrayOfMessageAnnouncement" />
-  <xs:complexType name="GetUserFollowsResponse">
-    <xs:sequence>
-      <xs:element minOccurs="0" name="Follows" nillable="true" type="tns:ArrayOfFollowDataBase" />
-      <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="Status" nillable="true" type="q8:Status" />
-      <xs:element minOccurs="0" name="TotalCount" type="xs:int" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="GetUserFollowsResponse" nillable="true" type="tns:GetUserFollowsResponse" />
-  <xs:complexType name="ArrayOfFollowDataBase">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="FollowDataBase" nillable="true" type="tns:FollowDataBase" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="ArrayOfFollowDataBase" nillable="true" type="tns:ArrayOfFollowDataBase" />
-  <xs:complexType name="FollowDataBase">
-    <xs:sequence>
-      <xs:element minOccurs="0" name="AnnouncementId" type="xs:long" />
-      <xs:element minOccurs="0" name="FollowPhrase" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="FollowReference" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="Status" type="xs:int" />
-      <xs:element minOccurs="0" name="Timestamp" type="xs:long" />
-      <xs:element minOccurs="0" name="Title" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="Type" type="xs:int" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="FollowDataBase" nillable="true" type="tns:FollowDataBase" />
-  <xs:complexType name="FollowDataTvSeries">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:FollowDataBase">
-        <xs:sequence>
-          <xs:element minOccurs="0" name="AssetId" type="xs:int" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="FollowDataTvSeries" nillable="true" type="tns:FollowDataTvSeries" />
+  <xs:element name="OrderBy" nillable="true" type="tns:OrderBy" />
 </xs:schema>

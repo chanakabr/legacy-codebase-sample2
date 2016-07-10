@@ -1,228 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xs:schema xmlns:tns="http://tempuri.org/" elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://localhost/ws_notification/NotificationService.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/NotificationObj" />
-  <xs:import schemaLocation="http://localhost/ws_notification/NotificationService.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
-  <xs:import schemaLocation="http://localhost/ws_notification/NotificationService.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/NotificationInterface" />
-  <xs:import schemaLocation="http://localhost/ws_notification/NotificationService.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" />
-  <xs:import schemaLocation="http://localhost/ws_notification/NotificationService.svc?xsd=xsd6" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Response" />
-  <xs:element name="AddNotificationRequest">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="sWSUserName" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="sWSPassword" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="siteGuid" nillable="true" type="xs:string" />
-        <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/NotificationObj" minOccurs="0" name="triggerType" type="q1:NotificationTriggerType" />
-        <xs:element minOccurs="0" name="nMediaID" type="xs:int" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="AddNotificationRequestResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="AddNotificationRequestResult" type="xs:boolean" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetDeviceNotifications">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="sWSUserName" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="sWSPassword" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="siteGuid" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="sDeviceUDID" nillable="true" type="xs:string" />
-        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/NotificationObj" minOccurs="0" name="notificationType" type="q2:NotificationMessageType" />
-        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/NotificationObj" minOccurs="0" name="viewStatus" type="q3:NotificationMessageViewStatus" />
-        <xs:element minOccurs="0" name="messageCount" nillable="true" type="xs:int" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetDeviceNotificationsResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/NotificationObj" minOccurs="0" name="GetDeviceNotificationsResult" nillable="true" type="q4:ArrayOfNotificationMessage" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="SetNotificationMessageViewStatus">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="sWSUserName" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="sWSPassword" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="siteGuid" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="notificationRequestID" nillable="true" type="xs:long" />
-        <xs:element minOccurs="0" name="notificationMessageID" nillable="true" type="xs:long" />
-        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/NotificationObj" minOccurs="0" name="viewStatus" type="q5:NotificationMessageViewStatus" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="SetNotificationMessageViewStatusResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="SetNotificationMessageViewStatusResult" type="xs:boolean" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetAllNotifications">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="sWSUserName" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="sWSPassword" nillable="true" type="xs:string" />
-        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/NotificationObj" minOccurs="0" name="triggerType" type="q6:NotificationTriggerType" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetAllNotificationsResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q7="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="GetAllNotificationsResult" nillable="true" type="q7:ArrayOfKeyValueOfstringArrayOfstringty7Ep6D1" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="SubscribeByTag">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="sWSUserName" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="sWSPassword" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="siteGuid" nillable="true" type="xs:string" />
-        <xs:element xmlns:q8="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="tags" nillable="true" type="q8:ArrayOfKeyValueOfstringArrayOfstringty7Ep6D1" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="SubscribeByTagResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="SubscribeByTagResult" type="xs:boolean" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="UserSettings">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="sWSUserName" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="sWSPassword" nillable="true" type="xs:string" />
-        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/NotificationInterface" minOccurs="0" name="userSettings" nillable="true" type="q9:UserSettings" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="UserSettingsResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="UserSettingsResult" type="xs:boolean" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="UnsubscribeFollowUpByTag">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="sWSUserName" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="sWSPassword" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="siteGuid" nillable="true" type="xs:string" />
-        <xs:element xmlns:q10="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="tags" nillable="true" type="q10:ArrayOfKeyValueOfstringArrayOfstringty7Ep6D1" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="UnsubscribeFollowUpByTagResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="UnsubscribeFollowUpByTagResult" type="xs:boolean" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetUserStatusSubscriptions">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="sWSUserName" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="sWSPassword" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="siteGuid" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetUserStatusSubscriptionsResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q11="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="GetUserStatusSubscriptionsResult" nillable="true" type="q11:ArrayOfKeyValueOfstringArrayOfstringty7Ep6D1" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="IsTagNotificationExists">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="sWSUserName" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="sWSPassword" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="tagType" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="tagValue" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="IsTagNotificationExistsResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="IsTagNotificationExistsResult" type="xs:boolean" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="UpdateNotificationPartnerSettings">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="sWSUserName" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="sWSPassword" nillable="true" type="xs:string" />
-        <xs:element xmlns:q12="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" minOccurs="0" name="settings" nillable="true" type="q12:NotificationPartnerSettings" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="UpdateNotificationPartnerSettingsResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q13="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="UpdateNotificationPartnerSettingsResult" nillable="true" type="q13:Status" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetNotificationPartnerSettings">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="sWSUserName" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="sWSPassword" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetNotificationPartnerSettingsResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q14="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" minOccurs="0" name="GetNotificationPartnerSettingsResult" nillable="true" type="q14:NotificationPartnerSettingsResponse" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="UpdateNotificationSettings">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="sWSUserName" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="sWSPassword" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="userId" nillable="true" type="xs:string" />
-        <xs:element xmlns:q15="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" minOccurs="0" name="settings" nillable="true" type="q15:NotificationSettings" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="UpdateNotificationSettingsResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q16="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="UpdateNotificationSettingsResult" nillable="true" type="q16:Status" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetNotificationSettings">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="sWSUserName" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="sWSPassword" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="userId" type="xs:int" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetNotificationSettingsResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q17="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" minOccurs="0" name="GetNotificationSettingsResult" nillable="true" type="q17:NotificationSettingsResponse" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ApiObjects" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ApiObjects" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:simpleType name="eAnnouncementRecipientsType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="All" />
+      <xs:enumeration value="LoggedIn" />
+      <xs:enumeration value="Guests" />
+      <xs:enumeration value="Other" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="eAnnouncementRecipientsType" nillable="true" type="tns:eAnnouncementRecipientsType" />
+  <xs:simpleType name="eAnnouncementStatus">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="NotSent" />
+      <xs:enumeration value="Sending" />
+      <xs:enumeration value="Sent" />
+      <xs:enumeration value="Aborted" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="eAnnouncementStatus" nillable="true" type="tns:eAnnouncementStatus" />
+  <xs:simpleType name="eUserMessageAction">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Login" />
+      <xs:enumeration value="Logout" />
+      <xs:enumeration value="AnonymousPushRegistration" />
+      <xs:enumeration value="IdentifyPushRegistration" />
+      <xs:enumeration value="DeleteUser" />
+      <xs:enumeration value="ChangeUsers" />
+      <xs:enumeration value="EnableUserNotifications" />
+      <xs:enumeration value="DisableUserNotifications" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="eUserMessageAction" nillable="true" type="tns:eUserMessageAction" />
+  <xs:simpleType name="eOTTAssetTypes">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="None" />
+      <xs:enumeration value="Series" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="eOTTAssetTypes" nillable="true" type="tns:eOTTAssetTypes" />
+  <xs:simpleType name="eMessageState">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Unread" />
+      <xs:enumeration value="Read" />
+      <xs:enumeration value="Trashed" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="eMessageState" nillable="true" type="tns:eMessageState" />
+  <xs:simpleType name="eMessageCategory">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="SystemAnnouncement" />
+      <xs:enumeration value="Followed" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="eMessageCategory" nillable="true" type="tns:eMessageCategory" />
+  <xs:complexType name="ArrayOfeMessageCategory">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="eMessageCategory" type="tns:eMessageCategory" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfeMessageCategory" nillable="true" type="tns:ArrayOfeMessageCategory" />
+  <xs:simpleType name="eTopicAutomaticIssueNotification">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Default" />
+      <xs:enumeration value="Yes" />
+      <xs:enumeration value="No" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="eTopicAutomaticIssueNotification" nillable="true" type="tns:eTopicAutomaticIssueNotification" />
 </xs:schema>
