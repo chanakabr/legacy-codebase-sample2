@@ -34,7 +34,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "assetIdIn")]
         [JsonProperty(PropertyName = "assetIdIn")]
-        [XmlArray(ElementName = "assetIdIn", IsNullable = true)]
+        [XmlElement(ElementName = "assetIdIn", IsNullable = true)]
         public string AssetIdIn { get; set; }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "assetTypeEqual")]
         [JsonProperty(PropertyName = "assetTypeEqual")]
-        [XmlArray(ElementName = "assetTypeEqual", IsNullable = true)]
+        [XmlElement(ElementName = "assetTypeEqual", IsNullable = true)]
         public KalturaAssetType AssetTypeEqual { get; set; }
 
         public override KalturaBookmarkOrderBy GetDefaultOrderByValue()
