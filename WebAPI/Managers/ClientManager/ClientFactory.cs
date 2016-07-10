@@ -43,7 +43,7 @@ namespace WebAPI.ClientManagers.Client
 
                     client = new NotificationsClient()
                     {
-                        Module = new WebAPI.Notifications.NotificationServiceClient()
+                        Module = new WebAPI.Notifications.NotificationServiceClient("BasicHttpBinding_INotificationService")
                     };
                     ((NotificationServiceClient)client.Module).Endpoint.Address = new EndpointAddress(url);
 
@@ -52,7 +52,7 @@ namespace WebAPI.ClientManagers.Client
 
                     client = new CatalogClient()
                     {
-                        Module = new Catalog.IserviceClient()
+                        Module = new Catalog.IserviceClient("Catalog_WSHttpBinding_Iservice")
                     };
                     ((Catalog.IserviceClient)client.Module).Endpoint.Address = new EndpointAddress(url);
 
