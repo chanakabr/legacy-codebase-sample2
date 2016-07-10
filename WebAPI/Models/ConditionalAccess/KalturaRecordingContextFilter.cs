@@ -22,17 +22,40 @@ namespace WebAPI.Models.ConditionalAccess
     {
 
         /// <summary>
-        /// Asset Id's
+        /// Comma separated asset ids
         /// </summary>
         [DataMember(Name = "assetIdIn")]
         [JsonProperty(PropertyName = "assetIdIn")]
         [XmlArray(ElementName = "assetIdIn", IsNullable = true)]
         [XmlArrayItem(ElementName = "assetIdIn")]
-        public List<KalturaLongValue> AssetIdIn { get; set; }
+        public string AssetIdIn { get; set; }
 
         public override KalturaRecordingContextOrderBy GetDefaultOrderByValue()
         {
             return KalturaRecordingContextOrderBy.NONE;
+        }
+
+        internal long[] getAssetIdIn()
+        {
+            if (string.IsNullOrEmpty(AssetIdIn))
+                return null;
+
+            List<long> values = new List<long>();
+            string[] stringValues = AssetIdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string stringValue in stringValues)
+            {
+                long value;
+                if (long.TryParse(stringValue, out value))
+                {
+                    values.Add(value);
+                }
+                else
+                {
+                    throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, string.Format("Filter.AssetIdIn contains invalid id {0}", value));
+                }
+            }
+
+            return values.ToArray();
         }
     }
 }

@@ -226,6 +226,16 @@ namespace Validator.Managers.Schema
                     continue;
 
                 JsonPropertyAttribute jsonProperty = property.GetCustomAttribute<JsonPropertyAttribute>(true);
+                if (!property.PropertyType.IsPrimitive && !property.PropertyType.IsEnum && property.PropertyType != typeof(string))
+                {
+                    if (!property.PropertyType.IsGenericType || property.PropertyType.GetGenericTypeDefinition() != typeof(Nullable<>))
+                    {
+                        logError("Warning", property.DeclaringType, string.Format("Filter property {0}.{1} ({2}) data member ({3}) must be primitive, string or enum", property.ReflectedType.Name, property.Name, property.PropertyType.Name, jsonProperty.PropertyName));
+                        if (strict)
+                            valid = false;
+                    }
+                }
+
                 bool hasRightSuffix = false;
                 foreach (string suffix in availableFilterSuffixes)
                 {
