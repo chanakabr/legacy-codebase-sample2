@@ -103,8 +103,11 @@ namespace Validator.Managers.Schema
             {
                 var orderByName = filter.Name.Replace("Filter", "OrderBy");
                 var orderBys = assembly.GetTypes().Where(myType => myType.IsEnum && myType.Name == orderByName);
-                foreach(var orderBy in orderBys)
-                    enums.Add(orderBy);
+                foreach (Type orderBy in orderBys)
+                {
+                    if (!enums.Contains(orderBy))
+                        enums.Add(orderBy);
+                }
             }
 
             List<Field> fields = new List<Field>();
@@ -145,8 +148,10 @@ namespace Validator.Managers.Schema
 
             if (type.IsSubclassOf(typeof(KalturaOTTObject)) && !loadedTypes.ContainsKey(typeName) && (loadAll || SchemaManager.Validate(type, false)))
             {
-                loadedTypes.Add(typeName, type);
                 LoadType(type.BaseType, loadAll);
+
+                if (!loadedTypes.ContainsKey(typeName))
+                    loadedTypes.Add(typeName, type);
 
                 var subClasses = assembly.GetTypes().Where(myType => myType.IsSubclassOf(type));
                 foreach (Type subClass in subClasses)
