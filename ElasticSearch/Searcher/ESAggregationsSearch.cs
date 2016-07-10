@@ -106,6 +106,10 @@ namespace ElasticSearch.Searcher
             return result;
         }
 
+        #endregion
+
+        #region Protected and Private Methods
+
         protected virtual string InnerToString()
         {
             string result = string.Empty;
@@ -116,7 +120,7 @@ namespace ElasticSearch.Searcher
             sb.Append("{");
             sb.AppendFormat("\"field\": \"{0}\"", this.Field);
 
-            if (this.Size > -1)
+            if (this.Size > -1 && this.IsSizeable())
             {
                 sb.AppendFormat(",\"size\": {0}", this.Size);
             }
@@ -136,8 +140,45 @@ namespace ElasticSearch.Searcher
             return result;
         }
 
-        #endregion
+        /// <summary>
+        /// Decides whether the "size" field should be defined in query or not
+        /// </summary>
+        /// <returns></returns>
+        protected virtual bool IsSizeable()
+        {
+            bool result = true;
 
+            switch (this.Type)
+            {
+                case eElasticAggregationType.avg:
+                case eElasticAggregationType.cardinality:
+                case eElasticAggregationType.geo_bounds:
+                case eElasticAggregationType.geo_centroid:
+                case eElasticAggregationType.max:
+                case eElasticAggregationType.extended_stats:
+                case eElasticAggregationType.min:
+                case eElasticAggregationType.percentiles:
+                case eElasticAggregationType.stats:
+                case eElasticAggregationType.sum:
+                case eElasticAggregationType.value_count:
+                {
+                    result = false;
+                    break;
+                }
+                case eElasticAggregationType.terms:
+                case eElasticAggregationType.filter:
+                case eElasticAggregationType.filters:
+                {
+                    result = true;
+                    break;
+                }
+                default:
+                break;
+            }
+
+            return result;
+        }
+        #endregion
     }
 
     public class ESFilterAggregation : ESBaseAggsItem
