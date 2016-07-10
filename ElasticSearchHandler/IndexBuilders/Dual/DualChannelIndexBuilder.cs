@@ -26,7 +26,25 @@ namespace ElasticSearchHandler.IndexBuilders
 
         public override bool BuildIndex()
         {
-            throw new NotImplementedException();
+            bool success = false;
+
+            // Copy definitions from current builder to the partial builders
+            this.oldBuilder.SwitchIndexAlias = this.SwitchIndexAlias;
+            this.newBuilder.SwitchIndexAlias = this.SwitchIndexAlias;
+            this.oldBuilder.DeleteOldIndices = this.DeleteOldIndices;
+            this.newBuilder.DeleteOldIndices = this.DeleteOldIndices;
+            this.oldBuilder.StartDate = this.StartDate;
+            this.newBuilder.StartDate = this.StartDate;
+            this.oldBuilder.EndDate = this.EndDate;
+            this.newBuilder.EndDate = this.EndDate;
+
+            // Build the two indexes
+            bool oldSuccess = this.oldBuilder.BuildIndex();
+            bool newSuccess = this.newBuilder.BuildIndex();
+
+            success = oldSuccess && newSuccess;
+
+            return success;
         }
     }
 }
