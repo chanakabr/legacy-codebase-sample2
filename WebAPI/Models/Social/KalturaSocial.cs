@@ -92,13 +92,5 @@ namespace WebAPI.Models.Social
         [JsonProperty("pictureUrl")]
         [XmlElement(ElementName = "pictureUrl")]
         public string PictureUrl { get; set; }
-
-        /// <summary>
-        /// Facebook user object
-        /// </summary>
-        [DataMember(Name = "socialUser")]
-        [JsonProperty("socialUser")]
-        [XmlElement(ElementName = "socialUser", IsNullable = true)]
-        public KalturaSocialUser SocialUser { get; set; }
     }
 }
