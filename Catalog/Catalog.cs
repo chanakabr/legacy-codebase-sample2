@@ -2401,6 +2401,10 @@ namespace Catalog
                     var queue = new CatalogQueue();
 
                     isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", group.m_nParentGroupID, objectType.ToString()));
+                    if (isUpdateIndexSucceeded)
+                        log.DebugFormat("successfully enqueue epg upload. data: {0}", data);
+                    else
+                        log.ErrorFormat("Failed enqueue of epg upload. data: {0}", data);
 
                     // Backward compatibility
                     if (objectType == eObjectType.EPG)
@@ -5732,7 +5736,7 @@ namespace Catalog
         /// <param name="filterTree"></param>
         /// <param name="definitions"></param>
         /// <param name="group"></param>
-        internal static void UpdateNodeTreeFields(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions, Group group)
+        public static void UpdateNodeTreeFields(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions, Group group)
         {
             if (group != null)
             {
@@ -5774,7 +5778,7 @@ namespace Catalog
         /// <param name="definitions"></param>
         /// <param name="group"></param>
         /// <param name="node"></param>
-        private static void TreatLeaf(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions,
+        public static void TreatLeaf(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions,
             Group group, BooleanPhraseNode node, Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping)
         {
             bool shouldUseCache = WS_Utils.GetTcmBoolValue("Use_Search_Cache");

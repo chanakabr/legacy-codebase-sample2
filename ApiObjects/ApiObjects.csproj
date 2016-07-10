@@ -98,6 +98,9 @@
     <Compile Include="Billing\PaymentGatewayListResponse.cs" />
     <Compile Include="Billing\PaymentGatewayAssociate.cs" />
     <Compile Include="Billing\PaymentMethod.cs" />
+    <Compile Include="Catalog\Enums.cs" />
+    <Compile Include="Catalog\IngestRequest.cs" />
+    <Compile Include="Catalog\IngestWarnings.cs" />
     <Compile Include="CDNAdapter\CDNAdapter.cs" />
     <Compile Include="CDNAdapter\CDNAdapterSettings.cs" />
     <Compile Include="CDNAdapter\CDNAdapterListResponse.cs" />
@@ -109,6 +112,8 @@
     <Compile Include="CDVRAdapter\CDVRAdapterResponseList.cs" />
     <Compile Include="CDVRAdapter\CDVRAdapterSettings.cs" />
     <Compile Include="DevicePinResponse.cs" />
+    <Compile Include="EpgIngestResponse.cs" />
+    <Compile Include="IngestAssetStatus.cs" />
     <Compile Include="IngestBusinessModules\BusinessModuleResponse.cs" />
     <Compile Include="IngestBusinessModules\IngestModule.cs" />
     <Compile Include="IngestBusinessModules\IngestMultiPricePlan.cs" />
@@ -116,6 +121,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="IngestBusinessModules\IngestPriceCode.cs" />
+    <Compile Include="IngestResponse.cs" />
     <Compile Include="Notification\Announcement.cs" />
     <Compile Include="Notification\AnnouncementSubscription.cs" />
     <Compile Include="Notification\AnnouncementsResponse.cs" />
