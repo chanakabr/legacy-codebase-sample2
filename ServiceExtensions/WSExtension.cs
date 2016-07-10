@@ -51,7 +51,8 @@ namespace ServiceExtensions
                         {
                             ReqIdHeader reqIdHeader = new ReqIdHeader()
                             {
-                                kmon_req_id = HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString()
+                                kmon_req_id = HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString(),
+                                MustUnderstand = false
                             };
 
                             if (!message.Headers.Contains(reqIdHeader) &&
