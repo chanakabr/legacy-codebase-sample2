@@ -135,6 +135,11 @@ namespace Validator.Managers.Schema
                     enums.Add(type);
                 return;
             }
+            else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                LoadType(type.GetGenericArguments()[0], loadAll);
+                return;
+            }
 
             if (type == typeof(KalturaOTTObject))
             {
@@ -476,7 +481,8 @@ namespace Validator.Managers.Schema
             }
 
             writer.WriteStartElement("result");
-            appendType(action.ReturnType);
+            if (action.ReturnType != typeof(void))
+                appendType(action.ReturnType);
             writer.WriteEndElement(); // result
 
             writer.WriteEndElement(); // action
