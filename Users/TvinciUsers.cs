@@ -1254,7 +1254,7 @@ namespace Users
             Int32 nID = GetUserIDByUserName(sUN);
             User u = new User();
             u.Initialize(nID, m_nGroupID, false);
-            if (u.m_oBasicData.m_sPassword == "")
+            if (string.IsNullOrEmpty(u.m_oBasicData.m_sPassword))
             {
                 ret.m_RespStatus = ResponseStatus.UserDoesNotExist;
                 ret.m_user = null;
