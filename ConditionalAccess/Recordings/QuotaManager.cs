@@ -104,18 +104,12 @@ namespace Recordings
             return status;
         }
 
-        public ApiObjects.TimeShiftedTv.DomainQuotaResponse GetDomainQuota(int groupId, long domainID, List<Recording> recordings)
+        public ApiObjects.TimeShiftedTv.DomainQuotaResponse GetDomainQuota(int groupId, long domainID)
         {
             Status status = new Status((int)eResponseStatus.OK);
 
-            int totalSeconds = ConditionalAccess.Utils.GetDomainQuota(groupId, domainID);
-            int secondsLeft = totalSeconds;
-
-            bool shouldContinue = false;
-            status = DeductRecordings(recordings, ref shouldContinue, ref secondsLeft);
-
-            // Available quota cannot be negative. Minimum is 0
-            secondsLeft = Math.Max(0, secondsLeft);
+            int totalSeconds = ConditionalAccess.Utils.GetDomainDefaultQuota(groupId, domainID);
+            int secondsLeft = ConditionalAccess.Utils.GetDomainQuota(groupId, domainID);
 
             ApiObjects.TimeShiftedTv.DomainQuotaResponse response = new DomainQuotaResponse()
             {

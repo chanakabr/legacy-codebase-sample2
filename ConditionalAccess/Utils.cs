@@ -5020,11 +5020,10 @@ namespace ConditionalAccess
 
         internal static Dictionary<long, ExpiredRecordingScheduledTask> GetExpiredRecordingsTasks(long unixTimeStampNow)
         {
-            Dictionary<long, ExpiredRecordingScheduledTask> expiredRecordings = null;
+            Dictionary<long, ExpiredRecordingScheduledTask> expiredRecordings = new Dictionary<long, ExpiredRecordingScheduledTask>();
             DataTable dt = RecordingsDAL.GetExpiredRecordingsTasks(unixTimeStampNow);
             if (dt != null && dt.Rows != null)
-            {
-                expiredRecordings = new Dictionary<long, ExpiredRecordingScheduledTask>();
+            {                
                 foreach (DataRow dr in dt.Rows)
                 {
                     long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
@@ -5049,29 +5048,37 @@ namespace ConditionalAccess
             return expiredRecordings;
         }
 
-        internal static int GetDomainQuota(int groupId, long domainId)
+        internal static int GetDomainDefaultQuota(int groupId, long domainId)
         {
-            int domainQuota = ConditionalAccessDAL.GetDomainQuota(groupId, domainId);
-            // if key wasn't found
-            if (domainQuota < 0)
+            int domainDefaultQuota = 0;
+            try
             {
-                domainQuota = 0;
-                try
+                string key = UtilsDal.GetDefaultQuotaInSeconds(groupId, domainId);
+                bool res = ConditionalAccessCache.GetItem<int>(key, out domainDefaultQuota);
+                if (!res || domainDefaultQuota == 0)
                 {
-                    string key = UtilsDal.GetDefaultQuotaInSeconds(groupId, domainId);
-                    bool res = ConditionalAccessCache.GetItem<int>(key, out domainQuota);
-                    if (!res || domainQuota == 0)
-                    {
-                        domainQuota = ConditionalAccessDAL.GetDefaultQuotaInSeconds(groupId);
-                        res = ConditionalAccessCache.AddItem(key, domainQuota);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    log.ErrorFormat("failed to get quota in seconds for domainID = {0}, groupID = {1} , ex = {2}", domainId, groupId, ex.Message);
-                    domainQuota = 0;
+                    domainDefaultQuota = ConditionalAccessDAL.GetDefaultQuotaInSeconds(groupId);
+                    res = ConditionalAccessCache.AddItem(key, domainDefaultQuota);
                 }
             }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("failed to get default quota in seconds for domainID = {0}, groupID = {1} , ex = {2}", domainId, groupId, ex.Message);
+                domainDefaultQuota = 0;
+            }
+
+            return domainDefaultQuota;
+        }
+
+        internal static int GetDomainQuota(int groupId, long domainId)
+        {
+            int domainQuota;
+            // if the domain quota wasn't on CB
+            if (!ConditionalAccessDAL.GetDomainQuota(groupId, domainId, out domainQuota))
+            {
+                domainQuota = GetDomainDefaultQuota(groupId, domainId);
+            }
+
             return domainQuota;
         }
 

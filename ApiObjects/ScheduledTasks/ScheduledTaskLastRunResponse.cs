@@ -12,11 +12,11 @@ namespace ApiObjects.ScheduledTasks
         public ApiObjects.Response.Status Status { get; set; }
         public DateTime LastSuccessfulRunDate { get; set; }
         public int ImpactedItems { get; set; }        
-        public int NextRunIntervalInSeconds { get; set; }
+        public double NextRunIntervalInSeconds { get; set; }
 
         public ScheduledTaskLastRunResponse() { }
 
-        public ScheduledTaskLastRunResponse(DateTime lastSuccessfulRunDate, int impactedItems, int nextRunIntervalInSeconds)
+        public ScheduledTaskLastRunResponse(DateTime lastSuccessfulRunDate, int impactedItems, double nextRunIntervalInSeconds)
         {
             this.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             this.LastSuccessfulRunDate = lastSuccessfulRunDate;

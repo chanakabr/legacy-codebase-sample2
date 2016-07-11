@@ -54,10 +54,10 @@ namespace ConditionalAccess
         private const string ROUTING_KEY_RECORDINGS_CLEANUP = "PROCESS_RECORDINGS_CLEANUP";
         private const int RECORDING_CLEANUP_EXECUTE_GAP_HOURS = 24;
         private const string RECORDINGS_LIFETIME = "recordingsLifetime";
-        private const int SCHEDULED_TASKS_DEFAULT_GAP_HOURS = 1;
+        private const double HANDLE_RECORDINGS_LIFETIME_INTERVAL_SEC = 3600;
         private const string RECORDINGS_LIFETIME_ROUTING_KEY = "PROCESS_RECORDINGS_LIFETIME";
         private const string RECORDINGS_SCHEDULED_TASKS = "recordingsScheduledTasks";
-        private const int RECORDING_SCHEDULED_TASKS_DEFAULT = 1;
+        private const double HANDLE_RECORDINGS_SCHEDULED_TASKS_INTERVAL_SEC = 60;
         private const string RECORDING_TASKS_ROUTING_KEY = "PROCESS_RECORDING_SCHEDULED_TASKS";
         private const string EXPIRED_RECORDING_ROUTING_KEY = "PROCESS_EXPIRED_RECORDING";
 
@@ -17929,18 +17929,7 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                List<TstvRecordingStatus> recordingStatuses = new List<TstvRecordingStatus>()
-                {
-                    TstvRecordingStatus.OK,
-                    TstvRecordingStatus.Recorded,
-                    TstvRecordingStatus.Recording,
-                    TstvRecordingStatus.Scheduled
-                };
-
-                Dictionary<long, Recording> recordingIdToDomainRecordingsMap = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, domainID, recordingStatuses);
-                List<Recording> currentRecordings = recordingIdToDomainRecordingsMap != null ? recordingIdToDomainRecordingsMap.Values.ToList() : new List<Recording>();
-
-                response = QuotaManager.Instance.GetDomainQuota(this.m_nGroupID, domainID, currentRecordings);
+                response = QuotaManager.Instance.GetDomainQuota(this.m_nGroupID, domainID);
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK);
             }
             catch (Exception ex)
@@ -18228,7 +18217,7 @@ namespace ConditionalAccess
         public bool HandleRecordingsLifetime()
         {
             bool result = false;
-            int scheduledTaskIntervalMin = 0;
+            double scheduledTaskIntervalSec = 0;
             bool shouldInsertToQueue = false;
 
             try
@@ -18237,8 +18226,8 @@ namespace ConditionalAccess
                 ScheduledTaskLastRunResponse expiredRecordingsLastRunResponse = GetLastScheduleTaksSuccessfulRun(RECORDINGS_LIFETIME);
                 if (expiredRecordingsLastRunResponse.Status.Code == (int)eResponseStatus.OK && expiredRecordingsLastRunResponse.NextRunIntervalInSeconds > 0)
                 {
-                    scheduledTaskIntervalMin = expiredRecordingsLastRunResponse.NextRunIntervalInSeconds;
-                    if (expiredRecordingsLastRunResponse.LastSuccessfulRunDate.AddMinutes(scheduledTaskIntervalMin) < DateTime.UtcNow)
+                    scheduledTaskIntervalSec = expiredRecordingsLastRunResponse.NextRunIntervalInSeconds;
+                    if (expiredRecordingsLastRunResponse.LastSuccessfulRunDate.AddSeconds(scheduledTaskIntervalSec) < DateTime.UtcNow)
                     {
                         shouldInsertToQueue = true;
                     }
@@ -18250,7 +18239,7 @@ namespace ConditionalAccess
                 else
                 {
                     shouldInsertToQueue = true;
-                    scheduledTaskIntervalMin = SCHEDULED_TASKS_DEFAULT_GAP_HOURS * 60;
+                    scheduledTaskIntervalSec = HANDLE_RECORDINGS_LIFETIME_INTERVAL_SEC;
                 }
 
                 // get current utc epoch
@@ -18263,7 +18252,7 @@ namespace ConditionalAccess
                 {
                     result = true;
 
-                    if (!RecordingsDAL.UpdateScheduledTaskSuccessfulRun(RECORDINGS_LIFETIME, DateTime.UtcNow, totalRecordingsExpired, scheduledTaskIntervalMin))
+                    if (!RecordingsDAL.UpdateScheduledTaskSuccessfulRun(RECORDINGS_LIFETIME, DateTime.UtcNow, totalRecordingsExpired, scheduledTaskIntervalSec))
                     {
                         log.Error("Failed updating expired recordings run details");
                     }
@@ -18285,12 +18274,12 @@ namespace ConditionalAccess
             {
                 if (shouldInsertToQueue)
                 {
-                    if (scheduledTaskIntervalMin == 0)
+                    if (scheduledTaskIntervalSec == 0)
                     {
-                        scheduledTaskIntervalMin = SCHEDULED_TASKS_DEFAULT_GAP_HOURS * 60;
+                        scheduledTaskIntervalSec = HANDLE_RECORDINGS_LIFETIME_INTERVAL_SEC;
                     }
 
-                    DateTime nextExecutionDate = DateTime.UtcNow.AddMinutes(scheduledTaskIntervalMin);
+                    DateTime nextExecutionDate = DateTime.UtcNow.AddSeconds(scheduledTaskIntervalSec);
                     SetupTasksQueue queue = new SetupTasksQueue();
                     CelerySetupTaskData data = new CelerySetupTaskData(0, eSetupTask.InsertExpiredRecordingsTasks, new Dictionary<string, object>()) { ETA = nextExecutionDate };
                     result = queue.Enqueue(data, RECORDINGS_LIFETIME_ROUTING_KEY);
@@ -18314,7 +18303,7 @@ namespace ConditionalAccess
         public bool HandleRecordingsScheduledTasks()
         {
             bool result = false;
-            int scheduledTaskIntervalMin = 0;
+            double scheduledTaskIntervalSec = 0;
             bool shouldInsertToQueue = false;
 
             try
@@ -18323,8 +18312,8 @@ namespace ConditionalAccess
                 ScheduledTaskLastRunResponse recordingScheduledTasksLastRunResponse = GetLastScheduleTaksSuccessfulRun(RECORDINGS_SCHEDULED_TASKS);
                 if (recordingScheduledTasksLastRunResponse.Status.Code == (int)eResponseStatus.OK && recordingScheduledTasksLastRunResponse.NextRunIntervalInSeconds > 0)
                 {
-                    scheduledTaskIntervalMin = recordingScheduledTasksLastRunResponse.NextRunIntervalInSeconds;
-                    if (recordingScheduledTasksLastRunResponse.LastSuccessfulRunDate.AddMinutes(scheduledTaskIntervalMin) < DateTime.UtcNow)
+                    scheduledTaskIntervalSec = recordingScheduledTasksLastRunResponse.NextRunIntervalInSeconds;
+                    if (recordingScheduledTasksLastRunResponse.LastSuccessfulRunDate.AddSeconds(scheduledTaskIntervalSec) < DateTime.UtcNow)
                     {
                         shouldInsertToQueue = true;
                     }
@@ -18336,7 +18325,7 @@ namespace ConditionalAccess
                 else
                 {
                     shouldInsertToQueue = true;
-                    scheduledTaskIntervalMin = RECORDING_SCHEDULED_TASKS_DEFAULT;
+                    scheduledTaskIntervalSec = HANDLE_RECORDINGS_SCHEDULED_TASKS_INTERVAL_SEC;
                 }
 
                 // get current utc epoch
@@ -18357,7 +18346,7 @@ namespace ConditionalAccess
                         }
                     }
 
-                    if (!RecordingsDAL.UpdateScheduledTaskSuccessfulRun(RECORDINGS_SCHEDULED_TASKS, DateTime.UtcNow, expiredRecordingsToSchedule.Count, scheduledTaskIntervalMin))
+                    if (!RecordingsDAL.UpdateScheduledTaskSuccessfulRun(RECORDINGS_SCHEDULED_TASKS, DateTime.UtcNow, expiredRecordingsToSchedule.Count, scheduledTaskIntervalSec))
                     {
                         log.Error("Failed updating recording scheduled tasks run details");
                     }
@@ -18379,12 +18368,12 @@ namespace ConditionalAccess
             {
                 if (shouldInsertToQueue)
                 {
-                    if (scheduledTaskIntervalMin == 0)
+                    if (scheduledTaskIntervalSec == 0)
                     {
-                        scheduledTaskIntervalMin = RECORDING_SCHEDULED_TASKS_DEFAULT;
+                        scheduledTaskIntervalSec = HANDLE_RECORDINGS_SCHEDULED_TASKS_INTERVAL_SEC;
                     }
 
-                    DateTime nextExecutionDate = DateTime.UtcNow.AddMinutes(scheduledTaskIntervalMin);
+                    DateTime nextExecutionDate = DateTime.UtcNow.AddSeconds(scheduledTaskIntervalSec);
                     SetupTasksQueue queue = new SetupTasksQueue();
                     CelerySetupTaskData data = new CelerySetupTaskData(0, eSetupTask.RecordingScheduledTasks, new Dictionary<string, object>()) { ETA = nextExecutionDate };
                     result = queue.Enqueue(data, RECORDING_TASKS_ROUTING_KEY);

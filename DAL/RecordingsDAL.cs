@@ -644,7 +644,7 @@ namespace DAL
             return response;
         }
 
-        public static bool UpdateScheduledTaskSuccessfulRun(string scheduleTaskName, DateTime lastSuccessfulRunDate, int impactedItems, int nextRunIntervalInMinutes)
+        public static bool UpdateScheduledTaskSuccessfulRun(string scheduleTaskName, DateTime lastSuccessfulRunDate, int impactedItems, double nextRunIntervalInSeconds)
         {
             bool result = false;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
@@ -658,7 +658,7 @@ namespace DAL
             try
             {
                 int numOfRetries = 0;
-                ScheduledTaskLastRunResponse scheduledTaskRunDetails = new ScheduledTaskLastRunResponse(lastSuccessfulRunDate, impactedItems, nextRunIntervalInMinutes);
+                ScheduledTaskLastRunResponse scheduledTaskRunDetails = new ScheduledTaskLastRunResponse(lastSuccessfulRunDate, impactedItems, nextRunIntervalInSeconds);
                 while (!result && numOfRetries < limitRetries)
                 {
                     result = cbClient.Set(scheduledTaksKey, scheduledTaskRunDetails);

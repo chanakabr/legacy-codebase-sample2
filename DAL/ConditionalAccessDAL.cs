@@ -2576,48 +2576,52 @@ namespace DAL
             return model;
         }
 
-        public static int GetDomainQuota(int groupId, long domainId)
+        public static bool GetDomainQuota(int groupId, long domainId, out int quota)
         {
-            int quota = -1;
+            bool result = false;
+            quota = 0;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.STATISTICS);
             int limitRetries = RETRY_LIMIT;
             Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
             string domainQuotaKey = UtilsDal.GetDomainQuotaKey(domainId);
             if (string.IsNullOrEmpty(domainQuotaKey))
             {
-                log.ErrorFormat("Failed getting domainQuotaKey for domainId: {0}", domainId);
-                return -1;
+                log.ErrorFormat("Failed getting domainQuotaKey for domainId: {0}", domainId);                
             }
 
-            try
+            else
             {
-                int numOfRetries = 0;
-                while (numOfRetries < limitRetries)
+                try
                 {
-                    quota = cbClient.Get<int>(domainQuotaKey, out getResult);
-                    if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
+                    int numOfRetries = 0;
+                    while (numOfRetries < limitRetries)
                     {
-                        log.ErrorFormat("Error while trying to get domain quota, domainId: {0}, key: {1}", domainId, domainQuotaKey);
-                        break;
-                    }
-                    else if (getResult == Couchbase.IO.ResponseStatus.Success)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        log.ErrorFormat("Retrieving domain quota with domainId: {0} and key {1} failed with status: {2}, retryAttempt: {3}, maxRetries: {4}", domainId, domainQuotaKey, getResult, numOfRetries, limitRetries);
-                        numOfRetries++;
-                        System.Threading.Thread.Sleep(1000);
+                        quota = cbClient.Get<int>(domainQuotaKey, out getResult);
+                        if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
+                        {
+                            log.ErrorFormat("Error while trying to get domain quota, domainId: {0}, key: {1}", domainId, domainQuotaKey);
+                            break;
+                        }
+                        else if (getResult == Couchbase.IO.ResponseStatus.Success)
+                        {
+                            result = true;
+                            break;
+                        }
+                        else
+                        {
+                            log.ErrorFormat("Retrieving domain quota with domainId: {0} and key {1} failed with status: {2}, retryAttempt: {3}, maxRetries: {4}", domainId, domainQuotaKey, getResult, numOfRetries, limitRetries);
+                            numOfRetries++;
+                            System.Threading.Thread.Sleep(1000);
+                        }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while trying to get domain quota, domainId: {0}, ex: {1}", domainId, ex);
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Error while trying to get domain quota, domainId: {0}, ex: {1}", domainId, ex);
+                }
             }
 
-            return quota;
+            return result;
         }
 
         public static bool AddQuotaToDomain(long domainId, int quotaToAdd)
