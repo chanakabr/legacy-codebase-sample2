@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
+	<title>Kaltura - TestMe Console Documentation</title>
+	<link rel="stylesheet" type="text/css" href="../css/main.css" />
+	<script type="text/javascript" src="../../testme/js/jquery-1.3.1.min.js"></script>
+	<script type="text/javascript">
+	
+		$(document).ready(function() {
+			$(".base-attribute").click(function() {
+				var classHeaderTable = $(this).parents("table:first");
+				var propertiesTable = classHeaderTable.parent().find("table:last");
+				if ($(this).attr("src").indexOf("collapsed.gif") >= 0) {
+				$(this).attr("src", "../images/expended.gif");
+					propertiesTable.show();
+				}
+				else {
+					$(this).attr("src", "../images/collapsed.gif");
+					propertiesTable.hide();
+				}
+			});
+		});
+	
+	</script>
+</head>
+<body>
+	<div id="doc">
+		<h2>Kaltura API</h2>
+		<table class="action" width="80%">
+			<tr>
+				<th class="service_action_title">KalturaTransaction</th>
+			</tr>
+			<tr>
+				<td class="title">Properties</td>
+			</tr>
+			<tr>
+				<td>
+					<table style="">
+						<tbody>
+							<tr>
+								<td class="inheritedFrom">
+									<b><img class="base-attribute" src="../images/collapsed.gif"> Inherited from KalturaObjectBase</b>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table style="display: none">
+						<tbody>
+							<tr>
+								<th class="subtitle">Name</th>
+								<th class="subtitle">Type</th>
+								<th class="subtitle">Writable</th>
+								<th class="subtitle">Restrictions</th>
+								<th class="subtitle">Description</th>
+							</tr>
+							<tr>
+								<td>relatedObjects</td>
+								<td>map of <a href="KalturaListResponse.html">KalturaListResponse</a></td>
+								<td></td>
+								<td></td>
+								<td></td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<table style="">
+						<tbody>
+							<tr>
+								<td class="inheritedFrom"><b>KalturaTransaction</b></td>
+							</tr>
+						</tbody>
+					</table>
+					<table style="">
+						<tbody>
+							<tr>
+								<th class="subtitle">Name</th>
+								<th class="subtitle">Type</th>
+								<th class="subtitle">Writable</th>
+								<th class="subtitle">Restrictions</th>
+								<th class="subtitle">Description</th>
+							</tr>
+							<tr >
+								<td>id</td>
+								<td>string</td>
+								<td>V</td>
+								<td></td>
+								<td>Kaltura unique ID representing the transaction</td>
+							</tr>
+							<tr class="odd">
+								<td>paymentGatewayReferenceId</td>
+								<td>string</td>
+								<td>V</td>
+								<td></td>
+								<td>Transaction reference ID received from the payment gateway. 
+            Value is available only if the payment gateway provides this information.</td>
+							</tr>
+							<tr >
+								<td>paymentGatewayResponseId</td>
+								<td>string</td>
+								<td>V</td>
+								<td></td>
+								<td>Response ID received from by the payment gateway. 
+            Value is available only if the payment gateway provides this information.</td>
+							</tr>
+							<tr class="odd">
+								<td>state</td>
+								<td>string</td>
+								<td>V</td>
+								<td></td>
+								<td>Transaction state: OK/Pending/Failed</td>
+							</tr>
+							<tr >
+								<td>failReasonCode</td>
+								<td>int</td>
+								<td>V</td>
+								<td></td>
+								<td>Adapter failure reason code
+            Insufficient funds = 20, Invalid account = 21, User unknown = 22, Reason unknown = 23, Unknown payment gateway response = 24,
+            No response from payment gateway = 25, Exceeded retry limit = 26, Illegal client request = 27, Expired = 28</td>
+							</tr>
+							<tr class="odd">
+								<td>createdAt</td>
+								<td>int</td>
+								<td>V</td>
+								<td></td>
+								<td>Entitlement creation date</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</div>
+</body>
+</html>

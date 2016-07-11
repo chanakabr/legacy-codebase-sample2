@@ -2107,6 +2107,8 @@
     <Compile Include="Models\Catalog\KalturaAssetFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAsset.cs" />
     <Compile Include="Models\Catalog\KalturaAssetOrderBy.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaTransactionStatus.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaPurchase.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaHouseholdPremiumService.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaHouseholdPremiumServiceListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPriceOrderBy.cs" />

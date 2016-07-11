@@ -1950,7 +1950,21 @@
             <param name="partnerId">Partner identifier</param>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Controllers.TransactionController.Purchase(System.Double,System.String,System.Int32,WebAPI.Models.ConditionalAccess.KalturaTransactionType,System.Int32,System.String,System.Int32,System.Nullable{System.Int32})">
+        <member name="M:WebAPI.Controllers.TransactionController.Purchase(WebAPI.Models.ConditionalAccess.KalturaPurchase)">
+            <summary>
+            Purchase specific product or subscription for a household. Upon successful charge entitlements to use the requested product or subscription are granted. 
+            </summary>
+            <param name="purchase">Purchase properties</param>
+            <remarks>Possible status codes: 
+            User not in domain = 1005, Invalid user = 1026, User does not exist = 2000, User suspended = 2001, Coupon not valid = 3020, Unable to purchase - PPV purchased = 3021,  Unable to purchase - Free = 3022,  Unable to purchase - For purchase subscription only = 3023,
+             Unable to purchase - Subscription purchased = 3024, Not for purchase = 3025, Unable to purchase - Collection purchased = 3027, 
+             Adapter Url required = 5013, Incorrect price = 6000, UnKnown PPV module = 6001, Payment gateway not set for household = 6007, 
+             Payment gateway does not exist = 6008, Payment gateway charge ID required = 6009, No configuration found = 6011, 
+             Signature mismatch = 6013, Unknown transaction state = 6042, Payment method not set for household = 6048,
+             Payment method not exist = 6049       
+            </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.TransactionController.PurchaseOldStandard(System.Double,System.String,System.Int32,WebAPI.Models.ConditionalAccess.KalturaTransactionType,System.Int32,System.String,System.Int32,System.Nullable{System.Int32})">
             <summary>
             Purchase specific product or subscription for a household. Upon successful charge entitlements to use the requested product or subscription are granted. 
             </summary>
@@ -1971,6 +1985,18 @@
              Payment method not exist = 6049       
             </remarks>
         </member>
+        <member name="M:WebAPI.Controllers.TransactionController.UpdateStatus(System.String,System.String,System.String,WebAPI.Models.ConditionalAccess.KalturaTransactionStatus)">
+             <summary>
+             Updates a pending purchase transaction state.
+             </summary>
+             <param name="paymentGatewayId">Payment gateway identifier</param>
+             <param name="externalTransactionId">external transaction identifier</param>
+             <param name="signature">Security signature to validate the caller is a payment gateway adapter application</param>
+             <param name="status">Status properties</param>
+             <remarks>Possible status codes: payment gateway not exist = 6008, signature does not match = 6036, error while updating pending transaction = 6037, 
+             Payment gateway transaction was not found = 6038, Payment gateway transaction is not pending = 6039, Unknown transaction state = 6042, 
+            ,         </remarks>
+        </member>
         <member name="M:WebAPI.Controllers.TransactionController.UpdateState(System.String,System.Int32,System.String,System.String,System.String,System.Int32,System.String)">
              <summary>
              Updates a pending purchase transaction state.
@@ -1988,6 +2014,17 @@
              Payment gateway transaction was not found = 6038, Payment gateway transaction is not pending = 6039, Unknown transaction state = 6042, 
             ,         </remarks>
         </member>
+        <member name="M:WebAPI.Controllers.TransactionController.ValidateReceipt(WebAPI.Models.ConditionalAccess.KalturaExternalReceipt)">
+            <summary>
+            Verifies PPV/Subscription/Collection client purchase (such as InApp) and entitles the user.
+            </summary>
+            <param name="externalReceipt">Receipt properties</param>
+            <remarks>Possible status codes: 
+            User not in domain = 1005, Invalid user = 1026, User does not exist = 2000, User suspended = 2001, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
+            Subscription purchased = 3024, Not for purchase = 3025, CollectionPurchased = 3027, UnKnown PPV module = 6001, Payment gateway does not exist = 6008, No configuration found = 6011,
+            Signature mismatch = 6013, Unknown transaction state = 6042   
+               </remarks>
+        </member>
         <member name="M:WebAPI.Controllers.TransactionController.ProcessReceipt(System.Int32,WebAPI.Models.ConditionalAccess.KalturaTransactionType,System.String,System.String,System.Int32)">
             <summary>
             Verifies PPV/Subscription/Collection client purchase (such as InApp) and entitles the user.
@@ -2003,17 +2040,25 @@
             Signature mismatch = 6013, Unknown transaction state = 6042   
                </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.TransactionController.Waiver(System.Int32,WebAPI.Models.ConditionalAccess.KalturaTransactionType)">
+        <member name="M:WebAPI.Controllers.TransactionController.SetWaiver(System.Int32,WebAPI.Models.ConditionalAccess.KalturaTransactionType)">
             <summary>
             This method shall set the waiver flag on the user entitlement table and the waiver date field to the current date.
             </summary>
-            <param name="asset_id">Asset identifier</param>        
-            <param name="transaction_type">The transaction type</param>
+            <param name="assetId">Asset identifier</param>        
+            <param name="transactionType">The transaction type</param>
             <remarks>Possible status codes: 
              User suspended = 2001
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.TransactionController.PurchaseSessionId(System.Double,System.String,System.Int32,WebAPI.Models.ConditionalAccess.KalturaTransactionType,System.Int32,System.String,System.Int32)">
+        <member name="M:WebAPI.Controllers.TransactionController.getPurchaseSessionId(WebAPI.Models.ConditionalAccess.KalturaPurchaseSession)">
+            <summary>
+            Retrieve the purchase session identifier
+            </summary>
+            <param name="purchaseSession">Purchase properties</param>
+            <remarks>
+            </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.TransactionController.PurchaseSessionIdOldStandard(System.Double,System.String,System.Int32,WebAPI.Models.ConditionalAccess.KalturaTransactionType,System.Int32,System.String,System.Int32)">
             <summary>
             Retrieve the purchase session identifier
             </summary>
@@ -2712,6 +2757,86 @@
         <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.TrickPlayBuffer">
             <summary>
             Trick-play buffer
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransactionStatus.AdapterStatus">
+            <summary>
+            Payment gateway adapter application state for the transaction to update
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransactionStatus.ExternalId">
+            <summary>
+            External transaction identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransactionStatus.ExternalStatus">
+            <summary>
+            Payment gateway transaction status
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransactionStatus.ExternalMessage">
+            <summary>
+            Payment gateway message
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransactionStatus.FailReason">
+            <summary>
+            The reason the transaction failed
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchaseBase.ProductId">
+            <summary>
+            Identifier for the package from which this content is offered
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchaseBase.ContentId">
+            <summary>
+            Identifier for the content to purchase. Relevant only if Product type = PPV
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchaseBase.ProductType">
+            <summary>
+            Package type. Possible values: PPV, Subscription, Collection
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchase.Currency">
+            <summary>
+            Identifier for paying currency, according to ISO 4217
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchase.Price">
+            <summary>
+            Net sum to charge – as a one-time transaction. Price must match the previously provided price for the specified content.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchase.PaymentMethodId">
+            <summary>
+            Identifier for a pre-entered payment method. If not provided – the household’s default payment method is used
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchase.PaymentGatewayId">
+            <summary>
+            Identifier for a pre-associated payment gateway. If not provided – the account’s default payment gateway is used
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchase.Coupon">
+            <summary>
+            Coupon code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchaseSession.PreviewModuleId">
+            <summary>
+            Preview module identifier (relevant only for subscription)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaExternalReceipt.ReceiptId">
+            <summary>
+            A unique identifier that was provided by the In-App billing service to validate the purchase
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaExternalReceipt.PaymentGatewayName">
+            <summary>
+            The payment gateway name for the In-App billing service to be used. Possible values: Google/Apple
             </summary>
         </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaHouseholdPremiumService">
