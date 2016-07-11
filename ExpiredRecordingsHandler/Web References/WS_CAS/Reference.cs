@@ -98,7 +98,7 @@ namespace ExpiredRecordingsHandler.WS_CAS {
         
         private System.Threading.SendOrPostCallback GetLastScheduleTaksSuccessfulRunOperationCompleted;
         
-        private System.Threading.SendOrPostCallback HandleRecordingScheduledTasksOperationCompleted;
+        private System.Threading.SendOrPostCallback HandleRecordingsScheduledTasksOperationCompleted;
         
         private System.Threading.SendOrPostCallback HandleExpiredRecordingOperationCompleted;
         
@@ -415,7 +415,7 @@ namespace ExpiredRecordingsHandler.WS_CAS {
         public event GetLastScheduleTaksSuccessfulRunCompletedEventHandler GetLastScheduleTaksSuccessfulRunCompleted;
         
         /// <remarks/>
-        public event HandleRecordingScheduledTasksCompletedEventHandler HandleRecordingScheduledTasksCompleted;
+        public event HandleRecordingsScheduledTasksCompletedEventHandler HandleRecordingsScheduledTasksCompleted;
         
         /// <remarks/>
         public event HandleExpiredRecordingCompletedEventHandler HandleExpiredRecordingCompleted;
@@ -1977,29 +1977,29 @@ namespace ExpiredRecordingsHandler.WS_CAS {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/HandleRecordingScheduledTasks", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public bool HandleRecordingScheduledTasks() {
-            object[] results = this.Invoke("HandleRecordingScheduledTasks", new object[0]);
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/HandleRecordingsScheduledTasks", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public bool HandleRecordingsScheduledTasks() {
+            object[] results = this.Invoke("HandleRecordingsScheduledTasks", new object[0]);
             return ((bool)(results[0]));
         }
         
         /// <remarks/>
-        public void HandleRecordingScheduledTasksAsync() {
-            this.HandleRecordingScheduledTasksAsync(null);
+        public void HandleRecordingsScheduledTasksAsync() {
+            this.HandleRecordingsScheduledTasksAsync(null);
         }
         
         /// <remarks/>
-        public void HandleRecordingScheduledTasksAsync(object userState) {
-            if ((this.HandleRecordingScheduledTasksOperationCompleted == null)) {
-                this.HandleRecordingScheduledTasksOperationCompleted = new System.Threading.SendOrPostCallback(this.OnHandleRecordingScheduledTasksOperationCompleted);
+        public void HandleRecordingsScheduledTasksAsync(object userState) {
+            if ((this.HandleRecordingsScheduledTasksOperationCompleted == null)) {
+                this.HandleRecordingsScheduledTasksOperationCompleted = new System.Threading.SendOrPostCallback(this.OnHandleRecordingsScheduledTasksOperationCompleted);
             }
-            this.InvokeAsync("HandleRecordingScheduledTasks", new object[0], this.HandleRecordingScheduledTasksOperationCompleted, userState);
+            this.InvokeAsync("HandleRecordingsScheduledTasks", new object[0], this.HandleRecordingsScheduledTasksOperationCompleted, userState);
         }
         
-        private void OnHandleRecordingScheduledTasksOperationCompleted(object arg) {
-            if ((this.HandleRecordingScheduledTasksCompleted != null)) {
+        private void OnHandleRecordingsScheduledTasksOperationCompleted(object arg) {
+            if ((this.HandleRecordingsScheduledTasksCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.HandleRecordingScheduledTasksCompleted(this, new HandleRecordingScheduledTasksCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+                this.HandleRecordingsScheduledTasksCompleted(this, new HandleRecordingsScheduledTasksCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -10458,7 +10458,7 @@ namespace ExpiredRecordingsHandler.WS_CAS {
         
         private int impactedItemsField;
         
-        private int nextRunIntervalInMinutesField;
+        private int nextRunIntervalInSecondsField;
         
         /// <remarks/>
         public Status Status {
@@ -10491,12 +10491,12 @@ namespace ExpiredRecordingsHandler.WS_CAS {
         }
         
         /// <remarks/>
-        public int NextRunIntervalInMinutes {
+        public int NextRunIntervalInSeconds {
             get {
-                return this.nextRunIntervalInMinutesField;
+                return this.nextRunIntervalInSecondsField;
             }
             set {
-                this.nextRunIntervalInMinutesField = value;
+                this.nextRunIntervalInSecondsField = value;
             }
         }
     }
@@ -12771,17 +12771,17 @@ namespace ExpiredRecordingsHandler.WS_CAS {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void HandleRecordingScheduledTasksCompletedEventHandler(object sender, HandleRecordingScheduledTasksCompletedEventArgs e);
+    public delegate void HandleRecordingsScheduledTasksCompletedEventHandler(object sender, HandleRecordingsScheduledTasksCompletedEventArgs e);
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class HandleRecordingScheduledTasksCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+    public partial class HandleRecordingsScheduledTasksCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
         
         private object[] results;
         
-        internal HandleRecordingScheduledTasksCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+        internal HandleRecordingsScheduledTasksCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }

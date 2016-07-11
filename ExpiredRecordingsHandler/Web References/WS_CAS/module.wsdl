@@ -961,16 +961,16 @@
           <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
           <s:element minOccurs="1" maxOccurs="1" name="LastSuccessfulRunDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="ImpactedItems" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="NextRunIntervalInMinutes" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="NextRunIntervalInSeconds" type="s:int" />
         </s:sequence>
       </s:complexType>
-      <s:element name="HandleRecordingScheduledTasks">
+      <s:element name="HandleRecordingsScheduledTasks">
         <s:complexType />
       </s:element>
-      <s:element name="HandleRecordingScheduledTasksResponse">
+      <s:element name="HandleRecordingsScheduledTasksResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="1" maxOccurs="1" name="HandleRecordingScheduledTasksResult" type="s:boolean" />
+            <s:element minOccurs="1" maxOccurs="1" name="HandleRecordingsScheduledTasksResult" type="s:boolean" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -3887,11 +3887,11 @@
   <wsdl:message name="GetLastScheduleTaksSuccessfulRunSoapOut">
     <wsdl:part name="parameters" element="tns:GetLastScheduleTaksSuccessfulRunResponse" />
   </wsdl:message>
-  <wsdl:message name="HandleRecordingScheduledTasksSoapIn">
-    <wsdl:part name="parameters" element="tns:HandleRecordingScheduledTasks" />
+  <wsdl:message name="HandleRecordingsScheduledTasksSoapIn">
+    <wsdl:part name="parameters" element="tns:HandleRecordingsScheduledTasks" />
   </wsdl:message>
-  <wsdl:message name="HandleRecordingScheduledTasksSoapOut">
-    <wsdl:part name="parameters" element="tns:HandleRecordingScheduledTasksResponse" />
+  <wsdl:message name="HandleRecordingsScheduledTasksSoapOut">
+    <wsdl:part name="parameters" element="tns:HandleRecordingsScheduledTasksResponse" />
   </wsdl:message>
   <wsdl:message name="HandleExpiredRecordingSoapIn">
     <wsdl:part name="parameters" element="tns:HandleExpiredRecording" />
@@ -4702,8 +4702,8 @@
   <wsdl:message name="GetLastScheduleTaksSuccessfulRunHttpPostOut">
     <wsdl:part name="Body" element="tns:ScheduledTaskLastRunResponse" />
   </wsdl:message>
-  <wsdl:message name="HandleRecordingScheduledTasksHttpPostIn" />
-  <wsdl:message name="HandleRecordingScheduledTasksHttpPostOut">
+  <wsdl:message name="HandleRecordingsScheduledTasksHttpPostIn" />
+  <wsdl:message name="HandleRecordingsScheduledTasksHttpPostOut">
     <wsdl:part name="Body" element="tns:boolean" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsHttpPostIn">
@@ -5919,9 +5919,9 @@
       <wsdl:input message="tns:GetLastScheduleTaksSuccessfulRunSoapIn" />
       <wsdl:output message="tns:GetLastScheduleTaksSuccessfulRunSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="HandleRecordingScheduledTasks">
-      <wsdl:input message="tns:HandleRecordingScheduledTasksSoapIn" />
-      <wsdl:output message="tns:HandleRecordingScheduledTasksSoapOut" />
+    <wsdl:operation name="HandleRecordingsScheduledTasks">
+      <wsdl:input message="tns:HandleRecordingsScheduledTasksSoapIn" />
+      <wsdl:output message="tns:HandleRecordingsScheduledTasksSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="HandleExpiredRecording">
       <wsdl:input message="tns:HandleExpiredRecordingSoapIn" />
@@ -6393,9 +6393,9 @@
       <wsdl:input message="tns:GetLastScheduleTaksSuccessfulRunHttpPostIn" />
       <wsdl:output message="tns:GetLastScheduleTaksSuccessfulRunHttpPostOut" />
     </wsdl:operation>
-    <wsdl:operation name="HandleRecordingScheduledTasks">
-      <wsdl:input message="tns:HandleRecordingScheduledTasksHttpPostIn" />
-      <wsdl:output message="tns:HandleRecordingScheduledTasksHttpPostOut" />
+    <wsdl:operation name="HandleRecordingsScheduledTasks">
+      <wsdl:input message="tns:HandleRecordingsScheduledTasksHttpPostIn" />
+      <wsdl:output message="tns:HandleRecordingsScheduledTasksHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsHttpPostIn" />
@@ -7026,8 +7026,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="HandleRecordingScheduledTasks">
-      <soap:operation soapAction="http://ca.tvinci.com/HandleRecordingScheduledTasks" style="document" />
+    <wsdl:operation name="HandleRecordingsScheduledTasks">
+      <soap:operation soapAction="http://ca.tvinci.com/HandleRecordingsScheduledTasks" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -8127,8 +8127,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="HandleRecordingScheduledTasks">
-      <soap12:operation soapAction="http://ca.tvinci.com/HandleRecordingScheduledTasks" style="document" />
+    <wsdl:operation name="HandleRecordingsScheduledTasks">
+      <soap12:operation soapAction="http://ca.tvinci.com/HandleRecordingsScheduledTasks" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -9192,8 +9192,8 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="HandleRecordingScheduledTasks">
-      <http:operation location="/HandleRecordingScheduledTasks" />
+    <wsdl:operation name="HandleRecordingsScheduledTasks">
+      <http:operation location="/HandleRecordingsScheduledTasks" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
