@@ -18,13 +18,16 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Immediately cancel a subscription, PPV or collection. Cancel is possible only if within cancellation window and content not already consumed
         /// </summary>                
-        /// <param name="asset_id">The mediaFileID to cancel</param>        
-        /// <param name="transaction_type">The transaction type for the cancelation</param>
+        /// <param name="assetId">The mediaFileID to cancel</param>        
+        /// <param name="transactionType">The transaction type for the cancelation</param>
         /// <remarks>Possible status codes: 
         /// Household suspended = 1009, Invalid purchase = 3000, Cancellation window period expired = 3001, Content already consumed = 3005</remarks>
         [Route("cancel"), HttpPost]
         [ApiAuthorize]
-        public bool Cancel(int asset_id, KalturaTransactionType transaction_type)
+        [OldStandard("assetId", "asset_id")]
+        [OldStandard("transactionType", "transaction_type")]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        public bool Cancel(int assetId, KalturaTransactionType transactionType)
         {
             bool response = false;
 
@@ -41,13 +44,13 @@ namespace WebAPI.Controllers
                     throw new ForbiddenException();
                 }
 
-                if (asset_id == 0)
+                if (assetId == 0)
                 {
                     throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id not valid");
                 }
 
                 // call client
-                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, asset_id, transaction_type, false);
+                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, assetId, transactionType, false);
             }
             catch (ClientException ex)
             {
@@ -64,13 +67,16 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Immediately cancel a subscription, PPV or collection. Cancel applies regardless of cancellation window and content consumption status
         /// </summary>                
-        /// <param name="asset_id">The mediaFileID to cancel</param>        
-        /// <param name="transaction_type">The transaction type for the cancelation</param>
+        /// <param name="assetId">The mediaFileID to cancel</param>        
+        /// <param name="transactionType">The transaction type for the cancelation</param>
         /// <remarks>Possible status codes: 
         /// Household suspended = 1009, Invalid purchase = 3000</remarks>
         [Route("forceCancel"), HttpPost]
         [ApiAuthorize]
-        public bool ForceCancel(int asset_id, KalturaTransactionType transaction_type)
+        [OldStandard("assetId", "asset_id")]
+        [OldStandard("transactionType", "transaction_type")]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        public bool ForceCancel(int assetId, KalturaTransactionType transactionType)
         {
             bool response = false;
 
@@ -87,13 +93,13 @@ namespace WebAPI.Controllers
                     throw new ForbiddenException();
                 }
 
-                if (asset_id == 0)
+                if (assetId == 0)
                 {
                     throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id not valid");
                 }
 
                 // call client
-                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, asset_id, transaction_type, true);
+                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, assetId, transactionType, true);
             }
             catch (ClientException ex)
             {
@@ -110,16 +116,18 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Cancel a household service subscription at the next renewal. The subscription stays valid till the next renewal.        
         /// </summary>        
-        /// <param name="subscription_id">Subscription Code</param>
+        /// <param name="subscriptionId">Subscription Code</param>
         /// <remarks>Possible status codes: 
         /// Household suspended = 1009, Invalid purchase = 3000, SubscriptionNotRenewable = 300</remarks>
         [Route("cancelRenewal"), HttpPost]
         [ApiAuthorize]
-        public void CancelRenewal(string subscription_id)
+        [OldStandard("subscriptionId", "subscription_id")]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        public void CancelRenewal(string subscriptionId)
         {
             int groupId = KS.GetFromRequest().GroupId;
 
-            if (string.IsNullOrEmpty(subscription_id))
+            if (string.IsNullOrEmpty(subscriptionId))
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "subscription code not valid");
             }
@@ -134,7 +142,7 @@ namespace WebAPI.Controllers
                     throw new ForbiddenException();
                 }
                 // call client
-                ClientsManager.ConditionalAccessClient().CancelSubscriptionRenewal(groupId, (int)domain, subscription_id);
+                ClientsManager.ConditionalAccessClient().CancelSubscriptionRenewal(groupId, (int)domain, subscriptionId);
             }
             catch (ClientException ex)
             {
@@ -215,13 +223,13 @@ namespace WebAPI.Controllers
                     case KalturaEntityReferenceBy.user:
                         {
                             response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KS.GetFromRequest().UserId, filter.EntitlementTypeEqual,
-                                false, pager.getPageSize(), pager.getPageIndex(), filter.OrderBy);
+                                filter.getIsExpiredEqual(), pager.getPageSize(), pager.getPageIndex(), filter.OrderBy);
                         }
                         break;
                     case KalturaEntityReferenceBy.household:
                         {
                             response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.EntitlementTypeEqual,
-                                false, pager.getPageSize(), pager.getPageIndex(), filter.OrderBy);
+                                filter.getIsExpiredEqual(), pager.getPageSize(), pager.getPageIndex(), filter.OrderBy);
                         }
                         break;
                     default:
@@ -244,6 +252,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("listExpired"), HttpPost]
         [ApiAuthorize]
+        [Obsolete]
         public KalturaEntitlementListResponse ListExpired(KalturaEntitlementsFilter filter, KalturaFilterPager pager = null)
         {
             List<KalturaEntitlement> response = new List<KalturaEntitlement>();
@@ -287,9 +296,9 @@ namespace WebAPI.Controllers
         /// <summary>        
         /// Grant household for an entitlement for a PPV or Subscription.
         /// </summary>
-        /// <param name="content_id">Identifier for the content. Relevant only if Product type = PPV</param>
-        /// <param name="product_id">Identifier for the product package from which this content is offered  </param>
-        /// <param name="product_type">Product package type. Possible values: PPV, Subscription, Collection</param>
+        /// <param name="contentId">Identifier for the content. Relevant only if Product type = PPV</param>
+        /// <param name="productId">Identifier for the product package from which this content is offered  </param>
+        /// <param name="productType">Product package type. Possible values: PPV, Subscription, Collection</param>
         /// <param name="history">Controls if the new entitlements grant will appear in the user’s history. True – will add a history entry. False (or if ommited) – no history entry will be added</param>
         /// <remarks>Possible status codes: 
         /// User not in domain = 1005, User does not exist = 2000, User suspended = 2001, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
@@ -298,7 +307,11 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("grant"), HttpPost]
         [ApiAuthorize]
-        public bool Grant(int product_id, KalturaTransactionType product_type, bool history, int content_id = 0)
+        [OldStandard("productId", "product_id")]
+        [OldStandard("productType", "product_type")]
+        [OldStandard("contentId", "content_id")]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        public bool Grant(int productId, KalturaTransactionType productType, bool history, int contentId = 0)
         {
             bool response = false;
 
@@ -310,8 +323,8 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().GrantEntitlements(groupId, userId, domainID, content_id, product_id,
-                    product_type, history, string.Empty);
+                response = ClientsManager.ConditionalAccessClient().GrantEntitlements(groupId, userId, domainID, contentId, productId,
+                    productType, history, string.Empty);
             }
             catch (ClientException ex)
             {
@@ -329,19 +342,26 @@ namespace WebAPI.Controllers
         /// Price not correct = 6000, Unknown PPV module = 6001, Expired credit card = 6002, Cellular permissions error (for cellular charge) = 6003, Unknown billing provider = 6004
         /// </remarks>
         /// <param name="udid">Device UDID</param>
-        /// <param name="item_id">The identifier of the item to buy, can be PPV identifier or subscription identifier</param>
-        /// <param name="file_id">File identifier</param>
-        /// <param name="is_subscription">True for buying subscription, false for buying ppv</param>        
+        /// <param name="itemId">The identifier of the item to buy, can be PPV identifier or subscription identifier</param>
+        /// <param name="fileId">File identifier</param>
+        /// <param name="isSubscription">True for buying subscription, false for buying ppv</param>        
         /// <param name="price">Price</param>
         /// <param name="currency">Currency</param>
-        /// <param name="coupon_code">Coupon code</param>
-        /// <param name="extra_params">Custom extra parameters (changes between different billing providers)</param>
-        /// <param name="encrypted_cvv">Encrypted credit card CVV</param>
+        /// <param name="couponCode">Coupon code</param>
+        /// <param name="extraParams">Custom extra parameters (changes between different billing providers)</param>
+        /// <param name="encryptedCvv">Encrypted credit card CVV</param>
         [Route("buy"), HttpPost]
         [Obsolete]
         [ApiAuthorize]
-        public KalturaBillingResponse Buy(string item_id, bool is_subscription, double price, string currency, string coupon_code, string extra_params,
-            string encrypted_cvv, int file_id = 0, string udid = null)
+        [OldStandard("itemId", "item_id")]
+        [OldStandard("isSubscription", "is_subscription")]
+        [OldStandard("couponCode", "coupon_code")]
+        [OldStandard("extraParams", "extra_params")]
+        [OldStandard("encryptedCvv", "encrypted_cvv")]
+        [OldStandard("fileId", "file_id")]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        public KalturaBillingResponse Buy(string itemId, bool isSubscription, double price, string currency, string couponCode, string extraParams,
+            string encryptedCvv, int fileId = 0, string udid = null)
         {
             KalturaBillingResponse response = null;
 
@@ -350,17 +370,17 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (is_subscription)
+                if (isSubscription)
                 {
                     // call client
-                    response = ClientsManager.ConditionalAccessClient().ChargeUserForSubscription(groupId, userId, price, currency, item_id, coupon_code,
-                        extra_params, udid, encrypted_cvv);
+                    response = ClientsManager.ConditionalAccessClient().ChargeUserForSubscription(groupId, userId, price, currency, itemId, couponCode,
+                        extraParams, udid, encryptedCvv);
                 }
                 else
                 {
                     // call client
-                    response = ClientsManager.ConditionalAccessClient().ChargeUserForMediaFile(groupId, userId, price, currency, file_id, item_id, coupon_code,
-                        extra_params, udid, encrypted_cvv);
+                    response = ClientsManager.ConditionalAccessClient().ChargeUserForMediaFile(groupId, userId, price, currency, fileId, itemId, couponCode,
+                        extraParams, udid, encryptedCvv);
                 }
             }
             catch (ClientException ex)
@@ -380,6 +400,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("externalReconcile"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
         public bool ExternalReconcile()
         {
             bool response = false;

@@ -7,6 +7,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.API;
 using WebAPI.Models.General;
 using WebAPI.Utils;
@@ -14,6 +15,8 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/pin/action")]
+    [OldStandard("getOldStandard", "get")]
+    [OldStandard("updateOldStandard", "update")]
     public class PinController : ApiController
     {
         /// <summary>
@@ -26,9 +29,10 @@ namespace WebAPI.Controllers
         /// <returns>The PIN that applies for the user</returns>
         [Route("get"), HttpPost]
         [ApiAuthorize]
-        public KalturaPinResponse Get(KalturaEntityReferenceBy by, KalturaPinType type)
+        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
+        public KalturaPin Get(KalturaEntityReferenceBy by, KalturaPinType type)
         {
-            KalturaPinResponse pinResponse = null;
+            KalturaPin pinResponse = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -48,7 +52,7 @@ namespace WebAPI.Controllers
                     else if (type == KalturaPinType.purchase)
                     {
                         // call client
-                        pinResponse = ClientsManager.ApiClient().GetUserPurchasePIN(groupId, userId, householdId); 
+                        pinResponse = ClientsManager.ApiClient().GetUserPurchasePIN(groupId, userId, householdId);
                     }
                 }
                 else if (by == KalturaEntityReferenceBy.household)
@@ -62,7 +66,125 @@ namespace WebAPI.Controllers
                     else if (type == KalturaPinType.purchase)
                     {
                         // call client
-                        pinResponse = ClientsManager.ApiClient().GetDomainPurchasePIN(groupId, householdId); 
+                        pinResponse = ClientsManager.ApiClient().GetDomainPurchasePIN(groupId, householdId);
+                    }
+                }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return pinResponse;
+        }
+
+        /// <summary>
+        /// Set the parental or purchase PIN that applies for the user or the household.        
+        /// </summary>
+        /// <param name="type">The PIN type to retrieve</param>
+        /// <param name="by">Reference type to filter by</param>
+        /// <remarks>Possible status codes: 
+        /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
+        /// <param name="pin">PIN to set</param>
+        /// <returns>The PIN</returns>
+        [Route("update"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
+        public KalturaPin Update(KalturaEntityReferenceBy by, KalturaPinType type, KalturaPin pin)
+        {
+            KalturaPin response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                if (by == KalturaEntityReferenceBy.user)
+                {
+                    string userId = KS.GetFromRequest().UserId;
+
+                    if (type == KalturaPinType.parental)
+                    {
+                        // call client
+                        response = ClientsManager.ApiClient().SetUserParentalPIN(groupId, userId, pin.PIN);
+                    }
+                    else if (type == KalturaPinType.purchase)
+                    {
+                        // call client
+                        response = ClientsManager.ApiClient().SetUserPurchasePIN(groupId, userId, pin.PIN);
+                    }
+                }
+                else if (by == KalturaEntityReferenceBy.household)
+                {
+                    int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+                    if (type == KalturaPinType.parental)
+                    {
+                        // call client
+                        response = ClientsManager.ApiClient().SetDomainParentalRules(groupId, householdId, pin.PIN);
+                    }
+                    else if (type == KalturaPinType.purchase)
+                    {
+                        // call client
+                        response = ClientsManager.ApiClient().SetDomainPurchasePIN(groupId, householdId, pin.PIN);
+                    }
+                }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Retrieve the parental or purchase PIN that applies for the household or user. Includes specification of where the PIN was defined at – account, household or user  level
+        /// </summary>
+        /// <param name="type">The PIN type to retrieve</param>
+        /// <param name="by">Reference type to filter by</param>
+        /// <remarks>Possible status codes: 
+        /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001, No PIN defined = 5001</remarks>
+        /// <returns>The PIN that applies for the user</returns>
+        [Route("getOldStandard"), HttpPost]
+        [ApiAuthorize]
+        [Obsolete]
+        public KalturaPinResponse GetOldStandard(KalturaEntityReferenceBy by, KalturaPinType type)
+        {
+            KalturaPinResponse pinResponse = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+                if (by == KalturaEntityReferenceBy.user)
+                {
+                    string userId = KS.GetFromRequest().UserId;
+
+                    if (type == KalturaPinType.parental)
+                    {
+                        // call client
+                        pinResponse = ClientsManager.ApiClient().GetUserParentalPINOldStandard(groupId, userId, householdId);
+                    }
+                    else if (type == KalturaPinType.purchase)
+                    {
+                        // call client
+                        pinResponse = ClientsManager.ApiClient().GetUserPurchasePinOldStandard(groupId, userId, householdId);
+                    }
+                }
+                else if (by == KalturaEntityReferenceBy.household)
+                {
+
+                    if (type == KalturaPinType.parental)
+                    {
+                        // call client
+                        pinResponse = ClientsManager.ApiClient().GetDomainParentalPinOldStandard(groupId, householdId);
+                    }
+                    else if (type == KalturaPinType.purchase)
+                    {
+                        // call client
+                        pinResponse = ClientsManager.ApiClient().GetDomainPurchasePinOldstandard(groupId, householdId);
                     }
                 }
             }
@@ -83,12 +205,11 @@ namespace WebAPI.Controllers
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
         /// <param name="pin">New PIN to set</param>
         /// <returns>Success / Fail</returns>
-        [Route("update"), HttpPost]
+        [Route("updateOldStandard"), HttpPost]
         [ApiAuthorize]
-        public bool Update(string pin, KalturaEntityReferenceBy by, KalturaPinType type)
+        [Obsolete]
+        public bool UpdateOldStandard(string pin, KalturaEntityReferenceBy by, KalturaPinType type)
         {
-            bool success = false;
-
             int groupId = KS.GetFromRequest().GroupId;
 
             try
@@ -100,12 +221,12 @@ namespace WebAPI.Controllers
                     if (type == KalturaPinType.parental)
                     {
                         // call client
-                        success = ClientsManager.ApiClient().SetUserParentalPIN(groupId, userId, pin);
+                        ClientsManager.ApiClient().SetUserParentalPIN(groupId, userId, pin);
                     }
                     else if (type == KalturaPinType.purchase)
                     {
                         // call client
-                        success = ClientsManager.ApiClient().SetUserPurchasePIN(groupId, userId, pin);
+                        ClientsManager.ApiClient().SetUserPurchasePIN(groupId, userId, pin);
                     }
                 }
                 else if (by == KalturaEntityReferenceBy.household)
@@ -115,12 +236,12 @@ namespace WebAPI.Controllers
                     if (type == KalturaPinType.parental)
                     {
                         // call client
-                        success = ClientsManager.ApiClient().SetDomainParentalRules(groupId, householdId, pin);
+                        ClientsManager.ApiClient().SetDomainParentalRules(groupId, householdId, pin);
                     }
                     else if (type == KalturaPinType.purchase)
                     {
                         // call client
-                        success = ClientsManager.ApiClient().SetDomainPurchasePIN(groupId, householdId, pin);
+                        ClientsManager.ApiClient().SetDomainPurchasePIN(groupId, householdId, pin);
                     }
                 }
             }
@@ -129,7 +250,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return success;
+            return true;
         }
 
         /// <summary>
@@ -142,6 +263,7 @@ namespace WebAPI.Controllers
         /// <returns>Success / fail</returns>
         [Route("validate"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
         public bool Validate(string pin, KalturaPinType type)
         {
             bool success = false;

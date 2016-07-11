@@ -65,7 +65,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.parental));
 
+            // Pin
+            Mapper.CreateMap<WebAPI.Api.PinResponse, WebAPI.Models.API.KalturaPin>()
+                .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
+                .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.parental));
+
             // Purchase Settings
+            Mapper.CreateMap<WebAPI.Api.PurchaseSettingsResponse, WebAPI.Models.API.KalturaPurchaseSettings>()
+                .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
+                .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin))
+                .ForMember(dest => dest.Permission, opt => opt.MapFrom(src => ConvertPurchaseSetting(src.type)))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.purchase));
+
+            // Purchase Settings Response
             Mapper.CreateMap<WebAPI.Api.PurchaseSettingsResponse, WebAPI.Models.API.KalturaPurchaseSettingsResponse>()
                 .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
                 .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin))

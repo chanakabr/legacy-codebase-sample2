@@ -44,8 +44,10 @@
 		kTestMe.registerService("parentalrule", "parentalRule", "", false);
 		kTestMe.registerService("paymentgateway", "paymentGateway", "", false);
 		kTestMe.registerService("paymentgatewayprofile", "paymentGatewayProfile", "", false);
+		kTestMe.registerService("pin", "pin", "", false);
 		kTestMe.registerService("ppv", "ppv", "", false);
 		kTestMe.registerService("productprice", "productPrice", "", false);
+		kTestMe.registerService("purchasesettings", "purchaseSettings", "", false);
 		kTestMe.registerService("recommendationprofile", "recommendationProfile", "", false);
 		kTestMe.registerService("recording", "recording", "", false);
 		kTestMe.registerService("session", "session", "", false);
@@ -55,6 +57,7 @@
 		kTestMe.registerService("transactionhistory", "transactionHistory", "", false);
 		kTestMe.registerService("userassetrule", "userAssetRule", "", false);
 		kTestMe.registerService("userassetslistitem", "userAssetsListItem", "", false);
+		kTestMe.registerService("userrole", "userRole", "", false);
 	</script>
 	<script type="text/javascript">
 		$(document).ready(function() {
@@ -136,7 +139,7 @@
 				</div>
 				<div class="param">
 					<label for="apiVersion">apiVersion (string):</label>
-					<input type="text" name="apiVersion" size="30" class="" value="3.6.287.22812" />
+					<input type="text" name="apiVersion" size="30" class="" value="3.6.287.24289" />
 					<input id="chk-apiVersion" type="checkbox" checked="checked" />
 				</div>
 				<div class="param">
@@ -182,8 +185,10 @@
 							<option value="parentalrule" title="parentalRule">parentalRule</option>
 							<option value="paymentgateway" title="paymentGateway">paymentGateway</option>
 							<option value="paymentgatewayprofile" title="paymentGatewayProfile">paymentGatewayProfile</option>
+							<option value="pin" title="pin">pin</option>
 							<option value="ppv" title="ppv">ppv</option>
 							<option value="productprice" title="productPrice">productPrice</option>
+							<option value="purchasesettings" title="purchaseSettings">purchaseSettings</option>
 							<option value="recommendationprofile" title="recommendationProfile">recommendationProfile</option>
 							<option value="recording" title="recording">recording</option>
 							<option value="session" title="session">session</option>
@@ -193,6 +198,7 @@
 							<option value="transactionhistory" title="transactionHistory">transactionHistory</option>
 							<option value="userassetrule" title="userAssetRule">userAssetRule</option>
 							<option value="userassetslistitem" title="userAssetsListItem">userAssetsListItem</option>
+							<option value="userrole" title="userRole">userRole</option>
 						</select>
 						<img src="images/help.png" class="service-help help" />
 					</div>

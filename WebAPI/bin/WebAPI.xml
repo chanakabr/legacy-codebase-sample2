@@ -1316,7 +1316,30 @@
             </remarks>
             <returns>The purchase settings that apply for the user</returns>
         </member>
-        <member name="M:WebAPI.Controllers.PurchaseSettingsController.Update(System.Int32,WebAPI.Models.General.KalturaEntityReferenceBy)">
+        <member name="M:WebAPI.Controllers.PurchaseSettingsController.GetOldStandard(WebAPI.Models.General.KalturaEntityReferenceBy)">
+            <summary>
+            Retrieve the purchase settings.
+            Includes specification of where these settings were defined – account, household or user        
+            </summary>
+            <param name="by">Reference type to filter by</param>
+            <remarks>
+            Possible status codes: 
+            Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001
+            </remarks>
+            <returns>The purchase settings that apply for the user</returns>
+        </member>
+        <member name="M:WebAPI.Controllers.PurchaseSettingsController.Update(WebAPI.Models.General.KalturaEntityReferenceBy,WebAPI.Models.API.KalturaPurchaseSettings)">
+            <summary>
+            Set a purchase PIN for the household or user        
+            </summary>
+            <remarks>Possible status codes: 
+            Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001,
+            purchase settings type invalid = 5015 </remarks>
+            <param name="entityReference">Reference type to filter by</param>
+            <param name="settings">New settings to apply</param>
+            <returns>Success / Fail</returns>
+        </member>
+        <member name="M:WebAPI.Controllers.PurchaseSettingsController.UpdateOldStandard(System.Int32,WebAPI.Models.General.KalturaEntityReferenceBy)">
             <summary>
             Set a purchase PIN for the household or user        
             </summary>
@@ -1518,8 +1541,8 @@
             <summary>
             Immediately cancel a subscription, PPV or collection. Cancel is possible only if within cancellation window and content not already consumed
             </summary>                
-            <param name="asset_id">The mediaFileID to cancel</param>        
-            <param name="transaction_type">The transaction type for the cancelation</param>
+            <param name="assetId">The mediaFileID to cancel</param>        
+            <param name="transactionType">The transaction type for the cancelation</param>
             <remarks>Possible status codes: 
             Household suspended = 1009, Invalid purchase = 3000, Cancellation window period expired = 3001, Content already consumed = 3005</remarks>
         </member>
@@ -1527,8 +1550,8 @@
             <summary>
             Immediately cancel a subscription, PPV or collection. Cancel applies regardless of cancellation window and content consumption status
             </summary>                
-            <param name="asset_id">The mediaFileID to cancel</param>        
-            <param name="transaction_type">The transaction type for the cancelation</param>
+            <param name="assetId">The mediaFileID to cancel</param>        
+            <param name="transactionType">The transaction type for the cancelation</param>
             <remarks>Possible status codes: 
             Household suspended = 1009, Invalid purchase = 3000</remarks>
         </member>
@@ -1536,7 +1559,7 @@
             <summary>
             Cancel a household service subscription at the next renewal. The subscription stays valid till the next renewal.        
             </summary>        
-            <param name="subscription_id">Subscription Code</param>
+            <param name="subscriptionId">Subscription Code</param>
             <remarks>Possible status codes: 
             Household suspended = 1009, Invalid purchase = 3000, SubscriptionNotRenewable = 300</remarks>
         </member>
@@ -1567,9 +1590,9 @@
              <summary>        
              Grant household for an entitlement for a PPV or Subscription.
              </summary>
-             <param name="content_id">Identifier for the content. Relevant only if Product type = PPV</param>
-             <param name="product_id">Identifier for the product package from which this content is offered  </param>
-             <param name="product_type">Product package type. Possible values: PPV, Subscription, Collection</param>
+             <param name="contentId">Identifier for the content. Relevant only if Product type = PPV</param>
+             <param name="productId">Identifier for the product package from which this content is offered  </param>
+             <param name="productType">Product package type. Possible values: PPV, Subscription, Collection</param>
              <param name="history">Controls if the new entitlements grant will appear in the user’s history. True – will add a history entry. False (or if ommited) – no history entry will be added</param>
              <remarks>Possible status codes: 
              User not in domain = 1005, User does not exist = 2000, User suspended = 2001, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
@@ -1586,14 +1609,14 @@
             Price not correct = 6000, Unknown PPV module = 6001, Expired credit card = 6002, Cellular permissions error (for cellular charge) = 6003, Unknown billing provider = 6004
             </remarks>
             <param name="udid">Device UDID</param>
-            <param name="item_id">The identifier of the item to buy, can be PPV identifier or subscription identifier</param>
-            <param name="file_id">File identifier</param>
-            <param name="is_subscription">True for buying subscription, false for buying ppv</param>        
+            <param name="itemId">The identifier of the item to buy, can be PPV identifier or subscription identifier</param>
+            <param name="fileId">File identifier</param>
+            <param name="isSubscription">True for buying subscription, false for buying ppv</param>        
             <param name="price">Price</param>
             <param name="currency">Currency</param>
-            <param name="coupon_code">Coupon code</param>
-            <param name="extra_params">Custom extra parameters (changes between different billing providers)</param>
-            <param name="encrypted_cvv">Encrypted credit card CVV</param>
+            <param name="couponCode">Coupon code</param>
+            <param name="extraParams">Custom extra parameters (changes between different billing providers)</param>
+            <param name="encryptedCvv">Encrypted credit card CVV</param>
         </member>
         <member name="M:WebAPI.Controllers.EntitlementController.ExternalReconcile">
             <summary>
@@ -2052,7 +2075,28 @@
             Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001, No PIN defined = 5001</remarks>
             <returns>The PIN that applies for the user</returns>
         </member>
-        <member name="M:WebAPI.Controllers.PinController.Update(System.String,WebAPI.Models.General.KalturaEntityReferenceBy,WebAPI.Models.API.KalturaPinType)">
+        <member name="M:WebAPI.Controllers.PinController.Update(WebAPI.Models.General.KalturaEntityReferenceBy,WebAPI.Models.API.KalturaPinType,WebAPI.Models.API.KalturaPin)">
+            <summary>
+            Set the parental or purchase PIN that applies for the user or the household.        
+            </summary>
+            <param name="type">The PIN type to retrieve</param>
+            <param name="by">Reference type to filter by</param>
+            <remarks>Possible status codes: 
+            User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
+            <param name="pin">PIN to set</param>
+            <returns>The PIN</returns>
+        </member>
+        <member name="M:WebAPI.Controllers.PinController.GetOldStandard(WebAPI.Models.General.KalturaEntityReferenceBy,WebAPI.Models.API.KalturaPinType)">
+            <summary>
+            Retrieve the parental or purchase PIN that applies for the household or user. Includes specification of where the PIN was defined at – account, household or user  level
+            </summary>
+            <param name="type">The PIN type to retrieve</param>
+            <param name="by">Reference type to filter by</param>
+            <remarks>Possible status codes: 
+            Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001, No PIN defined = 5001</remarks>
+            <returns>The PIN that applies for the user</returns>
+        </member>
+        <member name="M:WebAPI.Controllers.PinController.UpdateOldStandard(System.String,WebAPI.Models.General.KalturaEntityReferenceBy,WebAPI.Models.API.KalturaPinType)">
             <summary>
             Set the parental or purchase PIN that applies for the user or the household.        
             </summary>
@@ -2155,6 +2199,12 @@
             </summary>
             <remarks></remarks>
         </member>
+        <member name="M:WebAPI.Controllers.UserRoleController.ListOldStandard(WebAPI.Models.API.KalturaUserRoleFilter)">
+            <summary>
+            Retrieving user roles by identifiers, if filter is empty, returns all partner roles
+            </summary>
+            <remarks></remarks>
+        </member>
         <member name="M:WebAPI.Managers.Models.AppToken.CalcHash">
             <summary>
             calculates the hash of the ks + token string based on the token hash type
@@ -2231,6 +2281,41 @@
             <param name="usersGroup">list of users separated by ';'</param>
             <returns>True if the action is permitted, false otherwise, and a users group list (if exists) for this action</returns>
         </member>
+        <member name="T:WebAPI.Models.API.KalturaPin">
+            <summary>
+            PIN and its origin of definition
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaOTTObject">
+            <summary>
+            Base class
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaPin.PIN">
+            <summary>
+            PIN code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaPin.Origin">
+            <summary>
+            Where the PIN was defined at – account, household or user
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaPin.Type">
+            <summary>
+            PIN type
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaPurchaseSettings">
+            <summary>
+            Purchase settings and PIN
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaPurchaseSettings.Permission">
+            <summary>
+            Purchase permission - block, ask or allow
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.API.KalturaUserAssetRuleFilter">
             <summary>
             User asset rule filter
@@ -2239,11 +2324,6 @@
         <member name="T:WebAPI.Models.General.KalturaFilter`1">
             <summary>
             Base filter
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaOTTObject">
-            <summary>
-            Base class
             </summary>
         </member>
         <member name="P:WebAPI.Models.General.KalturaFilter`1.OrderBy">
@@ -2699,6 +2779,11 @@
             Reference type to filter by
              </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementFilter.IsExpiredEqual">
+             <summary>
+            Is expired 
+             </summary>
+        </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaTransactionHistoryFilter">
             <summary>
             Transactions filter
@@ -3048,6 +3133,11 @@
         <member name="P:WebAPI.Models.API.KalturaUserRoleFilter.Ids">
             <summary>
             The roles identifiers
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaUserRoleFilter.IdIn">
+            <summary>
+            Comma separated roles identifiers
             </summary>
         </member>
         <member name="T:WebAPI.Models.API.KalturaChannelProfile">
@@ -4148,6 +4238,16 @@
         <member name="P:WebAPI.Models.General.KalturaStringValueArray.Objects">
             <summary>
             List of string values
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaUserRoleListResponse">
+            <summary>
+            User-roles list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaUserRoleListResponse.UserRoles">
+            <summary>
+            A list of generic rules
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaUserRole.Id">
@@ -6885,6 +6985,33 @@
         <member name="M:WebAPI.Api.API.#ctor">
             <remarks/>
         </member>
+        <member name="M:WebAPI.Api.API.GetBulkExportTasks(System.String,System.String,System.Int64[],System.String[],WebAPI.Api.BulkExportTaskOrderBy)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetBulkExportTasksAsync(System.String,System.String,System.Int64[],System.String[],WebAPI.Api.BulkExportTaskOrderBy)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetBulkExportTasksAsync(System.String,System.String,System.Int64[],System.String[],WebAPI.Api.BulkExportTaskOrderBy,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.Export(System.String,System.String,System.Int64,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.ExportAsync(System.String,System.String,System.Int64,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.ExportAsync(System.String,System.String,System.Int64,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.EnqueueExportTask(System.String,System.String,System.Int64)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.EnqueueExportTaskAsync(System.String,System.String,System.Int64)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.EnqueueExportTaskAsync(System.String,System.String,System.Int64,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.Api.API.MessageRecovery(System.String,System.String,System.Int64,System.String[])">
             <remarks/>
         </member>
@@ -7875,6 +8002,15 @@
         <member name="M:WebAPI.Api.API.GetParentalPINAsync(System.String,System.String,System.Int32,System.String,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.Api.API.UpdateParentalPIN(System.String,System.String,System.Int32,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdateParentalPINAsync(System.String,System.String,System.Int32,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdateParentalPINAsync(System.String,System.String,System.Int32,System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.Api.API.SetParentalPIN(System.String,System.String,System.Int32,System.String,System.String)">
             <remarks/>
         </member>
@@ -7902,6 +8038,15 @@
         <member name="M:WebAPI.Api.API.SetPurchaseSettingsAsync(System.String,System.String,System.Int32,System.String,System.Int32,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.Api.API.UpdatePurchaseSettings(System.String,System.String,System.Int32,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdatePurchaseSettingsAsync(System.String,System.String,System.Int32,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdatePurchaseSettingsAsync(System.String,System.String,System.Int32,System.String,System.Int32,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.Api.API.GetPurchasePIN(System.String,System.String,System.Int32,System.String)">
             <remarks/>
         </member>
@@ -7909,6 +8054,15 @@
             <remarks/>
         </member>
         <member name="M:WebAPI.Api.API.GetPurchasePINAsync(System.String,System.String,System.Int32,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdatePurchasePIN(System.String,System.String,System.Int32,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdatePurchasePINAsync(System.String,System.String,System.Int32,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdatePurchasePINAsync(System.String,System.String,System.Int32,System.String,System.String,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Api.API.SetPurchasePIN(System.String,System.String,System.Int32,System.String,System.String)">
@@ -8289,34 +8443,16 @@
         <member name="M:WebAPI.Api.API.DeleteBulkExportTaskAsync(System.String,System.String,System.Int64,System.String,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.GetBulkExportTasks(System.String,System.String,System.Int64[],System.String[],WebAPI.Api.BulkExportTaskOrderBy)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetBulkExportTasksAsync(System.String,System.String,System.Int64[],System.String[],WebAPI.Api.BulkExportTaskOrderBy)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetBulkExportTasksAsync(System.String,System.String,System.Int64[],System.String[],WebAPI.Api.BulkExportTaskOrderBy,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.Export(System.String,System.String,System.Int64,System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.ExportAsync(System.String,System.String,System.Int64,System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.ExportAsync(System.String,System.String,System.Int64,System.String,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.EnqueueExportTask(System.String,System.String,System.Int64)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.EnqueueExportTaskAsync(System.String,System.String,System.Int64)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.EnqueueExportTaskAsync(System.String,System.String,System.Int64,System.Object)">
-            <remarks/>
-        </member>
         <member name="M:WebAPI.Api.API.CancelAsync(System.Object)">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.GetBulkExportTasksCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.ExportCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.EnqueueExportTaskCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.Api.API.MessageRecoveryCompleted">
@@ -8649,6 +8785,9 @@
         <member name="E:WebAPI.Api.API.GetParentalPINCompleted">
             <remarks/>
         </member>
+        <member name="E:WebAPI.Api.API.UpdateParentalPINCompleted">
+            <remarks/>
+        </member>
         <member name="E:WebAPI.Api.API.SetParentalPINCompleted">
             <remarks/>
         </member>
@@ -8658,7 +8797,13 @@
         <member name="E:WebAPI.Api.API.SetPurchaseSettingsCompleted">
             <remarks/>
         </member>
+        <member name="E:WebAPI.Api.API.UpdatePurchaseSettingsCompleted">
+            <remarks/>
+        </member>
         <member name="E:WebAPI.Api.API.GetPurchasePINCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.UpdatePurchasePINCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.Api.API.SetPurchasePINCompleted">
@@ -8787,22 +8932,13 @@
         <member name="E:WebAPI.Api.API.DeleteBulkExportTaskCompleted">
             <remarks/>
         </member>
-        <member name="E:WebAPI.Api.API.GetBulkExportTasksCompleted">
+        <member name="T:WebAPI.Api.BulkExportTaskOrderBy">
             <remarks/>
         </member>
-        <member name="E:WebAPI.Api.API.ExportCompleted">
+        <member name="F:WebAPI.Api.BulkExportTaskOrderBy.CreateDateAsc">
             <remarks/>
         </member>
-        <member name="E:WebAPI.Api.API.EnqueueExportTaskCompleted">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.Status">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.Status.Code">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.Status.Message">
+        <member name="F:WebAPI.Api.BulkExportTaskOrderBy.CreateDateDesc">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.BulkExportTasksResponse">
@@ -8884,6 +9020,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.BulkExportTaskResponse.Status">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.Status.Code">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.Status.Message">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.ExternalChannelResponseList">
@@ -9939,19 +10084,106 @@
         <member name="F:WebAPI.Api.eMailTemplateType.AddDeviceToDomain">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Api.CinepolisPurchaseMailRequest">
+        <member name="T:WebAPI.Api.PurchaseMailRequest">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sPurchaseDate">
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sPurchaseDate">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sItemName">
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sItemName">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sPrice">
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sPrice">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sUsername">
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTransactionNumber">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sPaymentMethod">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTaxVal">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTaxSubtotal">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTaxAmount">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sInvoiceNum">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sExternalTransationNum">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sAddress">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sUserEmail">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.PreviewModuleCancelOrRefundRequest">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.PurchaseFailRequest">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.PurchaseWithPreviewModuleRequest">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseWithPreviewModuleRequest.m_sPreviewModuleEndDate">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.CinepolisRenewalFailMailRequest">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CinepolisRenewalFailMailRequest.m_sPurchaseDate">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CinepolisRenewalFailMailRequest.m_sItemName">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.WelcomeMailRequest">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.WelcomeMailRequest.m_sToken">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.WelcomeMailRequest.m_sUsername">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.WelcomeMailRequest.m_sPassword">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.ForgotPasswordMailRequest">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ForgotPasswordMailRequest.m_sToken">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.SendPasswordMailRequest">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.SendPasswordMailRequest.m_sToken">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.SendPasswordMailRequest.m_sUsername">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.SendPasswordMailRequest.m_sPassword">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.ChangedPinMailRequest">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ChangedPinMailRequest.m_sToken">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ChangedPinMailRequest.m_sSiteGuid">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ChangedPinMailRequest.m_sRuleName">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.AddUserMailRequest">
@@ -10020,18 +10252,6 @@
         <member name="P:WebAPI.Api.EmailNotificationRequest.m_startDate">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Api.ChangedPinMailRequest">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ChangedPinMailRequest.m_sToken">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ChangedPinMailRequest.m_sSiteGuid">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ChangedPinMailRequest.m_sRuleName">
-            <remarks/>
-        </member>
         <member name="T:WebAPI.Api.SendAdminTokenRequest">
             <remarks/>
         </member>
@@ -10050,94 +10270,19 @@
         <member name="P:WebAPI.Api.ChangePasswordMailRequest.m_sToken">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Api.PurchaseMailRequest">
+        <member name="T:WebAPI.Api.CinepolisPurchaseMailRequest">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sPurchaseDate">
+        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sPurchaseDate">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sItemName">
+        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sItemName">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sPrice">
+        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sPrice">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTransactionNumber">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sPaymentMethod">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTaxVal">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTaxSubtotal">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTaxAmount">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sInvoiceNum">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sExternalTransationNum">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sAddress">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sUserEmail">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.PreviewModuleCancelOrRefundRequest">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.PurchaseWithPreviewModuleRequest">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseWithPreviewModuleRequest.m_sPreviewModuleEndDate">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.PurchaseFailRequest">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.SendPasswordMailRequest">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.SendPasswordMailRequest.m_sToken">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.SendPasswordMailRequest.m_sUsername">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.SendPasswordMailRequest.m_sPassword">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.CinepolisRenewalFailMailRequest">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.CinepolisRenewalFailMailRequest.m_sPurchaseDate">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.CinepolisRenewalFailMailRequest.m_sItemName">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.WelcomeMailRequest">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.WelcomeMailRequest.m_sToken">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.WelcomeMailRequest.m_sUsername">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.WelcomeMailRequest.m_sPassword">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.ForgotPasswordMailRequest">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ForgotPasswordMailRequest.m_sToken">
+        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sUsername">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.RateMediaObject">
@@ -11478,13 +11623,31 @@
         <member name="F:WebAPI.Api.GenericRuleOrderBy.NameDesc">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Api.BulkExportTaskOrderBy">
+        <member name="T:WebAPI.Api.GetBulkExportTasksCompletedEventHandler">
             <remarks/>
         </member>
-        <member name="F:WebAPI.Api.BulkExportTaskOrderBy.CreateDateAsc">
+        <member name="T:WebAPI.Api.GetBulkExportTasksCompletedEventArgs">
             <remarks/>
         </member>
-        <member name="F:WebAPI.Api.BulkExportTaskOrderBy.CreateDateDesc">
+        <member name="P:WebAPI.Api.GetBulkExportTasksCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.ExportCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.ExportCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ExportCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.EnqueueExportTaskCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.EnqueueExportTaskCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.EnqueueExportTaskCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.MessageRecoveryCompletedEventHandler">
@@ -12489,6 +12652,15 @@
         <member name="P:WebAPI.Api.GetParentalPINCompletedEventArgs.Result">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Api.UpdateParentalPINCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.UpdateParentalPINCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.UpdateParentalPINCompletedEventArgs.Result">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Api.SetParentalPINCompletedEventHandler">
             <remarks/>
         </member>
@@ -12516,6 +12688,15 @@
         <member name="P:WebAPI.Api.SetPurchaseSettingsCompletedEventArgs.Result">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Api.UpdatePurchaseSettingsCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.UpdatePurchaseSettingsCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.UpdatePurchaseSettingsCompletedEventArgs.Result">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Api.GetPurchasePINCompletedEventHandler">
             <remarks/>
         </member>
@@ -12523,6 +12704,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.GetPurchasePINCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.UpdatePurchasePINCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.UpdatePurchasePINCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.UpdatePurchasePINCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.SetPurchasePINCompletedEventHandler">
@@ -12901,33 +13091,6 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.DeleteBulkExportTaskCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GetBulkExportTasksCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GetBulkExportTasksCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.GetBulkExportTasksCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.ExportCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.ExportCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ExportCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.EnqueueExportTaskCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.EnqueueExportTaskCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.EnqueueExportTaskCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Billing.module">

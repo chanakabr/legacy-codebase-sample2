@@ -2087,6 +2087,8 @@
     <Compile Include="Managers\Schema\OldStandard.cs" />
     <Compile Include="Managers\Schema\ValidationException.cs" />
     <Compile Include="Managers\Schema\SchemaValidationType.cs" />
+    <Compile Include="Models\API\KalturaPin.cs" />
+    <Compile Include="Models\API\KalturaPurchaseSettings.cs" />
     <Compile Include="Models\API\KalturaUserAssetRuleFilter.cs" />
     <Compile Include="Models\API\KalturaUserAssetRuleListResponse.cs" />
     <Compile Include="Models\API\KalturaUserAssetRule.cs" />
