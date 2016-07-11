@@ -17297,7 +17297,7 @@ namespace ConditionalAccess
                 // validate epgs entitlement and add to response
                 ValidateEpgForRecording(userID, domainID, ref response, epgs, validEpgsForRecording);
 
-                int totalSeconds = Utils.GetQuota(this.m_nGroupID, domainID) * 60;
+                int totalSeconds = Utils.GetDomainQuota(this.m_nGroupID, domainID);
 
                 List<TstvRecordingStatus> recordingStatuses = new List<TstvRecordingStatus>()
                 {
@@ -18007,7 +18007,7 @@ namespace ConditionalAccess
                 }
 
                 // Get domains quota
-                int domainsQuotaInSeconds = Utils.GetQuota(this.m_nGroupID, domainID) * 60;
+                int domainsQuotaInSeconds = Utils.GetDomainQuota(this.m_nGroupID, domainID);
 
                 // Get protection quota percentages                
                 if (accountSettings == null || !accountSettings.ProtectionQuotaPercentage.HasValue)
@@ -18235,9 +18235,9 @@ namespace ConditionalAccess
             {
                 // try to get interval for next run take default
                 ScheduledTaskLastRunResponse expiredRecordingsLastRunResponse = GetLastScheduleTaksSuccessfulRun(RECORDINGS_LIFETIME);
-                if (expiredRecordingsLastRunResponse.Status.Code == (int)eResponseStatus.OK && expiredRecordingsLastRunResponse.NextRunIntervalInMinutes > 0)
+                if (expiredRecordingsLastRunResponse.Status.Code == (int)eResponseStatus.OK && expiredRecordingsLastRunResponse.NextRunIntervalInSeconds > 0)
                 {
-                    scheduledTaskIntervalMin = expiredRecordingsLastRunResponse.NextRunIntervalInMinutes;
+                    scheduledTaskIntervalMin = expiredRecordingsLastRunResponse.NextRunIntervalInSeconds;
                     if (expiredRecordingsLastRunResponse.LastSuccessfulRunDate.AddMinutes(scheduledTaskIntervalMin) < DateTime.UtcNow)
                     {
                         shouldInsertToQueue = true;
@@ -18321,9 +18321,9 @@ namespace ConditionalAccess
             {
                 // try to get interval for next run take default
                 ScheduledTaskLastRunResponse recordingScheduledTasksLastRunResponse = GetLastScheduleTaksSuccessfulRun(RECORDINGS_SCHEDULED_TASKS);
-                if (recordingScheduledTasksLastRunResponse.Status.Code == (int)eResponseStatus.OK && recordingScheduledTasksLastRunResponse.NextRunIntervalInMinutes > 0)
+                if (recordingScheduledTasksLastRunResponse.Status.Code == (int)eResponseStatus.OK && recordingScheduledTasksLastRunResponse.NextRunIntervalInSeconds > 0)
                 {
-                    scheduledTaskIntervalMin = recordingScheduledTasksLastRunResponse.NextRunIntervalInMinutes;
+                    scheduledTaskIntervalMin = recordingScheduledTasksLastRunResponse.NextRunIntervalInSeconds;
                     if (recordingScheduledTasksLastRunResponse.LastSuccessfulRunDate.AddMinutes(scheduledTaskIntervalMin) < DateTime.UtcNow)
                     {
                         shouldInsertToQueue = true;
@@ -18424,9 +18424,8 @@ namespace ConditionalAccess
                         DataRow dr = expiredDomainRecordings.Rows[i];
                         if (dr != null)
                         {
-                            long domainId = ODBCWrapper.Utils.GetLongSafeVal(dr, "DOMAIN_ID", 0);
-                            int currentDomainQuota = Utils.GetDomainQuota(domainId);
-                            if (QuotaManager.Instance.UpdateDomainQuota(domainId, currentDomainQuota, currentDomainQuota + recordingDuration))
+                            long domainId = ODBCWrapper.Utils.GetLongSafeVal(dr, "DOMAIN_ID", 0);                            
+                            if (Utils.AddQuotaToDomain(domainId, recordingDuration))
                             {
                                 ApiObjects.Response.Status response = CompleteHouseholdSeriesRecordings(domainId);
                                 if (response == null || response.Code != (int)eResponseStatus.OK)
@@ -18462,7 +18461,7 @@ namespace ConditionalAccess
                     log.DebugFormat("recordingId: {0} has no domain recording that protect it");
                 }
 
-                if (!ConditionalAccessDAL.UpdateExpiredRecordingScheduledTask(expiredRecording.Id))
+                if (!ConditionalAccessDAL.UpdateExpiredRecordingAfterScheduledTask(expiredRecording.Id))
                 {
                     log.ErrorFormat("failed UpdateExpiredRecordingScheduledTask for expiredRecording: {0}", expiredRecording.ToString());
                 }

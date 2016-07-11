@@ -15,8 +15,7 @@ namespace Recordings
 {
     public class QuotaManager
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static CouchbaseSynchronizer synchronizer = null;
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());        
 
         #region SingleTon
         
@@ -44,8 +43,6 @@ namespace Recordings
 
         static QuotaManager()
         {
-            synchronizer = new CouchbaseSynchronizer(1000, 60);
-            synchronizer.SynchronizedAct += Quota_SynchronizedAct;
         }
 
         #endregion
@@ -111,7 +108,7 @@ namespace Recordings
         {
             Status status = new Status((int)eResponseStatus.OK);
 
-            int totalSeconds = ConditionalAccess.Utils.GetQuota(groupId, domainID) * 60;
+            int totalSeconds = ConditionalAccess.Utils.GetDomainQuota(groupId, domainID);
             int secondsLeft = totalSeconds;
 
             bool shouldContinue = false;
@@ -159,19 +156,6 @@ namespace Recordings
             return status;
         }
 
-        public bool UpdateDomainQuota(long domainId, int currentQuota, int updatedQuota)
-        {
-            bool result = false;
-            string syncKey = string.Format("QuotaManager_d{0}", domainId);
-            Dictionary<string, object> syncParmeters = new Dictionary<string, object>();
-            syncParmeters.Add("domainId", domainId);
-            syncParmeters.Add("previousQuota", currentQuota);
-            syncParmeters.Add("updatedQuota", updatedQuota);
-            result = synchronizer.DoAction(syncKey, syncParmeters);
-
-            return result;
-        }
-
         #endregion
 
         #region Private Methods
@@ -204,31 +188,6 @@ namespace Recordings
             }
 
             return status;
-        }
-
-        private static bool Quota_SynchronizedAct(Dictionary<string, object> parameters)
-        {
-            bool result = true;
-
-            if (parameters != null && parameters.Count > 0)
-            {
-                long domainId = (long)parameters["domainId"];
-                int previousQuota = (int)parameters["previousQuota"];
-                int UpdatedQuota = (int)parameters["updatedQuota"];
-
-                int currentQuota = ConditionalAccess.Utils.GetDomainQuota(domainId);
-                if (currentQuota == previousQuota)
-                {
-                    result = DAL.ConditionalAccessDAL.UpdateDomainQuota(domainId,UpdatedQuota);
-                }
-                else
-                {
-                    log.ErrorFormat("Failed updating domain quota, domainId: {0}, previousQuota: {1}, updatedQuota: {2}, currentQuota: {3}", domainId, previousQuota, UpdatedQuota, currentQuota);
-                }
-            }
-
-            return result;
-
         }
 
         #endregion

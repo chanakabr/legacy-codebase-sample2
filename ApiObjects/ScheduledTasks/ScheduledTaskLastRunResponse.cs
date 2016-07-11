@@ -12,16 +12,16 @@ namespace ApiObjects.ScheduledTasks
         public ApiObjects.Response.Status Status { get; set; }
         public DateTime LastSuccessfulRunDate { get; set; }
         public int ImpactedItems { get; set; }        
-        public int NextRunIntervalInMinutes { get; set; }
+        public int NextRunIntervalInSeconds { get; set; }
 
         public ScheduledTaskLastRunResponse() { }
 
-        public ScheduledTaskLastRunResponse(DateTime lastSuccessfulRunDate, int impactedItems, int nextRunIntervalInMinutes)
+        public ScheduledTaskLastRunResponse(DateTime lastSuccessfulRunDate, int impactedItems, int nextRunIntervalInSeconds)
         {
             this.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             this.LastSuccessfulRunDate = lastSuccessfulRunDate;
             this.ImpactedItems = impactedItems;            
-            this.NextRunIntervalInMinutes = nextRunIntervalInMinutes;
+            this.NextRunIntervalInSeconds = nextRunIntervalInSeconds;
         }
 
         public override string ToString()
@@ -30,7 +30,7 @@ namespace ApiObjects.ScheduledTasks
             sb.Append(string.Format("Status Code: {0}, Status Message: {1} ", Status.Code, Status.Message));
             sb.Append(string.Format("LastSuccessfulRunDate: {0}, ", LastSuccessfulRunDate.ToString()));
             sb.Append(string.Format("ImpactedItems: {0}, ", ImpactedItems));
-            sb.Append(string.Format("NextRunIntervalInMinutes: {0}", NextRunIntervalInMinutes));
+            sb.Append(string.Format("NextRunIntervalInSeconds: {0}", NextRunIntervalInSeconds));
 
             return sb.ToString();
         }

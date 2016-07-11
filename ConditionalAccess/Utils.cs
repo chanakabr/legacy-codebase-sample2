@@ -4661,28 +4661,7 @@ namespace ConditionalAccess
             }
 
             return responseDictionary.Values.ToList();
-        }
-
-        internal static int GetQuota(int groupID, long domainID)
-        {
-            int QuotaInMinutes = 0;
-            try
-            {
-                string key = string.Format("{0}_{1}", groupID, "DefaultQuotaMinutes");
-                bool res = ConditionalAccessCache.GetItem<int>(key, out QuotaInMinutes);
-                if (!res || QuotaInMinutes == 0)
-                {
-                    QuotaInMinutes = ConditionalAccessDAL.GetQuotaMinutes(groupID);
-                    res = ConditionalAccessCache.AddItem(key, QuotaInMinutes);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("failed to get quoata in minutes for domainID = {0}, groupID = {1} , ex = {2}", domainID, groupID, ex.Message);
-                QuotaInMinutes = 0;
-            }
-            return QuotaInMinutes;
-        }
+        }        
 
         internal static int MapActionTypeForAdapter(eEPGFormatType eformat)
         {
@@ -5070,9 +5049,35 @@ namespace ConditionalAccess
             return expiredRecordings;
         }
 
-        internal static int GetDomainQuota(long domainId)
+        internal static int GetDomainQuota(int groupId, long domainId)
         {
-            return ConditionalAccessDAL.GetDomainsQuota(domainId);
+            int domainQuota = ConditionalAccessDAL.GetDomainQuota(groupId, domainId);
+            // if key wasn't found
+            if (domainQuota < 0)
+            {
+                domainQuota = 0;
+                try
+                {
+                    string key = UtilsDal.GetDefaultQuotaInSeconds(groupId, domainId);
+                    bool res = ConditionalAccessCache.GetItem<int>(key, out domainQuota);
+                    if (!res || domainQuota == 0)
+                    {
+                        domainQuota = ConditionalAccessDAL.GetDefaultQuotaInSeconds(groupId);
+                        res = ConditionalAccessCache.AddItem(key, domainQuota);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("failed to get quota in seconds for domainID = {0}, groupID = {1} , ex = {2}", domainId, groupId, ex.Message);
+                    domainQuota = 0;
+                }
+            }
+            return domainQuota;
+        }
+
+        internal static bool AddQuotaToDomain(long domainId, int quotaToAdd)
+        {
+            return ConditionalAccessDAL.AddQuotaToDomain(domainId, quotaToAdd);
         }
     }
 }

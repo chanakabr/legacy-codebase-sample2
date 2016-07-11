@@ -658,7 +658,6 @@ namespace DAL
         }
         #endregion
 
-
         public static int Get_NPVRProviderID(long groupID)
         {
             int res = 0;
@@ -678,7 +677,6 @@ namespace DAL
 
             return res;
         }
-
 
         public static string getUserNpvrMarkDocKey(int nSiteUserGuid, string sNpvrID)
         {
@@ -721,6 +719,11 @@ namespace DAL
         public static string GetDomainQuotaKey(long domainId)
         {
             return string.Format("domain_{0}_quota", domainId);
+        }
+
+        public static string GetDefaultQuotaInSeconds(int groupId, long domainId)
+        {
+            return string.Format("{0}_{1}", groupId, "DefaultQuotaSeconds");
         }
     }
 }
