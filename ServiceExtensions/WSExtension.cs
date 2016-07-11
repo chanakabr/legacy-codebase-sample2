@@ -45,24 +45,6 @@ namespace ServiceExtensions
                 switch (message.Stage)
                 {
                     case SoapMessageStage.BeforeSerialize:
-
-                        // add request ID header
-                        if (message is SoapClientMessage)
-                        {
-                            ReqIdHeader reqIdHeader = new ReqIdHeader()
-                            {
-                                kmon_req_id = HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString(),
-                                MustUnderstand = false
-                            };
-
-                            if (!message.Headers.Contains(reqIdHeader) &&
-                                HttpContext.Current != null &&
-                                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
-                            {
-                                message.Headers.Add(reqIdHeader);
-                            }
-                        }
-
                         break;
                     case SoapMessageStage.AfterSerialize:
                         break;
