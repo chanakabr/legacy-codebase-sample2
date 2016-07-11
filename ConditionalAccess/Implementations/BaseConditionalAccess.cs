@@ -59,7 +59,7 @@ namespace ConditionalAccess
         private const string RECORDINGS_SCHEDULED_TASKS = "recordingsScheduledTasks";
         private const double HANDLE_RECORDINGS_SCHEDULED_TASKS_INTERVAL_SEC = 60;
         private const string RECORDING_TASKS_ROUTING_KEY = "PROCESS_RECORDING_SCHEDULED_TASKS";
-        private const string EXPIRED_RECORDING_ROUTING_KEY = "PROCESS_EXPIRED_RECORDING";
+        private const string ROUTING_KEY_EXPIRED_RECORDING = "PROCESS_EXPIRED_RECORDING\\{0}";
 
         //errors
         private const string CONFLICTED_PARAMS = "Conflicted params";
@@ -18339,7 +18339,7 @@ namespace ConditionalAccess
                     {
                         GenericCeleryQueue queue = new GenericCeleryQueue();
                         ExpiredRecordingData data = new ExpiredRecordingData(expiredRecording.GroupId, expiredRecording.Id, expiredRecording.RecordingId, expiredRecording.ScheduledExpirationEpoch, expiredRecording.ScheduledExpirationDate) { ETA = DateTime.UtcNow };
-                        bool queueExpiredRecordingResult = queue.Enqueue(data, EXPIRED_RECORDING_ROUTING_KEY);
+                        bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_EXPIRED_RECORDING, expiredRecording.GroupId));
                         if (!queueExpiredRecordingResult)
                         {
                             log.ErrorFormat("Failed to queue ExpiredRecordingScheduledTask: {0}", expiredRecording.ToString());
