@@ -18213,39 +18213,30 @@ namespace ConditionalAccess
             return response;
         }
 
-        public ApiObjects.Response.Status CompleteHouseholdSeriesRecordings(string userId, int householdId, long availibleQuota)
+        public ApiObjects.Response.Status CompleteHouseholdSeriesRecordings(int householdId, long availibleQuota)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
-            // 1. make sure the household is ok (? - already done before)
-            ConditionalAccess.TvinciDomains.Domain domain;
-            long domainID = 0;
-            ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userId, ref domainID, out domain);
-
-            // Validate user and domain
-            if (validationStatus.Code != (int)eResponseStatus.OK)
-            {
-                log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}", domainID, userId);
-                return validationStatus;
-            }
-            
-            // 1.5. if recording is enabled only in advanced - nothing to do
+            // 1. if recording is enabled only in advanced - nothing to do
             var tstvSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
-            if (tstvSettings.IsRecordingScheduleWindowEnabled.HasValue && tstvSettings.IsRecordingScheduleWindowEnabled.Value && tstvSettings.RecordingScheduleWindow >= 0)
+            if (tstvSettings.IsRecordingScheduleWindowEnabled.HasValue && tstvSettings.IsRecordingScheduleWindowEnabled.Value && tstvSettings.RecordingScheduleWindow <= 0)
             {
                 response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 return response;
             }
 
-            // 2. get the household available quota (? - or use the param)
-            
-            // 3. get household series / seasons
+            // 2. get household series / seasons
             List<DomainSeriesRecording> series = ConditionalAccessDAL.GetDomainSeriesRecordings(m_nGroupID, householdId);
-            
-            // 4. get household recordings
+            if (series == null || series.Count == 0)
+            {
+                response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                return response;
+            }
+
+            // 3. get household recordings
             Dictionary<long, Recording> householdRecordings = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, householdId, null);
 
-            // 5. get all the relevant (series + seasons + CRID not in the list of household recordings) programs to record from ES - search query
+            // 4. get all the relevant (series + seasons + CRID not in the list of household recordings) programs to record from ES - search query
 
             // get the names of the series and seasons tags/metas of the group
             var metaTagsMappings = Tvinci.Core.DAL.CatalogDAL.GetAliasMappingFields(m_nGroupID);
@@ -18256,7 +18247,7 @@ namespace ConditionalAccess
                 return response;
             }
 
-            var feild = metaTagsMappings.Where(m => m.Name == "series_id").FirstOrDefault();
+            var feild = metaTagsMappings.Where(m => m.Name.ToLower() == "series_id").FirstOrDefault();
             if (feild == null)
             {
                 log.ErrorFormat("alias for series_id was not found. group_id = {0}", m_nGroupID);
@@ -18264,71 +18255,68 @@ namespace ConditionalAccess
                 return response;
             }
 
-            string seriesIdAlias = feild.Alias, SeasonNumberAlias = string.Empty;
+            string seriesIdAlias = feild.Alias; 
+            string seasonNumberAlias = string.Empty;
 
-            feild = metaTagsMappings.Where(m => m.Name == "season_number").FirstOrDefault();
+            feild = metaTagsMappings.Where(m => m.Name.ToLower() == "season_number").FirstOrDefault();
             if (feild != null)
             {
-                SeasonNumberAlias = feild.Alias;
+                seasonNumberAlias = feild.Alias;
             }
 
             // build the filter query for the search
-            StringBuilder filter = new StringBuilder("(OR ");
+            StringBuilder filter = new StringBuilder("(And (Or ");
             foreach (var serie in series)
             {
                 // with season
-                if (serie.SeasonNumber != 0 && !string.IsNullOrEmpty(SeasonNumberAlias))
-                    filter.AppendFormat("(And {0} = '{1}' {2} = '{3}')", SeasonNumberAlias, serie.SeasonNumber, seriesIdAlias, serie.SeriesId);
+                if (serie.SeasonNumber > 0 && !string.IsNullOrEmpty(seasonNumberAlias))
+                    filter.AppendFormat("(And {0} = '{1}' {2} = '{3}')", seasonNumberAlias, serie.SeasonNumber, seriesIdAlias, serie.SeriesId);
                 // without season
                 else
                 filter.AppendFormat("{0} = '{1}' ", seriesIdAlias, serie.SeriesId);
             }
 
-            filter.Append(")");
+            filter.Append(") end_date < '0')");
 
             // build the excluded CRIDs list
             List<string> excludedCrids = null;
 
             if (householdRecordings != null)
             {
-                householdRecordings.Values.Select(r => r.Crid).ToList();
+                excludedCrids = householdRecordings.Values.Select(r => r.Crid).ToList();
             }
 
             // get the programs from catalog
-            List<EPGChannelProgrammeObject> relevantProgramsForRecord = Utils.SearchEpgWithExcludedCrids(m_nGroupID, filter.ToString(), excludedCrids,
+            List<ConditionalAccess.WS_Catalog.ExtendedSearchResult> relevantRecordingsForRecord = Utils.SearchRecordingsWithExcludedCrids(m_nGroupID, filter.ToString(), excludedCrids,
                 new ApiObjects.SearchObjects.OrderObj()
                 {
                     m_eOrderBy = ApiObjects.SearchObjects.OrderBy.START_DATE,
-                    m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC
+                    m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC
                 });
 
-            // 6. get the catch-up buffers for the programs from (5) (? - is the catchup buffer on the program is enough? )
+            // 5. get the catch-up buffers for the programs from (5) (? - is the catchup buffer on the program is enough? )
 
-            // 7. calculate which recording should be recorded for the household based on quota and catch-up buffer
-            List<EPGChannelProgrammeObject> ProgramsToRecord = new List<EPGChannelProgrammeObject>();
-            DateTime startDate, endDate;
+            // 6. calculate which recording should be recorded for the household based on quota and catch-up buffer
             long programLengthSeconds = 0;
-            foreach (var program in relevantProgramsForRecord)
+            //add the padding 
+            long padding = (tstvSettings.PaddingBeforeProgramStarts.HasValue ? tstvSettings.PaddingBeforeProgramStarts.Value : 0) + 
+                (tstvSettings.PaddingAfterProgramEnds.HasValue ? tstvSettings.PaddingAfterProgramEnds.Value : 0);
+            
+            foreach (var potentialRecording in relevantRecordingsForRecord)
             {
-                startDate = DateTime.ParseExact(program.START_DATE, "dd/MM/yyyy HH:mm:ss", null);
-                endDate = DateTime.ParseExact(program.END_DATE, "dd/MM/yyyy HH:mm:ss", null);
-                programLengthSeconds = (long)(endDate - startDate).TotalSeconds;
-                
-                //add the padding 
-                programLengthSeconds = tstvSettings.PaddingBeforeProgramStarts.HasValue ? programLengthSeconds + tstvSettings.PaddingBeforeProgramStarts.Value : programLengthSeconds;
-                programLengthSeconds = tstvSettings.PaddingAfterProgramEnds.HasValue ? programLengthSeconds + tstvSettings.PaddingAfterProgramEnds.Value : programLengthSeconds;
+                programLengthSeconds = (long)(potentialRecording.EndDate - potentialRecording.StartDate).TotalSeconds + padding;
 
                 if (programLengthSeconds < availibleQuota)
                 {
-                    ProgramsToRecord.Add(program);
-                    availibleQuota -= programLengthSeconds;
-                }
-            }
+                    // TODO: get userId
+                    string userId = string.Empty;
 
-            // 8. record the selected programs for the household
-            foreach (var programToRecord in ProgramsToRecord)
-            {
-                Record(userId, programToRecord.EPG_ID);
+                    // TODO: wrong asset id!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    var recording = Record(userId, long.Parse(potentialRecording.AssetId));
+                    
+                    // TODO: get available quota
+                    availibleQuota = 0;
+                }
             }
 
             return response;

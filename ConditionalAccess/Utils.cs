@@ -5038,20 +5038,20 @@ namespace ConditionalAccess
             return result;
         }
 
-        internal static List<EPGChannelProgrammeObject> SearchEpgWithExcludedCrids(int groupID, string filter, List<string> excludedCrids, ApiObjects.SearchObjects.OrderObj orderBy)
+        internal static List<ExtendedSearchResult> SearchRecordingsWithExcludedCrids(int groupID, string filter, List<string> excludedCrids, ApiObjects.SearchObjects.OrderObj orderBy)
         {
             WS_Catalog.IserviceClient client = null;
-            List<EPGChannelProgrammeObject> programs = null;
+            List<ExtendedSearchResult> recordings = null;
 
             // get program ids
             try
             {
-                WS_Catalog.UnifiedSearchRequest request = new WS_Catalog.UnifiedSearchRequest()
+                WS_Catalog.ExtendedSearchRequest request = new WS_Catalog.ExtendedSearchRequest()
                 {
                     m_nGroupID = groupID,
                     m_nPageIndex = 0,
                     m_nPageSize = 0,
-                    assetTypes = new int[1] { 0 },
+                    assetTypes = new int[1] { 1 },
                     filterQuery = filter,
                     order = orderBy,
                     m_oFilter = new WS_Catalog.Filter()
@@ -5066,7 +5066,7 @@ namespace ConditionalAccess
                 if (string.IsNullOrEmpty(sCatalogUrl))
                 {
                     log.Error("Catalog Url is null or empty");
-                    return programs;
+                    return recordings;
                 }
 
                 client.Endpoint.Address = new System.ServiceModel.EndpointAddress(sCatalogUrl);
@@ -5075,41 +5075,16 @@ namespace ConditionalAccess
 
                 if (response == null || response.status == null)
                 {
-                    log.ErrorFormat("Got empty response from Catalog 'GetResponse' for 'UnifiedSearchRequest'");
-                    return programs;
+                    log.ErrorFormat("Got empty response from Catalog 'GetResponse' for 'ExtendedSearchRequest'");
+                    return recordings;
                 }
                 if (response.status.Code != (int)eResponseStatus.OK)
                 {
-                    log.ErrorFormat("Got error response from catalog 'GetResponse' for 'UnifiedSearchRequest'. response: code = {0}, message = {1}", response.status.Code, response.status.Message); 
-                    return programs;
+                    log.ErrorFormat("Got error response from catalog 'GetResponse' for 'ExtendedSearchRequest'. response: code = {0}, message = {1}", response.status.Code, response.status.Message); 
+                    return recordings;
                 }
 
-                // get programs
-                if (response.searchResults != null && response.searchResults.Length > 0)
-                {
-                    AssetInfoRequest programsRequest = new AssetInfoRequest()
-                    {
-                        m_nGroupID = groupID,
-                        m_nPageIndex = 0,
-                        m_nPageSize = 0,
-                        m_oFilter = new WS_Catalog.Filter()
-                        {
-                            m_bOnlyActiveMedia = true
-                        },
-                        epgIds = response.searchResults.Select(p => long.Parse(p.AssetId)).ToArray()
-                    };
-                    FillCatalogSignature(request);
-
-                    AssetInfoResponse programsRespnse = client.GetResponse(programsRequest) as AssetInfoResponse;
-
-                    if (programsRespnse == null || programsRespnse.epgList == null)
-                    {
-                        log.ErrorFormat("Got empty response from Catalog 'GetResponse' for 'AssetInfoRequest'");
-                        return programs;
-                    }
-
-                    programs = programsRespnse.epgList.Select(p => p.m_oProgram).ToList();
-                }
+                recordings = response.searchResults.Select(sr => (ExtendedSearchResult)sr).ToList();
             }
 
             catch (Exception ex)
@@ -5125,7 +5100,7 @@ namespace ConditionalAccess
                 }
             }
 
-            return programs;
+            return recordings;
         }
 
     }

@@ -15,5 +15,7 @@ namespace ApiObjects.TimeShiftedTv
         public int EpisodeNumber { get; set; }
 
         public long EpgId { get; set; }
+
+        // TODO: add userId
     }
 }

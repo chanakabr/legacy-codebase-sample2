@@ -968,6 +968,8 @@ namespace Catalog
                                                   DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
                                   media_type_id = ((tempToken = item.SelectToken("fields.media_type_id")) == null ? 0 : (int)tempToken),
                                   epg_identifier = ((tempToken = item.SelectToken("fields.epg_identifier")) == null ? string.Empty : (string)tempToken),
+                                  end_date = ((tempToken = item.SelectToken("fields.end_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
+                                                  DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
                               });
                         }
                     }
@@ -1251,14 +1253,28 @@ namespace Catalog
 
                         foreach (ElasticSearchApi.ESAssetDocument doc in assetsDocumentsDecoded)
                         {
-                            searchResultsList.Add(new UnifiedSearchResult()
+                            if (unifiedSearchDefinitions.shouldReturnExtendedSearchResult)
                             {
-                                AssetId = doc.asset_id.ToString(),
-                                m_dUpdateDate = doc.update_date,
-                                AssetType = UnifiedSearchResult.ParseType(doc.type)
-                            });
-                        }
+                                searchResultsList.Add(new ExtendedSearchResult()
+                                {
+                                    AssetId = doc.asset_id.ToString(),
+                                    m_dUpdateDate = doc.update_date,
+                                    AssetType = UnifiedSearchResult.ParseType(doc.type),
+                                    EndDate = doc.end_date,
+                                    StartDate = doc.start_date
+                                });
 
+                            }
+                            else
+                            {
+                                searchResultsList.Add(new UnifiedSearchResult()
+                                {
+                                    AssetId = doc.asset_id.ToString(),
+                                    m_dUpdateDate = doc.update_date,
+                                    AssetType = UnifiedSearchResult.ParseType(doc.type)
+                                });
+                            }
+                        }
                         // If this is orderd by a social-stat - first we will get all asset Ids and only then we will sort and page
                         if (isOrderedByStat)
                         {

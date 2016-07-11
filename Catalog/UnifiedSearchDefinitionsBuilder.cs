@@ -224,6 +224,19 @@ namespace Catalog
                 }
 
                 #endregion
+
+                #region Extended search request
+
+                // ExtendedSearchRequest support
+                if (request is ExtendedSearchRequest)
+                {
+                    definitions.shouldReturnExtendedSearchResult = true;
+                    definitions.extraReturnFields.Add("start_date");
+                    definitions.extraReturnFields.Add("end_date");
+                }
+
+                #endregion
+
             }
             catch (Exception ex)
             {

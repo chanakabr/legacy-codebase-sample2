@@ -1005,6 +1005,11 @@ namespace ElasticSearch.Common
                 get;
                 set;
             }
+            public DateTime end_date
+            {
+                get;
+                set;
+            }
         }
 
         public class ESSearchResponse
