@@ -238,7 +238,48 @@ namespace WebAPI.Clients
             return success;
         }
 
-        internal WebAPI.Models.API.KalturaPinResponse GetUserParentalPIN(int groupId, string userId, int householdId = 0)
+        internal KalturaPin GetUserParentalPIN(int groupId, string userId, int householdId = 0)
+        {
+            string pin = string.Empty;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Api.PinResponse webServiceResponse = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    webServiceResponse = Api.GetParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, householdId, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (webServiceResponse == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (webServiceResponse.status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(webServiceResponse.status.Code, webServiceResponse.status.Message);
+            }
+            else
+            {
+                pin = webServiceResponse.pin;
+            }
+
+            KalturaPin response = AutoMapper.Mapper.Map<WebAPI.Models.API.KalturaPin>(webServiceResponse);
+
+            return response;
+        }
+
+        [Obsolete]
+        internal WebAPI.Models.API.KalturaPinResponse GetUserParentalPINOldStandard(int groupId, string userId, int householdId = 0)
         {
             string pin = string.Empty;
 
@@ -280,7 +321,48 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal WebAPI.Models.API.KalturaPinResponse GetDomainParentalPIN(int groupId, int domainId)
+        internal KalturaPin GetDomainParentalPIN(int groupId, int domainId)
+        {
+            string pin = string.Empty;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Api.PinResponse webServiceResponse = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    webServiceResponse = Api.GetParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (webServiceResponse == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (webServiceResponse.status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(webServiceResponse.status.Code, webServiceResponse.status.Message);
+            }
+            else
+            {
+                pin = webServiceResponse.pin;
+            }
+
+            KalturaPin response = AutoMapper.Mapper.Map<WebAPI.Models.API.KalturaPin>(webServiceResponse);
+
+            return response;
+        }
+
+        [Obsolete]
+        internal WebAPI.Models.API.KalturaPinResponse GetDomainParentalPinOldStandard(int groupId, int domainId)
         {
             string pin = string.Empty;
 
@@ -322,19 +404,17 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal bool SetUserParentalPIN(int groupId, string userId, string pin)
+        internal KalturaPin SetUserParentalPIN(int groupId, string userId, string pin)
         {
-            bool success = false;
-
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.Status response = null;
+            WebAPI.Api.PinResponse webServiceResponse = null;
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.SetParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, 0, userId, pin);
+                    webServiceResponse = Api.UpdateParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, 0, userId, pin);
                 }
             }
             catch (Exception ex)
@@ -343,36 +423,38 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response == null)
+            if (webServiceResponse == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.Code != (int)StatusCode.OK)
+            if (webServiceResponse.status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Code, response.Message);
+                throw new ClientException(webServiceResponse.status.Code, webServiceResponse.status.Message);
             }
             else
             {
-                success = true;
+                pin = webServiceResponse.pin;
             }
 
-            return success;
+            KalturaPin response = AutoMapper.Mapper.Map<KalturaPin>(webServiceResponse);
+
+            return response;
         }
 
-        internal bool SetDomainParentalRules(int groupId, int domainId, string pin)
+        internal KalturaPin SetDomainParentalRules(int groupId, int domainId, string pin)
         {
             bool success = false;
 
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.Status response = null;
+            WebAPI.Api.PinResponse webServiceResponse = null;
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.SetParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty, pin);
+                    webServiceResponse = Api.UpdateParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty, pin);
                 }
             }
             catch (Exception ex)
@@ -381,36 +463,36 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response == null)
+            if (webServiceResponse == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.Code != (int)StatusCode.OK)
+            if (webServiceResponse.status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Code, response.Message);
+                throw new ClientException(webServiceResponse.status.Code, webServiceResponse.status.Message);
             }
             else
             {
-                success = true;
+                pin = webServiceResponse.pin;
             }
 
-            return success;
+            KalturaPin response = AutoMapper.Mapper.Map<KalturaPin>(webServiceResponse);
+
+            return response;
         }
 
-        internal bool SetUserPurchaseSettings(int groupId, string userId, int settings)
+        internal KalturaPurchaseSettings SetUserPurchaseSettings(int groupId, string userId, int settings)
         {
-            bool success = false;
-
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.Status response = null;
+            PurchaseSettingsResponse webServiceResponse = null;
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.SetPurchaseSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, 0, userId, settings);
+                    webServiceResponse = Api.UpdatePurchaseSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, 0, userId, settings);
                 }
             }
             catch (Exception ex)
@@ -419,36 +501,32 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response == null)
+            if (webServiceResponse == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.Code != (int)StatusCode.OK)
+            if (webServiceResponse.status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Code, response.Message);
+                throw new ClientException(webServiceResponse.status.Code, webServiceResponse.status.Message);
             }
-            else
-            {
-                success = true;
-            }
+            
+            KalturaPurchaseSettings response = AutoMapper.Mapper.Map<WebAPI.Models.API.KalturaPurchaseSettings>(webServiceResponse);
 
-            return success;
+            return response;
         }
 
-        internal bool SetDomainPurchaseSettings(int groupId, int domainId, int settings)
+        internal KalturaPurchaseSettings SetDomainPurchaseSettings(int groupId, int domainId, int settings)
         {
-            bool success = false;
-
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.Status response = null;
+            PurchaseSettingsResponse webServiceResponse = null;
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.SetPurchaseSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty, settings);
+                    webServiceResponse = Api.UpdatePurchaseSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty, settings);
                 }
             }
             catch (Exception ex)
@@ -457,24 +535,63 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response == null)
+            if (webServiceResponse == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.Code != (int)StatusCode.OK)
+            if (webServiceResponse.status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Code, response.Message);
+                throw new ClientException(webServiceResponse.status.Code, webServiceResponse.status.Message);
+            }
+
+            KalturaPurchaseSettings response = AutoMapper.Mapper.Map<WebAPI.Models.API.KalturaPurchaseSettings>(webServiceResponse);
+
+            return response;
+        }
+
+        internal KalturaPurchaseSettings GetUserPurchasePIN(int groupId, string userId, int householdId = 0)
+        {
+            string pin = string.Empty;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Api.PurchaseSettingsResponse webServiceResponse = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    webServiceResponse = Api.GetPurchasePIN(group.ApiCredentials.Username, group.ApiCredentials.Password, householdId, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (webServiceResponse == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (webServiceResponse.status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(webServiceResponse.status.Code, webServiceResponse.status.Message);
             }
             else
             {
-                success = true;
+                pin = webServiceResponse.pin;
             }
 
-            return success;
+            KalturaPurchaseSettings response = AutoMapper.Mapper.Map<WebAPI.Models.API.KalturaPurchaseSettings>(webServiceResponse);
+
+            return response;
         }
 
-        internal WebAPI.Models.API.KalturaPurchaseSettingsResponse GetUserPurchasePIN(int groupId, string userId, int householdId = 0)
+        [Obsolete]
+        internal WebAPI.Models.API.KalturaPurchaseSettingsResponse GetUserPurchasePinOldStandard(int groupId, string userId, int householdId = 0)
         {
             string pin = string.Empty;
 
@@ -516,7 +633,48 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal WebAPI.Models.API.KalturaPurchaseSettingsResponse GetDomainPurchasePIN(int groupId, int domainId)
+        internal KalturaPurchaseSettings GetDomainPurchasePIN(int groupId, int domainId)
+        {
+            string pin = string.Empty;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Api.PurchaseSettingsResponse webServiceResponse = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    webServiceResponse = Api.GetPurchasePIN(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (webServiceResponse == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (webServiceResponse.status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(webServiceResponse.status.Code, webServiceResponse.status.Message);
+            }
+            else
+            {
+                pin = webServiceResponse.pin;
+            }
+
+            KalturaPurchaseSettings response = AutoMapper.Mapper.Map<KalturaPurchaseSettings>(webServiceResponse);
+
+            return response;
+        }
+
+        [Obsolete]
+        internal WebAPI.Models.API.KalturaPurchaseSettingsResponse GetDomainPurchasePinOldstandard(int groupId, int domainId)
         {
             string pin = string.Empty;
 
@@ -558,7 +716,48 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal WebAPI.Models.API.KalturaPurchaseSettingsResponse GetUserPurchaseSettings(int groupId, string userId, int householdId = 0)
+        internal WebAPI.Models.API.KalturaPurchaseSettings GetUserPurchaseSettings(int groupId, string userId, int householdId = 0)
+        {
+            string pin = string.Empty;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Api.PurchaseSettingsResponse webServiceResponse = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    webServiceResponse = Api.GetPurchaseSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, householdId, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (webServiceResponse == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (webServiceResponse.status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(webServiceResponse.status.Code, webServiceResponse.status.Message);
+            }
+            else
+            {
+                pin = webServiceResponse.pin;
+            }
+
+            WebAPI.Models.API.KalturaPurchaseSettings response = AutoMapper.Mapper.Map<WebAPI.Models.API.KalturaPurchaseSettings>(webServiceResponse);
+
+            return response;
+        }
+
+        [Obsolete]
+        internal WebAPI.Models.API.KalturaPurchaseSettingsResponse GetUserPurchaseSettingsOldStandard(int groupId, string userId, int householdId = 0)
         {
             string pin = string.Empty;
 
@@ -600,7 +799,48 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal WebAPI.Models.API.KalturaPurchaseSettingsResponse GetDomainPurchaseSettings(int groupId, int domainId)
+        internal WebAPI.Models.API.KalturaPurchaseSettings GetDomainPurchaseSettings(int groupId, int domainId)
+        {
+            string pin = string.Empty;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Api.PurchaseSettingsResponse webServiceResponse = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    webServiceResponse = Api.GetPurchaseSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (webServiceResponse == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (webServiceResponse.status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(webServiceResponse.status.Code, webServiceResponse.status.Message);
+            }
+            else
+            {
+                pin = webServiceResponse.pin;
+            }
+
+            WebAPI.Models.API.KalturaPurchaseSettings response = AutoMapper.Mapper.Map<WebAPI.Models.API.KalturaPurchaseSettings>(webServiceResponse);
+
+            return response;
+        }
+
+        [Obsolete]
+        internal WebAPI.Models.API.KalturaPurchaseSettingsResponse GetDomainPurchaseSettingsOldStandard(int groupId, int domainId)
         {
             string pin = string.Empty;
 
@@ -642,19 +882,17 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal bool SetUserPurchasePIN(int groupId, string userId, string pin)
+        internal KalturaPurchaseSettings SetUserPurchasePIN(int groupId, string userId, string pin)
         {
-            bool success = false;
-
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.Status response = null;
+            PurchaseSettingsResponse webServiceResponse = null;
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.SetPurchasePIN(group.ApiCredentials.Username, group.ApiCredentials.Password, 0, userId, pin);
+                    webServiceResponse = Api.UpdatePurchasePIN(group.ApiCredentials.Username, group.ApiCredentials.Password, 0, userId, pin);
                 }
             }
             catch (Exception ex)
@@ -663,36 +901,32 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response == null)
+            if (webServiceResponse == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.Code != (int)StatusCode.OK)
+            if (webServiceResponse.status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Code, response.Message);
-            }
-            else
-            {
-                success = true;
+                throw new ClientException(webServiceResponse.status.Code, webServiceResponse.status.Message);
             }
 
-            return success;
+            KalturaPurchaseSettings response = AutoMapper.Mapper.Map<WebAPI.Models.API.KalturaPurchaseSettings>(webServiceResponse);
+
+            return response;
         }
 
-        internal bool SetDomainPurchasePIN(int groupId, int domainId, string pin)
+        internal KalturaPurchaseSettings SetDomainPurchasePIN(int groupId, int domainId, string pin)
         {
-            bool success = false;
-
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.Status response = null;
+            PurchaseSettingsResponse webServiceResponse = null;
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.SetPurchasePIN(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty, pin);
+                    webServiceResponse = Api.UpdatePurchasePIN(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty, pin);
                 }
             }
             catch (Exception ex)
@@ -701,21 +935,19 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response == null)
+            if (webServiceResponse == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.Code != (int)StatusCode.OK)
+            if (webServiceResponse.status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Code, response.Message);
-            }
-            else
-            {
-                success = true;
+                throw new ClientException(webServiceResponse.status.Code, webServiceResponse.status.Message);
             }
 
-            return success;
+            KalturaPurchaseSettings response = AutoMapper.Mapper.Map<WebAPI.Models.API.KalturaPurchaseSettings>(webServiceResponse);
+
+            return response;
         }
 
         internal List<Models.API.KalturaParentalRule> GetUserMediaParentalRules(int groupId, string userId, long mediaId)

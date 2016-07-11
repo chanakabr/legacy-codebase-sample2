@@ -15,6 +15,7 @@ namespace WebAPI.Models.API
     /// </summary>
     [Serializable]
     [OldStandard("purchaseSettingsType", "purchase_settings_type")]
+    [Obsolete]
     public class KalturaPurchaseSettingsResponse : KalturaPinResponse
     {
         /// <summary>

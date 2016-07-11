@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
+	<title>Kaltura - TestMe Console Documentation</title>
+	<link rel="stylesheet" type="text/css" href="../css/main.css" />
+</head>
+<body>
+	<div id="doc">
+		<h2>Kaltura API</h2>
+		<table class="action">
+			<tr>
+				<th colspan="5" class="service_action_title">entitlement.grant</th>
+			</tr>
+			<tr>
+				<td colspan="5" class="title">Description:</td>
+			</tr>
+			<tr>
+				<td class="description" colspan="5">Grant household for an entitlement for a PPV or Subscription.</td>
+			</tr>
+			<tr>
+				<td colspan="5" class="title">Input Params</td>
+			</tr>
+			<tr>
+				<th class="subtitle">Name</th>
+				<th class="subtitle">Type</th>
+				<th class="subtitle">Description</th>
+				<th class="subtitle">Required</th>
+				<th class="subtitle">Default Value</th>
+			</tr>
+			<tr>
+				<td>productId</td>
+				<td>int</td>
+				<td>Identifier for the product package from which this content is offered</td>
+				<td>V</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>productType</td>
+				<td>1</td>
+				<td>Product package type. Possible values: PPV, Subscription, Collection</td>
+				<td>V</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>history</td>
+				<td>bool</td>
+				<td>Controls if the new entitlements grant will appear in the user’s history. True – will add a history entry. False (or if ommited) – no history entry will be added</td>
+				<td>V</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>contentId</td>
+				<td>int</td>
+				<td>Identifier for the content. Relevant only if Product type = PPV</td>
+				<td></td>
+				<td>1</td>
+			</tr>
+			<tr>
+				<td colspan="5" class="title">Output Type</td>
+			</tr>
+			<tr>
+				<td colspan="5">bool</td>
+			</tr>
+			<tr>
+				<td colspan="5" class="title">Example HTTP Hit</td>
+			</tr>
+			<tr>
+				<td colspan="5">http://www.kaltura.com/api_v3/service/entitlement/action/grant<br />
+				<strong>JSON object:</strong>
+				<pre>
+				<div class="post_fields">
+[
+	productId: value,
+	productType: "value",
+	history: value,
+	contentId: value
+]
+				</pre></td>
+			</tr>
+		</table>
+	</div>
+</body>
+</html>
