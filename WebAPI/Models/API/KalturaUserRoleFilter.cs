@@ -9,10 +9,15 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
+    public enum KalturaUserRoleOrderBy
+    {
+        NONE
+    }
+
     /// <summary>
     /// User roles filter
     /// </summary>
-    public class KalturaUserRoleFilter : KalturaOTTObject
+    public class KalturaUserRoleFilter : KalturaFilter<KalturaUserRoleOrderBy>
     {
 
         /// <summary>
@@ -22,6 +27,46 @@ namespace WebAPI.Models.API
         [JsonProperty("ids")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
+        [Obsolete]
         public List<KalturaLongValue> Ids { get; set; }
+
+        /// <summary>
+        /// Comma separated roles identifiers
+        /// </summary>
+        [DataMember(Name = "idIn")]
+        [JsonProperty("idIn")]
+        [XmlElement(ElementName = "idIn", IsNullable = true)]
+        public string IdIn { get; set; }
+
+        public override KalturaUserRoleOrderBy GetDefaultOrderByValue()
+        {
+            return KalturaUserRoleOrderBy.NONE;
+        }
+
+        internal long[] getIds()
+        {
+            if (Ids != null)
+                return Ids.Select(id => id.value).ToArray();
+
+            if (string.IsNullOrEmpty(IdIn))
+                return null;
+
+            List<long> values = new List<long>();
+            string[] stringValues = IdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string stringValue in stringValues)
+            {
+                long value;
+                if (long.TryParse(stringValue, out value))
+                {
+                    values.Add(value);
+                }
+                else
+                {
+                    throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, string.Format("Filter.IdIn contains invalid id {0}", value));
+                }
+            }
+
+            return values.ToArray();
+        }
     }
 }

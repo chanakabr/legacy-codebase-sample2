@@ -7,6 +7,7 @@ using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.API;
 using WebAPI.Models.General;
 using WebAPI.Utils;
@@ -17,6 +18,7 @@ namespace WebAPI.Controllers
     /// 
     /// </summary>
     [RoutePrefix("_service/userRole/action")]
+    [OldStandard("listOldStandard", "list")]
     public class UserRoleController : ApiController
     {
         /// <summary>
@@ -25,7 +27,41 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public List<KalturaUserRole> List(KalturaUserRoleFilter filter = null)
+        public KalturaUserRoleListResponse List(KalturaUserRoleFilter filter = null)
+        {
+            List<KalturaUserRole> list = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            if (filter == null)
+                filter = new KalturaUserRoleFilter();
+
+            try
+            {
+                // call client
+                list = ClientsManager.ApiClient().GetRoles(groupId, filter.getIds());
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            if (list == null)
+            {
+                throw new InternalServerErrorException();
+            }
+
+            return new KalturaUserRoleListResponse() { UserRoles = list, TotalCount = list.Count };
+        }
+
+        /// <summary>
+        /// Retrieving user roles by identifiers, if filter is empty, returns all partner roles
+        /// </summary>
+        /// <remarks></remarks>
+        [Route("listOldStandard"), HttpPost]
+        [ApiAuthorize]
+        [Obsolete]
+        public List<KalturaUserRole> ListOldStandard(KalturaUserRoleFilter filter = null)
         {
             List<KalturaUserRole> response = null;
 
@@ -37,7 +73,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().GetRoles(groupId, filter.Ids != null ? filter.Ids.Select(id => id.value).ToArray() : null);
+                response = ClientsManager.ApiClient().GetRoles(groupId, filter.getIds());
             }
             catch (ClientException ex)
             {

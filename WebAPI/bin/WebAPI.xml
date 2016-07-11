@@ -1518,8 +1518,8 @@
             <summary>
             Immediately cancel a subscription, PPV or collection. Cancel is possible only if within cancellation window and content not already consumed
             </summary>                
-            <param name="asset_id">The mediaFileID to cancel</param>        
-            <param name="transaction_type">The transaction type for the cancelation</param>
+            <param name="assetId">The mediaFileID to cancel</param>        
+            <param name="transactionType">The transaction type for the cancelation</param>
             <remarks>Possible status codes: 
             Household suspended = 1009, Invalid purchase = 3000, Cancellation window period expired = 3001, Content already consumed = 3005</remarks>
         </member>
@@ -1527,8 +1527,8 @@
             <summary>
             Immediately cancel a subscription, PPV or collection. Cancel applies regardless of cancellation window and content consumption status
             </summary>                
-            <param name="asset_id">The mediaFileID to cancel</param>        
-            <param name="transaction_type">The transaction type for the cancelation</param>
+            <param name="assetId">The mediaFileID to cancel</param>        
+            <param name="transactionType">The transaction type for the cancelation</param>
             <remarks>Possible status codes: 
             Household suspended = 1009, Invalid purchase = 3000</remarks>
         </member>
@@ -1536,7 +1536,7 @@
             <summary>
             Cancel a household service subscription at the next renewal. The subscription stays valid till the next renewal.        
             </summary>        
-            <param name="subscription_id">Subscription Code</param>
+            <param name="subscriptionId">Subscription Code</param>
             <remarks>Possible status codes: 
             Household suspended = 1009, Invalid purchase = 3000, SubscriptionNotRenewable = 300</remarks>
         </member>
@@ -1567,9 +1567,9 @@
              <summary>        
              Grant household for an entitlement for a PPV or Subscription.
              </summary>
-             <param name="content_id">Identifier for the content. Relevant only if Product type = PPV</param>
-             <param name="product_id">Identifier for the product package from which this content is offered  </param>
-             <param name="product_type">Product package type. Possible values: PPV, Subscription, Collection</param>
+             <param name="contentId">Identifier for the content. Relevant only if Product type = PPV</param>
+             <param name="productId">Identifier for the product package from which this content is offered  </param>
+             <param name="productType">Product package type. Possible values: PPV, Subscription, Collection</param>
              <param name="history">Controls if the new entitlements grant will appear in the user’s history. True – will add a history entry. False (or if ommited) – no history entry will be added</param>
              <remarks>Possible status codes: 
              User not in domain = 1005, User does not exist = 2000, User suspended = 2001, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
@@ -1586,14 +1586,14 @@
             Price not correct = 6000, Unknown PPV module = 6001, Expired credit card = 6002, Cellular permissions error (for cellular charge) = 6003, Unknown billing provider = 6004
             </remarks>
             <param name="udid">Device UDID</param>
-            <param name="item_id">The identifier of the item to buy, can be PPV identifier or subscription identifier</param>
-            <param name="file_id">File identifier</param>
-            <param name="is_subscription">True for buying subscription, false for buying ppv</param>        
+            <param name="itemId">The identifier of the item to buy, can be PPV identifier or subscription identifier</param>
+            <param name="fileId">File identifier</param>
+            <param name="isSubscription">True for buying subscription, false for buying ppv</param>        
             <param name="price">Price</param>
             <param name="currency">Currency</param>
-            <param name="coupon_code">Coupon code</param>
-            <param name="extra_params">Custom extra parameters (changes between different billing providers)</param>
-            <param name="encrypted_cvv">Encrypted credit card CVV</param>
+            <param name="couponCode">Coupon code</param>
+            <param name="extraParams">Custom extra parameters (changes between different billing providers)</param>
+            <param name="encryptedCvv">Encrypted credit card CVV</param>
         </member>
         <member name="M:WebAPI.Controllers.EntitlementController.ExternalReconcile">
             <summary>
@@ -2155,6 +2155,12 @@
             </summary>
             <remarks></remarks>
         </member>
+        <member name="M:WebAPI.Controllers.UserRoleController.ListOldStandard(WebAPI.Models.API.KalturaUserRoleFilter)">
+            <summary>
+            Retrieving user roles by identifiers, if filter is empty, returns all partner roles
+            </summary>
+            <remarks></remarks>
+        </member>
         <member name="M:WebAPI.Managers.Models.AppToken.CalcHash">
             <summary>
             calculates the hash of the ks + token string based on the token hash type
@@ -2699,6 +2705,11 @@
             Reference type to filter by
              </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementFilter.IsExpiredEqual">
+             <summary>
+            Is expired 
+             </summary>
+        </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaTransactionHistoryFilter">
             <summary>
             Transactions filter
@@ -3048,6 +3059,11 @@
         <member name="P:WebAPI.Models.API.KalturaUserRoleFilter.Ids">
             <summary>
             The roles identifiers
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaUserRoleFilter.IdIn">
+            <summary>
+            Comma separated roles identifiers
             </summary>
         </member>
         <member name="T:WebAPI.Models.API.KalturaChannelProfile">
@@ -4148,6 +4164,16 @@
         <member name="P:WebAPI.Models.General.KalturaStringValueArray.Objects">
             <summary>
             List of string values
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaUserRoleListResponse">
+            <summary>
+            User-roles list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaUserRoleListResponse.UserRoles">
+            <summary>
+            A list of generic rules
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaUserRole.Id">

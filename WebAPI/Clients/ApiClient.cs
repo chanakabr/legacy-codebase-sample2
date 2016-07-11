@@ -1921,8 +1921,6 @@ namespace WebAPI.Clients
         internal KalturaExportTask UpdateBulkExportTask(int groupId, long id, string externalKey, string name, Models.API.KalturaExportDataType dataType, string filter, Models.API.KalturaExportType exportType, long frequency,
             string notificationUrl, List<int> vodTypes, bool? isActive)
         {
-            bool success = false;
-
             Group group = GroupsManager.GetGroup(groupId);
 
             BulkExportTaskResponse response = null;

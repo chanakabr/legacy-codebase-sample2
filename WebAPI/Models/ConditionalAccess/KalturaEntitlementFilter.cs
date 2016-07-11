@@ -32,9 +32,22 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlElement(ElementName = "entityReferenceEqual")]
         public KalturaEntityReferenceBy EntityReferenceEqual { get; set; }
 
+        /// <summary>
+        ///Is expired 
+        /// </summary>
+        [DataMember(Name = "isExpiredEqual")]
+        [JsonProperty("isExpiredEqual")]
+        [XmlElement(ElementName = "isExpiredEqual")]
+        public bool? IsExpiredEqual { get; set; }
+
         public override KalturaEntitlementOrderBy GetDefaultOrderByValue()
         {
             return KalturaEntitlementOrderBy.PURCHASE_DATE_ASC;
+        }
+
+        internal bool getIsExpiredEqual()
+        {
+            return IsExpiredEqual.HasValue ? (bool)IsExpiredEqual : false;
         }
     }
 }
