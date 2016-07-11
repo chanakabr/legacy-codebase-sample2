@@ -176,6 +176,7 @@
     <Compile Include="PersonalEnrichments\UserBundlesResponse.cs" />
     <Compile Include="PersonalEnrichments\UserPurhcasedAssetsResponse.cs" />
     <Compile Include="IngestBusinessModules\IngestPricePlan.cs" />
+    <Compile Include="QueueObjects\ExpiredRecordingData.cs" />
     <Compile Include="QueueObjects\FreeItemUpdateData.cs" />
     <Compile Include="OSSAdapter\OSSAdapterEntitlementsResponse.cs" />
     <Compile Include="PlayCycle\UserPlayCycle.cs" />
@@ -325,6 +326,8 @@
     <Compile Include="Rules\PurchaseSettingsResponse.cs" />
     <Compile Include="Rules\RegistryResponse.cs" />
     <Compile Include="Rules\RegistrySettings.cs" />
+    <Compile Include="ScheduledTasks\ExpiredRecordingScheduledTask.cs" />
+    <Compile Include="ScheduledTasks\ScheduledTaskLastRunResponse.cs" />
     <Compile Include="Scheduling.cs" />
     <Compile Include="SearchDefinitionObject.cs" />
     <Compile Include="SearchObjects\BaseSearchObject.cs" />
