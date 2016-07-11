@@ -14,6 +14,9 @@ using WebAPI.Models.Users;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Users;
 using WebAPI.Utils;
+using System.Net;
+using System.Web;
+
 
 namespace WebAPI.Clients
 {
@@ -86,7 +89,7 @@ namespace WebAPI.Clients
 
         private Dictionary<string, KalturaStringValue> GetMergedExtraParams(Dictionary<string, KalturaStringValue> extraParams, NameValueCollection nameValueCollection)
         {
-            Dictionary<string, KalturaStringValue> result = new Dictionary<string, KalturaStringValue>(); 
+            Dictionary<string, KalturaStringValue> result = new Dictionary<string, KalturaStringValue>();
 
             if (extraParams != null && extraParams.Count > 0)
             {
@@ -780,7 +783,7 @@ namespace WebAPI.Clients
         {
             UserResponseObject response = null;
             Group group = GroupsManager.GetGroup(groupId);
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -991,6 +994,26 @@ namespace WebAPI.Clients
             listItem = Mapper.Map<KalturaUserAssetsListItem>(response.Item);
 
             return listItem;
+        }
+    }
+}
+
+namespace WebAPI.Users
+{
+    // adding request ID to header
+    public partial class UsersService
+    {
+        protected override WebRequest GetWebRequest(Uri uri)
+        {
+            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
+
+            if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
+            {
+                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+            }
+            return request;
         }
     }
 }

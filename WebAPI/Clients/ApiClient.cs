@@ -14,6 +14,8 @@ using WebAPI.Models.General;
 using WebAPI.Utils;
 using System.Linq;
 using WebAPI.Models.ConditionalAccess;
+using System.Net;
+using System.Web;
 
 namespace WebAPI.Clients
 {
@@ -2827,6 +2829,26 @@ namespace WebAPI.Clients
             responseSettings = AutoMapper.Mapper.Map<KalturaCDNPartnerSettings>(response.CDNPartnerSettings);
 
             return responseSettings;
+        }
+    }
+}
+
+namespace WebAPI.Api
+{
+    // adding request ID to header
+    public partial class API
+    {
+        protected override WebRequest GetWebRequest(Uri uri)
+        {
+            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
+
+            if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
+            {
+                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+            }
+            return request;
         }
     }
 }

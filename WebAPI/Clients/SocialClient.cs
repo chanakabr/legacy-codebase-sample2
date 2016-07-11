@@ -14,6 +14,7 @@ using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Social;
 using WebAPI.Utils;
 using WebAPI.Models.Users;
+using System.Net;
 
 namespace WebAPI.Clients
 {
@@ -461,6 +462,26 @@ namespace WebAPI.Clients
             config = AutoMapper.Mapper.Map<KalturaSocialConfig>(response.FacebookConfig);
 
             return config;
+        }
+    }
+}
+
+namespace WebAPI.Social
+{
+    // adding request ID to header
+    public partial class module
+    {
+        protected override WebRequest GetWebRequest(Uri uri)
+        {
+            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
+
+            if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
+            {
+                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+            }
+            return request;
         }
     }
 }

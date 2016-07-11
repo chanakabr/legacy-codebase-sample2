@@ -82,7 +82,7 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\tvincicommon\External\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="ServiceExtensions, Version=3.4.583.23166, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="ServiceExtensions, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\TVinciCommon\External\ServiceExtensions.dll</HintPath>
     </Reference>
@@ -2560,10 +2560,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>WebAPI_Social_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/WS_Users/module.asmx">
+    <WebReferenceUrl Include="http://localhost/Users_V4_0/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\Users\</RelPath>
-      <UpdateFromURL>http://localhost/WS_Users/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/Users_V4_0/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

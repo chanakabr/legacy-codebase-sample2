@@ -15,6 +15,8 @@ using WebAPI.Models.Notifications;
 using WebAPI.Notifications;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
+using System.Net;
+using System.Web;
 
 namespace WebAPI.Clients
 {

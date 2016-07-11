@@ -14,6 +14,7 @@ using WebAPI.Models.Domains;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
+using System.Net;
 
 namespace WebAPI.Clients
 {
@@ -985,7 +986,25 @@ namespace WebAPI.Clients
 
             return true;
         }
+    }
+}
 
+namespace WebAPI.Domains
+{
+    // adding request ID to header
+    public partial class module
+    {
+        protected override WebRequest GetWebRequest(Uri uri)
+        {
+            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
 
+            if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
+            {
+                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+            }
+            return request;
+        }
     }
 }

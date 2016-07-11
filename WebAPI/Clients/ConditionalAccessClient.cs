@@ -16,6 +16,8 @@ using WebAPI.Models.Pricing;
 using WebAPI.ObjectsConvertor;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
+using System.Net;
+using System.Web;
 
 namespace WebAPI.Clients
 {
@@ -1601,6 +1603,26 @@ namespace WebAPI.Clients
             recording = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaRecording>(response);
 
             return recording;
+        }
+    }
+}
+
+namespace WebAPI.ConditionalAccess
+{
+    // adding request ID to header
+    public partial class module
+    {
+        protected override WebRequest GetWebRequest(Uri uri)
+        {
+            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
+
+            if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
+            {
+                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+            }
+            return request;
         }
     }
 }
