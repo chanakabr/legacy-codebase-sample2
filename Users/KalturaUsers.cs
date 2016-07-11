@@ -292,7 +292,7 @@ namespace Users
 
         internal override int MidSaveUser(ref UserResponseObject userResponse, ref UserBasicData basicData, User user, Int32 groupId, bool IsSetUserActive)
         {
-            return user.Save(GroupId, !IsActivationNeeded(basicData));
+            return user.Save(GroupId, !IsActivationNeeded(basicData), true);
         }
 
         public override void PostSaveUser(ref UserResponseObject userResponse, ref UserBasicData basicData, User user, Int32 groupId, bool IsSetUserActive, int userId, ref List<KeyValuePair> keyValueList) { }
