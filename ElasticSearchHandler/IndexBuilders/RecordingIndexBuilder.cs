@@ -45,7 +45,7 @@ namespace ElasticSearchHandler.IndexBuilders
             (int)RecordingInternalStatus.Canceled, (int)RecordingInternalStatus.Failed};
 
             // Get information about relevant recordings
-            List<Recording> recordings = DAL.ConditionalAccessDAL.GetAllRecordingsByStatuses(this.groupId, statuses);
+            List<Recording> recordings = DAL.RecordingsDAL.GetAllRecordingsByStatuses(this.groupId, statuses);
             List<string> epgIds = new List<string>();
 
             // Map EPGs to recordings and create list of all EPGs
