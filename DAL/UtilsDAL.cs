@@ -658,7 +658,6 @@ namespace DAL
         }
         #endregion
 
-
         public static int Get_NPVRProviderID(long groupID)
         {
             int res = 0;
@@ -679,7 +678,6 @@ namespace DAL
             return res;
         }
 
-
         public static string getUserNpvrMarkDocKey(int nSiteUserGuid, string sNpvrID)
         {
             return string.Format("u{0}_n{1}", nSiteUserGuid, sNpvrID);
@@ -699,6 +697,33 @@ namespace DAL
         public static string GetRecordingsCleanupKey()
         {
             return "recordings_cleanup";
+        }
+
+        public static string GetScheduledTaksKeyByName(string scheduleTaskName)
+        {
+            string key = string.Empty;
+            switch (scheduleTaskName)
+            {
+                case "recordingsLifetime":
+                    key = "recordings_lifetime";
+                    break;
+                case "recordingsScheduledTasks":
+                    key = "recordings_scheduledTasks";
+                    break;
+                default:
+                    break;
+            }
+            return key;
+        }
+
+        public static string GetDomainQuotaKey(long domainId)
+        {
+            return string.Format("domain_{0}_quota", domainId);
+        }
+
+        public static string GetDefaultQuotaInSeconds(int groupId, long domainId)
+        {
+            return string.Format("{0}_{1}", groupId, "DefaultQuotaSeconds");
         }
     }
 }

@@ -465,7 +465,9 @@ namespace ApiObjects
         BuildIPToCountry,
         InitializeFreeItemUpdateQueue,
         NotificationCleanupIteration,
-        RecordingsCleanup
+        RecordingsCleanup,
+        InsertExpiredRecordingsTasks,
+        RecordingScheduledTasks
     }
 
 

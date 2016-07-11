@@ -16,6 +16,9 @@ namespace ApiObjects
         public int InternalAssetId { get; set; }
 
         [DataMember]
+        public string EntryID { get; set; }
+
+        [DataMember]
         public List<Status> Warnings { get; set; }
     }
 }
