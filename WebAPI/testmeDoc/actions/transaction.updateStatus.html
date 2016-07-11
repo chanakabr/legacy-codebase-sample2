@@ -10,13 +10,13 @@
 		<h2>Kaltura API</h2>
 		<table class="action">
 			<tr>
-				<th colspan="5" class="service_action_title">productprice.list</th>
+				<th colspan="5" class="service_action_title">transaction.updateStatus</th>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Description:</td>
 			</tr>
 			<tr>
-				<td class="description" colspan="5">Returns a price and a purchase status for each subscription or/and media file, for a given user (if passed) and with the consideration of a coupon code (if passed).</td>
+				<td class="description" colspan="5">Updates a pending purchase transaction state.</td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Input Params</td>
@@ -29,34 +29,52 @@
 				<th class="subtitle">Default Value</th>
 			</tr>
 			<tr>
-				<td>filter</td>
-				<td><a href="../objects/KalturaProductPriceFilter.html">KalturaProductPriceFilter</a></td>
-				<td>Request filter</td>
+				<td>paymentGatewayId</td>
+				<td>string</td>
+				<td>Payment gateway identifier</td>
 				<td>V</td>
 				<td></td>
 			</tr>
 			<tr>
-				<td colspan="5" class="title">Output Type</td>
+				<td>externalTransactionId</td>
+				<td>string</td>
+				<td>external transaction identifier</td>
+				<td>V</td>
+				<td></td>
 			</tr>
 			<tr>
-				<td colspan="5"><a href="../objects/KalturaProductPriceListResponse.html">KalturaProductPriceListResponse</a></td>
+				<td>signature</td>
+				<td>string</td>
+				<td>Security signature to validate the caller is a payment gateway adapter application</td>
+				<td>V</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>status</td>
+				<td><a href="../objects/KalturaTransactionStatus.html">KalturaTransactionStatus</a></td>
+				<td>Status properties</td>
+				<td>V</td>
+				<td></td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Example HTTP Hit</td>
 			</tr>
 			<tr>
-				<td colspan="5">http://www.kaltura.com/api_v3/service/productprice/action/list<br />
+				<td colspan="5">http://www.kaltura.com/api_v3/service/transaction/action/updateStatus<br />
 				<strong>JSON object:</strong>
 				<pre>
 				<div class="post_fields">
 [
-	filter: {
-		objectType: "KalturaProductPriceFilter",
-		orderBy: value,
-		subscriptionIdIn: "value",
-		fileIdIn: "value",
-		isLowest: value,
-		couponCodeEqual: "value"
+	paymentGatewayId: "value",
+	externalTransactionId: "value",
+	signature: "value",
+	status: {
+		objectType: "KalturaTransactionStatus",
+		adapterTransactionStatus: "value",
+		externalId: "value",
+		externalStatus: "value",
+		externalMessage: "value",
+		failReason: value
 	}
 ]
 				</pre></td>

@@ -10,13 +10,13 @@
 		<h2>Kaltura API</h2>
 		<table class="action">
 			<tr>
-				<th colspan="5" class="service_action_title">productprice.list</th>
+				<th colspan="5" class="service_action_title">transaction.validateReceipt</th>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Description:</td>
 			</tr>
 			<tr>
-				<td class="description" colspan="5">Returns a price and a purchase status for each subscription or/and media file, for a given user (if passed) and with the consideration of a coupon code (if passed).</td>
+				<td class="description" colspan="5">Verifies PPV/Subscription/Collection client purchase (such as InApp) and entitles the user.</td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Input Params</td>
@@ -29,9 +29,9 @@
 				<th class="subtitle">Default Value</th>
 			</tr>
 			<tr>
-				<td>filter</td>
-				<td><a href="../objects/KalturaProductPriceFilter.html">KalturaProductPriceFilter</a></td>
-				<td>Request filter</td>
+				<td>externalReceipt</td>
+				<td><a href="../objects/KalturaExternalReceipt.html">KalturaExternalReceipt</a></td>
+				<td>Receipt properties</td>
 				<td>V</td>
 				<td></td>
 			</tr>
@@ -39,24 +39,24 @@
 				<td colspan="5" class="title">Output Type</td>
 			</tr>
 			<tr>
-				<td colspan="5"><a href="../objects/KalturaProductPriceListResponse.html">KalturaProductPriceListResponse</a></td>
+				<td colspan="5"><a href="../objects/KalturaTransaction.html">KalturaTransaction</a></td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Example HTTP Hit</td>
 			</tr>
 			<tr>
-				<td colspan="5">http://www.kaltura.com/api_v3/service/productprice/action/list<br />
+				<td colspan="5">http://www.kaltura.com/api_v3/service/transaction/action/validateReceipt<br />
 				<strong>JSON object:</strong>
 				<pre>
 				<div class="post_fields">
 [
-	filter: {
-		objectType: "KalturaProductPriceFilter",
-		orderBy: value,
-		subscriptionIdIn: "value",
-		fileIdIn: "value",
-		isLowest: value,
-		couponCodeEqual: "value"
+	externalReceipt: {
+		objectType: "KalturaExternalReceipt",
+		productId: value,
+		contentId: value,
+		productType: "value",
+		receiptId: "value",
+		paymentGatewayName: "value"
 	}
 ]
 				</pre></td>
