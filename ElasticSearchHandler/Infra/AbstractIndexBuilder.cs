@@ -87,5 +87,31 @@ namespace ElasticSearchHandler.IndexBuilders
 
         #endregion
 
+        #region Protected Methods
+
+        protected bool DualBuild(AbstractIndexBuilder firstBuilder, AbstractIndexBuilder secondBuilder)
+        {
+            bool success = false;
+
+            // Copy definitions from current builder to the partial builders
+            firstBuilder.SwitchIndexAlias = this.SwitchIndexAlias;
+            secondBuilder.SwitchIndexAlias = this.SwitchIndexAlias;
+            firstBuilder.DeleteOldIndices = this.DeleteOldIndices;
+            secondBuilder.DeleteOldIndices = this.DeleteOldIndices;
+            firstBuilder.StartDate = this.StartDate;
+            secondBuilder.StartDate = this.StartDate;
+            firstBuilder.EndDate = this.EndDate;
+            secondBuilder.EndDate = this.EndDate;
+
+            // Build the two indexes
+            bool oldSuccess = firstBuilder.BuildIndex();
+            bool newSuccess = secondBuilder.BuildIndex();
+
+            success = oldSuccess && newSuccess;
+
+            return success;
+        }
+
+        #endregion
     }
 }
