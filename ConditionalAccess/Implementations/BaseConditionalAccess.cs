@@ -16785,7 +16785,7 @@ namespace ConditionalAccess
             CDVRAdapterResponseList response = new CDVRAdapterResponseList();
             try
             {
-                response.Adapters = DAL.ConditionalAccessDAL.GetCDVRAdapterList(m_nGroupID);
+                response.Adapters = ConditionalAccessDAL.GetCDVRAdapterList(m_nGroupID);
                 if (response.Adapters == null || response.Adapters.Count == 0)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "No adapters found");
@@ -16831,7 +16831,7 @@ namespace ConditionalAccess
                 //}
 
                 //check CDVR Adapter exist
-                CDVRAdapter adapter = DAL.ConditionalAccessDAL.GetCDVRAdapter(m_nGroupID, adapterId);
+                CDVRAdapter adapter = ConditionalAccessDAL.GetCDVRAdapter(m_nGroupID, adapterId);
                 if (adapter == null || adapter.ID <= 0)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
@@ -16839,7 +16839,7 @@ namespace ConditionalAccess
                 }
 
 
-                bool isSet = DAL.ConditionalAccessDAL.DeleteCDVRAdapter(m_nGroupID, adapterId);
+                bool isSet = ConditionalAccessDAL.DeleteCDVRAdapter(m_nGroupID, adapterId);
                 if (isSet)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -16900,7 +16900,7 @@ namespace ConditionalAccess
                 adapter.SharedSecret = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
 
                 //check External Identifier uniqueness 
-                CDVRAdapter responseAdapter = DAL.ConditionalAccessDAL.GetCDVRAdapterByExternalId(m_nGroupID, adapter.ExternalIdentifier);
+                CDVRAdapter responseAdapter = ConditionalAccessDAL.GetCDVRAdapterByExternalId(m_nGroupID, adapter.ExternalIdentifier);
 
                 if (responseAdapter != null && responseAdapter.ID > 0)
                 {
@@ -16908,7 +16908,7 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                response.Adapter = DAL.ConditionalAccessDAL.InsertCDVRAdapter(m_nGroupID, adapter);
+                response.Adapter = ConditionalAccessDAL.InsertCDVRAdapter(m_nGroupID, adapter);
                 if (response.Adapter != null && response.Adapter.ID > 0)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -16953,7 +16953,7 @@ namespace ConditionalAccess
                 }
 
                 //check CDVR Adapter exist
-                CDVRAdapter adapter = DAL.ConditionalAccessDAL.GetCDVRAdapter(m_nGroupID, adapterId);
+                CDVRAdapter adapter = ConditionalAccessDAL.GetCDVRAdapter(m_nGroupID, adapterId);
                 if (adapter == null || adapter.ID <= 0)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
@@ -16963,7 +16963,7 @@ namespace ConditionalAccess
                 // Create Shared secret 
                 string sharedSecret = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
 
-                response.Adapter = DAL.ConditionalAccessDAL.SetCDVRAdapterSharedSecret(m_nGroupID, adapterId, sharedSecret);
+                response.Adapter = ConditionalAccessDAL.SetCDVRAdapterSharedSecret(m_nGroupID, adapterId, sharedSecret);
 
                 if (response.Adapter != null && response.Adapter.ID > 0)
                 {
@@ -17039,7 +17039,7 @@ namespace ConditionalAccess
                 adapter.SharedSecret = null;
 
                 //check External Identifier uniqueness 
-                CDVRAdapter responseAdpater = DAL.ConditionalAccessDAL.GetCDVRAdapter(m_nGroupID, adapter.ID);
+                CDVRAdapter responseAdpater = ConditionalAccessDAL.GetCDVRAdapter(m_nGroupID, adapter.ID);
 
                 if (responseAdpater == null)
                 {
@@ -17047,7 +17047,7 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                CDVRAdapter responseAdpaterExternal = DAL.ConditionalAccessDAL.GetCDVRAdapterByExternalId(m_nGroupID, adapter.ExternalIdentifier);
+                CDVRAdapter responseAdpaterExternal = ConditionalAccessDAL.GetCDVRAdapterByExternalId(m_nGroupID, adapter.ExternalIdentifier);
 
                 if (responseAdpaterExternal != null && responseAdpaterExternal.ID != adapter.ID)
                 {
@@ -17115,7 +17115,7 @@ namespace ConditionalAccess
                     if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK
                         && recording.Id > 0 && Utils.IsValidRecordingStatus(recording.RecordingStatus))
                     {
-                        if (!ConditionalAccessDAL.UpdateOrInsertDomainRecording(m_nGroupID, long.Parse(userID), domainID, recording))
+                        if (!RecordingsDAL.UpdateOrInsertDomainRecording(m_nGroupID, long.Parse(userID), domainID, recording))
                         {
                             log.ErrorFormat("Failed saving record to domain recordings table, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
                             recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -17178,7 +17178,7 @@ namespace ConditionalAccess
                         }
                         else
                         {
-                            res = ConditionalAccessDAL.CancelDomainRecording(domainRecordingId);  // delete recording id from domian                             
+                            res = RecordingsDAL.CancelDomainRecording(domainRecordingId);  // delete recording id from domian                             
                         }
                         break;
                     case TstvRecordingStatus.Deleted:
@@ -17192,7 +17192,7 @@ namespace ConditionalAccess
                         }
                         else
                         {
-                            res = ConditionalAccessDAL.DeleteDomainRecording(domainRecordingId);
+                            res = RecordingsDAL.DeleteDomainRecording(domainRecordingId);
                         }
                         break;
                     default:
@@ -17353,7 +17353,7 @@ namespace ConditionalAccess
             if (validEpgsForRecording != null && validEpgsForRecording.Count > 0)
             {
                 // get all fileIds from Epgs that are valid for recording
-                Dictionary<int, List<long>> fileIdsToEpgsMap = DAL.ConditionalAccessDAL.GetFileIdsToEpgIdsMap(m_nGroupID, validEpgsForRecording.Keys.ToList());
+                Dictionary<int, List<long>> fileIdsToEpgsMap = ConditionalAccessDAL.GetFileIdsToEpgIdsMap(m_nGroupID, validEpgsForRecording.Keys.ToList());
 
                 if (fileIdsToEpgsMap != null && fileIdsToEpgsMap.Count > 0)
                 {
@@ -17422,7 +17422,7 @@ namespace ConditionalAccess
                 }
                 // get adapter from DB 
                 //check External Identifier uniqueness 
-                CDVRAdapter adapter = DAL.ConditionalAccessDAL.GetCDVRAdapter(m_nGroupID, adapterID);
+                CDVRAdapter adapter = ConditionalAccessDAL.GetCDVRAdapter(m_nGroupID, adapterID);
 
                 if (adapter == null)
                 {
@@ -17634,7 +17634,7 @@ namespace ConditionalAccess
                 adapter.SharedSecret = null;
 
                 //check External Identifier uniqueness 
-                CDVRAdapter responseAdpater = DAL.ConditionalAccessDAL.GetCDVRAdapterByExternalId(m_nGroupID, adapter.ExternalIdentifier);
+                CDVRAdapter responseAdpater = ConditionalAccessDAL.GetCDVRAdapterByExternalId(m_nGroupID, adapter.ExternalIdentifier);
 
                 if (responseAdpater != null && responseAdpater.ID > 0 && responseAdpater.ID != adapter.ID)
                 {
@@ -17645,7 +17645,7 @@ namespace ConditionalAccess
                 if (responseAdpater == null)
                 {
                     //check adapter exists 
-                    responseAdpater = DAL.ConditionalAccessDAL.GetCDVRAdapter(m_nGroupID, adapter.ID);
+                    responseAdpater = ConditionalAccessDAL.GetCDVRAdapter(m_nGroupID, adapter.ID);
                     if (responseAdpater == null)
                     {
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
@@ -17658,7 +17658,7 @@ namespace ConditionalAccess
                     adapter.Settings = responseAdpater.Settings;
                 }
 
-                response.Adapter = DAL.ConditionalAccessDAL.SetCDVRAdapter(m_nGroupID, adapter);
+                response.Adapter = ConditionalAccessDAL.SetCDVRAdapter(m_nGroupID, adapter);
 
                 if (response.Adapter != null && response.Adapter.ID > 0)
                 {
@@ -18046,7 +18046,7 @@ namespace ConditionalAccess
                 DateTime protectedUntilDate = DateTime.UtcNow.AddDays(accountSettings.ProtectionPeriod.Value);
                 long protectedUntilEpoch = TVinciShared.DateUtils.DateTimeToUnixTimestamp(protectedUntilDate);
                 // Try to Update protection details for domain recording and update recording status
-                if (ConditionalAccessDAL.ProtectRecording(recording.Id, protectedUntilDate, protectedUntilEpoch))
+                if (RecordingsDAL.ProtectRecording(recording.Id, protectedUntilDate, protectedUntilEpoch))
                 {
                     recording.ProtectedUntilDate = protectedUntilEpoch;
                     if (!recording.ViewableUntilDate.HasValue || (recording.ViewableUntilDate.HasValue && recording.ViewableUntilDate.Value < protectedUntilEpoch))
@@ -18111,7 +18111,7 @@ namespace ConditionalAccess
                 // get first batch
                 int totalRecordingsToCleanup = 0, totalRecordingsDeleted = 0, totalDomainRecordingsUpdated = 0;
                 Dictionary<int, int> groupIdToAdapterIdMap = new Dictionary<int, int>();
-                Dictionary<long, KeyValuePair<int, Recording>> recordingsForDeletion = ConditionalAccessDAL.GetRecordingsForCleanup(utcNowEpoch);
+                Dictionary<long, KeyValuePair<int, Recording>> recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup(utcNowEpoch);
                 HashSet<long> recordingsThatFailedDeletion = new HashSet<long>();
                 while (recordingsForDeletion != null && recordingsForDeletion.Count > 0)
                 {
@@ -18146,7 +18146,7 @@ namespace ConditionalAccess
                     // update domain recordings
                     if (deletedRecordingIds.Count > 0)
                     {
-                        updatedDomainRecordingsRowCount = ConditionalAccessDAL.UpdateDomainRecordingsAfterCleanup(deletedRecordingIds);
+                        updatedDomainRecordingsRowCount = RecordingsDAL.UpdateDomainRecordingsAfterCleanup(deletedRecordingIds);
 
                         if (updatedDomainRecordingsRowCount > 0)
                         {
@@ -18159,7 +18159,7 @@ namespace ConditionalAccess
                         }
                     }
 
-                    recordingsForDeletion = ConditionalAccessDAL.GetRecordingsForCleanup(utcNowEpoch);
+                    recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup(utcNowEpoch);
                     recordingsForDeletion = recordingsForDeletion.Where(x => !recordingsThatFailedDeletion.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
                 }
 
@@ -18168,7 +18168,7 @@ namespace ConditionalAccess
                 {
                     result = true;
 
-                    if (!ConditionalAccessDAL.UpdateSuccessfulRecordingsCleanup(DateTime.UtcNow, totalRecordingsDeleted, totalDomainRecordingsUpdated, recordingCleanupIntervalMin))
+                    if (!RecordingsDAL.UpdateSuccessfulRecordingsCleanup(DateTime.UtcNow, totalRecordingsDeleted, totalDomainRecordingsUpdated, recordingCleanupIntervalMin))
                     {
                         log.Error("Failed updating recordings cleanup date");
                     }
@@ -18216,7 +18216,7 @@ namespace ConditionalAccess
 
         public RecordingCleanupResponse GetLastSuccessfulRecordingsCleanup()
         {
-            RecordingCleanupResponse response = ConditionalAccessDAL.GetLastSuccessfulRecordingsCleanupDetails();
+            RecordingCleanupResponse response = RecordingsDAL.GetLastSuccessfulRecordingsCleanupDetails();
             if (response.Status.Code != (int)eResponseStatus.OK)
             {
                 log.ErrorFormat("Error while trying to get last successful recordings cleanup details, status code: {0}, status message: {1}", response.Status.Code, response.Status.Message);
@@ -18256,14 +18256,14 @@ namespace ConditionalAccess
                 // get current utc epoch
                 long utcNowEpoch = TVinciShared.DateUtils.UnixTimeStampNow();
                 // get first batch
-                int totalRecordingsExpired = ConditionalAccessDAL.InsertExpiredRecordingsTasks(utcNowEpoch);
+                int totalRecordingsExpired = RecordingsDAL.InsertExpiredRecordingsTasks(utcNowEpoch);
 
                 // update successful run date
                 if (totalRecordingsExpired > -1)
                 {
                     result = true;
 
-                    if (!ConditionalAccessDAL.UpdateScheduledTaskSuccessfulRun(RECORDINGS_LIFETIME, DateTime.UtcNow, totalRecordingsExpired, scheduledTaskIntervalMin))
+                    if (!RecordingsDAL.UpdateScheduledTaskSuccessfulRun(RECORDINGS_LIFETIME, DateTime.UtcNow, totalRecordingsExpired, scheduledTaskIntervalMin))
                     {
                         log.Error("Failed updating expired recordings run details");
                     }
@@ -18302,7 +18302,7 @@ namespace ConditionalAccess
 
         public ScheduledTaskLastRunResponse GetLastScheduleTaksSuccessfulRun(string scheduleTaskName)
         {
-            ScheduledTaskLastRunResponse response = ConditionalAccessDAL.GetLastScheduleTaksSuccessfulRunDetails(scheduleTaskName);
+            ScheduledTaskLastRunResponse response = RecordingsDAL.GetLastScheduleTaksSuccessfulRunDetails(scheduleTaskName);
             if (response.Status.Code != (int)eResponseStatus.OK)
             {
                 log.ErrorFormat("Error while trying to get last scheduled task successful run details, scheduleTaskName: {0}, status code: {1}, status message: {2}", scheduleTaskName, response.Status.Code, response.Status.Message);
@@ -18357,7 +18357,7 @@ namespace ConditionalAccess
                         }
                     }
 
-                    if (!ConditionalAccessDAL.UpdateScheduledTaskSuccessfulRun(RECORDINGS_SCHEDULED_TASKS, DateTime.UtcNow, expiredRecordingsToSchedule.Count, scheduledTaskIntervalMin))
+                    if (!RecordingsDAL.UpdateScheduledTaskSuccessfulRun(RECORDINGS_SCHEDULED_TASKS, DateTime.UtcNow, expiredRecordingsToSchedule.Count, scheduledTaskIntervalMin))
                     {
                         log.Error("Failed updating recording scheduled tasks run details");
                     }
@@ -18399,14 +18399,14 @@ namespace ConditionalAccess
             bool result = false;
             try
             {
-                int recordingDuration = ConditionalAccessDAL.GetRecordingDuration(expiredRecording.RecordingId);
+                int recordingDuration = RecordingsDAL.GetRecordingDuration(expiredRecording.RecordingId);
                 if (recordingDuration <= 0)
                 {
                     log.ErrorFormat("Failed GetRecordingDuration for expiredRecording: {0}, returned recordingDuration = {1}", expiredRecording, recordingDuration);
                     return result;
                 }
 
-                DataTable expiredDomainRecordings = ConditionalAccessDAL.GetExpiredDomainsRecordings(expiredRecording.RecordingId, expiredRecording.ScheduledExpirationEpoch);
+                DataTable expiredDomainRecordings = RecordingsDAL.GetExpiredDomainsRecordings(expiredRecording.RecordingId, expiredRecording.ScheduledExpirationEpoch);
                 // set max amount of concurrent tasks
                 int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
                 if (maxDegreeOfParallelism == 0)
@@ -18444,14 +18444,14 @@ namespace ConditionalAccess
                         }
                     });
 
-                    expiredDomainRecordings = ConditionalAccessDAL.GetExpiredDomainsRecordings(expiredRecording.RecordingId, expiredRecording.ScheduledExpirationEpoch);
+                    expiredDomainRecordings = RecordingsDAL.GetExpiredDomainsRecordings(expiredRecording.RecordingId, expiredRecording.ScheduledExpirationEpoch);
                 }
 
-                long minProtectionEpoch = ConditionalAccessDAL.GetRecordingMinProtectedEpoch(expiredRecording.RecordingId, expiredRecording.ScheduledExpirationEpoch);
+                long minProtectionEpoch = RecordingsDAL.GetRecordingMinProtectedEpoch(expiredRecording.RecordingId, expiredRecording.ScheduledExpirationEpoch);
                 // add recording schedule task for next min protected date
                 if (minProtectionEpoch > 0)
                 {
-                    if (!ConditionalAccessDAL.InsertExpiredRecordingNextTask(expiredRecording.RecordingId, expiredRecording.GroupId, minProtectionEpoch, TVinciShared.DateUtils.UnixTimeStampToDateTime(minProtectionEpoch)))
+                    if (!RecordingsDAL.InsertExpiredRecordingNextTask(expiredRecording.RecordingId, expiredRecording.GroupId, minProtectionEpoch, TVinciShared.DateUtils.UnixTimeStampToDateTime(minProtectionEpoch)))
                     {
                         log.ErrorFormat("failed InsertExpiredRecordingNextTask for recordingId: {0}, minProtectionDate {1}", expiredRecording.RecordingId, minProtectionEpoch);
                     }
@@ -18461,7 +18461,7 @@ namespace ConditionalAccess
                     log.DebugFormat("recordingId: {0} has no domain recording that protect it");
                 }
 
-                if (!ConditionalAccessDAL.UpdateExpiredRecordingAfterScheduledTask(expiredRecording.Id))
+                if (!RecordingsDAL.UpdateExpiredRecordingAfterScheduledTask(expiredRecording.Id))
                 {
                     log.ErrorFormat("failed UpdateExpiredRecordingScheduledTask for expiredRecording: {0}", expiredRecording.ToString());
                 }

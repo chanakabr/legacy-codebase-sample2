@@ -4628,7 +4628,7 @@ namespace ConditionalAccess
 
             try
             {
-                DataTable dt = ConditionalAccessDAL.GetDomainExistingRecordingsByEpdIgs(groupId, domainID, validEpgObjectForRecordingMap.Keys.ToList());
+                DataTable dt = RecordingsDAL.GetDomainExistingRecordingsByEpdIgs(groupId, domainID, validEpgObjectForRecordingMap.Keys.ToList());
                 if (dt != null && dt.Rows != null)
                 {
                     foreach (DataRow dr in dt.Rows)
@@ -4789,8 +4789,8 @@ namespace ConditionalAccess
 
         internal static Dictionary<long, Recording> GetDomainProtectedRecordings(int groupID, long domainID)
         {
-            Dictionary<long, Recording> domainProtectedRecordings = null;            
-            DataTable dt = ConditionalAccessDAL.GetDomainProtectedRecordings(groupID, domainID, TVinciShared.DateUtils.UnixTimeStampNow());
+            Dictionary<long, Recording> domainProtectedRecordings = null;
+            DataTable dt = RecordingsDAL.GetDomainProtectedRecordings(groupID, domainID, TVinciShared.DateUtils.UnixTimeStampNow());
             if (dt != null && dt.Rows != null)
             {
                 domainProtectedRecordings = new Dictionary<long,Recording>();                
@@ -4821,7 +4821,7 @@ namespace ConditionalAccess
         internal static Dictionary<long, Recording> GetDomainRecordingIdsToRecordingsMap(int groupID, long domainID, List<long> domainRecordingIds)
         {
             Dictionary<long, Recording> DomainRecordingIdToRecordingMap = null;
-            DataTable dt = ConditionalAccessDAL.GetDomainRecordingsByIds(groupID, domainID, domainRecordingIds);
+            DataTable dt = RecordingsDAL.GetDomainRecordingsByIds(groupID, domainID, domainRecordingIds);
             if (dt != null && dt.Rows != null)
             {
                 DomainRecordingIdToRecordingMap = new Dictionary<long, Recording>();
@@ -4848,7 +4848,7 @@ namespace ConditionalAccess
         {
             Dictionary<long, Recording> DomainRecordingIdToRecordingMap = null;
             List<DomainRecordingStatus> domainRecordingStatuses = ConvertToDomainRecordingStatus(recordingStatuses);
-            DataTable dt = ConditionalAccessDAL.GetDomainRecordingsByRecordingStatuses(groupID, domainID, domainRecordingStatuses.Select(x => (int)x).ToList());            
+            DataTable dt = RecordingsDAL.GetDomainRecordingsByRecordingStatuses(groupID, domainID, domainRecordingStatuses.Select(x => (int)x).ToList());            
             if (dt != null && dt.Rows != null)
             {
                 DomainRecordingIdToRecordingMap = new Dictionary<long, Recording>();
@@ -5000,7 +5000,7 @@ namespace ConditionalAccess
         internal static bool CancelOrDeleteRecording(int groupID, Recording recording, TstvRecordingStatus tstvRecordingStatus)
         {
             bool result = false;
-            DataTable dt = ConditionalAccessDAL.GetExistingRecordingsByRecordingID(groupID, recording.Id);
+            DataTable dt = RecordingsDAL.GetExistingRecordingsByRecordingID(groupID, recording.Id);
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 if ((ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "countUsers", 0)) == 0)
@@ -5021,7 +5021,7 @@ namespace ConditionalAccess
         internal static Dictionary<long, ExpiredRecordingScheduledTask> GetExpiredRecordingsTasks(long unixTimeStampNow)
         {
             Dictionary<long, ExpiredRecordingScheduledTask> expiredRecordings = null;
-            DataTable dt = ConditionalAccessDAL.GetExpiredRecordingsTasks(unixTimeStampNow);
+            DataTable dt = RecordingsDAL.GetExpiredRecordingsTasks(unixTimeStampNow);
             if (dt != null && dt.Rows != null)
             {
                 expiredRecordings = new Dictionary<long, ExpiredRecordingScheduledTask>();
