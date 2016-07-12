@@ -5087,6 +5087,72 @@ namespace ConditionalAccess
         {
             return ConditionalAccessDAL.AddQuotaToDomain(domainId, quotaToAdd);
         }
+
+        internal static List<ExtendedSearchResult> SearchRecordingsWithExcludedCrids(int groupID, string filter, List<string> excludedCrids, ApiObjects.SearchObjects.OrderObj orderBy)
+        {
+            WS_Catalog.IserviceClient client = null;
+            List<ExtendedSearchResult> recordings = null;
+
+            // get program ids
+            try
+            {
+                WS_Catalog.ExtendedSearchRequest request = new WS_Catalog.ExtendedSearchRequest()
+                {
+                    m_nGroupID = groupID,
+                    m_nPageIndex = 0,
+                    m_nPageSize = 0,
+                    assetTypes = new int[1] { 1 },
+                    filterQuery = filter,
+                    order = orderBy,
+                    m_oFilter = new WS_Catalog.Filter()
+                    {
+                        m_bOnlyActiveMedia = true
+                    },
+                    excludedCrids = excludedCrids != null ? excludedCrids.ToArray() : null,
+                    ExtraReturnFields = new string[] { "epg_id", "metas.series_id", "metas.season_num" }
+                };
+                FillCatalogSignature(request);
+                client = new WS_Catalog.IserviceClient();
+                string sCatalogUrl = GetWSURL("WS_Catalog");
+                if (string.IsNullOrEmpty(sCatalogUrl))
+                {
+                    log.Error("Catalog Url is null or empty");
+                    return recordings;
+                }
+
+                client.Endpoint.Address = new System.ServiceModel.EndpointAddress(sCatalogUrl);
+
+                WS_Catalog.UnifiedSearchResponse response = client.GetResponse(request) as WS_Catalog.UnifiedSearchResponse;
+
+                if (response == null || response.status == null)
+                {
+                    log.ErrorFormat("Got empty response from Catalog 'GetResponse' for 'ExtendedSearchRequest'");
+                    return recordings;
+                }
+                if (response.status.Code != (int)eResponseStatus.OK)
+                {
+                    log.ErrorFormat("Got error response from catalog 'GetResponse' for 'ExtendedSearchRequest'. response: code = {0}, message = {1}", response.status.Code, response.status.Message);
+                    return recordings;
+                }
+
+                recordings = response.searchResults.Select(sr => (ExtendedSearchResult)sr).ToList();
+            }
+
+            catch (Exception ex)
+            {
+                log.Error("Failed UnifiedSearchRequest Request To Catalog", ex);
+            }
+
+            finally
+            {
+                if (client != null)
+                {
+                    client.Close();
+                }
+            }
+
+            return recordings;
+        }
     }
 }
 

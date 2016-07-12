@@ -18304,39 +18304,194 @@ namespace ConditionalAccess
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
-            int availibleQuota = Utils.GetDomainQuota(m_nGroupID, householdId);
-
-            // 1. if recording is enabled only in advanced - nothing to do
-            var tstvSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
-            if (tstvSettings.IsRecordingScheduleWindowEnabled.HasValue && tstvSettings.IsRecordingScheduleWindowEnabled.Value && tstvSettings.RecordingScheduleWindow <= 0)
+            try
             {
+                // check if recording is enabled only in advanced - in this case nothing to do
+                var tstvSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+                if (tstvSettings.IsRecordingScheduleWindowEnabled.HasValue && tstvSettings.IsRecordingScheduleWindowEnabled.Value && tstvSettings.RecordingScheduleWindow <= 0)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    log.DebugFormat("recording is enabled only in advanced, cannot complete series recordings for householdId = {0}", householdId);
+                    return response;
+                }
+
+
+                // get household followed series / seasons - if not following anything - nothing to do
+                List<DomainSeriesRecording> series = ConditionalAccessDAL.GetDomainSeriesRecordings(m_nGroupID, householdId);
+                if (series == null || series.Count == 0)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    log.DebugFormat("no series to complete for householdId = {0}", householdId);
+                    return response;
+                }
+
+                // get household quota - if no quota - nothing to do
+                int availibleQuota = Utils.GetDomainQuota(m_nGroupID, householdId);
+                
+                //TODO: talk to Ira if its maybe better to have a configurable 'minQuota' param for skipping this process                
+                if (availibleQuota == 0)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    log.DebugFormat("Not enough quota to complete series recordings for householdId = {0}", householdId);
+                    return response;
+                }
+
+                // get household recordings - all statuses but 'Failed'
+                Dictionary<long, Recording> householdRecordings = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, householdId, new List<ApiObjects.TstvRecordingStatus>() 
+                {
+                    ApiObjects.TstvRecordingStatus.Canceled,
+                    ApiObjects.TstvRecordingStatus.Deleted,
+                    ApiObjects.TstvRecordingStatus.LifeTimePeriodExpired,
+                    ApiObjects.TstvRecordingStatus.OK,
+                    ApiObjects.TstvRecordingStatus.Recorded,
+                    ApiObjects.TstvRecordingStatus.Recording,
+                    ApiObjects.TstvRecordingStatus.Scheduled,
+                });
+
+                // build the KSQL for the series
+                string ksql;
+                response = BuildKsqlForPastSeriesSearch(series, out ksql);
+                if (response == null || response.Code != (int)eResponseStatus.OK)
+                {
+                    return response;
+                }
+
+                // build the excluded CRIDs list
+                List<string> excludedCrids = null;
+                if (householdRecordings != null)
+                {
+                    excludedCrids = householdRecordings.Values.Select(r => r.Crid).ToList();
+                }
+
+                // get all the relevant (series + seasons + CRID not in the list of household recordings) existing recordings from ES
+                List<ConditionalAccess.WS_Catalog.ExtendedSearchResult> relevantRecordingsForRecord = Utils.SearchRecordingsWithExcludedCrids(m_nGroupID, ksql, excludedCrids,
+                    new ApiObjects.SearchObjects.OrderObj()
+                    {
+                        m_eOrderBy = ApiObjects.SearchObjects.OrderBy.START_DATE,
+                        m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC
+                    });
+                
+                // if there are no available recordings to complete - nothing to do
+                if (relevantRecordingsForRecord == null || relevantRecordingsForRecord.Count == 0)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    log.DebugFormat("no relevant recordings of series were found for householdId = {0}", householdId);
+                    return response;
+                }
+
+                // calculate the total padding length
+                long padding = (tstvSettings.PaddingBeforeProgramStarts.HasValue ? tstvSettings.PaddingBeforeProgramStarts.Value : 0) +
+                    (tstvSettings.PaddingAfterProgramEnds.HasValue ? tstvSettings.PaddingAfterProgramEnds.Value : 0);
+
+                long programLengthSeconds = 0;
+                string userId = string.Empty;
+                long epgId = 0;
+
+                // calculate which recording should be recorded for the household based on quota 
+                foreach (var potentialRecording in relevantRecordingsForRecord)
+                {
+                    // calculate program length wit padding
+                    programLengthSeconds = (long)(potentialRecording.EndDate - potentialRecording.StartDate).TotalSeconds + padding;
+
+                    if (programLengthSeconds < availibleQuota)
+                    {
+                        userId = GetFollowingUserIdForSerie(series, potentialRecording);
+                        epgId = GetEpgIdFromExtendedSearchResult(potentialRecording);
+
+                        if (epgId > 0)
+                        {
+                            var recording = Record(userId, epgId);
+
+                            if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK && recording.Id > 0)
+                            {
+                                log.DebugFormat("successfully recorded episode for householdId = {0}, epgId = {1}, new recordingId = {2}", householdId, epgId, recording.Id);
+                            }
+                            else
+                            {
+                                log.ErrorFormat("failed to record episode for household = {0}, epgId = {1}", householdId, epgId);
+                            }
+
+                            availibleQuota = Utils.GetDomainQuota(m_nGroupID, householdId);
+                        }
+                        else
+                        {
+                            log.ErrorFormat("received extended search result without 'epg_id' for recording = {0}, for householdId = {1}", potentialRecording.AssetId, householdId);
+                        }
+                    }
+                }
+
                 response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                return response;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in 'CompleteHouseholdSeriesRecordings' for householdId = {0}", householdId, ex);
             }
 
-            // 2. get household series / seasons
-            List<DomainSeriesRecording> series = ConditionalAccessDAL.GetDomainSeriesRecordings(m_nGroupID, householdId);
-            if (series == null || series.Count == 0)
+            return response;
+        }
+
+        private string GetFollowingUserIdForSerie(List<DomainSeriesRecording> series, WS_Catalog.ExtendedSearchResult potentialRecording)
+        {
+            string userId = null;
+
+            if (potentialRecording != null && potentialRecording.ExtraFields != null)
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                return response;
+                string seriesId = null;
+                int seasonNumber = 0;
+                foreach (var field in potentialRecording.ExtraFields)
+                {
+                    if (field.key == "series_id")
+                    {
+                        seriesId = field.value;
+                    }
+
+                    if (field.key == "season_num")
+                    {
+                        int.TryParse(field.value, out seasonNumber);
+                    }
+                }
+
+                foreach (var serie in series)
+                {
+                    if (serie.SeriesId == seriesId && (serie.SeasonNumber == 0 || serie.SeasonNumber == seasonNumber))
+                    {
+                        userId = serie.UserId;
+                    }
+                }
             }
+            return userId;
+        }
 
-            // 3. get household recordings
-            Dictionary<long, Recording> householdRecordings = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, householdId, null);
+        private long GetEpgIdFromExtendedSearchResult(WS_Catalog.ExtendedSearchResult potentialRecording)
+        {
+            long epgId = 0;
+            
+            if (potentialRecording != null && potentialRecording.ExtraFields != null)
+            {
+                var field = potentialRecording.ExtraFields.Where(ef => ef.key == "epg_id").FirstOrDefault();
+                if (field != null)
+                {
+                    long.TryParse(field.value, out epgId);
+                }
+            }
+            return epgId;
+        }
 
-            // 4. get all the relevant (series + seasons + CRID not in the list of household recordings) programs to record from ES - search query
+        public ApiObjects.Response.Status BuildKsqlForPastSeriesSearch(List<DomainSeriesRecording> series, out string ksql)
+        {
+            ksql = null;
 
-            // get the names of the series and seasons tags/metas of the group
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
             var metaTagsMappings = Tvinci.Core.DAL.CatalogDAL.GetAliasMappingFields(m_nGroupID);
-            if (metaTagsMappings != null || metaTagsMappings.Count == 0)
+            if (metaTagsMappings == null || metaTagsMappings.Count == 0)
             {
                 log.ErrorFormat("failed to 'GetAliasMappingFields' for seriesId. groupId = {0} ", m_nGroupID);
                 //TODO: add status for this case? 
                 return response;
             }
 
-            var feild = metaTagsMappings.Where(m => m.Name.ToLower() == "series_id").FirstOrDefault();
+            var feild = metaTagsMappings.Where(m => m.Alias.ToLower() == "series_id").FirstOrDefault();
             if (feild == null)
             {
                 log.ErrorFormat("alias for series_id was not found. group_id = {0}", m_nGroupID);
@@ -18344,70 +18499,31 @@ namespace ConditionalAccess
                 return response;
             }
 
-            string seriesIdAlias = feild.Alias;
-            string seasonNumberAlias = string.Empty;
+            string seriesIdName = feild.Name;
+            string seasonNumberName = string.Empty;
 
-            feild = metaTagsMappings.Where(m => m.Name.ToLower() == "season_number").FirstOrDefault();
+            feild = metaTagsMappings.Where(m => m.Alias.ToLower() == "season_number").FirstOrDefault();
             if (feild != null)
             {
-                seasonNumberAlias = feild.Alias;
+                seasonNumberName = feild.Name;
             }
 
             // build the filter query for the search
-            StringBuilder filter = new StringBuilder("(And (Or ");
+            StringBuilder filter = new StringBuilder("(and (or ");
             foreach (var serie in series)
             {
                 // with season
-                if (serie.SeasonNumber > 0 && !string.IsNullOrEmpty(seasonNumberAlias))
-                    filter.AppendFormat("(And {0} = '{1}' {2} = '{3}')", seasonNumberAlias, serie.SeasonNumber, seriesIdAlias, serie.SeriesId);
+                if (serie.SeasonNumber > 0 && !string.IsNullOrEmpty(seasonNumberName))
+                    filter.AppendFormat("(and {0} = '{1}' {2} = '{3}')", seasonNumberName, serie.SeasonNumber, seriesIdName, serie.SeriesId);
                 // without season
                 else
-                    filter.AppendFormat("{0} = '{1}' ", seriesIdAlias, serie.SeriesId);
+                    filter.AppendFormat("{0} = '{1}' ", seriesIdName, serie.SeriesId);
             }
 
             filter.Append(") end_date < '0')");
 
-            // build the excluded CRIDs list
-            List<string> excludedCrids = null;
-
-            if (householdRecordings != null)
-            {
-                excludedCrids = householdRecordings.Values.Select(r => r.Crid).ToList();
-            }
-
-            // get the programs from catalog
-            List<ConditionalAccess.WS_Catalog.ExtendedSearchResult> relevantRecordingsForRecord = Utils.SearchRecordingsWithExcludedCrids(m_nGroupID, filter.ToString(), excludedCrids,
-                new ApiObjects.SearchObjects.OrderObj()
-                {
-                    m_eOrderBy = ApiObjects.SearchObjects.OrderBy.START_DATE,
-                    m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC
-                });
-
-            // 5. get the catch-up buffers for the programs from (5) (? - is the catchup buffer on the program is enough? )
-
-            // 6. calculate which recording should be recorded for the household based on quota and catch-up buffer
-            long programLengthSeconds = 0;
-            //add the padding 
-            long padding = (tstvSettings.PaddingBeforeProgramStarts.HasValue ? tstvSettings.PaddingBeforeProgramStarts.Value : 0) +
-                (tstvSettings.PaddingAfterProgramEnds.HasValue ? tstvSettings.PaddingAfterProgramEnds.Value : 0);
-
-            foreach (var potentialRecording in relevantRecordingsForRecord)
-            {
-                programLengthSeconds = (long)(potentialRecording.EndDate - potentialRecording.StartDate).TotalSeconds + padding;
-
-                if (programLengthSeconds < availibleQuota)
-                {
-                    // TODO: get userId
-                    string userId = string.Empty;
-
-                    // TODO: wrong asset id!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    var recording = Record(userId, long.Parse(potentialRecording.AssetId));
-
-                    // TODO: get available quota
-                    availibleQuota = 0;
-                }
-            }
-
+            ksql = filter.ToString();
+            response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             return response;
         }
             
