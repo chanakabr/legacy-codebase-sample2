@@ -51,6 +51,19 @@ namespace ElasticSearch.Common
         {
         }
 
+        /// <summary>
+        /// Read things like this:
+        /// https://www.elastic.co/guide/en/elasticsearch/reference/current/breaking_20_mapping_changes.html
+        /// and this:
+        /// https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html
+        /// </summary>
+        /// <param name="oMetasValuesByGroupId"></param>
+        /// <param name="oGroupTags"></param>
+        /// <param name="sIndexAnalyzer"></param>
+        /// <param name="sSearchAnalyzer"></param>
+        /// <param name="autocompleteIndexAnalyzer"></param>
+        /// <param name="autocompleteSearchAnalyzer"></param>
+        /// <returns></returns>
         public override string CreateMediaMapping(Dictionary<int, Dictionary<string, string>> oMetasValuesByGroupId, Dictionary<int, string> oGroupTags,
             string sIndexAnalyzer, string sSearchAnalyzer, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null)
         {
@@ -300,10 +313,12 @@ namespace ElasticSearch.Common
             #endregion
 
             #region Add metas mapping
+
             InnerMappingPropertyV2 metas = new InnerMappingPropertyV2()
             {
                 name = "metas"
             };
+
             if (oMetasValuesByGroupId != null)
             {
                 foreach (int groupID in oMetasValuesByGroupId.Keys)
