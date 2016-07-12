@@ -426,7 +426,6 @@ namespace ApiObjects
         BITRATE_CHANGE = 40,
         ERROR = 18,
         NONE = 99
-
     }
 
     public enum eBulkExportExportType
