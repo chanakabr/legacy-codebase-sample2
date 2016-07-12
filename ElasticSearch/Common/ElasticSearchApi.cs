@@ -761,14 +761,14 @@ namespace ElasticSearch.Common
         }
 
         #region HTTP requests
-        public string SendPostHttpReq(string sUrl, ref int nStatus, string sUserName, string sPassword, string sParams, bool isFirstTry)
+        public string SendPostHttpReq(string url, ref int status, string userName, string password, string parameters, bool isFirstTry)
         {
             Int32 nStatusCode = -1;
 
-            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(sUrl);
+            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
             webRequest.ContentType = "application/x-www-form-urlencoded";
             webRequest.Method = "POST";
-            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(sParams);
+            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(parameters);
             webRequest.ContentLength = bytes.Length;
             using (System.IO.Stream os = webRequest.GetRequestStream())
             {
@@ -778,22 +778,32 @@ namespace ElasticSearch.Common
             string res = string.Empty;
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_ELASTIC, null, null, null, null) { Database = sUrl })
+                string requestGuid = Guid.NewGuid().ToString();
+
+                log.DebugFormat("ElasticSearch API post request: guid = {0}, url = {1}, parameters = {2}",
+                    requestGuid, url, parameters);
+
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_ELASTIC, null, null, null, null)
                 {
-                HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
-                HttpStatusCode sCode = webResponse.StatusCode;
-                nStatusCode = GetResponseCode(sCode);
-                StreamReader sr = null;
-                try
+                    Database = url,
+                    Table = requestGuid
+                })
                 {
-                    sr = new StreamReader(webResponse.GetResponseStream());
-                    res = sr.ReadToEnd();
-                }
-                finally
-                {
-                    if (sr != null)
-                        sr.Close();
-                }
+
+                    HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
+                    HttpStatusCode sCode = webResponse.StatusCode;
+                    nStatusCode = GetResponseCode(sCode);
+                    StreamReader sr = null;
+                    try
+                    {
+                        sr = new StreamReader(webResponse.GetResponseStream());
+                        res = sr.ReadToEnd();
+                    }
+                    finally
+                    {
+                        if (sr != null)
+                            sr.Close();
+                    }
                 }
             }
             catch (WebException ex)
@@ -818,11 +828,11 @@ namespace ElasticSearch.Common
             //retry alternative URL if this is the original (=first) call, the result was not OK and there is an alternative URL
             if (isFirstTry && nStatusCode != 200 && !string.IsNullOrEmpty(ALT_ES_URL))
             {
-                string sAlternativeURL = sUrl.Replace(ES_URL, ALT_ES_URL);
-                res = SendPostHttpReq(sAlternativeURL, ref nStatus, sUserName, sPassword, sParams, false);
+                string sAlternativeURL = url.Replace(ES_URL, ALT_ES_URL);
+                res = SendPostHttpReq(sAlternativeURL, ref status, userName, password, parameters, false);
             }
 
-            nStatus = nStatusCode;
+            status = nStatusCode;
             return res;
         }
 
