@@ -21,6 +21,7 @@ using System.IO;
 using System.Net;
 using ApiObjects.Notification;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace Users
 {
@@ -964,7 +965,7 @@ namespace Users
             switch (deviceState)
             {
                 case DeviceState.NotExists:
-                     result.Code = (int)eResponseStatus.DeviceNotExists;
+                    result.Code = (int)eResponseStatus.DeviceNotExists;
                     result.Message = "Device does not exists";
                     break;
                 //case DeviceState.Pending:
@@ -1040,18 +1041,18 @@ namespace Users
                 log.DebugFormat("address or wsUsername or wsPassword is empty. Address: {0} , wsUsername: {1}, wsPassword: {2}", Address, wsUsername, wsPassword);
                 return;
             }
-            try 
+            try
             {
-                string RequestData = CreateInitiazeNotificationACtionSoapRequest(wsUsername, wsPassword, userAction, userId, udid, pushToken);                
+                string RequestData = CreateInitiazeNotificationACtionSoapRequest(wsUsername, wsPassword, userAction, userId, udid, pushToken);
                 string ErrorMsg = string.Empty;
-                Task.Factory.StartNew(() => TVinciShared.WS_Utils.SendXMLHttpReqWithHeaders(Address, RequestData, new Dictionary<string, string>() { { "SOAPAction", SoapAction } }));                
+                Task.Factory.StartNew(() => TVinciShared.WS_Utils.SendXMLHttpReqWithHeaders(Address, RequestData, new Dictionary<string, string>() { { "SOAPAction", SoapAction } }));
             }
 
             catch (Exception ex)
             {
                 log.ErrorFormat("Error while inserting to notification. groupId: {0}, userAction: {1}, userId: {2}, udid: {3}, pushToken: {4}, Exception: {5}",
                                     groupId, userAction, userId, udid, pushToken, ex.Message);
-            }            
+            }
         }
 
         private static string CreateInitiazeNotificationACtionSoapRequest(string wsUserName, string wsPassword, eUserMessageAction action, int userId, string udid, string pushToken)
@@ -1084,4 +1085,24 @@ namespace Users
         }
     }
 
+}
+
+namespace Users.TvinciAPI
+{
+    // adding request ID to header
+    public partial class API
+    {
+        protected override WebRequest GetWebRequest(Uri uri)
+        {
+            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
+
+            if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
+            {
+                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+            }
+            return request;
+        }
+    }
 }
