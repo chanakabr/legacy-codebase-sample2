@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Net;
+using System.Web;
 
 namespace SetupTaskHandler
 {
@@ -147,6 +149,29 @@ namespace SetupTaskHandler
 
                         #endregion
                     }
+                    case ApiObjects.eSetupTask.InsertExpiredRecordingsTasks:
+
+                        string casUrl = TVinciShared.WS_Utils.GetTcmConfigValue("WS_CAS");
+                        using (SetupTaskHandler.WS_ConditionalAccess.module cas = new SetupTaskHandler.WS_ConditionalAccess.module())
+                        {
+                            if (!string.IsNullOrEmpty(casUrl))
+                            {
+                                cas.Url = casUrl;
+                            }
+
+                            cas.Timeout = 600000;
+                            success = cas.HandleRecordingsLifetime();
+
+                            if (!success)
+                            {
+                                log.Error("HandleRecordingsLifetime failed");
+                            }
+                            else
+                            {
+                                log.Debug("HandleRecordingsLifetime finished successfully");
+                            }
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -167,6 +192,26 @@ namespace SetupTaskHandler
             }
 
             return result;
+        }
+    }
+}
+
+namespace SetupTaskHandler.WS_ConditionalAccess
+{
+    // adding request ID to header
+    public partial class module
+    {
+        protected override WebRequest GetWebRequest(Uri uri)
+        {
+            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
+
+            if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
+            {
+                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+            }
+            return request;
         }
     }
 }

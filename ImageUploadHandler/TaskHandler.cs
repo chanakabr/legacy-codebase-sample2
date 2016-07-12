@@ -9,6 +9,7 @@ using System.Text;
 using TVinciShared;
 using ImageUploadHandler.WS_API;
 using ApiObjects;
+using System.Web;
 
 namespace ImageUploadHandler
 {
@@ -167,6 +168,27 @@ namespace ImageUploadHandler
                 log.ErrorFormat("Error on post request. URL: {0}, Parameter: {1}. Error: {2}", uri, parameters, ex);
             }
             return null;
+        }
+    }
+}
+
+
+namespace ImageUploadHandler.WS_API
+{
+    // adding request ID to header
+    public partial class API
+    {
+        protected override WebRequest GetWebRequest(Uri uri)
+        {
+            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
+
+            if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
+            {
+                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+            }
+            return request;
         }
     }
 }

@@ -58,8 +58,8 @@ namespace ElasticSearchHandler.Updaters
             var recordingIds = this.IDs;
 
             // Get information about relevant recordings
-            List<Recording> recordings = DAL.ConditionalAccessDAL.GetRecordings(this.groupId, recordingIds.Select(i => (long)i).ToList());
-
+            List<Recording> recordings = DAL.RecordingsDAL.GetRecordings(this.groupId, recordingIds.Select(i => (long)i).ToList());
+            
             // Map EPGs to original recordings,
             // Get all program IDs
 

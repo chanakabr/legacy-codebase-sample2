@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
+using System.Web;
 using KLogMonitor;
 
 namespace SocialFeedHandler
@@ -78,6 +80,26 @@ namespace SocialFeedHandler
                     log.Error("Error - " + string.Format("Error occurred while deleting user feed. groupId: {0}, Siteguid: {1} exception: {2}", m_nGroupID, m_sSiteGuid, ex.Message), ex);
                 }
             }
+        }
+    }
+}
+
+namespace SocialFeedHandler.SocialReference
+{
+    // adding request ID to header
+    public partial class module
+    {
+        protected override WebRequest GetWebRequest(Uri uri)
+        {
+            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
+
+            if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
+            {
+                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+            }
+            return request;
         }
     }
 }

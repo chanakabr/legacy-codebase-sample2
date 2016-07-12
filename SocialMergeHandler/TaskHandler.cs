@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using KLogMonitor;
 using System.Reflection;
+using System.Net;
+using System.Web;
 
 namespace SocialMergeHandler
 {
@@ -137,6 +139,26 @@ namespace SocialMergeHandler
                     log.Error("Error - " + string.Format("Error occurred while deleting user feed. groupId: {0}, siteguid: {1} exception: {2}", groupId, siteGuid, ex.Message), ex);
                 }
             }
+        }
+    }
+}
+
+namespace SocialMergeHandler.SocialReference
+{
+    // adding request ID to header
+    public partial class module
+    {
+        protected override WebRequest GetWebRequest(Uri uri)
+        {
+            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
+
+            if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
+            {
+                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+            }
+            return request;
         }
     }
 }

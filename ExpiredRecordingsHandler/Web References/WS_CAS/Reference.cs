@@ -13,7 +13,7 @@
 // 
 #pragma warning disable 1591
 
-namespace SetupTaskHandler.WS_ConditionalAccess {
+namespace ExpiredRecordingsHandler.WS_CAS {
     using System;
     using System.Web.Services;
     using System.Diagnostics;
@@ -98,7 +98,7 @@ namespace SetupTaskHandler.WS_ConditionalAccess {
         
         private System.Threading.SendOrPostCallback GetLastScheduleTaksSuccessfulRunOperationCompleted;
         
-        private System.Threading.SendOrPostCallback HandleRecordingScheduledTasksOperationCompleted;
+        private System.Threading.SendOrPostCallback HandleRecordingsScheduledTasksOperationCompleted;
         
         private System.Threading.SendOrPostCallback HandleExpiredRecordingOperationCompleted;
         
@@ -278,7 +278,7 @@ namespace SetupTaskHandler.WS_ConditionalAccess {
         
         /// <remarks/>
         public module() {
-            this.Url = global::SetupTaskHandler.Properties.Settings.Default.SetupTaskHandler_WS_ConditionalAccess_module;
+            this.Url = global::ExpiredRecordingsHandler.Properties.Settings.Default.ExpiredRecordingsHandler_WS_CAS_module;
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;
@@ -415,7 +415,7 @@ namespace SetupTaskHandler.WS_ConditionalAccess {
         public event GetLastScheduleTaksSuccessfulRunCompletedEventHandler GetLastScheduleTaksSuccessfulRunCompleted;
         
         /// <remarks/>
-        public event HandleRecordingScheduledTasksCompletedEventHandler HandleRecordingScheduledTasksCompleted;
+        public event HandleRecordingsScheduledTasksCompletedEventHandler HandleRecordingsScheduledTasksCompleted;
         
         /// <remarks/>
         public event HandleExpiredRecordingCompletedEventHandler HandleExpiredRecordingCompleted;
@@ -1977,54 +1977,52 @@ namespace SetupTaskHandler.WS_ConditionalAccess {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/HandleRecordingScheduledTasks", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public bool HandleRecordingScheduledTasks() {
-            object[] results = this.Invoke("HandleRecordingScheduledTasks", new object[0]);
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/HandleRecordingsScheduledTasks", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public bool HandleRecordingsScheduledTasks() {
+            object[] results = this.Invoke("HandleRecordingsScheduledTasks", new object[0]);
             return ((bool)(results[0]));
         }
         
         /// <remarks/>
-        public void HandleRecordingScheduledTasksAsync() {
-            this.HandleRecordingScheduledTasksAsync(null);
+        public void HandleRecordingsScheduledTasksAsync() {
+            this.HandleRecordingsScheduledTasksAsync(null);
         }
         
         /// <remarks/>
-        public void HandleRecordingScheduledTasksAsync(object userState) {
-            if ((this.HandleRecordingScheduledTasksOperationCompleted == null)) {
-                this.HandleRecordingScheduledTasksOperationCompleted = new System.Threading.SendOrPostCallback(this.OnHandleRecordingScheduledTasksOperationCompleted);
+        public void HandleRecordingsScheduledTasksAsync(object userState) {
+            if ((this.HandleRecordingsScheduledTasksOperationCompleted == null)) {
+                this.HandleRecordingsScheduledTasksOperationCompleted = new System.Threading.SendOrPostCallback(this.OnHandleRecordingsScheduledTasksOperationCompleted);
             }
-            this.InvokeAsync("HandleRecordingScheduledTasks", new object[0], this.HandleRecordingScheduledTasksOperationCompleted, userState);
+            this.InvokeAsync("HandleRecordingsScheduledTasks", new object[0], this.HandleRecordingsScheduledTasksOperationCompleted, userState);
         }
         
-        private void OnHandleRecordingScheduledTasksOperationCompleted(object arg) {
-            if ((this.HandleRecordingScheduledTasksCompleted != null)) {
+        private void OnHandleRecordingsScheduledTasksOperationCompleted(object arg) {
+            if ((this.HandleRecordingsScheduledTasksCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.HandleRecordingScheduledTasksCompleted(this, new HandleRecordingScheduledTasksCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+                this.HandleRecordingsScheduledTasksCompleted(this, new HandleRecordingsScheduledTasksCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/HandleExpiredRecording", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public bool HandleExpiredRecording(ExpiredRecordingScheduledTask expiredRecording, int recordingDuration) {
+        public bool HandleExpiredRecording(ExpiredRecordingScheduledTask expiredRecording) {
             object[] results = this.Invoke("HandleExpiredRecording", new object[] {
-                        expiredRecording,
-                        recordingDuration});
+                        expiredRecording});
             return ((bool)(results[0]));
         }
         
         /// <remarks/>
-        public void HandleExpiredRecordingAsync(ExpiredRecordingScheduledTask expiredRecording, int recordingDuration) {
-            this.HandleExpiredRecordingAsync(expiredRecording, recordingDuration, null);
+        public void HandleExpiredRecordingAsync(ExpiredRecordingScheduledTask expiredRecording) {
+            this.HandleExpiredRecordingAsync(expiredRecording, null);
         }
         
         /// <remarks/>
-        public void HandleExpiredRecordingAsync(ExpiredRecordingScheduledTask expiredRecording, int recordingDuration, object userState) {
+        public void HandleExpiredRecordingAsync(ExpiredRecordingScheduledTask expiredRecording, object userState) {
             if ((this.HandleExpiredRecordingOperationCompleted == null)) {
                 this.HandleExpiredRecordingOperationCompleted = new System.Threading.SendOrPostCallback(this.OnHandleExpiredRecordingOperationCompleted);
             }
             this.InvokeAsync("HandleExpiredRecording", new object[] {
-                        expiredRecording,
-                        recordingDuration}, this.HandleExpiredRecordingOperationCompleted, userState);
+                        expiredRecording}, this.HandleExpiredRecordingOperationCompleted, userState);
         }
         
         private void OnHandleExpiredRecordingOperationCompleted(object arg) {
@@ -10460,7 +10458,7 @@ namespace SetupTaskHandler.WS_ConditionalAccess {
         
         private int impactedItemsField;
         
-        private int nextRunIntervalInMinutesField;
+        private int nextRunIntervalInSecondsField;
         
         /// <remarks/>
         public Status Status {
@@ -10493,12 +10491,12 @@ namespace SetupTaskHandler.WS_ConditionalAccess {
         }
         
         /// <remarks/>
-        public int NextRunIntervalInMinutes {
+        public int NextRunIntervalInSeconds {
             get {
-                return this.nextRunIntervalInMinutesField;
+                return this.nextRunIntervalInSecondsField;
             }
             set {
-                this.nextRunIntervalInMinutesField = value;
+                this.nextRunIntervalInSecondsField = value;
             }
         }
     }
@@ -12773,17 +12771,17 @@ namespace SetupTaskHandler.WS_ConditionalAccess {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void HandleRecordingScheduledTasksCompletedEventHandler(object sender, HandleRecordingScheduledTasksCompletedEventArgs e);
+    public delegate void HandleRecordingsScheduledTasksCompletedEventHandler(object sender, HandleRecordingsScheduledTasksCompletedEventArgs e);
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class HandleRecordingScheduledTasksCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+    public partial class HandleRecordingsScheduledTasksCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
         
         private object[] results;
         
-        internal HandleRecordingScheduledTasksCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+        internal HandleRecordingsScheduledTasksCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }
