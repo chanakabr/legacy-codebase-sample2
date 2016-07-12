@@ -4523,7 +4523,7 @@ namespace ConditionalAccess
 
         internal static Recording ValidateEpgForRecord(TimeShiftedTvPartnerSettings accountSettings, EPGChannelProgrammeObject epg)
         {
-            Recording response = new Recording() { EpgId = epg.EPG_ID, Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()) };
+            Recording response = new Recording() { EpgId = epg.EPG_ID, Crid = epg.CRID, Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()) };
             try
             {
                 if (epg.ENABLE_CDVR != 1)
@@ -4604,7 +4604,8 @@ namespace ConditionalAccess
                         ChannelId = epg.EPG_CHANNEL_ID,
                         Id = 0,
                         EpgStartDate = epgStartDate,
-                        EpgEndDate = epgEndDate
+                        EpgEndDate = epgEndDate,
+                        Crid = epg.CRID
                     };
 
                     if (accountSettings != null && accountSettings.PaddingBeforeProgramStarts.HasValue && accountSettings.PaddingAfterProgramEnds.HasValue)
@@ -4927,6 +4928,7 @@ namespace ConditionalAccess
                 DateTime epgStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE");
                 DateTime epgEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
                 string externalRecordingId = ODBCWrapper.Utils.GetSafeStr(dr, "EXTERNAL_RECORDING_ID");
+                string crid = ODBCWrapper.Utils.GetSafeStr(dr, "CRID");
 
                 if (!recordingStatus.HasValue)
                 {
@@ -4962,7 +4964,8 @@ namespace ConditionalAccess
                     CreateDate = createDate,
                     UpdateDate = updateDate,
                     RecordingStatus = recordingStatus.Value,
-                    ExternalRecordingId = externalRecordingId
+                    ExternalRecordingId = externalRecordingId,
+                    Crid = crid
                 };
 
                 // if recording status is Recorded then set ViewableUntilDate
@@ -5086,6 +5089,11 @@ namespace ConditionalAccess
         internal static bool AddQuotaToDomain(long domainId, int quotaToAdd)
         {
             return ConditionalAccessDAL.AddQuotaToDomain(domainId, quotaToAdd);
+        }
+
+        internal static List<EPGChannelProgrammeObject> GetFirstFollowerEpgIdsToRecord(string seriesId, int seassonNumber, DateTime? windowStartDate)
+        {
+            throw new NotImplementedException();
         }
     }
 }

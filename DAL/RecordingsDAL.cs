@@ -205,7 +205,7 @@ namespace DAL
             return dt;
         }
 
-        public static bool UpdateOrInsertDomainRecording(int groupID, long userID, long domainID, Recording recording)
+        public static bool UpdateOrInsertDomainRecording(int groupID, long userID, long domainID, Recording recording, RecordingType recordingType)
         {
             DataTable dt = null;
             bool res = false;
@@ -216,6 +216,7 @@ namespace DAL
             spUpdateOrInsertDomainRecording.AddParameter("@DomainID", domainID);
             spUpdateOrInsertDomainRecording.AddParameter("@EpgID", recording.EpgId);
             spUpdateOrInsertDomainRecording.AddParameter("@RecordingID", recording.Id);
+            spUpdateOrInsertDomainRecording.AddParameter("@RecordingType", (int)recordingType);
 
             dt = spUpdateOrInsertDomainRecording.Execute();
 
@@ -765,5 +766,14 @@ namespace DAL
             return recordingDuration;
         }
 
+        public static Dictionary<long, Recording> GetRecordingsMapByCrid(int groupId, string crid)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static Recording InsertRecordingCopy(int groupId, long programId, DateTime startDate, DateTime endDate, string crid)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

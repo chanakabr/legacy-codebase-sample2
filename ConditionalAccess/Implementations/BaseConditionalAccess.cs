@@ -17087,7 +17087,7 @@ namespace ConditionalAccess
             }
         }
 
-        public Recording Record(string userID, long epgID)
+        public Recording Record(string userID, long epgID, RecordingType recordingType)
         {
             Recording recording = new Recording() { EpgId = epgID };
             RecordingResponse recordingResponse = new RecordingResponse();
@@ -17111,11 +17111,15 @@ namespace ConditionalAccess
                 if (recording.Id == 0 || !Utils.IsValidRecordingStatus(recording.RecordingStatus))
                 {
                     log.DebugFormat("Recording ID is 0 or RecordingStatus not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
-                    recording = RecordingsManager.Instance.Record(m_nGroupID, recording.EpgId, recording.ChannelId, recording.EpgStartDate, recording.EpgEndDate, userID, domainID);
+                    recording = RecordingsManager.Instance.Record(m_nGroupID, recording.EpgId, recording.ChannelId, recording.EpgStartDate, recording.EpgEndDate, recording.Crid);
                     if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK
                         && recording.Id > 0 && Utils.IsValidRecordingStatus(recording.RecordingStatus))
                     {
-                        if (!RecordingsDAL.UpdateOrInsertDomainRecording(m_nGroupID, long.Parse(userID), domainID, recording))
+                        if (RecordingsDAL.UpdateOrInsertDomainRecording(m_nGroupID, long.Parse(userID), domainID, recording, recordingType))
+                        {
+                            
+                        }
+                        else
                         {
                             log.ErrorFormat("Failed saving record to domain recordings table, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
                             recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -18467,6 +18471,74 @@ namespace ConditionalAccess
         public ApiObjects.Response.Status CompleteHouseholdSeriesRecordings(long domainId)
         {
             return new ApiObjects.Response.Status();
+        }
+
+        public bool HandleFirstFollowerRecording(string userId, long domainId, string seriesId, int seassonNumber)
+        {
+            bool result = false;
+            try
+            {
+                TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+                DateTime? windowStartDate = null;
+                if (accountSettings.IsRecordingScheduleWindowEnabled.HasValue && accountSettings.IsRecordingScheduleWindowEnabled.Value
+                    && accountSettings.RecordingScheduleWindow.HasValue && accountSettings.RecordingScheduleWindow.Value > 0)
+                {
+                    windowStartDate = DateTime.UtcNow.AddMinutes(accountSettings.RecordingScheduleWindow.Value);
+                }
+
+                List<EPGChannelProgrammeObject> epgsToRecord = Utils.GetFirstFollowerEpgIdsToRecord(seriesId, seassonNumber, windowStartDate);
+                if (epgsToRecord == null)
+                {
+                    log.ErrorFormat("Failed GetFirstFollowerEpgIdsToRecord, userId: {0}, domainId: {1}, seriesId: {2}, seassonNumber: {3}", userId, domainId, seriesId, seassonNumber);
+                    return result;
+                }
+
+                long paddingBeforeProgramStarts = 0;
+                if (accountSettings.PaddingBeforeProgramStarts.HasValue)
+                {
+                    paddingBeforeProgramStarts = accountSettings.PaddingBeforeProgramStarts.Value;
+                }
+
+                long paddingAfterProgramEnds = 0;
+                if (accountSettings.PaddingAfterProgramEnds.HasValue)
+                {
+                    paddingAfterProgramEnds = accountSettings.PaddingAfterProgramEnds.Value;
+                }
+
+                foreach (EPGChannelProgrammeObject epg in epgsToRecord)
+                {
+                    DateTime epgStartDate;
+                    if (!DateTime.TryParseExact(epg.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgStartDate))
+                    {
+                        log.ErrorFormat("Failed parsing EPG start date, epgID: {0}, startDate: {1}", epg.EPG_ID, epg.START_DATE);
+                        continue;
+                    }
+
+                    DateTime epgEndDate;
+                    if (!DateTime.TryParseExact(epg.END_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgEndDate))
+                    {
+                        log.ErrorFormat("Failed parsing EPG end date, epgID: {0}, startDate: {1}", epg.EPG_ID, epg.END_DATE);
+                        continue;
+                    }
+
+                    DateTime epgPaddedStartDate = epgStartDate.AddSeconds(-1 * paddingBeforeProgramStarts);
+                    DateTime epgPaddedEndDate = epgEndDate.AddSeconds(paddingAfterProgramEnds);
+                    Recording globalRecording = RecordingsManager.Instance.Record(m_nGroupID, epg.EPG_ID, epg.EPG_CHANNEL_ID, epgPaddedStartDate, epgPaddedEndDate, epg.CRID);
+                    if (globalRecording == null || globalRecording.Status == null || globalRecording.Status.Code != (int)eResponseStatus.OK)
+                    {
+                        log.ErrorFormat("RecordingsManager.Instance.Record failed for epgId: {0}, epgChannelId: {1}, epgPaddedStartDate: {2}, epgPaddedEndDate: {3}, crid: {4}", epg.EPG_ID, epg.EPG_CHANNEL_ID, epgPaddedStartDate, epgPaddedEndDate, epg.CRID);
+                        continue;
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error on HandleFirstFollowerRecording {0} ", domainId), ex);
+            }
+
+            return result;
+
         }
     }
 }

@@ -38,6 +38,8 @@ namespace ApiObjects.TimeShiftedTv
 
         public DateTime UpdateDate { get; set; }
 
+        public string Crid { get; set; }
+
         public Recording()
         {
             Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -61,6 +63,7 @@ namespace ApiObjects.TimeShiftedTv
             this.ViewableUntilDate = record.ViewableUntilDate;
             this.CreateDate = record.CreateDate;
             this.UpdateDate = record.UpdateDate;
+            this.Crid = record.Crid;
         }
 
         public override string ToString()
@@ -79,7 +82,8 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("ViewableUntilDate: {0}, ", ViewableUntilDate.HasValue ? ViewableUntilDate.Value.ToString() : ""));
             sb.Append(string.Format("ProtectedUntilDate: {0}, ", ProtectedUntilDate.HasValue ? ProtectedUntilDate.Value.ToString() : ""));
             sb.Append(string.Format("CreateDate: {0}, ", CreateDate != null ? CreateDate.ToString() : ""));
-            sb.Append(string.Format("UpdateDate: {0}, ", UpdateDate != null ? UpdateDate.ToString() : ""));            
+            sb.Append(string.Format("UpdateDate: {0}, ", UpdateDate != null ? UpdateDate.ToString() : ""));
+            sb.Append(string.Format("Crid: {0}, ", string.IsNullOrEmpty(Crid) ? "" : Crid));
 
             return sb.ToString();
         }

@@ -635,13 +635,15 @@ namespace ApiObjects
     {
         GetStatusAfterProgramEnded = 1,
         Record = 2,
-        UpdateRecording = 3
+        UpdateRecording = 3,
+        DistributeRecording = 4
     }
 
     public enum RecordingType
     {
         Single = 0,
-        Series = 1,
+        Season = 1,
+        Series = 2,
     }
 
     public enum CDNProviderFailReason

@@ -110,7 +110,7 @@ namespace Recordings
 
         #region Public Methods
 
-        public Recording Record(int groupId, long programId, string epgChannelID, DateTime startDate, DateTime endDate, string siteGuid, long domainId)
+        public Recording Record(int groupId, long programId, string epgChannelID, DateTime startDate, DateTime endDate, string crid)
         {
             Recording recording = null;
 
@@ -122,10 +122,10 @@ namespace Recordings
             syncParmeters.Add("startDate", startDate);
             syncParmeters.Add("endDate", endDate);
 
-            recording = RecordingsDAL.GetRecordingByProgramId(programId);
+            Dictionary<long, Recording> recordingsEpgMap = RecordingsDAL.GetRecordingsMapByCrid(groupId, crid);            
 
             // remember and not forget
-            if (recording == null)
+            if (recordingsEpgMap == null || recordingsEpgMap.Count == 0)
             {
                 bool syncedAction = synchronizer.DoAction(syncKey, syncParmeters);
 
@@ -137,6 +137,22 @@ namespace Recordings
                 else
                 {
                     recording = RecordingsDAL.GetRecordingByProgramId(programId);
+                }
+            }
+            else if (recordingsEpgMap.ContainsKey(programId))
+            {
+                recording = recordingsEpgMap[programId];
+            }
+            else
+            {
+                recording = RecordingsDAL.InsertRecordingCopy(groupId, programId, startDate, endDate, crid);
+                // add message which will add the recording to all the following domains only if the recordings is in the future
+                if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK && recording.RecordingStatus == TstvRecordingStatus.Scheduled)
+                {                    
+                    DateTime distributeTime = endDate.AddMinutes(1);
+                    eRecordingTask task = eRecordingTask.DistributeRecording;
+
+                    EnqueueMessage(groupId, recording.EpgId, recording.Id, distributeTime, task);
                 }
             }
 
@@ -893,7 +909,7 @@ namespace Recordings
             // If it is a new recording or a canceled recording - we call adapter
             if (issueRecord)
             {
-                // Schedule a message tocheck status 1 minute after recording of program is supposed to be over
+                // Schedule a message to check status 1 minute after recording of program is supposed to be over
 
                 DateTime checkTime = endDate.AddMinutes(1);
                 eRecordingTask task = eRecordingTask.GetStatusAfterProgramEnded;
@@ -1135,7 +1151,14 @@ namespace Recordings
                     else
                     {
                         currentRecording.RecordingStatus = TstvRecordingStatus.Scheduled;
-                        currentRecording.RecordingStatus = RecordingsManager.GetTstvRecordingStatus(currentRecording.EpgStartDate, currentRecording.EpgEndDate, currentRecording.RecordingStatus);                        
+                        currentRecording.RecordingStatus = RecordingsManager.GetTstvRecordingStatus(currentRecording.EpgStartDate, currentRecording.EpgEndDate, currentRecording.RecordingStatus);
+
+                        // add message which will add the recording to all the following domains
+                        DateTime distributeTime = endDate.AddMinutes(1);
+                        eRecordingTask task = eRecordingTask.DistributeRecording;
+
+                        EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, distributeTime, task);
+
 
                         // Insert the new links of the recordings
                         if (adapterResponse.Links != null && adapterResponse.Links.Count > 0)
