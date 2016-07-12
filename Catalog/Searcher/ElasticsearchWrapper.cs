@@ -1237,7 +1237,7 @@ namespace Catalog
                 {
                     // the name of the tag will be the facet name
                     FacetName = associationTag.Value,
-                    KeyField = string.Format("tags.{0}", associationTag.Value),
+                    KeyField = string.Format("tags.{0}", associationTag.Value.ToLower()),
                     ValueField = "start_date",
                     FacetFilter = facetFilter
                 };
