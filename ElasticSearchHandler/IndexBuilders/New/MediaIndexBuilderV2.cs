@@ -13,15 +13,22 @@ using System.Threading.Tasks;
 using KLogMonitor;
 using System.Reflection;
 using ApiObjects.Response;
+using KlogMonitorHelper;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
     public class MediaIndexBuilderV2 : AbstractIndexBuilder
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        #region Consts
+        
         private static readonly string MEDIA = "media";
         protected const string VERSION = "2";
 
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        #endregion
+
+        #region Ctor
 
         public MediaIndexBuilderV2(int groupID)
             : base(groupID)
@@ -29,36 +36,40 @@ namespace ElasticSearchHandler.IndexBuilders
             serializer = new ESSerializerV2();
         }
 
+        #endregion
 
         #region Interface Methods
 
         public override bool BuildIndex()
         {
+            ContextData cd = new ContextData();
             string newIndexName = ElasticSearchTaskUtils.GetNewMediaIndexStr(groupId);
 
             #region Build new index and specify number of nodes/shards
 
-            string numberOfShards = ElasticSearchTaskUtils.GetTcmConfigValue("ES_NUM_OF_SHARDS");
-            string numberOfReplicas = ElasticSearchTaskUtils.GetTcmConfigValue("ES_NUM_OF_REPLICAS");
-            string sizeOfBulkString = ElasticSearchTaskUtils.GetTcmConfigValue("ES_BULK_SIZE");
+            // Basic TCM configurations for indexing - number of shards/replicas, size of bulks 
+            int numOfShards = TVinciShared.WS_Utils.GetTcmIntValue("ES_NUM_OF_SHARDS");
+            int numOfReplicas = TVinciShared.WS_Utils.GetTcmIntValue("ES_NUM_OF_REPLICAS");
+            int sizeOfBulk = TVinciShared.WS_Utils.GetTcmIntValue("ES_BULK_SIZE");
+            int maxResults = TVinciShared.WS_Utils.GetTcmIntValue("MAX_RESULTS");
 
-            int numOfShards;
-            int numOfReplicas;
-            int sizeOfBulk;
-
-            int.TryParse(numberOfReplicas, out numOfReplicas);
-            int.TryParse(numberOfShards, out numOfShards);
-            int.TryParse(sizeOfBulkString, out sizeOfBulk);
-
+            // Default for size of bulk should be 50, if not stated otherwise in TCM
             if (sizeOfBulk == 0)
             {
                 sizeOfBulk = 50;
+            }
+
+            // Default size of max results should be 100,000
+            if (maxResults == 0)
+            {
+                maxResults = 100000;
             }
 
             GroupManager groupManager = new GroupManager();
             groupManager.RemoveGroup(groupId);
             Group group = groupManager.GetGroup(groupId);
 
+            // Without the group we cannot advance at all - there must be an error in CB or something
             if (group == null)
             {
                 log.ErrorFormat("Could not load group {0} in media index builder", groupId);
@@ -69,14 +80,8 @@ namespace ElasticSearchHandler.IndexBuilders
             List<string> filters;
             List<string> tokenizers;
 
+            // get definitions of analyzers, filters and tokenizers
             GetAnalyzers(group.GetLangauges(), out analyzers, out filters, out tokenizers);
-
-            int maxResults = TVinciShared.WS_Utils.GetTcmIntValue("MAX_RESULTS");
-
-            if (maxResults == 0)
-            {
-                maxResults = 100000;
-            }
 
             bool actionResult = api.BuildIndex(newIndexName, numOfShards, numOfReplicas, analyzers, filters, tokenizers, maxResults);
 
@@ -89,12 +94,17 @@ namespace ElasticSearchHandler.IndexBuilders
             #endregion
 
             #region create mapping
-            foreach (ApiObjects.LanguageObj language in group.GetLangauges())
+
+            var languages = group.GetLangauges();
+
+            // Mapping for each language
+            foreach (ApiObjects.LanguageObj language in languages)
             {
                 string indexAnalyzer, searchAnalyzer;
                 string autocompleteIndexAnalyzer = null;
                 string autocompleteSearchAnalyzer = null;
 
+                // create names for analyzers to be used in the mapping later on
                 string analyzerDefinitionName = ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code, VERSION);
 
                 if (ElasticSearchApi.AnalyzerExists(analyzerDefinitionName))
@@ -115,26 +125,43 @@ namespace ElasticSearchHandler.IndexBuilders
                     log.Error(string.Format("could not find analyzer for language ({0}) for mapping. whitespace analyzer will be used instead", language.Code));
                 }
 
-                string mapping = serializer.CreateMediaMapping(group.m_oMetasValuesByGroupId, group.m_oGroupTags, indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer);
-                string type = (language.IsDefault) ? MEDIA : string.Concat(MEDIA, "_", language.Code);
-                bool bMappingRes = api.InsertMapping(newIndexName, type, mapping.ToString());
+                // Ask serializer to create the mapping definitions string
+                string mapping = serializer.CreateMediaMapping(
+                    group.m_oMetasValuesByGroupId, group.m_oGroupTags, 
+                    indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer);
+                
+                string type = MEDIA;
 
-                if (language.IsDefault && !bMappingRes)
+                if (!language.IsDefault)
+                {
+                    type = string.Concat(MEDIA, "_", language.Code);
+                }
+
+                bool mappingResult = api.InsertMapping(newIndexName, type, mapping.ToString());
+
+                // Most important is the mapping for the default language, we can live without the others...
+                if (language.IsDefault && !mappingResult)
+                {
                     actionResult = false;
+                }
 
-                if (!bMappingRes)
+                if (!mappingResult)
                 {
                     log.Error(string.Concat("Could not create mapping of type media for language ", language.Name));
                 }
-
             }
 
+            // If we didn't succeed up until now - don't continue
             if (!actionResult)
+            {
                 return actionResult;
+            }
 
             #endregion
 
             #region insert medias
+
+            // Get ALL media in group
             Dictionary<int, Dictionary<int, Media>> groupMedias = ElasticsearchTasksCommon.Utils.GetGroupMediasTotal(groupId, 0);
 
             if (groupMedias != null)
@@ -142,34 +169,43 @@ namespace ElasticSearchHandler.IndexBuilders
                 log.Debug("Info - " + string.Format("Start indexing medias. total medias={0}", groupMedias.Count));
                 List<ESBulkRequestObj<int>> bulkList = new List<ESBulkRequestObj<int>>();
 
-                foreach (int mediaId in groupMedias.Keys)
+                // For each media
+                foreach (var groupMedia in groupMedias)
                 {
-                    foreach (int languageId in groupMedias[mediaId].Keys)
+                    var mediaId = groupMedia.Key;
+                    
+                    // For each language
+                    foreach (int languageId in groupMedia.Value.Keys)
                     {
-                        Media media = groupMedias[mediaId][languageId];
+                        Media media = groupMedia.Value[languageId];
 
                         if (media != null)
                         {
-                            string serializedMedia;
+                            // Serialize media and create a bulk request for it
+                            string serializedMedia = serializer.SerializeMediaObject(media);
 
-                            serializedMedia = serializer.SerializeMediaObject(media);
-
-                            string sType = ElasticSearchTaskUtils.GetTanslationType(MEDIA, group.GetLanguage(languageId));
+                            string documentType = ElasticSearchTaskUtils.GetTanslationType(MEDIA, group.GetLanguage(languageId));
 
                             bulkList.Add(new ESBulkRequestObj<int>()
                             {
                                 docID = media.m_nMediaID,
                                 index = newIndexName,
-                                type = sType,
+                                type = documentType,
                                 document = serializedMedia
                             });
                         }
+
+                        // If we exceeded the size of a single bulk reuquest
                         if (bulkList.Count >= sizeOfBulk)
                         {
+                            // Send request to elastic search in a different thread
                             Task t = Task.Factory.StartNew(() => 
                                 {
+                                    cd.Load();
+
                                     var invalidResults = api.CreateBulkRequest(bulkList);
 
+                                    // Log invalid results
                                     if (invalidResults != null && invalidResults.Count > 0)
                                     {
                                         foreach (var item in invalidResults)
@@ -179,16 +215,20 @@ namespace ElasticSearchHandler.IndexBuilders
                                         }
                                     }
                                 });
+
                             t.Wait();
-                            bulkList = new List<ESBulkRequestObj<int>>();
+                            bulkList.Clear();
                         }
                     }
                 }
 
+                // If we have a final bulk pending
                 if (bulkList.Count > 0)
                 {
+                    // Send request to elastic search in a different thread
                     Task t = Task.Factory.StartNew(() =>
                     {
+                        cd.Load();
                         var invalidResults = api.CreateBulkRequest(bulkList);
 
                         if (invalidResults != null && invalidResults.Count > 0)
@@ -213,6 +253,8 @@ namespace ElasticSearchHandler.IndexBuilders
             
             #endregion
 
+            // Switch index alias + Delete old indices handling
+
             string alias = ElasticSearchTaskUtils.GetMediaGroupAliasStr(groupId);
             bool indexExists = api.IndexExists(alias);
 
@@ -220,7 +262,12 @@ namespace ElasticSearchHandler.IndexBuilders
             {
                 List<string> oldIndices = api.GetAliases(alias);
 
-                Task<bool> taskSwitchIndex = Task<bool>.Factory.StartNew(() => api.SwitchIndex(newIndexName, alias, oldIndices));
+                Task<bool> taskSwitchIndex = Task<bool>.Factory.StartNew(() =>
+                {
+                    cd.Load();
+                    return api.SwitchIndex(newIndexName, alias, oldIndices);
+                });
+
                 taskSwitchIndex.Wait();
 
                 if (!taskSwitchIndex.Result)
@@ -231,7 +278,12 @@ namespace ElasticSearchHandler.IndexBuilders
 
                 if (this.DeleteOldIndices && taskSwitchIndex.Result && oldIndices.Count > 0)
                 {
-                    Task t = Task.Factory.StartNew(() => api.DeleteIndices(oldIndices));
+                    Task t = Task.Factory.StartNew(() =>
+                    {
+                        cd.Load();
+                        api.DeleteIndices(oldIndices);
+                    });
+
                     t.Wait();
                 }
             }

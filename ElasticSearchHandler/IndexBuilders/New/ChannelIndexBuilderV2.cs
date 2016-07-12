@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using KLogMonitor;
 using System.Reflection;
 using ApiObjects.Response;
+using KlogMonitorHelper;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
@@ -32,6 +33,8 @@ namespace ElasticSearchHandler.IndexBuilders
         public override bool BuildIndex()
         {
             bool result = false;
+
+            ContextData cd = new ContextData();
 
             // get index name
             string indexName = ElasticSearchTaskUtils.GetMediaGroupAliasStr(groupId);
@@ -91,6 +94,7 @@ namespace ElasticSearchHandler.IndexBuilders
                             {
                                 Task t = Task.Factory.StartNew(() =>
                                 {
+                                    cd.Load();
                                     var invalidResults = api.CreateBulkRequest(bulkList);
 
                                     if (invalidResults != null && invalidResults.Count > 0)
@@ -112,6 +116,7 @@ namespace ElasticSearchHandler.IndexBuilders
                     {
                         Task t = Task.Factory.StartNew(() =>
                         {
+                            cd.Load();
                             var invalidResults = api.CreateBulkRequest(bulkList);
 
                             if (invalidResults != null && invalidResults.Count > 0)

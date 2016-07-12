@@ -10,6 +10,7 @@ using KLogMonitor;
 using System.Reflection;
 using Catalog;
 using Catalog.Cache;
+using KlogMonitorHelper;
 
 namespace ElasticSearchHandler.Updaters
 {
@@ -138,6 +139,7 @@ namespace ElasticSearchHandler.Updaters
                 }
 
                 Task<List<EpgCB>>[] programsTasks = new Task<List<EpgCB>>[epgIds.Count];
+                ContextData cd = new ContextData();
 
                 //open task factory and run GetEpgProgram on different threads
                 //wait to finish
@@ -147,6 +149,7 @@ namespace ElasticSearchHandler.Updaters
                     programsTasks[i] = Task.Factory.StartNew<List<EpgCB>>(
                         (epgId) =>
                         {
+                            cd.Load();
                             return ElasticsearchTasksCommon.Utils.GetEpgPrograms(groupId, (int)epgId, languageCodes);
                         }, epgIds[i]);
                 }

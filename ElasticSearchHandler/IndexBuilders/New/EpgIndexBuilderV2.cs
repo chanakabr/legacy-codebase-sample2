@@ -14,6 +14,7 @@ using ElasticSearch.Searcher;
 using ApiObjects.SearchObjects;
 using ApiObjects.Response;
 using System.Data;
+using KlogMonitorHelper;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
@@ -46,6 +47,8 @@ namespace ElasticSearchHandler.IndexBuilders
         public override bool BuildIndex()
         {
             bool success = false;
+
+            ContextData cd = new ContextData();
             GroupManager groupManager = new GroupManager();
             groupManager.RemoveGroup(groupId);
             Group group = groupManager.GetGroup(groupId);
@@ -77,9 +80,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
             GetAnalyzers(group.GetLangauges(), out analyzers, out filters, out tokenizers);
 
-            string sizeOfBulkString = ElasticSearchTaskUtils.GetTcmConfigValue("ES_BULK_SIZE");
-
-            int.TryParse(sizeOfBulkString, out sizeOfBulk);
+            sizeOfBulk = TVinciShared.WS_Utils.GetTcmIntValue("ES_BULK_SIZE");
 
             if (sizeOfBulk == 0)
             {
