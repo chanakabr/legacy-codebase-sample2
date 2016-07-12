@@ -78,6 +78,7 @@
     <Compile Include="CrowdsourceDAL.cs" />
     <Compile Include="enums.cs" />
     <Compile Include="ProtocolsFuncsDAL.cs" />
+    <Compile Include="RecordingsDAL.cs" />
     <Compile Include="TvmDAL.cs" />
     <Compile Include="UtilsDAL.cs" />
     <Compile Include="DeviceDAL.cs" />

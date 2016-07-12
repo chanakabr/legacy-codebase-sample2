@@ -122,7 +122,7 @@ namespace Recordings
             syncParmeters.Add("startDate", startDate);
             syncParmeters.Add("endDate", endDate);
 
-            recording = ConditionalAccessDAL.GetRecordingByProgramId(programId);
+            recording = RecordingsDAL.GetRecordingByProgramId(programId);
 
             // remember and not forget
             if (recording == null)
@@ -136,7 +136,7 @@ namespace Recordings
                 }
                 else
                 {
-                    recording = ConditionalAccessDAL.GetRecordingByProgramId(programId);
+                    recording = RecordingsDAL.GetRecordingByProgramId(programId);
                 }
             }
 
@@ -169,7 +169,7 @@ namespace Recordings
 
         public Recording RecordRetry(int groupId, long recordingId)
         {
-            Recording recording = ConditionalAccessDAL.GetRecordingByRecordingId(recordingId);
+            Recording recording = RecordingsDAL.GetRecordingByRecordingId(recordingId);
             try
             {
 
@@ -280,10 +280,10 @@ namespace Recordings
                         switch (recordingStatus)
                         {
                             case TstvRecordingStatus.Canceled:
-                                updateResult = ConditionalAccessDAL.CancelRecording(slimRecording.Id);
+                                updateResult = RecordingsDAL.CancelRecording(slimRecording.Id);
                                 break;
                             case TstvRecordingStatus.Deleted:
-                                updateResult = ConditionalAccessDAL.DeleteRecording(slimRecording.Id);
+                                updateResult = RecordingsDAL.DeleteRecording(slimRecording.Id);
                                 break;
                             default:
                                 break;
@@ -312,7 +312,7 @@ namespace Recordings
         public Status CancelOrDeleteRecording(int groupId, long epgId, TstvRecordingStatus recordingStatus)
         {
             Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            Recording recording = ConditionalAccessDAL.GetRecordingByProgramId(epgId);
+            Recording recording = RecordingsDAL.GetRecordingByProgramId(epgId);
 
             if (groupId > 0 && recording != null && recording.Id > 0 && recording.EpgId > 0 && !string.IsNullOrEmpty(recording.ExternalRecordingId))
             {
@@ -371,10 +371,10 @@ namespace Recordings
                         switch (recordingStatus)
                         {
                             case TstvRecordingStatus.Canceled:
-                                updateResult = ConditionalAccessDAL.CancelRecording(recording.Id);
+                                updateResult = RecordingsDAL.CancelRecording(recording.Id);
                                 break;
                             case TstvRecordingStatus.Deleted:
-                                updateResult = ConditionalAccessDAL.DeleteRecording(recording.Id);
+                                updateResult = RecordingsDAL.DeleteRecording(recording.Id);
                                 break;
                             default:
                                 break;
@@ -402,7 +402,7 @@ namespace Recordings
 
         public Recording GetRecordingStatus(int groupId, long recordingId)
         {
-            Recording currentRecording = ConditionalAccessDAL.GetRecordingByRecordingId(recordingId);
+            Recording currentRecording = RecordingsDAL.GetRecordingByRecordingId(recordingId);
 
             try
             {
@@ -437,7 +437,7 @@ namespace Recordings
                             // Count current try to get status - first and foremost
                             currentRecording.GetStatusRetries++;
 
-                            ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1, null);
+                            RecordingsDAL.UpdateRecording(currentRecording, groupId, 1, 1, null);
 
                             //UpdateRecording(groupId, currentRecording.EpgId, currentRecording.EpgStartDate, currentRecording.EpgEndDate);
 
@@ -495,7 +495,7 @@ namespace Recordings
                                 }
 
                                 // Update recording after setting the new status
-                                ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1, null);
+                                RecordingsDAL.UpdateRecording(currentRecording, groupId, 1, 1, null);
 
                                 UpdateIndex(groupId, recordingId);
                             }
@@ -537,7 +537,7 @@ namespace Recordings
         {
             Status status = new Status();
 
-            Recording recording = ConditionalAccessDAL.GetRecordingByProgramId(programId);
+            Recording recording = RecordingsDAL.GetRecordingByProgramId(programId);
 
             // If there is no recording - error?
             if (recording == null)
@@ -654,7 +654,7 @@ namespace Recordings
                         }
 
                         // Update the result from the adapter
-                        bool updateSuccess = ConditionalAccessDAL.UpdateRecording(recording, groupId, 1, 1, newRecordingInternalStatus);
+                        bool updateSuccess = RecordingsDAL.UpdateRecording(recording, groupId, 1, 1, newRecordingInternalStatus);
 
                         if (!updateSuccess)
                         {
@@ -758,7 +758,7 @@ namespace Recordings
 
         public Recording GetRecordingByProgramId(long programId)
         {
-            Recording recording = ConditionalAccessDAL.GetRecordingByProgramId(programId);
+            Recording recording = RecordingsDAL.GetRecordingByProgramId(programId);
             recording.RecordingStatus = GetTstvRecordingStatus(recording.EpgStartDate, recording.EpgEndDate, recording.RecordingStatus);
 
             return recording;
@@ -766,7 +766,7 @@ namespace Recordings
 
         public List<Recording> GetRecordings(int groupId, List<long> recordingIds)
         {
-            List<Recording> recordings = ConditionalAccessDAL.GetRecordings(groupId, recordingIds);
+            List<Recording> recordings = RecordingsDAL.GetRecordings(groupId, recordingIds);
 
             foreach (var recording in recordings)
             {
@@ -778,7 +778,7 @@ namespace Recordings
 
         public Recording GetRecording(int groupId, long recordingId)
         {
-            Recording recording = ConditionalAccessDAL.GetRecordingByRecordingId(recordingId);
+            Recording recording = RecordingsDAL.GetRecordingByRecordingId(recordingId);
             if (recording != null)
             {
                 recording.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -831,7 +831,7 @@ namespace Recordings
                     (int)RecordingInternalStatus.Failed, (int)RecordingInternalStatus.Waiting
                 };
 
-            List<Recording> recordings = ConditionalAccessDAL.GetAllRecordingsByStatuses(groupId, statuses);
+            List<Recording> recordings = RecordingsDAL.GetAllRecordingsByStatuses(groupId, statuses);
 
             foreach (var recording in recordings)
             {
@@ -867,7 +867,7 @@ namespace Recordings
             DateTime startDate = (DateTime)parameters["startDate"];
             DateTime endDate = (DateTime)parameters["endDate"];
 
-            Recording recording = ConditionalAccessDAL.GetRecordingByProgramId(programId);
+            Recording recording = RecordingsDAL.GetRecordingByProgramId(programId);
 
             bool issueRecord = false;
 
@@ -883,7 +883,7 @@ namespace Recordings
                 recording.RecordingStatus = TstvRecordingStatus.Scheduled;
 
                 // Insert recording information to database
-                recording = ConditionalAccessDAL.InsertRecording(recording, groupId, RecordingInternalStatus.Waiting);
+                recording = RecordingsDAL.InsertRecording(recording, groupId, RecordingInternalStatus.Waiting);
             }
             else if (recording.RecordingStatus == TstvRecordingStatus.Canceled)
             {
@@ -1000,7 +1000,7 @@ namespace Recordings
                 currentRecording.RecordingStatus = TstvRecordingStatus.Failed;
 
                 // Update recording after updating the status
-                ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1, RecordingInternalStatus.Failed);
+                RecordingsDAL.UpdateRecording(currentRecording, groupId, 1, 1, RecordingInternalStatus.Failed);
             }
         }
 
@@ -1050,7 +1050,7 @@ namespace Recordings
                 log.DebugFormat("Retry task before program started: program started already, we will mark recording {0} as failed.", recording.Id);
 
                 recording.RecordingStatus = TstvRecordingStatus.Failed;
-                ConditionalAccessDAL.UpdateRecording(recording, groupId, 1, 1, RecordingInternalStatus.Failed);
+                RecordingsDAL.UpdateRecording(recording, groupId, 1, 1, RecordingInternalStatus.Failed);
             }
         }
 
@@ -1140,7 +1140,7 @@ namespace Recordings
                         // Insert the new links of the recordings
                         if (adapterResponse.Links != null && adapterResponse.Links.Count > 0)
                         {
-                            ConditionalAccessDAL.InsertRecordingLinks(adapterResponse.Links, groupId, currentRecording.Id);
+                            RecordingsDAL.InsertRecordingLinks(adapterResponse.Links, groupId, currentRecording.Id);
                         }
 
                         // everything is good
@@ -1158,7 +1158,7 @@ namespace Recordings
                 }
 
                 // Update the result from the adapter
-                bool updateSuccess = ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1, newRecordingInternalStatus);
+                bool updateSuccess = RecordingsDAL.UpdateRecording(currentRecording, groupId, 1, 1, newRecordingInternalStatus);
 
                 if (!updateSuccess)
                 {

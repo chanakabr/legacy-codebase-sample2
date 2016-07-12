@@ -9,12 +9,13 @@ using ApiObjects.TimeShiftedTv;
 using DAL;
 using KLogMonitor;
 using System.Reflection;
+using Synchronizer;
 
 namespace Recordings
 {
     public class QuotaManager
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());        
 
         #region SingleTon
         
@@ -42,7 +43,6 @@ namespace Recordings
 
         static QuotaManager()
         {
-
         }
 
         #endregion
@@ -84,13 +84,9 @@ namespace Recordings
             {
                 int currentEpgSeconds = 0;
                 int initialSecondsLeft = SecondsLeft;
-
                 TimeSpan span = recording.EpgEndDate - recording.EpgStartDate;
-
                 currentEpgSeconds = (int)span.TotalSeconds;
-
                 int tempSeconds = SecondsLeft - currentEpgSeconds;
-
                 // Mark this, current-specific, recording as failed
                 if (tempSeconds < 0)
                 {
@@ -108,18 +104,12 @@ namespace Recordings
             return status;
         }
 
-        public ApiObjects.TimeShiftedTv.DomainQuotaResponse GetDomainQuota(int groupId, long domainID, List<Recording> recordings)
+        public ApiObjects.TimeShiftedTv.DomainQuotaResponse GetDomainQuota(int groupId, long domainID)
         {
             Status status = new Status((int)eResponseStatus.OK);
 
-            int totalSeconds = ConditionalAccess.Utils.GetQuota(groupId, domainID) * 60;
-            int secondsLeft = totalSeconds;
-
-            bool shouldContinue = false;
-            status = DeductRecordings(recordings, ref shouldContinue, ref secondsLeft);
-
-            // Available quota cannot be negative. Minimum is 0
-            secondsLeft = Math.Max(0, secondsLeft);
+            int totalSeconds = ConditionalAccess.Utils.GetDomainDefaultQuota(groupId, domainID);
+            int secondsLeft = ConditionalAccess.Utils.GetDomainQuota(groupId, domainID);
 
             ApiObjects.TimeShiftedTv.DomainQuotaResponse response = new DomainQuotaResponse()
             {
@@ -129,7 +119,7 @@ namespace Recordings
             };
 
             return response;
-        }
+        }        
 
         internal Status CheckQuotaByTotalSeconds(int groupId, long householdId, int totalSeconds, bool isAggregative, List<Recording> newRecordings, List<Recording> currentRecordings)
         {

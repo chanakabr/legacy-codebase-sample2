@@ -35,6 +35,7 @@ using KlogMonitorHelper;
 using System.IO;
 using ApiObjects.PlayCycle;
 using ApiObjects.Epg;
+using System.Net;
 
 namespace Catalog
 {
@@ -7089,4 +7090,67 @@ namespace Catalog
         }
     }
 }
+
+namespace Catalog.ws_api
+{
+    // adding request ID to header
+    public partial class API
+    {
+        protected override WebRequest GetWebRequest(Uri uri)
+        {
+            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
+
+            if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                OperationContext.Current.IncomingMessageProperties[Constants.REQUEST_ID_KEY] != null)
+            {
+                request.Headers.Add(Constants.REQUEST_ID_KEY, OperationContext.Current.IncomingMessageProperties[Constants.REQUEST_ID_KEY].ToString());
+            }
+            return request;
+        }
+    }
+}
+
+
+namespace Catalog.WS_Domains
+{
+    // adding request ID to header
+    public partial class module
+    {
+        protected override WebRequest GetWebRequest(Uri uri)
+        {
+            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
+
+            if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                OperationContext.Current.IncomingMessageProperties[Constants.REQUEST_ID_KEY] != null)
+            {
+                request.Headers.Add(Constants.REQUEST_ID_KEY, OperationContext.Current.IncomingMessageProperties[Constants.REQUEST_ID_KEY].ToString());
+            }
+            return request;
+        }
+    }
+}
+
+namespace Catalog.ws_users
+{
+    // adding request ID to header
+    public partial class UsersService
+    {
+        protected override WebRequest GetWebRequest(Uri uri)
+        {
+            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
+
+            if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                OperationContext.Current.IncomingMessageProperties[Constants.REQUEST_ID_KEY] != null)
+            {
+                request.Headers.Add(Constants.REQUEST_ID_KEY, OperationContext.Current.IncomingMessageProperties[Constants.REQUEST_ID_KEY].ToString());
+            }
+            return request;
+        }
+    }
+}
+
+
 

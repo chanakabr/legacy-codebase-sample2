@@ -1589,6 +1589,7 @@ namespace TvinciImporter
             ingestAssetStatus.Status.Message = eResponseStatus.OK.ToString();
 
             string entryId = GetItemParameterVal(ref theItem, "entry_id");
+            ingestAssetStatus.EntryID = entryId;
             if (string.IsNullOrEmpty(entryId))
             {
                 ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngestWarnings.MissingEntryId, Message = MISSING_ENTRY_ID });

@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
+using ApiObjects.ScheduledTasks;
 using ApiObjects.TimeShiftedTv;
 using ConditionalAccess.TvinciDomains;
 using ConditionalAccess.TvinciPricing;
@@ -17,6 +18,7 @@ using System.Text;
 using System.Web;
 using System.Xml;
 using Tvinic.GoogleAPI;
+using System.Net;
 
 namespace ConditionalAccess
 {
@@ -4627,7 +4629,7 @@ namespace ConditionalAccess
 
             try
             {
-                DataTable dt = ConditionalAccessDAL.GetDomainExistingRecordingsByEpdIgs(groupId, domainID, validEpgObjectForRecordingMap.Keys.ToList());
+                DataTable dt = RecordingsDAL.GetDomainExistingRecordingsByEpdIgs(groupId, domainID, validEpgObjectForRecordingMap.Keys.ToList());
                 if (dt != null && dt.Rows != null)
                 {
                     foreach (DataRow dr in dt.Rows)
@@ -4660,28 +4662,7 @@ namespace ConditionalAccess
             }
 
             return responseDictionary.Values.ToList();
-        }
-
-        internal static int GetQuota(int groupID, long domainID)
-        {
-            int QuotaInMinutes = 0;
-            try
-            {
-                string key = string.Format("{0}_{1}", groupID, "DefaultQuotaMinutes");
-                bool res = ConditionalAccessCache.GetItem<int>(key, out QuotaInMinutes);
-                if (!res || QuotaInMinutes == 0)
-                {
-                    QuotaInMinutes = ConditionalAccessDAL.GetQuotaMinutes(groupID);
-                    res = ConditionalAccessCache.AddItem(key, QuotaInMinutes);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("failed to get quoata in minutes for domainID = {0}, groupID = {1} , ex = {2}", domainID, groupID, ex.Message);
-                QuotaInMinutes = 0;
-            }
-            return QuotaInMinutes;
-        }
+        }        
 
         internal static int MapActionTypeForAdapter(eEPGFormatType eformat)
         {
@@ -4809,8 +4790,8 @@ namespace ConditionalAccess
 
         internal static Dictionary<long, Recording> GetDomainProtectedRecordings(int groupID, long domainID)
         {
-            Dictionary<long, Recording> domainProtectedRecordings = null;            
-            DataTable dt = ConditionalAccessDAL.GetDomainProtectedRecordings(groupID, domainID, TVinciShared.DateUtils.UnixTimeStampNow());
+            Dictionary<long, Recording> domainProtectedRecordings = null;
+            DataTable dt = RecordingsDAL.GetDomainProtectedRecordings(groupID, domainID, TVinciShared.DateUtils.UnixTimeStampNow());
             if (dt != null && dt.Rows != null)
             {
                 domainProtectedRecordings = new Dictionary<long,Recording>();                
@@ -4841,7 +4822,7 @@ namespace ConditionalAccess
         internal static Dictionary<long, Recording> GetDomainRecordingIdsToRecordingsMap(int groupID, long domainID, List<long> domainRecordingIds)
         {
             Dictionary<long, Recording> DomainRecordingIdToRecordingMap = null;
-            DataTable dt = ConditionalAccessDAL.GetDomainRecordingsByIds(groupID, domainID, domainRecordingIds);
+            DataTable dt = RecordingsDAL.GetDomainRecordingsByIds(groupID, domainID, domainRecordingIds);
             if (dt != null && dt.Rows != null)
             {
                 DomainRecordingIdToRecordingMap = new Dictionary<long, Recording>();
@@ -4868,7 +4849,7 @@ namespace ConditionalAccess
         {
             Dictionary<long, Recording> DomainRecordingIdToRecordingMap = null;
             List<DomainRecordingStatus> domainRecordingStatuses = ConvertToDomainRecordingStatus(recordingStatuses);
-            DataTable dt = ConditionalAccessDAL.GetDomainRecordingsByRecordingStatuses(groupID, domainID, domainRecordingStatuses.Select(x => (int)x).ToList());            
+            DataTable dt = RecordingsDAL.GetDomainRecordingsByRecordingStatuses(groupID, domainID, domainRecordingStatuses.Select(x => (int)x).ToList());            
             if (dt != null && dt.Rows != null)
             {
                 DomainRecordingIdToRecordingMap = new Dictionary<long, Recording>();
@@ -5020,7 +5001,7 @@ namespace ConditionalAccess
         internal static bool CancelOrDeleteRecording(int groupID, Recording recording, TstvRecordingStatus tstvRecordingStatus)
         {
             bool result = false;
-            DataTable dt = ConditionalAccessDAL.GetExistingRecordingsByRecordingID(groupID, recording.Id);
+            DataTable dt = RecordingsDAL.GetExistingRecordingsByRecordingID(groupID, recording.Id);
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 if ((ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "countUsers", 0)) == 0)
@@ -5036,7 +5017,175 @@ namespace ConditionalAccess
             }
 
             return result;
-        }        
+        }
 
+        internal static Dictionary<long, ExpiredRecordingScheduledTask> GetExpiredRecordingsTasks(long unixTimeStampNow)
+        {
+            Dictionary<long, ExpiredRecordingScheduledTask> expiredRecordings = new Dictionary<long, ExpiredRecordingScheduledTask>();
+            DataTable dt = RecordingsDAL.GetExpiredRecordingsTasks(unixTimeStampNow);
+            if (dt != null && dt.Rows != null)
+            {                
+                foreach (DataRow dr in dt.Rows)
+                {
+                    long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
+                    if (id > 0 && !expiredRecordings.ContainsKey(id))
+                    {
+                        long recordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID", 0);
+                        int groupId = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_ID", 0);
+                        DateTime scheduledExpirationDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "scheduled_expiration_date");
+                        long scheduledExpirationEpoch = ODBCWrapper.Utils.GetLongSafeVal(dr, "scheduled_expiration_epoch", 0);
+                        ExpiredRecordingScheduledTask expiredRecording = new ExpiredRecordingScheduledTask()
+                        {
+                            Id = id,
+                            RecordingId = recordingId,
+                            ScheduledExpirationDate = scheduledExpirationDate,
+                            ScheduledExpirationEpoch = scheduledExpirationEpoch
+                        };
+                        expiredRecordings.Add(id, expiredRecording);
+                    }
+                }
+            }
+
+            return expiredRecordings;
+        }
+
+        internal static int GetDomainDefaultQuota(int groupId, long domainId)
+        {
+            int domainDefaultQuota = 0;
+            try
+            {
+                string key = UtilsDal.GetDefaultQuotaInSeconds(groupId, domainId);
+                bool res = ConditionalAccessCache.GetItem<int>(key, out domainDefaultQuota);
+                if (!res || domainDefaultQuota == 0)
+                {
+                    domainDefaultQuota = ConditionalAccessDAL.GetDefaultQuotaInSeconds(groupId);
+                    res = ConditionalAccessCache.AddItem(key, domainDefaultQuota);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("failed to get default quota in seconds for domainID = {0}, groupID = {1} , ex = {2}", domainId, groupId, ex.Message);
+                domainDefaultQuota = 0;
+            }
+
+            return domainDefaultQuota;
+        }
+
+        internal static int GetDomainQuota(int groupId, long domainId)
+        {
+            int domainQuota;
+            // if the domain quota wasn't on CB
+            if (!ConditionalAccessDAL.GetDomainQuota(groupId, domainId, out domainQuota))
+            {
+                domainQuota = GetDomainDefaultQuota(groupId, domainId);
+            }
+
+            return domainQuota;
+        }
+
+        internal static bool AddQuotaToDomain(long domainId, int quotaToAdd)
+        {
+            return ConditionalAccessDAL.AddQuotaToDomain(domainId, quotaToAdd);
+        }
+    }
+}
+
+namespace ConditionalAccess.TvinciAPI
+{
+    // adding request ID to header
+    public partial class API
+    {
+        protected override WebRequest GetWebRequest(Uri uri)
+        {
+            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
+
+            if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
+            {
+                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+            }
+            return request;
+        }
+    }
+}
+
+namespace ConditionalAccess.TvinciDomains
+{
+    // adding request ID to header
+    public partial class module
+    {
+        protected override WebRequest GetWebRequest(Uri uri)
+        {
+            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
+
+            if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
+            {
+                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+            }
+            return request;
+        }
+    }
+}
+
+namespace ConditionalAccess.TvinciPricing
+{
+    // adding request ID to header
+    public partial class mdoule
+    {
+        protected override WebRequest GetWebRequest(Uri uri)
+        {
+            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
+
+            if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
+            {
+                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+            }
+            return request;
+        }
+    }
+}
+
+namespace ConditionalAccess.TvinciUsers
+{
+    // adding request ID to header
+    public partial class UsersService
+    {
+        protected override WebRequest GetWebRequest(Uri uri)
+        {
+            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
+
+            if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
+            {
+                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+            }
+            return request;
+        }
+    }
+}
+
+namespace ConditionalAccess.TvinciBilling
+{
+    // adding request ID to header
+    public partial class module
+    {
+        protected override WebRequest GetWebRequest(Uri uri)
+        {
+            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
+
+            if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
+            {
+                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+            }
+            return request;
+        }
     }
 }
