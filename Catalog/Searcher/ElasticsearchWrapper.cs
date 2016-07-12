@@ -971,135 +971,14 @@ namespace Catalog
             int mediaTypeId = 0;
             string epgIdentifier = string.Empty;
 
-            JArray tempArray = null;
-
-            tempToken = item.SelectToken(assetIdField);
-
-            if (tempToken != null)
-            {
-                tempArray = tempToken as JArray;
-
-                if (tempArray != null && tempArray.Count > 0)
-                {
-                    assetId = (int)tempArray[0];
-                }
-                else
-                {
-                    assetId = (int)tempToken;
-                }
-            }
-
-            tempToken = item.SelectToken(AddPrefixToFieldName("group_id", fieldNamePrefix));
-
-            if (tempToken != null)
-            {
-                tempArray = tempToken as JArray;
-
-                if (tempArray != null && tempArray.Count > 0)
-                {
-                    groupId = (int)tempArray[0];
-                }
-                else
-                {
-                    groupId = (int)tempToken;
-                }
-            }
-
-            tempToken = item.SelectToken(AddPrefixToFieldName("name", fieldNamePrefix));
-
-            if (tempToken != null)
-            {
-                tempArray = tempToken as JArray;
-
-                if (tempArray != null && tempArray.Count > 0)
-                {
-                    name = (string)tempArray[0];
-                }
-                else
-                {
-                    name = (string)tempToken;
-                }
-            }
-
-            tempToken = item.SelectToken(AddPrefixToFieldName("cache_date", fieldNamePrefix));
-
-            if (tempToken != null)
-            {
-                tempArray = tempToken as JArray;
-
-                if (tempArray != null && tempArray.Count > 0)
-                {
-                    cacheDate = DateTime.ParseExact((string)tempArray[0], DATE_FORMAT, null);
-                }
-                else
-                {
-                    cacheDate = DateTime.ParseExact((string)tempToken, DATE_FORMAT, null);
-                }
-            }
-
-            tempToken = item.SelectToken(AddPrefixToFieldName("update_date", fieldNamePrefix));
-
-            if (tempToken != null)
-            {
-                tempArray = tempToken as JArray;
-
-                if (tempArray != null && tempArray.Count > 0)
-                {
-                    updateDate = DateTime.ParseExact((string)tempArray[0], DATE_FORMAT, null);
-                }
-                else
-                {
-                    updateDate = DateTime.ParseExact((string)tempToken, DATE_FORMAT, null);
-                }
-            }
-
-            tempToken = item.SelectToken(AddPrefixToFieldName("start_date", fieldNamePrefix));
-
-            if (tempToken != null)
-            {
-                tempArray = tempToken as JArray;
-
-                if (tempArray != null && tempArray.Count > 0)
-                {
-                    startDate = DateTime.ParseExact((string)tempArray[0], DATE_FORMAT, null);
-                }
-                else
-                {
-                    startDate = DateTime.ParseExact((string)tempToken, DATE_FORMAT, null);
-                }
-            }
-
-            tempToken = item.SelectToken(AddPrefixToFieldName("media_type_id", fieldNamePrefix));
-
-            if (tempToken != null)
-            {
-                tempArray = tempToken as JArray;
-
-                if (tempArray != null && tempArray.Count > 0)
-                {
-                    mediaTypeId = (int)tempArray[0];
-                }
-                else
-                {
-                    mediaTypeId = (int)tempToken;
-                }
-            }
-
-            tempToken = item.SelectToken(AddPrefixToFieldName("epg_identifier", fieldNamePrefix));
-
-            if (tempToken != null)
-            {
-                tempArray = tempToken as JArray;
-
-                if (tempArray != null && tempArray.Count > 0)
-                {
-                    epgIdentifier = (string)tempArray[0];
-                }
-                else
-                {
-                    epgIdentifier = (string)tempToken;
-                }
-            }
+            assetId = ExtractValueFromToken<int>(item, assetIdField);
+            groupId = ExtractValueFromToken<int>(item, AddPrefixToFieldName("group_id", fieldNamePrefix));
+            name = ExtractValueFromToken<string>(item, AddPrefixToFieldName("name", fieldNamePrefix));
+            cacheDate = ExtractDateFromToken(item, AddPrefixToFieldName("cache_date", fieldNamePrefix));
+            updateDate = ExtractDateFromToken(item, AddPrefixToFieldName("update_date", fieldNamePrefix));
+            startDate = ExtractDateFromToken(item, AddPrefixToFieldName("start_date", fieldNamePrefix));
+            mediaTypeId = ExtractValueFromToken<int>(item, AddPrefixToFieldName("media_type_id", fieldNamePrefix));
+            epgIdentifier = ExtractValueFromToken<string>(item, AddPrefixToFieldName("epg_identifier", fieldNamePrefix));
 
             var newDocument = new ElasticSearchApi.ESAssetDocument()
             {
@@ -1118,6 +997,38 @@ namespace Catalog
             return newDocument;
         }
 
+        private static T ExtractValueFromToken<T>(JToken item, string fieldName)
+        {
+            T result = default(T);
+
+            JToken tempToken = item.SelectToken(fieldName);
+            JArray tempArray = null;
+
+            if (tempToken != null)
+            {
+                tempArray = tempToken as JArray;
+
+                if (tempArray != null && tempArray.Count > 0)
+                {
+                    result = tempArray[0].ToObject<T>();
+                }
+                else
+                {
+                    result = tempToken.ToObject<T>();
+                }
+            }
+
+            return result;
+        }
+        
+        private static DateTime ExtractDateFromToken(JToken item, string fieldName)
+        {
+            DateTime result = new DateTime(1970, 1, 1, 0, 0, 0);
+            string dateString = ExtractValueFromToken<string>(item, fieldName);
+
+            result = DateTime.ParseExact(dateString, DATE_FORMAT, null);
+            return result;
+        }
         private static string AddPrefixToFieldName(string fieldName, string prefix)
         {
             string result = fieldName;
