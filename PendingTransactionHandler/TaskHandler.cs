@@ -11,6 +11,8 @@ using TVinciShared;
 using ApiObjects;
 using KLogMonitor;
 using System.Reflection;
+using System.Net;
+using System.Web;
 
 namespace PendingTransactionHandler
 {
@@ -69,5 +71,25 @@ namespace PendingTransactionHandler
         }
 
         #endregion
+    }
+}
+
+namespace PendingTransactionHandler.WS_CAS
+{
+    // adding request ID to header
+    public partial class module
+    {
+        protected override WebRequest GetWebRequest(Uri uri)
+        {
+            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
+
+            if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
+            {
+                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+            }
+            return request;
+        }
     }
 }
