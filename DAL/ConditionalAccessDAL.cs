@@ -8,6 +8,7 @@ using ApiObjects;
 using System.Text.RegularExpressions;
 using KLogMonitor;
 using System.Reflection;
+using ApiObjects.TimeShiftedTv;
 
 namespace DAL
 {
@@ -2671,7 +2672,7 @@ namespace DAL
             List<DomainSeriesRecording> response = new List<DomainSeriesRecording>();
 
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_DomainSeries");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@domainId", domainId);
 
@@ -2685,7 +2686,8 @@ namespace DAL
                             EpgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID", 0),
                             EpisodeNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "EPISODE_NUMBER", 0),
                             SeasonNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "SEASON_NUMBER", 0),
-                            SeriesId = ODBCWrapper.Utils.GetSafeStr(dr, "SERIES_ID")
+                            SeriesId = ODBCWrapper.Utils.GetSafeStr(dr, "SERIES_ID"),
+                            UserId = ODBCWrapper.Utils.GetSafeStr(dr, "USER_ID")
                         });
                 }
             }

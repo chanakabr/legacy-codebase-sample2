@@ -16,6 +16,6 @@ namespace ApiObjects.TimeShiftedTv
 
         public long EpgId { get; set; }
 
-        // TODO: add userId
+        public string UserId { get; set; }
     }
 }
