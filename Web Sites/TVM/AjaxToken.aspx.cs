@@ -1,12 +1,15 @@
-﻿using System;
+﻿using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
 public partial class AjaxToken : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected void Page_Load(object sender, EventArgs e)
     {
         string sRet = "FAIL";
@@ -20,6 +23,7 @@ public partial class AjaxToken : System.Web.UI.Page
             Int32 nGroupID = 0;
             if (Request.Form["email"] != null)
                 sEmail = Request.Form["email"].ToString();
+            log.DebugFormat("AjaxToken pageLoad sEmail = {0}", sEmail.Trim().ToLower());
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select id,email_add,group_id from accounts where status=1 and is_active=1 and ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LOWER(LTRIM(RTRIM(USERNAME)))", "=", sEmail.Trim().ToLower());
@@ -37,6 +41,7 @@ public partial class AjaxToken : System.Web.UI.Page
             }
             selectQuery.Finish();
             selectQuery = null;
+            log.DebugFormat("AjaxToken pageLoad sEmailAdd = {0}, nAccountID = {1}, nGroupID = {2}", sEmailAdd, nAccountID, nGroupID);
             if (nAccountID == 0)
                 sRet = "WRONG_USERNAME_PASS";
             else
@@ -44,10 +49,13 @@ public partial class AjaxToken : System.Web.UI.Page
                 string sGuid = System.Guid.NewGuid().ToString();
                 string sIpAddress = TVinciShared.PageUtils.GetCallerIP();
                 GetIPID(sIpAddress, nGroupID , sGuid);
+                log.DebugFormat("AjaxToken pageLoad sIpAddress = {0}, nGroupID = {1}, sGuid = {2}", sIpAddress, nGroupID, sGuid);
                 string sMail = "<h1>IP Token </h1><br/>Enter the following token to the <a href='https://tvp.tvinci.com/token_enter.html'>TVM token approval page</a><br/><b>Token datails</b><br/>IP: " + sIpAddress + "<br/>Duration: 12 hours <br/>GUID: " + sGuid;
                 TVinciShared.Mailer mailer = new TVinciShared.Mailer(1);
+                log.DebugFormat("call mailer.SendMail sMail={0}", sMail);
                 mailer.SendMail(sEmailAdd, "", sMail, "Token from Tvinci");
                 sRet = "token_enter.html";
+                log.DebugFormat("sRet = {0} ", sRet);
             }
         }
 

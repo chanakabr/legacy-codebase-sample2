@@ -560,9 +560,17 @@
           <s:element minOccurs="1" maxOccurs="1" name="IsStartOverEnabled" nillable="true" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="IsTrickPlayEnabled" nillable="true" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="IsRecordingScheduleWindowEnabled" nillable="true" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsProtectionEnabled" nillable="true" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="CatchUpBufferLength" nillable="true" type="s:long" />
           <s:element minOccurs="1" maxOccurs="1" name="TrickPlayBufferLength" nillable="true" type="s:long" />
           <s:element minOccurs="1" maxOccurs="1" name="RecordingScheduleWindow" nillable="true" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="PaddingAfterProgramEnds" nillable="true" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="PaddingBeforeProgramStarts" nillable="true" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="ProtectionPeriod" nillable="true" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="ProtectionQuotaPercentage" nillable="true" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="RecordingLifetimePeriod" nillable="true" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="CleanupNoticePeroid" nillable="true" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsSeriesRecordingEnabled" nillable="true" type="s:boolean" />
         </s:sequence>
       </s:complexType>
       <s:element name="UpdateTimeShiftedTvPartnerSettings">
@@ -4325,7 +4333,7 @@
       <s:element name="UpdateBulkExportTaskResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="UpdateBulkExportTaskResult" type="tns:Status" />
+            <s:element minOccurs="0" maxOccurs="1" name="UpdateBulkExportTaskResult" type="tns:BulkExportTaskResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -4353,9 +4361,16 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="ids" type="tns:ArrayOfLong" />
             <s:element minOccurs="0" maxOccurs="1" name="externalKeys" type="tns:ArrayOfString" />
+            <s:element minOccurs="1" maxOccurs="1" name="orderBy" type="tns:BulkExportTaskOrderBy" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:simpleType name="BulkExportTaskOrderBy">
+        <s:restriction base="s:string">
+          <s:enumeration value="CreateDateAsc" />
+          <s:enumeration value="CreateDateDesc" />
+        </s:restriction>
+      </s:simpleType>
       <s:element name="GetBulkExportTasksResponse">
         <s:complexType>
           <s:sequence>
