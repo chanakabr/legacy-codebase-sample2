@@ -27,5 +27,8 @@ namespace Catalog.Request
             : base(nPageSize, nPageIndex, nGroupID, sSignature, sSignString, order, types, filterQuery, nameAndDescription, filterTree)
         {
         }
+
+        [DataMember]
+        public List<string> ExtraReturnFields { get; set; }
     }
 }

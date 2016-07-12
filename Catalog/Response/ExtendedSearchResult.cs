@@ -15,5 +15,8 @@ namespace Catalog.Response
 
         [DataMember]
         public DateTime EndDate { get; set; }
+
+        [DataMember]
+        public List<KeyValuePair> ExtraFields { get; set; }
     }
 }

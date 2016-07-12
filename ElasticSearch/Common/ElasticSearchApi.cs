@@ -1010,6 +1010,11 @@ namespace ElasticSearch.Common
                 get;
                 set;
             }
+            public Dictionary<string, string> extraReturnFields
+            {
+                get;
+                set;
+            }
         }
 
         public class ESSearchResponse

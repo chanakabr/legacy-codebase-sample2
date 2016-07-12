@@ -907,7 +907,7 @@ namespace Catalog
             return documents;
         }
 
-        private List<ElasticSearchApi.ESAssetDocument> DecodeAssetSearchJsonObject(string sObj, ref int totalItems)
+        private List<ElasticSearchApi.ESAssetDocument> DecodeAssetSearchJsonObject(string sObj, ref int totalItems, List<string> extraReturnFields = null)
         {
             List<ElasticSearchApi.ESAssetDocument> documents = null;
             try
@@ -952,25 +952,40 @@ namespace Catalog
                                 }
                             }
 
-                            documents.Add(new ElasticSearchApi.ESAssetDocument()
-                              {
-                                  id = ((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken),
-                                  index = ((tempToken = item.SelectToken("_index")) == null ? string.Empty : (string)tempToken),
-                                  type = typeString,
-                                  asset_id = ((tempToken = item.SelectToken(assetIdField)) == null ? 0 : (int)tempToken),
-                                  group_id = ((tempToken = item.SelectToken("fields.group_id")) == null ? 0 : (int)tempToken),
-                                  name = ((tempToken = item.SelectToken("fields.name")) == null ? string.Empty : (string)tempToken),
-                                  cache_date = ((tempToken = item.SelectToken("fields.cache_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
-                                                  DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
-                                  update_date = ((tempToken = item.SelectToken("fields.update_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
-                                                  DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
-                                  start_date = ((tempToken = item.SelectToken("fields.start_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
-                                                  DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
-                                  media_type_id = ((tempToken = item.SelectToken("fields.media_type_id")) == null ? 0 : (int)tempToken),
-                                  epg_identifier = ((tempToken = item.SelectToken("fields.epg_identifier")) == null ? string.Empty : (string)tempToken),
-                                  end_date = ((tempToken = item.SelectToken("fields.end_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
-                                                  DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
-                              });
+                            var doc = new ElasticSearchApi.ESAssetDocument()
+                            {
+                                id = ((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken),
+                                index = ((tempToken = item.SelectToken("_index")) == null ? string.Empty : (string)tempToken),
+                                type = typeString,
+                                asset_id = ((tempToken = item.SelectToken(assetIdField)) == null ? 0 : (int)tempToken),
+                                group_id = ((tempToken = item.SelectToken("fields.group_id")) == null ? 0 : (int)tempToken),
+                                name = ((tempToken = item.SelectToken("fields.name")) == null ? string.Empty : (string)tempToken),
+                                cache_date = ((tempToken = item.SelectToken("fields.cache_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
+                                                DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
+                                update_date = ((tempToken = item.SelectToken("fields.update_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
+                                                DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
+                                start_date = ((tempToken = item.SelectToken("fields.start_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
+                                                DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
+                                media_type_id = ((tempToken = item.SelectToken("fields.media_type_id")) == null ? 0 : (int)tempToken),
+                                epg_identifier = ((tempToken = item.SelectToken("fields.epg_identifier")) == null ? string.Empty : (string)tempToken),
+                                end_date = ((tempToken = item.SelectToken("fields.end_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
+                                                DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
+                            };
+
+                            if (extraReturnFields != null)
+                            {
+                                doc.extraReturnFields = new Dictionary<string, string>();
+                                string fieldValue = null;
+                                
+                                foreach (var fieldName in extraReturnFields)
+                                {
+                                    fieldValue = ((tempToken = item.SelectToken(string.Format("fields.{0}", fieldName))) == null ? string.Empty : (string)tempToken);
+                                    if (!string.IsNullOrEmpty(fieldValue))
+                                        doc.extraReturnFields.Add(fieldName, fieldValue);
+                                }
+                            }
+
+                            documents.Add(doc);
                         }
                     }
                 }
@@ -1245,7 +1260,8 @@ namespace Catalog
                 {
                     #region Process ElasticSearch result
 
-                    List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded = DecodeAssetSearchJsonObject(queryResultString, ref totalItems);
+                    List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded = DecodeAssetSearchJsonObject(queryResultString, ref totalItems, 
+                        unifiedSearchDefinitions.extraReturnFields);
 
                     if (assetsDocumentsDecoded != null && assetsDocumentsDecoded.Count > 0)
                     {
@@ -1255,15 +1271,27 @@ namespace Catalog
                         {
                             if (unifiedSearchDefinitions.shouldReturnExtendedSearchResult)
                             {
-                                searchResultsList.Add(new ExtendedSearchResult()
+                                var result = new ExtendedSearchResult()
                                 {
                                     AssetId = doc.asset_id.ToString(),
                                     m_dUpdateDate = doc.update_date,
                                     AssetType = UnifiedSearchResult.ParseType(doc.type),
                                     EndDate = doc.end_date,
                                     StartDate = doc.start_date
-                                });
-
+                                };
+                                if (doc.extraReturnFields != null)
+                                {
+                                    result.ExtraFields = new List<KeyValuePair>();
+                                    foreach (var field in doc.extraReturnFields)
+                                    {
+                                        result.ExtraFields.Add(new KeyValuePair()
+                                        {
+                                            key = field.Key,
+                                            value = field.Value
+                                        });
+                                    }
+                                }
+                                searchResultsList.Add(result);
                             }
                             else
                             {

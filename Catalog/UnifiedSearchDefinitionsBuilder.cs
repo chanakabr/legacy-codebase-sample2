@@ -230,6 +230,13 @@ namespace Catalog
                 // ExtendedSearchRequest support
                 if (request is ExtendedSearchRequest)
                 {
+                    ExtendedSearchRequest extendedRequest = (ExtendedSearchRequest)request;
+
+                    if (extendedRequest.ExtraReturnFields != null)
+                    {
+                        definitions.extraReturnFields.AddRange(extendedRequest.ExtraReturnFields);
+                    }
+
                     definitions.shouldReturnExtendedSearchResult = true;
                     definitions.extraReturnFields.Add("start_date");
                     definitions.extraReturnFields.Add("end_date");
