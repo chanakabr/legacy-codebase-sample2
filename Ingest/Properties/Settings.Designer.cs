@@ -42,5 +42,15 @@ namespace Ingest.Properties {
                 return ((string)(this["Ingest_Api_API"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/CAS_v4_0/module.asmx")]
+        public string Ingest_ws_cas_module {
+            get {
+                return ((string)(this["Ingest_ws_cas_module"]));
+            }
+        }
     }
 }
