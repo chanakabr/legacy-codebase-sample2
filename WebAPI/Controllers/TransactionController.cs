@@ -13,9 +13,9 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/transaction/action")]
-    [OldStandard("purchaseOldStandard", "purchase")]
-    [OldStandard("setWaiver", "waiver")]
-    [OldStandard("purchaseSessionIdOldStandard", "purchaseSessionId")]
+    [OldStandardAction("purchaseOldStandard", "purchase")]
+    [OldStandardAction("setWaiver", "waiver")]
+    [OldStandardAction("purchaseSessionIdOldStandard", "purchaseSessionId")]
     public class TransactionController : ApiController
     {
         /// <summary>
