@@ -979,7 +979,14 @@ namespace Catalog
                                 
                                 foreach (var fieldName in extraReturnFields)
                                 {
-                                    fieldValue = ((tempToken = item.SelectToken(string.Format("fields.{0}", fieldName))) == null ? string.Empty : (string)tempToken);
+                                    if (fieldName.StartsWith("metas.") || fieldName.StartsWith("tags."))
+                                    {
+                                        fieldValue = ((fieldValue = (string)item["fields"][fieldName][0]) == null ? string.Empty : fieldValue);
+                                    }
+                                    else
+                                    {
+                                        fieldValue = ((tempToken = item.SelectToken(string.Format("fields.{0}", fieldName.ToLower()))) == null ? string.Empty : (string)tempToken);
+                                    }
                                     if (!string.IsNullOrEmpty(fieldValue))
                                         doc.extraReturnFields.Add(fieldName, fieldValue);
                                 }

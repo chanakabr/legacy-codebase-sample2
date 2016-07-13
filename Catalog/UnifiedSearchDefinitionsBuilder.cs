@@ -39,7 +39,7 @@ namespace Catalog
                 CatalogCache catalogCache = CatalogCache.Instance();
                 int parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
 
-                definitions.shouldUseSearchEndDate = catalogCache.IsTstvSettingsExists(request.m_nGroupID);
+                definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate();
 
                 GroupManager groupManager = new GroupManager();
                 Group group = groupManager.GetGroup(parentGroupID);
@@ -231,7 +231,10 @@ namespace Catalog
 
                 if (extraReturnFields != null && extraReturnFields.Count > 0)
                 {
-                    definitions.extraReturnFields.AddRange(extraReturnFields);
+                    foreach (var field in extraReturnFields)
+                    {
+                        definitions.extraReturnFields.Add(field.ToLower());                        
+                    }
                     definitions.shouldReturnExtendedSearchResult = true;
                 }
 

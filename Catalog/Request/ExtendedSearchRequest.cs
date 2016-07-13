@@ -21,6 +21,9 @@ namespace Catalog.Request
         [DataMember]
         public List<string> ExtraReturnFields { get; set; }
 
+        [DataMember]
+        public bool ShouldUseSearchEndDate { get;  set; }
+
         public ExtendedSearchRequest(int nPageSize, int nPageIndex, int nGroupID, string sSignature, string sSignString,
             OrderObj order,
             List<int> types,
@@ -41,6 +44,11 @@ namespace Catalog.Request
             {
                 return new List<string>();
             }
+        }
+
+        internal override bool GetShouldUseSearchEndDate()
+        {
+            return ShouldUseSearchEndDate;
         }
     }
 }

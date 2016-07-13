@@ -12,6 +12,7 @@ using Catalog.Response;
 using KLogMonitor;
 using System.Reflection;
 using Catalog.Attributes;
+using Catalog.Cache;
 
 namespace Catalog.Request
 {
@@ -276,6 +277,12 @@ namespace Catalog.Request
         internal virtual List<string> GetExtraReturnFields()
         {
             return new List<string>();
+        }
+
+        internal virtual bool GetShouldUseSearchEndDate()
+        {
+            CatalogCache catalogCache = CatalogCache.Instance();
+            return catalogCache.IsTstvSettingsExists(m_nGroupID);
         }
     }
 }

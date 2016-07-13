@@ -5088,10 +5088,37 @@ namespace ConditionalAccess
             return ConditionalAccessDAL.AddQuotaToDomain(domainId, quotaToAdd);
         }
 
-        internal static List<ExtendedSearchResult> SearchRecordingsWithExcludedCrids(int groupID, string filter, List<string> excludedCrids, ApiObjects.SearchObjects.OrderObj orderBy)
+        internal static List<ExtendedSearchResult> SearchPastSeriesRecordingsWithExcludedCrids(int groupID, List<string> excludedCrids, List<DomainSeriesRecording> series, ApiObjects.SearchObjects.OrderObj orderBy)
         {
             WS_Catalog.IserviceClient client = null;
             List<ExtendedSearchResult> recordings = null;
+
+            // build the KSQL for the series
+
+            string seriesId;
+            string seasonNumber;
+            string episodeNumber;
+
+            if (!GetSeriesMetaTagsFieldsNamesForSearch(groupID, out seriesId, out seasonNumber, out episodeNumber))
+            {
+                log.ErrorFormat("failed to 'GetSeriesMetaTagsNamesForGroup' for groupId = {0} ", groupID);
+                return recordings;
+            }
+
+            // build the filter query for the search
+            StringBuilder ksql = new StringBuilder("(and (or ");
+            foreach (var serie in series)
+            {
+                // with season
+                if (serie.SeasonNumber > 0 && !string.IsNullOrEmpty(seasonNumber))
+                    ksql.AppendFormat("(and {0} = '{1}' {2} = '{3}')", seasonNumber, serie.SeasonNumber, seriesId, serie.SeriesId);
+                // without season
+                else
+                    ksql.AppendFormat("{0} = '{1}' ", seriesId, serie.SeriesId);
+            }
+
+            ksql.Append(") start_date < '0')");
+
 
             // get program ids
             try
@@ -5102,14 +5129,15 @@ namespace ConditionalAccess
                     m_nPageIndex = 0,
                     m_nPageSize = 0,
                     assetTypes = new int[1] { 1 },
-                    filterQuery = filter,
+                    filterQuery = ksql.ToString(),
                     order = orderBy,
                     m_oFilter = new WS_Catalog.Filter()
                     {
                         m_bOnlyActiveMedia = true
                     },
                     excludedCrids = excludedCrids != null ? excludedCrids.ToArray() : null,
-                    ExtraReturnFields = new string[] { "epg_id", "metas.series_id", "metas.season_num" }
+                    ExtraReturnFields = new string[] { "epg_id", seriesId, seasonNumber }, 
+                    ShouldUseSearchEndDate = true
                 };
                 FillCatalogSignature(request);
                 client = new WS_Catalog.IserviceClient();
@@ -5152,6 +5180,41 @@ namespace ConditionalAccess
             }
 
             return recordings;
+        }
+
+        public static bool GetSeriesMetaTagsFieldsNamesForSearch(int groupId, out string seriesIdName, out string seasonNumberName, out string episodeNumberName)
+        {
+            seriesIdName = seasonNumberName = episodeNumberName = string.Empty;
+
+            var metaTagsMappings = Tvinci.Core.DAL.CatalogDAL.GetAliasMappingFields(groupId);
+            if (metaTagsMappings == null || metaTagsMappings.Count == 0)
+            {
+                log.ErrorFormat("failed to 'GetAliasMappingFields' for seriesId. groupId = {0} ", groupId);
+                return false;
+            }
+
+            var feild = metaTagsMappings.Where(m => m.Alias.ToLower() == "series_id").FirstOrDefault();
+            if (feild == null)
+            {
+                log.ErrorFormat("alias for series_id was not found. group_id = {0}", groupId);
+                return false;
+            }
+
+            seriesIdName = string.Format("{0}.{1}", feild.FieldType == FieldTypes.Meta ? "metas" : "tags", feild.Name);
+
+            feild = metaTagsMappings.Where(m => m.Alias.ToLower() == "season_number").FirstOrDefault();
+            if (feild != null)
+            {
+                seasonNumberName = string.Format("{0}.{1}", feild.FieldType == FieldTypes.Meta ? "metas" : "tags", feild.Name);
+            }
+
+            feild = metaTagsMappings.Where(m => m.Alias.ToLower() == "episode_number").FirstOrDefault();
+            if (feild != null)
+            {
+                episodeNumberName = string.Format("{0}.{1}", feild.FieldType == FieldTypes.Meta ? "metas" : "tags", feild.Name);
+            }
+
+            return true;
         }
     }
 }

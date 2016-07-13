@@ -18348,14 +18348,6 @@ namespace ConditionalAccess
                     ApiObjects.TstvRecordingStatus.Scheduled,
                 });
 
-                // build the KSQL for the series
-                string ksql;
-                response = BuildKsqlForPastSeriesSearch(series, out ksql);
-                if (response == null || response.Code != (int)eResponseStatus.OK)
-                {
-                    return response;
-                }
-
                 // build the excluded CRIDs list
                 List<string> excludedCrids = null;
                 if (householdRecordings != null)
@@ -18364,12 +18356,18 @@ namespace ConditionalAccess
                 }
 
                 // get all the relevant (series + seasons + CRID not in the list of household recordings) existing recordings from ES
-                List<ConditionalAccess.WS_Catalog.ExtendedSearchResult> relevantRecordingsForRecord = Utils.SearchRecordingsWithExcludedCrids(m_nGroupID, ksql, excludedCrids,
+                List<ConditionalAccess.WS_Catalog.ExtendedSearchResult> relevantRecordingsForRecord = Utils.SearchPastSeriesRecordingsWithExcludedCrids(m_nGroupID, excludedCrids, series,
                     new ApiObjects.SearchObjects.OrderObj()
                     {
                         m_eOrderBy = ApiObjects.SearchObjects.OrderBy.START_DATE,
                         m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC
                     });
+
+                if (relevantRecordingsForRecord == null)
+                {
+                    log.ErrorFormat("failed to search relevant recordings of series for householdId = {0}", householdId);
+                    return response;
+                }
                 
                 // if there are no available recordings to complete - nothing to do
                 if (relevantRecordingsForRecord == null || relevantRecordingsForRecord.Count == 0)
@@ -18440,12 +18438,12 @@ namespace ConditionalAccess
                 int seasonNumber = 0;
                 foreach (var field in potentialRecording.ExtraFields)
                 {
-                    if (field.key == "series_id")
+                    if (field.key == "metas.series_id" || field.key == "tags.series_id")
                     {
                         seriesId = field.value;
                     }
 
-                    if (field.key == "season_num")
+                    if (field.key == "metas.season_num" || field.key == "tags.season_num")
                     {
                         int.TryParse(field.value, out seasonNumber);
                     }
@@ -18477,56 +18475,6 @@ namespace ConditionalAccess
             return epgId;
         }
 
-        public ApiObjects.Response.Status BuildKsqlForPastSeriesSearch(List<DomainSeriesRecording> series, out string ksql)
-        {
-            ksql = null;
-
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-
-            var metaTagsMappings = Tvinci.Core.DAL.CatalogDAL.GetAliasMappingFields(m_nGroupID);
-            if (metaTagsMappings == null || metaTagsMappings.Count == 0)
-            {
-                log.ErrorFormat("failed to 'GetAliasMappingFields' for seriesId. groupId = {0} ", m_nGroupID);
-                //TODO: add status for this case? 
-                return response;
-            }
-
-            var feild = metaTagsMappings.Where(m => m.Alias.ToLower() == "series_id").FirstOrDefault();
-            if (feild == null)
-            {
-                log.ErrorFormat("alias for series_id was not found. group_id = {0}", m_nGroupID);
-                //TODO: add status for this case? 
-                return response;
-            }
-
-            string seriesIdName = feild.Name;
-            string seasonNumberName = string.Empty;
-
-            feild = metaTagsMappings.Where(m => m.Alias.ToLower() == "season_number").FirstOrDefault();
-            if (feild != null)
-            {
-                seasonNumberName = feild.Name;
-            }
-
-            // build the filter query for the search
-            StringBuilder filter = new StringBuilder("(and (or ");
-            foreach (var serie in series)
-            {
-                // with season
-                if (serie.SeasonNumber > 0 && !string.IsNullOrEmpty(seasonNumberName))
-                    filter.AppendFormat("(and {0} = '{1}' {2} = '{3}')", seasonNumberName, serie.SeasonNumber, seriesIdName, serie.SeriesId);
-                // without season
-                else
-                    filter.AppendFormat("{0} = '{1}' ", seriesIdName, serie.SeriesId);
-            }
-
-            filter.Append(") end_date < '0')");
-
-            ksql = filter.ToString();
-            response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-            return response;
-        }
-            
         public bool HandleRecordingsScheduledTasks()
         {
             bool result = false;
