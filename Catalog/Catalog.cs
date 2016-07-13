@@ -369,7 +369,7 @@ namespace Catalog
                         if (isLinear != 0 && !string.IsNullOrEmpty(oMediaObj.m_ExternalIDs))
                         {
                             // get linear Channel settings 
-                            Dictionary<string, LinearChannelSettings> linearChannelSettings = CatalogCache.Instance().GetLinearChannelSettings(groupId, new List<string>(){oMediaObj.m_ExternalIDs});
+                            Dictionary<string, LinearChannelSettings> linearChannelSettings = CatalogCache.Instance().GetLinearChannelSettings(groupId, new List<string>() { oMediaObj.m_ExternalIDs });
                             if (linearChannelSettings != null && linearChannelSettings.ContainsKey(oMediaObj.m_ExternalIDs) && linearChannelSettings.Values != null)
                             {
                                 oMediaObj.EnableCatchUp = linearChannelSettings[oMediaObj.m_ExternalIDs].EnableCatchUp;
@@ -377,7 +377,7 @@ namespace Catalog
                                 oMediaObj.EnableStartOver = linearChannelSettings[oMediaObj.m_ExternalIDs].EnableStartOver;
                                 oMediaObj.EnableTrickPlay = linearChannelSettings[oMediaObj.m_ExternalIDs].EnableTrickPlay;
                                 oMediaObj.CatchUpBuffer = linearChannelSettings[oMediaObj.m_ExternalIDs].CatchUpBuffer;
-                                oMediaObj.TrickPlayBuffer = linearChannelSettings[oMediaObj.m_ExternalIDs].TrickPlayBuffer;   
+                                oMediaObj.TrickPlayBuffer = linearChannelSettings[oMediaObj.m_ExternalIDs].TrickPlayBuffer;
                             }
                         }
 
@@ -415,7 +415,7 @@ namespace Catalog
             }
         }
 
-      
+
 
         /*Insert all tags that return from the "CompleteDetailsForMediaResponse" into List<Tags>*/
         private static List<Tags> GetTagsDetails(DataTable dtTags, bool bIsMainLang, ref bool result)
@@ -940,7 +940,7 @@ namespace Catalog
         {
             List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
             totalItems = 0;
-            
+
             // Group have user types per media  +  siteGuid != empty
             if (!string.IsNullOrEmpty(request.m_sSiteGuid) && Utils.IsGroupIDContainedInConfig(request.m_nGroupID, "GroupIDsWithIUserTypeSeperatedBySemiColon", ';'))
             {
@@ -1177,7 +1177,7 @@ namespace Catalog
         /// <returns></returns>
         private static HashSet<string> GetUnifiedSearchKey(string originalKey, Group group, out bool isTagOrMeta)
         {
-            isTagOrMeta = false;          
+            isTagOrMeta = false;
 
             HashSet<string> searchKeys = new HashSet<string>();
 
@@ -1213,14 +1213,14 @@ namespace Catalog
             // get alias + regex expression 
             List<FieldTypeEntity> FieldEpgAliasMapping = CatalogDAL.GetAliasMappingFields(group.m_nParentGroupID);
 
-            foreach (FieldTypeEntity FieldEpgAlias in FieldEpgAliasMapping.Where(x=>x.FieldType == FieldTypes.Tag))
+            foreach (FieldTypeEntity FieldEpgAlias in FieldEpgAliasMapping.Where(x => x.FieldType == FieldTypes.Tag))
             {
                 if (FieldEpgAlias.Alias.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
                 {
-                     isTagOrMeta = true;
+                    isTagOrMeta = true;
                     searchKeys.Add(string.Format("tags.{0}", FieldEpgAlias.Name.ToLower()));
                     break;
-                }                
+                }
             }
 
             foreach (FieldTypeEntity FieldEpgAlias in FieldEpgAliasMapping.Where(x => x.FieldType == FieldTypes.Meta))
@@ -1798,7 +1798,7 @@ namespace Catalog
         #region Build search Object for search Related
 
         /*Build the right MediaSearchRequest for a Search Related Media */
-        public static MediaSearchRequest BuildMediasRequest(Int32 nMediaID, bool bIsMainLang, Filter filterRequest, 
+        public static MediaSearchRequest BuildMediasRequest(Int32 nMediaID, bool bIsMainLang, Filter filterRequest,
             ref Filter oFilter, Int32 nGroupID, List<Int32> nMediaTypes, string sSiteGuid, OrderObj orderObj)
         {
             try
@@ -1822,7 +1822,7 @@ namespace Catalog
 
                 if (ds == null)
                     return null;
-                
+
                 oMediasRequest.m_nGroupID = nGroupID;
                 oMediasRequest.m_sSiteGuid = sSiteGuid;
                 oMediasRequest.m_oOrderObj = orderObj;
@@ -1999,7 +1999,7 @@ namespace Catalog
         }
 
         public static void UpdateFollowMe(int nGroupID, string sAssetID, string sSiteGUID, int nPlayTime, string sUDID, int duration, string assetAction, int mediaTypeId, int nDomainID = 0, ePlayType ePlayType = ePlayType.MEDIA)
-        {          
+        {
             if (Catalog.IsAnonymousUser(sSiteGUID))
             {
                 return;
@@ -2009,7 +2009,7 @@ namespace Catalog
             {
                 DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
                 int opID = 0;
-                bool isMaster = false;  
+                bool isMaster = false;
                 nDomainID = DomainDal.GetDomainIDBySiteGuid(nGroupID, int.Parse(sSiteGUID), ref opID, ref isMaster, ref eSuspendStat);
             }
 
@@ -2504,7 +2504,7 @@ namespace Catalog
                 lEpgIDs.Add(pRequest.m_lProgramsIds[i]);
             }
 
-            BaseEpgBL epgBL = EpgBL.Utils.GetInstance(pRequest.m_nGroupID);            
+            BaseEpgBL epgBL = EpgBL.Utils.GetInstance(pRequest.m_nGroupID);
             List<EPGChannelProgrammeObject> lEpgProg = epgBL.GetEpgs(lEpgIDs);
             // get all linear settings about channel + group
             GetLinearChannelSettings(pRequest.m_nGroupID, lEpgProg);
@@ -2515,7 +2515,7 @@ namespace Catalog
             //keeping the original order and amount of items (some of the items might return as null)
             if (pRequest.m_lProgramsIds != null && lEpgProg != null)
             {
-                pResponse.m_nTotalItems = lEpgProg.Count;               
+                pResponse.m_nTotalItems = lEpgProg.Count;
             }
 
             foreach (int nProgram in pRequest.m_lProgramsIds)
@@ -2593,7 +2593,7 @@ namespace Catalog
             {
                 enableChannel = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "ENABLE_CDVR"); // channel settings
                 if (enableChannel != 0) //None/NULL
-                {                   
+                {
                     enable = enableChannel;
                 }
             }
@@ -2632,7 +2632,7 @@ namespace Catalog
                 }
             }
             epg.ENABLE_TRICK_PLAY = enable;
-          
+
             return epg;
         }
 
@@ -2832,7 +2832,7 @@ namespace Catalog
                     {
                         continue;
                     }
-                   
+
                     if (channelIdsToProgrammesMapping.ContainsKey(tempEpgChannelID))
                     {
                         channelIdsToProgrammesMapping[tempEpgChannelID].Add(epgs[i]);
@@ -3696,7 +3696,6 @@ namespace Catalog
                     {
                         case WS_Domains.DomainResponseStatus.ConcurrencyLimitation:
                         case WS_Domains.DomainResponseStatus.MediaConcurrencyLimitation:
-
                             {
                                 res = true;
                                 break;
@@ -3962,7 +3961,7 @@ namespace Catalog
         {
 
             if (!TVinciShared.WS_Utils.GetTcmBoolValue("CATALOG_HIT_CACHE"))
-            {                
+            {
                 countryID = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(userIP);
                 return CatalogDAL.GetMediaPlayData(mediaID, mediaFileID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID, ref fileDuration);
             }
@@ -5581,7 +5580,7 @@ namespace Catalog
 
             bool bIsMainLang = Utils.IsLangMain(request.m_nGroupID, request.m_oFilter.m_nLanguage);
 
-            MediaSearchRequest mediaSearchRequest = 
+            MediaSearchRequest mediaSearchRequest =
                 BuildMediasRequest(request.m_nMediaID, bIsMainLang, request.m_oFilter, ref filter, request.m_nGroupID, request.m_nMediaTypes, request.m_sSiteGuid, request.OrderObj);
 
             #region Basic
@@ -5976,26 +5975,26 @@ namespace Catalog
                         switch (loweredValue)
                         {
                             case ("free"):
-                            {
-                                definitions.entitlementSearchDefinitions.shouldGetFreeAssets = true;
-                                break;
-                            }
+                                {
+                                    definitions.entitlementSearchDefinitions.shouldGetFreeAssets = true;
+                                    break;
+                                }
                             case ("entitled"):
-                            {
-                                definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
-                                break;
-                            }
+                                {
+                                    definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
+                                    break;
+                                }
                             case ("both"):
-                            {
-                                definitions.entitlementSearchDefinitions.shouldGetFreeAssets = true;
-                                definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
-                                break;
-                            }
+                                {
+                                    definitions.entitlementSearchDefinitions.shouldGetFreeAssets = true;
+                                    definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
+                                    break;
+                                }
                             default:
-                            {
-                                definitions.entitlementSearchDefinitions = null;
-                                throw new KalturaException("Invalid search value or operator was sent for entitled_assets", (int)eResponseStatus.BadSearchRequest);
-                            }
+                                {
+                                    definitions.entitlementSearchDefinitions = null;
+                                    throw new KalturaException("Invalid search value or operator was sent for entitled_assets", (int)eResponseStatus.BadSearchRequest);
+                                }
                         }
 
                         // I mock a "contains" operator so that the query builder will know it is a not-exact search
@@ -6216,19 +6215,19 @@ namespace Catalog
                 switch (channel.m_eCutWith)
                 {
                     case CutWith.WCF_ONLY_DEFAULT_VALUE:
-                    break;
+                        break;
                     case CutWith.OR:
-                    {
-                        cutType = eCutType.Or;
-                        break;
-                    }
+                        {
+                            cutType = eCutType.Or;
+                            break;
+                        }
                     case CutWith.AND:
-                    {
-                        cutType = eCutType.And;
-                        break;
-                    }
+                        {
+                            cutType = eCutType.And;
+                            break;
+                        }
                     default:
-                    break;
+                        break;
                 }
 
                 // If there is at least one tag
@@ -6244,19 +6243,19 @@ namespace Catalog
                             switch (channel.m_eCutWith)
                             {
                                 case CutWith.WCF_ONLY_DEFAULT_VALUE:
-                                break;
+                                    break;
                                 case CutWith.OR:
-                                {
-                                    innerCutType = eCutType.Or;
-                                    break;
-                                }
+                                    {
+                                        innerCutType = eCutType.Or;
+                                        break;
+                                    }
                                 case CutWith.AND:
-                                {
-                                    innerCutType = eCutType.And;
-                                    break;
-                                }
+                                    {
+                                        innerCutType = eCutType.And;
+                                        break;
+                                    }
                                 default:
-                                break;
+                                    break;
                             }
 
                             string key = searchValue.m_sKey.ToLower();
@@ -6299,7 +6298,7 @@ namespace Catalog
                     emptyRequest = true;
                 }
 
-                if (channel.m_nChannelTypeID == (int)ChannelType.Automatic && 
+                if (channel.m_nChannelTypeID == (int)ChannelType.Automatic &&
                     definitions.mediaTypes != null && definitions.mediaTypes.Count > 0)
                 {
                     // If there is at least one media type - it is not an empty request
@@ -6492,7 +6491,7 @@ namespace Catalog
         }
 
         public static bool RebuildEpgChannel(int groupId, int epgChannelID, DateTime fromDate, DateTime toDate, bool duplicates)
-        {           
+        {
             try
             {
                 if (duplicates)
@@ -6516,7 +6515,7 @@ namespace Catalog
         {
             bool res = false;
             try
-            {                
+            {
                 List<LanguageObj> groupLang = CatalogDAL.GetGroupLanguages(groupId);
                 string mainLang = groupLang.Where(x => x.IsDefault).Select(x => x.Code).FirstOrDefault();
 
@@ -6563,7 +6562,7 @@ namespace Catalog
                         epgIds = new List<long>();
                         nCount = 0;
                     }
-                   
+
                 }
 
                 if (nCount > 0 && epgIds != null && epgIds.Count > 0)
@@ -6572,11 +6571,11 @@ namespace Catalog
                 }
 
                 #endregion
-                res = true;                
+                res = true;
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("RebuildEpgProgramsChannel:{0}, epgChannelID:{1}, fromDate:{2}, toDate:{3}, ex:{4}", 
+                log.ErrorFormat("RebuildEpgProgramsChannel:{0}, epgChannelID:{1}, fromDate:{2}, toDate:{3}, ex:{4}",
                     groupId, epgChannelID, fromDate, toDate, ex.InnerException);
                 return false;
             }
@@ -6584,7 +6583,7 @@ namespace Catalog
         }
 
         private static bool RemoveDuplicatesEpgPrograms(int groupId, int epgChannelID, DateTime fromDate, DateTime toDate)
-        {           
+        {
             try
             {
                 List<long> epgIds = EpgDal.GetEpgIds(epgChannelID, groupId, fromDate, toDate, 2);
@@ -6592,7 +6591,7 @@ namespace Catalog
                 {
                     BaseEpgBL epgBL = EpgBL.Utils.GetInstance(groupId);
                     epgBL.RemoveGroupPrograms(epgIds.ConvertAll<int>(x => (int)x));
-                    bool resultEpgIndex = UpdateEpgIndex(epgIds, groupId, ApiObjects.eAction.Delete);                    
+                    bool resultEpgIndex = UpdateEpgIndex(epgIds, groupId, ApiObjects.eAction.Delete);
                 }
                 return true;
             }
@@ -6604,10 +6603,10 @@ namespace Catalog
         }
 
         private static List<long> GetEpgIds(int epgChannelID, int groupId, DateTime fromDate, DateTime toDate)
-        {            
+        {
             try
             {
-                List<long> epgIds = EpgDal.GetEpgIds(epgChannelID, groupId, fromDate, toDate);              
+                List<long> epgIds = EpgDal.GetEpgIds(epgChannelID, groupId, fromDate, toDate);
                 return epgIds;
             }
             catch (Exception ex)
@@ -6631,13 +6630,13 @@ namespace Catalog
                     }
                     if (epgs != null && epgs.Count > 0)
                     {
-                        
+
                         GetMetaDetails(epgs, ds.Tables[2]);
                         GetTagDetails(epgs, ds.Tables[3]);
 
                         GetPicDetails(epgs, ds.Tables[4], ds.Tables[5]);
                     }
-                }                
+                }
             }
             catch (Exception)
             {
@@ -6654,7 +6653,7 @@ namespace Catalog
                     return;
 
                 foreach (EpgCB item in epgs)
-                {                                    
+                {
                     DataRow[] picID = dtEpgIDPic.Select("ID=" + item.EpgID);
                     DataRow[] pics = dtPic.Select("id=" + picID[0]["picID"]);
                     EpgPicture epgPicture;
@@ -6679,12 +6678,12 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                 log.Error(ex.Message, ex);
+                log.Error(ex.Message, ex);
             }
         }
 
         private static void GetMetaDetails(List<EpgCB> epgs, DataTable dt)
-        {  
+        {
             try
             {
                 if (dt == null)
@@ -6753,8 +6752,8 @@ namespace Catalog
             }
         }
 
-        private static void BasicEpgProgramDetails(DataTable dt, DataTable dtUpdateDate ,List<EpgCB> epgs, string mainLang)
-        {           
+        private static void BasicEpgProgramDetails(DataTable dt, DataTable dtUpdateDate, List<EpgCB> epgs, string mainLang)
+        {
             EpgCB epg;
             try
             {
@@ -6778,10 +6777,10 @@ namespace Catalog
                     epg.StartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE");
                     epg.EndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
                     epg.CreateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
-                    epg.EnableCatchUp =  Utils.GetIntSafeVal(dr, "ENABLE_CATCH_UP");
-                    epg.EnableCDVR =  Utils.GetIntSafeVal(dr, "ENABLE_CDVR");
-                    epg.EnableStartOver =  Utils.GetIntSafeVal(dr, "ENABLE_START_OVER");
-                    epg.EnableTrickPlay=  Utils.GetIntSafeVal(dr, "ENABLE_TRICK_PLAY");
+                    epg.EnableCatchUp = Utils.GetIntSafeVal(dr, "ENABLE_CATCH_UP");
+                    epg.EnableCDVR = Utils.GetIntSafeVal(dr, "ENABLE_CDVR");
+                    epg.EnableStartOver = Utils.GetIntSafeVal(dr, "ENABLE_START_OVER");
+                    epg.EnableTrickPlay = Utils.GetIntSafeVal(dr, "ENABLE_TRICK_PLAY");
                     epg.Language = mainLang;
                     DataRow updateDr = dtUpdateDate.Select("ID=" + epg.EpgID).FirstOrDefault();
                     epg.UpdateDate = ODBCWrapper.Utils.GetDateSafeVal(updateDr, "UPDATE_DATE");
@@ -6968,7 +6967,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                // ASK IRA. NO LOG IN THIS DAMN CLASS !!!
+                log.Error("Error while getting users watch history", ex);
                 throw ex;
             }
 
