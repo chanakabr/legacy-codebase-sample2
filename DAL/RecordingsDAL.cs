@@ -17,6 +17,7 @@ namespace DAL
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int RETRY_LIMIT = 5;
+        private const string RECORDING_CONNECTION = "RECORDING_CONNECTION_STRING";
 
         private static void HandleException(Exception ex)
         {
@@ -27,7 +28,7 @@ namespace DAL
         {
             Recording recording = null;
 
-            DataRow row = ODBCWrapper.Utils.GetTableSingleRowByValue("recordings", "EPG_PROGRAM_ID", programId, true);
+            DataRow row = ODBCWrapper.Utils.GetTableSingleRowByValue("recordings", "EPG_PROGRAM_ID", programId, true, RECORDING_CONNECTION);
 
             if (row != null)
             {
@@ -78,6 +79,7 @@ namespace DAL
             }
 
             var insertQuery = new ODBCWrapper.InsertQuery("recordings");
+            insertQuery.SetConnectionKey(RECORDING_CONNECTION);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupId);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", recording.EpgEndDate);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_PROGRAM_ID", "=", recording.EpgId);
@@ -89,6 +91,7 @@ namespace DAL
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CREATE_DATE", "=", DateTime.UtcNow);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GET_STATUS_RETRIES", "=", 0);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CRID", "=", recording.Crid);
 
             var executeResult = insertQuery.ExecuteAndGetId();
             insertQuery.Finish();
@@ -103,7 +106,7 @@ namespace DAL
         {
             Recording recording = null;
 
-            DataRow row = ODBCWrapper.Utils.GetTableSingleRowByValue("recordings", "ID", recordingId, true);
+            DataRow row = ODBCWrapper.Utils.GetTableSingleRowByValue("recordings", "ID", recordingId, true, RECORDING_CONNECTION);
 
             if (row != null)
             {
@@ -155,6 +158,7 @@ namespace DAL
             }
 
             var updateQuery = new ODBCWrapper.UpdateQuery("recordings");
+            updateQuery.SetConnectionKey(RECORDING_CONNECTION);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupId);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", recording.EpgEndDate);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_PROGRAM_ID", "=", recording.EpgId);
@@ -177,7 +181,7 @@ namespace DAL
         public static bool CancelRecording(long recordingId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelRecording");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
             sp.AddParameter("@RecordID", recordingId);
 
             return sp.ExecuteReturnValue<bool>();
@@ -186,7 +190,7 @@ namespace DAL
         public static bool DeleteRecording(long recordingId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteRecording");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
             sp.AddParameter("@RecordID", recordingId);
 
             return sp.ExecuteReturnValue<bool>();
@@ -195,7 +199,7 @@ namespace DAL
         public static DataTable GetDomainExistingRecordingsByEpdIgs(int groupID, long domainID, List<long> epgIds)
         {
             ODBCWrapper.StoredProcedure spGetDomainExistingRecordingID = new ODBCWrapper.StoredProcedure("GetDomainExistingRecordingsByEpdIgs");
-            spGetDomainExistingRecordingID.SetConnectionKey("CONNECTION_STRING");
+            spGetDomainExistingRecordingID.SetConnectionKey(RECORDING_CONNECTION);
             spGetDomainExistingRecordingID.AddParameter("@GroupID", groupID);
             spGetDomainExistingRecordingID.AddParameter("@DomainID", domainID);
             spGetDomainExistingRecordingID.AddIDListParameter<long>("@EpgIds", epgIds, "ID");
@@ -210,7 +214,7 @@ namespace DAL
             DataTable dt = null;
             bool res = false;
             ODBCWrapper.StoredProcedure spUpdateOrInsertDomainRecording = new ODBCWrapper.StoredProcedure("UpdateOrInsertDomainRecording");
-            spUpdateOrInsertDomainRecording.SetConnectionKey("CONNECTION_STRING");
+            spUpdateOrInsertDomainRecording.SetConnectionKey(RECORDING_CONNECTION);
             spUpdateOrInsertDomainRecording.AddParameter("@GroupID", groupID);
             spUpdateOrInsertDomainRecording.AddParameter("@UserID", userID);
             spUpdateOrInsertDomainRecording.AddParameter("@DomainID", domainID);
@@ -242,7 +246,7 @@ namespace DAL
             List<Recording> recordings = new List<Recording>();
 
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_Recordings");
-            storedProcedure.SetConnectionKey("CA_CONNECTION_STRING");
+            storedProcedure.SetConnectionKey(RECORDING_CONNECTION);
             storedProcedure.AddIDListParameter<long>("@RecordingIds", recordingIds, "Id");
             storedProcedure.AddParameter("@GroupId", groupId);
 
@@ -363,6 +367,7 @@ namespace DAL
             }
 
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_RecordingLinks");
+            storedProcedure.SetConnectionKey(RECORDING_CONNECTION);
             storedProcedure.AddDataTableParameter("@RecordingLinks", linksTable);
             storedProcedure.AddParameter("GroupId", groupId);
             storedProcedure.AddParameter("RecordingId", recordingId);
@@ -377,7 +382,7 @@ namespace DAL
             List<Recording> recordings = new List<Recording>();
 
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_All_Recordings_By_Recording_Status");
-            storedProcedure.SetConnectionKey("CA_CONNECTION_STRING");
+            storedProcedure.SetConnectionKey(RECORDING_CONNECTION);
 
             storedProcedure.AddParameter("@GroupId", groupId);
             storedProcedure.AddIDListParameter<int>("@RecordingStatuses", statuses.Select(s => (int)s).ToList(), "ID");
@@ -393,7 +398,7 @@ namespace DAL
         {
             DataTable dt = null;
             ODBCWrapper.StoredProcedure spGetDomainRecordings = new ODBCWrapper.StoredProcedure("GetDomainRecordingsByRecordingStatuses");
-            spGetDomainRecordings.SetConnectionKey("CONNECTION_STRING");
+            spGetDomainRecordings.SetConnectionKey(RECORDING_CONNECTION);
             spGetDomainRecordings.AddParameter("@GroupID", groupID);
             spGetDomainRecordings.AddParameter("@DomainID", domainID);
             spGetDomainRecordings.AddIDListParameter<int>("@RecordingStatuses", domainRecordingStatuses, "ID");
@@ -406,7 +411,7 @@ namespace DAL
         {
             DataTable dt = null;
             ODBCWrapper.StoredProcedure spGetDomainRecordingsByIds = new ODBCWrapper.StoredProcedure("GetDomainRecordingsByIds");
-            spGetDomainRecordingsByIds.SetConnectionKey("CONNECTION_STRING");
+            spGetDomainRecordingsByIds.SetConnectionKey(RECORDING_CONNECTION);
             spGetDomainRecordingsByIds.AddParameter("@GroupID", groupID);
             spGetDomainRecordingsByIds.AddParameter("@DomainID", domainID);
             spGetDomainRecordingsByIds.AddIDListParameter<long>("@DomainRecordingIds", domainRecordingIds, "ID");
@@ -418,7 +423,7 @@ namespace DAL
         public static bool CancelDomainRecording(long recordingID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelDomainRecording");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
             sp.AddParameter("@RecordID", recordingID);
 
             return sp.ExecuteReturnValue<bool>();
@@ -427,7 +432,7 @@ namespace DAL
         public static DataTable GetExistingRecordingsByRecordingID(int groupID, long recordID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetExistingRecordingsByRecordingID");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
             sp.AddParameter("@GroupID", groupID);
             sp.AddParameter("@RecordID", recordID);
             DataTable dt = sp.Execute();
@@ -439,7 +444,7 @@ namespace DAL
         public static bool DeleteDomainRecording(long recordingID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteDomainRecording");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
             sp.AddParameter("@RecordID", recordingID);
 
             return sp.ExecuteReturnValue<bool>();
@@ -449,7 +454,7 @@ namespace DAL
         {
             DataTable dt = null;
             ODBCWrapper.StoredProcedure spGetDomainProtectedRecordings = new ODBCWrapper.StoredProcedure("GetDomainProtectedRecordings");
-            spGetDomainProtectedRecordings.SetConnectionKey("CONNECTION_STRING");
+            spGetDomainProtectedRecordings.SetConnectionKey(RECORDING_CONNECTION);
             spGetDomainProtectedRecordings.AddParameter("@GroupID", groupID);
             spGetDomainProtectedRecordings.AddParameter("@DomainID", domainID);
             spGetDomainProtectedRecordings.AddParameter("@UtcNowEpoch", unixTimeStampNow);
@@ -464,7 +469,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.StoredProcedure spProtectRecording = new ODBCWrapper.StoredProcedure("ProtectRecording");
-                spProtectRecording.SetConnectionKey("CONNECTION_STRING");
+                spProtectRecording.SetConnectionKey(RECORDING_CONNECTION);
                 spProtectRecording.AddParameter("@ID", recordingId);
                 spProtectRecording.AddParameter("@ProtectedUntilDate", protectedUntilDate);
                 spProtectRecording.AddParameter("@ProtectedUntilEpoch", protectedUntilEpoch);
@@ -484,7 +489,7 @@ namespace DAL
         {
             Dictionary<long, KeyValuePair<int, Recording>> recordingsForCleanup = new Dictionary<long, KeyValuePair<int, Recording>>();
             ODBCWrapper.StoredProcedure spGetRecordginsForCleanup = new ODBCWrapper.StoredProcedure("GetRecordingsForCleanup");
-            spGetRecordginsForCleanup.SetConnectionKey("CONNECTION_STRING");
+            spGetRecordginsForCleanup.SetConnectionKey(RECORDING_CONNECTION);
             spGetRecordginsForCleanup.AddParameter("@UtcNowEpoch", utcNowEpoch);
 
             DataTable dt = spGetRecordginsForCleanup.Execute();
@@ -512,6 +517,7 @@ namespace DAL
             bool result = false;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
             int limitRetries = RETRY_LIMIT;
+            Random r = new Random();
             string recordingsCleanupKey = UtilsDal.GetRecordingsCleanupKey();
             try
             {
@@ -526,7 +532,7 @@ namespace DAL
                         log.ErrorFormat("Error while updating successful recordings cleanup date. number of tries: {0}/{1}. RecordingCleanupResponse: {2}",
                                          numOfRetries, limitRetries, recordingCleanupDetails.ToString());
 
-                        System.Threading.Thread.Sleep(1000);
+                        System.Threading.Thread.Sleep(r.Next(50));
                     }
                 }
             }
@@ -542,7 +548,7 @@ namespace DAL
         {
             int updatedRowsCount = 0;
             ODBCWrapper.StoredProcedure spUpdateDomainRecordingsAfterCleanup = new ODBCWrapper.StoredProcedure("UpdateDomainRecordingsAfterCleanup");
-            spUpdateDomainRecordingsAfterCleanup.SetConnectionKey("CONNECTION_STRING");
+            spUpdateDomainRecordingsAfterCleanup.SetConnectionKey(RECORDING_CONNECTION);
             spUpdateDomainRecordingsAfterCleanup.AddIDListParameter<long>("@RecordingIds", recordingsIds, "ID");
 
             updatedRowsCount = spUpdateDomainRecordingsAfterCleanup.ExecuteReturnValue<int>();
@@ -555,6 +561,7 @@ namespace DAL
             RecordingCleanupResponse response = null;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
             int limitRetries = RETRY_LIMIT;
+            Random r = new Random();
             Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
             string recordingsCleanupKey = UtilsDal.GetRecordingsCleanupKey();
             try
@@ -578,7 +585,7 @@ namespace DAL
                     {
                         log.ErrorFormat("Retrieving RecordingCleanupResponse with key {0} failed with status: {1}, retryAttempt: {1}, maxRetries: {2}", recordingsCleanupKey, getResult, numOfRetries, limitRetries);
                         numOfRetries++;
-                        System.Threading.Thread.Sleep(1000);
+                        System.Threading.Thread.Sleep(r.Next(50));
                     }
                 }
             }
@@ -600,6 +607,7 @@ namespace DAL
             ScheduledTaskLastRunResponse response = null;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
             int limitRetries = RETRY_LIMIT;
+            Random r = new Random();
             Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
             string scheduledTaksKey = UtilsDal.GetScheduledTaksKeyByName(scheduleTaskName);
             if (string.IsNullOrEmpty(scheduledTaksKey))
@@ -628,7 +636,7 @@ namespace DAL
                     {
                         log.ErrorFormat("Retrieving ScheduledTaskLastRunResponse with scheduleTaskName: {0} and key {1} failed with status: {2}, retryAttempt: {3}, maxRetries: {4}", scheduleTaskName, scheduledTaksKey, getResult, numOfRetries, limitRetries);
                         numOfRetries++;
-                        System.Threading.Thread.Sleep(1000);
+                        System.Threading.Thread.Sleep(r.Next(50));
                     }
                 }
             }
@@ -650,6 +658,7 @@ namespace DAL
             bool result = false;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
             int limitRetries = RETRY_LIMIT;
+            Random r = new Random();
             string scheduledTaksKey = UtilsDal.GetScheduledTaksKeyByName(scheduleTaskName);
             if (string.IsNullOrEmpty(scheduledTaksKey))
             {
@@ -669,7 +678,7 @@ namespace DAL
                         log.ErrorFormat("Error while updating successful scheduled task run details. scheduleTaskName: {0}, number of tries: {1}/{2}. ScheduledTaskLastRunResponse: {3}",
                                          scheduleTaskName, numOfRetries, limitRetries, scheduledTaskRunDetails.ToString());
 
-                        System.Threading.Thread.Sleep(1000);
+                        System.Threading.Thread.Sleep(r.Next(50));
                     }
                 }
             }
@@ -685,7 +694,7 @@ namespace DAL
         {
             int impactedItems = -1;
             ODBCWrapper.StoredProcedure spInsertExpiredRecordingsTasks = new ODBCWrapper.StoredProcedure("InsertExpiredRecordingsTasks");
-            spInsertExpiredRecordingsTasks.SetConnectionKey("CONNECTION_STRING");
+            spInsertExpiredRecordingsTasks.SetConnectionKey(RECORDING_CONNECTION);
             spInsertExpiredRecordingsTasks.AddParameter("@UtcNowEpoch", unixTimeStampNow);
 
             impactedItems = spInsertExpiredRecordingsTasks.ExecuteReturnValue<int>();
@@ -696,7 +705,7 @@ namespace DAL
         public static DataTable GetExpiredRecordingsTasks(long unixTimeStampNow)
         {
             ODBCWrapper.StoredProcedure spGetExpiredRecordingsTasks = new ODBCWrapper.StoredProcedure("GetExpiredRecordingsTasks");
-            spGetExpiredRecordingsTasks.SetConnectionKey("CONNECTION_STRING");
+            spGetExpiredRecordingsTasks.SetConnectionKey(RECORDING_CONNECTION);
             spGetExpiredRecordingsTasks.AddParameter("@UtcNowEpoch", unixTimeStampNow);
 
             return spGetExpiredRecordingsTasks.Execute();
@@ -705,7 +714,7 @@ namespace DAL
         public static DataTable GetExpiredDomainsRecordings(long recordingId, long unixTimeStampNow)
         {
             ODBCWrapper.StoredProcedure spGetExpiredDomainsRecordings = new ODBCWrapper.StoredProcedure("GetExpiredDomainsRecordings");
-            spGetExpiredDomainsRecordings.SetConnectionKey("CONNECTION_STRING");
+            spGetExpiredDomainsRecordings.SetConnectionKey(RECORDING_CONNECTION);
             spGetExpiredDomainsRecordings.AddParameter("@RecordingId", recordingId);
             spGetExpiredDomainsRecordings.AddParameter("@UtcNowEpoch", unixTimeStampNow);
 
@@ -716,7 +725,7 @@ namespace DAL
         {
             long minProtectedUntilEpoch = -1;
             ODBCWrapper.StoredProcedure spGetRecordingMinProtectedEpoch = new ODBCWrapper.StoredProcedure("GetRecordingMinProtectedEpoch");
-            spGetRecordingMinProtectedEpoch.SetConnectionKey("CONNECTION_STRING");
+            spGetRecordingMinProtectedEpoch.SetConnectionKey(RECORDING_CONNECTION);
             spGetRecordingMinProtectedEpoch.AddParameter("@RecordingId", recordingId);
             spGetRecordingMinProtectedEpoch.AddParameter("@UtcNowEpoch", unixTimeStampNow);
 
@@ -732,7 +741,7 @@ namespace DAL
         public static bool InsertExpiredRecordingNextTask(long recordingId, int groupId, long minProtectionEpoch, DateTime minProtectionDate)
         {
             ODBCWrapper.StoredProcedure spInsertExpiredRecordingNextTask = new ODBCWrapper.StoredProcedure("InsertExpiredRecordingNextTask");
-            spInsertExpiredRecordingNextTask.SetConnectionKey("CONNECTION_STRING");
+            spInsertExpiredRecordingNextTask.SetConnectionKey(RECORDING_CONNECTION);
             spInsertExpiredRecordingNextTask.AddParameter("@RecordingId", recordingId);
             spInsertExpiredRecordingNextTask.AddParameter("@GroupId", groupId);
             spInsertExpiredRecordingNextTask.AddParameter("@MinProtectionEpoch", minProtectionEpoch);
@@ -744,7 +753,7 @@ namespace DAL
         public static bool UpdateExpiredRecordingAfterScheduledTask(long id)
         {
             ODBCWrapper.StoredProcedure spUpdateExpiredRecordingAfterScheduledTask = new ODBCWrapper.StoredProcedure("UpdateExpiredRecordingAfterScheduledTask");
-            spUpdateExpiredRecordingAfterScheduledTask.SetConnectionKey("CONNECTION_STRING");
+            spUpdateExpiredRecordingAfterScheduledTask.SetConnectionKey(RECORDING_CONNECTION);
             spUpdateExpiredRecordingAfterScheduledTask.AddParameter("@Id", id);
 
             return spUpdateExpiredRecordingAfterScheduledTask.ExecuteReturnValue<bool>();
@@ -754,7 +763,7 @@ namespace DAL
         {
             int recordingDuration = -1;
             ODBCWrapper.StoredProcedure spGetRecordingDuration = new ODBCWrapper.StoredProcedure("GetRecordingDuration");
-            spGetRecordingDuration.SetConnectionKey("CONNECTION_STRING");
+            spGetRecordingDuration.SetConnectionKey(RECORDING_CONNECTION);
             spGetRecordingDuration.AddParameter("@ID", recordingId);
 
             DataTable dt = spGetRecordingDuration.Execute();
@@ -766,12 +775,157 @@ namespace DAL
             return recordingDuration;
         }
 
+        public static bool GetDomainQuota(int groupId, long domainId, out int quota)
+        {
+            bool result = false;
+            quota = 0;
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
+            int limitRetries = RETRY_LIMIT;
+            Random r = new Random();
+            Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
+            string domainQuotaKey = UtilsDal.GetDomainQuotaKey(domainId);
+            if (string.IsNullOrEmpty(domainQuotaKey))
+            {
+                log.ErrorFormat("Failed getting domainQuotaKey for domainId: {0}", domainId);
+            }
+
+            else
+            {
+                try
+                {
+                    int numOfRetries = 0;
+                    while (numOfRetries < limitRetries)
+                    {
+                        quota = cbClient.Get<int>(domainQuotaKey, out getResult);
+                        if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
+                        {
+                            log.ErrorFormat("Error while trying to get domain quota, domainId: {0}, key: {1}", domainId, domainQuotaKey);
+                            break;
+                        }
+                        else if (getResult == Couchbase.IO.ResponseStatus.Success)
+                        {
+                            result = true;
+                            break;
+                        }
+                        else
+                        {
+                            log.ErrorFormat("Retrieving domain quota with domainId: {0} and key {1} failed with status: {2}, retryAttempt: {3}, maxRetries: {4}", domainId, domainQuotaKey, getResult, numOfRetries, limitRetries);
+                            numOfRetries++;
+                            System.Threading.Thread.Sleep(r.Next(50));
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Error while trying to get domain quota, domainId: {0}, ex: {1}", domainId, ex);
+                }
+            }
+
+            return result;
+        }
+
+        public static bool IncreaseDomainQuota(long domainId, int quotaToIncrease)
+        {
+            bool result = false;
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
+            int limitRetries = RETRY_LIMIT;
+            Random r = new Random();
+            string domainQuotaKey = UtilsDal.GetDomainQuotaKey(domainId);
+            if (string.IsNullOrEmpty(domainQuotaKey))
+            {
+                log.ErrorFormat("Failed getting domainQuotaKey for domainId: {0}", domainId);
+                return result;
+            }
+
+            try
+            {
+                int numOfRetries = 0;
+                while (!result && numOfRetries < limitRetries)
+                {
+                    ulong version;
+                    int currentQuota = -1;
+                    currentQuota = cbClient.GetWithVersion<int>(domainQuotaKey, out version);
+                    if (version != 0 && currentQuota > -1)
+                    {
+                        int updatedQuota = currentQuota + quotaToIncrease;
+                        result = cbClient.SetWithVersion<int>(domainQuotaKey, updatedQuota, version);
+                    }
+
+                    if (!result)
+                    {
+                        numOfRetries++;
+                        log.ErrorFormat("Error while adding quota to domain. number of tries: {0}/{1}. domainId: {2}, currentQuota: {3}, quotaToIncrease: {4}", numOfRetries, limitRetries, domainId, currentQuota, quotaToIncrease);
+                        System.Threading.Thread.Sleep(r.Next(50));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while adding quota to domain, domainId: {0}, quotaToIncrease: {1}, ex: {2}", domainId, quotaToIncrease, ex);
+            }
+
+            return result;
+        }
+
+        public static bool DecreaseDomainQuota(long domainId, int quotaToDecrease)
+        {
+            bool result = false;
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
+            int limitRetries = RETRY_LIMIT;
+            Random r = new Random();
+            string domainQuotaKey = UtilsDal.GetDomainQuotaKey(domainId);
+            if (string.IsNullOrEmpty(domainQuotaKey))
+            {
+                log.ErrorFormat("Failed getting domainQuotaKey for domainId: {0}", domainId);
+                return result;
+            }
+
+            try
+            {
+                int numOfRetries = 0;
+                while (!result && numOfRetries < limitRetries)
+                {
+                    ulong version;
+                    int currentQuota = -1;
+                    currentQuota = cbClient.GetWithVersion<int>(domainQuotaKey, out version);
+                    if (version != 0 && currentQuota > -1)
+                    {
+                        int updatedQuota = currentQuota + quotaToDecrease;
+                        result = cbClient.SetWithVersion<int>(domainQuotaKey, updatedQuota, version);
+                    }
+
+                    if (!result)
+                    {
+                        numOfRetries++;
+                        log.ErrorFormat("Error while adding quota to domain. number of tries: {0}/{1}. domainId: {2}, currentQuota: {3}, quotaToDecrease: {4}", numOfRetries, limitRetries, domainId, currentQuota, quotaToDecrease);
+                        System.Threading.Thread.Sleep(r.Next(50));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while adding quota to domain, domainId: {0}, quotaToDecrease: {1}, ex: {2}", domainId, quotaToDecrease, ex);
+            }
+
+            return result;
+        }
+
         public static Dictionary<long, Recording> GetRecordingsMapByCrid(int groupId, string crid)
         {
             throw new NotImplementedException();
         }
 
-        public static Recording InsertRecordingCopy(int groupId, long programId, DateTime startDate, DateTime endDate, string crid)
+        public static bool FollowSeries(int groupId, string userId, long domainID, long p, string seriesId, int seasonNumber, int episodeNumber)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static bool IsFirstFollower(string seriesId, int seasonNumber)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static bool IsFollowingSeries(string userID, long domainID, string seriesId)
         {
             throw new NotImplementedException();
         }

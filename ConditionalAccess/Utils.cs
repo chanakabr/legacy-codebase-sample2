@@ -27,6 +27,13 @@ namespace ConditionalAccess
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static object lck = new object();
 
+        public const string SERIES_ID = "seriesId";
+        private const string SEASON_NUMBER = "seasonNumber";
+        private const string EPISODE_NUMBER = "episodeNumber";
+        private const string SERIES_ALIAS = "series_id";
+        private const string SEASON_ALIAS = "season_number";
+        private const string EPISODE_ALIAS = "episode_number";
+
         internal const double DEFAULT_MIN_PRICE_FOR_PREVIEW_MODULE = 0.2;
         public const int DEFAULT_MPP_RENEW_FAIL_COUNT = 10; // to be group specific override this value in the 
         // table groups_parameters, column FAIL_COUNT under ConditionalAccess DB.
@@ -4521,7 +4528,7 @@ namespace ConditionalAccess
             return result;
         }
 
-        internal static Recording ValidateEpgForRecord(TimeShiftedTvPartnerSettings accountSettings, EPGChannelProgrammeObject epg)
+        internal static Recording ValidateEpgForRecord(TimeShiftedTvPartnerSettings accountSettings, EPGChannelProgrammeObject epg, RecordingType recordingType)
         {
             Recording response = new Recording() { EpgId = epg.EPG_ID, Crid = epg.CRID, Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()) };
             try
@@ -4532,39 +4539,42 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                DateTime epgStartDate;
-                if (!DateTime.TryParseExact(epg.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgStartDate))
+                if (recordingType == RecordingType.Single)
                 {
-                    log.ErrorFormat("Failed parsing EPG start date, epgID: {0}, startDate: {1}", epg.EPG_ID, epg.START_DATE);
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                    return response;
-                }
-
-                // validate recording schedule window according to the paddedStartDate
-                DateTime paddedStartDate = epgStartDate.AddSeconds(accountSettings.PaddingBeforeProgramStarts.HasValue ? (-1) * accountSettings.PaddingBeforeProgramStarts.Value : 0);
-                if (accountSettings.IsRecordingScheduleWindowEnabled.HasValue && accountSettings.IsRecordingScheduleWindowEnabled.Value &&
-                    accountSettings.RecordingScheduleWindow.HasValue && paddedStartDate.AddMinutes(accountSettings.RecordingScheduleWindow.Value) < DateTime.UtcNow)
-                {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramNotInRecordingScheduleWindow, eResponseStatus.ProgramNotInRecordingScheduleWindow.ToString());
-                    return response;
-                }
-
-                if (epgStartDate < DateTime.UtcNow)
-                {
-                    if (!accountSettings.IsCatchUpEnabled.HasValue || !accountSettings.IsCatchUpEnabled.Value)
+                    DateTime epgStartDate;
+                    if (!DateTime.TryParseExact(epg.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgStartDate))
                     {
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AccountCatchUpNotEnabled, eResponseStatus.AccountCatchUpNotEnabled.ToString());
+                        log.ErrorFormat("Failed parsing EPG start date, epgID: {0}, startDate: {1}", epg.EPG_ID, epg.START_DATE);
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                         return response;
                     }
-                    if (epg.ENABLE_CATCH_UP != 1)
+
+                    // validate recording schedule window according to the paddedStartDate
+                    DateTime paddedStartDate = epgStartDate.AddSeconds(accountSettings.PaddingBeforeProgramStarts.HasValue ? (-1) * accountSettings.PaddingBeforeProgramStarts.Value : 0);
+                    if (accountSettings.IsRecordingScheduleWindowEnabled.HasValue && accountSettings.IsRecordingScheduleWindowEnabled.Value &&
+                        accountSettings.RecordingScheduleWindow.HasValue && paddedStartDate.AddMinutes(accountSettings.RecordingScheduleWindow.Value) < DateTime.UtcNow)
                     {
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramCatchUpNotEnabled, eResponseStatus.ProgramCatchUpNotEnabled.ToString());
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramNotInRecordingScheduleWindow, eResponseStatus.ProgramNotInRecordingScheduleWindow.ToString());
                         return response;
                     }
-                    if (epg.CHANNEL_CATCH_UP_BUFFER == 0 || epgStartDate.AddMinutes(epg.CHANNEL_CATCH_UP_BUFFER) < DateTime.UtcNow)
+
+                    if (epgStartDate < DateTime.UtcNow)
                     {
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.CatchUpBufferLimitation, eResponseStatus.CatchUpBufferLimitation.ToString());
-                        return response;
+                        if (!accountSettings.IsCatchUpEnabled.HasValue || !accountSettings.IsCatchUpEnabled.Value)
+                        {
+                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AccountCatchUpNotEnabled, eResponseStatus.AccountCatchUpNotEnabled.ToString());
+                            return response;
+                        }
+                        if (epg.ENABLE_CATCH_UP != 1)
+                        {
+                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramCatchUpNotEnabled, eResponseStatus.ProgramCatchUpNotEnabled.ToString());
+                            return response;
+                        }
+                        if (epg.CHANNEL_CATCH_UP_BUFFER == 0 || epgStartDate.AddMinutes(epg.CHANNEL_CATCH_UP_BUFFER) < DateTime.UtcNow)
+                        {
+                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.CatchUpBufferLimitation, eResponseStatus.CatchUpBufferLimitation.ToString());
+                            return response;
+                        }
                     }
                 }
             }
@@ -5074,27 +5084,170 @@ namespace ConditionalAccess
             return domainDefaultQuota;
         }
 
-        internal static int GetDomainQuota(int groupId, long domainId)
+        internal static List<EPGChannelProgrammeObject> GetFirstFollowerEpgIdsToRecord(string channelId, string seriesId, int seassonNumber, DateTime? windowStartDate)
         {
-            int domainQuota;
-            // if the domain quota wasn't on CB
-            if (!ConditionalAccessDAL.GetDomainQuota(groupId, domainId, out domainQuota))
+            /*
+            try
             {
-                domainQuota = GetDomainDefaultQuota(groupId, domainId);
+                WS_Catalog.ExtendedSearchRequest request = new WS_Catalog.ExtendedSearchRequest()
+                {
+                    m_nGroupID = groupID,
+                    m_nPageIndex = 0,
+                    m_nPageSize = 0,
+                    assetTypes = new int[1] { 1 },
+                    filterQuery = ksql.ToString(),
+                    order = orderBy,
+                    m_oFilter = new WS_Catalog.Filter()
+                    {
+                        m_bOnlyActiveMedia = true
+                    },
+                    excludedCrids = excludedCrids != null ? excludedCrids.ToArray() : null,
+                    ExtraReturnFields = new string[] { "epg_id", seriesId, seasonNumber },
+                    ShouldUseSearchEndDate = true
+                };
+                FillCatalogSignature(request);
+                client = new WS_Catalog.IserviceClient();
+                string sCatalogUrl = GetWSURL("WS_Catalog");
+                if (string.IsNullOrEmpty(sCatalogUrl))
+                {
+                    log.Error("Catalog Url is null or empty");
+                    return recordings;
+                }
+
+                client.Endpoint.Address = new System.ServiceModel.EndpointAddress(sCatalogUrl);
+
+                WS_Catalog.UnifiedSearchResponse response = client.GetResponse(request) as WS_Catalog.UnifiedSearchResponse;
+
+                if (response == null || response.status == null)
+                {
+                    log.ErrorFormat("Got empty response from Catalog 'GetResponse' for 'ExtendedSearchRequest'");
+                    return recordings;
+                }
+                if (response.status.Code != (int)eResponseStatus.OK)
+                {
+                    log.ErrorFormat("Got error response from catalog 'GetResponse' for 'ExtendedSearchRequest'. response: code = {0}, message = {1}", response.status.Code, response.status.Message);
+                    return recordings;
+                }
+
+                recordings = response.searchResults.Select(sr => (ExtendedSearchResult)sr).ToList();
             }
 
-            return domainQuota;
-        }
-
-        internal static bool AddQuotaToDomain(long domainId, int quotaToAdd)
-        {
-            return ConditionalAccessDAL.AddQuotaToDomain(domainId, quotaToAdd);
-        }
-
-        internal static List<EPGChannelProgrammeObject> GetFirstFollowerEpgIdsToRecord(string seriesId, int seassonNumber, DateTime? windowStartDate)
-        {
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed GetFirstFollowerEpgIdsToRecord, channelId: {0}, seriesId: {1}, seassonNumber: {2}, windowStartDate: {3}", channelId, seriesId, seassonNumber, windowStartDate);
+            }
+             */
             throw new NotImplementedException();
         }
+
+        internal static bool FollowSeasonOrSeries(int groupId, string userId, long domainID, long epgId, RecordingType recordingType, ref bool isFirstFollower)
+        {
+            bool result = false;
+            List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(groupId, new List<long>() { epgId });
+            if (epgs == null || epgs.Count != 1)
+            {
+                log.DebugFormat("Failed Getting EPG from Catalog, DomainID: {0}, UserID: {1}, EpgId: {2}", domainID, userId, epgId);
+                return result;
+            }
+
+            EPGChannelProgrammeObject epg = epgs.First();
+            Dictionary<string, string> epgFieldMappings = null;
+            if (!GetEpgFieldTypeEntitys(groupId, epg, recordingType, epgFieldMappings) || epgFieldMappings == null || epgFieldMappings.Count == 0)
+            {
+                log.ErrorFormat("failed GetEpgFieldTypeEntitys, groupId: {0}, epgId: {1}, recordingType: {2}", groupId, epg.EPG_ID, recordingType.ToString());
+                return result;
+            }
+
+            string seriesId = epgFieldMappings[SERIES_ID];
+            int seasonNumber = 0, episodeNumber = 0;
+
+            if (!int.TryParse(epgFieldMappings[SEASON_NUMBER], out seasonNumber) && recordingType == RecordingType.Season)
+            {
+                log.ErrorFormat("failed parsing SEASON_NUMBER, groupId: {0}, epgId: {1}, recordingType: {2}", groupId, epg.EPG_ID, recordingType.ToString());
+                return result;
+            }
+
+            int.TryParse(epgFieldMappings[EPISODE_NUMBER], out episodeNumber);
+            isFirstFollower = RecordingsDAL.IsFirstFollower(seriesId, seasonNumber);
+            if (RecordingsDAL.IsFirstFollower(seriesId, seasonNumber))
+            {
+                /*******************************************/
+                //TO-DO add task to handle all recordings
+                /*******************************************/
+            }
+
+            if (!RecordingsDAL.FollowSeries(groupId, userId, domainID, epg.EPG_ID, seriesId, seasonNumber, episodeNumber))
+            {
+                log.ErrorFormat("failed FollowSeries, groupId: {0}, userId: {1}, domainID: {2}, epdId: {3}, seriesId: {4}, seasonNumber: {5}, episodeNumber: {6}",
+                                 groupId, userId, domainID, epg.EPG_ID, seriesId, seasonNumber, episodeNumber);
+                return result;
+            }
+
+            result = true;
+
+            return result;
+        }
+
+        public static bool GetEpgFieldTypeEntitys(int groupId, EPGChannelProgrammeObject epg, RecordingType recordingType, Dictionary<string, string> epgFieldMappings)
+        {
+            bool result = false;
+            epgFieldMappings = new Dictionary<string, string>();
+            List<ApiObjects.Epg.FieldTypeEntity> metaTagsMappings = Tvinci.Core.DAL.CatalogDAL.GetAliasMappingFields(groupId);
+            if (metaTagsMappings == null || metaTagsMappings.Count == 0)
+            {
+                log.ErrorFormat("failed to 'GetAliasMappingFields' for seriesId. groupId = {0} ", groupId);
+                return result;
+            }
+
+            ApiObjects.Epg.FieldTypeEntity field = metaTagsMappings.Where(m => m.Alias.ToLower() == SERIES_ALIAS).FirstOrDefault();
+            if (field == null)
+            {
+                log.ErrorFormat("alias for series_id was not found. group_id = {0}", groupId);
+                return result;
+            }
+            else if (field.FieldType == FieldTypes.Meta)
+            {                
+                epgFieldMappings.Add(SERIES_ID, epg.EPG_Meta.Where(x => x.Key==field.Name).First().Value);
+            }
+            else if (field.FieldType == FieldTypes.Tag)
+            {
+                epgFieldMappings.Add(SERIES_ID, epg.EPG_TAGS.Where(x => x.Key==field.Name).First().Value);
+            }                                     
+
+            field = metaTagsMappings.Where(m => m.Alias.ToLower() == SEASON_ALIAS).FirstOrDefault();
+            if (recordingType == RecordingType.Season && field == null)
+            {
+                log.ErrorFormat("alias for season_number was not found. group_id = {0}", groupId);
+                return result;
+            }
+            else if (field != null)
+            {
+                if (field.FieldType == FieldTypes.Meta)
+                {
+                    epgFieldMappings.Add(SEASON_NUMBER, epg.EPG_Meta.Where(x => x.Key == field.Name).First().Value);
+                }
+                else if (field.FieldType == FieldTypes.Tag)
+                {
+                    epgFieldMappings.Add(SEASON_NUMBER, epg.EPG_TAGS.Where(x => x.Key == field.Name).First().Value);
+                }
+            }
+
+            field = metaTagsMappings.Where(m => m.Alias.ToLower() == EPISODE_ALIAS).FirstOrDefault();
+            if (field != null)
+            {
+                if (field.FieldType == FieldTypes.Meta)
+                {
+                    epgFieldMappings.Add(EPISODE_NUMBER, epg.EPG_Meta.Where(x => x.Key == field.Name).First().Value);
+                }
+                else if (field.FieldType == FieldTypes.Tag)
+                {
+                    epgFieldMappings.Add(EPISODE_NUMBER, epg.EPG_TAGS.Where(x => x.Key == field.Name).First().Value);
+                }
+            }
+
+            return true;
+        }
+
     }
 }
 

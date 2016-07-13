@@ -145,15 +145,9 @@ namespace Recordings
             }
             else
             {
-                recording = RecordingsDAL.InsertRecordingCopy(groupId, programId, startDate, endDate, crid);
-                // add message which will add the recording to all the following domains only if the recordings is in the future
-                if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK && recording.RecordingStatus == TstvRecordingStatus.Scheduled)
-                {                    
-                    DateTime distributeTime = endDate.AddMinutes(1);
-                    eRecordingTask task = eRecordingTask.DistributeRecording;
-
-                    EnqueueMessage(groupId, recording.EpgId, recording.Id, distributeTime, task);
-                }
+                Recording randomExistingRecording = recordingsEpgMap.First().Value;
+                recording = new Recording(randomExistingRecording) { EpgStartDate = startDate, EpgEndDate = endDate, EpgId = programId, ChannelId = epgChannelID, RecordingStatus = TstvRecordingStatus.Scheduled };
+                recording = RecordingsDAL.InsertRecording(recording, groupId, RecordingInternalStatus.OK);
             }
 
             try
@@ -839,6 +833,17 @@ namespace Recordings
             return response;
         }
 
+        public static void EnqueueMessage(int groupId, long programId, long recordingId, DateTime checkTime, eRecordingTask task)
+        {
+            var queue = new GenericCeleryQueue();
+            var message = new RecordingTaskData(groupId, task,
+                checkTime,
+                programId,
+                recordingId);
+
+            queue.Enqueue(message, string.Format(SCHEDULED_TASKS_ROUTING_KEY, groupId));
+        }
+
         internal void RecoverRecordings(int groupId)
         {
             // Get both waiting and failed recordings
@@ -879,6 +884,7 @@ namespace Recordings
 
             int groupId = (int)parameters["groupId"];
             long programId = (long)parameters["programId"];
+            string crid = (string)parameters["crid"];
             string epgChannelID = (string)parameters["epgChannelID"];
             DateTime startDate = (DateTime)parameters["startDate"];
             DateTime endDate = (DateTime)parameters["endDate"];
@@ -893,6 +899,7 @@ namespace Recordings
                 issueRecord = true;
                 recording = new Recording();
                 recording.EpgId = programId;
+                recording.Crid = crid;
                 recording.EpgStartDate = startDate;
                 recording.EpgEndDate = endDate;
                 recording.ChannelId = epgChannelID;
@@ -984,17 +991,6 @@ namespace Recordings
                 epg.IsRecorded = Convert.ToInt32(isRecorded);
                 epgBLTvinci.UpdateEpg(epg);
             }
-        }
-
-        private static void EnqueueMessage(int groupId, long programId, long recordingId, DateTime checkTime, eRecordingTask task)
-        {
-            var queue = new GenericCeleryQueue();
-            var message = new RecordingTaskData(groupId, task,
-                checkTime,
-                programId,
-                recordingId);
-
-            queue.Enqueue(message, string.Format(SCHEDULED_TASKS_ROUTING_KEY, groupId));
         }
 
         private static void RetryTaskAfterProgramEnded(int groupId, Recording currentRecording, DateTime nextCheck, eRecordingTask recordingTask)
@@ -1152,13 +1148,6 @@ namespace Recordings
                     {
                         currentRecording.RecordingStatus = TstvRecordingStatus.Scheduled;
                         currentRecording.RecordingStatus = RecordingsManager.GetTstvRecordingStatus(currentRecording.EpgStartDate, currentRecording.EpgEndDate, currentRecording.RecordingStatus);
-
-                        // add message which will add the recording to all the following domains
-                        DateTime distributeTime = endDate.AddMinutes(1);
-                        eRecordingTask task = eRecordingTask.DistributeRecording;
-
-                        EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, distributeTime, task);
-
 
                         // Insert the new links of the recordings
                         if (adapterResponse.Links != null && adapterResponse.Links.Count > 0)
