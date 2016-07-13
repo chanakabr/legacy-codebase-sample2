@@ -272,5 +272,10 @@ namespace Catalog.Request
 
         #endregion
 
+
+        internal virtual List<string> GetExtraReturnFields()
+        {
+            return new List<string>();
+        }
     }
 }

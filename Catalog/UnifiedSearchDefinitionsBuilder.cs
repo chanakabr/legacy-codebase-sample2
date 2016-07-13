@@ -227,19 +227,12 @@ namespace Catalog
 
                 #region Extended search request
 
-                // ExtendedSearchRequest support
-                if (request is ExtendedSearchRequest)
+                List<string> extraReturnFields = request.GetExtraReturnFields();
+
+                if (extraReturnFields != null && extraReturnFields.Count > 0)
                 {
-                    ExtendedSearchRequest extendedRequest = (ExtendedSearchRequest)request;
-
-                    if (extendedRequest.ExtraReturnFields != null)
-                    {
-                        definitions.extraReturnFields.AddRange(extendedRequest.ExtraReturnFields);
-                    }
-
+                    definitions.extraReturnFields.AddRange(extraReturnFields);
                     definitions.shouldReturnExtendedSearchResult = true;
-                    definitions.extraReturnFields.Add("start_date");
-                    definitions.extraReturnFields.Add("end_date");
                 }
 
                 #endregion

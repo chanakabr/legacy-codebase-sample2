@@ -18,6 +18,9 @@ namespace Catalog.Request
     [DataContract]
     public class ExtendedSearchRequest : UnifiedSearchRequest
     {
+        [DataMember]
+        public List<string> ExtraReturnFields { get; set; }
+
         public ExtendedSearchRequest(int nPageSize, int nPageIndex, int nGroupID, string sSignature, string sSignString,
             OrderObj order,
             List<int> types,
@@ -28,7 +31,16 @@ namespace Catalog.Request
         {
         }
 
-        [DataMember]
-        public List<string> ExtraReturnFields { get; set; }
+        internal override List<string> GetExtraReturnFields()
+        {
+            if (this.ExtraReturnFields != null)
+            {
+                return this.ExtraReturnFields;
+            }
+            else
+            {
+                return new List<string>();
+            }
+        }
     }
 }
