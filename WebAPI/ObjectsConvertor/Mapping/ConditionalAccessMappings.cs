@@ -232,6 +232,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // Recording to KalturaRecording
             Mapper.CreateMap<WebAPI.ConditionalAccess.Recording, KalturaRecording>()
                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.EpgId))
+               .ForMember(dest => dest.RecordingAssetId, opt => opt.MapFrom(src => src.EpgId))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertTstvRecordingStatus(src.RecordingStatus)))
                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertRecordingType(src.Type)))
