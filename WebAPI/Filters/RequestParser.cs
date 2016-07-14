@@ -25,6 +25,8 @@ using WebAPI.Managers.Schema;
 using System.Runtime.Serialization;
 using WebAPI.Models.Billing;
 using WebAPI.Models.MultiRequest;
+using System.Collections.Specialized;
+using System.Threading.Tasks;
 
 namespace WebAPI.Filters
 {
@@ -78,6 +80,8 @@ namespace WebAPI.Filters
         public const string REQUEST_GLOBAL_KS = "global_ks";
         public const string REQUEST_GLOBAL_USER_ID = "global_user_id";
         public const string REQUEST_GLOBAL_LANGUAGE = "global_language";
+        public const string REQUEST_SERVICE = "requestService";
+        public const string REQUEST_ACTION = "requestAction";
 
         public static object GetRequestPayload()
         {
@@ -202,6 +206,27 @@ namespace WebAPI.Filters
             }
         }
 
+        public async Task<NameValueCollection> ParseFormData(HttpActionContext actionContext)
+        {
+            if (!actionContext.Request.Content.IsMimeMultipartContent("form-data"))
+            {
+                string query = await actionContext.Request.Content.ReadAsStringAsync();
+                return HttpUtility.ParseQueryString(query);
+            }
+
+            string uploadFolder = "C:\\"; // TODO take from configuration
+            MultipartFormDataStreamProvider streamProvider = new MultipartFormDataStreamProvider(uploadFolder);
+            MultipartFileStreamProvider multipartFileStreamProvider = await actionContext.Request.Content.ReadAsMultipartAsync(streamProvider);
+
+            // Get the file names.
+            foreach (MultipartFileData file in streamProvider.FileData)
+            {
+                //Do something awesome with the files..
+            }
+
+            return streamProvider.FormData;
+        }
+
         public async override void OnActionExecuting(HttpActionContext actionContext)
         {
             string currentAction = null;
@@ -213,14 +238,37 @@ namespace WebAPI.Filters
                 base.OnActionExecuting(actionContext);
                 return;
             }
-
+            
+            NameValueCollection formData = null;
             if (actionContext.Request.Method == HttpMethod.Post)
             {
                 var rd = actionContext.ControllerContext.RouteData;
-                currentController = rd.Values["service_name"].ToString();
+                if (rd.Values.ContainsKey("service_name"))
+                {
+                    currentController = rd.Values["service_name"].ToString();
+                }
+                else
+                {
+                    formData = await ParseFormData(actionContext);
+                    currentController = formData.Get("service");
+                    if(currentController == null)
+                    {
+                        createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidService, "Unknown Service");
+                        return;
+                    }
+
+                    HttpContext.Current.Items[REQUEST_SERVICE] = currentController;
+                }
+
                 if (rd.Values.ContainsKey("action_name"))
                 {
                     currentAction = rd.Values["action_name"].ToString();
+                }
+                else if (formData != null)
+                {
+                    currentAction = formData.Get("action");
+                    if (currentAction != null)
+                        HttpContext.Current.Items[REQUEST_ACTION] = currentAction;
                 }
             }
             else if (actionContext.Request.Method == HttpMethod.Get)
@@ -295,6 +343,32 @@ namespace WebAPI.Filters
                 {
                     //TODO
                     createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.BadRequest, "XML is currently not supported");
+                    return;
+                }
+                else if (formData != null)
+                {
+                    try
+                    {
+                        //Running on the expected method parameters
+                        var groupedParams = groupParams(formData);
+
+                        setRequestContext(groupedParams);
+                        methodInfo = createMethodInvoker(currentController, currentAction, asm);
+
+                        List<Object> methodParams = buildActionArguments(methodInfo, groupedParams);
+
+                        HttpContext.Current.Items.Add(REQUEST_METHOD_PARAMETERS, methodParams);
+                    }
+                    catch (UnauthorizedException e)
+                    {
+                        createErrorResponse(actionContext, (int)e.Code, e.Message);
+                        return;
+                    }
+                    catch (RequestParserException e)
+                    {
+                        createErrorResponse(actionContext, e.Code, e.Message);
+                        return;
+                    }
                     return;
                 }
                 else
@@ -558,6 +632,20 @@ namespace WebAPI.Filters
             {
                 string[] path = kv.Key.Split(PARAMS_PREFIX);
                 setElementByPath(paramsDic, path.ToList(), kv.Value);
+            }
+
+            return paramsDic;
+        }
+
+        private Dictionary<string, object> groupParams(NameValueCollection tokens)
+        {
+            Dictionary<string, object> paramsDic = new Dictionary<string, object>();
+
+            // group the params by prefix
+            foreach (string key in tokens.Keys)
+            {
+                string[] path = key.Split(PARAMS_PREFIX);
+                setElementByPath(paramsDic, path.ToList(), tokens.Get(key));
             }
 
             return paramsDic;

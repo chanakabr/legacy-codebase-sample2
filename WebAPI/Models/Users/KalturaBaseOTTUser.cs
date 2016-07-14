@@ -15,6 +15,7 @@ namespace WebAPI.Models.Users
     /// </summary>
     [OldStandard("firstName", "first_name")]
     [OldStandard("lastName", "last_name")]
+    [XmlInclude(typeof(KalturaOTTUser))]
     public class KalturaBaseOTTUser : KalturaOTTObject
     {
         /// <summary>

@@ -122,5 +122,21 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [Route(""), HttpGet]
+        public async Task<object> NoRoute()
+        {
+            throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error, "No action specified");
+        }
+
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [Route(""), HttpPost]
+        public async Task<object> _NoRoute()
+        {
+            string service = (string) HttpContext.Current.Items[RequestParser.REQUEST_SERVICE];
+            string action = (string) HttpContext.Current.Items[RequestParser.REQUEST_ACTION];
+            return await Action(service, action);
+        }
     }
 }

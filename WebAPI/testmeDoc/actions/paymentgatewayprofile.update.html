@@ -56,10 +56,26 @@
 				<strong>JSON object:</strong>
 				<pre>
 				<div class="post_fields">
-[
+{
 	paymentGatewayId: value,
 	paymentGateway: {
 		objectType: "KalturaPaymentGatewayProfile",
+		id: value,
+		name: "value",
+		isDefault: value,
+		selectedBy: "value",
+		paymentMethods: [{
+			objectType: "KalturaPaymentMethod",
+			id: value,
+			name: "value",
+			allowMultiInstance: value,
+			householdPaymentMethods: [{
+				objectType: "KalturaHouseholdPaymentMethod",
+				id: value,
+				details: "value",
+				selected: value
+			}]
+		}],
 		isActive: value,
 		adapterUrl: "value",
 		transactUrl: "value",
@@ -68,6 +84,7 @@
 		paymentGatewayeSettings: {
 			'item1': {
 			objectType: "KalturaStringValue",
+			description: "value",
 			value: "value"
 		}
 },
@@ -78,7 +95,7 @@
 		renewIntervalMinutes: value,
 		renewStartMinutes: value
 	}
-]
+}
 				</pre></td>
 			</tr>
 		</table>

@@ -17,9 +17,9 @@ namespace WebAPI.App_Start
     {
         public CustomXmlFormatter()
         {
-            SupportedMediaTypes.Add(
-                new MediaTypeHeaderValue("application/xml"));
+            SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/xml"));
             SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/xml"));
+            MediaTypeMappings.Add(new QueryStringMapping("format", "1", "application/xml"));
         }
 
         public override bool CanReadType(Type type)
