@@ -1,21 +1,20 @@
 ﻿using ApiObjects;
 using ApiObjects.Epg;
+using ApiObjects.Response;
 using EpgBL;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
+using System.ServiceModel;
+using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Serialization;
 using Tvinci.Core.DAL;
 using TvinciImporter;
-using KLogMonitor;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using System.ServiceModel;
 
 namespace EpgIngest
 {
@@ -41,7 +40,7 @@ namespace EpgIngest
         public bool Initialize(string data, int groupId)
         {
             IngestResponse ingestResponse = null;
-            return Initialize( data,  groupId, out  ingestResponse);
+            return Initialize(data, groupId, out  ingestResponse);
         }
 
         public bool Initialize(string Data, int groupId, out IngestResponse ingestResponse)
@@ -100,12 +99,31 @@ namespace EpgIngest
 
         public string SaveChannelPrograms()
         {
+            IngestResponse ingestResponse = null;
+            return SaveChannelPrograms(ref ingestResponse);
+        }
+        public string SaveChannelPrograms(ref IngestResponse ingestResponse)
+        {
             bool success = true;
+            if (ingestResponse == null)
+            {
+                ingestResponse = new IngestResponse()
+                {
+                    IngestStatus = new ApiObjects.Response.Status()
+                    {
+                        Code = (int)eResponseStatus.Error,
+                        Message = eResponseStatus.Error.ToString()
+                    },
+                    AssetsStatus = new List<IngestAssetStatus>()
+                };
+            }
             try
             {
                 int kalturaChannelID;
                 string channelID;
                 EpgChannelType epgChannelType;
+                IngestAssetStatus ingestAssetStatus = null;
+
 
                 // get the kaltura + type to each channel by its external id                
                 List<string> channelExternalIds = m_Channels.channel.Select(x => x.id).ToList<string>();
@@ -122,24 +140,39 @@ namespace EpgIngest
                         kalturaChannelID = epgChannelObj.ChannelId;
                         channelID = channel.Key;
                         epgChannelType = epgChannelObj.ChannelType;
+                        //create ingestAssetStatus for saving Media load data and status
+                        ingestAssetStatus = new IngestAssetStatus()
+                        {
+                            Warnings = new List<Status>(),
+                            Status = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() },
+                            InternalAssetId = kalturaChannelID,
+                            ExternalAssetId = channel.Key
+                        };
+                        ingestResponse.AssetsStatus.Add(ingestAssetStatus);
 
-                        bool returnSuccess = SaveChannelPrograms(programs, kalturaChannelID, channelID, epgChannelType);
+                        bool returnSuccess = SaveChannelPrograms(programs, kalturaChannelID, channelID, epgChannelType, ref ingestAssetStatus);
                         if (success)
                         {
                             success = returnSuccess;
                         }
                     }
                 }
-                return success.ToString();
             }
             catch (Exception ex)
             {
                 log.Error("SaveChannelPrograms - " + string.Format("exception={0}", ex.Message), ex);
-                return "false";
+                success= false;
             }
+
+            if (success)
+            {
+                ingestResponse.IngestStatus.Code = (int)eResponseStatus.OK;
+                ingestResponse.IngestStatus.Message= eResponseStatus.OK.ToString();
+            }
+            return success.ToString();
         }
 
-        private bool SaveChannelPrograms(List<programme> programs, int kalturaChannelID, string channelID, EpgChannelType epgChannelType)
+        private bool SaveChannelPrograms(List<programme> programs, int kalturaChannelID, string channelID, EpgChannelType epgChannelType, ref IngestAssetStatus ingestAssetStatus)
         {
             // EpgObject m_ChannelsFaild = null; // save all program that got exceptions TODO ????????            
             bool success = false;
@@ -338,7 +371,7 @@ namespace EpgIngest
                     nCount++;
 
                     #region Insert EpgProgram to CB
-                    
+
                     string epgID = string.Empty;
                     bool isMainLang = epg.Value.Language.ToLower() == m_Channels.mainlang.ToLower() ? true : false;
                     if (epg.Value.EpgID <= 0)
@@ -389,13 +422,14 @@ namespace EpgIngest
                     log.DebugFormat("Succeeded. insert EpgProgram to ES. parent GID:{0}, epgIds Count:{1}", m_Channels.parentgroupid, epgIds.Count);
                 else
                     log.ErrorFormat("Error. insert EpgProgram to ES. parent GID:{0}, epgIds Count:{1}", m_Channels.parentgroupid, epgIds.Count);
-
             }
 
             //start Upload process Queue
             UploadQueue.UploadQueueHelper.SetJobsForUpload(m_Channels.parentgroupid);
 
             success = true;
+            ingestAssetStatus.Status.Code = (int)eResponseStatus.OK;
+            ingestAssetStatus.Status.Message= eResponseStatus.OK.ToString();
             return success;
         }
 
