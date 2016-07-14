@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.Catalog;
 using ApiObjects.Epg;
 using ApiObjects.Response;
 using EpgBL;
@@ -21,6 +22,8 @@ namespace EpgIngest
     public class Ingest
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        private const string EPGS_PROGRAM_DATES_ERROR = "Error at EPG Program Start/End Dates";
 
         #region Member
         EpgChannels m_Channels;
@@ -134,6 +137,7 @@ namespace EpgIngest
                 {
                     // get all programs related to specific channel 
                     List<programme> programs = m_Channels.programme.Where(x => x.channel == channel.Key).ToList();
+                    log.DebugFormat("Going to save {0} programs for channel: {1}", programs.Count, channel.Key);
 
                     foreach (EpgChannelObj epgChannelObj in channel.Value)
                     {
@@ -214,6 +218,7 @@ namespace EpgIngest
                     if (!Utils.ParseEPGStrToDate(prog.start, ref dProgStartDate) || !Utils.ParseEPGStrToDate(prog.stop, ref dProgEndDate))
                     {
                         log.Error("Program Dates Error - " + string.Format("start:{0}, end:{1}", prog.start, prog.stop));
+                        ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngestWarnings.EPGSProgramDatesError, Message = EPGS_PROGRAM_DATES_ERROR });
                         continue;
                     }
 
