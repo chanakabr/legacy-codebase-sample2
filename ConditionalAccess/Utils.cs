@@ -5332,6 +5332,203 @@ namespace ConditionalAccess
             return true;
         }
 
+        internal static List<ExtendedSearchResult> SearchPastSeriesRecordings(int groupID, List<string> excludedCrids, List<DomainSeriesRecording> series)
+        {
+            WS_Catalog.IserviceClient client = null;
+            List<ExtendedSearchResult> recordings = null;
+
+            // build the KSQL for the series
+            string seriesId;
+            string seasonNumber;
+            string episodeNumber;
+
+            if (!GetSeriesMetaTagsFieldsNamesForSearch(groupID, out seriesId, out seasonNumber, out episodeNumber))
+            {
+                log.ErrorFormat("failed to 'GetSeriesMetaTagsNamesForGroup' for groupId = {0} ", groupID);
+                return recordings;
+            }
+
+            // build the filter query for the search
+            StringBuilder ksql = new StringBuilder("(and (or ");
+            foreach (var serie in series)
+            {
+                string season = (serie.SeasonNumber > 0 && !string.IsNullOrEmpty(seasonNumber)) ? string.Format("{0} = '{1}' ", seasonNumber, serie.SeasonNumber) : string.Empty;
+
+                ksql.AppendFormat("(and {0} = '{1}' epg_channel_id = '{2}' {3})", seriesId, serie.SeriesId, serie.EpgChannelId, season);
+            }
+
+            ksql.AppendFormat(") start_date < '0')");
+
+
+            // get program ids
+            try
+            {
+                WS_Catalog.ExtendedSearchRequest request = new WS_Catalog.ExtendedSearchRequest()
+                {
+                    m_nGroupID = groupID,
+                    m_nPageIndex = 0,
+                    m_nPageSize = 0,
+                    assetTypes = new int[1] { 1 },
+                    filterQuery = ksql.ToString(),
+                    order = new ApiObjects.SearchObjects.OrderObj()
+                    {
+                        m_eOrderBy = ApiObjects.SearchObjects.OrderBy.START_DATE,
+                        m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC
+                    },
+                    m_oFilter = new WS_Catalog.Filter()
+                    {
+                        m_bOnlyActiveMedia = true
+                    },
+                    excludedCrids = excludedCrids != null ? excludedCrids.ToArray() : null,
+                    ExtraReturnFields = new string[] { "epg_id", "crid", "epg_channel_id", seriesId, seasonNumber }, 
+                    ShouldUseSearchEndDate = true
+                };
+                FillCatalogSignature(request);
+                client = new WS_Catalog.IserviceClient();
+                string catalogUrl = GetWSURL("WS_Catalog");
+                if (string.IsNullOrEmpty(catalogUrl))
+                {
+                    log.Error("Catalog Url is null or empty");
+                    return recordings;
+                }
+
+                client.Endpoint.Address = new System.ServiceModel.EndpointAddress(catalogUrl);
+
+                WS_Catalog.UnifiedSearchResponse response = client.GetResponse(request) as WS_Catalog.UnifiedSearchResponse;
+
+                if (response == null || response.status == null)
+                {
+                    log.ErrorFormat("Got empty response from Catalog 'GetResponse' for 'ExtendedSearchRequest'");
+                    return recordings;
+                }
+                if (response.status.Code != (int)eResponseStatus.OK)
+                {
+                    log.ErrorFormat("Got error response from catalog 'GetResponse' for 'ExtendedSearchRequest'. response: code = {0}, message = {1}", response.status.Code, response.status.Message);
+                    return recordings;
+                }
+
+                recordings = response.searchResults.Select(sr => (ExtendedSearchResult)sr).ToList();
+            }
+
+            catch (Exception ex)
+            {
+                log.Error("Failed UnifiedSearchRequest Request To Catalog", ex);
+            }
+
+            finally
+            {
+                if (client != null)
+                {
+                    client.Close();
+                }
+            }
+
+            return recordings;
+        }
+
+        public static bool GetSeriesMetaTagsFieldsNamesForSearch(int groupId, out string seriesIdName, out string seasonNumberName, out string episodeNumberName)
+        {
+            seriesIdName = seasonNumberName = episodeNumberName = string.Empty;
+
+            // TODO: Add this alias stuff to cache!!!!
+            var metaTagsMappings = Tvinci.Core.DAL.CatalogDAL.GetAliasMappingFields(groupId);
+            if (metaTagsMappings == null || metaTagsMappings.Count == 0)
+            {
+                log.ErrorFormat("failed to 'GetAliasMappingFields' for seriesId. groupId = {0} ", groupId);
+                return false;
+            }
+
+            var feild = metaTagsMappings.Where(m => m.Alias.ToLower() == "series_id").FirstOrDefault();
+            if (feild == null)
+            {
+                log.ErrorFormat("alias for series_id was not found. group_id = {0}", groupId);
+                return false;
+            }
+
+            seriesIdName = string.Format("{0}.{1}", feild.FieldType == FieldTypes.Meta ? "metas" : "tags", feild.Name);
+
+            feild = metaTagsMappings.Where(m => m.Alias.ToLower() == "season_number").FirstOrDefault();
+            if (feild != null)
+            {
+                seasonNumberName = string.Format("{0}.{1}", feild.FieldType == FieldTypes.Meta ? "metas" : "tags", feild.Name);
+            }
+
+            feild = metaTagsMappings.Where(m => m.Alias.ToLower() == "episode_number").FirstOrDefault();
+            if (feild != null)
+            {
+                episodeNumberName = string.Format("{0}.{1}", feild.FieldType == FieldTypes.Meta ? "metas" : "tags", feild.Name);
+            }
+            
+            return true;
+        }
+
+        public static string GetFollowingUserIdForSerie(int groupId, List<DomainSeriesRecording> series, WS_Catalog.ExtendedSearchResult potentialRecording)
+        {
+            string userId = null;
+
+            string seriesIdName;
+            string seasonNumberName;
+            string episodeNumberName;
+
+            GetSeriesMetaTagsFieldsNamesForSearch(groupId, out seriesIdName, out seasonNumberName, out episodeNumberName);
+
+            if (potentialRecording != null && potentialRecording.ExtraFields != null)
+            {
+                string seriesId = null;
+                int seasonNumber = 0;
+                foreach (var field in potentialRecording.ExtraFields)
+                {
+                    if (field.key == seriesIdName)
+                    {
+                        seriesId = field.value;
+                    }
+
+                    if (field.key == seasonNumberName)
+                    {
+                        int.TryParse(field.value, out seasonNumber);
+                    }
+                }
+
+                foreach (var serie in series)
+                {
+                    if (serie.SeriesId == seriesId && (serie.SeasonNumber == 0 || serie.SeasonNumber == seasonNumber))
+                    {
+                        userId = serie.UserId;
+                    }
+                }
+            }
+            return userId;
+        }
+
+        public static long GetLongParamFromExtendedSearchResult(WS_Catalog.ExtendedSearchResult extendedResult, string paramName)
+        {
+            long result = 0;
+
+            if (extendedResult != null && extendedResult.ExtraFields != null)
+            {
+                var field = extendedResult.ExtraFields.Where(ef => ef.key == paramName).FirstOrDefault();
+                if (field != null)
+                {
+                    long.TryParse(field.value, out result);
+                }
+            }
+            return result;
+        }
+
+        public static string GetStringParamFromExtendedSearchResult(WS_Catalog.ExtendedSearchResult extendedResult, string paramName)
+        {
+            string result = string.Empty;
+
+            if (extendedResult != null && extendedResult.ExtraFields != null)
+            {
+                var field = extendedResult.ExtraFields.Where(ef => ef.key == paramName).FirstOrDefault();
+                if (field != null)
+                {
+                    result = field.value;
+                }
+            }
+            return result;
+        }
     }
 }
 

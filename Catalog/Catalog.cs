@@ -89,7 +89,8 @@ namespace Catalog
 			            "like_counter",
 			            "views",
 			            "rating",
-			            "votes"
+			            "votes",
+                        "epg_channel_id"
 		            };
 
         private static int maxNGram = -1;
@@ -1181,78 +1182,144 @@ namespace Catalog
 
             HashSet<string> searchKeys = new HashSet<string>();
 
-            if (originalKey.StartsWith("tags."))
-                originalKey = originalKey.Substring(5);
-
-            if (originalKey.StartsWith("metas."))
-                originalKey = originalKey.Substring(6);
-
-            foreach (string tag in group.m_oGroupTags.Values)
-            {
-                if (tag.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
-                {
-                    isTagOrMeta = true;
-
-                    searchKeys.Add(string.Format("tags.{0}", tag.ToLower()));
-                    break;
-                }
-            }
-
-            var metas = group.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>().SelectMany(d => d.Values).ToList();
-
-            foreach (var meta in metas)
-            {
-                if (meta.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
-                {
-                    isTagOrMeta = true;
-                    searchKeys.Add(string.Format("metas.{0}", meta.ToLower()));
-                    break;
-                }
-            }
-
             // get alias + regex expression 
             List<FieldTypeEntity> FieldEpgAliasMapping = CatalogDAL.GetAliasMappingFields(group.m_nParentGroupID);
 
-            foreach (FieldTypeEntity FieldEpgAlias in FieldEpgAliasMapping.Where(x=>x.FieldType == FieldTypes.Tag))
+            if (originalKey.StartsWith("tags."))
             {
-                if (FieldEpgAlias.Alias.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                foreach (string tag in group.m_oGroupTags.Values)
                 {
-                     isTagOrMeta = true;
-                    searchKeys.Add(string.Format("tags.{0}", FieldEpgAlias.Name.ToLower()));
-                    break;
-                }                
-            }
+                    if (tag.Equals(originalKey.Substring(5), StringComparison.OrdinalIgnoreCase))
+                    {
+                        isTagOrMeta = true;
 
-            foreach (FieldTypeEntity FieldEpgAlias in FieldEpgAliasMapping.Where(x => x.FieldType == FieldTypes.Meta))
-            {
-                if (FieldEpgAlias.Alias.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                        searchKeys.Add(originalKey.ToLower());
+                        break;
+                    }
+                }
+
+                foreach (FieldTypeEntity FieldEpgAlias in FieldEpgAliasMapping.Where(x => x.FieldType == FieldTypes.Tag))
                 {
-                    isTagOrMeta = true;
-                    searchKeys.Add(string.Format("metas.{0}", FieldEpgAlias.Name.ToLower()));
-                    break;
+                    if (FieldEpgAlias.Alias.Equals(originalKey.Substring(5), StringComparison.OrdinalIgnoreCase))
+                    {
+                        isTagOrMeta = true;
+                        searchKeys.Add(string.Format("tags.{0}", FieldEpgAlias.Name.ToLower()));
+                        break;
+                    }
+                }
+
+                foreach (var tag in group.m_oEpgGroupSettings.m_lTagsName)
+                {
+                    if (tag.Equals(originalKey.Substring(5), StringComparison.OrdinalIgnoreCase))
+                    {
+                        isTagOrMeta = true;
+                        searchKeys.Add(originalKey.ToLower());
+                        break;
+                    }
                 }
             }
 
-            foreach (var tag in group.m_oEpgGroupSettings.m_lTagsName)
+            else if (originalKey.StartsWith("metas."))
             {
-                if (tag.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                var metas = group.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>().SelectMany(d => d.Values).ToList();
+
+                foreach (var meta in metas)
                 {
-                    isTagOrMeta = true;
-                    searchKeys.Add(string.Format("tags.{0}", tag.ToLower()));
-                    break;
+                    if (meta.Equals(originalKey.Substring(6), StringComparison.OrdinalIgnoreCase))
+                    {
+                        isTagOrMeta = true;
+                        searchKeys.Add(originalKey.ToLower());
+                        break;
+                    }
+                }
+
+                foreach (FieldTypeEntity FieldEpgAlias in FieldEpgAliasMapping.Where(x => x.FieldType == FieldTypes.Meta))
+                {
+                    if (FieldEpgAlias.Alias.Equals(originalKey.Substring(6), StringComparison.OrdinalIgnoreCase))
+                    {
+                        isTagOrMeta = true;
+                        searchKeys.Add(string.Format("metas.{0}", FieldEpgAlias.Name.ToLower()));
+                        break;
+                    }
+                }
+
+                foreach (var meta in group.m_oEpgGroupSettings.m_lMetasName)
+                {
+                    if (meta.Equals(originalKey.Substring(6), StringComparison.OrdinalIgnoreCase))
+                    {
+                        isTagOrMeta = true;
+                        searchKeys.Add(originalKey.ToLower());
+                        break;
+                    }
                 }
             }
-
-            foreach (var meta in group.m_oEpgGroupSettings.m_lMetasName)
+            else
             {
-                if (meta.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                foreach (string tag in group.m_oGroupTags.Values)
                 {
-                    isTagOrMeta = true;
-                    searchKeys.Add(string.Format("metas.{0}", meta.ToLower()));
-                    break;
-                }
-            }
+                    if (tag.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                    {
+                        isTagOrMeta = true;
 
+                        searchKeys.Add(string.Format("tags.{0}", tag.ToLower()));
+                        break;
+                    }
+                }
+
+                var metas = group.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>().SelectMany(d => d.Values).ToList();
+
+                foreach (var meta in metas)
+                {
+                    if (meta.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                    {
+                        isTagOrMeta = true;
+                        searchKeys.Add(string.Format("metas.{0}", meta.ToLower()));
+                        break;
+                    }
+                }
+
+                foreach (FieldTypeEntity FieldEpgAlias in FieldEpgAliasMapping.Where(x => x.FieldType == FieldTypes.Tag))
+                {
+                    if (FieldEpgAlias.Alias.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                    {
+                        isTagOrMeta = true;
+                        searchKeys.Add(string.Format("tags.{0}", FieldEpgAlias.Name.ToLower()));
+                        break;
+                    }
+                }
+
+                foreach (FieldTypeEntity FieldEpgAlias in FieldEpgAliasMapping.Where(x => x.FieldType == FieldTypes.Meta))
+                {
+                    if (FieldEpgAlias.Alias.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                    {
+                        isTagOrMeta = true;
+                        searchKeys.Add(string.Format("metas.{0}", FieldEpgAlias.Name.ToLower()));
+                        break;
+                    }
+                }
+
+                foreach (var tag in group.m_oEpgGroupSettings.m_lTagsName)
+                {
+                    if (tag.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                    {
+                        isTagOrMeta = true;
+                        searchKeys.Add(string.Format("tags.{0}", tag.ToLower()));
+                        break;
+                    }
+                }
+
+                foreach (var meta in group.m_oEpgGroupSettings.m_lMetasName)
+                {
+                    if (meta.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                    {
+                        isTagOrMeta = true;
+                        searchKeys.Add(string.Format("metas.{0}", meta.ToLower()));
+                        break;
+                    }
+                }
+
+
+            }
             if (!isTagOrMeta)
             {
                 searchKeys.Add(originalKey.ToLower());

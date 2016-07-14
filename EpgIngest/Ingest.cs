@@ -1,27 +1,31 @@
 ﻿using ApiObjects;
+using ApiObjects.Catalog;
 using ApiObjects.Epg;
+using ApiObjects.Response;
 using EpgBL;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
+using System.ServiceModel;
+using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Serialization;
 using Tvinci.Core.DAL;
 using TvinciImporter;
-using KLogMonitor;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using System.ServiceModel;
 
 namespace EpgIngest
 {
     public class Ingest
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        private const string EPGS_PROGRAM_DATES_ERROR = "Error at EPG Program Start/End Dates";
+        private const string FAILED_DOWNLOAD_PIC = "Failed download pic";
+
 
         #region Member
         EpgChannels m_Channels;
@@ -38,7 +42,13 @@ namespace EpgIngest
         {
         }
 
-        public bool Initialize(string Data, int groupId, IngestResponse ingestResponse = null)
+        public bool Initialize(string data, int groupId)
+        {
+            IngestResponse ingestResponse = null;
+            return Initialize(data, groupId, out  ingestResponse);
+        }
+
+        public bool Initialize(string Data, int groupId, out IngestResponse ingestResponse)
         {
             ingestResponse = new IngestResponse()
             {
@@ -94,7 +104,24 @@ namespace EpgIngest
 
         public string SaveChannelPrograms()
         {
+            IngestResponse ingestResponse = null;
+            return SaveChannelPrograms(ref ingestResponse);
+        }
+        public string SaveChannelPrograms(ref IngestResponse ingestResponse)
+        {
             bool success = true;
+            if (ingestResponse == null)
+            {
+                ingestResponse = new IngestResponse()
+                {
+                    IngestStatus = new ApiObjects.Response.Status()
+                    {
+                        Code = (int)eResponseStatus.Error,
+                        Message = eResponseStatus.Error.ToString()
+                    },
+                    AssetsStatus = new List<IngestAssetStatus>()
+                };
+            }
             try
             {
                 int kalturaChannelID;
@@ -110,6 +137,7 @@ namespace EpgIngest
                 {
                     // get all programs related to specific channel 
                     List<programme> programs = m_Channels.programme.Where(x => x.channel == channel.Key).ToList();
+                    log.DebugFormat("Going to save {0} programs for channel: {1}", programs.Count, channel.Key);
 
                     foreach (EpgChannelObj epgChannelObj in channel.Value)
                     {
@@ -117,23 +145,29 @@ namespace EpgIngest
                         channelID = channel.Key;
                         epgChannelType = epgChannelObj.ChannelType;
 
-                        bool returnSuccess = SaveChannelPrograms(programs, kalturaChannelID, channelID, epgChannelType);
+                        bool returnSuccess = SaveChannelPrograms(programs, kalturaChannelID, channelID, epgChannelType, ref ingestResponse);
                         if (success)
                         {
                             success = returnSuccess;
                         }
                     }
                 }
-                return success.ToString();
             }
             catch (Exception ex)
             {
                 log.Error("SaveChannelPrograms - " + string.Format("exception={0}", ex.Message), ex);
-                return "false";
+                success = false;
             }
+
+            if (success)
+            {
+                ingestResponse.IngestStatus.Code = (int)eResponseStatus.OK;
+                ingestResponse.IngestStatus.Message = eResponseStatus.OK.ToString();
+            }
+            return success.ToString();
         }
 
-        private bool SaveChannelPrograms(List<programme> programs, int kalturaChannelID, string channelID, EpgChannelType epgChannelType)
+        private bool SaveChannelPrograms(List<programme> programs, int kalturaChannelID, string channelID, EpgChannelType epgChannelType, ref IngestResponse ingestResponse)
         {
             // EpgObject m_ChannelsFaild = null; // save all program that got exceptions TODO ????????            
             bool success = false;
@@ -159,8 +193,19 @@ namespace EpgIngest
 
             DateTime dPublishDate = DateTime.UtcNow; // this publish date will insert to each epg that was update / insert 
             List<DateTime> deletedDays = new List<DateTime>();
+            IngestAssetStatus ingestAssetStatus = null;
+
             foreach (programme prog in programs)
             {
+                ingestAssetStatus = new IngestAssetStatus()
+                {
+                    Warnings = new List<Status>(),
+                    Status = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() },
+                    InternalAssetId = kalturaChannelID,
+                    ExternalAssetId = prog.external_id
+                };
+                ingestResponse.AssetsStatus.Add(ingestAssetStatus);
+
                 newEpgItem = new EpgCB();
                 dEpgCbTranslate = new Dictionary<string, EpgCB>(); // Language, EpgCB
                 try
@@ -175,8 +220,13 @@ namespace EpgIngest
                     if (!Utils.ParseEPGStrToDate(prog.start, ref dProgStartDate) || !Utils.ParseEPGStrToDate(prog.stop, ref dProgEndDate))
                     {
                         log.Error("Program Dates Error - " + string.Format("start:{0}, end:{1}", prog.start, prog.stop));
+                        ingestAssetStatus.Status.Code = (int)IngestWarnings.EPGSProgramDatesError;
+                        ingestAssetStatus.Status.Message = EPGS_PROGRAM_DATES_ERROR;
                         continue;
                     }
+
+                    ingestAssetStatus.Status.Code = (int)eResponseStatus.OK;
+                    ingestAssetStatus.Status.Message = eResponseStatus.OK.ToString();
 
                     DateTime dDate = new DateTime(dProgStartDate.Year, dProgStartDate.Month, dProgStartDate.Day);
                     if (!deletedDays.Contains(dDate))
@@ -253,6 +303,10 @@ namespace EpgIngest
                                     object baseURl = ODBCWrapper.Utils.GetTableSingleVal("epg_pics", "BASE_URL", nPicID);
                                     if (baseURl != null && baseURl != DBNull.Value)
                                         sPicUrl = baseURl.ToString();
+                                }
+                                else
+                                {
+                                    ingestAssetStatus.Warnings.Add(new Status() { Code = (int)IngestWarnings.FailedDownloadPic, Message = FAILED_DOWNLOAD_PIC });
                                 }
                                 //update each epgCB with the picURL + PicID - ONLY FIRST ONE -  all the rest will be in the list 
                                 if (newEpgItem.PicID == 0)
@@ -332,7 +386,7 @@ namespace EpgIngest
                     nCount++;
 
                     #region Insert EpgProgram to CB
-                    
+
                     string epgID = string.Empty;
                     bool isMainLang = epg.Value.Language.ToLower() == m_Channels.mainlang.ToLower() ? true : false;
                     if (epg.Value.EpgID <= 0)
@@ -383,7 +437,6 @@ namespace EpgIngest
                     log.DebugFormat("Succeeded. insert EpgProgram to ES. parent GID:{0}, epgIds Count:{1}", m_Channels.parentgroupid, epgIds.Count);
                 else
                     log.ErrorFormat("Error. insert EpgProgram to ES. parent GID:{0}, epgIds Count:{1}", m_Channels.parentgroupid, epgIds.Count);
-
             }
 
             //start Upload process Queue

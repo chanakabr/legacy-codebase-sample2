@@ -711,12 +711,42 @@ namespace ElasticSearch.Searcher
                 }
 
                 #endregion
+
+                #region Excluded CRIDs
+
+                if (this.SearchDefinitions.excludedCrids != null && this.SearchDefinitions.excludedCrids.Count > 0)
+                {
+                        ESTerms idsTerm = new ESTerms(true)
+                        {
+                            Key = "crid",
+                            isNot = true
+                        };
+
+                        idsTerm.Value.AddRange(this.SearchDefinitions.excludedCrids);
+                }
+                #endregion 
             }
 
             // Recordings specific filters
             if (this.SearchDefinitions.shouldSearchRecordings)
             {
-                // ? nothing for now?
+                FilterCompositeType recoedingsDatesFilter = new FilterCompositeType(CutWith.AND);
+                
+                if (SearchDefinitions.shouldUseSearchEndDate)
+                {
+                    // by search_end_date - for buffer issues - MUST BE LT (nor Equal)          
+                    ESRange epgSearchEndDateRange = new ESRange(false)
+                    {
+                        Key = "search_end_date"
+                    };
+                    epgSearchEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GT, DateTime.UtcNow.ToString("yyyyMMddHHmmss")));
+                    recoedingsDatesFilter.AddChild(epgSearchEndDateRange);
+                }
+
+                if (!recoedingsDatesFilter.IsEmpty())
+                {
+                    recordingFilter.AddChild(recoedingsDatesFilter);
+                }
             }
 
             #region Phrase Tree

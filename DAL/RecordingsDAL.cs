@@ -993,5 +993,89 @@ namespace DAL
 
             return updatedRowsCount > 0;            
         }
+
+        public static List<DomainSeriesRecording> GetDomainSeriesRecordings(int groupId, long domainId)
+        {
+            List<DomainSeriesRecording> response = new List<DomainSeriesRecording>();
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_DomainSeries");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@domainId", domainId);
+
+            DataTable dt = sp.Execute();
+            if (dt != null && dt.Rows != null)
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    response.Add(new DomainSeriesRecording()
+                    {
+                        EpgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID", 0),
+                        EpisodeNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "EPISODE_NUMBER", 0),
+                        SeasonNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "SEASON_NUMBER", 0),
+                        SeriesId = ODBCWrapper.Utils.GetSafeStr(dr, "SERIES_ID"),
+                        UserId = ODBCWrapper.Utils.GetSafeStr(dr, "USER_ID"),
+                        EpgChannelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_CHANNEL_ID", 0),
+                    });
+                }
+            }
+
+            return response;
+        }
+
+        #region Couchbase
+
+        public static RecordingCB GetRecordingByProgramId_CB(long programId)
+        {
+            RecordingCB result = null;
+
+            CouchbaseManager.CouchbaseManager client = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
+
+            result = client.Get<RecordingCB>(programId.ToString());
+            return result;
+        }
+
+        //public static RecordingCB GetRecordingByRecordingId_CB(long recordingId)
+        //{
+        //    RecordingCB result = null;
+
+        //    CouchbaseManager.CouchbaseManager client = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
+
+        //    result = client.Get<RecordingCB>(recordingId.ToString());
+        //    return result;
+        //}
+
+        public static void UpdateRecording_CB(RecordingCB recording)
+        {
+            if (recording != null)
+            {
+                CouchbaseManager.CouchbaseManager client = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
+
+                bool result = client.Set<RecordingCB>(recording.EpgID.ToString(), recording);
+
+                if (!result)
+                {
+                    log.ErrorFormat("Failed updating recording in Couchbase. Recording id = {0}, EPG ID = {1}", recording.RecordingId, recording.EpgID);
+                }
+            }
+        }
+
+        public static void DeleteRecording_CB(RecordingCB recording)
+        {
+            if (recording != null)
+            {
+                CouchbaseManager.CouchbaseManager client = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
+
+                bool result = client.Remove(recording.EpgID.ToString());
+
+                if (!result)
+                {
+                    log.ErrorFormat("Failed removing recording in Couchbase. Recording id = {0}, EPG ID = {1}", recording.RecordingId, recording.EpgID);
+                }
+            }
+        }
+
+        #endregion
+
     }
 }

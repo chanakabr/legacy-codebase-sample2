@@ -8,6 +8,7 @@ using ApiObjects;
 using System.Text.RegularExpressions;
 using KLogMonitor;
 using System.Reflection;
+using ApiObjects.TimeShiftedTv;
 
 namespace DAL
 {
