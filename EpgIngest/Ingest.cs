@@ -38,7 +38,13 @@ namespace EpgIngest
         {
         }
 
-        public bool Initialize(string Data, int groupId, IngestResponse ingestResponse = null)
+        public bool Initialize(string data, int groupId)
+        {
+            IngestResponse ingestResponse = null;
+            return Initialize( data,  groupId, out  ingestResponse);
+        }
+
+        public bool Initialize(string Data, int groupId, out IngestResponse ingestResponse)
         {
             ingestResponse = new IngestResponse()
             {
