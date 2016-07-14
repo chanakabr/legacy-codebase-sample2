@@ -18732,7 +18732,7 @@ namespace ConditionalAccess
                     Recording globalRecording = RecordingsManager.Instance.Record(m_nGroupID, epgId, epgChannelId, epgPaddedStartDate, epgPaddedEndDate, crid);
                     if (globalRecording == null || globalRecording.Status == null || globalRecording.Status.Code != (int)eResponseStatus.OK)
                     {
-                        log.ErrorFormat("RecordingsManager.Instance.Record failed for epgId: {0}, epgChannelId: {1}, epgPaddedStartDate: {2}, epgPaddedEndDate: {3}, crid: {4}", epgId, epgChannelId, epgPaddedStartDate, epgPaddedEndDate,crid);
+                        log.ErrorFormat("RecordingsManager.Instance.Record failed for epgId: {0}, epgChannelId: {1}, epgPaddedStartDate: {2}, epgPaddedEndDate: {3}, crid: {4}", epgId, epgChannelId, epgPaddedStartDate, epgPaddedEndDate, crid);
                         continue;
                     }
 
