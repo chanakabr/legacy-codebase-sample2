@@ -794,7 +794,7 @@ namespace DAL
             {
                 CouchbaseManager.CouchbaseManager client = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
 
-                bool result = client.Set<RecordingCB>(recording.ToString(), recording);
+                bool result = client.Set<RecordingCB>(recording.RecordingId.ToString(), recording);
 
                 if (!result)
                 {
