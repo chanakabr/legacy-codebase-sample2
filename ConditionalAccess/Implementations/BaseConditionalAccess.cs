@@ -18315,9 +18315,8 @@ namespace ConditionalAccess
                     return response;
                 }
 
-
                 // get household followed series / seasons - if not following anything - nothing to do
-                List<DomainSeriesRecording> series = ConditionalAccessDAL.GetDomainSeriesRecordings(m_nGroupID, householdId);
+                List<DomainSeriesRecording> series = RecordingsDAL.GetDomainSeriesRecordings(m_nGroupID, householdId);
                 if (series == null || series.Count == 0)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -18328,8 +18327,8 @@ namespace ConditionalAccess
                 // get household quota - if no quota - nothing to do
                 int availibleQuota = Utils.GetDomainQuota(m_nGroupID, householdId);
                 
-                //TODO: talk to Ira if its maybe better to have a configurable 'minQuota' param for skipping this process                
-                if (availibleQuota == 0)
+                // min quota threshold for skipping this process                
+                if (availibleQuota <= 60)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     log.DebugFormat("Not enough quota to complete series recordings for householdId = {0}", householdId);
@@ -18350,18 +18349,14 @@ namespace ConditionalAccess
 
                 // build the excluded CRIDs list
                 List<string> excludedCrids = null;
-                if (householdRecordings != null)
+                if (householdRecordings != null && householdRecordings.Count > 0)
                 {
                     excludedCrids = householdRecordings.Values.Select(r => r.Crid).ToList();
                 }
 
                 // get all the relevant (series + seasons + CRID not in the list of household recordings) existing recordings from ES
-                List<ConditionalAccess.WS_Catalog.ExtendedSearchResult> relevantRecordingsForRecord = Utils.SearchPastSeriesRecordingsWithExcludedCrids(m_nGroupID, excludedCrids, series,
-                    new ApiObjects.SearchObjects.OrderObj()
-                    {
-                        m_eOrderBy = ApiObjects.SearchObjects.OrderBy.START_DATE,
-                        m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC
-                    });
+                List<ConditionalAccess.WS_Catalog.ExtendedSearchResult> relevantRecordingsForRecord = Utils.SearchPastSeriesRecordings(m_nGroupID, excludedCrids, series);
+                    
 
                 if (relevantRecordingsForRecord == null)
                 {
@@ -18370,7 +18365,7 @@ namespace ConditionalAccess
                 }
                 
                 // if there are no available recordings to complete - nothing to do
-                if (relevantRecordingsForRecord == null || relevantRecordingsForRecord.Count == 0)
+                if (relevantRecordingsForRecord.Count == 0)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     log.DebugFormat("no relevant recordings of series were found for householdId = {0}", householdId);
@@ -18384,6 +18379,10 @@ namespace ConditionalAccess
                 long programLengthSeconds = 0;
                 string userId = string.Empty;
                 long epgId = 0;
+                string crid = string.Empty;
+                long epgChannelId = 0;
+
+                Dictionary<long, List<string>> recordedCridsPerChannel = new Dictionary<long, List<string>>();
 
                 // calculate which recording should be recorded for the household based on quota 
                 foreach (var potentialRecording in relevantRecordingsForRecord)
@@ -18393,23 +18392,42 @@ namespace ConditionalAccess
 
                     if (programLengthSeconds < availibleQuota)
                     {
-                        userId = GetFollowingUserIdForSerie(series, potentialRecording);
-                        epgId = GetEpgIdFromExtendedSearchResult(potentialRecording);
+                        crid = Utils.GetStringParamFromExtendedSearchResult(potentialRecording, "crid");
+                        epgChannelId = Utils.GetLongParamFromExtendedSearchResult(potentialRecording, "epg_channel_id");
 
-                        if (epgId > 0)
+                        // check if a program with the same CRID was already recorded
+                        if (recordedCridsPerChannel.ContainsKey(epgChannelId) && recordedCridsPerChannel[epgChannelId].Contains(crid))
+                        {
+                            response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                            log.DebugFormat("found relevant program to record but a program with the same CRID already recorded for the channel. household  = {0}, crid = {1}, recordingId = {2}", 
+                                householdId, crid, potentialRecording.AssetId);
+                            return response;
+                        }
+
+                        userId = Utils.GetFollowingUserIdForSerie(m_nGroupID, series, potentialRecording);
+                        epgId = Utils.GetLongParamFromExtendedSearchResult(potentialRecording, "epg_id");
+
+                        if (epgId > 0 && !string.IsNullOrEmpty(userId))
                         {
                             var recording = Record(userId, epgId);
 
                             if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK && recording.Id > 0)
                             {
                                 log.DebugFormat("successfully recorded episode for householdId = {0}, epgId = {1}, new recordingId = {2}", householdId, epgId, recording.Id);
+                                
+                                availibleQuota = Utils.GetDomainQuota(m_nGroupID, householdId);
+
+                                if (!recordedCridsPerChannel.ContainsKey(epgChannelId))
+                                {
+                                    recordedCridsPerChannel.Add(epgChannelId, new List<string>());
+                                }
+
+                                recordedCridsPerChannel[epgChannelId].Add(recording.Crid);
                             }
                             else
                             {
                                 log.ErrorFormat("failed to record episode for household = {0}, epgId = {1}", householdId, epgId);
                             }
-
-                            availibleQuota = Utils.GetDomainQuota(m_nGroupID, householdId);
                         }
                         else
                         {
@@ -18428,52 +18446,7 @@ namespace ConditionalAccess
             return response;
         }
 
-        private string GetFollowingUserIdForSerie(List<DomainSeriesRecording> series, WS_Catalog.ExtendedSearchResult potentialRecording)
-        {
-            string userId = null;
 
-            if (potentialRecording != null && potentialRecording.ExtraFields != null)
-            {
-                string seriesId = null;
-                int seasonNumber = 0;
-                foreach (var field in potentialRecording.ExtraFields)
-                {
-                    if (field.key == "metas.series_id" || field.key == "tags.series_id")
-                    {
-                        seriesId = field.value;
-                    }
-
-                    if (field.key == "metas.season_num" || field.key == "tags.season_num")
-                    {
-                        int.TryParse(field.value, out seasonNumber);
-                    }
-                }
-
-                foreach (var serie in series)
-                {
-                    if (serie.SeriesId == seriesId && (serie.SeasonNumber == 0 || serie.SeasonNumber == seasonNumber))
-                    {
-                        userId = serie.UserId;
-                    }
-                }
-            }
-            return userId;
-        }
-
-        private long GetEpgIdFromExtendedSearchResult(WS_Catalog.ExtendedSearchResult potentialRecording)
-        {
-            long epgId = 0;
-            
-            if (potentialRecording != null && potentialRecording.ExtraFields != null)
-            {
-                var field = potentialRecording.ExtraFields.Where(ef => ef.key == "epg_id").FirstOrDefault();
-                if (field != null)
-                {
-                    long.TryParse(field.value, out epgId);
-                }
-            }
-            return epgId;
-        }
 
         public bool HandleRecordingsScheduledTasks()
         {

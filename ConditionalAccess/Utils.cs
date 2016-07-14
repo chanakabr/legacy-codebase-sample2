@@ -5088,13 +5088,12 @@ namespace ConditionalAccess
             return ConditionalAccessDAL.AddQuotaToDomain(domainId, quotaToAdd);
         }
 
-        internal static List<ExtendedSearchResult> SearchPastSeriesRecordingsWithExcludedCrids(int groupID, List<string> excludedCrids, List<DomainSeriesRecording> series, ApiObjects.SearchObjects.OrderObj orderBy)
+        internal static List<ExtendedSearchResult> SearchPastSeriesRecordings(int groupID, List<string> excludedCrids, List<DomainSeriesRecording> series)
         {
             WS_Catalog.IserviceClient client = null;
             List<ExtendedSearchResult> recordings = null;
 
             // build the KSQL for the series
-
             string seriesId;
             string seasonNumber;
             string episodeNumber;
@@ -5109,15 +5108,12 @@ namespace ConditionalAccess
             StringBuilder ksql = new StringBuilder("(and (or ");
             foreach (var serie in series)
             {
-                // with season
-                if (serie.SeasonNumber > 0 && !string.IsNullOrEmpty(seasonNumber))
-                    ksql.AppendFormat("(and {0} = '{1}' {2} = '{3}')", seasonNumber, serie.SeasonNumber, seriesId, serie.SeriesId);
-                // without season
-                else
-                    ksql.AppendFormat("{0} = '{1}' ", seriesId, serie.SeriesId);
+                string season = (serie.SeasonNumber > 0 && !string.IsNullOrEmpty(seasonNumber)) ? string.Format("{0} = '{1}' ", seasonNumber, serie.SeasonNumber) : string.Empty;
+
+                ksql.AppendFormat("(and {0} = '{1}' epg_channel_id = '{2}' {3})", seriesId, serie.SeriesId, serie.EpgChannelId, season);
             }
 
-            ksql.Append(") start_date < '0')");
+            ksql.AppendFormat(") start_date < '0')");
 
 
             // get program ids
@@ -5130,25 +5126,29 @@ namespace ConditionalAccess
                     m_nPageSize = 0,
                     assetTypes = new int[1] { 1 },
                     filterQuery = ksql.ToString(),
-                    order = orderBy,
+                    order = new ApiObjects.SearchObjects.OrderObj()
+                    {
+                        m_eOrderBy = ApiObjects.SearchObjects.OrderBy.START_DATE,
+                        m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC
+                    },
                     m_oFilter = new WS_Catalog.Filter()
                     {
                         m_bOnlyActiveMedia = true
                     },
                     excludedCrids = excludedCrids != null ? excludedCrids.ToArray() : null,
-                    ExtraReturnFields = new string[] { "epg_id", seriesId, seasonNumber }, 
+                    ExtraReturnFields = new string[] { "epg_id", "crid", "epg_channel_id", seriesId, seasonNumber }, 
                     ShouldUseSearchEndDate = true
                 };
                 FillCatalogSignature(request);
                 client = new WS_Catalog.IserviceClient();
-                string sCatalogUrl = GetWSURL("WS_Catalog");
-                if (string.IsNullOrEmpty(sCatalogUrl))
+                string catalogUrl = GetWSURL("WS_Catalog");
+                if (string.IsNullOrEmpty(catalogUrl))
                 {
                     log.Error("Catalog Url is null or empty");
                     return recordings;
                 }
 
-                client.Endpoint.Address = new System.ServiceModel.EndpointAddress(sCatalogUrl);
+                client.Endpoint.Address = new System.ServiceModel.EndpointAddress(catalogUrl);
 
                 WS_Catalog.UnifiedSearchResponse response = client.GetResponse(request) as WS_Catalog.UnifiedSearchResponse;
 
@@ -5186,6 +5186,7 @@ namespace ConditionalAccess
         {
             seriesIdName = seasonNumberName = episodeNumberName = string.Empty;
 
+            // TODO: Add this alias stuff to cache!!!!
             var metaTagsMappings = Tvinci.Core.DAL.CatalogDAL.GetAliasMappingFields(groupId);
             if (metaTagsMappings == null || metaTagsMappings.Count == 0)
             {
@@ -5213,8 +5214,76 @@ namespace ConditionalAccess
             {
                 episodeNumberName = string.Format("{0}.{1}", feild.FieldType == FieldTypes.Meta ? "metas" : "tags", feild.Name);
             }
-
+            
             return true;
+        }
+
+        public static string GetFollowingUserIdForSerie(int groupId, List<DomainSeriesRecording> series, WS_Catalog.ExtendedSearchResult potentialRecording)
+        {
+            string userId = null;
+
+            string seriesIdName;
+            string seasonNumberName;
+            string episodeNumberName;
+
+            GetSeriesMetaTagsFieldsNamesForSearch(groupId, out seriesIdName, out seasonNumberName, out episodeNumberName);
+
+            if (potentialRecording != null && potentialRecording.ExtraFields != null)
+            {
+                string seriesId = null;
+                int seasonNumber = 0;
+                foreach (var field in potentialRecording.ExtraFields)
+                {
+                    if (field.key == seriesIdName)
+                    {
+                        seriesId = field.value;
+                    }
+
+                    if (field.key == seasonNumberName)
+                    {
+                        int.TryParse(field.value, out seasonNumber);
+                    }
+                }
+
+                foreach (var serie in series)
+                {
+                    if (serie.SeriesId == seriesId && (serie.SeasonNumber == 0 || serie.SeasonNumber == seasonNumber))
+                    {
+                        userId = serie.UserId;
+                    }
+                }
+            }
+            return userId;
+        }
+
+        public static long GetLongParamFromExtendedSearchResult(WS_Catalog.ExtendedSearchResult extendedResult, string paramName)
+        {
+            long result = 0;
+
+            if (extendedResult != null && extendedResult.ExtraFields != null)
+            {
+                var field = extendedResult.ExtraFields.Where(ef => ef.key == paramName).FirstOrDefault();
+                if (field != null)
+                {
+                    long.TryParse(field.value, out result);
+                }
+            }
+            return result;
+        }
+
+        public static string GetStringParamFromExtendedSearchResult(WS_Catalog.ExtendedSearchResult extendedResult, string paramName)
+        {
+            string result = string.Empty;
+
+            if (extendedResult != null && extendedResult.ExtraFields != null)
+            {
+                var field = extendedResult.ExtraFields.Where(ef => ef.key == paramName).FirstOrDefault();
+                if (field != null)
+                {
+                    result = field.value;
+                }
+            }
+            return result;
         }
     }
 }

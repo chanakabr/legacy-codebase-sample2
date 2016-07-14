@@ -17,5 +17,7 @@ namespace ApiObjects.TimeShiftedTv
         public long EpgId { get; set; }
 
         public string UserId { get; set; }
+
+        public long EpgChannelId { get; set; }
     }
 }

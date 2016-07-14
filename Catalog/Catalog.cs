@@ -89,7 +89,8 @@ namespace Catalog
 			            "like_counter",
 			            "views",
 			            "rating",
-			            "votes"
+			            "votes",
+                        "epg_channel_id"
 		            };
 
         private static int maxNGram = -1;
