@@ -18478,12 +18478,13 @@ namespace ConditionalAccess
                             return response;
                         }
 
-                        userId = Utils.GetFollowingUserIdForSerie(m_nGroupID, series, potentialRecording);
+                        RecordingType recordingType;
+                        userId = Utils.GetFollowingUserIdForSerie(m_nGroupID, series, potentialRecording, out recordingType);
                         epgId = Utils.GetLongParamFromExtendedSearchResult(potentialRecording, "epg_id");
 
                         if (epgId > 0 && !string.IsNullOrEmpty(userId))
                         {
-                            var recording = Record(userId, epgId, RecordingType.Single); // TO DO: Irena set the recording type to season\series
+                            var recording = Record(userId, epgId, recordingType);
 
                             if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK && recording.Id > 0)
                             {
@@ -18697,7 +18698,7 @@ namespace ConditionalAccess
                     windowStartDate = DateTime.UtcNow.AddMinutes(accountSettings.RecordingScheduleWindow.Value);
                 }
 
-                List<EPGChannelProgrammeObject> epgsToRecord = Utils.GetFirstFollowerEpgIdsToRecord(channelId, seriesId, seassonNumber, windowStartDate);
+                List<ConditionalAccess.WS_Catalog.ExtendedSearchResult> epgsToRecord = Utils.GetFirstFollowerEpgIdsToRecord(m_nGroupID, channelId, seriesId, seassonNumber, windowStartDate);
                 if (epgsToRecord == null)
                 {
                     log.ErrorFormat("Failed GetFirstFollowerEpgIdsToRecord, seriesId: {0}, seassonNumber: {1}", seriesId, seassonNumber);
@@ -18716,28 +18717,22 @@ namespace ConditionalAccess
                     paddingAfterProgramEnds = accountSettings.PaddingAfterProgramEnds.Value;
                 }
 
-                foreach (EPGChannelProgrammeObject epg in epgsToRecord)
+                long epgId = 0;
+                string epgChannelId = string.Empty;
+                string crid = string.Empty;
+
+                foreach (ConditionalAccess.WS_Catalog.ExtendedSearchResult epg in epgsToRecord)
                 {
-                    DateTime epgStartDate;
-                    if (!DateTime.TryParseExact(epg.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgStartDate))
-                    {
-                        log.ErrorFormat("Failed parsing EPG start date, epgID: {0}, startDate: {1}", epg.EPG_ID, epg.START_DATE);
-                        continue;
-                    }
+                    epgId = Utils.GetLongParamFromExtendedSearchResult(epg, "epg_id");
+                    epgChannelId = Utils.GetStringParamFromExtendedSearchResult(epg, "epg_channel_id");
+                    crid = Utils.GetStringParamFromExtendedSearchResult(epg, "crid");
 
-                    DateTime epgEndDate;
-                    if (!DateTime.TryParseExact(epg.END_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgEndDate))
-                    {
-                        log.ErrorFormat("Failed parsing EPG end date, epgID: {0}, startDate: {1}", epg.EPG_ID, epg.END_DATE);
-                        continue;
-                    }
-
-                    DateTime epgPaddedStartDate = epgStartDate.AddSeconds(-1 * paddingBeforeProgramStarts);
-                    DateTime epgPaddedEndDate = epgEndDate.AddSeconds(paddingAfterProgramEnds);
-                    Recording globalRecording = RecordingsManager.Instance.Record(m_nGroupID, epg.EPG_ID, epg.EPG_CHANNEL_ID, epgPaddedStartDate, epgPaddedEndDate, epg.CRID);
+                    DateTime epgPaddedStartDate = epg.StartDate.AddSeconds(-1 * paddingBeforeProgramStarts);
+                    DateTime epgPaddedEndDate = epg.EndDate.AddSeconds(paddingAfterProgramEnds);
+                    Recording globalRecording = RecordingsManager.Instance.Record(m_nGroupID, epgId, epgChannelId, epgPaddedStartDate, epgPaddedEndDate, crid);
                     if (globalRecording == null || globalRecording.Status == null || globalRecording.Status.Code != (int)eResponseStatus.OK)
                     {
-                        log.ErrorFormat("RecordingsManager.Instance.Record failed for epgId: {0}, epgChannelId: {1}, epgPaddedStartDate: {2}, epgPaddedEndDate: {3}, crid: {4}", epg.EPG_ID, epg.EPG_CHANNEL_ID, epgPaddedStartDate, epgPaddedEndDate, epg.CRID);
+                        log.ErrorFormat("RecordingsManager.Instance.Record failed for epgId: {0}, epgChannelId: {1}, epgPaddedStartDate: {2}, epgPaddedEndDate: {3}, crid: {4}", epgId, epgChannelId, epgPaddedStartDate, epgPaddedEndDate,crid);
                         continue;
                     }
 
