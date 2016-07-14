@@ -93,7 +93,7 @@ namespace Ingest
                                 isSucceeded = ingest.Initialize(request.Data, groupID, out ingestResponse);
                                 if (isSucceeded)
                                 {
-                                    response = ingest.SaveChannelPrograms();
+                                    response = ingest.SaveChannelPrograms(ref ingestResponse);
                                 }
 
                                 ingestResponse.Status = response;
