@@ -148,7 +148,7 @@ namespace Recordings
                     if (accountSettings == null || !accountSettings.RecordingLifetimePeriod.HasValue)
                     {
                         log.DebugFormat("Failed getting account Lifetime Period, groupID: {0}, epgID: {1}", groupId, programId);
-                        recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());                        
+                        recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     }
                     else
                     {
@@ -233,19 +233,19 @@ namespace Recordings
 
                 RecordResult adapterResponse = null;
                 try
-                {                    
+                {
                     switch (recordingStatus)
                     {
                         case TstvRecordingStatus.Canceled:
-                            adapterResponse = adapterController.CancelRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
-                            break;
+                        adapterResponse = adapterController.CancelRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
+                        break;
                         case TstvRecordingStatus.Deleted:
-                            adapterResponse = adapterController.DeleteRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
-                            break;
+                        adapterResponse = adapterController.DeleteRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
+                        break;
                         default:
-                            break;
+                        break;
                     }
-                    
+
                 }
                 catch (KalturaException ex)
                 {
@@ -273,20 +273,20 @@ namespace Recordings
                 {
                     try
                     {
-                       
+
                         // Update recording information in to database
                         bool updateResult = false;
 
                         switch (recordingStatus)
                         {
                             case TstvRecordingStatus.Canceled:
-                                updateResult = RecordingsDAL.CancelRecording(slimRecording.Id);
-                                break;
+                            updateResult = RecordingsDAL.CancelRecording(slimRecording.Id);
+                            break;
                             case TstvRecordingStatus.Deleted:
-                                updateResult = RecordingsDAL.DeleteRecording(slimRecording.Id);
-                                break;
+                            updateResult = RecordingsDAL.DeleteRecording(slimRecording.Id);
+                            break;
                             default:
-                                break;
+                            break;
                         }
 
                         if (!updateResult)
@@ -294,7 +294,7 @@ namespace Recordings
                             return new Status((int)eResponseStatus.Error, string.Format("Failed updating recording {0} to status {1}", slimRecording.Id, recordingStatus));
                         }
 
-                        UpdateCouchbaseIsRecorded(groupId, slimRecording.EpgId, false);
+                        UpdateCouchbase(groupId, slimRecording.EpgId, slimRecording.Id, false);
 
                         // We're OK
                         status = new Status((int)eResponseStatus.OK);
@@ -316,7 +316,7 @@ namespace Recordings
 
             if (groupId > 0 && recording != null && recording.Id > 0 && recording.EpgId > 0 && !string.IsNullOrEmpty(recording.ExternalRecordingId))
             {
-                int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);                
+                int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
 
                 var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
 
@@ -328,13 +328,13 @@ namespace Recordings
                     switch (recordingStatus)
                     {
                         case TstvRecordingStatus.Canceled:
-                            adapterResponse = adapterController.CancelRecording(groupId, recording.ExternalRecordingId, adapterId);
-                            break;
+                        adapterResponse = adapterController.CancelRecording(groupId, recording.ExternalRecordingId, adapterId);
+                        break;
                         case TstvRecordingStatus.Deleted:
-                            adapterResponse = adapterController.DeleteRecording(groupId, recording.ExternalRecordingId, adapterId);
-                            break;
+                        adapterResponse = adapterController.DeleteRecording(groupId, recording.ExternalRecordingId, adapterId);
+                        break;
                         default:
-                            break;
+                        break;
                     }
 
                 }
@@ -371,13 +371,13 @@ namespace Recordings
                         switch (recordingStatus)
                         {
                             case TstvRecordingStatus.Canceled:
-                                updateResult = RecordingsDAL.CancelRecording(recording.Id);
-                                break;
+                            updateResult = RecordingsDAL.CancelRecording(recording.Id);
+                            break;
                             case TstvRecordingStatus.Deleted:
-                                updateResult = RecordingsDAL.DeleteRecording(recording.Id);
-                                break;
+                            updateResult = RecordingsDAL.DeleteRecording(recording.Id);
+                            break;
                             default:
-                                break;
+                            break;
                         }
 
                         if (!updateResult)
@@ -385,7 +385,7 @@ namespace Recordings
                             return new Status((int)eResponseStatus.Error, string.Format("Failed updating recording {0} to status {1}", recording.Id, recordingStatus));
                         }
 
-                        UpdateCouchbaseIsRecorded(groupId, recording.EpgId, false);
+                        UpdateCouchbase(groupId, recording.EpgId, recording.Id, false);
 
                         // We're OK
                         status = new Status((int)eResponseStatus.OK);
@@ -907,7 +907,7 @@ namespace Recordings
                 // Update Couchbase that the EPG is recorded
                 #region Update CB
 
-                UpdateCouchbaseIsRecorded(groupId, programId, true);
+                UpdateCouchbase(groupId, programId, recording.Id, true);
 
                 #endregion
 
@@ -957,17 +957,58 @@ namespace Recordings
             }
         }
 
-        private static void UpdateCouchbaseIsRecorded(int groupId, long programId, bool isRecorded)
+        private static void UpdateCouchbase(int groupId, long programId, long recordingId, bool isRecorded)
         {
-            TvinciEpgBL epgBLTvinci = new TvinciEpgBL(groupId);
+            RecordingCB recording = RecordingsDAL.GetRecordingByProgramId_CB(programId);
 
-            EpgCB epg = epgBLTvinci.GetEpgCB((ulong)programId);
-
-            if (epg != null)
+            if (isRecorded)
             {
-                epg.IsRecorded = Convert.ToInt32(isRecorded);
-                epgBLTvinci.UpdateEpg(epg);
+                if (recording == null)
+                {
+                    TvinciEpgBL epgBLTvinci = new TvinciEpgBL(groupId);
+
+                    EpgCB epg = epgBLTvinci.GetEpgCB((ulong)programId);
+
+                    if (epg != null)
+                    {
+                        epgBLTvinci.UpdateEpg(epg);
+
+                        recording = new RecordingCB(epg)
+                        {
+                            RecordingId = (ulong)recordingId,
+                            IsRecorded = isRecorded
+                        };
+                    }
+                }
+
+                RecordingsDAL.UpdateRecording_CB(recording);
             }
+            else if (!isRecorded)
+            {
+                RecordingsDAL.DeleteRecording_CB(recording);
+            }
+        }
+
+        public static RecordingCB GetRecordingCB(int groupId, long programId, long recordingId)
+        {
+            RecordingCB recording = RecordingsDAL.GetRecordingByProgramId_CB(programId);
+
+            if (recording == null)
+            {
+                TvinciEpgBL epgBLTvinci = new TvinciEpgBL(groupId);
+
+                EpgCB epg = epgBLTvinci.GetEpgCB((ulong)programId);
+
+                if (epg != null)
+                {
+                    recording = new RecordingCB(epg)
+                    {
+                        RecordingId = (ulong)recordingId
+                    };
+                }
+            }
+
+            return recording;
         }
 
         private static void EnqueueMessage(int groupId, long programId, long recordingId, DateTime checkTime, eRecordingTask task)
@@ -1013,7 +1054,7 @@ namespace Recordings
             // if there is more than 1 day left, try tomorrow
             if (span.TotalDays > 1)
             {
-                log.DebugFormat("Retry task before program started: Recording id = {0} will retry tomorrow, because start date is {1}", 
+                log.DebugFormat("Retry task before program started: Recording id = {0} will retry tomorrow, because start date is {1}",
                     recording.Id, recording.EpgStartDate);
 
                 nextCheck = DateTime.UtcNow.AddDays(1);
@@ -1040,7 +1081,7 @@ namespace Recordings
             if (DateTime.UtcNow < recording.EpgStartDate &&
                 DateTime.UtcNow < nextCheck)
             {
-                log.DebugFormat("Retry task before program started: program didn't start yet, we will enqueue a message now for recording {0}", 
+                log.DebugFormat("Retry task before program started: program didn't start yet, we will enqueue a message now for recording {0}",
                     recording.Id);
                 EnqueueMessage(groupId, recording.EpgId, recording.Id, nextCheck, task);
             }
@@ -1135,7 +1176,7 @@ namespace Recordings
                     else
                     {
                         currentRecording.RecordingStatus = TstvRecordingStatus.Scheduled;
-                        currentRecording.RecordingStatus = RecordingsManager.GetTstvRecordingStatus(currentRecording.EpgStartDate, currentRecording.EpgEndDate, currentRecording.RecordingStatus);                        
+                        currentRecording.RecordingStatus = RecordingsManager.GetTstvRecordingStatus(currentRecording.EpgStartDate, currentRecording.EpgEndDate, currentRecording.RecordingStatus);
 
                         // Insert the new links of the recordings
                         if (adapterResponse.Links != null && adapterResponse.Links.Count > 0)

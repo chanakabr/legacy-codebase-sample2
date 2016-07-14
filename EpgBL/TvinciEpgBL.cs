@@ -873,7 +873,7 @@ namespace EpgBL
             DateTime nPUBLISH_DATE = DateTime.UtcNow; //not in use  
             oProg.Initialize((long)epg.EpgID, epg.ChannelID.ToString(), epg.EpgIdentifier, epg.Name, epg.Description, epg.StartDate.ToString("dd/MM/yyyy HH:mm:ss"), epg.EndDate.ToString("dd/MM/yyyy HH:mm:ss"), epg.PicUrl, epg.Status.ToString(),
                 epg.isActive.ToString(), epg.GroupID.ToString(), nUPDATER_ID.ToString(), epg.UpdateDate.ToString(), nPUBLISH_DATE.ToString(), epg.CreateDate.ToString(), lTags, lMetas, 
-                epg.ExtraData.MediaID.ToString(), (int)epg.Statistics.Likes, epg.pictures, epg.EnableCDVR, epg.EnableCatchUp, epg.EnableStartOver, epg.EnableTrickPlay, epg.IsRecorded, epg.Crid);
+                epg.ExtraData.MediaID.ToString(), (int)epg.Statistics.Likes, epg.pictures, epg.EnableCDVR, epg.EnableCatchUp, epg.EnableStartOver, epg.EnableTrickPlay, epg.Crid);
             oProg.PIC_ID = epg.PicID;
             return oProg;
         }

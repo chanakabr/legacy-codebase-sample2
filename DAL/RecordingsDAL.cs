@@ -798,24 +798,23 @@ namespace DAL
 
         public static RecordingCB GetRecordingByProgramId_CB(long programId)
         {
-            throw new NotImplementedException();
-            //RecordingCB result = null;
-
-            //CouchbaseManager.CouchbaseManager client = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
-
-            //client.Get<RecordingCB>(
-            //return result;
-        }
-
-        public static RecordingCB GetRecordingByRecordingId_CB(long recordingId)
-        {
             RecordingCB result = null;
 
             CouchbaseManager.CouchbaseManager client = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
 
-            result = client.Get<RecordingCB>(recordingId.ToString());
+            result = client.Get<RecordingCB>(programId.ToString());
             return result;
         }
+
+        //public static RecordingCB GetRecordingByRecordingId_CB(long recordingId)
+        //{
+        //    RecordingCB result = null;
+
+        //    CouchbaseManager.CouchbaseManager client = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
+
+        //    result = client.Get<RecordingCB>(recordingId.ToString());
+        //    return result;
+        //}
 
         public static void UpdateRecording_CB(RecordingCB recording)
         {
@@ -823,11 +822,26 @@ namespace DAL
             {
                 CouchbaseManager.CouchbaseManager client = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
 
-                bool result = client.Set<RecordingCB>(recording.ToString(), recording);
+                bool result = client.Set<RecordingCB>(recording.EpgID.ToString(), recording);
 
                 if (!result)
                 {
-                    log.ErrorFormat("Failed updating recording in Couchbase. Recording id = {0}", recording.RecordingId);
+                    log.ErrorFormat("Failed updating recording in Couchbase. Recording id = {0}, EPG ID = {1}", recording.RecordingId, recording.EpgID);
+                }
+            }
+        }
+
+        public static void DeleteRecording_CB(RecordingCB recording)
+        {
+            if (recording != null)
+            {
+                CouchbaseManager.CouchbaseManager client = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
+
+                bool result = client.Remove(recording.EpgID.ToString());
+
+                if (!result)
+                {
+                    log.ErrorFormat("Failed removing recording in Couchbase. Recording id = {0}, EPG ID = {1}", recording.RecordingId, recording.EpgID);
                 }
             }
         }
