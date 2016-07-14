@@ -113,6 +113,7 @@
     <Compile Include="Searcher\IPNOFilterCompositeType.cs" />
     <Compile Include="Searcher\MultiMatchQuery.cs" />
     <Compile Include="Searcher\QueryFilter.cs" />
+    <Compile Include="Utils\ESStatisticsUtilities.cs" />
     <Compile Include="Utils\IpToCountry.cs" />
   </ItemGroup>
   <ItemGroup>

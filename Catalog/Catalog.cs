@@ -4185,38 +4185,6 @@ namespace Catalog
 
         }
 
-        internal static bool InsertStatisticsRequestToES(int groupID, int mediaID, int mediaTypeID, string action, int playTime)
-        {
-            CatalogCache catalogCache = CatalogCache.Instance();
-            int parentGroupID = catalogCache.GetParentGroup(groupID);
-
-
-            MediaView view = new MediaView()
-            {
-                GroupID = parentGroupID,
-                MediaID = mediaID,
-                Location = playTime,
-                MediaType = mediaTypeID.ToString(),
-                Action = action,
-                Date = DateTime.UtcNow
-            };
-
-            bool bRes = false;
-            ElasticSearch.Common.ElasticSearchApi oESApi = new ElasticSearch.Common.ElasticSearchApi();
-
-            string sJsonView = Newtonsoft.Json.JsonConvert.SerializeObject(view);
-            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(view.GroupID);
-
-            if (oESApi.IndexExists(index) && !string.IsNullOrEmpty(sJsonView))
-            {
-                string guidStr = Guid.NewGuid().ToString();
-
-                bRes = oESApi.InsertRecord(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, guidStr, sJsonView);
-            }
-
-            return bRes;
-        }
-
         private static string BuildSlidingWindowCountAggregationRequest(int groupID, List<int> mediaIDs, DateTime startDate, DateTime endDate,
             string action)
         {

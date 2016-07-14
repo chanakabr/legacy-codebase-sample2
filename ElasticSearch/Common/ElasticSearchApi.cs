@@ -26,6 +26,8 @@ namespace ElasticSearch.Common
             get;
             set;
         }
+      
+        #region Ctor
 
         public ElasticSearchApi(string elaticSearchUrl = null)
         {
@@ -38,48 +40,10 @@ namespace ElasticSearch.Common
                 baseUrl = elaticSearchUrl;
             }
         }
+
+        #endregion
         
-        public string GetDoc(string sIndex, string sType, string sDocId)
-        {
-            string sRes = string.Empty;
-
-            if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sType))
-                return sRes;
-
-            string sUrl = string.Format("{0}/{1}/{2}/{3}", baseUrl, sIndex, sType, sDocId);
-            int nStatus = 0;
-
-            sRes = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
-
-            if (nStatus != 200)
-            {
-                log.Error("Error - " + string.Format("Get record failed. url={0};docID={1}", sUrl, sDocId));
-                sRes = string.Empty;
-            }
-
-            return sRes;
-        }
-
-        public string GetDoc(string sIndex, string sType, string sDocId, string routing)
-        {
-            string sRes = string.Empty;
-
-            if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sType))
-                return sRes;
-
-            string sUrl = string.Format("{0}/{1}/{2}/{3}?routing={4}", baseUrl, sIndex, sType, sDocId, routing);
-            int nStatus = 0;
-
-            sRes = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
-
-            if (nStatus != 200)
-            {
-                log.Error("Error - " + string.Format("Get record failed. url={0};docID={1}", sUrl, sDocId));
-                sRes = string.Empty;
-            }
-
-            return sRes;
-        }
+        #region Index creation
 
         public bool BuildIndex(string index, int shards, int replicas,
             List<string> analyzers, List<string> filters, List<string> tokenizers = null, int maxResultWindow = 0)
@@ -178,6 +142,118 @@ namespace ElasticSearch.Common
             return bRes;
         }
 
+        public bool IndexExists(string sIndex)
+        {
+            bool result = false;
+
+            if (!string.IsNullOrEmpty(sIndex))
+            {
+
+                string sUrl = string.Format("{0}/{1}/_settings", baseUrl, sIndex);
+                int nStatus = 0;
+                string sResponse = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
+
+                result = nStatus == 200;
+            }
+
+            return result;
+        }
+
+        #region Index definitions: Analyzers, filters, tokenizers
+
+        protected static Dictionary<string, string> dESAnalyzers = new Dictionary<string, string>();
+        protected static Dictionary<string, string> dESFilters = new Dictionary<string, string>();
+        protected static Dictionary<string, string> tokenizers = new Dictionary<string, string>();
+
+        public static string GetAnalyzerDefinition(string sAnalyzerName)
+        {
+            string analyzer;
+
+            if (!dESAnalyzers.TryGetValue(sAnalyzerName, out analyzer))
+            {
+
+                analyzer = Utils.GetWSURL(sAnalyzerName);
+                if (!string.IsNullOrEmpty(analyzer))
+                    dESAnalyzers[sAnalyzerName] = analyzer;
+            }
+
+            return analyzer;
+        }
+
+        public static string GetFilterDefinition(string sFilterName)
+        {
+            string filter;
+
+            if (!dESFilters.TryGetValue(sFilterName, out filter))
+            {
+                filter = Utils.GetWSURL(sFilterName);
+                if (!string.IsNullOrEmpty(filter))
+                    dESFilters[sFilterName] = filter;
+            }
+
+            return filter;
+        }
+
+        public static string GetTokenizerDefinition(string tokenizerName)
+        {
+            string tokenizer;
+
+            if (!tokenizers.TryGetValue(tokenizerName, out tokenizer))
+            {
+                tokenizer = Utils.GetWSURL(tokenizerName);
+
+                if (!string.IsNullOrEmpty(tokenizer))
+                {
+                    tokenizers[tokenizerName] = tokenizer;
+                }
+            }
+
+            return tokenizer;
+        }
+
+        public static bool AnalyzerExists(string sAnalyzerName)
+        {
+            bool bResult = string.IsNullOrEmpty(GetAnalyzerDefinition(sAnalyzerName)) ? false : true;
+
+            return bResult;
+        }
+
+        public static bool FilterExists(string sFilterName)
+        {
+            bool bResult = string.IsNullOrEmpty(GetFilterDefinition(sFilterName)) ? false : true;
+
+            return bResult;
+        }
+
+        public static bool TokenizerExists(string tokenizerName)
+        {
+            bool result = string.IsNullOrEmpty(GetTokenizerDefinition(tokenizerName)) ? false : true;
+
+            return result;
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Mapping
+
+        public string GetAllMappings(string sIndex)
+        {
+            string sRes = string.Empty;
+
+            if (!string.IsNullOrEmpty(sIndex))
+            {
+                string sUrl = string.Format("{0}/{1}/_mapping", baseUrl, sIndex);
+                int nStatus = 0;
+                string sResponse = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
+
+                sRes = (nStatus == 200) ? sResponse : sRes;
+            }
+
+            return sRes;
+        }
+
         public bool InsertMapping(string sIndex, string sMapName, string sMappingObject)
         {
             bool bResult = false;
@@ -198,6 +274,29 @@ namespace ElasticSearch.Common
 
             return bResult;
         }
+
+        public bool MappingExists(string sIndex, string sType)
+        {
+            bool bRes = false;
+
+            if (!string.IsNullOrEmpty(sIndex) && !string.IsNullOrEmpty(sType))
+            {
+
+                string sUrl = string.Format("{0}/{1}/{2}/_mapping", baseUrl, sIndex, sType);
+                int nStatus = 0;
+                string sResponse = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
+
+                bRes = (nStatus == 200) ? true : false;
+            }
+
+            return bRes;
+        }
+
+        #endregion
+
+        #region Aliases
+
+        #region Switch index, delete old indices (For rebuildind index)
 
         public bool SwitchIndex(string sIndex, string sAlias, List<string> lIndicesForRemoval, string sSearchRouting = null)
         {
@@ -260,6 +359,71 @@ namespace ElasticSearch.Common
             }
         }
 
+        #endregion     
+
+        public List<string> GetAliases(string sIndex)
+        {
+            List<string> aliases = new List<string>();
+
+            if (!string.IsNullOrEmpty(sIndex))
+            {
+                string url = string.Format("{0}/{1}/_aliases", baseUrl, sIndex);
+                int status = 0;
+
+                string httpResponse = SendGetHttpReq(url, ref status, string.Empty, string.Empty, true);
+
+                if (status == 200 && !string.IsNullOrEmpty(httpResponse))
+                {
+                    try
+                    {
+                        var jsonObj =
+                            JObject.Parse(httpResponse);
+
+                        if (jsonObj != null)
+                        {
+                            foreach (var alias in jsonObj)
+                            {
+                                string indexName = alias.Key;
+
+                                if (!string.IsNullOrEmpty(indexName))
+                                    aliases.Add(indexName);
+                            }
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        string s = ex.Message;
+                    }
+                }
+            }
+
+            return aliases;
+
+        }
+
+        #endregion
+
+        #region Insert, Update, Delet
+
+        public bool InsertRecord(string sIndex, string sType, string sID, string sDoc)
+        {
+            bool bRes = false;
+            if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sType) || string.IsNullOrEmpty(sDoc) || string.IsNullOrEmpty(sID))
+                return bRes;
+
+            string sUrl = string.Format("{0}/{1}/{2}/{3}", baseUrl, sIndex, sType, sID);
+            int nStatus = 0;
+
+            string sRes = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sDoc, true);
+
+            bRes = (nStatus == 200) ? true : false;
+            if (!bRes)
+                log.Error("Error - " + string.Format("Unable to insert record into elasticsearch. url={0};document={1};Explanation{2}", sUrl, sDoc, sRes));
+
+            return bRes;
+        }
+
         public ESDeleteResult DeleteDoc(string sIndex, string sType, string sId)
         {
             ESDeleteResult deleteResult = null;
@@ -310,114 +474,78 @@ namespace ElasticSearch.Common
             return bResult;
         }
 
-        public List<string> GetAliases(string sIndex)
+        /// <summary>
+        /// Performs a partial update on a document
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="type"></param>
+        /// <param name="docId"></param>
+        /// <param name="partialUpdate"></param>
+        /// <returns></returns>
+        public bool PartialUpdate(string index, string type, string docId, string partialUpdate)
         {
-            List<string> aliases = new List<string>();
+            bool result = false;
 
-            if (!string.IsNullOrEmpty(sIndex))
+            // Validate parameters
+            if (string.IsNullOrEmpty(index) || string.IsNullOrEmpty(type) || string.IsNullOrEmpty(docId) || string.IsNullOrEmpty(partialUpdate))
             {
-                string url = string.Format("{0}/{1}/_aliases", baseUrl, sIndex);
-                int status = 0;
-
-                string httpResponse = SendGetHttpReq(url, ref status, string.Empty, string.Empty, true);
-
-                if (status == 200 && !string.IsNullOrEmpty(httpResponse))
-                {
-                    try
-                    {
-                        var jsonObj =
-                            JObject.Parse(httpResponse);
-
-                        if (jsonObj != null)
-                        {
-                            foreach (var alias in jsonObj)
-                            {
-                                string indexName = alias.Key;
-
-                                if (!string.IsNullOrEmpty(indexName))
-                                    aliases.Add(indexName);
-                            }
-                        }
-
-                    }
-                    catch (Exception ex)
-                    {
-                        string s = ex.Message;
-                    }
-                }
+                return result;
             }
 
-            return aliases;
+            string url = string.Format("{0}/{1}/{2}/{3}/_update", baseUrl, index, type, docId);
+            int httpStatus = 0;
 
-        }
+            string postResult = SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, partialUpdate, true);
 
-        public bool IndexExists(string sIndex)
-        {
-            bool bRes = false;
+            result = (httpStatus == 200) ? true : false;
 
-            if (!string.IsNullOrEmpty(sIndex))
+            if (!result)
             {
-
-                string sUrl = string.Format("{0}/{1}/_settings", baseUrl, sIndex);
-                int nStatus = 0;
-                string sResponse = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
-
-                bRes = nStatus == 200;
+                log.Error("Error - " + string.Format("Unable to partial update record into elasticsearch. url={0};id={1};Explanation{2}", baseUrl, docId, postResult));
             }
 
-            return bRes;
+            return result;
         }
 
-        public bool MappingExists(string sIndex, string sType)
+        /// <summary>
+        /// Increases a single value of a document using a partial update. Useful for counting an additional view, for example
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="type"></param>
+        /// <param name="docId"></param>
+        /// <param name="field"></param>
+        /// <returns></returns>
+        public bool IncrementField(string index, string type, string docId, string field)
         {
-            bool bRes = false;
+            bool result = false;
+            string partialUpdate = string.Concat("{ \"script\": \"ctx._source.", field, "+=1\" }");
 
-            if (!string.IsNullOrEmpty(sIndex) && !string.IsNullOrEmpty(sType))
-            {
+            result = PartialUpdate(index, type, docId, partialUpdate);
 
-                string sUrl = string.Format("{0}/{1}/{2}/_mapping", baseUrl, sIndex, sType);
-                int nStatus = 0;
-                string sResponse = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
-
-                bRes = (nStatus == 200) ? true : false;
-            }
-
-            return bRes;
+            return result;
         }
 
-        public string GetAllMappings(string sIndex)
+        /// <summary>
+        /// Decreases a single value of a document using a partial update. Useful for removing a like, for example
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="type"></param>
+        /// <param name="docId"></param>
+        /// <param name="field"></param>
+        /// <returns></returns>
+        public bool DecrementField(string index, string type, string docId, string field)
         {
-            string sRes = string.Empty;
+            bool result = false;
+            string partialUpdate = string.Concat("{ \"script\": \"ctx._source.", field, "-=1\" }");
 
-            if (!string.IsNullOrEmpty(sIndex))
-            {
-                string sUrl = string.Format("{0}/{1}/_mapping", baseUrl, sIndex);
-                int nStatus = 0;
-                string sResponse = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
+            result = PartialUpdate(index, type, docId, partialUpdate);
 
-                sRes = (nStatus == 200) ? sResponse : sRes;
-            }
-
-            return sRes;
+            return result;
         }
 
-        public bool InsertRecord(string sIndex, string sType, string sID, string sDoc)
-        {
-            bool bRes = false;
-            if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sType) || string.IsNullOrEmpty(sDoc) || string.IsNullOrEmpty(sID))
-                return bRes;
+        #endregion
 
-            string sUrl = string.Format("{0}/{1}/{2}/{3}", baseUrl, sIndex, sType, sID);
-            int nStatus = 0;
-
-            string sRes = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sDoc, true);
-
-            bRes = (nStatus == 200) ? true : false;
-            if (!bRes)
-                log.Error("Error - " + string.Format("Unable to insert record into elasticsearch. url={0};document={1};Explanation{2}", sUrl, sDoc, sRes));
-
-            return bRes;
-        }
+        #region Bulk Requests
 
         /// <summary>
         /// Creates and sends an ElasticSearch bulk request bulk request. Returns the requests that failed and their errors.
@@ -548,6 +676,10 @@ namespace ElasticSearch.Common
             return requestResult;
         }
 
+        #endregion
+
+        #region Search
+
         public string Search(string sIndex, string sType, ref string sSearchQuery, List<string> routing = null)
         {
             string sRes = string.Empty;
@@ -617,7 +749,7 @@ namespace ElasticSearch.Common
             int nStatus = 0;
             sRes = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sb.ToString(), true);
             log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", sUrl, sb.ToString(), sRes);
-            
+
 
             if (nStatus != 200)
             {
@@ -627,6 +759,10 @@ namespace ElasticSearch.Common
 
             return sRes;
         }
+
+        #endregion
+
+        #region Percolator
 
         public List<string> SearchPercolator(string sIndex, string sType, ref string sDoc)
         {
@@ -710,75 +846,50 @@ namespace ElasticSearch.Common
             return bResult;
         }
 
-        protected static Dictionary<string, string> dESAnalyzers = new Dictionary<string, string>();
-        protected static Dictionary<string, string> dESFilters = new Dictionary<string, string>();
-        protected static Dictionary<string, string> tokenizers = new Dictionary<string, string>();
+        #endregion
 
-        public static string GetAnalyzerDefinition(string sAnalyzerName)
+        #region Get methods
+
+        public string GetDoc(string sIndex, string sType, string sDocId)
         {
-            string analyzer;
+            string sRes = string.Empty;
 
-            if (!dESAnalyzers.TryGetValue(sAnalyzerName, out analyzer))
+            if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sType))
+                return sRes;
+
+            string sUrl = string.Format("{0}/{1}/{2}/{3}", baseUrl, sIndex, sType, sDocId);
+            int nStatus = 0;
+
+            sRes = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
+
+            if (nStatus != 200)
             {
-
-                analyzer = Utils.GetWSURL(sAnalyzerName);
-                if (!string.IsNullOrEmpty(analyzer))
-                    dESAnalyzers[sAnalyzerName] = analyzer;
+                log.Error("Error - " + string.Format("Get record failed. url={0};docID={1}", sUrl, sDocId));
+                sRes = string.Empty;
             }
 
-            return analyzer;
+            return sRes;
         }
 
-        public static string GetFilterDefinition(string sFilterName)
+        public string GetDoc(string sIndex, string sType, string sDocId, string routing)
         {
-            string filter;
+            string sRes = string.Empty;
 
-            if (!dESFilters.TryGetValue(sFilterName, out filter))
+            if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sType))
+                return sRes;
+
+            string sUrl = string.Format("{0}/{1}/{2}/{3}?routing={4}", baseUrl, sIndex, sType, sDocId, routing);
+            int nStatus = 0;
+
+            sRes = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
+
+            if (nStatus != 200)
             {
-                filter = Utils.GetWSURL(sFilterName);
-                if (!string.IsNullOrEmpty(filter))
-                    dESFilters[sFilterName] = filter;
+                log.Error("Error - " + string.Format("Get record failed. url={0};docID={1}", sUrl, sDocId));
+                sRes = string.Empty;
             }
 
-            return filter;
-        }
-
-        public static string GetTokenizerDefinition(string tokenizerName)
-        {
-            string tokenizer;
-
-            if (!tokenizers.TryGetValue(tokenizerName, out tokenizer))
-            {
-                tokenizer = Utils.GetWSURL(tokenizerName);
-
-                if (!string.IsNullOrEmpty(tokenizer))
-                {
-                    tokenizers[tokenizerName] = tokenizer;
-                }
-            }
-
-            return tokenizer;
-        }
-
-        public static bool AnalyzerExists(string sAnalyzerName)
-        {
-            bool bResult = string.IsNullOrEmpty(GetAnalyzerDefinition(sAnalyzerName)) ? false : true;
-
-            return bResult;
-        }
-
-        public static bool FilterExists(string sFilterName)
-        {
-            bool bResult = string.IsNullOrEmpty(GetFilterDefinition(sFilterName)) ? false : true;
-
-            return bResult;
-        }
-
-        public static bool TokenizerExists(string tokenizerName)
-        {
-            bool result = string.IsNullOrEmpty(GetTokenizerDefinition(tokenizerName)) ? false : true;
-
-            return result;
+            return sRes;
         }
 
         public string MultiGetIDs<T>(string sIndex, string sType, List<T> oIDsList, int nNumOfResultsToReturn)
@@ -816,48 +927,51 @@ namespace ElasticSearch.Common
                 case "int16":
                 case "int32":
                 case "int64":
+                {
+                    sb = new StringBuilder(String.Concat("{\"size\": ", nNumOfResultsToReturn, ", \"ids\": ["));
+                    for (int i = 0; i < listLength; i++)
                     {
-                        sb = new StringBuilder(String.Concat("{\"size\": ", nNumOfResultsToReturn, ", \"ids\": ["));
-                        for (int i = 0; i < listLength; i++)
+                        if (i != 0)
+                            sb.Append(",");
+                        sb.Append(String.Concat("\"", oIDsList[i].ToString(), "\""));
+                    }
+                    sb.Append("] }");
+                    break;
+                }
+                case "string":
+                {
+                    bool isFirstIDWritten = false;
+                    sb = new StringBuilder(String.Concat("{\"size\": ", nNumOfResultsToReturn, ", \"ids\": ["));
+                    for (int i = 0; i < listLength; i++)
+                    {
+                        long temp = 0;
+                        if (Int64.TryParse(oIDsList[i].ToString(), out temp))
                         {
-                            if (i != 0)
+                            if (isFirstIDWritten)
                                 sb.Append(",");
                             sb.Append(String.Concat("\"", oIDsList[i].ToString(), "\""));
+                            isFirstIDWritten = true;
                         }
-                        sb.Append("] }");
-                        break;
                     }
-                case "string":
-                    {
-                        bool isFirstIDWritten = false;
-                        sb = new StringBuilder(String.Concat("{\"size\": ", nNumOfResultsToReturn, ", \"ids\": ["));
-                        for (int i = 0; i < listLength; i++)
-                        {
-                            long temp = 0;
-                            if (Int64.TryParse(oIDsList[i].ToString(), out temp))
-                            {
-                                if (isFirstIDWritten)
-                                    sb.Append(",");
-                                sb.Append(String.Concat("\"", oIDsList[i].ToString(), "\""));
-                                isFirstIDWritten = true;
-                            }
-                        }
-                        sb.Append("] }");
-                        break;
-                    }
+                    sb.Append("] }");
+                    break;
+                }
                 default:
-                    {
-                        sb = new StringBuilder();
-                        break;
-                    }
+                {
+                    sb = new StringBuilder();
+                    break;
+                }
 
             }
 
             res = sb.ToString();
             return res;
         }
-        
+
+        #endregion
+
         #region HTTP requests
+
         public string SendPostHttpReq(string url, ref int status, string userName, string password, string parameters, bool isFirstTry)
         {
             Int32 nStatusCode = -1;
@@ -1046,6 +1160,7 @@ namespace ElasticSearch.Common
             return (int)HttpStatusCode.InternalServerError;
 
         }
+        
         #endregion
 
         public class ESAssetDocument
