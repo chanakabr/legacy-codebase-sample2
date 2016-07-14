@@ -544,7 +544,6 @@
     <Content Include="testmeDoc\actions\transactionhistory.list.html" />
     <Content Include="testmeDoc\actions\userassetrule.list.html" />
     <Content Include="testmeDoc\actions\userassetslistitem.add.html" />
-    <Content Include="testmeDoc\agpl.txt" />
     <Content Include="testmeDoc\css\main.css" />
     <Content Include="testmeDoc\empty.html" />
     <Content Include="testmeDoc\enums\KalturaAnnouncementRecipientsType.html" />
@@ -778,7 +777,6 @@
     <Content Include="testmeDoc\services\userassetrule.html" />
     <Content Include="testmeDoc\services\userassetslistitem.html" />
     <Content Include="testmeDoc\tracking.html" />
-    <Content Include="testme\agpl.txt" />
     <Content Include="testme\css\code.example.css" />
     <Content Include="testme\css\http.spy.css" />
     <Content Include="testme\css\jquery.tooltip.css" />
