@@ -294,7 +294,7 @@ namespace Recordings
                             return new Status((int)eResponseStatus.Error, string.Format("Failed updating recording {0} to status {1}", slimRecording.Id, recordingStatus));
                         }
 
-                        UpdateCouchbaseIsRecorded(groupId, slimRecording.EpgId, slimRecording.Id, false);
+                        UpdateCouchbase(groupId, slimRecording.EpgId, slimRecording.Id, false);
 
                         // We're OK
                         status = new Status((int)eResponseStatus.OK);
@@ -385,7 +385,7 @@ namespace Recordings
                             return new Status((int)eResponseStatus.Error, string.Format("Failed updating recording {0} to status {1}", recording.Id, recordingStatus));
                         }
 
-                        UpdateCouchbaseIsRecorded(groupId, recording.EpgId, recording.Id, false);
+                        UpdateCouchbase(groupId, recording.EpgId, recording.Id, false);
 
                         // We're OK
                         status = new Status((int)eResponseStatus.OK);
@@ -907,7 +907,7 @@ namespace Recordings
                 // Update Couchbase that the EPG is recorded
                 #region Update CB
 
-                UpdateCouchbaseIsRecorded(groupId, programId, recording.Id, true);
+                UpdateCouchbase(groupId, programId, recording.Id, true);
 
                 #endregion
 
@@ -957,15 +957,43 @@ namespace Recordings
             }
         }
 
-        private static void UpdateCouchbaseIsRecorded(int groupId, long programId, long recordingId, bool isRecorded)
+        private static void UpdateCouchbase(int groupId, long programId, long recordingId, bool isRecorded)
         {
-            RecordingCB recording = RecordingsDAL.GetRecordingByRecordingId_CB(recordingId);
+            RecordingCB recording = RecordingsDAL.GetRecordingByProgramId_CB(programId);
 
-            if (recording != null)
+            if (isRecorded)
             {
-                recording.IsRecorded = isRecorded;
+                if (recording == null)
+                {
+                    TvinciEpgBL epgBLTvinci = new TvinciEpgBL(groupId);
+
+                    EpgCB epg = epgBLTvinci.GetEpgCB((ulong)programId);
+
+                    if (epg != null)
+                    {
+                        epgBLTvinci.UpdateEpg(epg);
+
+                        recording = new RecordingCB(epg)
+                        {
+                            RecordingId = (ulong)recordingId,
+                            IsRecorded = isRecorded
+                        };
+                    }
+                }
+
+                RecordingsDAL.UpdateRecording_CB(recording);
             }
-            else
+            else if (!isRecorded)
+            {
+                RecordingsDAL.DeleteRecording_CB(recording);
+            }
+        }
+
+        public static RecordingCB GetRecordingCB(int groupId, long programId, long recordingId)
+        {
+            RecordingCB recording = RecordingsDAL.GetRecordingByProgramId_CB(programId);
+
+            if (recording == null)
             {
                 TvinciEpgBL epgBLTvinci = new TvinciEpgBL(groupId);
 
@@ -973,18 +1001,14 @@ namespace Recordings
 
                 if (epg != null)
                 {
-                    epg.IsRecorded = Convert.ToInt32(isRecorded);
-                    epgBLTvinci.UpdateEpg(epg);
-
                     recording = new RecordingCB(epg)
                     {
-                        RecordingId = (ulong)recordingId,
-                        IsRecorded = isRecorded
+                        RecordingId = (ulong)recordingId
                     };
                 }
             }
 
-            RecordingsDAL.UpdateRecording_CB(recording);
+            return recording;
         }
 
         private static void EnqueueMessage(int groupId, long programId, long recordingId, DateTime checkTime, eRecordingTask task)
