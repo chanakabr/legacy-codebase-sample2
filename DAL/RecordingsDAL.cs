@@ -209,10 +209,17 @@ namespace DAL
             return dt;
         }
 
-        public static bool UpdateOrInsertDomainRecording(int groupID, long userID, long domainID, Recording recording, RecordingType recordingType)
+        public static bool UpdateOrInsertDomainRecording(int groupID, long userID, long domainID, Recording recording)
         {
             DataTable dt = null;
             bool res = false;
+            long epgChannelId;
+            if (!long.TryParse(recording.ChannelId, out epgChannelId))
+            {
+                log.ErrorFormat("Failed parsing epgChannelId on UpdateOrInsertDomainRecording, groupID: {0}, userID: {1}, domainID: {2}, recording: {3}", groupID, userID, domainID, recording.ToString());
+                return res;
+            }
+
             ODBCWrapper.StoredProcedure spUpdateOrInsertDomainRecording = new ODBCWrapper.StoredProcedure("UpdateOrInsertDomainRecording");
             spUpdateOrInsertDomainRecording.SetConnectionKey(RECORDING_CONNECTION);
             spUpdateOrInsertDomainRecording.AddParameter("@GroupID", groupID);
@@ -220,7 +227,8 @@ namespace DAL
             spUpdateOrInsertDomainRecording.AddParameter("@DomainID", domainID);
             spUpdateOrInsertDomainRecording.AddParameter("@EpgID", recording.EpgId);
             spUpdateOrInsertDomainRecording.AddParameter("@RecordingID", recording.Id);
-            spUpdateOrInsertDomainRecording.AddParameter("@RecordingType", (int)recordingType);
+            spUpdateOrInsertDomainRecording.AddParameter("@EpgChannelId", recording.ChannelId);
+            spUpdateOrInsertDomainRecording.AddParameter("@RecordingType", (int)recording.Type);
 
             dt = spUpdateOrInsertDomainRecording.Execute();
 
@@ -422,20 +430,20 @@ namespace DAL
 
         public static bool CancelDomainRecording(long recordingID)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelDomainRecording");
-            sp.SetConnectionKey(RECORDING_CONNECTION);
-            sp.AddParameter("@RecordID", recordingID);
+            ODBCWrapper.StoredProcedure spCancelDomainRecording = new ODBCWrapper.StoredProcedure("CancelDomainRecording");
+            spCancelDomainRecording.SetConnectionKey(RECORDING_CONNECTION);
+            spCancelDomainRecording.AddParameter("@RecordID", recordingID);
 
-            return sp.ExecuteReturnValue<bool>();
+            return spCancelDomainRecording.ExecuteReturnValue<bool>();
         }
 
         public static DataTable GetExistingRecordingsByRecordingID(int groupID, long recordID)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetExistingRecordingsByRecordingID");
-            sp.SetConnectionKey(RECORDING_CONNECTION);
-            sp.AddParameter("@GroupID", groupID);
-            sp.AddParameter("@RecordID", recordID);
-            DataTable dt = sp.Execute();
+            ODBCWrapper.StoredProcedure spGetExistingRecordingsByRecordingID = new ODBCWrapper.StoredProcedure("GetExistingRecordingsByRecordingID");
+            spGetExistingRecordingsByRecordingID.SetConnectionKey(RECORDING_CONNECTION);
+            spGetExistingRecordingsByRecordingID.AddParameter("@GroupID", groupID);
+            spGetExistingRecordingsByRecordingID.AddParameter("@RecordID", recordID);
+            DataTable dt = spGetExistingRecordingsByRecordingID.Execute();
 
             return dt;
 
@@ -443,11 +451,11 @@ namespace DAL
 
         public static bool DeleteDomainRecording(long recordingID)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteDomainRecording");
-            sp.SetConnectionKey(RECORDING_CONNECTION);
-            sp.AddParameter("@RecordID", recordingID);
+            ODBCWrapper.StoredProcedure spDeleteDomainRecording = new ODBCWrapper.StoredProcedure("DeleteDomainRecording");
+            spDeleteDomainRecording.SetConnectionKey(RECORDING_CONNECTION);
+            spDeleteDomainRecording.AddParameter("@RecordID", recordingID);
 
-            return sp.ExecuteReturnValue<bool>();
+            return spDeleteDomainRecording.ExecuteReturnValue<bool>();
         }
 
         public static DataTable GetDomainProtectedRecordings(int groupID, long domainID, long unixTimeStampNow)
@@ -910,24 +918,80 @@ namespace DAL
             return result;
         }
 
-        public static Dictionary<long, Recording> GetRecordingsMapByCrid(int groupId, string crid)
+        public static DataTable GetEpgToRecordingsMapByCrid(int groupId, string crid)
         {
-            throw new NotImplementedException();
+            DataTable dt = null;
+            ODBCWrapper.StoredProcedure spGetEpgToRecordingsMapByCrid = new ODBCWrapper.StoredProcedure("GetRecordingsByCrid");
+            spGetEpgToRecordingsMapByCrid.SetConnectionKey(RECORDING_CONNECTION);
+            spGetEpgToRecordingsMapByCrid.AddParameter("@GroupID", groupId);
+            spGetEpgToRecordingsMapByCrid.AddParameter("@Crid", crid);
+            dt = spGetEpgToRecordingsMapByCrid.Execute();
+
+            return dt;
         }
 
-        public static bool FollowSeries(int groupId, string userId, long domainID, long p, string seriesId, int seasonNumber, int episodeNumber)
+        public static bool FollowSeries(int groupId, string userId, long domainID, long epgId, string epgChannelId, string seriesId, int seasonNumber, int episodeNumber)
         {
-            throw new NotImplementedException();
+            long channelId;
+            if (!long.TryParse(epgChannelId, out channelId))
+            {
+                log.ErrorFormat("Error on FollowSeries while trying to parse epgChannelId: {0}", epgChannelId);
+                return false;
+            }
+
+            ODBCWrapper.StoredProcedure spFollowSeries = new ODBCWrapper.StoredProcedure("FollowSeries");
+            spFollowSeries.SetConnectionKey(RECORDING_CONNECTION);
+            spFollowSeries.AddParameter("@GroupID", groupId);
+            spFollowSeries.AddParameter("@UserID", userId);
+            spFollowSeries.AddParameter("@DomainID", domainID);
+            spFollowSeries.AddParameter("@EpgID", epgId);
+            spFollowSeries.AddParameter("@EpgChannelID", epgChannelId);
+            spFollowSeries.AddParameter("@SeriesId", seriesId);
+            spFollowSeries.AddParameter("@SeasonNumber", seasonNumber);
+            spFollowSeries.AddParameter("@EpisodeNumber", episodeNumber);
+
+            return spFollowSeries.ExecuteReturnValue<bool>();
         }
 
-        public static bool IsFirstFollower(string seriesId, int seasonNumber)
+        public static bool IsFirstFollower(int groupId, string seriesId, int seasonNumber)
         {
-            throw new NotImplementedException();
+            ODBCWrapper.StoredProcedure spIsFirstFollower = new ODBCWrapper.StoredProcedure("IsFirstFollower");
+            spIsFirstFollower.SetConnectionKey(RECORDING_CONNECTION);
+            spIsFirstFollower.AddParameter("@GroupID", groupId);            
+            spIsFirstFollower.AddParameter("@SeriesId", seriesId);
+            spIsFirstFollower.AddParameter("@SeasonNumber", seasonNumber);
+
+            int rowsFound = spIsFirstFollower.ExecuteReturnValue<int>();
+
+            return rowsFound == 1;
         }
 
-        public static bool IsFollowingSeries(string userID, long domainID, string seriesId)
+        public static bool IsFollowingSeries(int groupId, long domainID, string seriesId, int seasonNumber)
         {
-            throw new NotImplementedException();
+            ODBCWrapper.StoredProcedure spIsFollowingSeries = new ODBCWrapper.StoredProcedure("IsFollowingSeries");            
+            spIsFollowingSeries.SetConnectionKey(RECORDING_CONNECTION);
+            spIsFollowingSeries.AddParameter("@GroupID", groupId);            
+            spIsFollowingSeries.AddParameter("@DomainId", domainID);
+            spIsFollowingSeries.AddParameter("@SeriesId", seriesId);
+            spIsFollowingSeries.AddParameter("@SeasonNumber", seasonNumber);
+
+            int rowsFound = spIsFollowingSeries.ExecuteReturnValue<int>();
+
+            return rowsFound == 1;
+        }
+
+        public static bool UpdateRecordingsExternalId(int groupId, string externalRecordingId, string crid)
+        {
+            int updatedRowsCount = 0;
+            ODBCWrapper.StoredProcedure spUpdateRecordingsExternalId = new ODBCWrapper.StoredProcedure("UpdateRecordingsExternalId");
+            spUpdateRecordingsExternalId.SetConnectionKey(RECORDING_CONNECTION);
+            spUpdateRecordingsExternalId.AddParameter("@GroupID", groupId);
+            spUpdateRecordingsExternalId.AddParameter("@ExternalRecordingId", externalRecordingId);
+            spUpdateRecordingsExternalId.AddParameter("@Crid", crid);
+
+            updatedRowsCount = spUpdateRecordingsExternalId.ExecuteReturnValue<int>();
+
+            return updatedRowsCount > 0;            
         }
     }
 }

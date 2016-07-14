@@ -17145,11 +17145,12 @@ namespace ConditionalAccess
                         {
                             if (QuotaManager.Instance.DecreaseDomainQuota(m_nGroupID, domainID, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds))
                             {
-                                if (!RecordingsDAL.UpdateOrInsertDomainRecording(m_nGroupID, long.Parse(userID), domainID, recording, recordingType))
+                                recording.Type = recordingType;
+                                if (!RecordingsDAL.UpdateOrInsertDomainRecording(m_nGroupID, long.Parse(userID), domainID, recording))
                                 {
                                     log.ErrorFormat("Failed saving record to domain recordings table, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
                                     recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                                }
+                                }                                
                             }
                             else
                             {
@@ -17340,7 +17341,14 @@ namespace ConditionalAccess
                             else
                             {
                                 string seriesId = epgFieldMappings[Utils.SERIES_ID];
-                                if (RecordingsDAL.IsFollowingSeries(userID, domainID, seriesId))
+                                int seasonNumber = 0;
+                                if (epgFieldMappings.ContainsKey(Utils.SEASON_NUMBER) && !int.TryParse(epgFieldMappings[Utils.SEASON_NUMBER], out seasonNumber) && recordingType == RecordingType.Season)
+                                {
+                                    log.ErrorFormat("failed parsing SEASON_NUMBER, groupId: {0}, epgId: {1}, recordingType: {2}", m_nGroupID, epg.EPG_ID, recordingType.ToString());
+                                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                                    return response;  
+                                }
+                                if (RecordingsDAL.IsFollowingSeries(m_nGroupID, domainID, seriesId, seasonNumber))
                                 {
                                     log.DebugFormat("domain already follows the series, can't record as single, DomainID: {0}, UserID: {1}, seriesID: {2}", domainID, userID, seriesId);
                                     recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.AlreadyRecordedAsSeriesOrSeason, eResponseStatus.AlreadyRecordedAsSeriesOrSeason.ToString());

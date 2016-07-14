@@ -122,52 +122,71 @@ namespace Recordings
             syncParmeters.Add("startDate", startDate);
             syncParmeters.Add("endDate", endDate);
 
-            Dictionary<long, Recording> recordingsEpgMap = RecordingsDAL.GetRecordingsMapByCrid(groupId, crid);            
-
-            // remember and not forget
-            if (recordingsEpgMap == null || recordingsEpgMap.Count == 0)
-            {
-                bool syncedAction = synchronizer.DoAction(syncKey, syncParmeters);
-
-                object recordingObject;
-                if (syncParmeters.TryGetValue("recording", out recordingObject))
-                {
-                    recording = (Recording)recordingObject;
-                }
-                else
-                {
-                    recording = RecordingsDAL.GetRecordingByProgramId(programId);
-                }
-            }
-            else if (recordingsEpgMap.ContainsKey(programId))
-            {
-                recording = recordingsEpgMap[programId];
-            }
-            else
-            {
-                Recording randomExistingRecording = recordingsEpgMap.First().Value;
-                recording = new Recording(randomExistingRecording) { EpgStartDate = startDate, EpgEndDate = endDate, EpgId = programId, ChannelId = epgChannelID, RecordingStatus = TstvRecordingStatus.Scheduled };
-                recording = RecordingsDAL.InsertRecording(recording, groupId, RecordingInternalStatus.OK);
-            }
-
             try
             {
-                if (recording != null)
+                Dictionary<long, Recording> recordingsEpgMap = ConditionalAccess.Utils.GetEpgToRecordingsMapByCrid(groupId, crid);
+
+                // remember and not forget
+                if (recordingsEpgMap == null || recordingsEpgMap.Count == 0)
                 {
-                    TimeShiftedTvPartnerSettings accountSettings = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
-                    if (accountSettings == null || !accountSettings.RecordingLifetimePeriod.HasValue)
+                    bool syncedAction = synchronizer.DoAction(syncKey, syncParmeters);
+
+                    object recordingObject;
+                    if (syncParmeters.TryGetValue("recording", out recordingObject))
                     {
-                        log.DebugFormat("Failed getting account Lifetime Period, groupID: {0}, epgID: {1}", groupId, programId);
-                        recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());                        
+                        recording = (Recording)recordingObject;
                     }
                     else
                     {
-                        DateTime viewUntilDate = recording.EpgEndDate.AddDays(accountSettings.RecordingLifetimePeriod.Value);
-                        recording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(viewUntilDate);
-                        recording.Status = new Status((int)eResponseStatus.OK);
+                        recording = RecordingsDAL.GetRecordingByProgramId(programId);
+                    }
+                }
+                else if (recordingsEpgMap.ContainsKey(programId))
+                {
+                    recording = recordingsEpgMap[programId];
+                }
+                else
+                {
+                    DateTime minStartDate = recordingsEpgMap.Min(x => x.Value.EpgStartDate);
+                    Recording existingRecordingWithMinStartDate = recordingsEpgMap.First(x => x.Value.EpgStartDate == minStartDate).Value;
+                    recording = new Recording(existingRecordingWithMinStartDate) { EpgStartDate = startDate, EpgEndDate = endDate, EpgId = programId, ChannelId = epgChannelID, RecordingStatus = TstvRecordingStatus.Scheduled };
+                    if (recording.EpgStartDate < existingRecordingWithMinStartDate.EpgStartDate)
+                    {
+                        AdapterControllers.CDVR.CdvrAdapterController adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
+                        int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
+                        RecordResult adapterResponse = null;
+                        if (existingRecordingWithMinStartDate.EpgEndDate < DateTime.UtcNow)
+                        {
+                            adapterResponse = adapterController.DeleteRecording(groupId, existingRecordingWithMinStartDate.ExternalRecordingId, adapterId);
+                        }
+                        else
+                        {
+                            adapterResponse = adapterController.CancelRecording(groupId, existingRecordingWithMinStartDate.ExternalRecordingId, adapterId);
+                        }
+
+                        if (adapterResponse == null)
+                        {
+                            recording.Status = new Status((int)eResponseStatus.Error, "Adapter controller returned null response.");
+                            return recording;
+                        }
+                        else if (adapterResponse.FailReason != 0)
+                        {
+                            recording.Status = CreateFailStatus(adapterResponse);
+                            return recording;
+                        }
+                        else
+                        {
+                            CallAdapterRecord(groupId, epgChannelID, recording.EpgStartDate, recording.EpgEndDate, false, recording);
+                            if (!RecordingsDAL.UpdateRecordingsExternalId(groupId, recording.ExternalRecordingId, recording.Crid))
+                            {
+                                log.ErrorFormat("Failed UpdateRecordingsExternalId, ExternalRecordingId: {0}, Crid: {1}", recording.ExternalRecordingId, recording.Crid);
+                            }
+                            recording = RecordingsDAL.InsertRecording(recording, groupId, RecordingInternalStatus.OK);
+                        }
                     }
                 }
             }
+
             catch (Exception ex)
             {
                 log.ErrorFormat("RecordingsManager - Record: Error getting recording of program {0}. error = {1}", programId, ex);
