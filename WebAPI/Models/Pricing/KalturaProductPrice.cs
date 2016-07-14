@@ -13,7 +13,10 @@ namespace WebAPI.Models.Pricing
 {
     [OldStandard("productId", "product_id")]
     [OldStandard("productType", "product_type")]
-    public class KalturaProductPrice : KalturaOTTObject
+    [XmlInclude(typeof(KalturaItemPrice))]
+    [XmlInclude(typeof(KalturaPpvPrice))]
+    [XmlInclude(typeof(KalturaSubscriptionPrice))]
+    abstract public class KalturaProductPrice : KalturaOTTObject
     {
         /// <summary>
         /// Product identifier

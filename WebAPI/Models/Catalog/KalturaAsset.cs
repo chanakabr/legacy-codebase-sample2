@@ -30,6 +30,8 @@ namespace WebAPI.Models.Catalog
     /// Asset info
     /// </summary>
     [Serializable]
+    [XmlInclude(typeof(KalturaProgramAsset))]
+    [XmlInclude(typeof(KalturaMediaAsset))]
     abstract public class KalturaAsset : KalturaBaseAssetInfo, KalturaIAssetable
     {
         /// <summary>

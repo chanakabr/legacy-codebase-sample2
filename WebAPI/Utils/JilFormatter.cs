@@ -127,6 +127,7 @@ namespace WebAPI.Utils
         {
             _jilOptions = new Options(dateFormat: DateTimeFormat.SecondsSinceUnixEpoch, excludeNulls: true, includeInherited: true);
             SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/json"));
+            MediaTypeMappings.Add(new QueryStringMapping("format", "1", "application/json"));
 
             SupportedEncodings.Add(new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true));
             SupportedEncodings.Add(new UnicodeEncoding(bigEndian: false, byteOrderMark: true, throwOnInvalidBytes: true));

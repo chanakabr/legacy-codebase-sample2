@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 	<title>Kaltura - Test Me Console</title>
@@ -69,6 +69,12 @@
 			} else {
 				myframe.onload = function(){handleResponse();};
 			}
+			
+			var formatSelector = $("#format");
+			formatSelector.change(function(){
+				var frm = document.getElementById("request");
+				frm.action = "../api_v3/?format=" + $("#format").val();
+			});
 		});
 
 		function handleResponse(){
@@ -81,14 +87,10 @@
 				format = formatSelector[0].options[formatSelector[0].selectedIndex].text;
 			}
 			var text ="";
-			if ( format == "JSON" &&
-				typeof doc.body != "undefined" &&
-				typeof doc.body.innerText != "undefined"&&
-				(doc.body.innerText.indexOf("{" != -1) )){
+			if ( format == "JSON" && typeof doc.body != "undefined" && typeof doc.body.innerText != "undefined" && doc.body.innerText.indexOf("{") != -1){
 				format = "json";
 				text = indentJSON(doc.body.innerText, "\n", " ");
-			} else if (format == "XML" &&
-				typeof doc.firstChild != "undefined" )  {
+			} else if (format == "XML" && typeof doc.firstChild != "undefined" )  {
 				if ( doc.firstChild.localName == "xml"){
 					var para = document.createElement("div");
 					para.appendChild(doc.firstChild);
@@ -117,7 +119,7 @@
 		<li><a href="client-libs.php">API Client Libraries</a></li>
 	</ul>
 	<div class="left">
-		<form id="request" action="../" method="post" target="hiddenResponse" enctype="multipart/form-data">
+		<form id="request" action="../api_v3/" method="post" target="hiddenResponse" enctype="multipart/form-data">
 			<div class="left-content">
 				<div class="attr">
 					<label for="history">History: </label>
@@ -128,7 +130,7 @@
 
 				<div class="param">
 					<label for="format">Format (int):</label>
-					<select name="format">
+					<select name="format" id="format">
 						<option value="2">XML</option>
 						<option value="1">JSON</option>
 					</select>
