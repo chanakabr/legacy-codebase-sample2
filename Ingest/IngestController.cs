@@ -90,15 +90,14 @@ namespace Ingest
                                 bool isSucceeded = false;
                                 EpgIngest.Ingest ingest = new EpgIngest.Ingest();
                                 
-                                isSucceeded = ingest.Initialize(request.Data, groupID, ingestResponse);
+                                isSucceeded = ingest.Initialize(request.Data, groupID, out ingestResponse);
                                 if (isSucceeded)
                                 {
                                     response = ingest.SaveChannelPrograms();
                                 }
-                                return new EpgIngestResponse()
-                                {
-                                    Status = response
-                                };
+
+                                ingestResponse.Status = response;
+                                return ingestResponse;
                             }
                         default:
                             return new IngestResponse()
