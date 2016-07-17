@@ -38,6 +38,9 @@ namespace ApiObjects.SearchObjects
         [DataMember]
         public ComparisonOperator operand;
 
+        [DataMember]
+        public List<eAssetTypes> assetTypes;
+
         #endregion
 
         #region Properties
