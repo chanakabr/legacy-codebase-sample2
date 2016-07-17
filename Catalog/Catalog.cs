@@ -5690,6 +5690,12 @@ namespace Catalog
                         long epoch = Convert.ToInt64(leaf.value);
 
                         leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
+
+                        leaf.assetTypes = new List<eAssetTypes>()
+                        {
+                            eAssetTypes.EPG,
+                            eAssetTypes.NPVR
+                        };
                     }
                     else if (searchKeyLowered == "end_date")
                     {
@@ -5699,6 +5705,12 @@ namespace Catalog
                         long epoch = Convert.ToInt64(leaf.value);
 
                         leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
+
+                        leaf.assetTypes = new List<eAssetTypes>()
+                        {
+                            eAssetTypes.EPG,
+                            eAssetTypes.NPVR
+                        };
                     }
                     else if (searchKeyLowered == "update_date")
                     {
