@@ -43,6 +43,7 @@ namespace WebAPI.Controllers
             return response;
         }
 
+        /* 
         /// <summary>
         /// Return recording information and status for collection of program for a user.
         /// Specify per programs if it can be recorded or not.
@@ -85,6 +86,7 @@ namespace WebAPI.Controllers
             }
             return response;
         }
+         **/
 
         /// <summary>
         /// Issue a record request for a program

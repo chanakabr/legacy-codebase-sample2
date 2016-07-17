@@ -45,32 +45,62 @@ namespace WebAPI.Controllers
             return response;
         }
 
-           /// <summary>        
-           /// Delete series recording(s). Delete series recording can be called recordings in any status
-           /// </summary>
-           /// <param name="id">Series Recording identifier</param>
-           /// <returns></returns>
-           /// <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-           /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048 </remarks>
-           [Route("delete"), HttpPost]
-           [ApiAuthorize]
-           public KalturaSeriesRecording Delete(long id)
-           {
-               KalturaSeriesRecording response = null;
+        /// <summary>        
+        /// Delete series recording(s). Delete series recording can be called recordings in any status
+        /// </summary>
+        /// <param name="id">Series Recording identifier</param>
+        /// <returns></returns>
+        /// <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+        /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048 </remarks>
+        [Route("delete"), HttpPost]
+        [ApiAuthorize]
+        public KalturaSeriesRecording Delete(long id)
+        {
+            KalturaSeriesRecording response = null;
 
-               try
-               {
-                   int groupId = KS.GetFromRequest().GroupId;
-                   string userId = KS.GetFromRequest().UserId;
-                   long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
-                   // call client                
-                   response = ClientsManager.ConditionalAccessClient().DeleteSeriesRecord(groupId, userId, domainId, id);
-               }
-               catch (ClientException ex)
-               {
-                   ErrorUtils.HandleClientException(ex);
-               }
-               return response;
-           }
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
+                long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                // call client                
+                response = ClientsManager.ConditionalAccessClient().DeleteSeriesRecord(groupId, userId, domainId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// Issue a record request for a complete season or series
+        /// </summary>
+        /// <param name="seriesRecording">SeriesRecording Object</param>
+        /// <returns></returns>
+        /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+        /// UserWithNoDomain = 2024, ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034,
+        /// ProgramCdvrNotEnabled = 3035, ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3038,
+        /// ExceededQuota = 3042, AccountSeriesRecordingNotEnabled = 3046, AlreadyRecordedAsSeriesOrSeason = 3047, InvalidAssetId = 4024</remarks>
+        [Route("add"), HttpPost]
+        [ApiAuthorize]
+        public KalturaSeriesRecording Add(KalturaSeriesRecording recording)
+        {
+            KalturaSeriesRecording response = null;
+
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
+
+                // call client
+                response = ClientsManager.ConditionalAccessClient().RecordSeasonOrSeries(groupId, userId, recording.EpgId, recording.Type);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
     }
 }

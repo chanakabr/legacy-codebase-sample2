@@ -42,7 +42,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "type")]
         [JsonProperty("type")]
-        [XmlElement(ElementName = "type")]
+        [XmlElement(ElementName = "type")]        
         public KalturaRecordingType Type { get; set; }
 
         /// <summary>

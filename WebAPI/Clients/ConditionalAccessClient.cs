@@ -1684,6 +1684,46 @@ namespace WebAPI.Clients
 
             return seriesRecording;
         }
+
+        internal KalturaSeriesRecording RecordSeasonOrSeries(int groupID, string userID, long epgID, KalturaRecordingType recordingType)
+        {
+            KalturaSeriesRecording recording = null;
+            SeriesRecording response = null;
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupID);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = ConditionalAccess.RecordSeasonOrSeries(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, epgID, ConditionalAccessMappings.ConvertKalturaRecordingType(recordingType));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            // convert response
+            recording = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaSeriesRecording>(response);
+
+            return recording;
+        }
     }
 }
 

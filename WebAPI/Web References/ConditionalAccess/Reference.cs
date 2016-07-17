@@ -70,6 +70,10 @@ namespace WebAPI.ConditionalAccess {
         
         private System.Threading.SendOrPostCallback DeleteRecordOperationCompleted;
         
+        private System.Threading.SendOrPostCallback CancelSeriesRecordOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback DeleteSeriesRecordOperationCompleted;
+        
         private System.Threading.SendOrPostCallback RecordRetryOperationCompleted;
         
         private System.Threading.SendOrPostCallback QueryRecordsOperationCompleted;
@@ -103,6 +107,8 @@ namespace WebAPI.ConditionalAccess {
         private System.Threading.SendOrPostCallback HandleExpiredRecordingOperationCompleted;
         
         private System.Threading.SendOrPostCallback HandleFirstFollowerRecordingOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback RecordSeasonOrSeriesOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetUserPermittedItemsOperationCompleted;
         
@@ -375,6 +381,12 @@ namespace WebAPI.ConditionalAccess {
         public event DeleteRecordCompletedEventHandler DeleteRecordCompleted;
         
         /// <remarks/>
+        public event CancelSeriesRecordCompletedEventHandler CancelSeriesRecordCompleted;
+        
+        /// <remarks/>
+        public event DeleteSeriesRecordCompletedEventHandler DeleteSeriesRecordCompleted;
+        
+        /// <remarks/>
         public event RecordRetryCompletedEventHandler RecordRetryCompleted;
         
         /// <remarks/>
@@ -424,6 +436,9 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         public event HandleFirstFollowerRecordingCompletedEventHandler HandleFirstFollowerRecordingCompleted;
+        
+        /// <remarks/>
+        public event RecordSeasonOrSeriesCompletedEventHandler RecordSeasonOrSeriesCompleted;
         
         /// <remarks/>
         public event GetUserPermittedItemsCompletedEventHandler GetUserPermittedItemsCompleted;
@@ -1516,6 +1531,80 @@ namespace WebAPI.ConditionalAccess {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/CancelSeriesRecord", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public SeriesRecording CancelSeriesRecord(string sWSUserName, string sWSPassword, string userId, long domainId, long recordingId) {
+            object[] results = this.Invoke("CancelSeriesRecord", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userId,
+                        domainId,
+                        recordingId});
+            return ((SeriesRecording)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void CancelSeriesRecordAsync(string sWSUserName, string sWSPassword, string userId, long domainId, long recordingId) {
+            this.CancelSeriesRecordAsync(sWSUserName, sWSPassword, userId, domainId, recordingId, null);
+        }
+        
+        /// <remarks/>
+        public void CancelSeriesRecordAsync(string sWSUserName, string sWSPassword, string userId, long domainId, long recordingId, object userState) {
+            if ((this.CancelSeriesRecordOperationCompleted == null)) {
+                this.CancelSeriesRecordOperationCompleted = new System.Threading.SendOrPostCallback(this.OnCancelSeriesRecordOperationCompleted);
+            }
+            this.InvokeAsync("CancelSeriesRecord", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userId,
+                        domainId,
+                        recordingId}, this.CancelSeriesRecordOperationCompleted, userState);
+        }
+        
+        private void OnCancelSeriesRecordOperationCompleted(object arg) {
+            if ((this.CancelSeriesRecordCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.CancelSeriesRecordCompleted(this, new CancelSeriesRecordCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/DeleteSeriesRecord", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public SeriesRecording DeleteSeriesRecord(string sWSUserName, string sWSPassword, string userId, long domainId, long recordingId) {
+            object[] results = this.Invoke("DeleteSeriesRecord", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userId,
+                        domainId,
+                        recordingId});
+            return ((SeriesRecording)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void DeleteSeriesRecordAsync(string sWSUserName, string sWSPassword, string userId, long domainId, long recordingId) {
+            this.DeleteSeriesRecordAsync(sWSUserName, sWSPassword, userId, domainId, recordingId, null);
+        }
+        
+        /// <remarks/>
+        public void DeleteSeriesRecordAsync(string sWSUserName, string sWSPassword, string userId, long domainId, long recordingId, object userState) {
+            if ((this.DeleteSeriesRecordOperationCompleted == null)) {
+                this.DeleteSeriesRecordOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDeleteSeriesRecordOperationCompleted);
+            }
+            this.InvokeAsync("DeleteSeriesRecord", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userId,
+                        domainId,
+                        recordingId}, this.DeleteSeriesRecordOperationCompleted, userState);
+        }
+        
+        private void OnDeleteSeriesRecordOperationCompleted(object arg) {
+            if ((this.DeleteSeriesRecordCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.DeleteSeriesRecordCompleted(this, new DeleteSeriesRecordCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/RecordRetry", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public Recording RecordRetry(string sWSUserName, string sWSPassword, long recordingId) {
             object[] results = this.Invoke("RecordRetry", new object[] {
@@ -2041,32 +2130,32 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/HandleFirstFollowerRecording", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public bool HandleFirstFollowerRecording(string sWSUserName, string sWSPassword, string userId, long domainId, string seriesId, int seassonNumber) {
+        public bool HandleFirstFollowerRecording(string sWSUserName, string sWSPassword, long domainId, string channelId, string seriesId, int seassonNumber) {
             object[] results = this.Invoke("HandleFirstFollowerRecording", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        userId,
                         domainId,
+                        channelId,
                         seriesId,
                         seassonNumber});
             return ((bool)(results[0]));
         }
         
         /// <remarks/>
-        public void HandleFirstFollowerRecordingAsync(string sWSUserName, string sWSPassword, string userId, long domainId, string seriesId, int seassonNumber) {
-            this.HandleFirstFollowerRecordingAsync(sWSUserName, sWSPassword, userId, domainId, seriesId, seassonNumber, null);
+        public void HandleFirstFollowerRecordingAsync(string sWSUserName, string sWSPassword, long domainId, string channelId, string seriesId, int seassonNumber) {
+            this.HandleFirstFollowerRecordingAsync(sWSUserName, sWSPassword, domainId, channelId, seriesId, seassonNumber, null);
         }
         
         /// <remarks/>
-        public void HandleFirstFollowerRecordingAsync(string sWSUserName, string sWSPassword, string userId, long domainId, string seriesId, int seassonNumber, object userState) {
+        public void HandleFirstFollowerRecordingAsync(string sWSUserName, string sWSPassword, long domainId, string channelId, string seriesId, int seassonNumber, object userState) {
             if ((this.HandleFirstFollowerRecordingOperationCompleted == null)) {
                 this.HandleFirstFollowerRecordingOperationCompleted = new System.Threading.SendOrPostCallback(this.OnHandleFirstFollowerRecordingOperationCompleted);
             }
             this.InvokeAsync("HandleFirstFollowerRecording", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        userId,
                         domainId,
+                        channelId,
                         seriesId,
                         seassonNumber}, this.HandleFirstFollowerRecordingOperationCompleted, userState);
         }
@@ -2075,6 +2164,43 @@ namespace WebAPI.ConditionalAccess {
             if ((this.HandleFirstFollowerRecordingCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.HandleFirstFollowerRecordingCompleted(this, new HandleFirstFollowerRecordingCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/RecordSeasonOrSeries", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public SeriesRecording RecordSeasonOrSeries(string sWSUserName, string sWSPassword, string userID, long epgID, RecordingType recordingType) {
+            object[] results = this.Invoke("RecordSeasonOrSeries", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userID,
+                        epgID,
+                        recordingType});
+            return ((SeriesRecording)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void RecordSeasonOrSeriesAsync(string sWSUserName, string sWSPassword, string userID, long epgID, RecordingType recordingType) {
+            this.RecordSeasonOrSeriesAsync(sWSUserName, sWSPassword, userID, epgID, recordingType, null);
+        }
+        
+        /// <remarks/>
+        public void RecordSeasonOrSeriesAsync(string sWSUserName, string sWSPassword, string userID, long epgID, RecordingType recordingType, object userState) {
+            if ((this.RecordSeasonOrSeriesOperationCompleted == null)) {
+                this.RecordSeasonOrSeriesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnRecordSeasonOrSeriesOperationCompleted);
+            }
+            this.InvokeAsync("RecordSeasonOrSeries", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userID,
+                        epgID,
+                        recordingType}, this.RecordSeasonOrSeriesOperationCompleted, userState);
+        }
+        
+        private void OnRecordSeasonOrSeriesOperationCompleted(object arg) {
+            if ((this.RecordSeasonOrSeriesCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.RecordSeasonOrSeriesCompleted(this, new RecordSeasonOrSeriesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -6273,13 +6399,13 @@ namespace WebAPI.ConditionalAccess {
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteSeriesNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ProtectNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(LicensedLinkNPVRCommand))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByNameNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RetrieveQuotaNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelSeriesNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByProgramIdNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByNameNPVRCommand))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -6513,15 +6639,6 @@ namespace WebAPI.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class RecordSeriesByNameNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class RetrieveQuotaNPVRCommand : BaseNPVRCommand {
     }
     
@@ -6568,6 +6685,15 @@ namespace WebAPI.ConditionalAccess {
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class RecordSeriesByProgramIdNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class RecordSeriesByNameNPVRCommand : BaseNPVRCommand {
     }
     
     /// <remarks/>
@@ -10851,7 +10977,7 @@ namespace WebAPI.ConditionalAccess {
         
         private long epgIdField;
         
-        private string channelIdField;
+        private long channelIdField;
         
         private TstvRecordingStatus recordingStatusField;
         
@@ -10906,7 +11032,7 @@ namespace WebAPI.ConditionalAccess {
         }
         
         /// <remarks/>
-        public string ChannelId {
+        public long ChannelId {
             get {
                 return this.channelIdField;
             }
@@ -11073,6 +11199,123 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         Series,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class SeriesRecording {
+        
+        private Status statusField;
+        
+        private long idField;
+        
+        private long epgIdField;
+        
+        private long channelIdField;
+        
+        private string seriesIdField;
+        
+        private int seasonNumberField;
+        
+        private System.DateTime createDateField;
+        
+        private System.DateTime updateDateField;
+        
+        private RecordingType typeField;
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long Id {
+            get {
+                return this.idField;
+            }
+            set {
+                this.idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long EpgId {
+            get {
+                return this.epgIdField;
+            }
+            set {
+                this.epgIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long ChannelId {
+            get {
+                return this.channelIdField;
+            }
+            set {
+                this.channelIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string SeriesId {
+            get {
+                return this.seriesIdField;
+            }
+            set {
+                this.seriesIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int SeasonNumber {
+            get {
+                return this.seasonNumberField;
+            }
+            set {
+                this.seasonNumberField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime CreateDate {
+            get {
+                return this.createDateField;
+            }
+            set {
+                this.createDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime UpdateDate {
+            get {
+                return this.updateDateField;
+            }
+            set {
+                this.updateDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public RecordingType Type {
+            get {
+                return this.typeField;
+            }
+            set {
+                this.typeField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -12468,6 +12711,58 @@ namespace WebAPI.ConditionalAccess {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void CancelSeriesRecordCompletedEventHandler(object sender, CancelSeriesRecordCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class CancelSeriesRecordCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal CancelSeriesRecordCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public SeriesRecording Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((SeriesRecording)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void DeleteSeriesRecordCompletedEventHandler(object sender, DeleteSeriesRecordCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class DeleteSeriesRecordCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal DeleteSeriesRecordCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public SeriesRecording Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((SeriesRecording)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
     public delegate void RecordRetryCompletedEventHandler(object sender, RecordRetryCompletedEventArgs e);
     
     /// <remarks/>
@@ -12904,6 +13199,32 @@ namespace WebAPI.ConditionalAccess {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((bool)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void RecordSeasonOrSeriesCompletedEventHandler(object sender, RecordSeasonOrSeriesCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class RecordSeasonOrSeriesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal RecordSeasonOrSeriesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public SeriesRecording Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((SeriesRecording)(this.results[0]));
             }
         }
     }
