@@ -37,5 +37,12 @@ namespace RecordingTaskHandler
             get;
             set;
         }
+
+        [JsonProperty("epg_start_date")]
+        public DateTime EpgStartDate
+        {
+            get;
+            set;
+        }
     }
 }

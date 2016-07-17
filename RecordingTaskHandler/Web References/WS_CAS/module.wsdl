@@ -1093,7 +1093,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="epgId" type="s:long" />
             <s:element minOccurs="1" maxOccurs="1" name="Id" type="s:long" />
-            <s:element minOccurs="1" maxOccurs="1" name="distributeDate" type="s:dateTime" />
+            <s:element minOccurs="1" maxOccurs="1" name="epgStartDate" type="s:dateTime" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -4891,7 +4891,7 @@
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="epgId" type="s:string" />
     <wsdl:part name="Id" type="s:string" />
-    <wsdl:part name="distributeDate" type="s:string" />
+    <wsdl:part name="epgStartDate" type="s:string" />
   </wsdl:message>
   <wsdl:message name="DistributeRecordingHttpPostOut">
     <wsdl:part name="Body" element="tns:boolean" />

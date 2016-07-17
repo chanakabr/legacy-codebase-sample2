@@ -124,7 +124,7 @@ namespace RecordingTaskHandler
                     }
                     case eRecordingTask.DistributeRecording:
                     {
-                        success = cas.DistributeRecording(username, password, request.ProgramId, request.RecordingId, base(request).
+                        success = cas.DistributeRecording(username, password, request.ProgramId, request.RecordingId, request.EpgStartDate);
                         break;
                     }
                 }

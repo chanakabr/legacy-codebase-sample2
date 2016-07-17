@@ -2211,23 +2211,23 @@ namespace RecordingTaskHandler.WS_CAS {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/DistributeRecording", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public bool DistributeRecording(string sWSUserName, string sWSPassword, long epgId, long Id, System.DateTime distributeDate) {
+        public bool DistributeRecording(string sWSUserName, string sWSPassword, long epgId, long Id, System.DateTime epgStartDate) {
             object[] results = this.Invoke("DistributeRecording", new object[] {
                         sWSUserName,
                         sWSPassword,
                         epgId,
                         Id,
-                        distributeDate});
+                        epgStartDate});
             return ((bool)(results[0]));
         }
         
         /// <remarks/>
-        public void DistributeRecordingAsync(string sWSUserName, string sWSPassword, long epgId, long Id, System.DateTime distributeDate) {
-            this.DistributeRecordingAsync(sWSUserName, sWSPassword, epgId, Id, distributeDate, null);
+        public void DistributeRecordingAsync(string sWSUserName, string sWSPassword, long epgId, long Id, System.DateTime epgStartDate) {
+            this.DistributeRecordingAsync(sWSUserName, sWSPassword, epgId, Id, epgStartDate, null);
         }
         
         /// <remarks/>
-        public void DistributeRecordingAsync(string sWSUserName, string sWSPassword, long epgId, long Id, System.DateTime distributeDate, object userState) {
+        public void DistributeRecordingAsync(string sWSUserName, string sWSPassword, long epgId, long Id, System.DateTime epgStartDate, object userState) {
             if ((this.DistributeRecordingOperationCompleted == null)) {
                 this.DistributeRecordingOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDistributeRecordingOperationCompleted);
             }
@@ -2236,7 +2236,7 @@ namespace RecordingTaskHandler.WS_CAS {
                         sWSPassword,
                         epgId,
                         Id,
-                        distributeDate}, this.DistributeRecordingOperationCompleted, userState);
+                        epgStartDate}, this.DistributeRecordingOperationCompleted, userState);
         }
         
         private void OnDistributeRecordingOperationCompleted(object arg) {
