@@ -5813,6 +5813,24 @@ namespace ConditionalAccess
             return recordings;
         }
 
+
+        internal static DomainSeriesRecording GetDomainSeriesRecordingFromDataTable(DataTable serieDataTable)
+        {
+            DomainSeriesRecording result = null;
+            if (serieDataTable != null && serieDataTable.Rows != null)
+            {
+                result = new DomainSeriesRecording()
+                {
+                    EpgId = ODBCWrapper.Utils.GetLongSafeVal(serieDataTable.Rows[0], "EPG_ID", 0),
+                    EpisodeNumber = ODBCWrapper.Utils.GetIntSafeVal(serieDataTable.Rows[0], "EPISODE_NUMBER", 0),
+                    SeasonNumber = ODBCWrapper.Utils.GetIntSafeVal(serieDataTable.Rows[0], "SEASON_NUMBER", 0),
+                    SeriesId = ODBCWrapper.Utils.GetSafeStr(serieDataTable.Rows[0], "SERIES_ID"),
+                    UserId = ODBCWrapper.Utils.GetSafeStr(serieDataTable.Rows[0], "USER_ID"),
+                    EpgChannelId = ODBCWrapper.Utils.GetLongSafeVal(serieDataTable.Rows[0], "EPG_CHANNEL_ID", 0),
+                };
+            }
+            return result;
+        }
     }
 }
 
