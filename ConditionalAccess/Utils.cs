@@ -4975,7 +4975,9 @@ namespace ConditionalAccess
             long channelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_CHANNEL_ID");
             long domainRecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
             int seasonNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "SEASON_NUMBER");
-            string seriesId = ODBCWrapper.Utils.GetSafeStr(dr, "SERIES_ID"); 
+            string seriesId = ODBCWrapper.Utils.GetSafeStr(dr, "SERIES_ID");
+            DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
+            DateTime updateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE");
 
             return new SeriesRecording()
             {
@@ -4985,6 +4987,8 @@ namespace ConditionalAccess
                 SeasonNumber = seasonNumber,
                 SeriesId = seriesId,
                 Type = seasonNumber > 0 ?  RecordingType.Season : RecordingType.Series,
+                CreateDate = createDate, 
+                UpdateDate = updateDate,
                 Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "TstvRecordingStatus is not cancel or delete")
             };
 

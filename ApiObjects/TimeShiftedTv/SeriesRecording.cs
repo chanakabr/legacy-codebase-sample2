@@ -20,6 +20,10 @@ namespace ApiObjects.TimeShiftedTv
         
         public int SeasonNumber { get; set; }
 
+        public DateTime CreateDate { get; set; }
+
+        public DateTime UpdateDate { get; set; }
+
         public RecordingType Type { get; set; }
 
         public SeriesRecording()
@@ -35,6 +39,8 @@ namespace ApiObjects.TimeShiftedTv
             this.SeriesId = seriesRecording.SeriesId;
             this.Status = seriesRecording.Status;
             this.Type = RecordingType.Series;
+            this.CreateDate = seriesRecording.CreateDate;
+            this.UpdateDate = seriesRecording.UpdateDate;
         }
 
         public override string ToString()
@@ -48,6 +54,8 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("SeriesId: {0}, ", SeriesId));           
             sb.Append(string.Format("SeasonNumber: {0}, ", SeasonNumber));
             sb.Append(string.Format("Type: {0}, ", Type.ToString()));
+            sb.Append(string.Format("CreateDate: {0}, ", CreateDate != null ? CreateDate.ToString() : ""));
+            sb.Append(string.Format("UpdateDate: {0}, ", UpdateDate != null ? UpdateDate.ToString() : ""));
                      
             return sb.ToString();
         }
