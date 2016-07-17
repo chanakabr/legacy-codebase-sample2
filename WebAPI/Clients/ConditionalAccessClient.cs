@@ -1317,7 +1317,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = ConditionalAccess.Record(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, epgID);
+                    response = ConditionalAccess.Record(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, epgID, RecordingType.Single);//TO DO : TEMPORARY TYPE
                 }
             }
             catch (Exception ex)

@@ -57,6 +57,22 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "type")]
         [JsonProperty("type")]
         [XmlElement(ElementName = "type")]
-        public KalturaRecordingType Type { get; set; }       
+        public KalturaRecordingType Type { get; set; }
+
+        /// <summary>
+        /// Specifies when was the series recording created. Date and time represented as epoch.
+        /// </summary>
+        [DataMember(Name = "createDate")]
+        [JsonProperty("createDate")]
+        [XmlElement(ElementName = "createDate")]
+        public long CreateDate { get; set; }
+
+        /// <summary>
+        /// Specifies when was the series recording last updated. Date and time represented as epoch.
+        /// </summary>
+        [DataMember(Name = "updateDate")]
+        [JsonProperty("updateDate")]
+        [XmlElement(ElementName = "updateDate")]
+        public long UpdateDate { get; set; }
     }
 }

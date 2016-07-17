@@ -248,7 +248,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.ChannelId, opt => opt.MapFrom(src => src.ChannelId))
                .ForMember(dest => dest.SeasonNumber, opt => opt.MapFrom(src => src.SeasonNumber))               
                .ForMember(dest => dest.SeriesId, opt => opt.MapFrom(src => src.SeriesId))
-               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertKalturaRecordingType(src.Type)));
+               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertKalturaRecordingType(src.Type)))
+               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.CreateDate)))
+               .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.UpdateDate)));
 
             // SeriesRecording to KalturaSeriesRecording
             Mapper.CreateMap<WebAPI.ConditionalAccess.SeriesRecording ,KalturaSeriesRecording>()
@@ -257,8 +259,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.ChannelId, opt => opt.MapFrom(src => src.ChannelId))
                .ForMember(dest => dest.SeasonNumber, opt => opt.MapFrom(src => src.SeasonNumber))
                .ForMember(dest => dest.SeriesId, opt => opt.MapFrom(src => src.SeriesId))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertRecordingType(src.Type)));
-
+               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertRecordingType(src.Type)))
+               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.CreateDate)))
+               .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.UpdateDate)));
             #endregion
 
             #region Household Quota
