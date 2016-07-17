@@ -4948,7 +4948,7 @@ namespace ConditionalAccess
             return recording;
         }
 
-        internal static SeriesRecording ValidateSeriesRecordID(int groupID, long domainId, long domainSeriesRecordingId)
+        internal static SeriesRecording ValidateSeriesRecordID(int groupId, long domainId, long domainSeriesRecordingId)
         {
             SeriesRecording seriesRecording = new SeriesRecording()
                {
@@ -4957,13 +4957,24 @@ namespace ConditionalAccess
 
             try
             {
-                seriesRecording = Utils.GetDomainSeriesRecording(groupID, domainId, domainSeriesRecordingId);
+                DataTable dt = RecordingsDAL.GetDomainSeriesRecordingsById(groupId, domainId, domainSeriesRecordingId);
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    DataRow dr = dt.Rows[0];
+                    long domainRecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+                    if (domainRecordingID > 0)
+                    {
+                        seriesRecording = BuildSeriesRecordingDetails(dr);
+                    }
+                }
                 if (seriesRecording == null)
                 {
                     log.DebugFormat("No valid series recording was returned from Utils.GetDomainSeriesRecording");
-                    seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.SeriesRecordingNotFound, eResponseStatus.SeriesRecordingNotFound.ToString());
-                    seriesRecording.Id = domainSeriesRecordingId;
-                    return seriesRecording;
+                    seriesRecording = new SeriesRecording()
+                    {
+                        Status = new ApiObjects.Response.Status((int)eResponseStatus.SeriesRecordingNotFound, eResponseStatus.SeriesRecordingNotFound.ToString()),
+                        Id = domainSeriesRecordingId
+                    };
                 }
             }
             catch (Exception ex)
@@ -4976,27 +4987,11 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
 
                 log.Error(sb.ToString(), ex);
-
-                seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "failed Validate series recordID");
-            }
-
-            return seriesRecording;
-        }
-
-        private static SeriesRecording GetDomainSeriesRecording(int groupId, long domainId, long domainSeriesRecordingId)
-        {
-            SeriesRecording seriesRecording = new SeriesRecording() { 
-                Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingNotFound, eResponseStatus.RecordingNotFound.ToString())
-            };
-            DataTable dt = RecordingsDAL.GetDomainSeriesRecordingsById(groupId, domainId, domainSeriesRecordingId);
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-            {
-                DataRow dr = dt.Rows[0];
-                long domainRecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
-                if (domainRecordingID > 0)
+                seriesRecording = new SeriesRecording()
                 {
-                    seriesRecording = BuildSeriesRecordingDetails(dr);
-                }
+                    Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "failed Validate series recordID"),
+                    Id = domainSeriesRecordingId
+                };
             }
             return seriesRecording;
         }
@@ -5008,6 +5003,8 @@ namespace ConditionalAccess
             long domainRecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
             int seasonNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "SEASON_NUMBER");
             string seriesId = ODBCWrapper.Utils.GetSafeStr(dr, "SERIES_ID");
+            DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
+            DateTime updateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE");
 
             return new SeriesRecording()
             {
@@ -5017,6 +5014,8 @@ namespace ConditionalAccess
                 SeasonNumber = seasonNumber,
                 SeriesId = seriesId,
                 Type = seasonNumber > 0 ?  RecordingType.Season : RecordingType.Series,
+                CreateDate = createDate, 
+                UpdateDate = updateDate,
                 Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "TstvRecordingStatus is not cancel or delete")
             };
 
