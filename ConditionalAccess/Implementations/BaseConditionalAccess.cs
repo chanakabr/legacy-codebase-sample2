@@ -17245,8 +17245,8 @@ namespace ConditionalAccess
                     if (Utils.CancelOrDeleteRecording(m_nGroupID, recording, tstvRecordingStatus))
                     {
                         log.DebugFormat("Recording {0} has been updated to status {1}", recording.Id, tstvRecordingStatus.ToString());
-
-                        //TODO :  add quota here 
+                                                
+                        QuotaManager.Instance.IncreaseDomainQuota(domainId, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds);
                     }
                 }
                 else
