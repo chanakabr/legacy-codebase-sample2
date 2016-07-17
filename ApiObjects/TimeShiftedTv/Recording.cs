@@ -16,7 +16,7 @@ namespace ApiObjects.TimeShiftedTv
 
         public long EpgId { get; set; }
 
-        public string ChannelId { get; set; }
+        public long ChannelId { get; set; }
 
         public TstvRecordingStatus RecordingStatus { get; set; }
 
@@ -52,7 +52,7 @@ namespace ApiObjects.TimeShiftedTv
             this.Status = record.Status != null ? new Status(record.Status.Code, record.Status.Message) : null;
             this.Id = record.Id;
             this.EpgId = record.EpgId;
-            this.ChannelId = string.IsNullOrEmpty(record.ChannelId) ? string.Empty : string.Copy(record.ChannelId);
+            this.ChannelId = record.ChannelId;
             this.RecordingStatus = record.RecordingStatus;
             this.ExternalRecordingId = string.IsNullOrEmpty(record.ExternalRecordingId) ? string.Empty : string.Copy(record.ExternalRecordingId);
             this.EpgStartDate = record.EpgStartDate;
@@ -72,7 +72,7 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("Status Code: {0}, Status Message: {1} ", Status.Code, Status.Message));
             sb.Append(string.Format("Id: {0}, ", Id));
             sb.Append(string.Format("EpgID: {0}, ", EpgId));
-            sb.Append(string.Format("ChannelId: {0}, ", string.IsNullOrEmpty(ChannelId) ? "" : ChannelId));
+            sb.Append(string.Format("ChannelId: {0}, ", ChannelId));
             sb.Append(string.Format("RecordingStatus: {0}, ", RecordingStatus));
             sb.Append(string.Format("Type: {0}, ", Type));            
             sb.Append(string.Format("ExternalRecordingId: {0}, ", string.IsNullOrEmpty(ExternalRecordingId) ? "" : ExternalRecordingId));
