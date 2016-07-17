@@ -19,7 +19,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "entityReferenceEqual")]
         [JsonProperty("entityReferenceEqual")]
         [XmlElement(ElementName = "entityReferenceEqual")]
-        public KalturaEntityReferenceBy EntityReferenceEqual { get; set; }
+        public KalturaEntityReferenceBy? EntityReferenceEqual { get; set; }
 
         public override KalturaParentalRuleOrderBy GetDefaultOrderByValue()
         {

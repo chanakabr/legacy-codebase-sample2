@@ -26,6 +26,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]
+        [Obsolete]
         public KalturaListFollowDataTvSeriesResponse List(KalturaOrder? order_by = null, KalturaFilterPager pager = null)
         {
             KalturaListFollowDataTvSeriesResponse response = null;

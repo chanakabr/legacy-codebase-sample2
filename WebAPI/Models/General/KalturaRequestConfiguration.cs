@@ -22,19 +22,27 @@ namespace WebAPI.Models.General
         public int? PartnerID { get; set; }
 
         /// <summary>
+        /// Impersonated user id
+        /// </summary>
+        [DataMember(Name = "userId")]
+        [JsonProperty("userId")]
+        [XmlElement(ElementName = "userId")]
+        public int? UserID { get; set; }
+
+        /// <summary>
+        /// Content language
+        /// </summary>
+        [DataMember(Name = "language")]
+        [JsonProperty("language")]
+        [XmlElement(ElementName = "language")]
+        public string Language { get; set; }
+
+        /// <summary>
         /// Kaltura API session
         /// </summary>
         [DataMember(Name = "ks")]
         [JsonProperty("ks")]
         [XmlElement(ElementName = "ks")]
         public string KS { get; set; }
-
-        /// <summary>
-        /// Response profile (Not in used)
-        /// </summary>
-        [DataMember(Name = "responseProfile")]
-        [JsonProperty("responseProfile")]
-        [XmlElement(ElementName = "responseProfile", IsNullable = true)]
-        public KalturaBaseResponseProfile ResponseProfile { get; set; }
     }
 }

@@ -105,6 +105,7 @@ namespace WebAPI.Controllers
         /// Household does not exist = 1006, Household user failed = 1007</remarks>                
         [Route("getByOperator"), HttpPost]
         [ApiAuthorize]
+        [Obsolete]
         public KalturaHousehold GetByOperator(KalturaIdentifierTypeFilter filter, List<KalturaHouseholdWithHolder> with = null)
         {
             var ks = KS.GetFromRequest();
@@ -425,6 +426,7 @@ namespace WebAPI.Controllers
         ///</remarks>
         [Route("deleteByOperator"), HttpPost]
         [ApiAuthorize]
+        [Obsolete]
         public bool DeleteByOperator(KalturaIdentifierTypeFilter filter)
         {
             var ks = KS.GetFromRequest();

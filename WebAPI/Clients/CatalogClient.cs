@@ -309,6 +309,85 @@ namespace WebAPI.Clients
             return result;
         }
 
+        public KalturaAssetHistoryListResponse getAssetHistory(int groupId, string siteGuid, string udid, string language, int pageIndex, int? pageSize, KalturaWatchStatus watchStatus, int days, List<int> assetTypes, List<KalturaCatalogWith> withList)
+        {
+            KalturaAssetHistoryListResponse finalResults = new KalturaAssetHistoryListResponse();
+            finalResults.Objects = new List<KalturaAssetHistory>();
+
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
+
+            // build request
+            WatchHistoryRequest request = new WatchHistoryRequest()
+            {
+                m_sSiteGuid = siteGuid,
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_bUseStartDate = group.UseStartDate,
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
+                },
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize.Value,
+                AssetTypes = assetTypes,
+                FilterStatus = CatalogMappings.ConvertKalturaWatchStatus(watchStatus),
+                NumOfDays = days,
+                OrderDir = OrderDir.DESC
+            };
+
+            // fire history watched request
+            WatchHistoryResponse watchHistoryResponse = new WatchHistoryResponse();
+            if (!CatalogUtils.GetBaseResponse<WatchHistoryResponse>(CatalogClientModule, request, out watchHistoryResponse))
+            {
+                // general error
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (watchHistoryResponse.status.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(watchHistoryResponse.status.Code, watchHistoryResponse.status.Message);
+            }
+
+            if (watchHistoryResponse.result != null && watchHistoryResponse.result.Count > 0)
+            {
+                // get base objects list
+                List<BaseObject> assetsBaseDataList = watchHistoryResponse.result.Select(x => x as BaseObject).ToList();
+
+                // get assets from catalog/cache
+                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration, withList, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
+
+                // combine asset info and watch history info
+                finalResults.TotalCount = watchHistoryResponse.m_nTotalItems;
+
+                UserWatchHistory watchHistory = new UserWatchHistory();
+                foreach (KalturaIAssetable assetInfo in assetsInfo)
+                {
+                    watchHistory = watchHistoryResponse.result.FirstOrDefault(x => x.AssetId == ((KalturaAssetInfo)assetInfo).Id.ToString());
+
+                    if (watchHistory != null)
+                    {
+                        finalResults.Objects.Add(new KalturaAssetHistory()
+                        {
+                            AssetId = ((KalturaAssetInfo)assetInfo).Id.Value,
+                            Duration = watchHistory.Duration,
+                            IsFinishedWatching = watchHistory.IsFinishedWatching,
+                            LastWatched = watchHistory.LastWatch,
+                            Position = watchHistory.Location
+                        });
+                    }
+                }
+            }
+
+            return finalResults;
+        }
+
+        [Obsolete]
         public KalturaWatchHistoryAssetWrapper WatchHistory(int groupId, string siteGuid, string udid, string language, int pageIndex, int? pageSize, KalturaWatchStatus watchStatus, int days, List<int> assetTypes, List<KalturaCatalogWith> withList)
         {
             KalturaWatchHistoryAssetWrapper finalResults = new KalturaWatchHistoryAssetWrapper();

@@ -11,6 +11,23 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.API
 {
     /// <summary>
+    /// List of recommendation profiles.
+    /// </summary>
+    [DataContract(Name = "KalturaRecommendationProfileListResponse", Namespace = "")]
+    [XmlRoot("KalturaRecommendationProfileListResponse")]
+    public class KalturaRecommendationProfileListResponse : KalturaListResponse
+    {
+        /// <summary>
+        /// Recommendation profiles list
+        /// </summary>
+        [DataMember(Name = "objects")]
+        [JsonProperty("objects")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem(ElementName = "item")]
+        public List<KalturaRecommendationProfile> RecommendationProfiles { get; set; }
+    }
+
+    /// <summary>
     /// PaymentGW
     /// </summary>
     [OldStandard("isActive", "is_active")]

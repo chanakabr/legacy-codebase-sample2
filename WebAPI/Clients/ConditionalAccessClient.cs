@@ -1304,7 +1304,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaRecording Record(int groupID, string userID, long epgID, KalturaRecordingType recordingType)
+        internal KalturaRecording Record(int groupID, string userID, long epgID)
         {
             KalturaRecording recording = null;
             Recording response = null;
@@ -1317,7 +1317,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = ConditionalAccess.Record(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, epgID, ConditionalAccessMappings.ConvertKalturaRecordingType(recordingType));
+                    response = ConditionalAccess.Record(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, epgID, RecordingType.Single);
                 }
             }
             catch (Exception ex)

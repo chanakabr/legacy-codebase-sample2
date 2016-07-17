@@ -103,6 +103,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<int, KalturaPersonalFollowFeed>()
                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src));
 
+            Mapper.CreateMap<int, KalturaPersonalFeed>()
+               .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src));
+
             //InboxMessage to KalturaInboxMessage
             Mapper.CreateMap<InboxMessage, KalturaInboxMessage>()
                  .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAtSec))
@@ -360,6 +363,48 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     result.m_eOrderDir = OrderDir.DESC;
                     break;
                 case Models.Catalog.KalturaOrder.oldest_first:
+                    result.m_eOrderBy = OrderBy.START_DATE;
+                    result.m_eOrderDir = OrderDir.ASC;
+                    break;
+            }
+            return result;
+        }
+
+        internal static OrderObj ConvertOrderToOrderObj(KalturaPersonalFeedOrderBy order)
+        {
+            OrderObj result = new OrderObj();
+
+            switch (order)
+            {
+                case KalturaPersonalFeedOrderBy.NAME_ASC:
+                    result.m_eOrderBy = OrderBy.NAME;
+                    result.m_eOrderDir = OrderDir.ASC;
+                    break;
+                case KalturaPersonalFeedOrderBy.NAME_DESC:
+                    result.m_eOrderBy = OrderBy.NAME;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaPersonalFeedOrderBy.VIEWS_DESC:
+                    result.m_eOrderBy = OrderBy.VIEWS;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaPersonalFeedOrderBy.RATINGS_DESC:
+                    result.m_eOrderBy = OrderBy.RATING;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaPersonalFeedOrderBy.VOTES_DESC:
+                    result.m_eOrderBy = OrderBy.VOTES_COUNT;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaPersonalFeedOrderBy.START_DATE_DESC:
+                    result.m_eOrderBy = OrderBy.START_DATE;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaPersonalFeedOrderBy.RELEVANCY_DESC:
+                    result.m_eOrderBy = OrderBy.RELATED;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaPersonalFeedOrderBy.START_DATE_ASC:
                     result.m_eOrderBy = OrderBy.START_DATE;
                     result.m_eOrderDir = OrderDir.ASC;
                     break;

@@ -22,4 +22,21 @@ namespace WebAPI.Models.Notification
         [XmlArrayItem(ElementName = "item")]
         public List<KalturaTopic> Topics{ get; set; }
     }
+
+    /// <summary>
+    /// List of inbox message.
+    /// </summary>
+    [DataContract(Name = "KalturaTopicListResponse", Namespace = "")]
+    [XmlRoot("KalturaTopicListResponse")]
+    public class KalturaTopicListResponse : KalturaListResponse
+    {
+        /// <summary>
+        /// Follow data list
+        /// </summary>
+        [DataMember(Name = "objects")]
+        [JsonProperty("objects")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem(ElementName = "item")]
+        public List<KalturaTopic> Topics { get; set; }
+    }
 }

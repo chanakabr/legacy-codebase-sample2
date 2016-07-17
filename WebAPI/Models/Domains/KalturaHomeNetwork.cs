@@ -11,6 +11,22 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Domains
 {
     /// <summary>
+    /// Home networks
+    /// </summary>
+    [Serializable]
+    public class KalturaHomeNetworkListResponse : KalturaListResponse
+    {
+        /// <summary>
+        /// Home networks
+        /// </summary>
+        [DataMember(Name = "objects")]
+        [JsonProperty(PropertyName = "objects")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaHomeNetwork> Objects { get; set; }
+    }
+
+    /// <summary>
     /// Home network details
     /// </summary>
     [OldStandard("externalId", "external_id")]

@@ -109,7 +109,7 @@ namespace WebAPI.Controllers
                 string userId = KS.GetFromRequest().UserId;
                 
                 // call client
-                response = ClientsManager.ConditionalAccessClient().Record(groupId, userId, recording.AssetId, recording.Type);
+                response = ClientsManager.ConditionalAccessClient().Record(groupId, userId, recording.AssetId);
             }
             catch (ClientException ex)
             {

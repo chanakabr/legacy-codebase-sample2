@@ -11,6 +11,22 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.API
 {
     /// <summary>
+    /// External channel profiles
+    /// </summary>
+    [Serializable]
+    public class KalturaExternalChannelProfileListResponse : KalturaListResponse
+    {
+        /// <summary>
+        /// External channel profiles
+        /// </summary>
+        [DataMember(Name = "objects")]
+        [JsonProperty(PropertyName = "objects")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaExternalChannelProfile> Objects { get; set; }
+    }
+
+    /// <summary>
     /// OSS Adapter
     /// </summary>
     [OldStandard("isActive", "is_active")]

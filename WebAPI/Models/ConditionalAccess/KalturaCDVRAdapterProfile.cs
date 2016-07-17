@@ -11,6 +11,22 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.ConditionalAccess
 {
     /// <summary>
+    /// C-DVR adapter profiles
+    /// </summary>
+    [Serializable]
+    public class KalturaCDVRAdapterProfileListResponse : KalturaListResponse
+    {
+        /// <summary>
+        /// C-DVR adapter profiles
+        /// </summary>
+        [DataMember(Name = "objects")]
+        [JsonProperty(PropertyName = "objects")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaCDVRAdapterProfile> Objects { get; set; }
+    }
+
+    /// <summary>
     /// C-DVR Adapter
     /// </summary>
     [OldStandard("isActive", "is_active")]

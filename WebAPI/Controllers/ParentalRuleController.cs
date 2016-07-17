@@ -91,14 +91,18 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (filter.EntityReferenceEqual == KalturaEntityReferenceBy.user)
+                if (!filter.EntityReferenceEqual.HasValue)
+                {
+                    response = ClientsManager.ApiClient().GetGroupParentalRules(groupId);
+                }
+                else if (filter.EntityReferenceEqual.Value == KalturaEntityReferenceBy.user)
                 {
                     string userId = KS.GetFromRequest().UserId;
 
                     // call client
                     response = ClientsManager.ApiClient().GetUserParentalRules(groupId, userId);
                 }
-                else if (filter.EntityReferenceEqual == KalturaEntityReferenceBy.household)
+                else if (filter.EntityReferenceEqual.Value == KalturaEntityReferenceBy.household)
                 {
                     // call client
                     response = ClientsManager.ApiClient().GetDomainParentalRules(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId));
