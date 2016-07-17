@@ -26,6 +26,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
+        [Obsolete]
         public List<Models.Billing.KalturaPaymentGatewayProfile> List()
         {
             List<Models.Billing.KalturaPaymentGatewayProfile> response = null;

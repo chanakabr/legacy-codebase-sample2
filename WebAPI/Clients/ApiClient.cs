@@ -446,8 +446,6 @@ namespace WebAPI.Clients
 
         internal KalturaPin SetDomainParentalRules(int groupId, int domainId, string pin)
         {
-            bool success = false;
-
             Group group = GroupsManager.GetGroup(groupId);
 
             WebAPI.Api.PinResponse webServiceResponse = null;

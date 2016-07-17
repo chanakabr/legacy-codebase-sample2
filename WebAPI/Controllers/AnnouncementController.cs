@@ -17,6 +17,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/announcement/action")]
+    [OldStandardAction("listOldStandard", "list")]
     public class AnnouncementController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -197,7 +198,37 @@ namespace WebAPI.Controllers
         /// <remarks>FeatureDisabled = 8009</remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaMessageAnnouncementListResponse List(KalturaFilterPager pager = null)
+        public KalturaAnnouncementListResponse List(KalturaAnnouncementFilter filter, KalturaFilterPager pager = null)
+        {
+            KalturaAnnouncementListResponse response = null;
+
+            if (pager == null)
+                pager = new KalturaFilterPager();
+
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                response = ClientsManager.NotificationClient().GetAnnouncements(groupId, pager.getPageSize(), pager.getPageIndex());
+            }
+
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Lists all announcements in the system.
+        /// </summary>
+        /// <param name="pager">Paging the request</param>
+        /// <returns></returns>
+        /// <remarks>FeatureDisabled = 8009</remarks>
+        [Route("listOldStandard"), HttpPost]
+        [ApiAuthorize]
+        [Obsolete]
+        public KalturaMessageAnnouncementListResponse ListOldStandard(KalturaFilterPager pager = null)
         {
             KalturaMessageAnnouncementListResponse response = null;
 

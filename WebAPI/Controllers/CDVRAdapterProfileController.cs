@@ -13,6 +13,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/cDVRAdapterProfile/action")]
+    [OldStandardAction("listOldStandard", "list")]
     public class CDVRAdapterProfileController : ApiController
     {
         /// <summary>
@@ -23,7 +24,35 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public List<KalturaCDVRAdapterProfile> List()
+        public KalturaCDVRAdapterProfileListResponse List()
+        {
+            List<KalturaCDVRAdapterProfile> list = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                list = ClientsManager.ConditionalAccessClient().GetCDVRAdapters(groupId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return new KalturaCDVRAdapterProfileListResponse() { Objects = list, TotalCount = list.Count };
+        }
+
+        /// <summary>
+        /// Returns all C-DVR adapters for partner
+        /// </summary>
+        /// <remarks> 
+        /// 
+        /// </remarks>
+        [Route("listOldStandard"), HttpPost]
+        [ApiAuthorize]
+        [Obsolete]
+        public List<KalturaCDVRAdapterProfile> ListOldStandard()
         {
             List<KalturaCDVRAdapterProfile> response = null;
 

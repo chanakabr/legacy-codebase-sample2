@@ -1,4 +1,5 @@
 ﻿using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -25,6 +26,7 @@ namespace WebAPI.Controllers
         /// </remarks>        
         [Route("list"), HttpPost]
         [ApiAuthorize]
+        [Obsolete]
         public List<Models.Billing.KalturaPaymentGatewayBaseProfile> List()
         {
             List<Models.Billing.KalturaPaymentGatewayBaseProfile> response = null;

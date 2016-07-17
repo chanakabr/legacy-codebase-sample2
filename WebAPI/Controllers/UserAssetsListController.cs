@@ -14,6 +14,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/userAssetsList/action")]
+    [Obsolete]
     public class UserAssetsListController : ApiController
     {
         /// <summary>

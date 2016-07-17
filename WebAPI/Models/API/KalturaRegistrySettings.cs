@@ -9,6 +9,23 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
+    /// <summary>
+    /// List of registry settings.
+    /// </summary>
+    [DataContract(Name = "KalturaRegistrySettingsListResponse", Namespace = "")]
+    [XmlRoot("KalturaRegistrySettingsListResponse")]
+    public class KalturaRegistrySettingsListResponse : KalturaListResponse
+    {
+        /// <summary>
+        /// Registry settings list
+        /// </summary>
+        [DataMember(Name = "objects")]
+        [JsonProperty("objects")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem(ElementName = "item")]
+        public List<KalturaRegistrySettings> RegistrySettings { get; set; }
+    }
+
     public class KalturaRegistrySettings : KalturaOTTObject    
     {
         /// <summary>

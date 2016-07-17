@@ -5,6 +5,19 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Notification
 {
+    public enum KalturaTopicOrderBy
+    {
+        NONE
+    }
+
+    public class KalturaTopicFilter : KalturaFilter<KalturaTopicOrderBy>
+    {
+        public override KalturaTopicOrderBy GetDefaultOrderByValue()
+        {
+            return KalturaTopicOrderBy.NONE;
+        }
+    }
+
     public class KalturaTopic : KalturaOTTObject
     {
 

@@ -1,14 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Schema;
+using WebAPI.Models.Billing;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/paymentMethodProfile/action")]
+    [OldStandardAction("listOldStandard", "list")]
     public class PaymentMethodProfileController : ApiController
     {
         /// <summary>
@@ -21,7 +24,39 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public List<Models.Billing.KalturaPaymentMethodProfile> List(int payment_gateway_id)
+        public KalturaPaymentMethodProfileListResponse List(KalturaPaymentMethodProfileFilter filter)
+        {
+            List<KalturaPaymentMethodProfile> list = null;
+
+            filter.Validate();
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                list = ClientsManager.BillingClient().GetPaymentGatewayPaymentMethods(groupId, filter.PaymentGatewayIdEqual.Value);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return new KalturaPaymentMethodProfileListResponse() { PaymentMethodProfiles = list, TotalCount = list.Count };
+        }
+
+        /// <summary>
+        /// TBD
+        /// </summary>
+        /// <param name="payment_gateway_id"> Payment gateway identifier to list the payment methods for</param>
+        /// <remarks>
+        /// Possible status codes: TBD       
+        /// Payment gateway not exist = 6008
+        /// </remarks>
+        [Route("listOldStandard"), HttpPost]
+        [ApiAuthorize]
+        [Obsolete]
+        public List<Models.Billing.KalturaPaymentMethodProfile> ListOldStandard(int payment_gateway_id)
         {
             List<Models.Billing.KalturaPaymentMethodProfile> response = null;
 
