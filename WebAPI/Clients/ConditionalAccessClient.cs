@@ -1604,6 +1604,86 @@ namespace WebAPI.Clients
 
             return recording;
         }
+
+        internal KalturaSeriesRecording CancelSeriesRecord(int groupId, string userId, long domainId, long id)
+        {
+            KalturaSeriesRecording seriesRecording = null;
+            SeriesRecording response = null;
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = ConditionalAccess.CancelSeriesRecord(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, domainId, id);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            // convert response
+            seriesRecording = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaSeriesRecording>(response);
+
+            return seriesRecording;
+        }
+
+        internal KalturaSeriesRecording DeleteSeriesRecord(int groupId, string userId, long domainId, long id)
+        {
+            KalturaSeriesRecording seriesRecording = null;
+            SeriesRecording response = null;
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = ConditionalAccess.DeleteSeriesRecord(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, domainId, id);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            // convert response
+            seriesRecording = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaSeriesRecording>(response);
+
+            return seriesRecording;
+        }
     }
 }
 

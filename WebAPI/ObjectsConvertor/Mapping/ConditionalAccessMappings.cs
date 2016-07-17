@@ -240,6 +240,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.ViewableUntilDate, opt => opt.MapFrom(src => src.ViewableUntilDate))
                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.CreateDate)))
                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.UpdateDate)));
+            
+            // KalturaSeriesRecording to SeriesRecording
+            Mapper.CreateMap<KalturaSeriesRecording, WebAPI.ConditionalAccess.SeriesRecording>()
+               .ForMember(dest => dest.EpgId, opt => opt.MapFrom(src => src.EpgId))
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.ChannelId, opt => opt.MapFrom(src => src.ChannelId))
+               .ForMember(dest => dest.SeasonNumber, opt => opt.MapFrom(src => src.SeasonNumber))               
+               .ForMember(dest => dest.SeriesId, opt => opt.MapFrom(src => src.SeriesId));
+
+            // SeriesRecording to KalturaSeriesRecording
+            Mapper.CreateMap<KalturaSeriesRecording, WebAPI.ConditionalAccess.SeriesRecording>()
+               .ForMember(dest => dest.EpgId, opt => opt.MapFrom(src => src.EpgId))
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.ChannelId, opt => opt.MapFrom(src => src.ChannelId))
+               .ForMember(dest => dest.SeasonNumber, opt => opt.MapFrom(src => src.SeasonNumber))
+               .ForMember(dest => dest.SeriesId, opt => opt.MapFrom(src => src.SeriesId));
 
             #endregion
 

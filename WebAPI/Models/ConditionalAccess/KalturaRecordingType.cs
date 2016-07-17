@@ -10,5 +10,6 @@ namespace WebAPI.Models.ConditionalAccess
     {
         SINGLE = 0,
         SERIES = 1,
+        SEASON = 2
     }
 }
