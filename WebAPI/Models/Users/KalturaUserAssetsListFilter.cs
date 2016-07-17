@@ -16,6 +16,7 @@ namespace WebAPI.Models.Users
     [Serializable]
     [OldStandard("listTypeEqual", "list_type")]
     [OldStandard("assetTypeEqual", "asset_type")]
+    [Obsolete]
     public class KalturaUserAssetsListFilter : KalturaOTTObject
     {
         /// <summary>

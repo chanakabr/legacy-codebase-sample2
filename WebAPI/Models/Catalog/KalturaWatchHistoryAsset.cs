@@ -14,6 +14,69 @@ namespace WebAPI.Models.Catalog
     /// Watch history asset wrapper
     /// </summary>
     [Serializable]
+    public class KalturaAssetHistoryListResponse : KalturaListResponse
+    {
+        /// <summary>
+        /// WatchHistoryAssets Models
+        /// </summary>
+        [DataMember(Name = "objects")]
+        [JsonProperty(PropertyName = "objects")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaAssetHistory> Objects { get; set; }
+    }
+
+    /// <summary>
+    /// Watch history asset info
+    /// </summary>
+    [Serializable]
+    public class KalturaAssetHistory : KalturaOTTObject
+    {
+        /// <summary>
+        /// Asset identifier
+        /// </summary>
+        [DataMember(Name = "assetId")]
+        [JsonProperty(PropertyName = "assetId")]
+        [XmlElement(ElementName = "assetId", IsNullable = true)]
+        public long AssetId { get; set; }
+
+        /// <summary>
+        /// Position in seconds of the relevant asset
+        /// </summary>
+        [DataMember(Name = "position")]
+        [JsonProperty(PropertyName = "position")]
+        [XmlElement(ElementName = "position")]
+        public int? Position { get; set; }
+
+        /// <summary>
+        /// Duration in seconds of the relevant asset
+        /// </summary>
+        [DataMember(Name = "duration")]
+        [JsonProperty(PropertyName = "duration")]
+        [XmlElement(ElementName = "duration")]
+        public int? Duration { get; set; }
+
+        /// <summary>
+        /// The date when the media was last watched
+        /// </summary>
+        [DataMember(Name = "watchedDate")]
+        [JsonProperty(PropertyName = "watchedDate")]
+        [XmlElement(ElementName = "watchedDate")]
+        public long? LastWatched { get; set; }
+
+        /// <summary>
+        /// Boolean which specifies whether the user finished watching the movie or not
+        /// </summary>
+        [DataMember(Name = "finishedWatching")]
+        [JsonProperty(PropertyName = "finishedWatching")]
+        [XmlElement(ElementName = "finishedWatching")]
+        public bool? IsFinishedWatching { get; set; }
+    }
+
+    /// <summary>
+    /// Watch history asset wrapper
+    /// </summary>
+    [Serializable]
     [Obsolete]
     public class KalturaWatchHistoryAssetWrapper : KalturaListResponse, KalturaIAssetable
     {

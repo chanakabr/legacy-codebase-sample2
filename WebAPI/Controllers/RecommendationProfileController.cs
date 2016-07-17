@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -10,6 +11,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/recommendationProfile/action")]
+    [OldStandardAction("listOldStandard", "list")]
     public class RecommendationProfileController : ApiController
     {
         /// <summary>
@@ -21,7 +23,36 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public List<KalturaRecommendationProfile> List()
+        public KalturaRecommendationProfileListResponse List()
+        {
+            List<KalturaRecommendationProfile> list = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                list = ClientsManager.ApiClient().GetRecommendationEngines(groupId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return new KalturaRecommendationProfileListResponse() { RecommendationProfiles = list, TotalCount = list.Count };
+        }
+
+        /// <summary>
+        /// Returns all recommendation engines for partner 
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:       
+        ///  
+        /// </remarks>
+        [Route("listOldStandard"), HttpPost]
+        [ApiAuthorize]
+        [Obsolete]
+        public List<KalturaRecommendationProfile> ListOldStandard()
         {
             List<KalturaRecommendationProfile> response = null;
 

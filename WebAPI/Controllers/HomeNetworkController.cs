@@ -15,6 +15,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/homeNetwork/action")]
+    [OldStandardAction("listOldStandard", "list")]
     public class HomeNetworkController : ApiController
     {
         /// <summary>
@@ -56,7 +57,35 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public List<KalturaHomeNetwork> List()
+        public KalturaHomeNetworkListResponse List()
+        {
+            List<KalturaHomeNetwork> list = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+            try
+            {
+                list = ClientsManager.DomainsClient().GetDomainHomeNetworks(groupId, householdId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return new KalturaHomeNetworkListResponse() { Objects = list, TotalCount = list.Count };
+        }
+
+        /// <summary>
+        /// Retrieve the household’s home networks
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// <returns></returns>
+        [Route("listOldStandard"), HttpPost]
+        [ApiAuthorize]
+        [Obsolete]
+        public List<KalturaHomeNetwork> ListOldStandard()
         {
             List<KalturaHomeNetwork> response = null;
 

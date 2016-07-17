@@ -6,6 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Utils;
@@ -13,6 +14,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/inboxMessage/action")]
+    [OldStandardAction("listOldStandard", "list")]
     public class InboxMessageController : ApiController
     {
 
@@ -61,9 +63,9 @@ namespace WebAPI.Controllers
         /// <param name="filter">filter</param>        
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaInboxMessageResponse List(KalturaFilterPager pager = null, KalturaInboxMessageFilter filter = null)
+        public KalturaInboxMessageListResponse List(KalturaInboxMessageFilter filter = null, KalturaFilterPager pager = null)
         {
-            KalturaInboxMessageResponse response = null;
+            KalturaInboxMessageListResponse response = null;
 
             try
             {
@@ -74,7 +76,7 @@ namespace WebAPI.Controllers
                     pager = new KalturaFilterPager();
 
                 if (filter == null)
-                    filter = new KalturaInboxMessageFilter() { TypeIn = new List<KalturaInboxMessageTypeHolder>() };
+                    filter = new KalturaInboxMessageFilter();
 
                 if (!filter.CreatedAtGreaterThanOrEqual.HasValue)
                 {
@@ -87,7 +89,54 @@ namespace WebAPI.Controllers
                 }
 
                 // call client                
-                response = ClientsManager.NotificationClient().GetInboxMessages(groupId, userId, pager.getPageSize(), pager.getPageIndex(), filter.TypeIn, filter.CreatedAtGreaterThanOrEqual.Value, filter.CreatedAtLessThanOrEqual.Value);
+                response = ClientsManager.NotificationClient().GetInboxMessageList(groupId, userId, pager.getPageSize(), pager.getPageIndex(), filter.getTypeIn(), filter.CreatedAtGreaterThanOrEqual.Value, filter.CreatedAtLessThanOrEqual.Value);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// TBD
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:       
+        /// message identifier required = 8019, user inbox message not exist = 8020,
+        /// </remarks>
+        /// <param name="pager">Page size and index</param>        
+        /// <param name="filter">filter</param>        
+        [Route("listOldStandard"), HttpPost]
+        [ApiAuthorize]
+        [Obsolete]
+        public KalturaInboxMessageResponse ListOldStandard(KalturaFilterPager pager = null, KalturaInboxMessageFilter filter = null)
+        {
+            KalturaInboxMessageResponse response = null;
+
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
+
+                if (pager == null)
+                    pager = new KalturaFilterPager();
+
+                if (filter == null)
+                    filter = new KalturaInboxMessageFilter();
+
+                if (!filter.CreatedAtGreaterThanOrEqual.HasValue)
+                {
+                    filter.CreatedAtGreaterThanOrEqual = 0;
+                }
+
+                if (!filter.CreatedAtLessThanOrEqual.HasValue)
+                {
+                    filter.CreatedAtLessThanOrEqual = 0;
+                }
+
+                // call client                
+                response = ClientsManager.NotificationClient().GetInboxMessages(groupId, userId, pager.getPageSize(), pager.getPageIndex(), filter.getTypeIn(), filter.CreatedAtGreaterThanOrEqual.Value, filter.CreatedAtLessThanOrEqual.Value);
             }
             catch (ClientException ex)
             {

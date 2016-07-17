@@ -23,6 +23,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
+        [Obsolete]
         public List<KalturaOSSAdapterBaseProfile> List()
         {
             List<KalturaOSSAdapterBaseProfile> response = null;

@@ -373,6 +373,16 @@ namespace Validator.Managers.Schema
             writer.WriteAttributeString("description", "Impersonated partner id");
             writer.WriteEndElement(); // partnerId
 
+            writer.WriteStartElement("userId");
+            writer.WriteAttributeString("type", "int");
+            writer.WriteAttributeString("description", "Impersonated user id");
+            writer.WriteEndElement(); // userId
+
+            writer.WriteStartElement("language");
+            writer.WriteAttributeString("type", "int");
+            writer.WriteAttributeString("description", "Content language");
+            writer.WriteEndElement(); // language
+
             writer.WriteStartElement("ks");
             writer.WriteAttributeString("type", "string");
             writer.WriteAttributeString("alias", "sessionId");
