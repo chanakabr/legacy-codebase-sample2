@@ -18350,7 +18350,7 @@ namespace ConditionalAccess
             return response;
         }
 
-        public ApiObjects.Response.Status CompleteHouseholdSeriesRecordings(long householdId, string seriesId = null, int seasonNumber = 0, bool shouldCompleteCanceledAnDeleted = false)
+        public ApiObjects.Response.Status CompleteHouseholdSeriesRecordings(long householdId, string seriesId = null, int seasonNumber = 0, bool shouldCompleteCanceledAndDeleted = false)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -18407,7 +18407,7 @@ namespace ConditionalAccess
                     ApiObjects.TstvRecordingStatus.Scheduled,
                 };
 
-                if (!shouldCompleteCanceledAnDeleted)
+                if (!shouldCompleteCanceledAndDeleted)
                 {
                     recordingsStatusesToExclude.Add(ApiObjects.TstvRecordingStatus.Canceled);
                     recordingsStatusesToExclude.Add(ApiObjects.TstvRecordingStatus.Deleted);
