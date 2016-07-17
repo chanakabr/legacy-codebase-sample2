@@ -30,7 +30,6 @@ namespace ApiObjects.SearchObjects
         {
         }
 
-
         #region Parse Expression
 
         // returns tree representing the search expression 
