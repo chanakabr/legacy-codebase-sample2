@@ -14,6 +14,7 @@ namespace ApiObjects.Catalog
         UpdateIndexFailed,
         ErrorExportChannel,
         MediaIdNotExist,
-        EPGSchedIdNotExist
+        EPGSchedIdNotExist,
+        EPGSProgramDatesError
     }
 }

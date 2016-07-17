@@ -110,7 +110,7 @@ namespace Recordings
 
         #region Public Methods
 
-        public Recording Record(int groupId, long programId, string epgChannelID, DateTime startDate, DateTime endDate, string siteGuid, long domainId)
+        public Recording Record(int groupId, long programId, string epgChannelID, DateTime startDate, DateTime endDate, string crid)
         {
             Recording recording = null;
 
@@ -122,42 +122,66 @@ namespace Recordings
             syncParmeters.Add("startDate", startDate);
             syncParmeters.Add("endDate", endDate);
 
-            recording = RecordingsDAL.GetRecordingByProgramId(programId);
-
-            // remember and not forget
-            if (recording == null)
-            {
-                bool syncedAction = synchronizer.DoAction(syncKey, syncParmeters);
-
-                object recordingObject;
-                if (syncParmeters.TryGetValue("recording", out recordingObject))
-                {
-                    recording = (Recording)recordingObject;
-                }
-                else
-                {
-                    recording = RecordingsDAL.GetRecordingByProgramId(programId);
-                }
-            }
-
             try
             {
-                if (recording != null)
+                Dictionary<long, Recording> recordingsEpgMap = ConditionalAccess.Utils.GetEpgToRecordingsMapByCrid(groupId, crid);
+
+                // remember and not forget
+                if (recordingsEpgMap == null || recordingsEpgMap.Count == 0)
                 {
-                    TimeShiftedTvPartnerSettings accountSettings = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
-                    if (accountSettings == null || !accountSettings.RecordingLifetimePeriod.HasValue)
+                    bool syncedAction = synchronizer.DoAction(syncKey, syncParmeters);
+
+                    object recordingObject;
+                    if (syncParmeters.TryGetValue("recording", out recordingObject))
                     {
-                        log.DebugFormat("Failed getting account Lifetime Period, groupID: {0}, epgID: {1}", groupId, programId);
-                        recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());                        
+                        recording = (Recording)recordingObject;
                     }
                     else
                     {
-                        DateTime viewUntilDate = recording.EpgEndDate.AddDays(accountSettings.RecordingLifetimePeriod.Value);
-                        recording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(viewUntilDate);
-                        recording.Status = new Status((int)eResponseStatus.OK);
+                        recording = RecordingsDAL.GetRecordingByProgramId(programId);
                     }
                 }
+                else if (recordingsEpgMap.ContainsKey(programId))
+                {
+                    recording = recordingsEpgMap[programId];
+                }
+                else
+                {                    
+                    Recording existingRecordingWithMinStartDate = recordingsEpgMap.OrderBy(x => x.Value.EpgStartDate).ToList().First().Value;
+                    recording = new Recording(existingRecordingWithMinStartDate) { EpgStartDate = startDate, EpgEndDate = endDate, EpgId = programId, RecordingStatus = TstvRecordingStatus.Scheduled };
+                    if (recording.EpgStartDate < existingRecordingWithMinStartDate.EpgStartDate && existingRecordingWithMinStartDate.EpgEndDate > DateTime.UtcNow)
+                    {
+                        AdapterControllers.CDVR.CdvrAdapterController adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
+                        int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
+                        RecordResult adapterResponse = null;
+                        // only cancel is possible because existingRecordingWithMinStartDate hasn't been recorded yet
+                        adapterResponse = adapterController.CancelRecording(groupId, existingRecordingWithMinStartDate.ExternalRecordingId, adapterId);
+
+                        if (adapterResponse == null)
+                        {
+                            recording.Status = new Status((int)eResponseStatus.Error, "Adapter controller returned null response.");
+                            return recording;
+                        }
+                        else if (adapterResponse.FailReason != 0)
+                        {
+                            recording.Status = CreateFailStatus(adapterResponse);
+                            return recording;
+                        }
+                        else
+                        {
+                            CallAdapterRecord(groupId, epgChannelID, recording.EpgStartDate, recording.EpgEndDate, false, recording);
+                            if (!RecordingsDAL.UpdateRecordingsExternalId(groupId, recording.ExternalRecordingId, recording.Crid))
+                            {
+                                log.ErrorFormat("Failed UpdateRecordingsExternalId, ExternalRecordingId: {0}, Crid: {1}", recording.ExternalRecordingId, recording.Crid);
+                            }                            
+                        }
+                    }
+
+                    recording = RecordingsDAL.InsertRecording(recording, groupId, RecordingInternalStatus.OK);
+                    recording.RecordingStatus = GetTstvRecordingStatus(recording.EpgStartDate, recording.EpgEndDate, recording.RecordingStatus);
+                }
             }
+
             catch (Exception ex)
             {
                 log.ErrorFormat("RecordingsManager - Record: Error getting recording of program {0}. error = {1}", programId, ex);
@@ -233,19 +257,19 @@ namespace Recordings
 
                 RecordResult adapterResponse = null;
                 try
-                {                    
+                {
                     switch (recordingStatus)
                     {
                         case TstvRecordingStatus.Canceled:
-                            adapterResponse = adapterController.CancelRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
-                            break;
+                        adapterResponse = adapterController.CancelRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
+                        break;
                         case TstvRecordingStatus.Deleted:
-                            adapterResponse = adapterController.DeleteRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
-                            break;
+                        adapterResponse = adapterController.DeleteRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
+                        break;
                         default:
-                            break;
+                        break;
                     }
-                    
+
                 }
                 catch (KalturaException ex)
                 {
@@ -273,20 +297,20 @@ namespace Recordings
                 {
                     try
                     {
-                       
+
                         // Update recording information in to database
                         bool updateResult = false;
 
                         switch (recordingStatus)
                         {
                             case TstvRecordingStatus.Canceled:
-                                updateResult = RecordingsDAL.CancelRecording(slimRecording.Id);
-                                break;
+                            updateResult = RecordingsDAL.CancelRecording(slimRecording.Id);
+                            break;
                             case TstvRecordingStatus.Deleted:
-                                updateResult = RecordingsDAL.DeleteRecording(slimRecording.Id);
-                                break;
+                            updateResult = RecordingsDAL.DeleteRecording(slimRecording.Id);
+                            break;
                             default:
-                                break;
+                            break;
                         }
 
                         if (!updateResult)
@@ -294,7 +318,7 @@ namespace Recordings
                             return new Status((int)eResponseStatus.Error, string.Format("Failed updating recording {0} to status {1}", slimRecording.Id, recordingStatus));
                         }
 
-                        UpdateCouchbaseIsRecorded(groupId, slimRecording.EpgId, false);
+                        UpdateCouchbase(groupId, slimRecording.EpgId, slimRecording.Id, false);
 
                         // We're OK
                         status = new Status((int)eResponseStatus.OK);
@@ -316,7 +340,7 @@ namespace Recordings
 
             if (groupId > 0 && recording != null && recording.Id > 0 && recording.EpgId > 0 && !string.IsNullOrEmpty(recording.ExternalRecordingId))
             {
-                int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);                
+                int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
 
                 var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
 
@@ -328,13 +352,13 @@ namespace Recordings
                     switch (recordingStatus)
                     {
                         case TstvRecordingStatus.Canceled:
-                            adapterResponse = adapterController.CancelRecording(groupId, recording.ExternalRecordingId, adapterId);
-                            break;
+                        adapterResponse = adapterController.CancelRecording(groupId, recording.ExternalRecordingId, adapterId);
+                        break;
                         case TstvRecordingStatus.Deleted:
-                            adapterResponse = adapterController.DeleteRecording(groupId, recording.ExternalRecordingId, adapterId);
-                            break;
+                        adapterResponse = adapterController.DeleteRecording(groupId, recording.ExternalRecordingId, adapterId);
+                        break;
                         default:
-                            break;
+                        break;
                     }
 
                 }
@@ -371,13 +395,13 @@ namespace Recordings
                         switch (recordingStatus)
                         {
                             case TstvRecordingStatus.Canceled:
-                                updateResult = RecordingsDAL.CancelRecording(recording.Id);
-                                break;
+                            updateResult = RecordingsDAL.CancelRecording(recording.Id);
+                            break;
                             case TstvRecordingStatus.Deleted:
-                                updateResult = RecordingsDAL.DeleteRecording(recording.Id);
-                                break;
+                            updateResult = RecordingsDAL.DeleteRecording(recording.Id);
+                            break;
                             default:
-                                break;
+                            break;
                         }
 
                         if (!updateResult)
@@ -385,7 +409,7 @@ namespace Recordings
                             return new Status((int)eResponseStatus.Error, string.Format("Failed updating recording {0} to status {1}", recording.Id, recordingStatus));
                         }
 
-                        UpdateCouchbaseIsRecorded(groupId, recording.EpgId, false);
+                        UpdateCouchbase(groupId, recording.EpgId, recording.Id, false);
 
                         // We're OK
                         status = new Status((int)eResponseStatus.OK);
@@ -823,6 +847,17 @@ namespace Recordings
             return response;
         }
 
+        public static void EnqueueMessage(int groupId, long programId, long recordingId, DateTime checkTime, eRecordingTask task)
+        {
+            var queue = new GenericCeleryQueue();
+            var message = new RecordingTaskData(groupId, task,
+                checkTime,
+                programId,
+                recordingId);
+
+            queue.Enqueue(message, string.Format(SCHEDULED_TASKS_ROUTING_KEY, groupId));
+        }
+
         internal void RecoverRecordings(int groupId)
         {
             // Get both waiting and failed recordings
@@ -863,6 +898,7 @@ namespace Recordings
 
             int groupId = (int)parameters["groupId"];
             long programId = (long)parameters["programId"];
+            string crid = (string)parameters["crid"];
             string epgChannelID = (string)parameters["epgChannelID"];
             DateTime startDate = (DateTime)parameters["startDate"];
             DateTime endDate = (DateTime)parameters["endDate"];
@@ -877,6 +913,7 @@ namespace Recordings
                 issueRecord = true;
                 recording = new Recording();
                 recording.EpgId = programId;
+                recording.Crid = crid;
                 recording.EpgStartDate = startDate;
                 recording.EpgEndDate = endDate;
                 recording.ChannelId = epgChannelID;
@@ -893,7 +930,7 @@ namespace Recordings
             // If it is a new recording or a canceled recording - we call adapter
             if (issueRecord)
             {
-                // Schedule a message tocheck status 1 minute after recording of program is supposed to be over
+                // Schedule a message to check status 1 minute after recording of program is supposed to be over
 
                 DateTime checkTime = endDate.AddMinutes(1);
                 eRecordingTask task = eRecordingTask.GetStatusAfterProgramEnded;
@@ -907,7 +944,7 @@ namespace Recordings
                 // Update Couchbase that the EPG is recorded
                 #region Update CB
 
-                UpdateCouchbaseIsRecorded(groupId, programId, true);
+                UpdateCouchbase(groupId, programId, recording.Id, true);
 
                 #endregion
 
@@ -957,28 +994,58 @@ namespace Recordings
             }
         }
 
-        private static void UpdateCouchbaseIsRecorded(int groupId, long programId, bool isRecorded)
+        private static void UpdateCouchbase(int groupId, long programId, long recordingId, bool isRecorded)
         {
-            TvinciEpgBL epgBLTvinci = new TvinciEpgBL(groupId);
+            RecordingCB recording = RecordingsDAL.GetRecordingByProgramId_CB(programId);
 
-            EpgCB epg = epgBLTvinci.GetEpgCB((ulong)programId);
-
-            if (epg != null)
+            if (isRecorded)
             {
-                epg.IsRecorded = Convert.ToInt32(isRecorded);
-                epgBLTvinci.UpdateEpg(epg);
+                if (recording == null)
+                {
+                    TvinciEpgBL epgBLTvinci = new TvinciEpgBL(groupId);
+
+                    EpgCB epg = epgBLTvinci.GetEpgCB((ulong)programId);
+
+                    if (epg != null)
+                    {
+                        epgBLTvinci.UpdateEpg(epg);
+
+                        recording = new RecordingCB(epg)
+                        {
+                            RecordingId = (ulong)recordingId,
+                            IsRecorded = isRecorded
+                        };
+                    }
+                }
+
+                RecordingsDAL.UpdateRecording_CB(recording);
+            }
+            else if (!isRecorded)
+            {
+                RecordingsDAL.DeleteRecording_CB(recording);
             }
         }
 
-        private static void EnqueueMessage(int groupId, long programId, long recordingId, DateTime checkTime, eRecordingTask task)
+        public static RecordingCB GetRecordingCB(int groupId, long programId, long recordingId)
         {
-            var queue = new GenericCeleryQueue();
-            var message = new RecordingTaskData(groupId, task,
-                checkTime,
-                programId,
-                recordingId);
+            RecordingCB recording = RecordingsDAL.GetRecordingByProgramId_CB(programId);
 
-            queue.Enqueue(message, string.Format(SCHEDULED_TASKS_ROUTING_KEY, groupId));
+            if (recording == null)
+            {
+                TvinciEpgBL epgBLTvinci = new TvinciEpgBL(groupId);
+
+                EpgCB epg = epgBLTvinci.GetEpgCB((ulong)programId);
+
+                if (epg != null)
+                {
+                    recording = new RecordingCB(epg)
+                    {
+                        RecordingId = (ulong)recordingId
+                    };
+                }
+            }
+
+            return recording;
         }
 
         private static void RetryTaskAfterProgramEnded(int groupId, Recording currentRecording, DateTime nextCheck, eRecordingTask recordingTask)
@@ -1013,7 +1080,7 @@ namespace Recordings
             // if there is more than 1 day left, try tomorrow
             if (span.TotalDays > 1)
             {
-                log.DebugFormat("Retry task before program started: Recording id = {0} will retry tomorrow, because start date is {1}", 
+                log.DebugFormat("Retry task before program started: Recording id = {0} will retry tomorrow, because start date is {1}",
                     recording.Id, recording.EpgStartDate);
 
                 nextCheck = DateTime.UtcNow.AddDays(1);
@@ -1040,7 +1107,7 @@ namespace Recordings
             if (DateTime.UtcNow < recording.EpgStartDate &&
                 DateTime.UtcNow < nextCheck)
             {
-                log.DebugFormat("Retry task before program started: program didn't start yet, we will enqueue a message now for recording {0}", 
+                log.DebugFormat("Retry task before program started: program didn't start yet, we will enqueue a message now for recording {0}",
                     recording.Id);
                 EnqueueMessage(groupId, recording.EpgId, recording.Id, nextCheck, task);
             }
@@ -1135,7 +1202,7 @@ namespace Recordings
                     else
                     {
                         currentRecording.RecordingStatus = TstvRecordingStatus.Scheduled;
-                        currentRecording.RecordingStatus = RecordingsManager.GetTstvRecordingStatus(currentRecording.EpgStartDate, currentRecording.EpgEndDate, currentRecording.RecordingStatus);                        
+                        currentRecording.RecordingStatus = RecordingsManager.GetTstvRecordingStatus(currentRecording.EpgStartDate, currentRecording.EpgEndDate, currentRecording.RecordingStatus);
 
                         // Insert the new links of the recordings
                         if (adapterResponse.Links != null && adapterResponse.Links.Count > 0)

@@ -635,7 +635,8 @@ namespace ApiObjects
     {
         GetStatusAfterProgramEnded = 1,
         Record = 2,
-        UpdateRecording = 3
+        UpdateRecording = 3,
+        DistributeRecording = 4
     }
 
     public enum RecordingType

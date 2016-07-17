@@ -5885,6 +5885,8 @@ namespace TvinciImporter
 
                 if (!string.IsNullOrEmpty(casURL))
                 {
+                    cas.Url = casURL;
+
                     WS_ConditionalAccess.eAction casAction = WS_ConditionalAccess.eAction.Update;
 
                     switch (action)

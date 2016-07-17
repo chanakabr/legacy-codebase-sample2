@@ -85,9 +85,6 @@ namespace ApiObjects
         [JsonConverter(typeof(EpgTimeConverter))]
         public DateTime SearchEndDate { get; set; }
 
-        [JsonProperty("is_recorded", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
-        public int IsRecorded { get; set; }
-
         //from Storm version
         [JsonProperty("crid", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
         public string Crid { get; set; }

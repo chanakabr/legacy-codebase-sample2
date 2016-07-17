@@ -142,6 +142,7 @@
     <Compile Include="PicSize.cs" />
     <Compile Include="Request\AssetsBookmarksRequest.cs" />
     <Compile Include="Request\AssetsBookmarksRequestData.cs" />
+    <Compile Include="Request\ExtendedSearchRequest.cs" />
     <Compile Include="Request\CountryRequest.cs" />
     <Compile Include="Response\AssetsBookmarksResponse.cs" />
     <Compile Include="Request\AssetStatsRequest.cs" />
@@ -180,6 +181,7 @@
     <Compile Include="ChannelViewsResult.cs" />
     <Compile Include="Request\BundleAssetsRequest.cs" />
     <Compile Include="Response\ContainingMediaResponse.cs" />
+    <Compile Include="Response\ExtendedSearchResult.cs" />
     <Compile Include="Response\CountryResponse.cs" />
     <Compile Include="Response\MediaIdsStatusResponse.cs" />
     <Compile Include="Response\UnifiedSearchExternalResponse.cs" />
