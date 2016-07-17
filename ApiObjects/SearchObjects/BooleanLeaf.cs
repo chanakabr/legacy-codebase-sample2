@@ -45,6 +45,9 @@ namespace ApiObjects.SearchObjects
         [JsonProperty()]
         public ComparisonOperator operand;
 
+        [DataMember]
+        public List<eAssetTypes> assetTypes;
+
         #endregion
 
         #region Properties
