@@ -847,14 +847,10 @@ namespace Recordings
             return response;
         }
 
-        public static void EnqueueMessage(int groupId, long programId, long recordingId, DateTime checkTime, eRecordingTask task)
+        public static void EnqueueMessage(int groupId, long programId, long recordingId, DateTime epgStartDate, DateTime etaTime, eRecordingTask task)
         {
             var queue = new GenericCeleryQueue();
-            var message = new RecordingTaskData(groupId, task,
-                checkTime,
-                programId,
-                recordingId);
-
+            var message = new RecordingTaskData(groupId, task, epgStartDate, etaTime, programId, recordingId);
             queue.Enqueue(message, string.Format(SCHEDULED_TASKS_ROUTING_KEY, groupId));
         }
 
@@ -873,13 +869,13 @@ namespace Recordings
                 // If the provider failed, we'll start retrying as usual
                 if (recording.EpgStartDate > DateTime.UtcNow)
                 {
-                    EnqueueMessage(groupId, recording.EpgId, recording.Id, DateTime.UtcNow, eRecordingTask.Record);
+                    EnqueueMessage(groupId, recording.EpgId, recording.Id, recording.EpgStartDate, DateTime.UtcNow, eRecordingTask.Record);
                 }
 
                 DateTime getStatusTime = recording.EpgEndDate.AddMinutes(1);
 
                 // Anyway we should always check the status after the program finishes
-                EnqueueMessage(groupId, recording.EpgId, recording.Id, getStatusTime, eRecordingTask.GetStatusAfterProgramEnded);
+                EnqueueMessage(groupId, recording.EpgId, recording.Id, recording.EpgStartDate, getStatusTime, eRecordingTask.GetStatusAfterProgramEnded);
             }
         }
 
@@ -935,7 +931,7 @@ namespace Recordings
                 DateTime checkTime = endDate.AddMinutes(1);
                 eRecordingTask task = eRecordingTask.GetStatusAfterProgramEnded;
 
-                EnqueueMessage(groupId, programId, recording.Id, checkTime, task);
+                EnqueueMessage(groupId, programId, recording.Id, startDate, checkTime, task);
 
                 bool isCanceled = recording.RecordingStatus == TstvRecordingStatus.Canceled;
 
@@ -1056,7 +1052,7 @@ namespace Recordings
                 log.DebugFormat("Try to enqueue retry task: groupId {0}, recordingId {1}, nextCheck {2}, recordingTask {3}, retries {4}",
                     groupId, currentRecording.Id, nextCheck.ToString(), recordingTask.ToString(), currentRecording.GetStatusRetries);
 
-                EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, nextCheck, recordingTask);
+                EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, currentRecording.EpgStartDate, nextCheck, recordingTask);
             }
             else
             {
@@ -1109,7 +1105,7 @@ namespace Recordings
             {
                 log.DebugFormat("Retry task before program started: program didn't start yet, we will enqueue a message now for recording {0}",
                     recording.Id);
-                EnqueueMessage(groupId, recording.EpgId, recording.Id, nextCheck, task);
+                EnqueueMessage(groupId, recording.EpgId, recording.Id, recording.EpgStartDate, nextCheck, task);
             }
             else
             // If it is still not ok - mark as failed

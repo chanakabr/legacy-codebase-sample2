@@ -18743,12 +18743,12 @@ namespace ConditionalAccess
                         continue;
                     }
 
-                    if (epgPaddedStartDate > DateTime.UtcNow)
+                    if (globalRecording.EpgStartDate > DateTime.UtcNow)
                     {
                         // add message which will add the recording to all the following domains
                         DateTime distributeTime = epgPaddedStartDate.AddMinutes(1);
                         eRecordingTask task = eRecordingTask.DistributeRecording;
-                        RecordingsManager.EnqueueMessage(m_nGroupID, globalRecording.EpgId, globalRecording.Id, distributeTime, task);
+                        RecordingsManager.EnqueueMessage(m_nGroupID, globalRecording.EpgId, globalRecording.Id, epgPaddedStartDate, distributeTime, task);
                     }
                 }
 
@@ -18915,6 +18915,83 @@ namespace ConditionalAccess
             }
 
             return seriesRecording;
-        }        
+        }
+
+        public bool DistributeRecording(long epgId, long id, DateTime epgStartDate)
+        {
+            bool result = true;
+            Recording recording = Utils.GetRecordingById(id);
+            if (recording == null || recording.Status == null || recording.Status.Code != (int)eResponseStatus.OK)
+            {
+                // don't try distributing again
+                return result;
+            }
+
+            if (recording.RecordingStatus != TstvRecordingStatus.Recording && recording.RecordingStatus != TstvRecordingStatus.Recorded)
+            {
+                // don't try distributing again
+                return result;                
+            }
+
+            List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, new List<long>() { epgId });
+            if (epgs == null || epgs.Count != 1)
+            {
+                log.DebugFormat("Failed Getting EPG from Catalog, groupId: {0}, EpgId: {1}", m_nGroupID, epgId);
+                return result;
+            }
+
+            EPGChannelProgrammeObject epg = epgs.First();
+            Dictionary<string, string> epgFieldMappings = null;
+            if (!Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, RecordingType.Series, epgFieldMappings) || epgFieldMappings == null || epgFieldMappings.Count == 0)
+            {
+                log.ErrorFormat("failed GetEpgFieldTypeEntitys, groupId: {0}, epgId: {1}", m_nGroupID, epg.EPG_ID);
+                return result;
+            }
+
+            string seriesId = epgFieldMappings[Utils.SERIES_ID];
+            int epgSeasonNumber = 0;
+
+            if (epgFieldMappings.ContainsKey(Utils.SEASON_NUMBER) && !int.TryParse(epgFieldMappings[Utils.SEASON_NUMBER], out epgSeasonNumber))
+            {
+                log.ErrorFormat("failed parsing SEASON_NUMBER, groupId: {0}, epgId: {1}", m_nGroupID, epg.EPG_ID);
+                return result;
+            }
+
+            int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;            
+            long maxDomainSeriesId = 0;
+            DataTable followingDomains = RecordingsDAL.GetSeriesFollowingDomains(m_nGroupID, seriesId, epgSeasonNumber, maxDomainSeriesId);
+            while (followingDomains != null && followingDomains.Rows != null && followingDomains.Rows.Count > 0 && maxDomainSeriesId > -1)
+            {
+                // set max amount of concurrent tasks
+                int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
+                if (maxDegreeOfParallelism == 0)
+                {
+                    maxDegreeOfParallelism = 5;
+                }
+
+                ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
+                ContextData contextData = new ContextData();
+                // loop on all rows
+                Parallel.For(0, followingDomains.Rows.Count, options, i =>
+                {
+                    contextData.Load();
+                    DataRow dr = followingDomains.Rows[i];
+                    long domainId = ODBCWrapper.Utils.GetLongSafeVal(dr, "DOMAIN_ID", 0);
+                    long userId = ODBCWrapper.Utils.GetLongSafeVal(dr, "USER_ID", 0);
+                    int seasonNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "SEASON_NUMBER", 0);
+                    RecordingType recordingType = seasonNumber > 0 ? RecordingType.Season : RecordingType.Series;
+                    if (domainId > 0 && userId > 0 && QuotaManager.Instance.GetDomainQuota(m_nGroupID, domainId) >= recordingDuration)
+                    {
+                        Recording userRecording = Record(userId.ToString(), epgId, recordingType);
+                    }
+                });
+
+                System.Threading.Thread.Sleep(10);
+                // max domain series ID because GetSeriesFollowingDomains is ordered by id asc
+                maxDomainSeriesId = ODBCWrapper.Utils.GetLongSafeVal(followingDomains.Rows[followingDomains.Rows.Count - 1], "ID", -1);
+                followingDomains = RecordingsDAL.GetSeriesFollowingDomains(m_nGroupID, seriesId, epgSeasonNumber, maxDomainSeriesId);
+            }
+            return result;
+        }
     }
 }
