@@ -824,15 +824,15 @@ namespace DAL
             return dt;
         }
 
-        public static bool IsFirstFollower(int groupId, string seriesId, int seasonNumber)
+        public static bool IsSeriesFollowed(int groupId, string seriesId, int seasonNumber)
         {
-            ODBCWrapper.StoredProcedure spIsFirstFollower = new ODBCWrapper.StoredProcedure("IsFirstFollower");
-            spIsFirstFollower.SetConnectionKey(RECORDING_CONNECTION);
-            spIsFirstFollower.AddParameter("@GroupID", groupId);            
-            spIsFirstFollower.AddParameter("@SeriesId", seriesId);
-            spIsFirstFollower.AddParameter("@SeasonNumber", seasonNumber);
+            ODBCWrapper.StoredProcedure spIsSeriesFollowed = new ODBCWrapper.StoredProcedure("IsSeriesFollowed");
+            spIsSeriesFollowed.SetConnectionKey(RECORDING_CONNECTION);
+            spIsSeriesFollowed.AddParameter("@GroupID", groupId);            
+            spIsSeriesFollowed.AddParameter("@SeriesId", seriesId);
+            spIsSeriesFollowed.AddParameter("@SeasonNumber", seasonNumber);
 
-            int rowsFound = spIsFirstFollower.ExecuteReturnValue<int>();
+            int rowsFound = spIsSeriesFollowed.ExecuteReturnValue<int>();
 
             return rowsFound == 1;
         }
