@@ -18350,7 +18350,7 @@ namespace ConditionalAccess
             return response;
         }
 
-        public ApiObjects.Response.Status CompleteHouseholdSeriesRecordings(long householdId)
+        public ApiObjects.Response.Status CompleteHouseholdSeriesRecordings(long householdId, string seriesId = null, int seasonNumber = 0, bool shouldCompleteCanceledAndDeleted = false)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -18374,6 +18374,19 @@ namespace ConditionalAccess
                     return response;
                 }
 
+                DomainSeriesRecording serie = null;
+                if (!string.IsNullOrEmpty(seriesId) && (serie = series.Where(s => s.SeriesId == seriesId && s.SeasonNumber == seasonNumber).FirstOrDefault()) == null)
+                {
+                    log.ErrorFormat("household does not follow provided serie. householdId = {0}, seriesId = {1}, seasonNumber = {2}", householdId, seriesId, seasonNumber);
+                    return response;
+                }
+
+                // if completing only 1 serie, override the series parameter for the rest of the fllow
+                if (serie != null)
+                {
+                    series = new List<DomainSeriesRecording>() { serie };
+                }
+
                 // get household quota - if no quota - nothing to do
                 int availibleQuota = QuotaManager.Instance.GetDomainQuota(m_nGroupID, householdId);
                 
@@ -18385,17 +18398,23 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                // get household recordings - all statuses but 'Failed'
-                Dictionary<long, Recording> householdRecordings = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, householdId, new List<ApiObjects.TstvRecordingStatus>() 
+                List<ApiObjects.TstvRecordingStatus> recordingsStatusesToExclude = new List<ApiObjects.TstvRecordingStatus>() 
                 {
-                    ApiObjects.TstvRecordingStatus.Canceled,
-                    ApiObjects.TstvRecordingStatus.Deleted,
                     ApiObjects.TstvRecordingStatus.LifeTimePeriodExpired,
                     ApiObjects.TstvRecordingStatus.OK,
                     ApiObjects.TstvRecordingStatus.Recorded,
                     ApiObjects.TstvRecordingStatus.Recording,
                     ApiObjects.TstvRecordingStatus.Scheduled,
-                });
+                };
+
+                if (!shouldCompleteCanceledAndDeleted)
+                {
+                    recordingsStatusesToExclude.Add(ApiObjects.TstvRecordingStatus.Canceled);
+                    recordingsStatusesToExclude.Add(ApiObjects.TstvRecordingStatus.Deleted);
+                }
+
+                // get household recordings - all statuses but 'Failed'
+                Dictionary<long, Recording> householdRecordings = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, householdId, recordingsStatusesToExclude);
 
                 // build the excluded CRIDs list
                 List<string> excludedCrids = null;
@@ -18405,8 +18424,9 @@ namespace ConditionalAccess
                 }
 
                 // get all the relevant (series + seasons + CRID not in the list of household recordings) existing recordings from ES
-                List<ConditionalAccess.WS_Catalog.ExtendedSearchResult> relevantRecordingsForRecord = Utils.SearchPastSeriesRecordings(m_nGroupID, excludedCrids, series);
-                    
+                List<ConditionalAccess.WS_Catalog.ExtendedSearchResult> relevantRecordingsForRecord = null;
+                
+                relevantRecordingsForRecord = Utils.SearchPastSeriesRecordings(m_nGroupID, excludedCrids, series);
 
                 if (relevantRecordingsForRecord == null)
                 {
@@ -18865,7 +18885,7 @@ namespace ConditionalAccess
                 // if the domain is not the first to follow the series then complete the series recordings for the domain
                 if (!isFirstFollower)
                 {
-                    ApiObjects.Response.Status completeRecordingsStatus = CompleteHouseholdSeriesRecordings(domainID);
+                    ApiObjects.Response.Status completeRecordingsStatus = CompleteHouseholdSeriesRecordings(domainID, seriesRecording.SeriesId, seriesRecording.SeasonNumber, true);
                     if (completeRecordingsStatus == null || completeRecordingsStatus.Code != (int)eResponseStatus.OK)
                     {
                         log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings for userId: {0}, domainId: {1}, epgId: {2}", userID, domainID, epgID);
