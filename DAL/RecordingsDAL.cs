@@ -1022,5 +1022,18 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>(); 
         }
 
+        public static DataTable GetSeriesFollowingDomains(int groupId, string seriesId, int seasonNumber, long maxDomainSeriesId)
+        {
+            DataTable dt = null;
+            ODBCWrapper.StoredProcedure spGetSeriesFollowingDomains = new ODBCWrapper.StoredProcedure("GetSeriesFollowingDomains");
+            spGetSeriesFollowingDomains.SetConnectionKey(RECORDING_CONNECTION);
+            spGetSeriesFollowingDomains.AddParameter("@GroupID", groupId);
+            spGetSeriesFollowingDomains.AddParameter("@SeriesId", seriesId);
+            spGetSeriesFollowingDomains.AddParameter("@SeasonNumber", seasonNumber);
+            spGetSeriesFollowingDomains.AddParameter("@MaxId", maxDomainSeriesId);
+            dt = spGetSeriesFollowingDomains.Execute();
+
+            return dt;
+        }
     }
 }
