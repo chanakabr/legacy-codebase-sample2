@@ -146,23 +146,16 @@ namespace Recordings
                     recording = recordingsEpgMap[programId];
                 }
                 else
-                {
-                    DateTime minStartDate = recordingsEpgMap.Min(x => x.Value.EpgStartDate);
-                    Recording existingRecordingWithMinStartDate = recordingsEpgMap.First(x => x.Value.EpgStartDate == minStartDate).Value;
-                    recording = new Recording(existingRecordingWithMinStartDate) { EpgStartDate = startDate, EpgEndDate = endDate, EpgId = programId, ChannelId = epgChannelID, RecordingStatus = TstvRecordingStatus.Scheduled };
-                    if (recording.EpgStartDate < existingRecordingWithMinStartDate.EpgStartDate)
+                {                    
+                    Recording existingRecordingWithMinStartDate = recordingsEpgMap.OrderBy(x => x.Value.EpgStartDate).ToList().First().Value;
+                    recording = new Recording(existingRecordingWithMinStartDate) { EpgStartDate = startDate, EpgEndDate = endDate, EpgId = programId, RecordingStatus = TstvRecordingStatus.Scheduled };
+                    if (recording.EpgStartDate < existingRecordingWithMinStartDate.EpgStartDate && existingRecordingWithMinStartDate.EpgEndDate > DateTime.UtcNow)
                     {
                         AdapterControllers.CDVR.CdvrAdapterController adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
                         int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
                         RecordResult adapterResponse = null;
-                        if (existingRecordingWithMinStartDate.EpgEndDate < DateTime.UtcNow)
-                        {
-                            adapterResponse = adapterController.DeleteRecording(groupId, existingRecordingWithMinStartDate.ExternalRecordingId, adapterId);
-                        }
-                        else
-                        {
-                            adapterResponse = adapterController.CancelRecording(groupId, existingRecordingWithMinStartDate.ExternalRecordingId, adapterId);
-                        }
+                        // only cancel is possible because existingRecordingWithMinStartDate hasn't been recorded yet
+                        adapterResponse = adapterController.CancelRecording(groupId, existingRecordingWithMinStartDate.ExternalRecordingId, adapterId);
 
                         if (adapterResponse == null)
                         {
@@ -180,10 +173,12 @@ namespace Recordings
                             if (!RecordingsDAL.UpdateRecordingsExternalId(groupId, recording.ExternalRecordingId, recording.Crid))
                             {
                                 log.ErrorFormat("Failed UpdateRecordingsExternalId, ExternalRecordingId: {0}, Crid: {1}", recording.ExternalRecordingId, recording.Crid);
-                            }
-                            recording = RecordingsDAL.InsertRecording(recording, groupId, RecordingInternalStatus.OK);
+                            }                            
                         }
                     }
+
+                    recording = RecordingsDAL.InsertRecording(recording, groupId, RecordingInternalStatus.OK);
+                    recording.RecordingStatus = GetTstvRecordingStatus(recording.EpgStartDate, recording.EpgEndDate, recording.RecordingStatus);
                 }
             }
 

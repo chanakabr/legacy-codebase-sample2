@@ -119,6 +119,7 @@ namespace ApiObjects.Response
         AccountProtectRecordNotEnabled = 3045,
         AccountSeriesRecordingNotEnabled = 3046,
         AlreadyRecordedAsSeriesOrSeason = 3047,
+        SeriesRecordingNotFound = 3048,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,

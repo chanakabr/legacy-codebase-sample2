@@ -643,7 +643,7 @@ namespace ApiObjects
     {
         Single = 0,
         Season = 1,
-        Series = 2,
+        Series = 2
     }
 
     public enum CDNProviderFailReason
