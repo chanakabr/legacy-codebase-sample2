@@ -18814,14 +18814,17 @@ namespace ConditionalAccess
                 //call cancelOrDelete
                 Parallel.ForEach(epgs, (currentEpg) =>
                                 {
-                                    CancelOrDeleteRecord(userId, domainId, epgRecordingMapping[long.Parse(currentEpg.EpgID.ToString())], tstvRecordingStatus);
+                                    if (epgRecordingMapping.ContainsKey((long)currentEpg.EpgID))
+                                    {
+                                        CancelOrDeleteRecord(userId, domainId, epgRecordingMapping[(long)currentEpg.EpgID], tstvRecordingStatus);
+                                    }
                                 });
 
                 // mark the row in status = 2
                 if (RecordingsDAL.CancelSeriesRecording(domainSeriesRecordingId))
                 {
                     seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    log.DebugFormat("Recording {0} has been updated to status {1}", seriesRecording.Id, tstvRecordingStatus.ToString());
+                    log.DebugFormat("Series recording {0} has been updated to status {1}", seriesRecording.Id, tstvRecordingStatus.ToString());
                 }
                 else
                 {
@@ -18833,7 +18836,7 @@ namespace ConditionalAccess
             }
             catch (Exception ex)
             {
-                StringBuilder sb = new StringBuilder("Exception at CancelOrDeleteRecord. ");
+                StringBuilder sb = new StringBuilder("Exception at CancelOrDeleteSeriesRecord. ");
                 sb.Append(String.Concat("userID: ", userId));
                 sb.Append(String.Concat(", recordID: ", domainSeriesRecordingId));
                 sb.Append(String.Concat(", Ex Msg: ", ex.Message));

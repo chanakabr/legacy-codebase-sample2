@@ -1082,7 +1082,7 @@ namespace DAL
         {
             DataTable dt = null;
             ODBCWrapper.StoredProcedure spGetDomainRecordingsByIds = new ODBCWrapper.StoredProcedure("GetDomainSeriesRecordingsById");
-            spGetDomainRecordingsByIds.SetConnectionKey("users_connection_string");
+            spGetDomainRecordingsByIds.SetConnectionKey(RECORDING_CONNECTION);
             spGetDomainRecordingsByIds.AddParameter("@GroupID", groupId);
             spGetDomainRecordingsByIds.AddParameter("@DomainID", domainId);
             spGetDomainRecordingsByIds.AddParameter("@DomainRecordingId", domainSeriesRecordingId);
@@ -1094,7 +1094,7 @@ namespace DAL
         public static bool CancelSeriesRecording(long Id)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelSeriesRecording");
-            sp.SetConnectionKey("users_connection_string");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
             sp.AddParameter("@Id", Id);
 
             return sp.ExecuteReturnValue<bool>(); 
