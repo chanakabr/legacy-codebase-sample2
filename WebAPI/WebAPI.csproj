@@ -1827,6 +1827,12 @@
     <Content Include="Web References\ConditionalAccess\UserPurhcasedAssetsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\ConditionalAccess\ScheduledTaskLastRunResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\SeriesRecording.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Domains\module.disco" />
     <Content Include="Web References\Pricing\Campaign.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -2010,6 +2016,7 @@
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
     <Compile Include="Controllers\CDNPartnerSettingsController.cs" />
     <Compile Include="Controllers\ProductPriceController.cs" />
+    <Compile Include="Controllers\SeriesRecordingController.cs" />
     <Compile Include="Controllers\SystemController.cs" />
     <Compile Include="Controllers\HouseholdQuotaController.cs" />
     <Compile Include="Controllers\InboxMessageController.cs" />
@@ -2105,6 +2112,7 @@
     <Compile Include="Models\Catalog\KalturaAssetFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAsset.cs" />
     <Compile Include="Models\Catalog\KalturaAssetOrderBy.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaSeriesRecording.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransactionStatus.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPurchase.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaHouseholdPremiumService.cs" />
