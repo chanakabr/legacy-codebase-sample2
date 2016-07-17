@@ -13,6 +13,7 @@ using ConditionalAccess.Response;
 using ConditionalAccess.TvinciPricing;
 using ConditionalAccess.TvinciUsers;
 using DAL;
+using EpgBL;
 using GroupsCacheManager;
 using KLogMonitor;
 using KlogMonitorHelper;
@@ -17206,6 +17207,8 @@ namespace ConditionalAccess
                     if (Utils.CancelOrDeleteRecording(m_nGroupID, recording, tstvRecordingStatus))
                     {
                         log.DebugFormat("Recording {0} has been updated to status {1}", recording.Id, tstvRecordingStatus.ToString());
+
+                        //TODO :  add quota here 
                     }
                 }
                 else
@@ -18012,7 +18015,7 @@ namespace ConditionalAccess
                 // Get domain used protection minutes
                 Dictionary<long, Recording> domainProtectedRecordings = Utils.GetDomainProtectedRecordings(m_nGroupID, domainID);
                 // Check protection quota before applying protection on recording
-                ApiObjects.Response.Status protectionQuotaStatus = QuotaManager.Instance.CheckQuotaByTotalSeconds(m_nGroupID, domainID, availableProtectionSeconds, false, new List<Recording>() { recording }, domainProtectedRecordings != null? domainProtectedRecordings.Values.ToList() : new List<Recording>());
+                ApiObjects.Response.Status protectionQuotaStatus = QuotaManager.Instance.CheckQuotaByTotalSeconds(m_nGroupID, domainID, availableProtectionSeconds, false, new List<Recording>() { recording }, domainProtectedRecordings != null ? domainProtectedRecordings.Values.ToList() : new List<Recording>());
                 if (protectionQuotaStatus == null || protectionQuotaStatus.Code != (int)eResponseStatus.OK || recording.Status == null || recording.Status.Code != (int)eResponseStatus.OK)
                 {
                     log.DebugFormat("Domain Exceeded Protection Quota, DomainID: {0}, UserID: {1}, recordID: {2}", domainID, userID, domainRecordingID);
@@ -18405,15 +18408,15 @@ namespace ConditionalAccess
 
                 ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
                 while (expiredDomainRecordings != null && expiredDomainRecordings.Rows != null && expiredDomainRecordings.Rows.Count > 0)
-                {                    
+                {
                     ContextData contextData = new ContextData();
-                    Parallel.For(0, expiredDomainRecordings.Rows.Count, options, i =>                    
+                    Parallel.For(0, expiredDomainRecordings.Rows.Count, options, i =>
                     {
                         contextData.Load();
                         DataRow dr = expiredDomainRecordings.Rows[i];
                         if (dr != null)
                         {
-                            long domainId = ODBCWrapper.Utils.GetLongSafeVal(dr, "DOMAIN_ID", 0);                            
+                            long domainId = ODBCWrapper.Utils.GetLongSafeVal(dr, "DOMAIN_ID", 0);
                             if (Utils.AddQuotaToDomain(domainId, recordingDuration))
                             {
                                 ApiObjects.Response.Status response = CompleteHouseholdSeriesRecordings(domainId);
@@ -18467,6 +18470,87 @@ namespace ConditionalAccess
         public ApiObjects.Response.Status CompleteHouseholdSeriesRecordings(long domainId)
         {
             return new ApiObjects.Response.Status();
+        }
+
+        public SeriesRecording CancelOrDeleteSeriesRecord(string userId, long domainId, long domainSeriesRecordingId, TstvRecordingStatus tstvRecordingStatus)
+        {
+            SeriesRecording seriesRecording = new SeriesRecording();
+            try
+            {               
+                ConditionalAccess.TvinciDomains.Domain domain;
+                ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userId, ref domainId, out domain);
+
+                if (validationStatus.Code != (int)eResponseStatus.OK)
+                {
+                    log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}", domainId, userId);
+                    seriesRecording.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
+                    return seriesRecording;
+                }
+                // user is OK - see if user sign to recordID
+                seriesRecording = Utils.ValidateSeriesRecordID(m_nGroupID, domainId, domainSeriesRecordingId);
+                if (seriesRecording.Status.Code != (int)eResponseStatus.OK)
+                {
+                    log.DebugFormat("series recording status not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", domainSeriesRecordingId, domainId, userId, seriesRecording != null ? seriesRecording.ToString() : string.Empty);
+                    return seriesRecording;
+                }
+                // get all domain recording - filter those related to series_id + season_number
+                                
+                List<TstvRecordingStatus> RecordingStatus;
+                switch (tstvRecordingStatus)
+                {
+                    case TstvRecordingStatus.Canceled:
+                        RecordingStatus = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recording, TstvRecordingStatus.Scheduled };
+                        break;
+                    case TstvRecordingStatus.Deleted:
+                        RecordingStatus = new List<TstvRecordingStatus>(){TstvRecordingStatus.Scheduled, TstvRecordingStatus.Recording, TstvRecordingStatus.OK, TstvRecordingStatus.Recorded, TstvRecordingStatus.Failed, 
+                                                                            TstvRecordingStatus.LifeTimePeriodExpired};
+                        break;
+                    default:
+                        seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "TstvRecordingStatus is not cancel or delete");
+                        return seriesRecording;
+                }
+                Dictionary<long, Recording> domainRecordings = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, domainId, RecordingStatus);
+                Dictionary<long, long> epgRecordingMapping = domainRecordings.ToDictionary(x => x.Value.EpgId, x => x.Key);
+
+                List<string> epgIds = domainRecordings.Select(x => x.Value.EpgId.ToString()).ToList();
+
+                TvinciEpgBL epgBLTvinci = new TvinciEpgBL(m_nGroupID);
+                List<EpgCB> epgs = epgBLTvinci.GetEpgs(epgIds);
+                // chaeck if epg related to series and season
+                bool result = Utils.GetEpgRelatedToSeriesRecording(m_nGroupID, epgs, seriesRecording);
+
+                //call cancelOrDelete
+                Parallel.ForEach(epgs, (currentEpg) =>
+                                {
+                                    CancelOrDeleteRecord(userId, domainId, epgRecordingMapping[long.Parse(currentEpg.EpgID.ToString())], tstvRecordingStatus);
+                                });
+
+                // mark the row in status = 2
+                if (RecordingsDAL.CancelSeriesRecording(domainSeriesRecordingId))
+                {
+                    seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    log.DebugFormat("Recording {0} has been updated to status {1}", seriesRecording.Id, tstvRecordingStatus.ToString());
+                }
+                else
+                {
+                    seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to perform cancel or delete");
+                    log.ErrorFormat("fail to perform cancel or delete domainSeriesRecordingId = {1}, tstvRecordingStatus = {2}", domainSeriesRecordingId, tstvRecordingStatus.ToString());
+                }
+
+                seriesRecording.Id = domainSeriesRecordingId;
+            }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("Exception at CancelOrDeleteRecord. ");
+                sb.Append(String.Concat("userID: ", userId));
+                sb.Append(String.Concat(", recordID: ", domainSeriesRecordingId));
+                sb.Append(String.Concat(", Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
+
+                log.Error(sb.ToString(), ex);
+            }
+            return seriesRecording;
         }
     }
 }

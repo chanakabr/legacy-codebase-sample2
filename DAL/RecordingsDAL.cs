@@ -806,5 +806,27 @@ namespace DAL
         #endregion
 
 
+
+        public static DataTable GetDomainSeriesRecordingsById(int groupId, long domainId, long domainSeriesRecordingId)
+        {
+            DataTable dt = null;
+            ODBCWrapper.StoredProcedure spGetDomainRecordingsByIds = new ODBCWrapper.StoredProcedure("GetDomainSeriesRecordingsById");
+            spGetDomainRecordingsByIds.SetConnectionKey("users_connection_string");
+            spGetDomainRecordingsByIds.AddParameter("@GroupID", groupId);
+            spGetDomainRecordingsByIds.AddParameter("@DomainID", domainId);
+            spGetDomainRecordingsByIds.AddParameter("@DomainRecordingId", domainSeriesRecordingId);
+            dt = spGetDomainRecordingsByIds.Execute();
+
+            return dt;
+        }
+
+        public static bool CancelSeriesRecording(long Id)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelSeriesRecording");
+            sp.SetConnectionKey("users_connection_string");
+            sp.AddParameter("@Id", Id);
+
+            return sp.ExecuteReturnValue<bool>(); 
+        }
     }
 }

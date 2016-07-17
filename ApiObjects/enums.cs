@@ -641,7 +641,8 @@ namespace ApiObjects
     public enum RecordingType
     {
         Single = 0,
-        Series = 1,
+        Season = 1,
+        Series = 2
     }
 
     public enum CDNProviderFailReason
