@@ -1077,5 +1077,16 @@ namespace DAL
 
         #endregion
 
+
+        public static bool IsSeriesFollowed(int groupId, string sereisId, int seasonNum)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("IsSeriesFollowed");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@seriesId", sereisId);
+            sp.AddParameter("@seasonNum", seasonNum);
+
+            return sp.ExecuteReturnValue<int>() == 1;
+        }
     }
 }
