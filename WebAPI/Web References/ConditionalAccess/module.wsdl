@@ -2984,6 +2984,7 @@
       <s:simpleType name="RecordingType">
         <s:restriction base="s:string">
           <s:enumeration value="Single" />
+          <s:enumeration value="Season" />
           <s:enumeration value="Series" />
         </s:restriction>
       </s:simpleType>
@@ -3049,6 +3050,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="ChannelId" type="s:long" />
           <s:element minOccurs="0" maxOccurs="1" name="SeriesId" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="SeasonNumber" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="Type" type="tns:RecordingType" />
         </s:sequence>
       </s:complexType>
       <s:element name="DeleteSeriesRecord">

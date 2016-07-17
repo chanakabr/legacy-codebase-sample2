@@ -9,7 +9,7 @@ namespace WebAPI.Models.ConditionalAccess
     public enum KalturaRecordingType
     {
         SINGLE = 0,
-        SERIES = 1,
-        SEASON = 2
+        SEASON = 1,
+        SERIES = 2
     }
 }

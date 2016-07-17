@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         /// <param name="id">Series Recording identifier</param>
         /// <returns></returns>
         /// <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-        /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3046 </remarks>
+        /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048 </remarks>
         [Route("cancel"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemaValidationType.ACTION_NAME)]
@@ -51,7 +51,7 @@ namespace WebAPI.Controllers
            /// <param name="id">Series Recording identifier</param>
            /// <returns></returns>
            /// <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-           /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3046 </remarks>
+           /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048 </remarks>
            [Route("delete"), HttpPost]
            [ApiAuthorize]
            public KalturaSeriesRecording Delete(long id)

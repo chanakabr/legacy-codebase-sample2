@@ -6853,6 +6853,9 @@ namespace WebAPI.ConditionalAccess {
         Single,
         
         /// <remarks/>
+        Season,
+        
+        /// <remarks/>
         Series,
     }
     
@@ -6875,6 +6878,8 @@ namespace WebAPI.ConditionalAccess {
         private string seriesIdField;
         
         private int seasonNumberField;
+        
+        private RecordingType typeField;
         
         /// <remarks/>
         public Status Status {
@@ -6933,6 +6938,16 @@ namespace WebAPI.ConditionalAccess {
             }
             set {
                 this.seasonNumberField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public RecordingType Type {
+            get {
+                return this.typeField;
+            }
+            set {
+                this.typeField = value;
             }
         }
     }
