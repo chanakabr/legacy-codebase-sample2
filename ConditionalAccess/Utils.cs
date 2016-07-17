@@ -5370,7 +5370,7 @@ namespace ConditionalAccess
             }
 
             int.TryParse(epgFieldMappings[EPISODE_NUMBER], out episodeNumber);
-            isFirstFollower = RecordingsDAL.IsFirstFollower(groupId, seriesId, seasonNumber);
+            isFirstFollower = RecordingsDAL.IsSeriesFollowed(groupId, seriesId, seasonNumber);
             if (isFirstFollower)
             {
                 QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
