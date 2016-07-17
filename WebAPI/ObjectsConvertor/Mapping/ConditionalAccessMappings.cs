@@ -246,15 +246,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.ChannelId, opt => opt.MapFrom(src => src.ChannelId))
                .ForMember(dest => dest.SeasonNumber, opt => opt.MapFrom(src => src.SeasonNumber))               
-               .ForMember(dest => dest.SeriesId, opt => opt.MapFrom(src => src.SeriesId));
+               .ForMember(dest => dest.SeriesId, opt => opt.MapFrom(src => src.SeriesId))
+               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertKalturaRecordingType(src.Type)));
 
             // SeriesRecording to KalturaSeriesRecording
-            Mapper.CreateMap<KalturaSeriesRecording, WebAPI.ConditionalAccess.SeriesRecording>()
+            Mapper.CreateMap<WebAPI.ConditionalAccess.SeriesRecording ,KalturaSeriesRecording>()
                .ForMember(dest => dest.EpgId, opt => opt.MapFrom(src => src.EpgId))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.ChannelId, opt => opt.MapFrom(src => src.ChannelId))
                .ForMember(dest => dest.SeasonNumber, opt => opt.MapFrom(src => src.SeasonNumber))
-               .ForMember(dest => dest.SeriesId, opt => opt.MapFrom(src => src.SeriesId));
+               .ForMember(dest => dest.SeriesId, opt => opt.MapFrom(src => src.SeriesId))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertRecordingType(src.Type)));
 
             #endregion
 
@@ -356,6 +358,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case KalturaRecordingType.SERIES:
                     result = WebAPI.ConditionalAccess.RecordingType.Series;
                     break;
+                case KalturaRecordingType.SEASON:
+                    result = WebAPI.ConditionalAccess.RecordingType.Season;
+                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown recordingType type");
             }
@@ -375,6 +380,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 case WebAPI.ConditionalAccess.RecordingType.Series:
                     result = KalturaRecordingType.SERIES;
+                    break;
+                case WebAPI.ConditionalAccess.RecordingType.Season:
+                    result = KalturaRecordingType.SEASON;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown recordingType type");
