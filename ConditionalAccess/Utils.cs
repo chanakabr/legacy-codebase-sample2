@@ -5379,25 +5379,20 @@ namespace ConditionalAccess
                 queue.Enqueue(data, ROUTING_KEY_FIRST_FOLLOWER_RECORDING);
             }
 
-            seriesRecording = FollowSeries(groupId, userId, domainID, epg.EPG_ID, epg.EPG_CHANNEL_ID, seriesId, seasonNumber, episodeNumber);
-            return seriesRecording;
-        }
-
-        internal static SeriesRecording FollowSeries(int groupId, string userId, long domainID, long epgId, string epgChannelId, string seriesId, int seasonNumber, int episodeNumber)
-        {
-            SeriesRecording seriesRecording = null;
             long channelId;
-            if (!long.TryParse(epgChannelId, out channelId))
+            if (!long.TryParse(epg.EPG_CHANNEL_ID, out channelId))
             {
-                log.ErrorFormat("Error on FollowSeries while trying to parse epgChannelId: {0}", epgChannelId);
+                log.ErrorFormat("Error on FollowSeasonOrSeries while trying to parse epgChannelId: {0}", epg.EPG_CHANNEL_ID);
                 return seriesRecording;
             }
+
+            // insert or update domain_series table
             DataTable dt = RecordingsDAL.FollowSeries(groupId, userId, domainID, epgId, channelId, seriesId, seasonNumber, episodeNumber);
             if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
             {
                 seriesRecording = BuildSeriesRecordingDetails(dt.Rows[0]);
             }
-
+    
             return seriesRecording;
         }
 
