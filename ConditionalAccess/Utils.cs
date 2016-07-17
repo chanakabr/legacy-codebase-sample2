@@ -4432,7 +4432,7 @@ namespace ConditionalAccess
             return result;
         }
 
-        internal static TstvRecordingStatus? ConvertToTstvRecordingStatus(RecordingInternalStatus recordingInternalStatus)
+        internal static TstvRecordingStatus? ConvertToTstvRecordingStatus(RecordingInternalStatus recordingInternalStatus, DateTime epgStartDate, DateTime epgEndDate)
         {
             TstvRecordingStatus? recordingStatus = null;
             switch (recordingInternalStatus)
@@ -4447,8 +4447,32 @@ namespace ConditionalAccess
                     recordingStatus = TstvRecordingStatus.Failed;
                     break;
                 case RecordingInternalStatus.Waiting:
+                    // If we are still waiting for confirmation but program started already, we say it is failed
+                    if (epgStartDate < DateTime.UtcNow)
+                    {
+                        recordingStatus = TstvRecordingStatus.Failed;
+                    }
+                    else
+                    {
+                        recordingStatus = TstvRecordingStatus.Scheduled;
+                    }
+
+                    break;
                 case RecordingInternalStatus.OK:
-                    recordingStatus = TstvRecordingStatus.OK;
+                    // If program already finished, we say it is recorded
+                    if (epgEndDate < DateTime.UtcNow)
+                    {
+                        recordingStatus = TstvRecordingStatus.Recorded;
+                    }
+                    // If program already started but didn't finish, we say it is recording
+                    else if (epgEndDate < DateTime.UtcNow)
+                    {
+                        recordingStatus = TstvRecordingStatus.Recording;
+                    }
+                    else
+                    {
+                        recordingStatus = TstvRecordingStatus.Scheduled;
+                    }
                     break;
                 default:
                     break;
@@ -4605,14 +4629,16 @@ namespace ConditionalAccess
                 EPGChannelProgrammeObject epg = validEpgObjectForRecordingMap[epgId];
                 DateTime epgStartDate;
                 DateTime epgEndDate;
+                long epgChannelId;
                 if (DateTime.TryParseExact(epg.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgStartDate)
-                    && DateTime.TryParseExact(epg.END_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgEndDate))
+                    && DateTime.TryParseExact(epg.END_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgEndDate)
+                    && long.TryParse(epg.EPG_CHANNEL_ID, out epgChannelId))
                 {
                     recording = new Recording()
                     {
                         Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()),
                         EpgId = epg.EPG_ID,
-                        ChannelId = epg.EPG_CHANNEL_ID,
+                        ChannelId = epgChannelId,
                         Id = 0,
                         EpgStartDate = epgStartDate,
                         EpgEndDate = epgEndDate,
@@ -4632,8 +4658,8 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    log.ErrorFormat("Failed parsing EPG start or end date, epgID: {0}, domainID: {1}, startDate: {2}, endDate: {3}", epg.EPG_ID, domainID, epg.START_DATE, epg.END_DATE);
-                    recording = new Recording() { EpgId = epg.EPG_ID, ChannelId = epg.EPG_CHANNEL_ID };
+                    log.ErrorFormat("Failed parsing EPG start / end date / epgChannelId, epgID: {0}, domainID: {1}, startDate: {2}, endDate: {3}, epgChannelId: {4}", epg.EPG_ID, domainID, epg.START_DATE, epg.END_DATE, epg.EPG_CHANNEL_ID);
+                    recording = new Recording() { EpgId = epg.EPG_ID };
                 }
 
                 responseDictionary.Add(epgId, recording);
@@ -4921,6 +4947,7 @@ namespace ConditionalAccess
 
             return recording;
         }
+
         internal static SeriesRecording ValidateSeriesRecordID(int groupID, long domainId, long domainSeriesRecordingId)
         {
             SeriesRecording seriesRecording = new SeriesRecording()
@@ -4981,7 +5008,6 @@ namespace ConditionalAccess
             long domainRecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
             int seasonNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "SEASON_NUMBER");
             string seriesId = ODBCWrapper.Utils.GetSafeStr(dr, "SERIES_ID");
-            int status = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATUS");           
 
             return new SeriesRecording()
             {
@@ -5024,7 +5050,7 @@ namespace ConditionalAccess
                 // if the domain recording status was 1 now recordingStatus is OK and we need to get recordingStatus from recordings and not domains table
                 else if (recordingStatus.Value == TstvRecordingStatus.OK)
                 {
-                    recordingStatus = ConvertToTstvRecordingStatus(recordingInternalStatus);
+                    recordingStatus = ConvertToTstvRecordingStatus(recordingInternalStatus, epgStartDate, epgEndDate);
                     if (!recordingStatus.HasValue)
                     {
                         log.ErrorFormat("Failed Convert RecordingInternalStatus: {0} to TstvRecordingStatus for recordingID: {1}, epgID: {2}",
@@ -5260,6 +5286,7 @@ namespace ConditionalAccess
             if (id > 0)
             {
                 long epgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_PROGRAM_ID");
+                long epgChannelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_CHANNEL_ID");
                 RecordingInternalStatus recordingInternalStatus = (RecordingInternalStatus)ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_STATUS", 0);
                 DateTime epgStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE");
                 DateTime epgEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
@@ -5275,7 +5302,7 @@ namespace ConditionalAccess
                     return recording;
                 }
 
-                TstvRecordingStatus? recordingStatus = ConvertToTstvRecordingStatus(recordingInternalStatus);
+                TstvRecordingStatus? recordingStatus = ConvertToTstvRecordingStatus(recordingInternalStatus, epgStartDate, epgEndDate);
                 if (!recordingStatus.HasValue)
                 {
                     log.ErrorFormat("Failed Convert RecordingInternalStatus: {0} to TstvRecordingStatus for recordingID: {1}", recordingInternalStatus, id);
@@ -5293,6 +5320,7 @@ namespace ConditionalAccess
                 {
                     Id = id,
                     EpgId = epgId,
+                    ChannelId = epgChannelId,
                     EpgStartDate = epgStartDate,
                     EpgEndDate = epgEndDate,
                     CreateDate = createDate,
@@ -5315,14 +5343,14 @@ namespace ConditionalAccess
             return recording;
         }
 
-        internal static bool FollowSeasonOrSeries(int groupId, string userId, long domainID, long epgId, RecordingType recordingType, ref bool isFirstFollower)
+        internal static SeriesRecording FollowSeasonOrSeries(int groupId, string userId, long domainID, long epgId, RecordingType recordingType, ref bool isFirstFollower)
         {
-            bool result = false;
+            SeriesRecording seriesRecording = new SeriesRecording();
             List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(groupId, new List<long>() { epgId });
             if (epgs == null || epgs.Count != 1)
             {
                 log.DebugFormat("Failed Getting EPG from Catalog, DomainID: {0}, UserID: {1}, EpgId: {2}", domainID, userId, epgId);
-                return result;
+                return seriesRecording;
             }
 
             EPGChannelProgrammeObject epg = epgs.First();
@@ -5330,7 +5358,7 @@ namespace ConditionalAccess
             if (!GetEpgFieldTypeEntitys(groupId, epg, recordingType, epgFieldMappings) || epgFieldMappings == null || epgFieldMappings.Count == 0)
             {
                 log.ErrorFormat("failed GetEpgFieldTypeEntitys, groupId: {0}, epgId: {1}, recordingType: {2}", groupId, epg.EPG_ID, recordingType.ToString());
-                return result;
+                return seriesRecording;
             }
 
             string seriesId = epgFieldMappings[SERIES_ID];
@@ -5339,7 +5367,7 @@ namespace ConditionalAccess
             if (!int.TryParse(epgFieldMappings[SEASON_NUMBER], out seasonNumber) && recordingType == RecordingType.Season)
             {
                 log.ErrorFormat("failed parsing SEASON_NUMBER, groupId: {0}, epgId: {1}, recordingType: {2}", groupId, epg.EPG_ID, recordingType.ToString());
-                return result;
+                return seriesRecording;
             }
 
             int.TryParse(epgFieldMappings[EPISODE_NUMBER], out episodeNumber);
@@ -5348,22 +5376,32 @@ namespace ConditionalAccess
             {
                 QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
                 ApiObjects.QueueObjects.FirstFollowerRecordingData data = new ApiObjects.QueueObjects.FirstFollowerRecordingData(groupId, domainID, epg.EPG_CHANNEL_ID, seriesId, seasonNumber) { ETA = DateTime.UtcNow };
-                result = queue.Enqueue(data, ROUTING_KEY_FIRST_FOLLOWER_RECORDING);
+                queue.Enqueue(data, ROUTING_KEY_FIRST_FOLLOWER_RECORDING);
             }
 
-            if (!RecordingsDAL.FollowSeries(groupId, userId, domainID, epg.EPG_ID, epg.EPG_CHANNEL_ID, seriesId, seasonNumber, episodeNumber))
-            {
-                log.ErrorFormat("failed FollowSeries, groupId: {0}, userId: {1}, domainID: {2}, epdId: {3}, seriesId: {4}, seasonNumber: {5}, episodeNumber: {6}",
-                                 groupId, userId, domainID, epg.EPG_ID, seriesId, seasonNumber, episodeNumber);
-                return result;
-            }
-
-            result = true;
-
-            return result;
+            seriesRecording = FollowSeries(groupId, userId, domainID, epg.EPG_ID, epg.EPG_CHANNEL_ID, seriesId, seasonNumber, episodeNumber);
+            return seriesRecording;
         }
 
-        public static bool GetEpgFieldTypeEntitys(int groupId, EPGChannelProgrammeObject epg, RecordingType recordingType, Dictionary<string, string> epgFieldMappings)
+        internal static SeriesRecording FollowSeries(int groupId, string userId, long domainID, long epgId, string epgChannelId, string seriesId, int seasonNumber, int episodeNumber)
+        {
+            SeriesRecording seriesRecording = null;
+            long channelId;
+            if (!long.TryParse(epgChannelId, out channelId))
+            {
+                log.ErrorFormat("Error on FollowSeries while trying to parse epgChannelId: {0}", epgChannelId);
+                return seriesRecording;
+            }
+            DataTable dt = RecordingsDAL.FollowSeries(groupId, userId, domainID, epgId, channelId, seriesId, seasonNumber, episodeNumber);
+            if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+            {
+                seriesRecording = BuildSeriesRecordingDetails(dt.Rows[0]);
+            }
+
+            return seriesRecording;
+        }
+
+        internal static bool GetEpgFieldTypeEntitys(int groupId, EPGChannelProgrammeObject epg, RecordingType recordingType, Dictionary<string, string> epgFieldMappings)
         {
             bool result = false;
             epgFieldMappings = new Dictionary<string, string>();
@@ -5517,7 +5555,7 @@ namespace ConditionalAccess
             return recordings;
         }
 
-        public static bool GetSeriesMetaTagsFieldsNamesForSearch(int groupId, out string seriesIdName, out string seasonNumberName, out string episodeNumberName)
+        internal static bool GetSeriesMetaTagsFieldsNamesForSearch(int groupId, out string seriesIdName, out string seasonNumberName, out string episodeNumberName)
         {
             seriesIdName = seasonNumberName = episodeNumberName = string.Empty;
 
@@ -5552,8 +5590,6 @@ namespace ConditionalAccess
             
             return true;
         }
-
-
 
         internal static bool GetEpgRelatedToSeriesRecording(int groupId, List<EpgCB> epgs, SeriesRecording seriesRecording)
         {
@@ -5605,7 +5641,7 @@ namespace ConditionalAccess
             return true;
         }
         
-        public static string GetFollowingUserIdForSerie(int groupId, List<DomainSeriesRecording> series, WS_Catalog.ExtendedSearchResult potentialRecording, out RecordingType recordingType)
+        internal static string GetFollowingUserIdForSerie(int groupId, List<DomainSeriesRecording> series, WS_Catalog.ExtendedSearchResult potentialRecording, out RecordingType recordingType)
         {
             string userId = null;
             recordingType = RecordingType.Series;
@@ -5652,7 +5688,7 @@ namespace ConditionalAccess
             return userId;
         }
 
-        public static long GetLongParamFromExtendedSearchResult(WS_Catalog.ExtendedSearchResult extendedResult, string paramName)
+        internal static long GetLongParamFromExtendedSearchResult(WS_Catalog.ExtendedSearchResult extendedResult, string paramName)
         {
             long result = 0;
 
@@ -5667,7 +5703,7 @@ namespace ConditionalAccess
             return result;
         }
 
-        public static string GetStringParamFromExtendedSearchResult(WS_Catalog.ExtendedSearchResult extendedResult, string paramName)
+        internal static string GetStringParamFromExtendedSearchResult(WS_Catalog.ExtendedSearchResult extendedResult, string paramName)
         {
             string result = string.Empty;
 
@@ -5681,6 +5717,108 @@ namespace ConditionalAccess
             }
             return result;
         }
+
+        internal static bool UpdateRecording(Recording recording, int groupId, int rowStatus, int isActive, RecordingInternalStatus? status)
+        {
+            TimeShiftedTvPartnerSettings accountSettings = GetTimeShiftedTvPartnerSettings(groupId);
+            int? recordingLifetime = accountSettings.RecordingLifetimePeriod;
+            DateTime? viewableUntilDate = null;
+            if (recordingLifetime.HasValue)
+            {
+                viewableUntilDate = recording.EpgEndDate.AddDays(recordingLifetime.Value);
+                recording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(viewableUntilDate.Value);
+            }
+            return RecordingsDAL.UpdateRecording(recording, groupId, rowStatus, isActive, status, viewableUntilDate);
+        }
+
+        internal static List<Recording> GetRecordings(int groupId, List<long> recordingIds)
+        {
+            List<Recording> recordings = new List<Recording>();
+            DataSet dataSet = RecordingsDAL.GetRecordings(groupId, recordingIds);
+            if (dataSet != null && dataSet.Tables != null)
+            {
+                recordings = BuildRecordingsFromDataSet(dataSet);
+            }
+
+            return recordings;
+        }
+
+        internal static List<Recording> BuildRecordingsFromDataSet(DataSet dataSet)
+        {
+            List<Recording> recordings = new List<Recording>();
+
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0 &&
+                dataSet.Tables[0] != null && dataSet.Tables[0].Rows != null)
+            {
+                foreach (DataRow row in dataSet.Tables[0].Rows)
+                {
+                    Recording recording = BuildRecordingFromDataRow(row);
+
+                    recordings.Add(recording);
+                }
+            }
+
+            return recordings;
+        }
+
+        internal static Recording GetRecordingByEpgId(int groupId, long epgId)
+        {
+            Recording recording = null;
+            DataTable dt = RecordingsDAL.GetRecordingByEpgId(groupId, epgId);
+            if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+            {            
+                recording = BuildRecordingFromDataRow(dt.Rows[0]);
+            }
+
+            return recording;
+        }
+
+        internal static Recording InsertRecording(Recording recording, int groupId, RecordingInternalStatus? status)
+        {
+            Recording insertedRecording = null;
+            TimeShiftedTvPartnerSettings accountSettings = GetTimeShiftedTvPartnerSettings(groupId);
+            int? recordingLifetime = accountSettings.RecordingLifetimePeriod;
+            DateTime? viewableUntilDate = null;
+            if (recordingLifetime.HasValue)
+            {
+                viewableUntilDate = recording.EpgEndDate.AddDays(recordingLifetime.Value);
+                recording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(viewableUntilDate.Value);
+            }
+
+            DataTable dt = RecordingsDAL.InsertRecording(recording, groupId, status, viewableUntilDate);
+            if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+            {
+                insertedRecording = BuildRecordingFromDataRow(dt.Rows[0]);
+            }
+
+            return insertedRecording;
+        }
+
+        internal static Recording GetRecordingById(long id)
+        {
+            Recording recording = null;
+            DataTable dt = RecordingsDAL.GetRecordingById(id);
+            if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+            {
+                recording = BuildRecordingFromDataRow(dt.Rows[0]);
+            }
+
+            return recording;
+
+        }
+
+        internal static List<Recording> GetAllRecordingsByStatuses(int groupId, List<int> statuses)
+        {
+            List<Recording> recordings = new List<Recording>();
+            DataSet dataSet = RecordingsDAL.GetAllRecordingsByStatuses(groupId, statuses);
+            if (dataSet != null && dataSet.Tables != null)
+            {
+                recordings = BuildRecordingsFromDataSet(dataSet);
+            }
+
+            return recordings;
+        }
+
     }
 }
 

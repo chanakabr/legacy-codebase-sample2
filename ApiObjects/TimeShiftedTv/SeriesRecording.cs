@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,7 +8,8 @@ using System.Threading.Tasks;
 namespace ApiObjects.TimeShiftedTv
 {
     public class SeriesRecording
-    {
+    {        
+
         public ApiObjects.Response.Status Status { get; set; }
 
         public long Id { get; set; }
@@ -24,6 +26,17 @@ namespace ApiObjects.TimeShiftedTv
 
         public SeriesRecording()
         {
+            Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            this.Id = 0;            
+        }
+
+        public SeriesRecording(Recording record)
+        {
+            this.Status = record.Status != null ? new Status(record.Status.Code, record.Status.Message) : null;
+            this.Id = record.Id;
+            this.EpgId = record.EpgId;
+            this.ChannelId = record.ChannelId;
+            this.Type = record.Type;
         }
 
         public SeriesRecording(SeriesRecording seriesRecording)
