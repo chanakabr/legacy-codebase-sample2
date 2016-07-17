@@ -122,6 +122,11 @@ namespace RecordingTaskHandler
 
                         break;
                     }
+                    case eRecordingTask.DistributeRecording:
+                    {
+                        success = cas.DistributeRecording(username, password, request.ProgramId, request.RecordingId, base(request).
+                        break;
+                    }
                 }
 
                 if (!success)
