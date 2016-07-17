@@ -5912,11 +5912,23 @@ namespace Catalog
                     {
                         definitions.defaultStartDate = false;
                         GetLeafDate(ref leaf);
+
+                        leaf.assetTypes = new List<eAssetTypes>()
+                        {
+                            eAssetTypes.EPG,
+                            eAssetTypes.NPVR
+                        };
                     }
                     else if (searchKeyLowered == "end_date")
                     {
                         definitions.defaultEndDate = false;
                         GetLeafDate(ref leaf);
+
+                        leaf.assetTypes = new List<eAssetTypes>()
+                        {
+                            eAssetTypes.EPG,
+                            eAssetTypes.NPVR
+                        };
                     }
                     else if (searchKeyLowered == "update_date")
                     {
