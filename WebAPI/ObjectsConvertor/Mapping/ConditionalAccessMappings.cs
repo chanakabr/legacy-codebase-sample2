@@ -232,7 +232,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // Recording to KalturaRecording
             Mapper.CreateMap<WebAPI.ConditionalAccess.Recording, KalturaRecording>()
                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.EpgId))
-               .ForMember(dest => dest.RecordingAssetId, opt => opt.MapFrom(src => src.EpgId))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertTstvRecordingStatus(src.RecordingStatus)))
                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertRecordingType(src.Type)))
@@ -335,6 +334,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case KalturaRecordingType.SINGLE:
                     result = WebAPI.ConditionalAccess.RecordingType.Single;
                     break;
+                case KalturaRecordingType.SEASON:
+                    result = WebAPI.ConditionalAccess.RecordingType.Season;
+                    break;
                 case KalturaRecordingType.SERIES:
                     result = WebAPI.ConditionalAccess.RecordingType.Series;
                     break;
@@ -351,6 +353,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 case WebAPI.ConditionalAccess.RecordingType.Single:
                     result = KalturaRecordingType.SINGLE;
+                    break;
+                case WebAPI.ConditionalAccess.RecordingType.Season:
+                    result = KalturaRecordingType.SEASON;
                     break;
                 case WebAPI.ConditionalAccess.RecordingType.Series:
                     result = KalturaRecordingType.SERIES;
