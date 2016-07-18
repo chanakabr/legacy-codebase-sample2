@@ -17351,7 +17351,7 @@ namespace ConditionalAccess
                     foreach (Recording recording in response.Recordings.Where(x => x.Status != null && x.Status.Code == (int)eResponseStatus.OK && Utils.IsValidRecordingStatus(x.RecordingStatus, true)))
                     {
                         int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
-                        if (recordingDuration < totalSeconds)
+                        if (recordingDuration > totalSeconds)
                         {
                             recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExceededQuota, eResponseStatus.ExceededQuota.ToString());
                         }
