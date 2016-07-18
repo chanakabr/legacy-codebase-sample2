@@ -21,7 +21,7 @@ namespace ElasticSearchHandler.Updaters
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        protected Dictionary<int, Recording> epgToRecordingMapping = null;
+        protected Dictionary<long, long> epgToRecordingMapping = null;
 
         #endregion
 
@@ -30,7 +30,7 @@ namespace ElasticSearchHandler.Updaters
         public RecordingUpdaterV2(int groupId)
             : base (groupId)
         {
-            epgToRecordingMapping = new Dictionary<int, Recording>();
+            epgToRecordingMapping = new Dictionary<long, long>();
         }
 
         #endregion
@@ -58,18 +58,12 @@ namespace ElasticSearchHandler.Updaters
             var recordingIds = this.IDs;
 
             // Get information about relevant recordings
-            List<Recording> recordings = DAL.RecordingsDAL.GetRecordings(this.groupId, recordingIds.Select(i => (long)i).ToList());
+            epgToRecordingMapping = DAL.RecordingsDAL.GetEpgToRecordingsMap(this.groupId, recordingIds.Select(i => (long)i).ToList());            
 
             // Map EPGs to original recordings,
             // Get all program IDs
 
-            List<int> epgIds = new List<int>();
-
-            foreach (Recording recording in recordings)
-            {
-                epgIds.Add((int)recording.EpgId);
-                epgToRecordingMapping[(int)recording.EpgId] = recording;
-            }
+            List<int> epgIds = epgToRecordingMapping.Keys.Select(x => (int)x).ToList();
 
             // Call to methods in EPG Updater with the EPG IDs we "collected"
             switch (Action)
@@ -117,7 +111,7 @@ namespace ElasticSearchHandler.Updaters
         {
             ulong result = base.GetDocumentId(epg);
 
-            result = (ulong)(epgToRecordingMapping[(int)epg.EpgID].Id);
+            result = (ulong)(epgToRecordingMapping[(long)epg.EpgID]);
 
             return result;
         }
@@ -129,7 +123,7 @@ namespace ElasticSearchHandler.Updaters
         /// <returns></returns>
         protected override ulong GetDocumentId(int epgId)
         {
-            return (ulong)(epgToRecordingMapping[epgId].Id);
+            return (ulong)(epgToRecordingMapping[epgId]);
         }
 
         /// <summary>
@@ -139,7 +133,7 @@ namespace ElasticSearchHandler.Updaters
         /// <returns></returns>
         protected override string SerializeEPG(ApiObjects.EpgCB epg)
         {
-            long recordingId = (long)(epgToRecordingMapping[(int)epg.EpgID].Id);
+            long recordingId = (long)(epgToRecordingMapping[(int)epg.EpgID]);
 
             return esSerializer.SerializeRecordingObject(epg, recordingId);
         }

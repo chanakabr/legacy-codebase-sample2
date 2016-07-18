@@ -20,7 +20,7 @@ namespace ElasticSearchHandler.IndexBuilders
         
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        protected Dictionary<int, long> epgToRecordingMapping = null;
+        protected Dictionary<long, long> epgToRecordingMapping = null;
 
         #endregion
 
@@ -28,7 +28,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
         public RecordingIndexBuilderV1(int groupId) : base(groupId)
         {
-            epgToRecordingMapping = new Dictionary<int, long>();
+            epgToRecordingMapping = new Dictionary<long, long>();
             serializer = new ESSerializerV1();
         }
 
@@ -47,15 +47,8 @@ namespace ElasticSearchHandler.IndexBuilders
             (int)RecordingInternalStatus.Canceled, (int)RecordingInternalStatus.Failed};
 
             // Get information about relevant recordings
-            List<Recording> recordings = DAL.RecordingsDAL.GetAllRecordingsByStatuses(this.groupId, statuses);
-            List<string> epgIds = new List<string>();
-
-            // Map EPGs to recordings and create list of all EPGs
-            foreach (var recording in recordings)
-            {
-                epgToRecordingMapping[(int)recording.EpgId] = recording.Id;
-                epgIds.Add(recording.EpgId.ToString());
-            }
+            epgToRecordingMapping = DAL.RecordingsDAL.GetEpgToRecordingsMapByRecordingStatuses(this.groupId, statuses);
+            List<string> epgIds = epgToRecordingMapping.Select(x => x.ToString()).ToList();                        
 
             EpgBL.TvinciEpgBL epgBL = new TvinciEpgBL(this.groupId);
 
