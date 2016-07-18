@@ -104,12 +104,12 @@ namespace Recordings
             return status;
         }
 
-        public ApiObjects.TimeShiftedTv.DomainQuotaResponse GetDomainQuota(int groupId, long domainID)
+        public ApiObjects.TimeShiftedTv.DomainQuotaResponse GetDomainQuotaResponse(int groupId, long domainId)
         {
             Status status = new Status((int)eResponseStatus.OK);
 
-            int totalSeconds = ConditionalAccess.Utils.GetDomainDefaultQuota(groupId, domainID);
-            int secondsLeft = ConditionalAccess.Utils.GetDomainQuota(groupId, domainID);
+            int totalSeconds = ConditionalAccess.Utils.GetDomainDefaultQuota(groupId, domainId);
+            int secondsLeft = GetDomainQuota(groupId, domainId);
 
             ApiObjects.TimeShiftedTv.DomainQuotaResponse response = new DomainQuotaResponse()
             {
@@ -119,7 +119,35 @@ namespace Recordings
             };
 
             return response;
-        }        
+        }
+
+        public int GetDomainQuota(int groupId, long domainId)
+        {
+            int domainQuota;
+            // if the domain quota wasn't on CB
+            if (!RecordingsDAL.GetDomainQuota(groupId, domainId, out domainQuota))
+            {
+                domainQuota = ConditionalAccess.Utils.GetDomainDefaultQuota(groupId, domainId);
+            }
+
+            return domainQuota;
+        }
+
+        public bool IncreaseDomainQuota(long domainId, int quotaToIncrease)
+        {
+            return RecordingsDAL.IncreaseDomainQuota(domainId, quotaToIncrease);
+        }
+
+        public bool DecreaseDomainQuota(int groupId, long domainId, int quotaToDecrease)
+        {
+            bool result = false;
+            if (GetDomainQuota(groupId, domainId) >= quotaToDecrease)
+            {
+                result = RecordingsDAL.DecreaseDomainQuota(domainId, quotaToDecrease);
+            }
+
+            return result;
+        }
 
         internal Status CheckQuotaByTotalSeconds(int groupId, long householdId, int totalSeconds, bool isAggregative, List<Recording> newRecordings, List<Recording> currentRecordings)
         {

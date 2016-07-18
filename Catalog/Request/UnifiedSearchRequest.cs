@@ -12,6 +12,7 @@ using Catalog.Response;
 using KLogMonitor;
 using System.Reflection;
 using Catalog.Attributes;
+using Catalog.Cache;
 
 namespace Catalog.Request
 {
@@ -51,6 +52,9 @@ namespace Catalog.Request
 
         [DataMember]
         public List<KeyValuePair<eAssetTypes, long>> specificAssets;
+
+        [DataMember]
+        public List<string> excludedCrids;
 
         #endregion
 
@@ -269,5 +273,16 @@ namespace Catalog.Request
 
         #endregion
 
+
+        internal virtual List<string> GetExtraReturnFields()
+        {
+            return new List<string>();
+        }
+
+        internal virtual bool GetShouldUseSearchEndDate()
+        {
+            CatalogCache catalogCache = CatalogCache.Instance();
+            return catalogCache.IsTstvSettingsExists(m_nGroupID);
+        }
     }
 }

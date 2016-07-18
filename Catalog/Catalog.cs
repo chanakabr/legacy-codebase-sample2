@@ -89,7 +89,8 @@ namespace Catalog
 			            "like_counter",
 			            "views",
 			            "rating",
-			            "votes"
+			            "votes",
+                        "epg_channel_id"
 		            };
 
         private static int maxNGram = -1;
@@ -369,7 +370,7 @@ namespace Catalog
                         if (isLinear != 0 && !string.IsNullOrEmpty(oMediaObj.m_ExternalIDs))
                         {
                             // get linear Channel settings 
-                            Dictionary<string, LinearChannelSettings> linearChannelSettings = CatalogCache.Instance().GetLinearChannelSettings(groupId, new List<string>() { oMediaObj.m_ExternalIDs });
+                            Dictionary<string, LinearChannelSettings> linearChannelSettings = CatalogCache.Instance().GetLinearChannelSettings(groupId, new List<string>(){oMediaObj.m_ExternalIDs});
                             if (linearChannelSettings != null && linearChannelSettings.ContainsKey(oMediaObj.m_ExternalIDs) && linearChannelSettings.Values != null)
                             {
                                 oMediaObj.EnableCatchUp = linearChannelSettings[oMediaObj.m_ExternalIDs].EnableCatchUp;
@@ -377,7 +378,7 @@ namespace Catalog
                                 oMediaObj.EnableStartOver = linearChannelSettings[oMediaObj.m_ExternalIDs].EnableStartOver;
                                 oMediaObj.EnableTrickPlay = linearChannelSettings[oMediaObj.m_ExternalIDs].EnableTrickPlay;
                                 oMediaObj.CatchUpBuffer = linearChannelSettings[oMediaObj.m_ExternalIDs].CatchUpBuffer;
-                                oMediaObj.TrickPlayBuffer = linearChannelSettings[oMediaObj.m_ExternalIDs].TrickPlayBuffer;
+                                oMediaObj.TrickPlayBuffer = linearChannelSettings[oMediaObj.m_ExternalIDs].TrickPlayBuffer;   
                             }
                         }
 
@@ -415,7 +416,7 @@ namespace Catalog
             }
         }
 
-
+      
 
         /*Insert all tags that return from the "CompleteDetailsForMediaResponse" into List<Tags>*/
         private static List<Tags> GetTagsDetails(DataTable dtTags, bool bIsMainLang, ref bool result)
@@ -940,7 +941,7 @@ namespace Catalog
         {
             List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
             totalItems = 0;
-
+            
             // Group have user types per media  +  siteGuid != empty
             if (!string.IsNullOrEmpty(request.m_sSiteGuid) && Utils.IsGroupIDContainedInConfig(request.m_nGroupID, "GroupIDsWithIUserTypeSeperatedBySemiColon", ';'))
             {
@@ -1177,82 +1178,148 @@ namespace Catalog
         /// <returns></returns>
         public static HashSet<string> GetUnifiedSearchKey(string originalKey, Group group, out bool isTagOrMeta)
         {
-            isTagOrMeta = false;
+            isTagOrMeta = false;          
 
             HashSet<string> searchKeys = new HashSet<string>();
-
-            if (originalKey.StartsWith("tags."))
-                originalKey = originalKey.Substring(5);
-
-            if (originalKey.StartsWith("metas."))
-                originalKey = originalKey.Substring(6);
-
-            foreach (string tag in group.m_oGroupTags.Values)
-            {
-                if (tag.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
-                {
-                    isTagOrMeta = true;
-
-                    searchKeys.Add(string.Format("tags.{0}", tag.ToLower()));
-                    break;
-                }
-            }
-
-            var metas = group.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>().SelectMany(d => d.Values).ToList();
-
-            foreach (var meta in metas)
-            {
-                if (meta.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
-                {
-                    isTagOrMeta = true;
-                    searchKeys.Add(string.Format("metas.{0}", meta.ToLower()));
-                    break;
-                }
-            }
 
             // get alias + regex expression 
             List<FieldTypeEntity> FieldEpgAliasMapping = CatalogDAL.GetAliasMappingFields(group.m_nParentGroupID);
 
-            foreach (FieldTypeEntity FieldEpgAlias in FieldEpgAliasMapping.Where(x => x.FieldType == FieldTypes.Tag))
+            if (originalKey.StartsWith("tags."))
             {
-                if (FieldEpgAlias.Alias.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                foreach (string tag in group.m_oGroupTags.Values)
                 {
-                    isTagOrMeta = true;
-                    searchKeys.Add(string.Format("tags.{0}", FieldEpgAlias.Name.ToLower()));
-                    break;
+                    if (tag.Equals(originalKey.Substring(5), StringComparison.OrdinalIgnoreCase))
+                    {
+                        isTagOrMeta = true;
+
+                        searchKeys.Add(originalKey.ToLower());
+                        break;
+                    }
+                }
+
+                foreach (FieldTypeEntity FieldEpgAlias in FieldEpgAliasMapping.Where(x => x.FieldType == FieldTypes.Tag))
+                {
+                    if (FieldEpgAlias.Alias.Equals(originalKey.Substring(5), StringComparison.OrdinalIgnoreCase))
+                    {
+                        isTagOrMeta = true;
+                        searchKeys.Add(string.Format("tags.{0}", FieldEpgAlias.Name.ToLower()));
+                        break;
+                    }
+                }
+
+                foreach (var tag in group.m_oEpgGroupSettings.m_lTagsName)
+                {
+                    if (tag.Equals(originalKey.Substring(5), StringComparison.OrdinalIgnoreCase))
+                    {
+                        isTagOrMeta = true;
+                        searchKeys.Add(originalKey.ToLower());
+                        break;
+                    }
                 }
             }
 
-            foreach (FieldTypeEntity FieldEpgAlias in FieldEpgAliasMapping.Where(x => x.FieldType == FieldTypes.Meta))
+            else if (originalKey.StartsWith("metas."))
             {
-                if (FieldEpgAlias.Alias.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                var metas = group.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>().SelectMany(d => d.Values).ToList();
+
+                foreach (var meta in metas)
                 {
-                    isTagOrMeta = true;
-                    searchKeys.Add(string.Format("metas.{0}", FieldEpgAlias.Name.ToLower()));
-                    break;
+                    if (meta.Equals(originalKey.Substring(6), StringComparison.OrdinalIgnoreCase))
+                    {
+                        isTagOrMeta = true;
+                        searchKeys.Add(originalKey.ToLower());
+                        break;
+                    }
+                }
+
+                foreach (FieldTypeEntity FieldEpgAlias in FieldEpgAliasMapping.Where(x => x.FieldType == FieldTypes.Meta))
+                {
+                    if (FieldEpgAlias.Alias.Equals(originalKey.Substring(6), StringComparison.OrdinalIgnoreCase))
+                    {
+                        isTagOrMeta = true;
+                        searchKeys.Add(string.Format("metas.{0}", FieldEpgAlias.Name.ToLower()));
+                        break;
+                    }
+                }
+
+                foreach (var meta in group.m_oEpgGroupSettings.m_lMetasName)
+                {
+                    if (meta.Equals(originalKey.Substring(6), StringComparison.OrdinalIgnoreCase))
+                    {
+                        isTagOrMeta = true;
+                        searchKeys.Add(originalKey.ToLower());
+                        break;
+                    }
                 }
             }
-
-            foreach (var tag in group.m_oEpgGroupSettings.m_lTagsName)
+            else
             {
-                if (tag.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                foreach (string tag in group.m_oGroupTags.Values)
                 {
-                    isTagOrMeta = true;
-                    searchKeys.Add(string.Format("tags.{0}", tag.ToLower()));
-                    break;
-                }
-            }
+                    if (tag.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                    {
+                        isTagOrMeta = true;
 
-            foreach (var meta in group.m_oEpgGroupSettings.m_lMetasName)
-            {
-                if (meta.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                        searchKeys.Add(string.Format("tags.{0}", tag.ToLower()));
+                        break;
+                    }
+                }
+
+                var metas = group.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>().SelectMany(d => d.Values).ToList();
+
+                foreach (var meta in metas)
                 {
-                    isTagOrMeta = true;
-                    searchKeys.Add(string.Format("metas.{0}", meta.ToLower()));
-                    break;
+                    if (meta.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                    {
+                        isTagOrMeta = true;
+                        searchKeys.Add(string.Format("metas.{0}", meta.ToLower()));
+                        break;
+                    }
                 }
-            }
 
+                foreach (FieldTypeEntity FieldEpgAlias in FieldEpgAliasMapping.Where(x => x.FieldType == FieldTypes.Tag))
+                {
+                    if (FieldEpgAlias.Alias.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                    {
+                        isTagOrMeta = true;
+                        searchKeys.Add(string.Format("tags.{0}", FieldEpgAlias.Name.ToLower()));
+                        break;
+                    }
+                }
+
+                foreach (FieldTypeEntity FieldEpgAlias in FieldEpgAliasMapping.Where(x => x.FieldType == FieldTypes.Meta))
+                {
+                    if (FieldEpgAlias.Alias.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                    {
+                        isTagOrMeta = true;
+                        searchKeys.Add(string.Format("metas.{0}", FieldEpgAlias.Name.ToLower()));
+                        break;
+                    }
+                }
+
+                foreach (var tag in group.m_oEpgGroupSettings.m_lTagsName)
+                {
+                    if (tag.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                    {
+                        isTagOrMeta = true;
+                        searchKeys.Add(string.Format("tags.{0}", tag.ToLower()));
+                        break;
+                    }
+                }
+
+                foreach (var meta in group.m_oEpgGroupSettings.m_lMetasName)
+                {
+                    if (meta.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                    {
+                        isTagOrMeta = true;
+                        searchKeys.Add(string.Format("metas.{0}", meta.ToLower()));
+                        break;
+                    }
+                }
+
+
+            }
             if (!isTagOrMeta)
             {
                 searchKeys.Add(originalKey.ToLower());
@@ -1798,7 +1865,7 @@ namespace Catalog
         #region Build search Object for search Related
 
         /*Build the right MediaSearchRequest for a Search Related Media */
-        public static MediaSearchRequest BuildMediasRequest(Int32 nMediaID, bool bIsMainLang, Filter filterRequest,
+        public static MediaSearchRequest BuildMediasRequest(Int32 nMediaID, bool bIsMainLang, Filter filterRequest, 
             ref Filter oFilter, Int32 nGroupID, List<Int32> nMediaTypes, string sSiteGuid, OrderObj orderObj)
         {
             try
@@ -1822,7 +1889,7 @@ namespace Catalog
 
                 if (ds == null)
                     return null;
-
+                
                 oMediasRequest.m_nGroupID = nGroupID;
                 oMediasRequest.m_sSiteGuid = sSiteGuid;
                 oMediasRequest.m_oOrderObj = orderObj;
@@ -1999,7 +2066,7 @@ namespace Catalog
         }
 
         public static void UpdateFollowMe(int nGroupID, string sAssetID, string sSiteGUID, int nPlayTime, string sUDID, int duration, string assetAction, int mediaTypeId, int nDomainID = 0, ePlayType ePlayType = ePlayType.MEDIA)
-        {
+        {          
             if (Catalog.IsAnonymousUser(sSiteGUID))
             {
                 return;
@@ -2009,7 +2076,7 @@ namespace Catalog
             {
                 DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
                 int opID = 0;
-                bool isMaster = false;
+                bool isMaster = false;  
                 nDomainID = DomainDal.GetDomainIDBySiteGuid(nGroupID, int.Parse(sSiteGUID), ref opID, ref isMaster, ref eSuspendStat);
             }
 
@@ -2587,7 +2654,7 @@ namespace Catalog
                 lEpgIDs.Add(pRequest.m_lProgramsIds[i]);
             }
 
-            BaseEpgBL epgBL = EpgBL.Utils.GetInstance(pRequest.m_nGroupID);
+            BaseEpgBL epgBL = EpgBL.Utils.GetInstance(pRequest.m_nGroupID);            
             List<EPGChannelProgrammeObject> lEpgProg = epgBL.GetEpgs(lEpgIDs);
             // get all linear settings about channel + group
             GetLinearChannelSettings(pRequest.m_nGroupID, lEpgProg);
@@ -2598,7 +2665,7 @@ namespace Catalog
             //keeping the original order and amount of items (some of the items might return as null)
             if (pRequest.m_lProgramsIds != null && lEpgProg != null)
             {
-                pResponse.m_nTotalItems = lEpgProg.Count;
+                pResponse.m_nTotalItems = lEpgProg.Count;               
             }
 
             foreach (int nProgram in pRequest.m_lProgramsIds)
@@ -2676,7 +2743,7 @@ namespace Catalog
             {
                 enableChannel = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "ENABLE_CDVR"); // channel settings
                 if (enableChannel != 0) //None/NULL
-                {
+                {                   
                     enable = enableChannel;
                 }
             }
@@ -2715,7 +2782,7 @@ namespace Catalog
                 }
             }
             epg.ENABLE_TRICK_PLAY = enable;
-
+          
             return epg;
         }
 
@@ -2915,7 +2982,7 @@ namespace Catalog
                     {
                         continue;
                     }
-
+                   
                     if (channelIdsToProgrammesMapping.ContainsKey(tempEpgChannelID))
                     {
                         channelIdsToProgrammesMapping[tempEpgChannelID].Add(epgs[i]);
@@ -3784,6 +3851,7 @@ namespace Catalog
                     {
                         case WS_Domains.DomainResponseStatus.ConcurrencyLimitation:
                         case WS_Domains.DomainResponseStatus.MediaConcurrencyLimitation:
+
                             {
                                 res = true;
                                 break;
@@ -4056,7 +4124,7 @@ namespace Catalog
         {
 
             if (!TVinciShared.WS_Utils.GetTcmBoolValue("CATALOG_HIT_CACHE"))
-            {
+            {                
                 countryID = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(userIP);
                 return CatalogDAL.GetMediaPlayData(mediaID, mediaFileID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID, ref fileDuration);
             }
@@ -5662,7 +5730,7 @@ namespace Catalog
 
             bool bIsMainLang = Utils.IsLangMain(request.m_nGroupID, request.m_oFilter.m_nLanguage);
 
-            MediaSearchRequest mediaSearchRequest =
+            MediaSearchRequest mediaSearchRequest = 
                 BuildMediasRequest(request.m_nMediaID, bIsMainLang, request.m_oFilter, ref filter, request.m_nGroupID, request.m_nMediaTypes, request.m_sSiteGuid, request.OrderObj);
 
             #region Basic
@@ -5926,11 +5994,23 @@ namespace Catalog
                     {
                         definitions.defaultStartDate = false;
                         GetLeafDate(ref leaf);
+
+                        leaf.assetTypes = new List<eAssetTypes>()
+                        {
+                            eAssetTypes.EPG,
+                            eAssetTypes.NPVR
+                        };
                     }
                     else if (searchKeyLowered == "end_date")
                     {
                         definitions.defaultEndDate = false;
                         GetLeafDate(ref leaf);
+
+                        leaf.assetTypes = new List<eAssetTypes>()
+                        {
+                            eAssetTypes.EPG,
+                            eAssetTypes.NPVR
+                        };
                     }
                     else if (searchKeyLowered == "update_date")
                     {
@@ -6057,26 +6137,26 @@ namespace Catalog
                         switch (loweredValue)
                         {
                             case ("free"):
-                                {
-                                    definitions.entitlementSearchDefinitions.shouldGetFreeAssets = true;
-                                    break;
-                                }
+                            {
+                                definitions.entitlementSearchDefinitions.shouldGetFreeAssets = true;
+                                break;
+                            }
                             case ("entitled"):
-                                {
-                                    definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
-                                    break;
-                                }
+                            {
+                                definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
+                                break;
+                            }
                             case ("both"):
-                                {
-                                    definitions.entitlementSearchDefinitions.shouldGetFreeAssets = true;
-                                    definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
-                                    break;
-                                }
+                            {
+                                definitions.entitlementSearchDefinitions.shouldGetFreeAssets = true;
+                                definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
+                                break;
+                            }
                             default:
-                                {
-                                    definitions.entitlementSearchDefinitions = null;
-                                    throw new KalturaException("Invalid search value or operator was sent for entitled_assets", (int)eResponseStatus.BadSearchRequest);
-                                }
+                            {
+                                definitions.entitlementSearchDefinitions = null;
+                                throw new KalturaException("Invalid search value or operator was sent for entitled_assets", (int)eResponseStatus.BadSearchRequest);
+                            }
                         }
 
                         // I mock a "contains" operator so that the query builder will know it is a not-exact search
@@ -6297,19 +6377,19 @@ namespace Catalog
                 switch (channel.m_eCutWith)
                 {
                     case CutWith.WCF_ONLY_DEFAULT_VALUE:
-                        break;
+                    break;
                     case CutWith.OR:
-                        {
-                            cutType = eCutType.Or;
-                            break;
-                        }
-                    case CutWith.AND:
-                        {
-                            cutType = eCutType.And;
-                            break;
-                        }
-                    default:
+                    {
+                        cutType = eCutType.Or;
                         break;
+                    }
+                    case CutWith.AND:
+                    {
+                        cutType = eCutType.And;
+                        break;
+                    }
+                    default:
+                    break;
                 }
 
                 // If there is at least one tag
@@ -6325,19 +6405,19 @@ namespace Catalog
                             switch (channel.m_eCutWith)
                             {
                                 case CutWith.WCF_ONLY_DEFAULT_VALUE:
-                                    break;
+                                break;
                                 case CutWith.OR:
-                                    {
-                                        innerCutType = eCutType.Or;
-                                        break;
-                                    }
-                                case CutWith.AND:
-                                    {
-                                        innerCutType = eCutType.And;
-                                        break;
-                                    }
-                                default:
+                                {
+                                    innerCutType = eCutType.Or;
                                     break;
+                                }
+                                case CutWith.AND:
+                                {
+                                    innerCutType = eCutType.And;
+                                    break;
+                                }
+                                default:
+                                break;
                             }
 
                             string key = searchValue.m_sKey.ToLower();
@@ -6380,7 +6460,7 @@ namespace Catalog
                     emptyRequest = true;
                 }
 
-                if (channel.m_nChannelTypeID == (int)ChannelType.Automatic &&
+                if (channel.m_nChannelTypeID == (int)ChannelType.Automatic && 
                     definitions.mediaTypes != null && definitions.mediaTypes.Count > 0)
                 {
                     // If there is at least one media type - it is not an empty request
@@ -6573,7 +6653,7 @@ namespace Catalog
         }
 
         public static bool RebuildEpgChannel(int groupId, int epgChannelID, DateTime fromDate, DateTime toDate, bool duplicates)
-        {
+        {           
             try
             {
                 if (duplicates)
@@ -6597,7 +6677,7 @@ namespace Catalog
         {
             bool res = false;
             try
-            {
+            {                
                 List<LanguageObj> groupLang = CatalogDAL.GetGroupLanguages(groupId);
                 string mainLang = groupLang.Where(x => x.IsDefault).Select(x => x.Code).FirstOrDefault();
 
@@ -6644,7 +6724,7 @@ namespace Catalog
                         epgIds = new List<long>();
                         nCount = 0;
                     }
-
+                   
                 }
 
                 if (nCount > 0 && epgIds != null && epgIds.Count > 0)
@@ -6653,11 +6733,11 @@ namespace Catalog
                 }
 
                 #endregion
-                res = true;
+                res = true;                
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("RebuildEpgProgramsChannel:{0}, epgChannelID:{1}, fromDate:{2}, toDate:{3}, ex:{4}",
+                log.ErrorFormat("RebuildEpgProgramsChannel:{0}, epgChannelID:{1}, fromDate:{2}, toDate:{3}, ex:{4}", 
                     groupId, epgChannelID, fromDate, toDate, ex.InnerException);
                 return false;
             }
@@ -6665,7 +6745,7 @@ namespace Catalog
         }
 
         private static bool RemoveDuplicatesEpgPrograms(int groupId, int epgChannelID, DateTime fromDate, DateTime toDate)
-        {
+        {           
             try
             {
                 List<long> epgIds = EpgDal.GetEpgIds(epgChannelID, groupId, fromDate, toDate, 2);
@@ -6673,7 +6753,7 @@ namespace Catalog
                 {
                     BaseEpgBL epgBL = EpgBL.Utils.GetInstance(groupId);
                     epgBL.RemoveGroupPrograms(epgIds.ConvertAll<int>(x => (int)x));
-                    bool resultEpgIndex = UpdateEpgIndex(epgIds, groupId, ApiObjects.eAction.Delete);
+                    bool resultEpgIndex = UpdateEpgIndex(epgIds, groupId, ApiObjects.eAction.Delete);                    
                 }
                 return true;
             }
@@ -6685,10 +6765,10 @@ namespace Catalog
         }
 
         private static List<long> GetEpgIds(int epgChannelID, int groupId, DateTime fromDate, DateTime toDate)
-        {
+        {            
             try
             {
-                List<long> epgIds = EpgDal.GetEpgIds(epgChannelID, groupId, fromDate, toDate);
+                List<long> epgIds = EpgDal.GetEpgIds(epgChannelID, groupId, fromDate, toDate);              
                 return epgIds;
             }
             catch (Exception ex)
@@ -6712,13 +6792,13 @@ namespace Catalog
                     }
                     if (epgs != null && epgs.Count > 0)
                     {
-
+                        
                         GetMetaDetails(epgs, ds.Tables[2]);
                         GetTagDetails(epgs, ds.Tables[3]);
 
                         GetPicDetails(epgs, ds.Tables[4], ds.Tables[5]);
                     }
-                }
+                }                
             }
             catch (Exception)
             {
@@ -6735,7 +6815,7 @@ namespace Catalog
                     return;
 
                 foreach (EpgCB item in epgs)
-                {
+                {                                    
                     DataRow[] picID = dtEpgIDPic.Select("ID=" + item.EpgID);
                     DataRow[] pics = dtPic.Select("id=" + picID[0]["picID"]);
                     EpgPicture epgPicture;
@@ -6760,12 +6840,12 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                log.Error(ex.Message, ex);
+                 log.Error(ex.Message, ex);
             }
         }
 
         private static void GetMetaDetails(List<EpgCB> epgs, DataTable dt)
-        {
+        {  
             try
             {
                 if (dt == null)
@@ -6834,8 +6914,8 @@ namespace Catalog
             }
         }
 
-        private static void BasicEpgProgramDetails(DataTable dt, DataTable dtUpdateDate, List<EpgCB> epgs, string mainLang)
-        {
+        private static void BasicEpgProgramDetails(DataTable dt, DataTable dtUpdateDate ,List<EpgCB> epgs, string mainLang)
+        {           
             EpgCB epg;
             try
             {
@@ -6859,10 +6939,10 @@ namespace Catalog
                     epg.StartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE");
                     epg.EndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
                     epg.CreateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
-                    epg.EnableCatchUp = Utils.GetIntSafeVal(dr, "ENABLE_CATCH_UP");
-                    epg.EnableCDVR = Utils.GetIntSafeVal(dr, "ENABLE_CDVR");
-                    epg.EnableStartOver = Utils.GetIntSafeVal(dr, "ENABLE_START_OVER");
-                    epg.EnableTrickPlay = Utils.GetIntSafeVal(dr, "ENABLE_TRICK_PLAY");
+                    epg.EnableCatchUp =  Utils.GetIntSafeVal(dr, "ENABLE_CATCH_UP");
+                    epg.EnableCDVR =  Utils.GetIntSafeVal(dr, "ENABLE_CDVR");
+                    epg.EnableStartOver =  Utils.GetIntSafeVal(dr, "ENABLE_START_OVER");
+                    epg.EnableTrickPlay=  Utils.GetIntSafeVal(dr, "ENABLE_TRICK_PLAY");
                     epg.Language = mainLang;
                     DataRow updateDr = dtUpdateDate.Select("ID=" + epg.EpgID).FirstOrDefault();
                     epg.UpdateDate = ODBCWrapper.Utils.GetDateSafeVal(updateDr, "UPDATE_DATE");
@@ -7049,7 +7129,7 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                log.Error("Error while getting users watch history", ex);
+                // ASK IRA. NO LOG IN THIS DAMN CLASS !!!
                 throw ex;
             }
 

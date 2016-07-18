@@ -4259,12 +4259,12 @@ namespace Tvinci.Core.DAL
             }
         }
 
-        public static string GetEPGChannelCDVRId(int groupId, string epgChannelId)
+        public static string GetEPGChannelCDVRId(int groupId, long epgChannelId)
         {
             string cdvrId = string.Empty;
 
             object value =
-                ODBCWrapper.Utils.GetTableSingleVal("epg_channels", "CDVR_ID", Convert.ToInt32(epgChannelId), 60, "MAIN_CONNECTION_STRING");
+                ODBCWrapper.Utils.GetTableSingleVal("epg_channels", "CDVR_ID", epgChannelId, 60, "MAIN_CONNECTION_STRING");
 
             if (value != DBNull.Value)
             {

@@ -896,7 +896,7 @@ namespace Catalog
             return documents;
         }
 
-        private List<ElasticSearchApi.ESAssetDocument> DecodeAssetSearchJsonObject(string sObj, ref int totalItems)
+        private List<ElasticSearchApi.ESAssetDocument> DecodeAssetSearchJsonObject(string sObj, ref int totalItems, List<string> extraReturnFields = null)
         {
             List<ElasticSearchApi.ESAssetDocument> documents = null;
             try
@@ -914,7 +914,7 @@ namespace Catalog
                         string prefix = "fields";
                         foreach (var item in jsonObj.SelectToken("hits.hits"))
                         {
-                            var newDocument = DecodeSingleAssetJsonObject(item, prefix);
+                            var newDocument = DecodeSingleAssetJsonObject(item, prefix, extraReturnFields);
 
                             documents.Add(newDocument);
                         }
@@ -929,7 +929,7 @@ namespace Catalog
             return documents;
         }
 
-        private static ElasticSearchApi.ESAssetDocument DecodeSingleAssetJsonObject(JToken item, string fieldNamePrefix)
+        private static ElasticSearchApi.ESAssetDocument DecodeSingleAssetJsonObject(JToken item, string fieldNamePrefix, List<string> extraReturnFields = null)
         {
             JToken tempToken = null;
             string typeString = ((tempToken = item.SelectToken("_type")) == null ? string.Empty : (string)tempToken);
@@ -994,6 +994,33 @@ namespace Catalog
                 media_type_id = mediaTypeId,
                 epg_identifier = epgIdentifier,
             };
+
+            if (extraReturnFields != null)
+            {
+                newDocument.extraReturnFields = new Dictionary<string, string>();
+                string fieldValue = null;
+
+                foreach (var fieldName in extraReturnFields)
+                {
+                    if (fieldName.StartsWith("metas.") || fieldName.StartsWith("tags."))
+                    {
+                        fieldValue = ((fieldValue = (string)item["fields"][fieldName][0]) == null ? string.Empty : fieldValue);
+                    }
+                    else
+                    {
+                        string properFieldName = string.Format("fields.{0}", fieldName.ToLower());
+
+                        fieldValue = ExtractValueFromToken<string>(item, AddPrefixToFieldName(properFieldName, fieldNamePrefix));
+                        //fieldValue = ((tempToken = item.SelectToken()) == null ? string.Empty : (string)tempToken);
+                    }
+
+                    if (!string.IsNullOrEmpty(fieldValue))
+                    {
+                        newDocument.extraReturnFields.Add(fieldName, fieldValue);
+                    }
+                }
+            }
+
             return newDocument;
         }
 
@@ -1303,7 +1330,8 @@ namespace Catalog
                 {
                     #region Process ElasticSearch result
 
-                    List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded = DecodeAssetSearchJsonObject(queryResultString, ref totalItems);
+                    List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded = 
+                        DecodeAssetSearchJsonObject(queryResultString, ref totalItems, unifiedSearchDefinitions.extraReturnFields);
 
                     if (assetsDocumentsDecoded != null && assetsDocumentsDecoded.Count > 0)
                     {
@@ -1311,12 +1339,42 @@ namespace Catalog
 
                         foreach (ElasticSearchApi.ESAssetDocument doc in assetsDocumentsDecoded)
                         {
-                            searchResultsList.Add(new UnifiedSearchResult()
+                            if (unifiedSearchDefinitions.shouldReturnExtendedSearchResult)
                             {
-                                AssetId = doc.asset_id.ToString(),
-                                m_dUpdateDate = doc.update_date,
-                                AssetType = UnifiedSearchResult.ParseType(doc.type)
-                            });
+                                var result = new ExtendedSearchResult()
+                                    {
+                                        AssetId = doc.asset_id.ToString(),
+                                        m_dUpdateDate = doc.update_date,
+                                        AssetType = UnifiedSearchResult.ParseType(doc.type),
+                                        EndDate = doc.end_date,
+                                        StartDate = doc.start_date
+                                    };
+
+                                if (doc.extraReturnFields != null)
+                                {
+                                    result.ExtraFields = new List<KeyValuePair>();
+
+                                    foreach (var field in doc.extraReturnFields)
+                                    {
+                                        result.ExtraFields.Add(new KeyValuePair()
+                                        {
+                                            key = field.Key,
+                                            value = field.Value
+                                        });
+                                    }
+                                }
+
+                                searchResultsList.Add(result);
+                            }
+                            else
+                            {
+                                searchResultsList.Add(new UnifiedSearchResult()
+                                {
+                                    AssetId = doc.asset_id.ToString(),
+                                    m_dUpdateDate = doc.update_date,
+                                    AssetType = UnifiedSearchResult.ParseType(doc.type)
+                                });
+                            }
                         }
 
                         // If this is orderd by a social-stat - first we will get all asset Ids and only then we will sort and page

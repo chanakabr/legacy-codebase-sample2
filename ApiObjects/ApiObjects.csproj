@@ -177,6 +177,7 @@
     <Compile Include="PersonalEnrichments\UserPurhcasedAssetsResponse.cs" />
     <Compile Include="IngestBusinessModules\IngestPricePlan.cs" />
     <Compile Include="QueueObjects\ExpiredRecordingData.cs" />
+    <Compile Include="QueueObjects\FirstFollowerRecordingData.cs" />
     <Compile Include="QueueObjects\FreeItemUpdateData.cs" />
     <Compile Include="OSSAdapter\OSSAdapterEntitlementsResponse.cs" />
     <Compile Include="PlayCycle\UserPlayCycle.cs" />
@@ -365,12 +366,14 @@
     <Compile Include="TagResponseObject.cs" />
     <Compile Include="HouseholdBillingRequest.cs" />
     <Compile Include="TimeShiftedTv\DomainQuotaResponse.cs" />
+    <Compile Include="TimeShiftedTv\DomainSeriesRecording.cs" />
     <Compile Include="TimeShiftedTv\QuotaManagementModel.cs" />
     <Compile Include="TimeShiftedTv\Recording.cs" />
     <Compile Include="TimeShiftedTv\RecordingCB.cs" />
     <Compile Include="TimeShiftedTv\RecordingCleanupResponse.cs" />
     <Compile Include="TimeShiftedTv\RecordingResponse.cs" />
     <Compile Include="TimeShiftedTv\RecordResult.cs" />
+    <Compile Include="TimeShiftedTv\SeriesRecording.cs" />
     <Compile Include="TimeShiftedTv\TimeShiftedTvPartnerSettings.cs" />
     <Compile Include="TimeShiftedTv\TimeShiftedTvPartnerSettingsResponse.cs" />
     <Compile Include="UserComment.cs" />

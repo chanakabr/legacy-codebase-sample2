@@ -588,30 +588,24 @@ namespace ElasticSearch.Searcher
                 string nowDateString = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
                 string maximumDateString = DateTime.MaxValue.ToString("yyyyMMddHHmmss");
 
-                if (this.SearchDefinitions.defaultStartDate)
+                ESRange mediaStartDateRange = new ESRange(false);
+
+                if (this.SearchDefinitions.shouldUseStartDate)
                 {
-                    ESRange mediaStartDateRange = new ESRange(false);
-
-                    if (this.SearchDefinitions.shouldUseStartDate)
-                    {
-                        mediaStartDateRange.Key = "start_date";
-                        string minimumDateString = DateTime.MinValue.ToString("yyyyMMddHHmmss");
-                        mediaStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, minimumDateString));
-                        mediaStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowDateString));
-                    }
-
-                    mediaDatesFilter.AddChild(mediaStartDateRange);
+                    mediaStartDateRange.Key = "start_date";
+                    string minimumDateString = DateTime.MinValue.ToString("yyyyMMddHHmmss");
+                    mediaStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, minimumDateString));
+                    mediaStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowDateString));
                 }
 
-                if (this.SearchDefinitions.defaultEndDate)
-                {
-                    ESRange mediaEndDateRange = new ESRange(false);
-                    mediaEndDateRange.Key = (this.SearchDefinitions.shouldUseFinalEndDate) ? "final_date" : "end_date";
-                    mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowDateString));
-                    mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, maximumDateString));
+                mediaDatesFilter.AddChild(mediaStartDateRange);
 
-                    mediaDatesFilter.AddChild(mediaEndDateRange);
-                }
+                ESRange mediaEndDateRange = new ESRange(false);
+                mediaEndDateRange.Key = (this.SearchDefinitions.shouldUseFinalEndDate) ? "final_date" : "end_date";
+                mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, nowDateString));
+                mediaEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, maximumDateString));
+
+                mediaDatesFilter.AddChild(mediaEndDateRange);
 
                 if (!mediaDatesFilter.IsEmpty())
                 {
@@ -711,12 +705,42 @@ namespace ElasticSearch.Searcher
                 }
 
                 #endregion
+
+                #region Excluded CRIDs
+
+                if (this.SearchDefinitions.excludedCrids != null && this.SearchDefinitions.excludedCrids.Count > 0)
+                {
+                        ESTerms idsTerm = new ESTerms(true)
+                        {
+                            Key = "crid",
+                            isNot = true
+                        };
+
+                        idsTerm.Value.AddRange(this.SearchDefinitions.excludedCrids);
+                }
+                #endregion 
             }
 
             // Recordings specific filters
             if (this.SearchDefinitions.shouldSearchRecordings)
             {
-                // ? nothing for now?
+                FilterCompositeType recoedingsDatesFilter = new FilterCompositeType(CutWith.AND);
+                
+                if (SearchDefinitions.shouldUseSearchEndDate)
+                {
+                    // by search_end_date - for buffer issues - MUST BE LT (nor Equal)          
+                    ESRange epgSearchEndDateRange = new ESRange(false)
+                    {
+                        Key = "search_end_date"
+                    };
+                    epgSearchEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GT, DateTime.UtcNow.ToString("yyyyMMddHHmmss")));
+                    recoedingsDatesFilter.AddChild(epgSearchEndDateRange);
+                }
+
+                if (!recoedingsDatesFilter.IsEmpty())
+                {
+                    recordingFilter.AddChild(recoedingsDatesFilter);
+                }
             }
 
             #region Phrase Tree
@@ -1337,7 +1361,51 @@ namespace ElasticSearch.Searcher
             if (filterNode.type == BooleanNodeType.Leaf)
             {
                 composite = new FilterCompositeType(CutWith.AND);
-                composite.AddChild(ConvertToFilter(filterNode as BooleanLeaf));
+
+                BooleanLeaf leaf = filterNode as BooleanLeaf;
+                IESTerm leafTerm = ConvertToFilter(leaf);
+
+                // If this leaf is relevant only to certain asset types - create a bool query connecting the types and the term
+                if (leaf.assetTypes != null && leaf.assetTypes.Count > 0)
+                {
+                    FilterCompositeType newComposite = new FilterCompositeType(CutWith.OR);
+                    FilterCompositeType subComposite = new FilterCompositeType(CutWith.AND);
+                    FilterCompositeType typesComposite = new FilterCompositeType(CutWith.OR);
+                    FilterCompositeType typesCompositeNot = new FilterCompositeType(CutWith.AND);
+
+                    // Create a prefix term for each asset type
+                    foreach (var assetType in leaf.assetTypes)
+                    {
+                        ESPrefix prefix = new ESPrefix()
+                        {
+                            Key = "_type",
+                            Value = assetType.ToString().ToLower()
+                        };
+                        ESPrefix prefixNot = new ESPrefix()
+                        {
+                            Key = "_type",
+                            Value = assetType.ToString().ToLower(),
+                            isNot = true
+                        };
+
+                        // the prefixes are SHOULD (or) [at least one of the following....)
+                        typesComposite.AddChild(prefix);
+
+                        typesCompositeNot.AddChild(prefixNot);
+                    }
+
+                    subComposite.AddChild(typesComposite);
+                    subComposite.AddChild(leafTerm);
+
+                    newComposite.AddChild(subComposite);
+                    newComposite.AddChild(typesCompositeNot);
+
+                    composite.AddChild(newComposite);
+                }
+                else
+                {
+                    composite.AddChild(leafTerm);
+                }
             }
             else if (filterNode.type == BooleanNodeType.Parent)
             {
@@ -1484,6 +1552,37 @@ namespace ElasticSearch.Searcher
                     {
                         term = ConvertToRange(leaf.field, value, leaf.operand, isNumeric);
                     }
+                }
+
+                // If this leaf is relevant only to certain asset types - create a bool query connecting the types and the term
+                if (leaf.assetTypes != null && leaf.assetTypes.Count > 0)
+                {
+                    BoolQuery fatherBool = new BoolQuery();
+                    BoolQuery subBool = new BoolQuery();
+                    BoolQuery notTypesBool = new BoolQuery();
+
+                    // the original term is a MUST (and)
+                    subBool.AddChild(term, CutWith.AND);
+
+                    // Create a prefix term for each asset type
+                    foreach (var assetType in leaf.assetTypes)
+                    {
+                        ESPrefix prefix = new ESPrefix()
+                        {
+                            Key = "_type",
+                            Value = assetType.ToString().ToLower()
+                        };
+
+                        // the prefixes are SHOULD (or) [at least one of the following....)
+                        subBool.AddChild(prefix, CutWith.OR);
+
+                        notTypesBool.AddNot(prefix);
+                    }
+
+                    fatherBool.AddChild(subBool, CutWith.OR);
+                    fatherBool.AddChild(notTypesBool, CutWith.OR);
+
+                    term = fatherBool;
                 }
             }
             // If it is a phrase, join all children in a bool query with the corresponding operand
@@ -1817,7 +1916,7 @@ namespace ElasticSearch.Searcher
             {
                 term = ConvertToRange(leaf.field, value, leaf.operand, isNumeric);
             }
-
+            
             return (term);
         }
 

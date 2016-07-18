@@ -39,6 +39,7 @@ namespace Catalog.Response
     [KnownType(typeof(UnifiedSearchExternalResponse))]    
     [KnownType(typeof(AssetInfoResponse))]
     [KnownType(typeof(MediaIdsStatusResponse))]
+    [KnownType(typeof(ExtendedSearchResult))]
     public class BaseResponse
     {  
         [DataMember]

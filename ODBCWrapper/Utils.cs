@@ -175,6 +175,11 @@ namespace ODBCWrapper
             return GetTableSingleVal(sTable, sFieldName, "id", "=", nID, nCachSec, sConnectionKey);
         }
 
+        static public object GetTableSingleVal(string sTable, string sFieldName, long nID, Int32 nCachSec, string sConnectionKey)
+        {
+            return GetTableSingleVal(sTable, sFieldName, "id", "=", nID, nCachSec, sConnectionKey);
+        }
+
         static public object GetTableSingleVal(string sTable, string sFieldName, Int32 nID)
         {
             return GetTableSingleVal(sTable, sFieldName, nID, "");

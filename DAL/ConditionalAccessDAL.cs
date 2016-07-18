@@ -8,6 +8,7 @@ using ApiObjects;
 using System.Text.RegularExpressions;
 using KLogMonitor;
 using System.Reflection;
+using ApiObjects.TimeShiftedTv;
 
 namespace DAL
 {
@@ -216,7 +217,6 @@ namespace DAL
 
             return res;
         }
-
 
         public static DataView GetUserBillingHistory(string[] arrGroupIDs, string sUserGUID, int nTopNum, DateTime dStartDate, DateTime dEndDate, int orderBy)
         {
@@ -812,7 +812,6 @@ namespace DAL
             return null;
         }
 
-
         public static long Insert_NewPPVPurchase(long groupID, long contentID, string siteGuid, double price, string currency, long maxNumOfUses, string customData, string subscriptionCode,
             long billingTransactionID, DateTime startDate, DateTime endDate, DateTime createAndUpdateDate, string country, string language, string deviceName, long householdID, string billingGuid = null)
         {
@@ -854,7 +853,6 @@ namespace DAL
 
             return sp.ExecuteReturnValue<long>();
         }
-
 
         public static long Insert_NewMPPPurchase(long lGroupID, string sSubscriptionCode, string sSiteGuid,
             double dPrice, string sCurrencyCode, string sCustomData, string sCountryCode, string sLanguageCode,
@@ -1107,7 +1105,6 @@ namespace DAL
 
             return sp.ExecuteReturnValue<bool>();
         }
-
 
         public static bool CancelPPVPurchaseTransaction(string sSiteGuid, int nAssetID, int domainID = 0)
         {
@@ -1425,8 +1422,6 @@ namespace DAL
             return res;
         }
 
-
-
         public static DataTable Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(int nSubscriptionCode, List<int> UserIDs, int nGroupID, int domainID = 0)
         {
             if (UserIDs == null)
@@ -1468,7 +1463,6 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
-
 
         public static string Get_LicensedLinkSecretCode(long groupID)
         {
@@ -1930,7 +1924,6 @@ namespace DAL
 
             return fileIds;
         }
-
 
         public static long Insert_NewMPPPurchase(int groupID, string subscriptionCode, string siteGUID, double price, string currency, string customData, string country, string deviceName, int maxNumOfUses, int viewLifeCycle,
             bool isRecurring, long billingTransactionID, long previewModuleID, DateTime subscriptionStartDate, DateTime subscriptionEndDate, DateTime createAndUpdateDate, long householdId, string billingGuid)
@@ -2576,94 +2569,5 @@ namespace DAL
             return model;
         }
 
-        public static bool GetDomainQuota(int groupId, long domainId, out int quota)
-        {
-            bool result = false;
-            quota = 0;
-            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.STATISTICS);
-            int limitRetries = RETRY_LIMIT;
-            Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
-            string domainQuotaKey = UtilsDal.GetDomainQuotaKey(domainId);
-            if (string.IsNullOrEmpty(domainQuotaKey))
-            {
-                log.ErrorFormat("Failed getting domainQuotaKey for domainId: {0}", domainId);                
-            }
-
-            else
-            {
-                try
-                {
-                    int numOfRetries = 0;
-                    while (numOfRetries < limitRetries)
-                    {
-                        quota = cbClient.Get<int>(domainQuotaKey, out getResult);
-                        if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
-                        {
-                            log.ErrorFormat("Error while trying to get domain quota, domainId: {0}, key: {1}", domainId, domainQuotaKey);
-                            break;
-                        }
-                        else if (getResult == Couchbase.IO.ResponseStatus.Success)
-                        {
-                            result = true;
-                            break;
-                        }
-                        else
-                        {
-                            log.ErrorFormat("Retrieving domain quota with domainId: {0} and key {1} failed with status: {2}, retryAttempt: {3}, maxRetries: {4}", domainId, domainQuotaKey, getResult, numOfRetries, limitRetries);
-                            numOfRetries++;
-                            System.Threading.Thread.Sleep(1000);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    log.ErrorFormat("Error while trying to get domain quota, domainId: {0}, ex: {1}", domainId, ex);
-                }
-            }
-
-            return result;
-        }
-
-        public static bool AddQuotaToDomain(long domainId, int quotaToAdd)
-        {
-            bool result = false;
-            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
-            int limitRetries = RETRY_LIMIT;
-            string domainQuotaKey = UtilsDal.GetDomainQuotaKey(domainId);
-            if (string.IsNullOrEmpty(domainQuotaKey))
-            {
-                log.ErrorFormat("Failed getting domainQuotaKey for domainId: {0}", domainId);
-                return result;
-            }
-
-            try
-            {
-                int numOfRetries = 0;
-                while (!result && numOfRetries < limitRetries)
-                {
-                    ulong version;
-                    int currentQuota = -1;
-                    currentQuota = cbClient.GetWithVersion<int>(domainQuotaKey, out version);
-                    if (version != 0 && currentQuota > -1)
-                    {
-                        int updatedQuota = currentQuota + quotaToAdd;
-                        result = cbClient.SetWithVersion<int>(domainQuotaKey, updatedQuota, version);
-                    }
-
-                    if (!result)
-                    {
-                        numOfRetries++;
-                        log.ErrorFormat("Error while adding quota to domain. number of tries: {0}/{1}. domainId: {2}, currentQuota: {3}, quotaToAdd: {4}", numOfRetries, limitRetries, domainId, currentQuota, quotaToAdd);
-                        System.Threading.Thread.Sleep(1000);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while adding quota to domain, domainId: {0}, quotaToAdd: {1}, ex: {2}", domainId, quotaToAdd, ex);
-            }
-
-            return result;
-        }
     }
 }
