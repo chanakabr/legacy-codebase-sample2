@@ -18,7 +18,7 @@ using KlogMonitorHelper;
 
 namespace Recordings
 {
-    public class RecordingsManager
+    public class  RecordingsManager
     {
         #region Consts
 
