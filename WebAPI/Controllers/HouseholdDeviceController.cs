@@ -197,12 +197,14 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Generates device pin to use when adding a device to household by pin
         /// </summary>
-        /// <param name="brand_id">Device brand identifier</param>
+        /// <param name="brandId">Device brand identifier</param>
         /// <param name="udid">Device UDID</param>
         /// <returns></returns>
         [Route("generatePin"), HttpPost]
         [ApiAuthorize]
-        public KalturaDevicePin GeneratePin(string udid, int brand_id)
+        [OldStandard("brandId", "brand_id")]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        public KalturaDevicePin GeneratePin(string udid, int brandId)
         {
             KalturaDevicePin devicePin = null;
 
@@ -216,7 +218,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                devicePin = ClientsManager.DomainsClient().GetPinForDevice(groupId, udid, brand_id);
+                devicePin = ClientsManager.DomainsClient().GetPinForDevice(groupId, udid, brandId);
             }
             catch (ClientException ex)
             {

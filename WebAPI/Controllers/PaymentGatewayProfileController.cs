@@ -235,10 +235,12 @@ namespace WebAPI.Controllers
         /// Possible status codes:  
         /// payment gateway id required = 6005, payment gateway not exist = 6008
         /// </remarks>
-        /// <param name="payment_gateway_id">Payment gateway identifier</param>
+        /// <param name="paymentGatewayId">Payment gateway identifier</param>
         [Route("generateSharedSecret"), HttpPost]
         [ApiAuthorize]
-        public KalturaPaymentGatewayProfile GenerateSharedSecret(int payment_gateway_id)
+        [OldStandard("paymentGatewayId", "payment_gateway_id")]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        public KalturaPaymentGatewayProfile GenerateSharedSecret(int paymentGatewayId)
         {
             KalturaPaymentGatewayProfile response = null;
 
@@ -247,7 +249,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().GeneratePaymentGatewaySharedSecret(groupId, payment_gateway_id);
+                response = ClientsManager.BillingClient().GeneratePaymentGatewaySharedSecret(groupId, paymentGatewayId);
             }
             catch (ClientException ex)
             {

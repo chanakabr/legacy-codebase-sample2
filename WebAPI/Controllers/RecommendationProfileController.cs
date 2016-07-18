@@ -167,10 +167,12 @@ namespace WebAPI.Controllers
         /// Possible status codes:  
         /// recommendation engine not exist = 4007, recommendation engine identifier required = 4008
         /// </remarks>
-        /// <param name="recommendation_engine_id">recommendation engine Identifier</param>
+        /// <param name="recommendationEngineId">recommendation engine Identifier</param>
         [Route("generateSharedSecret"), HttpPost]
         [ApiAuthorize]
-        public KalturaRecommendationProfile GenerateSharedSecret(int recommendation_engine_id)
+        [OldStandard("recommendationEngineId", "recommendation_engine_id")]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        public KalturaRecommendationProfile GenerateSharedSecret(int recommendationEngineId)
         {
             KalturaRecommendationProfile response = null;
 
@@ -179,7 +181,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().GeneratereRecommendationEngineSharedSecret(groupId, recommendation_engine_id);
+                response = ClientsManager.ApiClient().GeneratereRecommendationEngineSharedSecret(groupId, recommendationEngineId);
             }
             catch (ClientException ex)
             {

@@ -100,6 +100,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("users")]
         [XmlArray(ElementName = "users", IsNullable = true)]
         [XmlArrayItem("item")]
+        [Obsolete]
         public List<KalturaBaseOTTUser> Users { get; set; }
 
         /// <summary>
@@ -109,6 +110,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("masterUsers")]
         [XmlArray(ElementName = "masterUsers", IsNullable = true)]
         [XmlArrayItem("item")]
+        [Obsolete]
         public List<KalturaBaseOTTUser> MasterUsers { get; set; }
 
         /// <summary>
@@ -118,6 +120,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("defaultUsers")]
         [XmlArray(ElementName = "defaultUsers", IsNullable = true)]
         [XmlArrayItem("item")]
+        [Obsolete]
         public List<KalturaBaseOTTUser> DefaultUsers { get; set; }
 
         /// <summary>
@@ -127,6 +130,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("pendingUsers")]
         [XmlArray(ElementName = "pendingUsers", IsNullable = true)]
         [XmlArrayItem("item")]
+        [Obsolete]
         public List<KalturaBaseOTTUser> PendingUsers { get; set; }
 
         /// <summary>
@@ -184,6 +188,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("deviceFamilies")]
         [XmlArray(ElementName = "deviceFamilies", IsNullable = true)]
         [XmlArrayItem("item")]
+        [Obsolete]
         public List<KalturaDeviceFamily> DeviceFamilies { get; set; }
 
         internal long getId()
