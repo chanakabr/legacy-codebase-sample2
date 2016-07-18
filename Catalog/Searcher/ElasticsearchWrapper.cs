@@ -998,20 +998,28 @@ namespace Catalog
             if (extraReturnFields != null)
             {
                 newDocument.extraReturnFields = new Dictionary<string, string>();
-                string fieldValue = null;
 
                 foreach (var fieldName in extraReturnFields)
                 {
-                    if (fieldName.StartsWith("metas.") || fieldName.StartsWith("tags."))
+                    string fieldValue = null;
+
+                    if (fieldName.Contains("."))
                     {
-                        fieldValue = ((fieldValue = (string)item["fields"][fieldName][0]) == null ? string.Empty : fieldValue);
+                        var fieldsToken = item["fields"];
+
+                        if (fieldsToken != null)
+                        {
+                            var specificFieldToken = fieldsToken[fieldName];
+
+                            if (specificFieldToken != null)
+                            {
+                                fieldValue = ExtractValueFromToken<string>(specificFieldToken);
+                            }
+                        }
                     }
                     else
                     {
-                        string properFieldName = string.Format("fields.{0}", fieldName.ToLower());
-
-                        fieldValue = ExtractValueFromToken<string>(item, AddPrefixToFieldName(properFieldName, fieldNamePrefix));
-                        //fieldValue = ((tempToken = item.SelectToken()) == null ? string.Empty : (string)tempToken);
+                        fieldValue = ExtractValueFromToken<string>(item, AddPrefixToFieldName(fieldName, fieldNamePrefix));
                     }
 
                     if (!string.IsNullOrEmpty(fieldValue))
@@ -1029,6 +1037,16 @@ namespace Catalog
             T result = default(T);
 
             JToken tempToken = item.SelectToken(fieldName);
+
+            result = ExtractValueFromToken<T>(tempToken);
+
+            return result;
+        }
+
+        private static T ExtractValueFromToken<T>(JToken tempToken)
+        {
+            T result = default(T);
+
             JArray tempArray = null;
 
             if (tempToken != null)
@@ -1053,9 +1071,14 @@ namespace Catalog
             DateTime result = new DateTime(1970, 1, 1, 0, 0, 0);
             string dateString = ExtractValueFromToken<string>(item, fieldName);
 
-            result = DateTime.ParseExact(dateString, DATE_FORMAT, null);
+            if (!string.IsNullOrEmpty(dateString))
+            {
+                result = DateTime.ParseExact(dateString, DATE_FORMAT, null);
+            }
+
             return result;
         }
+
         private static string AddPrefixToFieldName(string fieldName, string prefix)
         {
             string result = fieldName;
