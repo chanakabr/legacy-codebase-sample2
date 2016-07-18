@@ -83,6 +83,7 @@ public partial class adm_billing_settings : System.Web.UI.Page
 
             DataRecordDropDownField dr_paymentGW = new DataRecordDropDownField("payment_gateway", "name", "id", "group_id", groupId, 60, true);
             dr_paymentGW.Initialize("Active Payment Gateway", "adm_table_header_nbg", "FormInput", "DEFAULT_PAYMENT_GATEWAY", false);
+            dr_paymentGW.SetWhereString("status=1 and is_active=1");
             theRecord.AddRecord(dr_paymentGW);
 
             DataRecordCheckBoxField dr_SecurityQuestion = new DataRecordCheckBoxField(true);
