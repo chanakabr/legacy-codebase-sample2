@@ -2105,9 +2105,9 @@ namespace DAL
                 pghhpm = sp.ExecuteReturnValue<int>();
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                log.ErrorFormat("Failed calling to Set_PaymentGatewayHouseholdPaymentMethod. GID:{0},PGID:{1}. Household:{2}", groupID, paymentGatewayId, householdId);
+                log.ErrorFormat("Failed calling to Set_PaymentGatewayHouseholdPaymentMethod. GID:{0},PGID:{1}. Household:{2}. Exception: {3}", groupID, paymentGatewayId, householdId, ex);
             }
             return pghhpm;
         }
