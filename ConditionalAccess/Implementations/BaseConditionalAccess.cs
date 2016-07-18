@@ -17742,9 +17742,9 @@ namespace ConditionalAccess
             {
                 foreach (var id in epgIds)
                 {
+                    Recording recording = ConditionalAccess.Utils.GetRecordingByEpgId(m_nGroupID, id);
 
-
-                    var currentStatus = RecordingsManager.Instance.CancelOrDeleteRecording(m_nGroupID, id, TstvRecordingStatus.Canceled);
+                    var currentStatus = RecordingsManager.Instance.CancelOrDeleteRecording(m_nGroupID, recording, TstvRecordingStatus.Canceled);
 
                     // If something went wrong, use the first status that failed
                     if (status == null)
@@ -17783,11 +17783,11 @@ namespace ConditionalAccess
                     TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
                     if (accountSettings != null && accountSettings.PaddingBeforeProgramStarts.HasValue && accountSettings.PaddingAfterProgramEnds.HasValue)
                     {
+                        DateTime startDate;
+                        DateTime endDate;
+
                         foreach (var epg in epgs)
                         {
-                            DateTime startDate;
-                            DateTime endDate;
-
                             // Parse start date
                             if (!DateTime.TryParseExact(epg.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out startDate))
                             {
@@ -17804,6 +17804,7 @@ namespace ConditionalAccess
                                 {
                                     DateTime paddedStartDate = startDate.AddSeconds((-1) * accountSettings.PaddingBeforeProgramStarts.Value);
                                     DateTime paddedEndDate = endDate.AddSeconds(accountSettings.PaddingAfterProgramEnds.Value);
+                                    
                                     var currentStatus = RecordingsManager.Instance.UpdateRecording(m_nGroupID, epg.EPG_ID, paddedStartDate, paddedEndDate);
 
                                     if (status == null)
@@ -17818,30 +17819,31 @@ namespace ConditionalAccess
                                             status = currentStatus;
                                         }
                                     }
-
-                                    // check if the epg is series by getting the fields mappings for the epg
-                                    Dictionary<string, string> epgFieldMappings = null;
-                                    if (Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, RecordingType.Series, epgFieldMappings) && epgFieldMappings != null && epgFieldMappings.Count > 0)
+                                    if (currentStatus != null && currentStatus.Code == (int)eResponseStatus.OK)
                                     {
-                                        // check if followed by at least 1 domain
-                                        string sereisId = epgFieldMappings[Utils.SERIES_ID];
-                                        int seasonNum = epgFieldMappings.ContainsKey(Utils.SEASON_NUMBER) ? int.Parse(epgFieldMappings[Utils.SEASON_NUMBER]) : 0;
-                                        if (RecordingsDAL.IsSeriesFollowed(m_nGroupID, sereisId, seasonNum))
+                                        // check if the epg is series by getting the fields mappings for the epg
+                                        Dictionary<string, string> epgFieldMappings = null;
+                                        if (Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, RecordingType.Series, epgFieldMappings) && epgFieldMappings != null && epgFieldMappings.Count > 0)
                                         {
-                                            // record
-                                            Recording recording = RecordingsManager.Instance.Record(m_nGroupID, epg.EPG_ID, int.Parse(epg.EPG_CHANNEL_ID), startDate, endDate, epg.CRID);
-                                            if (recording == null || recording.Status == null || recording.Status.Code != (int)eResponseStatus.OK || recording.Id == 0)
+                                            // check if followed by at least 1 domain
+                                            string sereisId = epgFieldMappings[Utils.SERIES_ID];
+                                            int seasonNum = epgFieldMappings.ContainsKey(Utils.SEASON_NUMBER) ? int.Parse(epgFieldMappings[Utils.SEASON_NUMBER]) : 0;
+                                            if (RecordingsDAL.IsSeriesFollowed(m_nGroupID, sereisId, seasonNum))
                                             {
-                                                log.ErrorFormat("failed to record epg as series on UpdateRecording, epgId = {0}", epg.EPG_ID);
+                                                // record
+                                                Recording serieRecording = RecordingsManager.Instance.Record(m_nGroupID, epg.EPG_ID, int.Parse(epg.EPG_CHANNEL_ID), startDate, endDate, epg.CRID);
+                                                if (serieRecording == null || serieRecording.Status == null || serieRecording.Status.Code != (int)eResponseStatus.OK || serieRecording.Id == 0)
+                                                {
+                                                    log.ErrorFormat("failed to record epg as series on UpdateRecording, epgId = {0}", epg.EPG_ID);
+                                                }
+                                                else
+                                                {
+                                                    log.DebugFormat("successfully recorded epg as series on UpdateRecording, epgId = {0}, recordingId = {1}", epg.EPG_ID, serieRecording.Id);
+                                                    DateTime distributeTime = startDate.AddMinutes(1);
+                                                    eRecordingTask task = eRecordingTask.DistributeRecording;
+                                                    RecordingsManager.EnqueueMessage(m_nGroupID, serieRecording.EpgId, serieRecording.Id, serieRecording.EpgStartDate, distributeTime, task);
+                                                }
                                             }
-                                            else
-                                            {
-                                                log.DebugFormat("successfully recorded epg as series on UpdateRecording, epgId = {0}, recordingId = {1}", epg.EPG_ID, recording.Id);
-                                                DateTime distributeTime = startDate.AddMinutes(1);
-                                                eRecordingTask task = eRecordingTask.DistributeRecording;
-                                                RecordingsManager.EnqueueMessage(m_nGroupID, recording.EpgId, recording.Id, recording.EpgStartDate, distributeTime, task);
-                                            }
-                                            //TODO: CRID!!!!!
                                         }
                                     }
                                 }
