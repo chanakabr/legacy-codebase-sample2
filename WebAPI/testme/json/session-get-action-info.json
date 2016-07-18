@@ -1,0 +1,1 @@
+{"actionParams":[{"type":"string","isSimpleType":true,"isComplexType":false,"isFile":false,"isEnum":false,"isStringEnum":false,"isArray":false,"isAbstract":false,"description":"Additional KS to parse, if not passed the user's KS will be parsed","name":"session","isOptional":true}],"description":"Parses KS"}

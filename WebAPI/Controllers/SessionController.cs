@@ -18,6 +18,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/session/action")]
+    [OldStandardAction("getOldStandard", "get")]
     public class SessionController : ApiController
     {
         /// <summary>
@@ -26,8 +27,79 @@ namespace WebAPI.Controllers
         /// <param name="session">Additional KS to parse, if not passed the user's KS will be parsed</param>
         [Route("get"), HttpPost]
         [ApiAuthorize]
+        public KalturaSession Get(string session = null)
+        {
+            KS ks;
+
+            if (session != null)
+            {
+                StringBuilder sb = new StringBuilder(session);
+                sb = sb.Replace("-", "+");
+                sb = sb.Replace("_", "/");
+
+                int groupId = 0;
+                byte[] encryptedData = null;
+                string encryptedDataStr = null;
+                string[] ksParts = null;
+
+                try
+                {
+                    encryptedData = System.Convert.FromBase64String(sb.ToString());
+                    encryptedDataStr = System.Text.Encoding.ASCII.GetString(encryptedData);
+                    ksParts = encryptedDataStr.Split('|');
+                }
+                catch (Exception)
+                {
+                    throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.InvalidKS, "Invalid KS format");
+                }
+
+                if (ksParts.Length < 3 || ksParts[0] != "v2" || !int.TryParse(ksParts[1], out groupId))
+                {
+                    throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.InvalidKS, "Invalid KS format");
+                }
+
+                Group group = null;
+                try
+                {
+                    // get group secret
+                    group = GroupsManager.GetGroup(groupId);
+                }
+                catch (ApiException ex)
+                {
+                    throw new InternalServerErrorException((int)ex.Code, ex.Message);
+                }
+
+                string adminSecret = group.UserSecret;
+
+                // build KS
+                ks = KS.CreateKSFromEncoded(encryptedData, groupId, adminSecret, session, KS.KSVersion.V2);
+            }
+            else
+            {
+                ks = KS.GetFromRequest();
+            }
+
+            return new KalturaSession()
+            {
+                ks = ks.ToString(),
+                expiry = (int)SerializationUtils.ConvertToUnixTimestamp(ks.Expiration),
+                partnerId = ks.GroupId,
+                privileges = ks.Privilege,
+                sessionType = ks.SessionType,
+                userId = ks.UserId,
+                udid = KSUtils.ExtractKSPayload(ks).UDID
+            };
+        }
+
+        /// <summary>
+        /// Parses KS
+        /// </summary>
+        /// <param name="session">Additional KS to parse, if not passed the user's KS will be parsed</param>
+        [Route("getOldStandard"), HttpPost]
+        [ApiAuthorize]
         [OldStandard("session", "ks_to_parse")]
-        public KalturaSessionInfo Get(string session = null)
+        [Obsolete]
+        public KalturaSessionInfo GetOldStandard(string session = null)
         {
             KS ks;
 

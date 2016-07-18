@@ -1,1 +1,1 @@
-[{"action":"switchUser","name":"switchUser","label":"switchUser"}]
+[{"action":"get","name":"get","label":"get"},{"action":"switchUser","name":"switchUser","label":"switchUser"}]

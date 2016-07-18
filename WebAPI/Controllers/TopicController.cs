@@ -152,6 +152,7 @@ namespace WebAPI.Controllers
         /// <param name="automaticIssueNotification"></param>        
         [Route("updateStatus"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
         public bool UpdateStatus(int id, KalturaTopicAutomaticIssueNotification automaticIssueNotification)
         {
             bool response = false;

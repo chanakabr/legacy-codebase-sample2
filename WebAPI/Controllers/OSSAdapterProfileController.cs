@@ -139,10 +139,12 @@ namespace WebAPI.Controllers
         /// Possible status codes:  
         /// oss adapter identifier required = 5007, oss adapter not exist = 5008
         /// </remarks>
-        /// <param name="oss_adapter_id">OSS adapter identifier</param>
+        /// <param name="ossAdapterId">OSS adapter identifier</param>
         [Route("generateSharedSecret"), HttpPost]
         [ApiAuthorize]
-        public KalturaOSSAdapterProfile GenerateSharedSecret(int oss_adapter_id)
+        [OldStandard("ossAdapterId", "oss_adapter_id")]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        public KalturaOSSAdapterProfile GenerateSharedSecret(int ossAdapterId)
         {
             KalturaOSSAdapterProfile response = null;
 
@@ -151,7 +153,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().GenerateOSSSharedSecret(groupId, oss_adapter_id);
+                response = ClientsManager.ApiClient().GenerateOSSSharedSecret(groupId, ossAdapterId);
             }
             catch (ClientException ex)
             {

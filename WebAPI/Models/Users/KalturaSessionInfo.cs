@@ -14,7 +14,7 @@ namespace WebAPI.Models.Users
     /// <summary>
     /// Kaltura Session
     /// </summary>
-    public class KalturaSessionInfo : KalturaOTTObject
+    public class KalturaSession : KalturaOTTObject
     {
         /// <summary>
         /// KS
@@ -72,11 +72,11 @@ namespace WebAPI.Models.Users
         [XmlElement("udid")]
         public string udid { get; set; }
 
-        public KalturaSessionInfo()
+        public KalturaSession()
         {
         }
 
-        public KalturaSessionInfo(KS ks)
+        public KalturaSession(KS ks)
         {
             this.ks = ks.ToString();
             this.expiry = (int)SerializationUtils.ConvertToUnixTimestamp(ks.Expiration);
@@ -85,6 +85,20 @@ namespace WebAPI.Models.Users
             this.sessionType = ks.SessionType;
             this.userId = ks.UserId;
             this.udid = KSUtils.ExtractKSPayload(KS.GetFromRequest()).UDID;
+        }
+    }
+
+    /// <summary>
+    /// Kaltura Session
+    /// </summary>
+    public class KalturaSessionInfo : KalturaSession
+    {
+        public KalturaSessionInfo()
+        {
+        }
+
+        public KalturaSessionInfo(KS ks) : base(ks)
+        {
         }
     }
 }
