@@ -18,6 +18,8 @@ using WebAPI.Models.Users;
 using KLogMonitor;
 using WebAPI.ClientManagers;
 using WebAPI.ObjectsConvertor.Mapping;
+using System.Web;
+using WebAPI.Filters;
 
 namespace WebAPI.Clients
 {
@@ -63,6 +65,11 @@ namespace WebAPI.Clients
             return retVal;
         }
 
+        private DateTime getServerTime()
+        {
+            return (DateTime)HttpContext.Current.Items[RequestParser.REQUEST_TIME];
+        }
+
         [Obsolete]
         public KalturaAssetInfoListResponse SearchAssets(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
             string filter, KalturaOrder? orderBy, List<int> assetTypes, string requestId, List<KalturaCatalogWith> with)
@@ -101,6 +108,7 @@ namespace WebAPI.Clients
                 m_nPageIndex = pageIndex,
                 m_nPageSize = pageSize.Value,
                 filterQuery = filter,
+                m_dServerTime = getServerTime(),
                 order = order,
                 assetTypes = assetTypes,
                 m_sSiteGuid = siteGuid,
@@ -193,6 +201,7 @@ namespace WebAPI.Clients
                 m_nPageIndex = pageIndex,
                 m_nPageSize = pageSize.Value,
                 filterQuery = filter,
+                m_dServerTime = getServerTime(),
                 order = order,
                 assetTypes = assetTypes,
                 m_sSiteGuid = siteGuid,
@@ -265,6 +274,7 @@ namespace WebAPI.Clients
                 m_nPageIndex = 0,
                 m_nPageSize = size.Value,
                 filterQuery = filter,
+                m_dServerTime = getServerTime(),
                 order = order,
                 assetTypes = assetTypes,
             };
@@ -772,6 +782,7 @@ namespace WebAPI.Clients
                 order = order,
                 internalChannelID = channelId.ToString(),
                 filterQuery = filterQuery,
+                m_dServerTime = getServerTime(),
                 m_bIgnoreDeviceRuleID = false
             };
 
@@ -1530,6 +1541,7 @@ namespace WebAPI.Clients
                 m_sUserIP = Utils.Utils.GetClientIP(),
                 m_nGroupID = groupId,
                 filterQuery = filter,
+                m_dServerTime = getServerTime(),
                 specificAssets = assets.Select(asset => new KeyValuePairOfeAssetTypeslongHVR2FNfI(){ key = eAssetTypes.MEDIA, value = asset.getId() }).ToList()
                 //assetTypes = assetTypes,
             };

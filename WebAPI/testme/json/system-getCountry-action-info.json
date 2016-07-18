@@ -1,0 +1,1 @@
+{"actionParams":[{"type":"string","isSimpleType":true,"isComplexType":false,"isFile":false,"isEnum":false,"isStringEnum":false,"isArray":false,"isAbstract":false,"description":"IP","name":"ip","isOptional":true}],"description":"Returns country details by the provided IP, if not provided - by the client IP"}

@@ -38,6 +38,7 @@ namespace WebAPI.Controllers
         /// <param name="udid">The caller device's UDID</param>
         /// <returns>KalturaLoginResponse</returns>
         [Route("anonymousLogin"), HttpPost]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
         public KalturaLoginSession AnonymousLogin(int partnerId, string udid = null)
         {
             return AuthorizationManager.GenerateSession("0", partnerId, false, false, udid);
@@ -125,24 +126,25 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns new Kaltura session (ks) for the user, using the supplied refresh_token (only if it's valid and not expired)
         /// </summary>
-        /// <param name="refresh_token">Refresh token</param>
+        /// <param name="refreshToken">Refresh token</param>
         /// <param name="udid">Device UDID</param>
         /// <returns></returns>
         [Route("refreshSession"), HttpPost]
         [ApiAuthorize(true)]
         [ValidationException(SchemaValidationType.ACTION_NAME)]
-        public KalturaLoginSession RefreshSession(string refresh_token, string udid = null)
+        [OldStandard("refreshToken", "refresh_token")]
+        public KalturaLoginSession RefreshSession(string refreshToken, string udid = null)
         {
             KalturaLoginSession response = null;
 
-            if (string.IsNullOrEmpty(refresh_token))
+            if (string.IsNullOrEmpty(refreshToken))
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "refresh_token cannot be empty");
             }
             try
             {
                 // call client
-                response = AuthorizationManager.RefreshSession(refresh_token, udid);
+                response = AuthorizationManager.RefreshSession(refreshToken, udid);
             }
             catch (ClientException ex)
             {
@@ -518,12 +520,14 @@ namespace WebAPI.Controllers
 
         /// <summary>Edit user details.        
         /// </summary>
-        /// <param name="role_id"> The role identifier to add</param>
+        /// <param name="roleId"> The role identifier to add</param>
         /// <remarks>
         /// </remarks>
         [Route("addRole"), HttpPost]
         [ApiAuthorize]
-        public bool AddRole(long role_id)
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [OldStandard("roleId", "role_id")]
+        public bool AddRole(long roleId)
         {
             bool response = false;
 
@@ -533,7 +537,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().AddRoleToUser(groupId, userId, role_id);
+                response = ClientsManager.UsersClient().AddRoleToUser(groupId, userId, roleId);
             }
             catch (ClientException ex)
             {
@@ -579,6 +583,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("logout"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
         public bool Logout()
         {
             bool response = false;
@@ -658,6 +663,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("getEncryptedUserId"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
         public KalturaStringValue GetEncryptedUserId()
         {
             KalturaStringValue response = null;

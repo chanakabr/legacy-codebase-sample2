@@ -82,6 +82,7 @@ namespace WebAPI.Filters
         public const string REQUEST_GLOBAL_LANGUAGE = "global_language";
         public const string REQUEST_SERVICE = "requestService";
         public const string REQUEST_ACTION = "requestAction";
+        public const string REQUEST_TIME = "requestTime";
 
         public static object GetRequestPayload()
         {
@@ -231,14 +232,16 @@ namespace WebAPI.Filters
         {
             string currentAction = null;
             string currentController = null;
-            
+
             // version request
             if (actionContext.Request.GetRouteData().Route.RouteTemplate == "api_v3/version" && (actionContext.Request.Method == HttpMethod.Post) || (actionContext.Request.Method == HttpMethod.Get))
             {
                 base.OnActionExecuting(actionContext);
                 return;
             }
-            
+
+            HttpContext.Current.Items[REQUEST_TIME] = DateTime.UtcNow;
+
             NameValueCollection formData = null;
             if (actionContext.Request.Method == HttpMethod.Post)
             {
