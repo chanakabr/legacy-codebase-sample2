@@ -17218,7 +17218,7 @@ namespace ConditionalAccess
                     if (Utils.CancelOrDeleteRecording(m_nGroupID, recording, tstvRecordingStatus))
                     {
                         log.DebugFormat("Recording {0} has been updated to status {1}", recording.Id, tstvRecordingStatus.ToString());
-                                                
+
                         QuotaManager.Instance.IncreaseDomainQuota(domainId, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds);
                         CompleteDomainSeriesRecordings(domainId);
                     }
@@ -18792,7 +18792,7 @@ namespace ConditionalAccess
 
         }
 
-        public SeriesRecording CancelOrDeleteSeriesRecord(string userId, long domainId, long domainSeriesRecordingId, TstvRecordingStatus tstvRecordingStatus)
+        public SeriesRecording CancelOrDeleteSeriesRecord(string userId, long domainId, long domainSeriesRecordingId, long epgId, TstvRecordingStatus tstvRecordingStatus)
         {
             SeriesRecording seriesRecording = new SeriesRecording();
             try
@@ -18813,56 +18813,16 @@ namespace ConditionalAccess
                     log.DebugFormat("series recording status not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", domainSeriesRecordingId, domainId, userId, seriesRecording != null ? seriesRecording.ToString() : string.Empty);
                     return seriesRecording;
                 }
-                // get all domain recording - filter those related to series_id + season_number
-                                
-                List<TstvRecordingStatus> RecordingStatus;
-                switch (tstvRecordingStatus)
+                if (epgId > 0) // cancel / delete specific epg that recorder as part of series
                 {
-                    case TstvRecordingStatus.Canceled:
-                        RecordingStatus = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recording, TstvRecordingStatus.Scheduled };
-                        break;
-                    case TstvRecordingStatus.Deleted:
-                        RecordingStatus = new List<TstvRecordingStatus>(){TstvRecordingStatus.Scheduled, TstvRecordingStatus.Recording, TstvRecordingStatus.OK, TstvRecordingStatus.Recorded, TstvRecordingStatus.Failed, 
-                                                                            TstvRecordingStatus.LifeTimePeriodExpired};
-                        break;
-                    default:
-                        seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "TstvRecordingStatus is not cancel or delete");
-                        return seriesRecording;
+                    CancelOrDeleteEpg(userId, domainId, seriesRecording, tstvRecordingStatus, epgId);
+                    seriesRecording.Id = domainSeriesRecordingId;
                 }
-                Dictionary<long, Recording> domainRecordings = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, domainId, RecordingStatus);
-                Dictionary<long, long> epgRecordingMapping = domainRecordings.ToDictionary(x => x.Value.EpgId, x => x.Key);
-
-                List<string> epgIds = domainRecordings.Select(x => x.Value.EpgId.ToString()).ToList();
-
-                TvinciEpgBL epgBLTvinci = new TvinciEpgBL(m_nGroupID);
-                List<EpgCB> epgs = epgBLTvinci.GetEpgs(epgIds);
-                // chaeck if epg related to series and season
-                bool result = Utils.GetEpgRelatedToSeriesRecording(m_nGroupID, epgs, seriesRecording);
-
-                //call cancelOrDelete
-                Parallel.ForEach(epgs, (currentEpg) =>
-                                {
-                                    if (epgRecordingMapping.ContainsKey((long)currentEpg.EpgID))
-                                    {
-                                        CancelOrDeleteRecord(userId, domainId, epgRecordingMapping[(long)currentEpg.EpgID], tstvRecordingStatus);
-                                    }
-                                });
-
-                // mark the row in status = 2
-                if (RecordingsDAL.CancelSeriesRecording(domainSeriesRecordingId))
+                else // cancel / delete all epgs related to series
                 {
-                    seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    log.DebugFormat("Series recording {0} has been updated to status {1}", seriesRecording.Id, tstvRecordingStatus.ToString());
-
-                    CompleteDomainSeriesRecordings(domainId);
+                    CancelOrDeleteSeries(userId, domainId, seriesRecording, tstvRecordingStatus, domainSeriesRecordingId);
+                    seriesRecording.Id = domainSeriesRecordingId;
                 }
-                else
-                {
-                    seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to perform cancel or delete");
-                    log.ErrorFormat("fail to perform cancel or delete domainSeriesRecordingId = {1}, tstvRecordingStatus = {2}", domainSeriesRecordingId, tstvRecordingStatus.ToString());
-                }
-
-                seriesRecording.Id = domainSeriesRecordingId;
             }
             catch (Exception ex)
             {
@@ -18876,6 +18836,126 @@ namespace ConditionalAccess
                 log.Error(sb.ToString(), ex);
             }
             return seriesRecording;
+        }
+
+        private void CancelOrDeleteSeries(string userId, long domainId, SeriesRecording seriesRecording, TstvRecordingStatus tstvRecordingStatus, long domainSeriesRecordingId)
+        {
+            // get all domain recording - filter those related to series_id + season_number
+            List<TstvRecordingStatus> RecordingStatus;
+            switch (tstvRecordingStatus)
+            {
+                case TstvRecordingStatus.Canceled:
+                    RecordingStatus = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recording, TstvRecordingStatus.Scheduled };
+                    break;
+                case TstvRecordingStatus.Deleted:
+                    RecordingStatus = new List<TstvRecordingStatus>(){TstvRecordingStatus.Scheduled, TstvRecordingStatus.Recording, TstvRecordingStatus.OK, TstvRecordingStatus.Recorded, TstvRecordingStatus.Failed, 
+                                                                            TstvRecordingStatus.LifeTimePeriodExpired};
+                    break;
+                default:
+                    seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "TstvRecordingStatus is not cancel or delete");
+                    return ;
+            }
+            Dictionary<long, Recording> domainRecordings = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, domainId, RecordingStatus);
+            Dictionary<long, long> epgRecordingMapping = domainRecordings.ToDictionary(x => x.Value.EpgId, x => x.Key);
+
+            List<string> epgIds = domainRecordings.Select(x => x.Value.EpgId.ToString()).ToList();
+
+            TvinciEpgBL epgBLTvinci = new TvinciEpgBL(m_nGroupID);
+            List<EpgCB> epgs = epgBLTvinci.GetEpgs(epgIds);
+            // chaeck if epg related to series and season
+            bool result = Utils.GetEpgRelatedToSeriesRecording(m_nGroupID, epgs, seriesRecording);
+
+            //call cancelOrDelete
+            Parallel.ForEach(epgs, (currentEpg) =>
+            {
+                if (epgRecordingMapping.ContainsKey((long)currentEpg.EpgID))
+                {
+                    CancelOrDeleteRecord(userId, domainId, epgRecordingMapping[(long)currentEpg.EpgID], tstvRecordingStatus);
+                }
+            });
+
+            // mark the row in status = 2
+            if (RecordingsDAL.CancelSeriesRecording(domainSeriesRecordingId))
+            {
+                seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                log.DebugFormat("Series recording {0} has been updated to status {1}", seriesRecording.Id, tstvRecordingStatus.ToString());
+
+                CompleteDomainSeriesRecordings(domainId);
+            }
+            else
+            {
+                seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to perform cancel or delete");
+                log.ErrorFormat("fail to perform cancel or delete domainSeriesRecordingId = {1}, tstvRecordingStatus = {2}", domainSeriesRecordingId, tstvRecordingStatus.ToString());
+            }
+        }
+
+        private void CancelOrDeleteEpg(string userId, long domainId, SeriesRecording seriesRecording, TstvRecordingStatus tstvRecordingStatus, long epgId)
+        {
+            try
+            {
+                long domainRecordingID = 0;
+                // check that epg related to series id
+                TvinciEpgBL epgBLTvinci = new TvinciEpgBL(m_nGroupID);
+                List<EpgCB> epgs = epgBLTvinci.GetEpgs(new List<string>{ epgId.ToString() });
+                // check if epg related to series and season
+                bool result = Utils.GetEpgRelatedToSeriesRecording(m_nGroupID, epgs, seriesRecording);
+                if (epgs != null && epgs.Count > 0) // epg related to series and season
+                {
+                    // check if this epg already in DB 
+                    DataTable dt = RecordingsDAL.GetDomainExistingRecordingsByEpdIgs(m_nGroupID, domainId, new List<long>() { epgId });
+                    if (dt != null && dt.Rows != null)                    
+                    {
+                        foreach (DataRow dr in dt.Rows)
+                        {
+                            domainRecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+                            if (domainRecordingID > 0)
+                            {   
+                                // cancel / delete record 
+                                Recording recording = CancelOrDeleteRecord(userId, domainId, domainRecordingID, tstvRecordingStatus);
+                                if (recording == null || (recording != null && recording.Status.Code != (int)eResponseStatus.OK))
+                                {
+                                    seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error,  string.Format("fail to cancel or delete epgid = {0}", epgId));
+                                }
+                            }
+                        }
+                    }
+
+                    if (domainRecordingID == 0)
+                    {
+                        // insert new domains_recordings to domain with status delete / cancel
+                        Recording recording = new Recording()
+                        {
+                            Id = 0,
+                            ChannelId = (long)epgs[0].ChannelID,
+                            EpgId = epgId,
+                            RecordingStatus = tstvRecordingStatus == TstvRecordingStatus.Canceled ? TstvRecordingStatus.Canceled : TstvRecordingStatus.Deleted,
+                            Type = seriesRecording.SeasonNumber > 0 ? RecordingType.Season : RecordingType.Series
+                        };
+                        bool res = RecordingsDAL.UpdateOrInsertDomainRecording(m_nGroupID, long.Parse(userId), domainId, recording);
+                        if (!res)
+                        {
+                            seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to cancel or delete epgid");
+                        }
+                    }
+                }
+                else
+                {
+                    seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.EpgIdNotPartOfSeries, string.Format("epgid = {0} not part of series", epgId));
+                }
+            }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("Exception at CancelOrDeleteEpg. ");
+                sb.Append(String.Concat("userID: ", userId));
+                sb.Append(String.Concat("domainId: ", domainId));
+                sb.Append(String.Concat("epgId: ", epgId));
+                sb.Append(String.Concat(", recordID: ", seriesRecording != null ? seriesRecording.Id : 0));
+                sb.Append(String.Concat(", Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
+
+                log.Error(sb.ToString(), ex);
+            }
         }
         
         public SeriesResponse GetFollowSeries(string userId, long domainId, ApiObjects.TimeShiftedTv.SeriesRecordingOrderObj orderBy)

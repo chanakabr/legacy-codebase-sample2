@@ -209,7 +209,19 @@ namespace DAL
             spUpdateOrInsertDomainRecording.AddParameter("@RecordingID", recording.Id);
             spUpdateOrInsertDomainRecording.AddParameter("@EpgChannelId", recording.ChannelId);
             spUpdateOrInsertDomainRecording.AddParameter("@RecordingType", (int)recording.Type);
-
+            spUpdateOrInsertDomainRecording.AddParameter("@Status", recording.RecordingStatus == TstvRecordingStatus.Deleted ? 2 : 1);
+            switch (recording.RecordingStatus)
+            {
+                case TstvRecordingStatus.Canceled:
+                    spUpdateOrInsertDomainRecording.AddParameter("@RecordingState",2);
+                    break;
+                case TstvRecordingStatus.Deleted:
+                    spUpdateOrInsertDomainRecording.AddParameter("@RecordingState",3);
+                    break;
+                default:
+                    spUpdateOrInsertDomainRecording.AddParameter("@RecordingState", 1);
+                    break;
+            }  
             dt = spUpdateOrInsertDomainRecording.Execute();
 
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
