@@ -12,12 +12,14 @@ namespace ApiObjects.TimeShiftedTv
 
         public int SeasonNumber { get; set; }
 
-        public int EpisodeNumber { get; set; }
-
         public long EpgId { get; set; }
 
         public string UserId { get; set; }
 
         public long EpgChannelId { get; set; }
+
+        public DomainSeriesRecording()         
+        {
+        }
     }
 }
