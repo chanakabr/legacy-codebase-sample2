@@ -293,9 +293,8 @@ namespace Validator.Managers.Schema
             }
             else if (!type.Name.Equals("KalturaFilter") && type.Name.EndsWith("Filter"))
             {
-                logError("Warning", type, string.Format("Filter {0} must inherit KalturaFilter", type.Name));
-                if (strict)
-                    valid = false;
+                logError("Error", type, string.Format("Filter {0} must inherit KalturaFilter", type.Name));
+                valid = false;
             }
 
             foreach (PropertyInfo property in type.GetProperties())
@@ -568,9 +567,8 @@ namespace Validator.Managers.Schema
                         var filterParam = parameters[0];
                         if (filterParam.ParameterType.Name.ToLower() != expectedFilterType.ToLower())
                         {
-                            logError("Warning", controller, string.Format("Action {0}.{1} ({2}) first argument type is {3}, expected {4}", serviceId, actionId, controller.Name, filterParam.ParameterType.Name, expectedFilterType));
-                            if (strict)
-                                valid = false;
+                            logError("Error", controller, string.Format("Action {0}.{1} ({2}) first argument type is {3}, expected {4}", serviceId, actionId, controller.Name, filterParam.ParameterType.Name, expectedFilterType));
+                            valid = false;
                         }
                     }
 
@@ -579,9 +577,8 @@ namespace Validator.Managers.Schema
                         var pagerParam = parameters[1];
                         if (pagerParam.ParameterType != typeof(KalturaFilterPager))
                         {
-                            logError("Warning", controller, string.Format("Action {0}.{1} ({2}) second argument type is {3}, expected KalturaFilterPager", serviceId, actionId, controller.Name, pagerParam.ParameterType.Name));
-                            if (strict)
-                                valid = false;
+                            logError("Error", controller, string.Format("Action {0}.{1} ({2}) second argument type is {3}, expected KalturaFilterPager", serviceId, actionId, controller.Name, pagerParam.ParameterType.Name));
+                            valid = false;
                         }
                     }
 
@@ -599,9 +596,8 @@ namespace Validator.Managers.Schema
                 string expectedResponseType = string.Format("Kaltura{0}ListResponse", FirstCharacterToUpper(serviceId));
                 if (action.ReturnType.Name.ToLower() != expectedResponseType.ToLower())
                 {
-                    logError("Warning", controller, string.Format("Action {0}.{1} ({2}) returned type is {3}, expected {4}", serviceId, actionId, controller.Name, action.ReturnType.Name, expectedResponseType));
-                    if (strict)
-                        valid = false;
+                    logError("Error", controller, string.Format("Action {0}.{1} ({2}) returned type is {3}, expected {4}", serviceId, actionId, controller.Name, action.ReturnType.Name, expectedResponseType));
+                    valid = false;
                 }
                 else
                 {

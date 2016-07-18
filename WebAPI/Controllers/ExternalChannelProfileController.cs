@@ -14,6 +14,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/externalChannelProfile/action")]
+    [OldStandardAction("listOldStandard", "list")]
     public class ExternalChannelProfileController : ApiController
     {
         /// <summary>
@@ -23,7 +24,34 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public List<KalturaExternalChannelProfile> List()
+        public KalturaExternalChannelProfileListResponse List()
+        {
+            List<KalturaExternalChannelProfile> list = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                list = ClientsManager.ApiClient().GetExternalChannels(groupId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return new KalturaExternalChannelProfileListResponse() { Objects = list, TotalCount = list.Count };
+        }
+
+        /// <summary>
+        /// Returns all External channels for partner 
+        /// </summary>
+        /// <remarks>       
+        /// </remarks>
+        [Route("listOldStandard"), HttpPost]
+        [ApiAuthorize]
+        [Obsolete]
+        public List<KalturaExternalChannelProfile> ListOldStandard()
         {
             List<KalturaExternalChannelProfile> response = null;
 

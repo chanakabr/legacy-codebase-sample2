@@ -435,6 +435,39 @@ namespace WebAPI.Clients
             return true;
         }
 
+        internal KalturaAnnouncementListResponse GetAnnouncements(int groupId, int pageSize, int pageIndex)
+        {
+            List<KalturaAnnouncement> result = null;
+            GetAllMessageAnnouncementsResponse response = null;
+            KalturaAnnouncementListResponse ret;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Notification.GetAllMessageAnnouncements(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, pageSize, pageIndex);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while DeleteAnnouncement.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            result = Mapper.Map<List<KalturaAnnouncement>>(response.messageAnnouncements);
+
+            ret = new KalturaAnnouncementListResponse() { Announcements = result, TotalCount = response.totalCount };
+            return ret;
+        }
+
+        [Obsolete]
         internal KalturaMessageAnnouncementListResponse GetAllAnnouncements(int groupId, int pageSize, int pageIndex)
         {
             List<KalturaAnnouncement> result = null;
@@ -725,6 +758,56 @@ namespace WebAPI.Clients
             return result;
         }
 
+        internal KalturaPersonalFeedListResponse GetUserFeedList(int groupId, string userID, int pageSize, int pageIndex, KalturaPersonalFeedOrderBy orderBy)
+        {
+            IdListResponse response = null;
+            List<KalturaPersonalFeed> result = null;
+            KalturaPersonalFeedListResponse ret = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            int userId = 0;
+            if (!int.TryParse(userID, out userId))
+            {
+                throw new ClientException((int)StatusCode.UserIDInvalid, "Invalid UID");
+            }
+
+            // Create notifications order object
+            WebAPI.Notifications.OrderObj order = NotificationMapping.ConvertOrderToOrderObj(orderBy);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Notification.GetUserFeeder(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, pageSize, pageIndex, order);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetUserFeeder.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Ids != null && response.Ids.Count > 0)
+            {
+                result = Mapper.Map<List<KalturaPersonalFeed>>(response.Ids);
+            }
+            ret = new KalturaPersonalFeedListResponse() { PersonalFollowFeed = result, TotalCount = response.TotalCount };
+
+            return ret;
+        }
+
+        [Obsolete]
         internal KalturaPersonalFollowFeedResponse GetUserFeeder(int groupId, string userID, int pageSize, int pageIndex, KalturaOrder? orderBy)
         {
             IdListResponse response = null;
@@ -782,7 +865,63 @@ namespace WebAPI.Clients
             return ret;
         }
 
-        internal KalturaInboxMessageResponse GetInboxMessages(int groupId, string userID, int pageSize, int pageIndex, List<KalturaInboxMessageTypeHolder> typeIn, long createdAtGreaterThanOrEqual, long createdAtLessThanOrEqual)
+        internal KalturaInboxMessageListResponse GetInboxMessageList(int groupId, string userID, int pageSize, int pageIndex, List<KalturaInboxMessageType> typeIn, long createdAtGreaterThanOrEqual, long createdAtLessThanOrEqual)
+        {
+            InboxMessageResponse response = null;
+            List<KalturaInboxMessage> result = null;
+            KalturaInboxMessageListResponse ret = null;
+
+            if (typeIn == null || typeIn.Count == 0)
+            {
+                typeIn = new List<KalturaInboxMessageType>();
+                typeIn.Add(KalturaInboxMessageType.Followed);
+                typeIn.Add(KalturaInboxMessageType.SystemAnnouncement);
+            }
+
+            List<eMessageCategory> convertedtypeIn = typeIn.Select(x => NotificationMapping.ConvertInboxMessageType(x)).ToList();
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            int userId = 0;
+            if (!int.TryParse(userID, out userId))
+            {
+                throw new ClientException((int)StatusCode.UserIDInvalid, "Invalid UID");
+            }
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Notification.GetInboxMessages(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, pageSize, pageIndex, convertedtypeIn, createdAtGreaterThanOrEqual, createdAtLessThanOrEqual);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetInboxMessages.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            if (response.InboxMessages != null && response.InboxMessages.Count > 0)
+            {
+                result = Mapper.Map<List<KalturaInboxMessage>>(response.InboxMessages);
+            }
+            ret = new KalturaInboxMessageListResponse() { InboxMessages = result, TotalCount = response.TotalCount };
+
+            return ret;
+        }
+
+        [Obsolete]
+        internal KalturaInboxMessageResponse GetInboxMessages(int groupId, string userID, int pageSize, int pageIndex, List<KalturaInboxMessageType> typeIn, long createdAtGreaterThanOrEqual, long createdAtLessThanOrEqual)
         {
             InboxMessageResponse response = null;
             List<KalturaInboxMessage> result = null;
@@ -790,9 +929,9 @@ namespace WebAPI.Clients
 
             if (typeIn == null || typeIn.Count == 0)
             {
-                typeIn = new List<KalturaInboxMessageTypeHolder>();
-                typeIn.Add(new KalturaInboxMessageTypeHolder() { type = KalturaInboxMessageType.Followed });
-                typeIn.Add(new KalturaInboxMessageTypeHolder() { type = KalturaInboxMessageType.SystemAnnouncement });
+                typeIn = new List<KalturaInboxMessageType>();
+                typeIn.Add(KalturaInboxMessageType.Followed);
+                typeIn.Add(KalturaInboxMessageType.SystemAnnouncement);
             }
 
             List<eMessageCategory> convertedtypeIn = typeIn.Select(x => NotificationMapping.ConvertInboxMessageType(x)).ToList();
@@ -1007,6 +1146,47 @@ namespace WebAPI.Clients
             return result;
         }
 
+        internal KalturaTopicListResponse GetTopicsList(int groupId, int pageSize, int pageIndex)
+        {
+            AnnouncementsResponse response = null;
+            List<KalturaTopic> result = null;
+            KalturaTopicListResponse ret = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Notification.GetAnnouncements(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, pageSize, pageIndex);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetTopics.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Announcements != null && response.Announcements.Count > 0)
+            {
+                result = Mapper.Map<List<KalturaTopic>>(response.Announcements);
+            }
+            ret = new KalturaTopicListResponse() { Topics = result, TotalCount = response.TotalCount };
+
+            return ret;
+        }
+
+        [Obsolete]
         internal KalturaTopicResponse GetTopics(int groupId, int pageSize, int pageIndex)
         {
             AnnouncementsResponse response = null;

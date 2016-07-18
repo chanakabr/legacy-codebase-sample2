@@ -38,19 +38,11 @@ namespace WebAPI.Models.ConditionalAccess
         public long AssetId { get; set; }
 
         /// <summary>
-        /// Kaltura unique ID representing the recording program identifier
-        /// </summary>
-        [DataMember(Name = "recordingAssetId")]
-        [JsonProperty("recordingAssetId")]
-        [XmlElement(ElementName = "recordingAssetId")]
-        public long RecordingAssetId { get; set; }
-
-        /// <summary>
         /// Recording Type: single/series
         /// </summary>
         [DataMember(Name = "type")]
         [JsonProperty("type")]
-        [XmlElement(ElementName = "type")]
+        [XmlElement(ElementName = "type")]        
         public KalturaRecordingType Type { get; set; }
 
         /// <summary>

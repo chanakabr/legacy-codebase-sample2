@@ -43,7 +43,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "assetTypeEqual")]
         [JsonProperty(PropertyName = "assetTypeEqual")]
         [XmlElement(ElementName = "assetTypeEqual", IsNullable = true)]
-        public KalturaAssetType AssetTypeEqual { get; set; }
+        public KalturaAssetType? AssetTypeEqual { get; set; }
 
         public override KalturaBookmarkOrderBy GetDefaultOrderByValue()
         {
@@ -62,7 +62,7 @@ namespace WebAPI.Models.Catalog
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter.AssetIdIn cannot be empty");
             }
 
-            if (AssetTypeEqual == null)
+            if (!AssetTypeEqual.HasValue)
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter.AssetTypeEqual cannot be empty");
             }
@@ -82,7 +82,7 @@ namespace WebAPI.Models.Catalog
             {
                 KalturaSlimAsset asset = new KalturaSlimAsset();
                 asset.Id = value;
-                asset.Type = AssetTypeEqual;
+                asset.Type = AssetTypeEqual.Value;
                 values.Add(asset);
             }
 

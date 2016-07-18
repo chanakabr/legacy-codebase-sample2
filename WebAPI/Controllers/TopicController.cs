@@ -1,7 +1,9 @@
-﻿using System.Web.Http;
+﻿using System;
+using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Utils;
@@ -9,6 +11,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/topic/action")]
+    [OldStandard("listOldStandard", "list")]
     public class TopicController : ApiController
     {
 
@@ -51,10 +54,43 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// Possible status codes:       
         /// </remarks>
+        /// <param name="filter">Topics filter</param>     
         /// <param name="pager">Page size and index</param>        
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaTopicResponse List(KalturaFilterPager pager = null)
+        public KalturaTopicListResponse List(KalturaTopicFilter filter = null, KalturaFilterPager pager = null)
+        {
+            KalturaTopicListResponse response = null;
+
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
+
+                if (pager == null)
+                    pager = new KalturaFilterPager();
+
+                // call client                
+                response = ClientsManager.NotificationClient().GetTopicsList(groupId, pager.getPageSize(), pager.getPageIndex());
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// TBD
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:       
+        /// </remarks>
+        /// <param name="pager">Page size and index</param>        
+        [Route("listOldStandard"), HttpPost]
+        [ApiAuthorize]
+        [Obsolete]
+        public KalturaTopicResponse ListOldStandard(KalturaFilterPager pager = null)
         {
             KalturaTopicResponse response = null;
 

@@ -1,11 +1,59 @@
 ﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Billing
 {
+    /// <summary>
+    /// List of payment method profiles.
+    /// </summary>
+    [DataContract(Name = "KalturaPaymentMethodProfileListResponse", Namespace = "")]
+    [XmlRoot("KalturaPaymentMethodProfileListResponse")]
+    public class KalturaPaymentMethodProfileListResponse : KalturaListResponse
+    {
+        /// <summary>
+        /// Payment method profiles list
+        /// </summary>
+        [DataMember(Name = "objects")]
+        [JsonProperty("objects")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem(ElementName = "item")]
+        public List<KalturaPaymentMethodProfile> PaymentMethodProfiles { get; set; }
+    }
+
+    public enum KalturaPaymentMethodProfileOrderBy
+    {
+        NONE
+    }
+
+    public class KalturaPaymentMethodProfileFilter : KalturaFilter<KalturaPaymentMethodProfileOrderBy>
+    {
+        public override KalturaPaymentMethodProfileOrderBy GetDefaultOrderByValue()
+        {
+            return KalturaPaymentMethodProfileOrderBy.NONE;
+        }
+
+        /// <summary>
+        /// Payment gateway identifier to list the payment methods for
+        /// </summary>
+        [DataMember(Name = "paymentGatewayIdEqual")]
+        [JsonProperty("paymentGatewayIdEqual")]
+        [XmlElement(ElementName = "paymentGatewayIdEqual", IsNullable = true)]
+        public int? PaymentGatewayIdEqual { get; set; }
+
+        public void Validate()
+        {
+            if (!PaymentGatewayIdEqual.HasValue || PaymentGatewayIdEqual.Value <= 0)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter.PaymentGatewayIdEqual cannot be empty");
+            }
+        }
+    }
+
     [OldStandard("allowMultiInstance", "allow_multi_instance")]
     public class KalturaPaymentMethodProfile : KalturaOTTObject
     {

@@ -9,16 +9,25 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Notification
 {
-    public class KalturaInboxMessageFilter : KalturaOTTObject
+    public enum KalturaInboxMessageOrderBy
     {
+        NONE
+    }
+
+    public class KalturaInboxMessageFilter : KalturaFilter<KalturaInboxMessageOrderBy>
+    {
+        public override KalturaInboxMessageOrderBy GetDefaultOrderByValue()
+        {
+            return KalturaInboxMessageOrderBy.NONE;
+        }
+
         /// <summary>
         /// List of inbox message types to search within.
         /// </summary>
         [DataMember(Name = "typeIn")]
         [JsonProperty(PropertyName = "typeIn")]
-        [XmlArray(ElementName = "typeIn", IsNullable = true)]
-        [XmlArrayItem(ElementName = "item")]
-        public List<KalturaInboxMessageTypeHolder> TypeIn { get; set; }
+        [XmlElement(ElementName = "typeIn", IsNullable = true)]
+        public string TypeIn { get; set; }
 
         /// <summary>
         /// createdAtGreaterThanOrEqual
@@ -35,5 +44,24 @@ namespace WebAPI.Models.Notification
         [JsonProperty(PropertyName = "createdAtLessThanOrEqual")]
         [XmlElement(ElementName = "createdAtLessThanOrEqual", IsNullable = true)]
         public long? CreatedAtLessThanOrEqual { get; set; }
+
+
+        internal List<KalturaInboxMessageType> getTypeIn()
+        {
+            List<KalturaInboxMessageType> values = new List<KalturaInboxMessageType>();
+
+            if (string.IsNullOrEmpty(TypeIn))
+                return values;
+
+            string[] stringValues = TypeIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            Type enumType = typeof(KalturaInboxMessageType);
+            foreach (string value in stringValues)
+            {
+                KalturaInboxMessageType type = (KalturaInboxMessageType) Enum.Parse(enumType, value, true);
+                values.Add(type);
+            }
+
+            return values;
+        }
     }
 }

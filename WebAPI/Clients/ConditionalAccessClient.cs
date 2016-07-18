@@ -1317,7 +1317,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = ConditionalAccess.Record(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, epgID, RecordingType.Single);//TO DO : TEMPORARY TYPE
+                    response = ConditionalAccess.Record(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, epgID, RecordingType.Single);
                 }
             }
             catch (Exception ex)
@@ -1691,10 +1691,7 @@ namespace WebAPI.Clients
             SeriesResponse response = null;
           
             // get group configuration
-            Group group = GroupsManager.GetGroup(groupID);
-
-            try
-            {
+         Group group = GroupsManager.GetGroup(groupID);
                 // Create catalog order object
                 SeriesRecordingOrderObj order = new SeriesRecordingOrderObj();
                 if (orderBy == null)
@@ -1711,6 +1708,31 @@ namespace WebAPI.Clients
                 {
                     // fire request
                     response = ConditionalAccess.GetFollowSeries(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, domainID, order);
+                }
+                if (response.SeriesRecordings != null && response.SeriesRecordings.Length > 0)
+                {
+                    result.TotalCount = response.TotalItems;
+                    // convert recordings            
+                    result.Objects = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaSeriesRecording>>(response.SeriesRecordings);
+                }
+
+                return result;
+        }
+
+        internal KalturaSeriesRecording RecordSeasonOrSeries(int groupID, string userID, long epgID, KalturaRecordingType recordingType)
+        {
+            KalturaSeriesRecording recording = null;
+            SeriesRecording response = null;
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupID);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = ConditionalAccess.RecordSeasonOrSeries(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, epgID, ConditionalAccessMappings.ConvertKalturaRecordingType(recordingType));
                 }
             }
             catch (Exception ex)
@@ -1730,15 +1752,10 @@ namespace WebAPI.Clients
                 // internal web service exception
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
+            // convert response
+            recording = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaSeriesRecording>(response);
 
-            if (response.SeriesRecordings != null && response.SeriesRecordings.Length > 0)
-            {
-                result.TotalCount = response.TotalItems;
-                // convert recordings            
-                result.Objects = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaSeriesRecording>>(response.SeriesRecordings);
-            }
-
-            return result;
+            return recording;
         }
     }
 }

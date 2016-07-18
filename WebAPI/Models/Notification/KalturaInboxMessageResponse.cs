@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
@@ -11,7 +12,25 @@ namespace WebAPI.Models.Notification
     /// </summary>
     [DataContract(Name = "KalturaInboxMessageResponse", Namespace = "")]
     [XmlRoot("KalturaInboxMessageResponse")]
+    [Obsolete]
     public class KalturaInboxMessageResponse : KalturaListResponse
+    {
+        /// <summary>
+        /// Follow data list
+        /// </summary>
+        [DataMember(Name = "objects")]
+        [JsonProperty("objects")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem(ElementName = "item")]
+        public List<KalturaInboxMessage> InboxMessages { get; set; }
+    }
+
+    /// <summary>
+    /// List of inbox message.
+    /// </summary>
+    [DataContract(Name = "KalturaInboxMessageListResponse", Namespace = "")]
+    [XmlRoot("KalturaInboxMessageListResponse")]
+    public class KalturaInboxMessageListResponse : KalturaListResponse
     {
         /// <summary>
         /// Follow data list
