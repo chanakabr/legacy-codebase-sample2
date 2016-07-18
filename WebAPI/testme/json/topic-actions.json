@@ -1,1 +1,1 @@
-[{"action":"delete","name":"delete","label":"delete"},{"action":"get","name":"get","label":"get"}]
+[{"action":"delete","name":"delete","label":"delete"},{"action":"get","name":"get","label":"get"},{"action":"list","name":"list","label":"list"}]

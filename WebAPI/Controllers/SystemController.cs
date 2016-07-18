@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Filters;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
 
@@ -23,6 +27,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("getCountry"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
         public KalturaCountry GetCountry(string ip = null)
         {
             KalturaCountry response = null;
@@ -45,6 +50,42 @@ namespace WebAPI.Controllers
             }
 
             return response;
+        }
+
+        /// <summary>
+        /// Returns true
+        /// </summary>
+        [Route("ping"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        public bool Ping()
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Returns current server timestamp
+        /// </summary>
+        [Route("getTime"), HttpPost]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ApiAuthorize]
+        public long GetTime()
+        {
+            DateTime serverTime = (DateTime)HttpContext.Current.Items[RequestParser.REQUEST_TIME];
+            return Convert.ToInt64(serverTime);
+        }
+
+        /// <summary>
+        /// Returns current server version
+        /// </summary>
+        [Route("getVersion"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        public string GetVersion()
+        {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
+            return fileVersionInfo.FileVersion;
         }
     }
 }

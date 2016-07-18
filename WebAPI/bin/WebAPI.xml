@@ -408,6 +408,21 @@
             Possible status codes:  Country was not found = 4025
             </remarks>
         </member>
+        <member name="M:WebAPI.Controllers.SystemController.Ping">
+            <summary>
+            Returns true
+            </summary>
+        </member>
+        <member name="M:WebAPI.Controllers.SystemController.GetTime">
+            <summary>
+            Returns current server timestamp
+            </summary>
+        </member>
+        <member name="M:WebAPI.Controllers.SystemController.GetVersion">
+            <summary>
+            Returns current server version
+            </summary>
+        </member>
         <member name="M:WebAPI.Controllers.HouseholdQuotaController.Get">
             <summary>
             Returns the household's quota data
@@ -13871,7 +13886,7 @@
             <summary>
             Returns new Kaltura session (ks) for the user, using the supplied refresh_token (only if it's valid and not expired)
             </summary>
-            <param name="refresh_token">Refresh token</param>
+            <param name="refreshToken">Refresh token</param>
             <param name="udid">Device UDID</param>
             <returns></returns>
         </member>
@@ -13964,7 +13979,7 @@
         <member name="M:WebAPI.Controllers.OttUserController.AddRole(System.Int64)">
             <summary>Edit user details.        
             </summary>
-            <param name="role_id"> The role identifier to add</param>
+            <param name="roleId"> The role identifier to add</param>
             <remarks>
             </remarks>
         </member>
