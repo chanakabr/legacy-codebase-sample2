@@ -106,6 +106,7 @@
 						<ul class="actions">
 							<li class="action"><a href="actions/cdnadapterprofile.add.html" target="main">add</a></li>
 							<li class="action"><a href="actions/cdnadapterprofile.delete.html" target="main">delete</a></li>
+							<li class="action"><a href="actions/cdnadapterprofile.generateSharedSecret.html" target="main">generateSharedSecret</a></li>
 							<li class="action"><a href="actions/cdnadapterprofile.list.html" target="main">list</a></li>
 							<li class="action"><a href="actions/cdnadapterprofile.update.html" target="main">update</a></li>
 						</ul></li>
@@ -185,6 +186,8 @@
 						<ul class="actions">
 							<li class="action"><a href="actions/household.add.html" target="main">add</a></li>
 							<li class="action"><a href="actions/household.get.html" target="main">get</a></li>
+							<li class="action"><a href="actions/household.resume.html" target="main">resume</a></li>
+							<li class="action"><a href="actions/household.suspend.html" target="main">suspend</a></li>
 						</ul></li>
 					<li class="service" id="householddevice">
 						<img class="tree-item" src="images/collapsed.gif" />
@@ -193,6 +196,7 @@
 							<li class="action"><a href="actions/householddevice.add.html" target="main">add</a></li>
 							<li class="action"><a href="actions/householddevice.addByPin.html" target="main">addByPin</a></li>
 							<li class="action"><a href="actions/householddevice.delete.html" target="main">delete</a></li>
+							<li class="action"><a href="actions/householddevice.generatePin.html" target="main">generatePin</a></li>
 							<li class="action"><a href="actions/householddevice.get.html" target="main">get</a></li>
 						</ul></li>
 					<li class="service" id="householdlimitations">
@@ -206,6 +210,12 @@
 						<a class="tree-content" href="services/householdpremiumservice.html" target="main">householdPremiumService</a>
 						<ul class="actions">
 							<li class="action"><a href="actions/householdpremiumservice.list.html" target="main">list</a></li>
+						</ul></li>
+					<li class="service" id="householdquota">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/householdquota.html" target="main">householdQuota</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/householdquota.get.html" target="main">get</a></li>
 						</ul></li>
 					<li class="service" id="householduser">
 						<img class="tree-item" src="images/collapsed.gif" />
@@ -289,6 +299,7 @@
 						<ul class="actions">
 							<li class="action"><a href="actions/paymentgatewayprofile.add.html" target="main">add</a></li>
 							<li class="action"><a href="actions/paymentgatewayprofile.delete.html" target="main">delete</a></li>
+							<li class="action"><a href="actions/paymentgatewayprofile.generateSharedSecret.html" target="main">generateSharedSecret</a></li>
 							<li class="action"><a href="actions/paymentgatewayprofile.getConfiguration.html" target="main">getConfiguration</a></li>
 							<li class="action"><a href="actions/paymentgatewayprofile.list.html" target="main">list</a></li>
 							<li class="action"><a href="actions/paymentgatewayprofile.update.html" target="main">update</a></li>
@@ -338,6 +349,7 @@
 						<ul class="actions">
 							<li class="action"><a href="actions/recommendationprofile.add.html" target="main">add</a></li>
 							<li class="action"><a href="actions/recommendationprofile.delete.html" target="main">delete</a></li>
+							<li class="action"><a href="actions/recommendationprofile.generateSharedSecret.html" target="main">generateSharedSecret</a></li>
 							<li class="action"><a href="actions/recommendationprofile.list.html" target="main">list</a></li>
 						</ul></li>
 					<li class="service" id="recording">
@@ -479,6 +491,7 @@
 					<li id="object_KalturaDevice"><a href="objects/KalturaDevice.html" target="main">KalturaDevice</a></li>
 					<li id="object_KalturaDeviceFamily"><a href="objects/KalturaDeviceFamily.html" target="main">KalturaDeviceFamily</a></li>
 					<li id="object_KalturaDeviceFamilyBase"><a href="objects/KalturaDeviceFamilyBase.html" target="main">KalturaDeviceFamilyBase</a></li>
+					<li id="object_KalturaDevicePin"><a href="objects/KalturaDevicePin.html" target="main">KalturaDevicePin</a></li>
 					<li id="object_KalturaDiscountModule"><a href="objects/KalturaDiscountModule.html" target="main">KalturaDiscountModule</a></li>
 					<li id="object_KalturaDoubleValue"><a href="objects/KalturaDoubleValue.html" target="main">KalturaDoubleValue</a></li>
 					<li id="object_KalturaEntitlement"><a href="objects/KalturaEntitlement.html" target="main">KalturaEntitlement</a></li>
@@ -504,6 +517,7 @@
 					<li id="object_KalturaHouseholdPaymentMethod"><a href="objects/KalturaHouseholdPaymentMethod.html" target="main">KalturaHouseholdPaymentMethod</a></li>
 					<li id="object_KalturaHouseholdPremiumService"><a href="objects/KalturaHouseholdPremiumService.html" target="main">KalturaHouseholdPremiumService</a></li>
 					<li id="object_KalturaHouseholdPremiumServiceListResponse"><a href="objects/KalturaHouseholdPremiumServiceListResponse.html" target="main">KalturaHouseholdPremiumServiceListResponse</a></li>
+					<li id="object_KalturaHouseholdQuota"><a href="objects/KalturaHouseholdQuota.html" target="main">KalturaHouseholdQuota</a></li>
 					<li id="object_KalturaHouseholdUser"><a href="objects/KalturaHouseholdUser.html" target="main">KalturaHouseholdUser</a></li>
 					<li id="object_KalturaInboxMessage"><a href="objects/KalturaInboxMessage.html" target="main">KalturaInboxMessage</a></li>
 					<li id="object_KalturaInboxMessageListResponse"><a href="objects/KalturaInboxMessageListResponse.html" target="main">KalturaInboxMessageListResponse</a></li>

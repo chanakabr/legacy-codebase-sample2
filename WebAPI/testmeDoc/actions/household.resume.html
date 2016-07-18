@@ -10,13 +10,13 @@
 		<h2>Kaltura API</h2>
 		<table class="action">
 			<tr>
-				<th colspan="5" class="service_action_title">household.add</th>
+				<th colspan="5" class="service_action_title">household.resume</th>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Description:</td>
 			</tr>
 			<tr>
-				<td class="description" colspan="5">Creates a household for the user</td>
+				<td class="description" colspan="5">Resumed a given household service to its previous service settings</td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Input Params</td>
@@ -29,44 +29,21 @@
 				<th class="subtitle">Default Value</th>
 			</tr>
 			<tr>
-				<td>household</td>
-				<td><a href="../objects/KalturaHousehold.html">KalturaHousehold</a></td>
-				<td>Household object</td>
-				<td>V</td>
-				<td></td>
-			</tr>
-			<tr>
 				<td colspan="5" class="title">Output Type</td>
 			</tr>
 			<tr>
-				<td colspan="5"><a href="../objects/KalturaHousehold.html">KalturaHousehold</a></td>
+				<td colspan="5">bool</td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Example HTTP Hit</td>
 			</tr>
 			<tr>
-				<td colspan="5">http://www.kaltura.com/api_v3/service/household/action/add<br />
+				<td colspan="5">http://www.kaltura.com/api_v3/service/household/action/resume<br />
 				<strong>JSON object:</strong>
 				<pre>
 				<div class="post_fields">
 {
-	household: {
-		objectType: "KalturaHousehold",
-		id: value,
-		name: "value",
-		description: "value",
-		externalId: "value",
-		householdLimitationsId: value,
-		devicesLimit: value,
-		usersLimit: value,
-		concurrentLimit: value,
-		regionId: value,
-		state: "value",
-		isFrequencyEnabled: value,
-		frequencyNextDeviceAction: value,
-		frequencyNextUserAction: value,
-		restriction: "value"
-	}
+
 }
 				</pre></td>
 			</tr>
