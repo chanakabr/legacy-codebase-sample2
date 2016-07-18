@@ -110,7 +110,7 @@ namespace Recordings
 
         #region Public Methods
 
-        public Recording Record(int groupId, long programId, string epgChannelID, DateTime startDate, DateTime endDate, string crid)
+        public Recording Record(int groupId, long programId, long epgChannelID, DateTime startDate, DateTime endDate, string crid)
         {
             Recording recording = null;
 
@@ -138,7 +138,7 @@ namespace Recordings
                     }
                     else
                     {
-                        recording = RecordingsDAL.GetRecordingByProgramId(programId);
+                        recording = ConditionalAccess.Utils.GetRecordingByEpgId(groupId, programId);
                     }
                 }
                 else if (recordingsEpgMap.ContainsKey(programId))
@@ -177,7 +177,7 @@ namespace Recordings
                         }
                     }
 
-                    recording = RecordingsDAL.InsertRecording(recording, groupId, RecordingInternalStatus.OK);
+                    recording = ConditionalAccess.Utils.InsertRecording(recording, groupId, RecordingInternalStatus.OK);
                     recording.RecordingStatus = GetTstvRecordingStatus(recording.EpgStartDate, recording.EpgEndDate, recording.RecordingStatus);
                 }
             }
@@ -193,7 +193,7 @@ namespace Recordings
 
         public Recording RecordRetry(int groupId, long recordingId)
         {
-            Recording recording = RecordingsDAL.GetRecordingByRecordingId(recordingId);
+            Recording recording = ConditionalAccess.Utils.GetRecordingById(recordingId);
             try
             {
 
@@ -336,7 +336,7 @@ namespace Recordings
         public Status CancelOrDeleteRecording(int groupId, long epgId, TstvRecordingStatus recordingStatus)
         {
             Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            Recording recording = RecordingsDAL.GetRecordingByProgramId(epgId);
+            Recording recording = ConditionalAccess.Utils.GetRecordingByEpgId(groupId, epgId);
 
             if (groupId > 0 && recording != null && recording.Id > 0 && recording.EpgId > 0 && !string.IsNullOrEmpty(recording.ExternalRecordingId))
             {
@@ -426,7 +426,7 @@ namespace Recordings
 
         public Recording GetRecordingStatus(int groupId, long recordingId)
         {
-            Recording currentRecording = RecordingsDAL.GetRecordingByRecordingId(recordingId);
+            Recording currentRecording = ConditionalAccess.Utils.GetRecordingById(recordingId);
 
             try
             {
@@ -461,7 +461,7 @@ namespace Recordings
                             // Count current try to get status - first and foremost
                             currentRecording.GetStatusRetries++;
 
-                            RecordingsDAL.UpdateRecording(currentRecording, groupId, 1, 1, null);
+                            ConditionalAccess.Utils.UpdateRecording(currentRecording, groupId, 1, 1, null);
 
                             //UpdateRecording(groupId, currentRecording.EpgId, currentRecording.EpgStartDate, currentRecording.EpgEndDate);
 
@@ -519,7 +519,7 @@ namespace Recordings
                                 }
 
                                 // Update recording after setting the new status
-                                RecordingsDAL.UpdateRecording(currentRecording, groupId, 1, 1, null);
+                                ConditionalAccess.Utils.UpdateRecording(currentRecording, groupId, 1, 1, null);
 
                                 UpdateIndex(groupId, recordingId);
                             }
@@ -561,7 +561,7 @@ namespace Recordings
         {
             Status status = new Status();
 
-            Recording recording = RecordingsDAL.GetRecordingByProgramId(programId);
+            Recording recording = ConditionalAccess.Utils.GetRecordingByEpgId(groupId, programId);
 
             // If there is no recording - error?
             if (recording == null)
@@ -678,7 +678,7 @@ namespace Recordings
                         }
 
                         // Update the result from the adapter
-                        bool updateSuccess = RecordingsDAL.UpdateRecording(recording, groupId, 1, 1, newRecordingInternalStatus);
+                        bool updateSuccess = ConditionalAccess.Utils.UpdateRecording(recording, groupId, 1, 1, newRecordingInternalStatus);
 
                         if (!updateSuccess)
                         {
@@ -780,9 +780,9 @@ namespace Recordings
             return status;
         }
 
-        public Recording GetRecordingByProgramId(long programId)
+        public Recording GetRecordingByProgramId(int groupId, long programId)
         {
-            Recording recording = RecordingsDAL.GetRecordingByProgramId(programId);
+            Recording recording = ConditionalAccess.Utils.GetRecordingByEpgId(groupId, programId);
             recording.RecordingStatus = GetTstvRecordingStatus(recording.EpgStartDate, recording.EpgEndDate, recording.RecordingStatus);
 
             return recording;
@@ -790,7 +790,7 @@ namespace Recordings
 
         public List<Recording> GetRecordings(int groupId, List<long> recordingIds)
         {
-            List<Recording> recordings = RecordingsDAL.GetRecordings(groupId, recordingIds);
+            List<Recording> recordings = ConditionalAccess.Utils.GetRecordings(groupId, recordingIds);
 
             foreach (var recording in recordings)
             {
@@ -802,7 +802,7 @@ namespace Recordings
 
         public Recording GetRecording(int groupId, long recordingId)
         {
-            Recording recording = RecordingsDAL.GetRecordingByRecordingId(recordingId);
+            Recording recording = ConditionalAccess.Utils.GetRecordingById(recordingId);
             if (recording != null)
             {
                 recording.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -847,14 +847,10 @@ namespace Recordings
             return response;
         }
 
-        public static void EnqueueMessage(int groupId, long programId, long recordingId, DateTime checkTime, eRecordingTask task)
+        public static void EnqueueMessage(int groupId, long programId, long recordingId, DateTime epgStartDate, DateTime etaTime, eRecordingTask task)
         {
             var queue = new GenericCeleryQueue();
-            var message = new RecordingTaskData(groupId, task,
-                checkTime,
-                programId,
-                recordingId);
-
+            var message = new RecordingTaskData(groupId, task, epgStartDate, etaTime, programId, recordingId);
             queue.Enqueue(message, string.Format(SCHEDULED_TASKS_ROUTING_KEY, groupId));
         }
 
@@ -866,20 +862,20 @@ namespace Recordings
                     (int)RecordingInternalStatus.Failed, (int)RecordingInternalStatus.Waiting
                 };
 
-            List<Recording> recordings = RecordingsDAL.GetAllRecordingsByStatuses(groupId, statuses);
+            List<Recording> recordings = ConditionalAccess.Utils.GetAllRecordingsByStatuses(groupId, statuses);
 
             foreach (var recording in recordings)
             {
                 // If the provider failed, we'll start retrying as usual
                 if (recording.EpgStartDate > DateTime.UtcNow)
                 {
-                    EnqueueMessage(groupId, recording.EpgId, recording.Id, DateTime.UtcNow, eRecordingTask.Record);
+                    EnqueueMessage(groupId, recording.EpgId, recording.Id, recording.EpgStartDate, DateTime.UtcNow, eRecordingTask.Record);
                 }
 
                 DateTime getStatusTime = recording.EpgEndDate.AddMinutes(1);
 
                 // Anyway we should always check the status after the program finishes
-                EnqueueMessage(groupId, recording.EpgId, recording.Id, getStatusTime, eRecordingTask.GetStatusAfterProgramEnded);
+                EnqueueMessage(groupId, recording.EpgId, recording.Id, recording.EpgStartDate, getStatusTime, eRecordingTask.GetStatusAfterProgramEnded);
             }
         }
 
@@ -899,11 +895,11 @@ namespace Recordings
             int groupId = (int)parameters["groupId"];
             long programId = (long)parameters["programId"];
             string crid = (string)parameters["crid"];
-            string epgChannelID = (string)parameters["epgChannelID"];
+            long epgChannelID = (long)parameters["epgChannelID"];
             DateTime startDate = (DateTime)parameters["startDate"];
             DateTime endDate = (DateTime)parameters["endDate"];
 
-            Recording recording = RecordingsDAL.GetRecordingByProgramId(programId);
+            Recording recording = ConditionalAccess.Utils.GetRecordingByEpgId(groupId, programId);
 
             bool issueRecord = false;
 
@@ -920,7 +916,7 @@ namespace Recordings
                 recording.RecordingStatus = TstvRecordingStatus.Scheduled;
 
                 // Insert recording information to database
-                recording = RecordingsDAL.InsertRecording(recording, groupId, RecordingInternalStatus.Waiting);
+                recording = ConditionalAccess.Utils.InsertRecording(recording, groupId, RecordingInternalStatus.Waiting);
             }
             else if (recording.RecordingStatus == TstvRecordingStatus.Canceled)
             {
@@ -935,7 +931,7 @@ namespace Recordings
                 DateTime checkTime = endDate.AddMinutes(1);
                 eRecordingTask task = eRecordingTask.GetStatusAfterProgramEnded;
 
-                EnqueueMessage(groupId, programId, recording.Id, checkTime, task);
+                EnqueueMessage(groupId, programId, recording.Id, startDate, checkTime, task);
 
                 bool isCanceled = recording.RecordingStatus == TstvRecordingStatus.Canceled;
 
@@ -1056,7 +1052,7 @@ namespace Recordings
                 log.DebugFormat("Try to enqueue retry task: groupId {0}, recordingId {1}, nextCheck {2}, recordingTask {3}, retries {4}",
                     groupId, currentRecording.Id, nextCheck.ToString(), recordingTask.ToString(), currentRecording.GetStatusRetries);
 
-                EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, nextCheck, recordingTask);
+                EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, currentRecording.EpgStartDate, nextCheck, recordingTask);
             }
             else
             {
@@ -1067,7 +1063,7 @@ namespace Recordings
                 currentRecording.RecordingStatus = TstvRecordingStatus.Failed;
 
                 // Update recording after updating the status
-                RecordingsDAL.UpdateRecording(currentRecording, groupId, 1, 1, RecordingInternalStatus.Failed);
+                ConditionalAccess.Utils.UpdateRecording(currentRecording, groupId, 1, 1, RecordingInternalStatus.Failed);
             }
         }
 
@@ -1109,7 +1105,7 @@ namespace Recordings
             {
                 log.DebugFormat("Retry task before program started: program didn't start yet, we will enqueue a message now for recording {0}",
                     recording.Id);
-                EnqueueMessage(groupId, recording.EpgId, recording.Id, nextCheck, task);
+                EnqueueMessage(groupId, recording.EpgId, recording.Id, recording.EpgStartDate, nextCheck, task);
             }
             else
             // If it is still not ok - mark as failed
@@ -1117,7 +1113,7 @@ namespace Recordings
                 log.DebugFormat("Retry task before program started: program started already, we will mark recording {0} as failed.", recording.Id);
 
                 recording.RecordingStatus = TstvRecordingStatus.Failed;
-                RecordingsDAL.UpdateRecording(recording, groupId, 1, 1, RecordingInternalStatus.Failed);
+                ConditionalAccess.Utils.UpdateRecording(recording, groupId, 1, 1, RecordingInternalStatus.Failed);
             }
         }
 
@@ -1129,7 +1125,7 @@ namespace Recordings
             return failStatus;
         }
 
-        private static void CallAdapterRecord(int groupId, string epgChannelID, DateTime startDate, DateTime endDate, bool isCanceled, Recording currentRecording)
+        private static void CallAdapterRecord(int groupId, long epgChannelID, DateTime startDate, DateTime endDate, bool isCanceled, Recording currentRecording)
         {
             log.DebugFormat("Call adapter record for recording {0}", currentRecording.Id);
 
@@ -1225,7 +1221,7 @@ namespace Recordings
                 }
 
                 // Update the result from the adapter
-                bool updateSuccess = RecordingsDAL.UpdateRecording(currentRecording, groupId, 1, 1, newRecordingInternalStatus);
+                bool updateSuccess = ConditionalAccess.Utils.UpdateRecording(currentRecording, groupId, 1, 1, newRecordingInternalStatus);
 
                 if (!updateSuccess)
                 {

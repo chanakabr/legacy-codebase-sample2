@@ -19,10 +19,11 @@ namespace ApiObjects
         private eRecordingTask recordingTask;
         private long programId;
         private long recordingId;
+        private DateTime epgStartDate;
 
         #endregion
 
-        public RecordingTaskData(int groupId, eRecordingTask recordingTask, DateTime time, long programId, long recordingId)
+        public RecordingTaskData(int groupId, eRecordingTask recordingTask, DateTime epgStartDate, DateTime etaDate, long programId, long recordingId)
             : base(
                 // id = guid
                 Guid.NewGuid().ToString(),
@@ -31,18 +32,20 @@ namespace ApiObjects
         {
             // Basic member initialization
             this.GroupId = groupId;
-            this.ETA = time;
+            this.ETA = etaDate;
 
             this.recordingTask = recordingTask;
             this.programId = programId;
             this.recordingId = recordingId;
+            this.epgStartDate = epgStartDate;
 
             this.args = new List<object>()
             {
                 groupId,
                 recordingTask.ToString(),
                 programId,
-                recordingId
+                recordingId,
+                epgStartDate
             };
         }
     }
