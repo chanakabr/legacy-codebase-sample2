@@ -118,13 +118,14 @@ namespace Recordings
             Dictionary<string, object> syncParmeters = new Dictionary<string, object>();
             syncParmeters.Add("groupId", groupId);
             syncParmeters.Add("programId", programId);
+            syncParmeters.Add("crid", crid);
             syncParmeters.Add("epgChannelID", epgChannelID);
             syncParmeters.Add("startDate", startDate);
             syncParmeters.Add("endDate", endDate);
 
             try
             {
-                Dictionary<long, Recording> recordingsEpgMap = ConditionalAccess.Utils.GetEpgToRecordingsMapByCrid(groupId, crid);
+                Dictionary<long, Recording> recordingsEpgMap = ConditionalAccess.Utils.GetEpgToRecordingsMapByCridAndChannel(groupId, crid, epgChannelID);
 
                 // remember and not forget
                 if (recordingsEpgMap == null || recordingsEpgMap.Count == 0)
@@ -246,40 +247,135 @@ namespace Recordings
 
             if (groupId > 0 && slimRecording != null && slimRecording.Id > 0 && slimRecording.EpgId > 0 && !string.IsNullOrEmpty(slimRecording.ExternalRecordingId))
             {
-                if (adapterId == 0)
-                {
-                    adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
-                }
-
-                var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
+                bool shouldCallAdapter = RecordingsDAL.CountRecordingsByExternalRecordingId(groupId, slimRecording.ExternalRecordingId) == 1 ? true : false;
                 RecordResult adapterResponse = null;
-
-                // deal with CRIDs and stuff
-                Dictionary<long, Recording> recordingsEpgMap = ConditionalAccess.Utils.GetEpgToRecordingsMapByCrid(groupId, slimRecording.Crid);
-                Recording existingRecordingWithMinStartDate;
-
-                // get all the recordings with the same CRID if our recording is the earlier - cancel the existing recording and record the new
-                if (recordingsEpgMap != null && recordingsEpgMap.Count > 0 &&
-                         (existingRecordingWithMinStartDate = recordingsEpgMap.OrderBy(x => x.Value.EpgStartDate).ToList().First().Value) != null
-                         && slimRecording.EpgId == existingRecordingWithMinStartDate.EpgId)
+                if (shouldCallAdapter)
                 {
-                    CallAdapterRecord(groupId, slimRecording.ChannelId, slimRecording.EpgStartDate, slimRecording.EpgEndDate, false, slimRecording);
-                    if (!RecordingsDAL.UpdateRecordingsExternalId(groupId, slimRecording.ExternalRecordingId, slimRecording.Crid))
+                    if (adapterId == 0)
                     {
-                        log.ErrorFormat("Failed UpdateRecordingsExternalId, ExternalRecordingId: {0}, Crid: {1}", slimRecording.ExternalRecordingId, slimRecording.Crid);
+                        adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
+                    }
+
+                    var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
+
+                    // deal with CRIDs and stuff
+                    Dictionary<long, Recording> recordingsEpgMap = ConditionalAccess.Utils.GetEpgToRecordingsMapByCridAndChannel(groupId, slimRecording.Crid, slimRecording.ChannelId);
+                    Recording existingRecordingWithMinStartDate;
+
+                    // get all the recordings with the same CRID if our recording is the earlier - cancel the existing recording and record the new
+                    if (recordingsEpgMap != null && recordingsEpgMap.Count > 0 &&
+                             (existingRecordingWithMinStartDate = recordingsEpgMap.OrderBy(x => x.Value.EpgStartDate).ToList().First().Value) != null
+                             && slimRecording.EpgId == existingRecordingWithMinStartDate.EpgId)
+                    {
+                        CallAdapterRecord(groupId, slimRecording.ChannelId, slimRecording.EpgStartDate, slimRecording.EpgEndDate, false, slimRecording);
+                        if (!RecordingsDAL.UpdateRecordingsExternalId(groupId, slimRecording.ExternalRecordingId, slimRecording.Crid))
+                        {
+                            log.ErrorFormat("Failed UpdateRecordingsExternalId, ExternalRecordingId: {0}, Crid: {1}", slimRecording.ExternalRecordingId, slimRecording.Crid);
+                        }
+                    }
+
+                    // Call Adapter to cancel or delete recording                    
+                    try
+                    {
+                        switch (recordingStatus)
+                        {
+                            case TstvRecordingStatus.Canceled:
+                                adapterResponse = adapterController.CancelRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
+                                break;
+                            case TstvRecordingStatus.Deleted:
+                                adapterResponse = adapterController.DeleteRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
+                                break;
+                            default:
+                                break;
+                        }
+
+                    }
+                    catch (KalturaException ex)
+                    {
+                        status = new Status((int)eResponseStatus.Error, string.Format("Code: {0} Message: {1}", (int)ex.Data["StatusCode"], ex.Message));
+                        return status;
+                    }
+                    catch (Exception ex)
+                    {
+                        status = new Status((int)eResponseStatus.Error, "Adapter controller excpetion: " + ex.Message);
+                        return status;
                     }
                 }
 
+                if (shouldCallAdapter && adapterResponse == null)
+                {
+                    status = new Status((int)eResponseStatus.Error, "Adapter controller returned null response.");
+                }
+                //
+                // TODO: Validate adapter response
+                //
+                else if (shouldCallAdapter && adapterResponse.FailReason != 0)
+                {
+                    status = CreateFailStatus(adapterResponse);
+                }
+                else
+                {
+                    try
+                    {
+
+                        // Update recording information in to database
+                        bool updateResult = false;
+
+                        switch (recordingStatus)
+                        {
+                            case TstvRecordingStatus.Canceled:
+                            updateResult = RecordingsDAL.CancelRecording(slimRecording.Id);
+                            break;
+                            case TstvRecordingStatus.Deleted:
+                            updateResult = RecordingsDAL.DeleteRecording(slimRecording.Id);
+                            break;
+                            default:
+                            break;
+                        }
+
+                        if (!updateResult)
+                        {
+                            return new Status((int)eResponseStatus.Error, string.Format("Failed updating recording {0} to status {1}", slimRecording.Id, recordingStatus));
+                        }
+
+                        UpdateCouchbase(groupId, slimRecording.EpgId, slimRecording.Id, false);
+
+                        // We're OK
+                        status = new Status((int)eResponseStatus.OK);
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Error while trying to CancelOrDeleteRecording, recordingID: {0}, recordingUpdatedStatus {1}", slimRecording.Id, recordingStatus);
+                        status = new Status((int)eResponseStatus.Error, "Failed inserting recording to database and queue.");
+                    }
+                }
+            }
+            return status;
+        }
+
+        public Status CancelOrDeleteRecording(int groupId, long epgId, TstvRecordingStatus recordingStatus)
+        {
+            Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            Recording recording = ConditionalAccess.Utils.GetRecordingByEpgId(groupId, epgId);
+
+            if (groupId > 0 && recording != null && recording.Id > 0 && recording.EpgId > 0 && !string.IsNullOrEmpty(recording.ExternalRecordingId))
+            {
+                int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
+
+                var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
+
                 // Call Adapter to cancel or delete recording
+
+                RecordResult adapterResponse = null;
                 try
                 {
                     switch (recordingStatus)
                     {
                         case TstvRecordingStatus.Canceled:
-                        adapterResponse = adapterController.CancelRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
+                        adapterResponse = adapterController.CancelRecording(groupId, recording.ExternalRecordingId, adapterId);
                         break;
                         case TstvRecordingStatus.Deleted:
-                        adapterResponse = adapterController.DeleteRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
+                        adapterResponse = adapterController.DeleteRecording(groupId, recording.ExternalRecordingId, adapterId);
                         break;
                         default:
                         break;
@@ -312,16 +408,17 @@ namespace Recordings
                 {
                     try
                     {
+
                         // Update recording information in to database
                         bool updateResult = false;
 
                         switch (recordingStatus)
                         {
                             case TstvRecordingStatus.Canceled:
-                            updateResult = RecordingsDAL.CancelRecording(slimRecording.Id);
+                            updateResult = RecordingsDAL.CancelRecording(recording.Id);
                             break;
                             case TstvRecordingStatus.Deleted:
-                            updateResult = RecordingsDAL.DeleteRecording(slimRecording.Id);
+                            updateResult = RecordingsDAL.DeleteRecording(recording.Id);
                             break;
                             default:
                             break;
@@ -329,17 +426,17 @@ namespace Recordings
 
                         if (!updateResult)
                         {
-                            return new Status((int)eResponseStatus.Error, string.Format("Failed updating recording {0} to status {1}", slimRecording.Id, recordingStatus));
+                            return new Status((int)eResponseStatus.Error, string.Format("Failed updating recording {0} to status {1}", recording.Id, recordingStatus));
                         }
 
-                        UpdateCouchbase(groupId, slimRecording.EpgId, slimRecording.Id, false);
+                        UpdateCouchbase(groupId, recording.EpgId, recording.Id, false);
 
                         // We're OK
                         status = new Status((int)eResponseStatus.OK);
                     }
                     catch (Exception ex)
                     {
-                        log.ErrorFormat("Error while trying to CancelOrDeleteRecording, recordingID: {0}, recordingUpdatedStatus {1}", slimRecording.Id, recordingStatus);
+                        log.ErrorFormat("Error while trying to CancelOrDeleteRecording, recordingID: {0}, recordingUpdatedStatus {1}", recording.Id, recordingStatus);
                         status = new Status((int)eResponseStatus.Error, "Failed inserting recording to database and queue.");
                     }
                 }
@@ -510,8 +607,8 @@ namespace Recordings
                     recording.EpgStartDate = startDate;
                     recording.EpgEndDate = endDate;
 
-                    // deal with CRIDs and stuff
-                    Dictionary<long, Recording> recordingsEpgMap = ConditionalAccess.Utils.GetEpgToRecordingsMapByCrid(groupId, recording.Crid);
+                     // deal with CRIDs and stuff
+                    Dictionary<long, Recording> recordingsEpgMap = ConditionalAccess.Utils.GetEpgToRecordingsMapByCridAndChannel(groupId, recording.Crid, recording.ChannelId);
                     Recording existingRecordingWithMinStartDate;
                     
                     // get all the recordings with the same CRID if our recording is the earlier - cancel the existing recording and record the new
@@ -547,6 +644,7 @@ namespace Recordings
                     }
                     else
                     {
+
                         // until proven otherwise - the recording is invalid
                         bool shouldRetry = true;
                         bool shouldMarkAsFailed = true;
@@ -644,6 +742,7 @@ namespace Recordings
                             {
                                 recording.Status = new Status((int)eResponseStatus.Error, "Failed updating recording in database.");
                             }
+
                         }
                         catch (Exception ex)
                         {

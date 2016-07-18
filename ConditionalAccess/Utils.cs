@@ -5118,7 +5118,7 @@ namespace ConditionalAccess
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 if ((ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "countUsers", 0)) == 0)
-                {
+                {                    
                     ApiObjects.Response.Status status = RecordingsManager.Instance.CancelOrDeleteRecording(groupID, recording, tstvRecordingStatus);
 
                     if (status != null && status.Code == (int)eResponseStatus.OK)
@@ -5257,10 +5257,10 @@ namespace ConditionalAccess
             return programs;
         }
 
-        internal static Dictionary<long, Recording> GetEpgToRecordingsMapByCrid(int groupId, string crid)
+        internal static Dictionary<long, Recording> GetEpgToRecordingsMapByCridAndChannel(int groupId, string crid, long channelId)
         {
             Dictionary<long, Recording> epgToRecordingMap = null;
-            DataTable dt = RecordingsDAL.GetEpgToRecordingsMapByCrid(groupId, crid);
+            DataTable dt = RecordingsDAL.GetEpgToRecordingsMapByCridAndChannel(groupId, crid, channelId);
             if (dt != null && dt.Rows != null)
             {
                 epgToRecordingMap = new Dictionary<long, Recording>();
@@ -5831,8 +5831,10 @@ namespace ConditionalAccess
                 );
                 }               
             }
+
             return result;
         }
+
     }
 }
 
