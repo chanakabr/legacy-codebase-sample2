@@ -17825,7 +17825,7 @@ namespace ConditionalAccess
                                         // check if followed by at least 1 domain
                                         string sereisId = epgFieldMappings[Utils.SERIES_ID];
                                         int seasonNum = epgFieldMappings.ContainsKey(Utils.SEASON_NUMBER) ? int.Parse(epgFieldMappings[Utils.SEASON_NUMBER]) : 0;
-                                        if (RecordingsDAL.IsFirstFollower(m_nGroupID, sereisId, seasonNum))
+                                        if (RecordingsDAL.IsSeriesFollowed(m_nGroupID, sereisId, seasonNum))
                                         {
                                             // record
                                             Recording recording = RecordingsManager.Instance.Record(m_nGroupID, epg.EPG_ID, int.Parse(epg.EPG_CHANNEL_ID), startDate, endDate, epg.CRID);
@@ -17838,7 +17838,7 @@ namespace ConditionalAccess
                                                 log.DebugFormat("successfully recorded epg as series on UpdateRecording, epgId = {0}, recordingId = {1}", epg.EPG_ID, recording.Id);
                                                 DateTime distributeTime = startDate.AddMinutes(1);
                                                 eRecordingTask task = eRecordingTask.DistributeRecording;
-                                                RecordingsManager.EnqueueMessage(m_nGroupID, recording.EpgId, recording.Id, distributeTime, task);
+                                                RecordingsManager.EnqueueMessage(m_nGroupID, recording.EpgId, recording.Id, recording.EpgStartDate, distributeTime, task);
                                             }
                                             //TODO: CRID!!!!!
                                         }
