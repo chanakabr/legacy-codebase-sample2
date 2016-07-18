@@ -5366,23 +5366,24 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/CancelSeriesRecord", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public SeriesRecording CancelSeriesRecord(string sWSUserName, string sWSPassword, string userId, long domainId, long recordingId) {
+        public SeriesRecording CancelSeriesRecord(string sWSUserName, string sWSPassword, string userId, long domainId, long recordingId, long epgId) {
             object[] results = this.Invoke("CancelSeriesRecord", new object[] {
                         sWSUserName,
                         sWSPassword,
                         userId,
                         domainId,
-                        recordingId});
+                        recordingId,
+                        epgId});
             return ((SeriesRecording)(results[0]));
         }
         
         /// <remarks/>
-        public void CancelSeriesRecordAsync(string sWSUserName, string sWSPassword, string userId, long domainId, long recordingId) {
-            this.CancelSeriesRecordAsync(sWSUserName, sWSPassword, userId, domainId, recordingId, null);
+        public void CancelSeriesRecordAsync(string sWSUserName, string sWSPassword, string userId, long domainId, long recordingId, long epgId) {
+            this.CancelSeriesRecordAsync(sWSUserName, sWSPassword, userId, domainId, recordingId, epgId, null);
         }
         
         /// <remarks/>
-        public void CancelSeriesRecordAsync(string sWSUserName, string sWSPassword, string userId, long domainId, long recordingId, object userState) {
+        public void CancelSeriesRecordAsync(string sWSUserName, string sWSPassword, string userId, long domainId, long recordingId, long epgId, object userState) {
             if ((this.CancelSeriesRecordOperationCompleted == null)) {
                 this.CancelSeriesRecordOperationCompleted = new System.Threading.SendOrPostCallback(this.OnCancelSeriesRecordOperationCompleted);
             }
@@ -5391,7 +5392,8 @@ namespace WebAPI.ConditionalAccess {
                         sWSPassword,
                         userId,
                         domainId,
-                        recordingId}, this.CancelSeriesRecordOperationCompleted, userState);
+                        recordingId,
+                        epgId}, this.CancelSeriesRecordOperationCompleted, userState);
         }
         
         private void OnCancelSeriesRecordOperationCompleted(object arg) {
@@ -5403,23 +5405,24 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/DeleteSeriesRecord", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public SeriesRecording DeleteSeriesRecord(string sWSUserName, string sWSPassword, string userId, long domainId, long recordingId) {
+        public SeriesRecording DeleteSeriesRecord(string sWSUserName, string sWSPassword, string userId, long domainId, long recordingId, long epgId) {
             object[] results = this.Invoke("DeleteSeriesRecord", new object[] {
                         sWSUserName,
                         sWSPassword,
                         userId,
                         domainId,
-                        recordingId});
+                        recordingId,
+                        epgId});
             return ((SeriesRecording)(results[0]));
         }
         
         /// <remarks/>
-        public void DeleteSeriesRecordAsync(string sWSUserName, string sWSPassword, string userId, long domainId, long recordingId) {
-            this.DeleteSeriesRecordAsync(sWSUserName, sWSPassword, userId, domainId, recordingId, null);
+        public void DeleteSeriesRecordAsync(string sWSUserName, string sWSPassword, string userId, long domainId, long recordingId, long epgId) {
+            this.DeleteSeriesRecordAsync(sWSUserName, sWSPassword, userId, domainId, recordingId, epgId, null);
         }
         
         /// <remarks/>
-        public void DeleteSeriesRecordAsync(string sWSUserName, string sWSPassword, string userId, long domainId, long recordingId, object userState) {
+        public void DeleteSeriesRecordAsync(string sWSUserName, string sWSPassword, string userId, long domainId, long recordingId, long epgId, object userState) {
             if ((this.DeleteSeriesRecordOperationCompleted == null)) {
                 this.DeleteSeriesRecordOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDeleteSeriesRecordOperationCompleted);
             }
@@ -5428,7 +5431,8 @@ namespace WebAPI.ConditionalAccess {
                         sWSPassword,
                         userId,
                         domainId,
-                        recordingId}, this.DeleteSeriesRecordOperationCompleted, userState);
+                        recordingId,
+                        epgId}, this.DeleteSeriesRecordOperationCompleted, userState);
         }
         
         private void OnDeleteSeriesRecordOperationCompleted(object arg) {

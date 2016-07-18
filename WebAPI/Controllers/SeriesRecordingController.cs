@@ -21,13 +21,14 @@ namespace WebAPI.Controllers
         /// Cancel a previously requested series recording. Cancel series recording can be called for recording in status Scheduled or Recording Only 
         /// </summary>
         /// <param name="id">Series Recording identifier</param>
+        /// <param name="epgId">epg program identifier</param>
         /// <returns></returns>
         /// <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
         /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048 </remarks>
         [Route("cancel"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemaValidationType.ACTION_NAME)]
-        public KalturaSeriesRecording Cancel(long id)
+        public KalturaSeriesRecording Cancel(long id, long epgId)
         {
             KalturaSeriesRecording response = null;
 
@@ -37,7 +38,7 @@ namespace WebAPI.Controllers
                 string userId = KS.GetFromRequest().UserId;
                 long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().CancelSeriesRecord(groupId, userId, domainId, id);
+                response = ClientsManager.ConditionalAccessClient().CancelSeriesRecord(groupId, userId, domainId, id, epgId);
             }
             catch (ClientException ex)
             {
@@ -50,12 +51,13 @@ namespace WebAPI.Controllers
         /// Delete series recording(s). Delete series recording can be called recordings in any status
         /// </summary>
         /// <param name="id">Series Recording identifier</param>
+        /// <param name="epgId">epg program identifier</param>
         /// <returns></returns>
         /// <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
         /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048 </remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        public KalturaSeriesRecording Delete(long id)
+        public KalturaSeriesRecording Delete(long id, long epgId)
         {
             KalturaSeriesRecording response = null;
                try
@@ -64,7 +66,7 @@ namespace WebAPI.Controllers
                    string userId = KS.GetFromRequest().UserId;
                    long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
                    // call client                
-                   response = ClientsManager.ConditionalAccessClient().DeleteSeriesRecord(groupId, userId, domainId, id);
+                   response = ClientsManager.ConditionalAccessClient().DeleteSeriesRecord(groupId, userId, domainId, id, epgId);
                }
                catch (ClientException ex)
                {

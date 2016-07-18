@@ -3034,6 +3034,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:long" />
             <s:element minOccurs="1" maxOccurs="1" name="recordingId" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="epgId" type="s:long" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -3074,6 +3075,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:long" />
             <s:element minOccurs="1" maxOccurs="1" name="recordingId" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="epgId" type="s:long" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -5883,6 +5885,7 @@
     <wsdl:part name="userId" type="s:string" />
     <wsdl:part name="domainId" type="s:string" />
     <wsdl:part name="recordingId" type="s:string" />
+    <wsdl:part name="epgId" type="s:string" />
   </wsdl:message>
   <wsdl:message name="CancelSeriesRecordHttpPostOut">
     <wsdl:part name="Body" element="tns:SeriesRecording" />
@@ -5893,6 +5896,7 @@
     <wsdl:part name="userId" type="s:string" />
     <wsdl:part name="domainId" type="s:string" />
     <wsdl:part name="recordingId" type="s:string" />
+    <wsdl:part name="epgId" type="s:string" />
   </wsdl:message>
   <wsdl:message name="DeleteSeriesRecordHttpPostOut">
     <wsdl:part name="Body" element="tns:SeriesRecording" />

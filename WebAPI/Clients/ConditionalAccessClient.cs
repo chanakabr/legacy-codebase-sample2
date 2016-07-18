@@ -1605,7 +1605,7 @@ namespace WebAPI.Clients
             return recording;
         }
 
-        internal KalturaSeriesRecording CancelSeriesRecord(int groupId, string userId, long domainId, long id)
+        internal KalturaSeriesRecording CancelSeriesRecord(int groupId, string userId, long domainId, long id, long epgId)
         {
             KalturaSeriesRecording seriesRecording = null;
             SeriesRecording response = null;
@@ -1618,7 +1618,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = ConditionalAccess.CancelSeriesRecord(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, domainId, id);
+                    response = ConditionalAccess.CancelSeriesRecord(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, domainId, id, epgId);
                 }
             }
             catch (Exception ex)
@@ -1645,7 +1645,7 @@ namespace WebAPI.Clients
             return seriesRecording;
         }
 
-        internal KalturaSeriesRecording DeleteSeriesRecord(int groupId, string userId, long domainId, long id)
+        internal KalturaSeriesRecording DeleteSeriesRecord(int groupId, string userId, long domainId, long id, long epgId)
         {
             KalturaSeriesRecording seriesRecording = null;
             SeriesRecording response = null;
@@ -1658,7 +1658,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = ConditionalAccess.DeleteSeriesRecord(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, domainId, id);
+                    response = ConditionalAccess.DeleteSeriesRecord(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, domainId, id, epgId);
                 }
             }
             catch (Exception ex)
