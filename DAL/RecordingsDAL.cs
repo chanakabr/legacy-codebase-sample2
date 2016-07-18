@@ -829,6 +829,16 @@ namespace DAL
             return dt;
         }
 
+        public static int CountRecordingsByExternalRecordingId(int groupId, string externalRecordingId)
+        {
+            ODBCWrapper.StoredProcedure spCountRecordingsByExternalRecordingId = new ODBCWrapper.StoredProcedure("CountRecordingsByExternalRecordingId");
+            spCountRecordingsByExternalRecordingId.SetConnectionKey(RECORDING_CONNECTION);
+            spCountRecordingsByExternalRecordingId.AddParameter("@GroupID", groupId);
+            spCountRecordingsByExternalRecordingId.AddParameter("@ExternalRecordingId", externalRecordingId);
+
+            return spCountRecordingsByExternalRecordingId.ExecuteReturnValue<int>();           
+        }
+
         #region Couchbase
 
         public static RecordingCB GetRecordingByProgramId_CB(long programId)

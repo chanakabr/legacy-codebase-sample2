@@ -5993,7 +5993,7 @@ namespace Catalog
                     if (searchKeyLowered == "start_date")
                     {
                         definitions.defaultStartDate = false;
-                        GetLeafDate(ref leaf);
+                        GetLeafDate(ref leaf, request.m_dServerTime);
 
                         leaf.assetTypes = new List<eAssetTypes>()
                         {
@@ -6004,7 +6004,7 @@ namespace Catalog
                     else if (searchKeyLowered == "end_date")
                     {
                         definitions.defaultEndDate = false;
-                        GetLeafDate(ref leaf);
+                        GetLeafDate(ref leaf, request.m_dServerTime);
 
                         leaf.assetTypes = new List<eAssetTypes>()
                         {
@@ -6014,7 +6014,7 @@ namespace Catalog
                     }
                     else if (searchKeyLowered == "update_date")
                     {
-                        GetLeafDate(ref leaf);
+                        GetLeafDate(ref leaf, request.m_dServerTime);
                     }
                     else if (searchKeyLowered == "geo_block")
                     {
@@ -6224,7 +6224,7 @@ namespace Catalog
             #endregion
         }
 
-        private static void GetLeafDate(ref BooleanLeaf leaf)
+        private static void GetLeafDate(ref BooleanLeaf leaf, DateTime serverTime)
         {
             leaf.valueType = typeof(DateTime);
             long epoch = Convert.ToInt64(leaf.value);
@@ -6233,8 +6233,7 @@ namespace Catalog
             if (epoch > UNIX_TIME_1980)
                 leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
             else
-                leaf.value = DateTime.UtcNow.AddSeconds(epoch);
-
+                leaf.value = serverTime.AddSeconds(epoch);
         }
 
         public static UnifiedSearchDefinitions BuildInternalChannelSearchObject(GroupsCacheManager.Channel channel, InternalChannelRequest request, Group group)

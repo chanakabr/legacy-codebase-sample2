@@ -18,7 +18,7 @@ using KlogMonitorHelper;
 
 namespace Recordings
 {
-    public class RecordingsManager
+    public class  RecordingsManager
     {
         #region Consts
 
@@ -246,50 +246,53 @@ namespace Recordings
 
             if (groupId > 0 && slimRecording != null && slimRecording.Id > 0 && slimRecording.EpgId > 0 && !string.IsNullOrEmpty(slimRecording.ExternalRecordingId))
             {
-                if (adapterId == 0)
-                {
-                    adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
-                }
-
-                var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
-
-                // Call Adapter to cancel or delete recording
-
+                bool shouldCallAdapter = RecordingsDAL.CountRecordingsByExternalRecordingId(groupId, slimRecording.ExternalRecordingId) == 1 ? true : false;
                 RecordResult adapterResponse = null;
-                try
+                if (shouldCallAdapter)
                 {
-                    switch (recordingStatus)
+                    if (adapterId == 0)
                     {
-                        case TstvRecordingStatus.Canceled:
-                        adapterResponse = adapterController.CancelRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
-                        break;
-                        case TstvRecordingStatus.Deleted:
-                        adapterResponse = adapterController.DeleteRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
-                        break;
-                        default:
-                        break;
+                        adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
                     }
 
-                }
-                catch (KalturaException ex)
-                {
-                    status = new Status((int)eResponseStatus.Error, string.Format("Code: {0} Message: {1}", (int)ex.Data["StatusCode"], ex.Message));
-                    return status;
-                }
-                catch (Exception ex)
-                {
-                    status = new Status((int)eResponseStatus.Error, "Adapter controller excpetion: " + ex.Message);
-                    return status;
+                    var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
+
+                    // Call Adapter to cancel or delete recording                    
+                    try
+                    {
+                        switch (recordingStatus)
+                        {
+                            case TstvRecordingStatus.Canceled:
+                                adapterResponse = adapterController.CancelRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
+                                break;
+                            case TstvRecordingStatus.Deleted:
+                                adapterResponse = adapterController.DeleteRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
+                                break;
+                            default:
+                                break;
+                        }
+
+                    }
+                    catch (KalturaException ex)
+                    {
+                        status = new Status((int)eResponseStatus.Error, string.Format("Code: {0} Message: {1}", (int)ex.Data["StatusCode"], ex.Message));
+                        return status;
+                    }
+                    catch (Exception ex)
+                    {
+                        status = new Status((int)eResponseStatus.Error, "Adapter controller excpetion: " + ex.Message);
+                        return status;
+                    }
                 }
 
-                if (adapterResponse == null)
+                if (shouldCallAdapter && adapterResponse == null)
                 {
                     status = new Status((int)eResponseStatus.Error, "Adapter controller returned null response.");
                 }
                 //
                 // TODO: Validate adapter response
                 //
-                else if (adapterResponse.FailReason != 0)
+                else if (shouldCallAdapter && adapterResponse.FailReason != 0)
                 {
                     status = CreateFailStatus(adapterResponse);
                 }
