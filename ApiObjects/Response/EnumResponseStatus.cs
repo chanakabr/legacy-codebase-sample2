@@ -120,6 +120,7 @@ namespace ApiObjects.Response
         AccountSeriesRecordingNotEnabled = 3046,
         AlreadyRecordedAsSeriesOrSeason = 3047,
         SeriesRecordingNotFound = 3048,
+        EpgIdNotPartOfSeries = 3049,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,

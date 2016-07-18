@@ -209,7 +209,19 @@ namespace DAL
             spUpdateOrInsertDomainRecording.AddParameter("@RecordingID", recording.Id);
             spUpdateOrInsertDomainRecording.AddParameter("@EpgChannelId", recording.ChannelId);
             spUpdateOrInsertDomainRecording.AddParameter("@RecordingType", (int)recording.Type);
-
+            spUpdateOrInsertDomainRecording.AddParameter("@Status", recording.RecordingStatus == TstvRecordingStatus.Deleted ? 2 : 1);
+            switch (recording.RecordingStatus)
+            {
+                case TstvRecordingStatus.Canceled:
+                    spUpdateOrInsertDomainRecording.AddParameter("@RecordingState",2);
+                    break;
+                case TstvRecordingStatus.Deleted:
+                    spUpdateOrInsertDomainRecording.AddParameter("@RecordingState",3);
+                    break;
+                default:
+                    spUpdateOrInsertDomainRecording.AddParameter("@RecordingState", 1);
+                    break;
+            }  
             dt = spUpdateOrInsertDomainRecording.Execute();
 
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
@@ -660,13 +672,14 @@ namespace DAL
             return recordingDuration;
         }
 
-        public static DataTable GetEpgToRecordingsMapByCrid(int groupId, string crid)
+        public static DataTable GetEpgToRecordingsMapByCridAndChannel(int groupId, string crid, long channelId)
         {
             DataTable dt = null;
-            ODBCWrapper.StoredProcedure spGetEpgToRecordingsMapByCrid = new ODBCWrapper.StoredProcedure("GetRecordingsByCrid");
+            ODBCWrapper.StoredProcedure spGetEpgToRecordingsMapByCrid = new ODBCWrapper.StoredProcedure("GetRecordingsByCridAndChannel");
             spGetEpgToRecordingsMapByCrid.SetConnectionKey(RECORDING_CONNECTION);
             spGetEpgToRecordingsMapByCrid.AddParameter("@GroupID", groupId);
             spGetEpgToRecordingsMapByCrid.AddParameter("@Crid", crid);
+            spGetEpgToRecordingsMapByCrid.AddParameter("@ChannelId", channelId);
             dt = spGetEpgToRecordingsMapByCrid.Execute();
 
             return dt;
