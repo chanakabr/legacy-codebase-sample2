@@ -144,7 +144,10 @@ namespace Recordings
             if (GetDomainQuota(groupId, domainId) >= quotaToDecrease)
             {
                 int defaultDomainQuota = ConditionalAccess.Utils.GetDomainDefaultQuota(groupId, domainId);
-                result = RecordingsDAL.DecreaseDomainQuota(domainId, quotaToDecrease, defaultDomainQuota);
+                if (defaultDomainQuota >= quotaToDecrease)
+                {
+                    result = RecordingsDAL.DecreaseDomainQuota(domainId, quotaToDecrease, defaultDomainQuota);
+                }                
             }
 
             return result;

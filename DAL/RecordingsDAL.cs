@@ -1016,15 +1016,17 @@ namespace DAL
                 {
                     ulong version;
                     int currentQuota = -1;
+                    int updatedQuota;
                     currentQuota = cbClient.GetWithVersion<int>(domainQuotaKey, out version);
                     if (version != 0 && currentQuota > -1)
                     {
-                        int updatedQuota = currentQuota + quotaToDecrease;
+                        updatedQuota = currentQuota + quotaToDecrease;
                         result = cbClient.SetWithVersion<int>(domainQuotaKey, updatedQuota, version);
                     }
                     else if (version == 0)
                     {
-                        result = cbClient.SetWithVersion<int>(domainQuotaKey, defaultDomainQuota, version);
+                        updatedQuota = defaultDomainQuota - quotaToDecrease;
+                        result = cbClient.SetWithVersion<int>(domainQuotaKey, updatedQuota, version);
                     }
 
                     if (!result)
