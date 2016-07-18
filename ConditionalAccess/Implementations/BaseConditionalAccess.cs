@@ -18353,22 +18353,13 @@ namespace ConditionalAccess
                 {
                     // get the domain series recording
                     serieDt = RecordingsDAL.GetDomainSeriesRecordingsById(m_nGroupID, domainId, domainSeriesRecordingId);
-                    DomainSeriesRecording serie = Utils.GetDomainSeriesRecordingFromDataTable(serieDt);
-                    if (serie != null)
-                    {
-                        series = new List<DomainSeriesRecording>() { serie };
-                    }
-                    else
-                    {
-                        log.ErrorFormat("household does not follow provided serie. domainId = {0}, domainSeriesRecordingId = {1}", domainId, domainSeriesRecordingId);
-                        return response;
-                    }
+                    series = Utils.GetDomainSeriesRecordingFromDataTable(serieDt);
                 }
                 else
                 {
                     // get household followed series / seasons - if not following anything - nothing to do
                     serieDt = RecordingsDAL.GetDomainSeriesRecordings(m_nGroupID, domainId);
-                    series = Utils.GetDomainListSeriesRecordingFromDataTable(serieDt);
+                    series = Utils.GetDomainSeriesRecordingFromDataTable(serieDt);
                 }
 
                 if (series == null || series.Count == 0)
