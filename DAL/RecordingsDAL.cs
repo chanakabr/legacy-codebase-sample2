@@ -996,7 +996,7 @@ namespace DAL
         /// <summary>
         /// DO NOT DIRECTLY USE THIS FUNCTION, USE QuotaManager.DecreaseDomainQuota
         /// </summary>
-        public static bool DecreaseDomainQuota(long domainId, int quotaToDecrease)
+        public static bool DecreaseDomainQuota(long domainId, int quotaToDecrease, int defaultDomainQuota)
         {
             bool result = false;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
@@ -1022,6 +1022,10 @@ namespace DAL
                         int updatedQuota = currentQuota + quotaToDecrease;
                         result = cbClient.SetWithVersion<int>(domainQuotaKey, updatedQuota, version);
                     }
+                    else if (version == 0)
+                    {
+                        result = cbClient.SetWithVersion<int>(domainQuotaKey, defaultDomainQuota, version);
+                    }
 
                     if (!result)
                     {
@@ -1038,6 +1042,49 @@ namespace DAL
 
             return result;
         }
+
+        ///// <summary>
+        ///// DO NOT DIRECTLY USE THIS FUNCTION, should be called only from QuotaManager
+        ///// </summary>
+        //public static bool InsertQuotaForDomain(long domainId, int quotaToInsert)
+        //{
+        //    bool result = false;
+        //    CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
+        //    int limitRetries = RETRY_LIMIT;
+        //    Random r = new Random();
+        //    string domainQuotaKey = UtilsDal.GetDomainQuotaKey(domainId);
+        //    if (string.IsNullOrEmpty(domainQuotaKey))
+        //    {
+        //        log.ErrorFormat("Failed getting domainQuotaKey for domainId: {0}", domainId);
+        //        return result;
+        //    }
+
+        //    try
+        //    {
+        //        int numOfRetries = 0;
+        //        while (!result && numOfRetries < limitRetries)
+        //        {                                                            
+        //            if (version != 0 && currentQuota > -1)
+        //            {
+        //                int updatedQuota = currentQuota + quotaToDecrease;
+        //                result = cbClient.SetWithVersion<int>(domainQuotaKey, updatedQuota, version);
+        //            }
+
+        //            if (!result)
+        //            {
+        //                numOfRetries++;
+        //                log.ErrorFormat("Error while adding quota to domain. number of tries: {0}/{1}. domainId: {2}, currentQuota: {3}, quotaToDecrease: {4}", numOfRetries, limitRetries, domainId, currentQuota, quotaToDecrease);
+        //                System.Threading.Thread.Sleep(r.Next(50));
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        log.ErrorFormat("Error while adding quota to domain, domainId: {0}, quotaToDecrease: {1}, ex: {2}", domainId, quotaToDecrease, ex);
+        //    }
+
+        //    return result;
+        //}
 
         #endregion
 
