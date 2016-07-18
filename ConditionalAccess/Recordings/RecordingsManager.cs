@@ -124,7 +124,7 @@ namespace Recordings
 
             try
             {
-                Dictionary<long, Recording> recordingsEpgMap = ConditionalAccess.Utils.GetEpgToRecordingsMapByCrid(groupId, crid);
+                Dictionary<long, Recording> recordingsEpgMap = ConditionalAccess.Utils.GetEpgToRecordingsMapByCridAndChannel(groupId, crid, epgChannelID);
 
                 // remember and not forget
                 if (recordingsEpgMap == null || recordingsEpgMap.Count == 0)

@@ -5257,10 +5257,10 @@ namespace ConditionalAccess
             return programs;
         }
 
-        internal static Dictionary<long, Recording> GetEpgToRecordingsMapByCrid(int groupId, string crid)
+        internal static Dictionary<long, Recording> GetEpgToRecordingsMapByCridAndChannel(int groupId, string crid, long channelId)
         {
             Dictionary<long, Recording> epgToRecordingMap = null;
-            DataTable dt = RecordingsDAL.GetEpgToRecordingsMapByCrid(groupId, crid);
+            DataTable dt = RecordingsDAL.GetEpgToRecordingsMapByCridAndChannel(groupId, crid, channelId);
             if (dt != null && dt.Rows != null)
             {
                 epgToRecordingMap = new Dictionary<long, Recording>();
