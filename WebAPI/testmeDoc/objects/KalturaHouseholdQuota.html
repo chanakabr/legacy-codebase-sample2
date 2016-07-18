@@ -29,7 +29,7 @@
 		<h2>Kaltura API</h2>
 		<table class="action" width="80%">
 			<tr>
-				<th class="service_action_title">KalturaHousehold</th>
+				<th class="service_action_title">KalturaHouseholdQuota</th>
 			</tr>
 			<tr>
 				<td class="title">Properties</td>
@@ -70,7 +70,7 @@
 					<table style="">
 						<tbody>
 							<tr>
-								<td class="inheritedFrom"><b>KalturaHousehold</b></td>
+								<td class="inheritedFrom"><b>KalturaHouseholdQuota</b></td>
 							</tr>
 						</tbody>
 					</table>
@@ -84,102 +84,25 @@
 								<th class="subtitle">Description</th>
 							</tr>
 							<tr >
-								<td>id</td>
+								<td>householdId</td>
 								<td>bigint</td>
 								<td>V</td>
 								<td></td>
 								<td>Household identifier</td>
 							</tr>
 							<tr class="odd">
-								<td>name</td>
-								<td>string</td>
-								<td>V</td>
-								<td></td>
-								<td>Household name</td>
-							</tr>
-							<tr >
-								<td>description</td>
-								<td>string</td>
-								<td>V</td>
-								<td></td>
-								<td>Household description</td>
-							</tr>
-							<tr class="odd">
-								<td>externalId</td>
-								<td>string</td>
-								<td>V</td>
-								<td></td>
-								<td>Household external identifier</td>
-							</tr>
-							<tr >
-								<td>householdLimitationsId</td>
+								<td>totalQuota</td>
 								<td>int</td>
 								<td>V</td>
 								<td></td>
-								<td>Household limitation module identifier</td>
+								<td>Total quota that is allocated to the household</td>
 							</tr>
-							<tr class="odd">
-								<td>devicesLimit</td>
+							<tr >
+								<td>availableQuota</td>
 								<td>int</td>
 								<td>V</td>
 								<td></td>
-								<td>The max number of the devices that can be added to the household</td>
-							</tr>
-							<tr >
-								<td>usersLimit</td>
-								<td>int</td>
-								<td>V</td>
-								<td></td>
-								<td>The max number of the users that can be added to the household</td>
-							</tr>
-							<tr class="odd">
-								<td>concurrentLimit</td>
-								<td>int</td>
-								<td>V</td>
-								<td></td>
-								<td>The max number of concurrent streams in the household</td>
-							</tr>
-							<tr >
-								<td>regionId</td>
-								<td>int</td>
-								<td>V</td>
-								<td></td>
-								<td>The households region identifier</td>
-							</tr>
-							<tr class="odd">
-								<td>state</td>
-								<td><a href="../enums/KalturaHouseholdState.html">KalturaHouseholdState</a></td>
-								<td>V</td>
-								<td></td>
-								<td>Household state</td>
-							</tr>
-							<tr >
-								<td>isFrequencyEnabled</td>
-								<td>bool</td>
-								<td>V</td>
-								<td></td>
-								<td>Is household frequency enabled</td>
-							</tr>
-							<tr class="odd">
-								<td>frequencyNextDeviceAction</td>
-								<td>bigint</td>
-								<td>V</td>
-								<td></td>
-								<td>The next time a device is allowed to be removed from the household (epoch)</td>
-							</tr>
-							<tr >
-								<td>frequencyNextUserAction</td>
-								<td>bigint</td>
-								<td>V</td>
-								<td></td>
-								<td>The next time a user is allowed to be removed from the household (epoch)</td>
-							</tr>
-							<tr class="odd">
-								<td>restriction</td>
-								<td><a href="../enums/KalturaHouseholdRestriction.html">KalturaHouseholdRestriction</a></td>
-								<td>V</td>
-								<td></td>
-								<td>Household restriction</td>
+								<td>Available quota that household has remaining</td>
 							</tr>
 						</tbody>
 					</table>

@@ -1280,7 +1280,7 @@
             Possible status codes:  
             recommendation engine not exist = 4007, recommendation engine identifier required = 4008
             </remarks>
-            <param name="recommendation_engine_id">recommendation engine Identifier</param>
+            <param name="recommendationEngineId">recommendation engine Identifier</param>
         </member>
         <member name="M:WebAPI.Controllers.SessionController.Get(System.String)">
             <summary>
@@ -1395,7 +1395,7 @@
             <summary>
             Generates device pin to use when adding a device to household by pin
             </summary>
-            <param name="brand_id">Device brand identifier</param>
+            <param name="brandId">Device brand identifier</param>
             <param name="udid">Device UDID</param>
             <returns></returns>
         </member>
@@ -1961,7 +1961,7 @@
             Possible status codes:  
             payment gateway id required = 6005, payment gateway not exist = 6008
             </remarks>
-            <param name="payment_gateway_id">Payment gateway identifier</param>
+            <param name="paymentGatewayId">Payment gateway identifier</param>
         </member>
         <member name="M:WebAPI.Controllers.PaymentGatewayProfileController.GetConfiguration(System.String,System.String,System.Collections.Generic.List{WebAPI.Models.General.KalturaKeyValue})">
             <summary>

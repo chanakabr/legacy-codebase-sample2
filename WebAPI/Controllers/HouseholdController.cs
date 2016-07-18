@@ -473,6 +473,7 @@ namespace WebAPI.Controllers
         ///</remarks>
         [Route("suspend"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
         public bool Suspend()
         {
             var ks = KS.GetFromRequest();
@@ -501,6 +502,7 @@ namespace WebAPI.Controllers
         ///</remarks>
         [Route("resume"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
         public bool Resume()
         {
             var ks = KS.GetFromRequest();

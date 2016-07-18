@@ -139,6 +139,7 @@ namespace WebAPI.Controllers
         /// <param name="adapterId">CDN adapter identifier</param>
         [Route("generateSharedSecret"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
         public KalturaCDNAdapterProfile GenerateSharedSecret(int adapterId)
         {
             KalturaCDNAdapterProfile response = null;

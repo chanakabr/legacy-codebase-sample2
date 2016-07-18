@@ -1,1 +1,1 @@
-[{"action":"add","name":"add","label":"add"},{"action":"get","name":"get","label":"get"}]
+[{"action":"add","name":"add","label":"add"},{"action":"get","name":"get","label":"get"},{"action":"resume","name":"resume","label":"resume"},{"action":"suspend","name":"suspend","label":"suspend"}]

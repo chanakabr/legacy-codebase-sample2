@@ -7,6 +7,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.API;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
@@ -25,6 +26,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: BadRequest = 500003</remarks>     
         [Route("get"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
         public KalturaHouseholdQuota Get()
         {
             KalturaHouseholdQuota response = null;
