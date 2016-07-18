@@ -85,6 +85,8 @@ namespace Catalog.Request
         [DataMember]
         public string m_sSiteGuid;
         [DataMember]
+        public DateTime m_dServerTime;
+        [DataMember]
         public int domainId;
 
         /// <summary>

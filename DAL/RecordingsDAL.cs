@@ -672,13 +672,14 @@ namespace DAL
             return recordingDuration;
         }
 
-        public static DataTable GetEpgToRecordingsMapByCrid(int groupId, string crid)
+        public static DataTable GetEpgToRecordingsMapByCridAndChannel(int groupId, string crid, long channelId)
         {
             DataTable dt = null;
-            ODBCWrapper.StoredProcedure spGetEpgToRecordingsMapByCrid = new ODBCWrapper.StoredProcedure("GetRecordingsByCrid");
+            ODBCWrapper.StoredProcedure spGetEpgToRecordingsMapByCrid = new ODBCWrapper.StoredProcedure("GetRecordingsByCridAndChannel");
             spGetEpgToRecordingsMapByCrid.SetConnectionKey(RECORDING_CONNECTION);
             spGetEpgToRecordingsMapByCrid.AddParameter("@GroupID", groupId);
             spGetEpgToRecordingsMapByCrid.AddParameter("@Crid", crid);
+            spGetEpgToRecordingsMapByCrid.AddParameter("@ChannelId", channelId);
             dt = spGetEpgToRecordingsMapByCrid.Execute();
 
             return dt;
