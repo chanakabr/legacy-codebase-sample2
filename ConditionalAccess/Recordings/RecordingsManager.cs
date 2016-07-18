@@ -118,6 +118,7 @@ namespace Recordings
             Dictionary<string, object> syncParmeters = new Dictionary<string, object>();
             syncParmeters.Add("groupId", groupId);
             syncParmeters.Add("programId", programId);
+            syncParmeters.Add("crid", crid);
             syncParmeters.Add("epgChannelID", epgChannelID);
             syncParmeters.Add("startDate", startDate);
             syncParmeters.Add("endDate", endDate);
