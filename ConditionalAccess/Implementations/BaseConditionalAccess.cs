@@ -17343,35 +17343,17 @@ namespace ConditionalAccess
                 // validate epgs entitlement and add to response
                 ValidateEpgForRecording(userID, domainID, ref response, epgs, validEpgsForRecording);
 
-                // if we need to check quota, happens only for single recordings
+                // if the recording is of type Single then quota should be checked for each valid recording
                 if (recordingType == RecordingType.Single)
                 {
                     int totalSeconds = QuotaManager.Instance.GetDomainQuota(this.m_nGroupID, domainID);
-
-                    List<TstvRecordingStatus> recordingStatuses = new List<TstvRecordingStatus>()
-                {
-                    TstvRecordingStatus.OK,
-                    TstvRecordingStatus.Recorded,
-                    TstvRecordingStatus.Recording,
-                    TstvRecordingStatus.Scheduled
-                };
-
-                    Dictionary<long, Recording> recordingIdToDomainRecordingsMap = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, domainID, recordingStatuses);
-                    List<Recording> currentRecordings = recordingIdToDomainRecordingsMap != null ? recordingIdToDomainRecordingsMap.Values.ToList() : new List<Recording>();
-                    List<Recording> recordingsToCheckQuota = response.Recordings.Where(recording => recording.Status != null
-                                                                                        && recording.Status.Code == (int)eResponseStatus.OK
-                                                                                        && Utils.IsValidRecordingStatus(recording.RecordingStatus, true)).ToList();
-
-                    var temporaryStatus = QuotaManager.Instance.CheckQuotaByTotalSeconds(this.m_nGroupID, domainID, totalSeconds, isAggregative, recordingsToCheckQuota, currentRecordings);
-                    if (temporaryStatus == null)
+                    foreach (Recording recording in response.Recordings.Where(x => x.Status != null && x.Status.Code == (int)eResponseStatus.OK && Utils.IsValidRecordingStatus(x.RecordingStatus, true)))
                     {
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error);
-                        return response;
-                    }
-                    else if (temporaryStatus.Code != (int)eResponseStatus.OK)
-                    {
-                        response.Status = temporaryStatus;
-                        return response;
+                        int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
+                        if (recordingDuration < totalSeconds)
+                        {
+                            recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExceededQuota, eResponseStatus.ExceededQuota.ToString());
+                        }
                     }
                 }
 
@@ -18366,10 +18348,11 @@ namespace ConditionalAccess
                 }
 
                 List<DomainSeriesRecording> series = null;
+                DataTable serieDt = null;
                 if (domainSeriesRecordingId > 0)
                 {
                     // get the domain series recording
-                    DataTable serieDt = RecordingsDAL.GetDomainSeriesRecordingsById(m_nGroupID, domainId, domainSeriesRecordingId);
+                    serieDt = RecordingsDAL.GetDomainSeriesRecordingsById(m_nGroupID, domainId, domainSeriesRecordingId);
                     DomainSeriesRecording serie = Utils.GetDomainSeriesRecordingFromDataTable(serieDt);
                     if (serie != null)
                     {
@@ -18384,7 +18367,8 @@ namespace ConditionalAccess
                 else
                 {
                     // get household followed series / seasons - if not following anything - nothing to do
-                    series = RecordingsDAL.GetDomainSeriesRecordings(m_nGroupID, domainId);
+                    serieDt = RecordingsDAL.GetDomainSeriesRecordings(m_nGroupID, domainId);
+                    series = Utils.GetDomainListSeriesRecordingFromDataTable(serieDt);
                 }
 
                 if (series == null || series.Count == 0)
@@ -18522,6 +18506,26 @@ namespace ConditionalAccess
                 log.ErrorFormat("Error in 'CompleteHouseholdSeriesRecordings' for domainId = {0}", domainId, ex);
             }
 
+            return response;
+        }
+
+        private List<DomainSeriesRecording> BuildDomainSeriesRecording(DataTable dt)
+        {
+            List<DomainSeriesRecording> response = new List<DomainSeriesRecording>();
+            if (dt != null && dt.Rows != null)
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    response.Add(new DomainSeriesRecording()
+                    {
+                        EpgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID", 0),
+                        SeasonNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "SEASON_NUMBER", 0),
+                        SeriesId = ODBCWrapper.Utils.GetSafeStr(dr, "SERIES_ID"),
+                        UserId = ODBCWrapper.Utils.GetSafeStr(dr, "USER_ID"),
+                        EpgChannelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_CHANNEL_ID", 0),
+                    });
+                }
+            }
             return response;
         }
 
@@ -18851,10 +18855,122 @@ namespace ConditionalAccess
             }
             return seriesRecording;
         }
+        
+        public SeriesResponse GetFollowSeries(string userId, long domainId, ApiObjects.TimeShiftedTv.SeriesRecordingOrderObj orderBy)
+        {
+            SeriesResponse response = new SeriesResponse()
+                {
+                    Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+                };
+            try
+            {
+                ConditionalAccess.TvinciDomains.Domain domain;
+                ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userId, ref domainId, out domain);
+
+                if (validationStatus.Code != (int)eResponseStatus.OK)
+                {
+                    log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}", domainId, userId);
+                    response.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
+                    return response;
+                }
+
+                // user is OK - get all domain series recording
+                DataTable dt = RecordingsDAL.GetDomainSeriesRecordings(m_nGroupID, domainId);
+                List<SeriesRecording> SeriesRecordings = BuildSeriesRecording(dt, orderBy);
+                if (SeriesRecordings == null || SeriesRecordings.Count == 0)
+                {
+                    response = new SeriesResponse()
+                    {
+                        Status = new ApiObjects.Response.Status((int)eResponseStatus.SeriesRecordingNotFound, eResponseStatus.SeriesRecordingNotFound.ToString())
+                    };
+                }
+                else
+                {
+                    response = new SeriesResponse()
+                    {
+                        Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()),
+                        SeriesRecordings = SeriesRecordings,
+                        TotalItems = SeriesRecordings.Count
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("Exception at GetFollowSeries. ");
+                sb.Append(String.Concat("userId: ", userId));
+                sb.Append(String.Concat(", domainId: ", domainId));
+                sb.Append(String.Concat(", Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
+                log.Error(sb.ToString(), ex);
+
+                response = new SeriesResponse()
+                {
+                    Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+                };
+            }
+            return response;
+        }
+
+        private List<SeriesRecording> BuildSeriesRecording(DataTable dt, ApiObjects.TimeShiftedTv.SeriesRecordingOrderObj orderByObj)
+        {
+            List<SeriesRecording> response = new List<SeriesRecording>();
+            try
+            {
+                if (dt != null && dt.Rows != null)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        response.Add(Utils.BuildSeriesRecordingDetails(dr));
+                    }
+
+                    switch (orderByObj.OrderBy)
+                    {
+                        case ApiObjects.TimeShiftedTv.SeriesOrderBy.START_DATE:
+                            if (orderByObj.OrderDir == ApiObjects.SearchObjects.OrderDir.ASC)
+                            {
+                                response = response.OrderBy(x => x.CreateDate).ToList();
+                            }
+                            else
+                            {
+                                response = response.OrderByDescending(x => x.CreateDate).ToList();
+                            }
+                            break;
+                        case ApiObjects.TimeShiftedTv.SeriesOrderBy.SERIES_ID:
+                            if (orderByObj.OrderDir == ApiObjects.SearchObjects.OrderDir.ASC)
+                            {
+                                response = response.OrderBy(x => x.SeriesId).ToList();
+                            }
+                            else
+                            {
+                                response = response.OrderByDescending(x => x.SeriesId).ToList();
+                            }
+                            break;
+                        default:
+                            if (orderByObj.OrderDir == ApiObjects.SearchObjects.OrderDir.ASC)
+                            {
+                                response = response.OrderBy(x => x.Id).ToList();
+                            }
+                            else
+                            {
+                                response = response.OrderByDescending(x => x.Id).ToList();
+                            }
+                            break;
+                    }
+
+
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("fail BuildSeriesRecording ", ex);
+            }
+            return response;
+        }
 
         public SeriesRecording RecordSeasonOrSeries(string userID, long epgID, RecordingType recordingType)
         {
-            SeriesRecording seriesRecording = new SeriesRecording() { EpgId = epgID };            
+            SeriesRecording seriesRecording = new SeriesRecording() { EpgId = epgID };
             RecordingResponse recordingResponse = new RecordingResponse();
             try
             {

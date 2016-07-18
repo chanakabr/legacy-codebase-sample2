@@ -660,141 +660,6 @@ namespace DAL
             return recordingDuration;
         }
 
-        public static bool GetDomainQuota(int groupId, long domainId, out int quota)
-        {
-            bool result = false;
-            quota = 0;
-            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
-            int limitRetries = RETRY_LIMIT;
-            Random r = new Random();
-            Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
-            string domainQuotaKey = UtilsDal.GetDomainQuotaKey(domainId);
-            if (string.IsNullOrEmpty(domainQuotaKey))
-            {
-                log.ErrorFormat("Failed getting domainQuotaKey for domainId: {0}", domainId);
-            }
-
-            else
-            {
-                try
-                {
-                    int numOfRetries = 0;
-                    while (numOfRetries < limitRetries)
-                    {
-                        quota = cbClient.Get<int>(domainQuotaKey, out getResult);
-                        if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
-                        {
-                            log.ErrorFormat("Error while trying to get domain quota, domainId: {0}, key: {1}", domainId, domainQuotaKey);
-                            break;
-                        }
-                        else if (getResult == Couchbase.IO.ResponseStatus.Success)
-                        {
-                            result = true;
-                            break;
-                        }
-                        else
-                        {
-                            log.ErrorFormat("Retrieving domain quota with domainId: {0} and key {1} failed with status: {2}, retryAttempt: {3}, maxRetries: {4}", domainId, domainQuotaKey, getResult, numOfRetries, limitRetries);
-                            numOfRetries++;
-                            System.Threading.Thread.Sleep(r.Next(50));
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    log.ErrorFormat("Error while trying to get domain quota, domainId: {0}, ex: {1}", domainId, ex);
-                }
-            }
-
-            return result;
-        }
-
-        public static bool IncreaseDomainQuota(long domainId, int quotaToIncrease)
-        {
-            bool result = false;
-            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
-            int limitRetries = RETRY_LIMIT;
-            Random r = new Random();
-            string domainQuotaKey = UtilsDal.GetDomainQuotaKey(domainId);
-            if (string.IsNullOrEmpty(domainQuotaKey))
-            {
-                log.ErrorFormat("Failed getting domainQuotaKey for domainId: {0}", domainId);
-                return result;
-            }
-
-            try
-            {
-                int numOfRetries = 0;
-                while (!result && numOfRetries < limitRetries)
-                {
-                    ulong version;
-                    int currentQuota = -1;
-                    currentQuota = cbClient.GetWithVersion<int>(domainQuotaKey, out version);
-                    if (version != 0 && currentQuota > -1)
-                    {
-                        int updatedQuota = currentQuota + quotaToIncrease;
-                        result = cbClient.SetWithVersion<int>(domainQuotaKey, updatedQuota, version);
-                    }
-
-                    if (!result)
-                    {
-                        numOfRetries++;
-                        log.ErrorFormat("Error while adding quota to domain. number of tries: {0}/{1}. domainId: {2}, currentQuota: {3}, quotaToIncrease: {4}", numOfRetries, limitRetries, domainId, currentQuota, quotaToIncrease);
-                        System.Threading.Thread.Sleep(r.Next(50));
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while adding quota to domain, domainId: {0}, quotaToIncrease: {1}, ex: {2}", domainId, quotaToIncrease, ex);
-            }
-
-            return result;
-        }
-
-        public static bool DecreaseDomainQuota(long domainId, int quotaToDecrease)
-        {
-            bool result = false;
-            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
-            int limitRetries = RETRY_LIMIT;
-            Random r = new Random();
-            string domainQuotaKey = UtilsDal.GetDomainQuotaKey(domainId);
-            if (string.IsNullOrEmpty(domainQuotaKey))
-            {
-                log.ErrorFormat("Failed getting domainQuotaKey for domainId: {0}", domainId);
-                return result;
-            }
-
-            try
-            {
-                int numOfRetries = 0;
-                while (!result && numOfRetries < limitRetries)
-                {
-                    ulong version;
-                    int currentQuota = -1;
-                    currentQuota = cbClient.GetWithVersion<int>(domainQuotaKey, out version);
-                    if (version != 0 && currentQuota > -1)
-                    {
-                        int updatedQuota = currentQuota + quotaToDecrease;
-                        result = cbClient.SetWithVersion<int>(domainQuotaKey, updatedQuota, version);
-                    }
-
-                    if (!result)
-                    {
-                        numOfRetries++;
-                        log.ErrorFormat("Error while adding quota to domain. number of tries: {0}/{1}. domainId: {2}, currentQuota: {3}, quotaToDecrease: {4}", numOfRetries, limitRetries, domainId, currentQuota, quotaToDecrease);
-                        System.Threading.Thread.Sleep(r.Next(50));
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while adding quota to domain, domainId: {0}, quotaToDecrease: {1}, ex: {2}", domainId, quotaToDecrease, ex);
-            }
-
-            return result;
-        }
-
         public static DataTable GetEpgToRecordingsMapByCrid(int groupId, string crid)
         {
             DataTable dt = null;
@@ -865,33 +730,15 @@ namespace DAL
             return updatedRowsCount > 0;            
         }
 
-        public static List<DomainSeriesRecording> GetDomainSeriesRecordings(int groupId, long domainId)
+        public static DataTable GetDomainSeriesRecordings(int groupId, long domainId)
         {
-            List<DomainSeriesRecording> response = new List<DomainSeriesRecording>();
-
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_DomainSeries");
             sp.SetConnectionKey(RECORDING_CONNECTION);
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@domainId", domainId);
 
             DataTable dt = sp.Execute();
-            if (dt != null && dt.Rows != null)
-            {
-                foreach (DataRow dr in dt.Rows)
-                {
-                    response.Add(new DomainSeriesRecording()
-                    {
-                        EpgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID", 0),
-                        EpisodeNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "EPISODE_NUMBER", 0),
-                        SeasonNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "SEASON_NUMBER", 0),
-                        SeriesId = ODBCWrapper.Utils.GetSafeStr(dr, "SERIES_ID"),
-                        UserId = ODBCWrapper.Utils.GetSafeStr(dr, "USER_ID"),
-                        EpgChannelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_CHANNEL_ID", 0),
-                    });
-                }
-            }
-
-            return response;
+            return dt;
         }
 
         public static Dictionary<long, long> GetEpgToRecordingsMap(int groupId, List<long> recordingIds)
@@ -946,60 +793,6 @@ namespace DAL
             return epgsToRecordingsMap;
         }
 
-        #region Couchbase
-
-        public static RecordingCB GetRecordingByProgramId_CB(long programId)
-        {
-            RecordingCB result = null;
-
-            CouchbaseManager.CouchbaseManager client = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
-
-            result = client.Get<RecordingCB>(programId.ToString());
-            return result;
-        }
-
-        //public static RecordingCB GetRecordingByRecordingId_CB(long recordingId)
-        //{
-        //    RecordingCB result = null;
-
-        //    CouchbaseManager.CouchbaseManager client = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
-
-        //    result = client.Get<RecordingCB>(recordingId.ToString());
-        //    return result;
-        //}
-
-        public static void UpdateRecording_CB(RecordingCB recording)
-        {
-            if (recording != null)
-            {
-                CouchbaseManager.CouchbaseManager client = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
-
-                bool result = client.Set<RecordingCB>(recording.EpgID.ToString(), recording);
-
-                if (!result)
-                {
-                    log.ErrorFormat("Failed updating recording in Couchbase. Recording id = {0}, EPG ID = {1}", recording.RecordingId, recording.EpgID);
-                }
-            }
-        }
-
-        public static void DeleteRecording_CB(RecordingCB recording)
-        {
-            if (recording != null)
-            {
-                CouchbaseManager.CouchbaseManager client = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
-
-                bool result = client.Remove(recording.EpgID.ToString());
-
-                if (!result)
-                {
-                    log.ErrorFormat("Failed removing recording in Couchbase. Recording id = {0}, EPG ID = {1}", recording.RecordingId, recording.EpgID);
-                }
-            }
-        }
-
-        #endregion
-
         public static DataTable GetDomainSeriesRecordingsById(int groupId, long domainId, long domainSeriesRecordingId)
         {
             DataTable dt = null;
@@ -1035,5 +828,194 @@ namespace DAL
 
             return dt;
         }
+
+        #region Couchbase
+
+        public static RecordingCB GetRecordingByProgramId_CB(long programId)
+        {
+            RecordingCB result = null;
+
+            CouchbaseManager.CouchbaseManager client = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
+
+            result = client.Get<RecordingCB>(programId.ToString());
+            return result;
+        }
+
+        public static void UpdateRecording_CB(RecordingCB recording)
+        {
+            if (recording != null)
+            {
+                CouchbaseManager.CouchbaseManager client = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
+
+                bool result = client.Set<RecordingCB>(recording.EpgID.ToString(), recording);
+
+                if (!result)
+                {
+                    log.ErrorFormat("Failed updating recording in Couchbase. Recording id = {0}, EPG ID = {1}", recording.RecordingId, recording.EpgID);
+                }
+            }
+        }
+
+        public static void DeleteRecording_CB(RecordingCB recording)
+        {
+            if (recording != null)
+            {
+                CouchbaseManager.CouchbaseManager client = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
+
+                bool result = client.Remove(recording.EpgID.ToString());
+
+                if (!result)
+                {
+                    log.ErrorFormat("Failed removing recording in Couchbase. Recording id = {0}, EPG ID = {1}", recording.RecordingId, recording.EpgID);
+                }
+            }
+        }
+
+        /// <summary>
+        /// DO NOT DIRECTLY USE THIS FUNCTION, USE QuotaManager.GetDomainQuota
+        /// </summary>
+        public static bool GetDomainQuota(int groupId, long domainId, out int quota)
+        {
+            bool result = false;
+            quota = 0;
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
+            int limitRetries = RETRY_LIMIT;
+            Random r = new Random();
+            Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
+            string domainQuotaKey = UtilsDal.GetDomainQuotaKey(domainId);
+            if (string.IsNullOrEmpty(domainQuotaKey))
+            {
+                log.ErrorFormat("Failed getting domainQuotaKey for domainId: {0}", domainId);
+            }
+
+            else
+            {
+                try
+                {
+                    int numOfRetries = 0;
+                    while (numOfRetries < limitRetries)
+                    {
+                        quota = cbClient.Get<int>(domainQuotaKey, out getResult);
+                        if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
+                        {
+                            log.ErrorFormat("Error while trying to get domain quota, domainId: {0}, key: {1}", domainId, domainQuotaKey);
+                            break;
+                        }
+                        else if (getResult == Couchbase.IO.ResponseStatus.Success)
+                        {
+                            result = true;
+                            break;
+                        }
+                        else
+                        {
+                            log.ErrorFormat("Retrieving domain quota with domainId: {0} and key {1} failed with status: {2}, retryAttempt: {3}, maxRetries: {4}", domainId, domainQuotaKey, getResult, numOfRetries, limitRetries);
+                            numOfRetries++;
+                            System.Threading.Thread.Sleep(r.Next(50));
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Error while trying to get domain quota, domainId: {0}, ex: {1}", domainId, ex);
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// DO NOT DIRECTLY USE THIS FUNCTION, USE QuotaManager.IncreaseDomainQuota
+        /// </summary>
+        public static bool IncreaseDomainQuota(long domainId, int quotaToIncrease)
+        {
+            bool result = false;
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
+            int limitRetries = RETRY_LIMIT;
+            Random r = new Random();
+            string domainQuotaKey = UtilsDal.GetDomainQuotaKey(domainId);
+            if (string.IsNullOrEmpty(domainQuotaKey))
+            {
+                log.ErrorFormat("Failed getting domainQuotaKey for domainId: {0}", domainId);
+                return result;
+            }
+
+            try
+            {
+                int numOfRetries = 0;
+                while (!result && numOfRetries < limitRetries)
+                {
+                    ulong version;
+                    int currentQuota = -1;
+                    currentQuota = cbClient.GetWithVersion<int>(domainQuotaKey, out version);
+                    if (version != 0 && currentQuota > -1)
+                    {
+                        int updatedQuota = currentQuota + quotaToIncrease;
+                        result = cbClient.SetWithVersion<int>(domainQuotaKey, updatedQuota, version);
+                    }
+
+                    if (!result)
+                    {
+                        numOfRetries++;
+                        log.ErrorFormat("Error while adding quota to domain. number of tries: {0}/{1}. domainId: {2}, currentQuota: {3}, quotaToIncrease: {4}", numOfRetries, limitRetries, domainId, currentQuota, quotaToIncrease);
+                        System.Threading.Thread.Sleep(r.Next(50));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while adding quota to domain, domainId: {0}, quotaToIncrease: {1}, ex: {2}", domainId, quotaToIncrease, ex);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// DO NOT DIRECTLY USE THIS FUNCTION, USE QuotaManager.DecreaseDomainQuota
+        /// </summary>
+        public static bool DecreaseDomainQuota(long domainId, int quotaToDecrease)
+        {
+            bool result = false;
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
+            int limitRetries = RETRY_LIMIT;
+            Random r = new Random();
+            string domainQuotaKey = UtilsDal.GetDomainQuotaKey(domainId);
+            if (string.IsNullOrEmpty(domainQuotaKey))
+            {
+                log.ErrorFormat("Failed getting domainQuotaKey for domainId: {0}", domainId);
+                return result;
+            }
+
+            try
+            {
+                int numOfRetries = 0;
+                while (!result && numOfRetries < limitRetries)
+                {
+                    ulong version;
+                    int currentQuota = -1;
+                    currentQuota = cbClient.GetWithVersion<int>(domainQuotaKey, out version);
+                    if (version != 0 && currentQuota > -1)
+                    {
+                        int updatedQuota = currentQuota + quotaToDecrease;
+                        result = cbClient.SetWithVersion<int>(domainQuotaKey, updatedQuota, version);
+                    }
+
+                    if (!result)
+                    {
+                        numOfRetries++;
+                        log.ErrorFormat("Error while adding quota to domain. number of tries: {0}/{1}. domainId: {2}, currentQuota: {3}, quotaToDecrease: {4}", numOfRetries, limitRetries, domainId, currentQuota, quotaToDecrease);
+                        System.Threading.Thread.Sleep(r.Next(50));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while adding quota to domain, domainId: {0}, quotaToDecrease: {1}, ex: {2}", domainId, quotaToDecrease, ex);
+            }
+
+            return result;
+        }
+
+        #endregion
+
     }
 }

@@ -4996,10 +4996,10 @@ namespace ConditionalAccess
             return seriesRecording;
         }
 
-        private static SeriesRecording BuildSeriesRecordingDetails(DataRow dr)
+        public static SeriesRecording BuildSeriesRecordingDetails(DataRow dr)
         {
             long epgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID");
-            long channelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_CHANNEL_ID");
+            long epgChannelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_CHANNEL_ID");
             long domainRecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
             int seasonNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "SEASON_NUMBER");
             string seriesId = ODBCWrapper.Utils.GetSafeStr(dr, "SERIES_ID");
@@ -5008,13 +5008,13 @@ namespace ConditionalAccess
 
             return new SeriesRecording()
             {
-                ChannelId = channelId,
+                EpgChannelId = epgChannelId,
                 EpgId = epgId,
                 Id = domainRecordingID,
                 SeasonNumber = seasonNumber,
                 SeriesId = seriesId,
-                Type = seasonNumber > 0 ?  RecordingType.Season : RecordingType.Series,
-                CreateDate = createDate, 
+                Type = seasonNumber > 0 ? RecordingType.Season : RecordingType.Series,
+                CreateDate = createDate,
                 UpdateDate = updateDate,
                 Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "TstvRecordingStatus is not cancel or delete")
             };
@@ -5193,7 +5193,7 @@ namespace ConditionalAccess
             {
                 StringBuilder ksql = new StringBuilder();
                 ksql.AppendFormat("(And series_id = {0} ", seriesId);
-                
+
                 if (seasonNumber > 0)
                     ksql.AppendFormat("season_number = {0}", seasonNumber);
 
@@ -5297,7 +5297,7 @@ namespace ConditionalAccess
 
                 if (recordingInternalStatus < 0)
                 {
-                    log.ErrorFormat("Failed getting recordingInternalStatus for recording with id: {0}",id);
+                    log.ErrorFormat("Failed getting recordingInternalStatus for recording with id: {0}", id);
                     return recording;
                 }
 
@@ -5312,7 +5312,7 @@ namespace ConditionalAccess
                 if (recordingStatus.Value == TstvRecordingStatus.OK)
                 {
                     recordingStatus = RecordingsManager.GetTstvRecordingStatus(epgStartDate, epgEndDate, TstvRecordingStatus.Scheduled);
-                }                
+                }
 
                 // create recording object
                 recording = new Recording()
@@ -5326,7 +5326,7 @@ namespace ConditionalAccess
                     UpdateDate = updateDate,
                     RecordingStatus = recordingStatus.Value,
                     ExternalRecordingId = externalRecordingId,
-                    Crid = crid                    
+                    Crid = crid
                 };
 
                 // if recording status is Recorded then set ViewableUntilDate
@@ -5375,7 +5375,7 @@ namespace ConditionalAccess
             {
                 QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
                 ApiObjects.QueueObjects.FirstFollowerRecordingData data = new ApiObjects.QueueObjects.FirstFollowerRecordingData(groupId, domainID, epg.EPG_CHANNEL_ID, seriesId, seasonNumber) { ETA = DateTime.UtcNow };
-                queue.Enqueue(data, ROUTING_KEY_FIRST_FOLLOWER_RECORDING);
+                queue.Enqueue(data, string.Format(ROUTING_KEY_FIRST_FOLLOWER_RECORDING, groupId));
             }
 
             long channelId;
@@ -5391,7 +5391,7 @@ namespace ConditionalAccess
             {
                 seriesRecording = BuildSeriesRecordingDetails(dt.Rows[0]);
             }
-    
+
             return seriesRecording;
         }
 
@@ -5413,13 +5413,13 @@ namespace ConditionalAccess
                 return result;
             }
             else if (field.FieldType == FieldTypes.Meta)
-            {                
-                epgFieldMappings.Add(SERIES_ID, epg.EPG_Meta.Where(x => x.Key==field.Name).First().Value);
+            {
+                epgFieldMappings.Add(SERIES_ID, epg.EPG_Meta.Where(x => x.Key == field.Name).First().Value);
             }
             else if (field.FieldType == FieldTypes.Tag)
             {
-                epgFieldMappings.Add(SERIES_ID, epg.EPG_TAGS.Where(x => x.Key==field.Name).First().Value);
-            }                                     
+                epgFieldMappings.Add(SERIES_ID, epg.EPG_TAGS.Where(x => x.Key == field.Name).First().Value);
+            }
 
             field = metaTagsMappings.Where(m => m.Alias.ToLower() == SEASON_ALIAS).FirstOrDefault();
             if (recordingType == RecordingType.Season && field == null)
@@ -5503,7 +5503,7 @@ namespace ConditionalAccess
                         m_bOnlyActiveMedia = true
                     },
                     excludedCrids = excludedCrids != null ? excludedCrids.ToArray() : null,
-                    ExtraReturnFields = new string[] { "epg_id", "crid", "epg_channel_id", seriesId, seasonNumber }, 
+                    ExtraReturnFields = new string[] { "epg_id", "crid", "epg_channel_id", seriesId, seasonNumber },
                     ShouldUseSearchEndDate = true
                 };
                 FillCatalogSignature(request);
@@ -5581,7 +5581,7 @@ namespace ConditionalAccess
             {
                 episodeNumberName = string.Format("{0}.{1}", feild.FieldType == FieldTypes.Meta ? "metas" : "tags", feild.Name);
             }
-            
+
             return true;
         }
 
@@ -5602,7 +5602,7 @@ namespace ConditionalAccess
                 log.ErrorFormat("alias for series_id was not found. group_id = {0}", groupId);
                 return result;
             }
-           
+
             if (series_alias.FieldType == FieldTypes.Meta)
             {
                 epgMatch = epgs.Where(x => x.Metas.Any(y => y.Key == series_alias.Name && y.Value.Contains(seriesRecording.SeriesId))).ToList();
@@ -5634,7 +5634,7 @@ namespace ConditionalAccess
             epgs = epgMatch;
             return true;
         }
-        
+
         internal static string GetFollowingUserIdForSerie(int groupId, List<DomainSeriesRecording> series, WS_Catalog.ExtendedSearchResult potentialRecording, out RecordingType recordingType)
         {
             string userId = null;
@@ -5760,7 +5760,7 @@ namespace ConditionalAccess
             Recording recording = null;
             DataTable dt = RecordingsDAL.GetRecordingByEpgId(groupId, epgId);
             if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
-            {            
+            {
                 recording = BuildRecordingFromDataRow(dt.Rows[0]);
             }
 
@@ -5822,12 +5822,32 @@ namespace ConditionalAccess
                 result = new DomainSeriesRecording()
                 {
                     EpgId = ODBCWrapper.Utils.GetLongSafeVal(serieDataTable.Rows[0], "EPG_ID", 0),
-                    EpisodeNumber = ODBCWrapper.Utils.GetIntSafeVal(serieDataTable.Rows[0], "EPISODE_NUMBER", 0),
                     SeasonNumber = ODBCWrapper.Utils.GetIntSafeVal(serieDataTable.Rows[0], "SEASON_NUMBER", 0),
                     SeriesId = ODBCWrapper.Utils.GetSafeStr(serieDataTable.Rows[0], "SERIES_ID"),
                     UserId = ODBCWrapper.Utils.GetSafeStr(serieDataTable.Rows[0], "USER_ID"),
                     EpgChannelId = ODBCWrapper.Utils.GetLongSafeVal(serieDataTable.Rows[0], "EPG_CHANNEL_ID", 0),
                 };
+            }
+            return result;
+        }
+
+        internal static List<DomainSeriesRecording> GetDomainListSeriesRecordingFromDataTable(DataTable serieDataTable)
+        {
+            List<DomainSeriesRecording> result = new List<DomainSeriesRecording>();
+            if (serieDataTable != null && serieDataTable.Rows != null)
+            {
+                foreach (DataRow dr in serieDataTable.Rows)
+                {
+                    result.Add(new DomainSeriesRecording()
+                    {
+                        EpgId = ODBCWrapper.Utils.GetLongSafeVal(serieDataTable.Rows[0], "EPG_ID", 0),
+                        SeasonNumber = ODBCWrapper.Utils.GetIntSafeVal(serieDataTable.Rows[0], "SEASON_NUMBER", 0),
+                        SeriesId = ODBCWrapper.Utils.GetSafeStr(serieDataTable.Rows[0], "SERIES_ID"),
+                        UserId = ODBCWrapper.Utils.GetSafeStr(serieDataTable.Rows[0], "USER_ID"),
+                        EpgChannelId = ODBCWrapper.Utils.GetLongSafeVal(serieDataTable.Rows[0], "EPG_CHANNEL_ID", 0),
+                    }
+                );
+                }               
             }
             return result;
         }
