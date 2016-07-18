@@ -18,28 +18,28 @@ namespace FirstFollowerRecordingHandler
             set;
         }
 
-        [JsonProperty("domainId", Required = Required.Always)]
+        [JsonProperty("domain_id", Required = Required.Always)]
         public long DomainId
         {
             get;
             set;
         }
 
-        [JsonProperty("channelId", Required = Required.Always)]
+        [JsonProperty("channel_id", Required = Required.Always)]
         public string ChannelId
         {
             get;
             set;
         }
 
-        [JsonProperty("seriesId", Required = Required.Always)]
+        [JsonProperty("series_id", Required = Required.Always)]
         public string SeriesId
         {
             get;
             set;
         }
 
-        [JsonProperty("seasonNumber", Required = Required.Always)]
+        [JsonProperty("season_number", Required = Required.Always)]
         public int SeasonNumber
         {
             get;
