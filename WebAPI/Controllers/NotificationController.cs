@@ -14,16 +14,16 @@ namespace WebAPI.Controllers
     public class NotificationController : ApiController
     {
         /// <summary>
-        /// TBD
+        /// Registers the device push token to the push service
         /// </summary>
-        /// <param name="push_token">TBD</param>
+        /// <param name="push_token">The device-application pair authentication for push delivery</param>
         /// <remarks>
         /// 
         /// </remarks>
         /// <returns></returns>
-        [Route("setPush"), HttpPost]
+        [Route("setDevicePushToken"), HttpPost]
         [ApiAuthorize]
-        public bool SetPush(string push_token)
+        public bool SetDevicePushToken(string push_token)
         {
             bool response = false;
 
