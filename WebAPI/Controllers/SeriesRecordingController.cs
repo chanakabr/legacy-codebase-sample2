@@ -8,6 +8,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Schema;
 using WebAPI.Models.ConditionalAccess;
+using WebAPI.Models.General;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -65,6 +66,42 @@ namespace WebAPI.Controllers
                    long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
                    // call client                
                    response = ClientsManager.ConditionalAccessClient().DeleteSeriesRecord(groupId, userId, domainId, id);
+               }
+               catch (ClientException ex)
+               {
+                   ErrorUtils.HandleClientException(ex);
+               }
+               return response;
+           }
+
+           /// <summary>
+           /// Return a list of series recordings for the household with optional filter by status and KSQL.
+           /// </summary>
+           /// <param name="filter">Filter parameters for filtering out the result - support order by only</param>
+           /// <returns></returns>
+           /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024</remarks>
+           [Route("list"), HttpPost]
+           [ApiAuthorize]
+           public KalturaSeriesRecordingListResponse List(KalturaSeriesRecordingFilter filter = null)
+           {
+               KalturaSeriesRecordingListResponse response = null;
+
+               try
+               {
+                   int groupId = KS.GetFromRequest().GroupId;
+                   string userId = KS.GetFromRequest().UserId;
+                   long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+                   if (filter == null)
+                   {
+                       filter = new KalturaSeriesRecordingFilter();
+                   }
+                   if (!string.IsNullOrEmpty(filter.FilterExpression) && filter.FilterExpression.Length > 1024)
+                   {
+                       throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter too long");
+                   }
+                   // call client                
+                   response = ClientsManager.ConditionalAccessClient().GetFollowSeries(groupId, userId, domainId, filter.OrderBy);
                }
                catch (ClientException ex)
                {

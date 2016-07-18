@@ -1684,6 +1684,62 @@ namespace WebAPI.Clients
 
             return seriesRecording;
         }
+
+        internal KalturaSeriesRecordingListResponse GetFollowSeries(int groupID, string userID, long domainID, KalturaSeriesRecordingOrderBy? orderBy)
+        {
+            KalturaSeriesRecordingListResponse result = new KalturaSeriesRecordingListResponse() { TotalCount = 0 };
+            SeriesResponse response = null;
+          
+            // get group configuration
+            Group group = GroupsManager.GetGroup(groupID);
+
+            try
+            {
+                // Create catalog order object
+                SeriesRecordingOrderObj order = new SeriesRecordingOrderObj();
+                if (orderBy == null)
+                {
+                    order.OrderBy = SeriesOrderBy.ID;
+                    order.OrderDir = OrderDir.ASC;
+                }
+                else
+                {
+                    order = ConditionalAccessMappings.ConvertOrderToSeriesOrderObj(orderBy.Value);
+                }
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = ConditionalAccess.GetFollowSeries(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, domainID, order);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.SeriesRecordings != null && response.SeriesRecordings.Length > 0)
+            {
+                result.TotalCount = response.TotalItems;
+                // convert recordings            
+                result.Objects = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaSeriesRecording>>(response.SeriesRecordings);
+            }
+
+            return result;
+        }
     }
 }
 

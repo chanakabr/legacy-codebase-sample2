@@ -245,7 +245,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<KalturaSeriesRecording, WebAPI.ConditionalAccess.SeriesRecording>()
                .ForMember(dest => dest.EpgId, opt => opt.MapFrom(src => src.EpgId))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.ChannelId, opt => opt.MapFrom(src => src.ChannelId))
+               .ForMember(dest => dest.EpgChannelId, opt => opt.MapFrom(src => src.ChannelId))
                .ForMember(dest => dest.SeasonNumber, opt => opt.MapFrom(src => src.SeasonNumber))               
                .ForMember(dest => dest.SeriesId, opt => opt.MapFrom(src => src.SeriesId))
                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertKalturaRecordingType(src.Type)))
@@ -256,7 +256,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<WebAPI.ConditionalAccess.SeriesRecording ,KalturaSeriesRecording>()
                .ForMember(dest => dest.EpgId, opt => opt.MapFrom(src => src.EpgId))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.ChannelId, opt => opt.MapFrom(src => src.ChannelId))
+               .ForMember(dest => dest.ChannelId, opt => opt.MapFrom(src => src.EpgChannelId))
                .ForMember(dest => dest.SeasonNumber, opt => opt.MapFrom(src => src.SeasonNumber))
                .ForMember(dest => dest.SeriesId, opt => opt.MapFrom(src => src.SeriesId))
                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertRecordingType(src.Type)))
@@ -409,6 +409,39 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case KalturaRecordingOrderBy.START_DATE_DESC:
                     result.m_eOrderBy = OrderBy.START_DATE;
                     result.m_eOrderDir = OrderDir.DESC;
+                    break;
+            }
+            return result;
+        }
+        public static SeriesRecordingOrderObj ConvertOrderToSeriesOrderObj(KalturaSeriesRecordingOrderBy order)
+        {
+            SeriesRecordingOrderObj result = new SeriesRecordingOrderObj();
+
+            switch (order)
+            {
+                case KalturaSeriesRecordingOrderBy.START_DATE_ASC:
+                    result.OrderBy = SeriesOrderBy.START_DATE;
+                    result.OrderDir = OrderDir.ASC;
+                    break;
+                case KalturaSeriesRecordingOrderBy.START_DATE_DESC:
+                    result.OrderBy = SeriesOrderBy.START_DATE;
+                    result.OrderDir = OrderDir.DESC;
+                    break;
+                case KalturaSeriesRecordingOrderBy.ID_ASC:
+                    result.OrderBy = SeriesOrderBy.ID;
+                    result.OrderDir = OrderDir.ASC;
+                    break;
+                case KalturaSeriesRecordingOrderBy.ID_DESC:
+                    result.OrderBy = SeriesOrderBy.ID;
+                    result.OrderDir = OrderDir.DESC;
+                    break;
+                case KalturaSeriesRecordingOrderBy.SERIES_ID_ASC:
+                    result.OrderBy = SeriesOrderBy.SERIES_ID;
+                    result.OrderDir = OrderDir.ASC;
+                    break;
+                case KalturaSeriesRecordingOrderBy.SERIES_ID_DESC:
+                    result.OrderBy = SeriesOrderBy.SERIES_ID;
+                    result.OrderDir = OrderDir.DESC;
                     break;
             }
             return result;

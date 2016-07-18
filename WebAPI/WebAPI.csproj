@@ -1833,6 +1833,9 @@
     <Content Include="Web References\ConditionalAccess\SeriesRecording.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\ConditionalAccess\SeriesResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Domains\module.disco" />
     <Content Include="Web References\Pricing\Campaign.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -2113,6 +2116,9 @@
     <Compile Include="Models\Catalog\KalturaAsset.cs" />
     <Compile Include="Models\Catalog\KalturaAssetOrderBy.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaSeriesRecording.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaSeriesRecordingFilter.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaSeriesRecordingListResponse.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaSeriesRecordingOrderBy.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransactionStatus.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPurchase.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaHouseholdPremiumService.cs" />
