@@ -17343,35 +17343,17 @@ namespace ConditionalAccess
                 // validate epgs entitlement and add to response
                 ValidateEpgForRecording(userID, domainID, ref response, epgs, validEpgsForRecording);
 
-                // if we need to check quota, happens only for single recordings
+                // if the recording is of type Single then quota should be checked for each valid recording
                 if (recordingType == RecordingType.Single)
                 {
                     int totalSeconds = QuotaManager.Instance.GetDomainQuota(this.m_nGroupID, domainID);
-
-                    List<TstvRecordingStatus> recordingStatuses = new List<TstvRecordingStatus>()
-                {
-                    TstvRecordingStatus.OK,
-                    TstvRecordingStatus.Recorded,
-                    TstvRecordingStatus.Recording,
-                    TstvRecordingStatus.Scheduled
-                };
-
-                    Dictionary<long, Recording> recordingIdToDomainRecordingsMap = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, domainID, recordingStatuses);
-                    List<Recording> currentRecordings = recordingIdToDomainRecordingsMap != null ? recordingIdToDomainRecordingsMap.Values.ToList() : new List<Recording>();
-                    List<Recording> recordingsToCheckQuota = response.Recordings.Where(recording => recording.Status != null
-                                                                                        && recording.Status.Code == (int)eResponseStatus.OK
-                                                                                        && Utils.IsValidRecordingStatus(recording.RecordingStatus, true)).ToList();
-
-                    var temporaryStatus = QuotaManager.Instance.CheckQuotaByTotalSeconds(this.m_nGroupID, domainID, totalSeconds, isAggregative, recordingsToCheckQuota, currentRecordings);
-                    if (temporaryStatus == null)
+                    foreach (Recording recording in response.Recordings.Where(x => x.Status != null && x.Status.Code == (int)eResponseStatus.OK && Utils.IsValidRecordingStatus(x.RecordingStatus, true)))
                     {
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error);
-                        return response;
-                    }
-                    else if (temporaryStatus.Code != (int)eResponseStatus.OK)
-                    {
-                        response.Status = temporaryStatus;
-                        return response;
+                        int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
+                        if (recordingDuration < totalSeconds)
+                        {
+                            recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExceededQuota, eResponseStatus.ExceededQuota.ToString());
+                        }
                     }
                 }
 
