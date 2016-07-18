@@ -5118,7 +5118,7 @@ namespace ConditionalAccess
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 if ((ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "countUsers", 0)) == 0)
-                {
+                {                    
                     ApiObjects.Response.Status status = RecordingsManager.Instance.CancelOrDeleteRecording(groupID, recording, tstvRecordingStatus);
 
                     if (status != null && status.Code == (int)eResponseStatus.OK)
@@ -5813,7 +5813,6 @@ namespace ConditionalAccess
             return recordings;
         }
 
-
         internal static DomainSeriesRecording GetDomainSeriesRecordingFromDataTable(DataTable serieDataTable)
         {
             DomainSeriesRecording result = null;
@@ -5851,6 +5850,7 @@ namespace ConditionalAccess
             }
             return result;
         }
+
     }
 }
 
