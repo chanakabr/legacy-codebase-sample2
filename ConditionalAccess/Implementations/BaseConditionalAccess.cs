@@ -17220,6 +17220,7 @@ namespace ConditionalAccess
                         log.DebugFormat("Recording {0} has been updated to status {1}", recording.Id, tstvRecordingStatus.ToString());
                                                 
                         QuotaManager.Instance.IncreaseDomainQuota(domainId, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds);
+                        CompleteDomainSeriesRecordings(domainId);
                     }
                 }
                 else
@@ -18852,6 +18853,8 @@ namespace ConditionalAccess
                 {
                     seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     log.DebugFormat("Series recording {0} has been updated to status {1}", seriesRecording.Id, tstvRecordingStatus.ToString());
+
+                    CompleteDomainSeriesRecordings(domainId);
                 }
                 else
                 {
