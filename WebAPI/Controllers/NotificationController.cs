@@ -4,6 +4,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Utils;
@@ -113,6 +114,7 @@ namespace WebAPI.Controllers
         /// <param name="type">"announcement" - TV-Series topic, "system" - login topic</param>     
         [Route("register"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
         public KalturaRegistryResponse Register(string identifier, KalturaNotificationType type)
         {
             KalturaRegistryResponse response = null;

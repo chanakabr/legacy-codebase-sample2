@@ -617,12 +617,12 @@
             <summary>
             Get the URL for playing an asset - EPG or media (not available for recording for now).
             </summary>
-            <param name="asset_id">Asset identifier - relevant only for asset_type = 'epg'</param>
-            <param name="asset_type">Asset type</param>
-            <param name="base_url">Base URL for the licensed URLs</param>
-            <param name="content_id">Identifier of the content to get the link for(file identifier)</param>
-            <param name="start_date">The start date of the stream (epoch) - relevant only for asset_type = 'epg'</param>
-            <param name="stream_type">The stream type to get the URL for - relevant only for asset_type = 'epg'</param>
+            <param name="assetId">Asset identifier - relevant only for asset_type = 'epg'</param>
+            <param name="assetType">Asset type</param>
+            <param name="baseUrl">Base URL for the licensed URLs</param>
+            <param name="contentId">Identifier of the content to get the link for(file identifier)</param>
+            <param name="startDate">The start date of the stream (epoch) - relevant only for asset_type = 'epg'</param>
+            <param name="streamType">The stream type to get the URL for - relevant only for asset_type = 'epg'</param>
             <remarks>Possible status codes: Device not in household = 1003, Invalid base URL = 3004, Media concurrency limitation = 4000, Concurrency limitation = 4001, 
             Device type not allowed = 1002, Household suspended = 1009, User suspended = 2001, Service not allowed = 3003, Not entitled = 3032</remarks>
         </member>
@@ -1212,7 +1212,7 @@
             Possible status codes:  
             oss adapter identifier required = 5007, oss adapter not exist = 5008
             </remarks>
-            <param name="oss_adapter_id">OSS adapter identifier</param>
+            <param name="ossAdapterId">OSS adapter identifier</param>
         </member>
         <member name="M:WebAPI.Controllers.EpgChannelController.List(WebAPI.Models.Catalog.KalturaEpgChannelFilter,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder})">
             <summary>
@@ -1283,6 +1283,12 @@
             <param name="recommendation_engine_id">recommendation engine Identifier</param>
         </member>
         <member name="M:WebAPI.Controllers.SessionController.Get(System.String)">
+            <summary>
+            Parses KS
+            </summary>
+            <param name="session">Additional KS to parse, if not passed the user's KS will be parsed</param>
+        </member>
+        <member name="M:WebAPI.Controllers.SessionController.GetOldStandard(System.String)">
             <summary>
             Parses KS
             </summary>
@@ -6251,44 +6257,49 @@
             User IDs to retrieve
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Users.KalturaSessionInfo">
+        <member name="T:WebAPI.Models.Users.KalturaSession">
             <summary>
             Kaltura Session
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaSessionInfo.ks">
+        <member name="P:WebAPI.Models.Users.KalturaSession.ks">
             <summary>
             KS
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaSessionInfo.sessionType">
+        <member name="P:WebAPI.Models.Users.KalturaSession.sessionType">
             <summary>
             Session type
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaSessionInfo.partnerId">
+        <member name="P:WebAPI.Models.Users.KalturaSession.partnerId">
             <summary>
             Partner identifier
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaSessionInfo.userId">
+        <member name="P:WebAPI.Models.Users.KalturaSession.userId">
             <summary>
             User identifier
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaSessionInfo.expiry">
+        <member name="P:WebAPI.Models.Users.KalturaSession.expiry">
             <summary>
             Expiry
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaSessionInfo.privileges">
+        <member name="P:WebAPI.Models.Users.KalturaSession.privileges">
             <summary>
             Privileges
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaSessionInfo.udid">
+        <member name="P:WebAPI.Models.Users.KalturaSession.udid">
             <summary>
             udid
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Users.KalturaSessionInfo">
+            <summary>
+            Kaltura Session
             </summary>
         </member>
         <member name="T:WebAPI.Models.Users.KalturaUserAssetsListFilter">
