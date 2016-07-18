@@ -16,15 +16,7 @@ namespace WebAPI.Models.ConditionalAccess
     [Serializable]
     public class KalturaSeriesRecordingFilter : KalturaFilter<KalturaSeriesRecordingOrderBy>
     {  
-        /// <summary>
-        /// KSQL expression
-        /// </summary>
-        [DataMember(Name = "filterExpression")]
-        [JsonProperty("filterExpression")]
-        [XmlElement(ElementName = "filterExpression", IsNullable = true)]
-        [ValidationException(SchemaValidationType.FILTER_SUFFIX)]
-        public string FilterExpression { get; set; }
-
+       
         public override KalturaSeriesRecordingOrderBy GetDefaultOrderByValue()
         {
             return KalturaSeriesRecordingOrderBy.START_DATE_DESC;

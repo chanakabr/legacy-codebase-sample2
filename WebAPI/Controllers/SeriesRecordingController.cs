@@ -76,7 +76,7 @@ namespace WebAPI.Controllers
            /// <summary>
            /// Return a list of series recordings for the household with optional filter by status and KSQL.
            /// </summary>
-           /// <param name="filter">Filter parameters for filtering out the result - support order by only</param>
+           /// <param name="filter">Filter parameters for filtering out the result - support order by only - START_DATE_ASC, START_DATE_DESC, ID_ASC,ID_DESC,SERIES_ID_ASC, SERIES_ID_DESC</param>
            /// <returns></returns>
            /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024</remarks>
            [Route("list"), HttpPost]
@@ -95,10 +95,7 @@ namespace WebAPI.Controllers
                    {
                        filter = new KalturaSeriesRecordingFilter();
                    }
-                   if (!string.IsNullOrEmpty(filter.FilterExpression) && filter.FilterExpression.Length > 1024)
-                   {
-                       throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter too long");
-                   }
+                   
                    // call client                
                    response = ClientsManager.ConditionalAccessClient().GetFollowSeries(groupId, userId, domainId, filter.OrderBy);
                }
