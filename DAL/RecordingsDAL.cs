@@ -149,6 +149,7 @@ namespace DAL
             spUpdateRecording.AddParameter("@GroupID", groupId);
             spUpdateRecording.AddParameter("@Id", recording.Id);
             spUpdateRecording.AddParameter("@EpgId", recording.EpgId);
+            spUpdateRecording.AddParameter("@EpgChannelId", recording.ChannelId);
             spUpdateRecording.AddParameter("@ExternalRecordingId", string.IsNullOrEmpty(recording.ExternalRecordingId) ? null : recording.ExternalRecordingId);
             spUpdateRecording.AddParameter("@RecordingStatus", recordingStatus);
             spUpdateRecording.AddParameter("@startDate", recording.EpgStartDate);
