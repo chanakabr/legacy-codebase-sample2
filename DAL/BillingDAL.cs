@@ -2064,9 +2064,11 @@ namespace DAL
             return paymentMethod;
         }
 
-        public static bool SetPaymentGatewayHouseholdPaymentMethod(int groupID, int paymentGatewayId, int householdId, int paymentMethodId, string paymentDetails,
+        public static int SetPaymentGatewayHouseholdPaymentMethod(int groupID, int paymentGatewayId, int householdId, int paymentMethodId, string paymentDetails,
             int? selected, string paymentMethodExternalId = null)
         {
+            int pghhpm = 0;
+
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_PaymentGatewayHouseholdPaymentMethod");
@@ -2082,13 +2084,14 @@ namespace DAL
                     sp.AddParameter("@selected", selected.Value);
                 }
 
-                bool isSet = sp.ExecuteReturnValue<bool>();
-                return isSet;
+                pghhpm = sp.ExecuteReturnValue<int>();
+
             }
             catch (Exception)
             {
-                return false;
+                log.ErrorFormat("Failed calling to Set_PaymentGatewayHouseholdPaymentMethod. GID:{0},PGID:{1}. Household:{2}", groupID, paymentGatewayId, householdId);
             }
+            return pghhpm;
         }
 
         public static bool RemovePaymentGatewayHouseholdPaymentMethod(int paymentMethodId)
