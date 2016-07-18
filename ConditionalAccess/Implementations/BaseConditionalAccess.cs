@@ -18393,7 +18393,8 @@ namespace ConditionalAccess
                 }
 
                 // get household followed series / seasons - if not following anything - nothing to do
-                List<DomainSeriesRecording> series = RecordingsDAL.GetDomainSeriesRecordings(m_nGroupID, householdId);
+                DataTable dt = RecordingsDAL.GetDomainSeriesRecordings(m_nGroupID, householdId);
+                List<DomainSeriesRecording> series = BuildDomainSeriesRecording(dt);
                 if (series == null || series.Count == 0)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -18521,6 +18522,26 @@ namespace ConditionalAccess
                 log.ErrorFormat("Error in 'CompleteHouseholdSeriesRecordings' for householdId = {0}", householdId, ex);
             }
 
+            return response;
+        }
+
+        private List<DomainSeriesRecording> BuildDomainSeriesRecording(DataTable dt)
+        {
+            List<DomainSeriesRecording> response = new List<DomainSeriesRecording>();
+            if (dt != null && dt.Rows != null)
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    response.Add(new DomainSeriesRecording()
+                    {
+                        EpgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID", 0),
+                        SeasonNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "SEASON_NUMBER", 0),
+                        SeriesId = ODBCWrapper.Utils.GetSafeStr(dr, "SERIES_ID"),
+                        UserId = ODBCWrapper.Utils.GetSafeStr(dr, "USER_ID"),
+                        EpgChannelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_CHANNEL_ID", 0),
+                    });
+                }
+            }
             return response;
         }
 
@@ -18846,6 +18867,118 @@ namespace ConditionalAccess
                 log.Error(sb.ToString(), ex);
             }
             return seriesRecording;
+        }
+
+        public SeriesResponse GetFollowSeries(string userId, long domainId, ApiObjects.TimeShiftedTv.SeriesRecordingOrderObj orderBy)
+        {
+            SeriesResponse response = new SeriesResponse()
+                {
+                    Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+                };
+            try
+            {
+                ConditionalAccess.TvinciDomains.Domain domain;
+                ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userId, ref domainId, out domain);
+
+                if (validationStatus.Code != (int)eResponseStatus.OK)
+                {
+                    log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}", domainId, userId);
+                    response.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
+                    return response;
+                }
+
+                // user is OK - get all domain series recording
+                DataTable dt = RecordingsDAL.GetDomainSeriesRecordings(m_nGroupID, domainId);
+                List<SeriesRecording> SeriesRecordings = BuildSeriesRecording(dt, orderBy);
+                if (SeriesRecordings == null || SeriesRecordings.Count == 0)
+                {
+                    response = new SeriesResponse()
+                    {
+                        Status = new ApiObjects.Response.Status((int)eResponseStatus.SeriesRecordingNotFound, eResponseStatus.SeriesRecordingNotFound.ToString())
+                    };
+                }
+                else
+                {
+                    response = new SeriesResponse()
+                    {
+                        Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()),
+                        SeriesRecordings = SeriesRecordings,
+                        TotalItems = SeriesRecordings.Count
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("Exception at GetFollowSeries. ");
+                sb.Append(String.Concat("userId: ", userId));
+                sb.Append(String.Concat(", domainId: ", domainId));
+                sb.Append(String.Concat(", Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
+                log.Error(sb.ToString(), ex);
+
+                response = new SeriesResponse()
+                {
+                    Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+                };
+            }
+            return response;
+        }
+
+        private List<SeriesRecording> BuildSeriesRecording(DataTable dt, ApiObjects.TimeShiftedTv.SeriesRecordingOrderObj orderByObj)
+        {
+            List<SeriesRecording> response = new List<SeriesRecording>();
+            try
+            {
+                if (dt != null && dt.Rows != null)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        response.Add(Utils.BuildSeriesRecordingDetails(dr));
+                    }
+
+                    switch (orderByObj.OrderBy)
+                    {
+                        case ApiObjects.TimeShiftedTv.SeriesOrderBy.START_DATE:
+                            if (orderByObj.OrderDir == ApiObjects.SearchObjects.OrderDir.ASC)
+                            {
+                                response = response.OrderBy(x => x.CreateDate).ToList();
+                            }
+                            else
+                            {
+                                response = response.OrderByDescending(x => x.CreateDate).ToList();
+                            }
+                            break;  
+                        case ApiObjects.TimeShiftedTv.SeriesOrderBy.SERIES_ID:
+                            if (orderByObj.OrderDir == ApiObjects.SearchObjects.OrderDir.ASC)
+                            {
+                                response = response.OrderBy(x => x.SeriesId).ToList();
+                            }
+                            else
+                            {
+                                response = response.OrderByDescending(x => x.SeriesId).ToList();
+                            }
+                            break;
+                        default:
+                            if (orderByObj.OrderDir == ApiObjects.SearchObjects.OrderDir.ASC)
+                            {
+                                response = response.OrderBy(x => x.Id).ToList();
+                            }
+                            else
+                            {
+                                response = response.OrderByDescending(x => x.Id).ToList();
+                            }
+                            break;
+                    }
+                    
+                 
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("fail BuildSeriesRecording ", ex);
+            }
+            return response;
         }
     }
 }

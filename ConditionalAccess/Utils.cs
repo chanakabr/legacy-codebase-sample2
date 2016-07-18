@@ -4969,10 +4969,10 @@ namespace ConditionalAccess
             return seriesRecording;
         }
 
-        private static SeriesRecording BuildSeriesRecordingDetails(DataRow dr)
+        public static SeriesRecording BuildSeriesRecordingDetails(DataRow dr)
         {
             long epgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID");
-            long channelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_CHANNEL_ID");
+            long epgChannelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_CHANNEL_ID");
             long domainRecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
             int seasonNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "SEASON_NUMBER");
             string seriesId = ODBCWrapper.Utils.GetSafeStr(dr, "SERIES_ID");
@@ -4981,7 +4981,7 @@ namespace ConditionalAccess
 
             return new SeriesRecording()
             {
-                ChannelId = channelId,
+                EpgChannelId = epgChannelId,
                 EpgId = epgId,
                 Id = domainRecordingID,
                 SeasonNumber = seasonNumber,
