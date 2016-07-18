@@ -205,6 +205,25 @@
 						<ul class="actions">
 							<li class="action"><a href="actions/householdlimitations.get.html" target="main">get</a></li>
 						</ul></li>
+					<li class="service" id="householdpaymentgateway">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/householdpaymentgateway.html" target="main">householdPaymentGateway</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/householdpaymentgateway.delete.html" target="main">delete</a></li>
+							<li class="action"><a href="actions/householdpaymentgateway.set.html" target="main">set</a></li>
+							<li class="action"><a href="actions/householdpaymentgateway.getChargeID.html" target="main">getChargeID</a></li>
+							<li class="action"><a href="actions/householdpaymentgateway.list.html" target="main">list</a></li>
+							<li class="action"><a href="actions/householdpaymentgateway.setChargeID.html" target="main">setChargeID</a></li>
+						</ul></li>
+					<li class="service" id="householdpaymentmethod">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/householdpaymentmethod.html" target="main">householdPaymentMethod</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/householdpaymentmethod.forceRemove.html" target="main">forceRemove</a></li>
+							<li class="action"><a href="actions/householdpaymentmethod.list.html" target="main">list</a></li>
+							<li class="action"><a href="actions/householdpaymentmethod.remove.html" target="main">remove</a></li>
+							<li class="action"><a href="actions/householdpaymentmethod.setAsDefault.html" target="main">setAsDefault</a></li>
+						</ul></li>
 					<li class="service" id="householdpremiumservice">
 						<img class="tree-item" src="images/collapsed.gif" />
 						<a class="tree-content" href="services/householdpremiumservice.html" target="main">householdPremiumService</a>
@@ -230,6 +249,7 @@
 						<ul class="actions">
 							<li class="action"><a href="actions/inboxmessage.get.html" target="main">get</a></li>
 							<li class="action"><a href="actions/inboxmessage.list.html" target="main">list</a></li>
+							<li class="action"><a href="actions/inboxmessage.updateStatus.html" target="main">updateStatus</a></li>
 						</ul></li>
 					<li class="service" id="licensedurl">
 						<img class="tree-item" src="images/collapsed.gif" />
@@ -287,12 +307,6 @@
 							<li class="action"><a href="actions/parentalrule.enable.html" target="main">enable</a></li>
 							<li class="action"><a href="actions/parentalrule.list.html" target="main">list</a></li>
 						</ul></li>
-					<li class="service" id="paymentgateway">
-						<img class="tree-item" src="images/collapsed.gif" />
-						<a class="tree-content" href="services/paymentgateway.html" target="main">paymentGateway</a>
-						<ul class="actions">
-							<li class="action"><a href="actions/paymentgateway.delete.html" target="main">delete</a></li>
-						</ul></li>
 					<li class="service" id="paymentgatewayprofile">
 						<img class="tree-item" src="images/collapsed.gif" />
 						<a class="tree-content" href="services/paymentgatewayprofile.html" target="main">paymentGatewayProfile</a>
@@ -308,7 +322,10 @@
 						<img class="tree-item" src="images/collapsed.gif" />
 						<a class="tree-content" href="services/paymentmethodprofile.html" target="main">paymentMethodProfile</a>
 						<ul class="actions">
+							<li class="action"><a href="actions/paymentmethodprofile.add.html" target="main">add</a></li>
+							<li class="action"><a href="actions/paymentmethodprofile.delete.html" target="main">delete</a></li>
 							<li class="action"><a href="actions/paymentmethodprofile.list.html" target="main">list</a></li>
+							<li class="action"><a href="actions/paymentmethodprofile.update.html" target="main">update</a></li>
 						</ul></li>
 					<li class="service" id="personalfeed">
 						<img class="tree-item" src="images/collapsed.gif" />
@@ -514,7 +531,10 @@
 					<li id="object_KalturaHousehold"><a href="objects/KalturaHousehold.html" target="main">KalturaHousehold</a></li>
 					<li id="object_KalturaHouseholdDeviceFamilyLimitations"><a href="objects/KalturaHouseholdDeviceFamilyLimitations.html" target="main">KalturaHouseholdDeviceFamilyLimitations</a></li>
 					<li id="object_KalturaHouseholdLimitations"><a href="objects/KalturaHouseholdLimitations.html" target="main">KalturaHouseholdLimitations</a></li>
+					<li id="object_KalturaHouseholdPaymentGateway"><a href="objects/KalturaHouseholdPaymentGateway.html" target="main">KalturaHouseholdPaymentGateway</a></li>
+					<li id="object_KalturaHouseholdPaymentGatewayListResponse"><a href="objects/KalturaHouseholdPaymentGatewayListResponse.html" target="main">KalturaHouseholdPaymentGatewayListResponse</a></li>
 					<li id="object_KalturaHouseholdPaymentMethod"><a href="objects/KalturaHouseholdPaymentMethod.html" target="main">KalturaHouseholdPaymentMethod</a></li>
+					<li id="object_KalturaHouseholdPaymentMethodListResponse"><a href="objects/KalturaHouseholdPaymentMethodListResponse.html" target="main">KalturaHouseholdPaymentMethodListResponse</a></li>
 					<li id="object_KalturaHouseholdPremiumService"><a href="objects/KalturaHouseholdPremiumService.html" target="main">KalturaHouseholdPremiumService</a></li>
 					<li id="object_KalturaHouseholdPremiumServiceListResponse"><a href="objects/KalturaHouseholdPremiumServiceListResponse.html" target="main">KalturaHouseholdPremiumServiceListResponse</a></li>
 					<li id="object_KalturaHouseholdQuota"><a href="objects/KalturaHouseholdQuota.html" target="main">KalturaHouseholdQuota</a></li>
@@ -547,7 +567,6 @@
 					<li id="object_KalturaPaymentGatewayConfiguration"><a href="objects/KalturaPaymentGatewayConfiguration.html" target="main">KalturaPaymentGatewayConfiguration</a></li>
 					<li id="object_KalturaPaymentGatewayProfile"><a href="objects/KalturaPaymentGatewayProfile.html" target="main">KalturaPaymentGatewayProfile</a></li>
 					<li id="object_KalturaPaymentGatewayProfileListResponse"><a href="objects/KalturaPaymentGatewayProfileListResponse.html" target="main">KalturaPaymentGatewayProfileListResponse</a></li>
-					<li id="object_KalturaPaymentMethod"><a href="objects/KalturaPaymentMethod.html" target="main">KalturaPaymentMethod</a></li>
 					<li id="object_KalturaPaymentMethodProfile"><a href="objects/KalturaPaymentMethodProfile.html" target="main">KalturaPaymentMethodProfile</a></li>
 					<li id="object_KalturaPaymentMethodProfileListResponse"><a href="objects/KalturaPaymentMethodProfileListResponse.html" target="main">KalturaPaymentMethodProfileListResponse</a></li>
 					<li id="object_KalturaPermission"><a href="objects/KalturaPermission.html" target="main">KalturaPermission</a></li>

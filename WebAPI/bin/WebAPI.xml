@@ -374,6 +374,119 @@
             <returns></returns>
             <remarks>Possible status codes: CDN partner settings not found = 5025</remarks>   
         </member>
+        <member name="M:WebAPI.Controllers.HouseholdPaymentMethodController.List">
+            <summary>
+            Get a list of all configured Payment Gateways providers available for the account. For each payment is provided with the household associated payment methods. 
+            </summary>
+            <remarks>
+            Possible status codes:       
+            User Suspended = 2001
+            </remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.HouseholdPaymentMethodController.SetAsDefault(System.Int32,System.Int32)">
+            <summary>
+            Set a payment method as default for the household. 
+            </summary>
+            <remarks>
+            Possible status codes:  
+            Payment gateway not set for household = 6007, Payment gateway not valid = 6043, Payment method not set for household = 6048,
+            Error saving payment gateway household payment method = 6052, Payment gateway not support payment method = 6056
+            </remarks>
+            <param name="paymentGatewayId">Payment Gateway Identifier</param> 
+            <param name="paymentMethodId">Payment method Identifier</param> 
+        </member>
+        <member name="M:WebAPI.Controllers.HouseholdPaymentMethodController.Remove(System.Int32,System.Int32)">
+            <summary>
+            Removes a payment method of the household. 
+            </summary>
+            <remarks>
+            Possible status codes:  
+            Payment method not set for household = 6048, PaymentMethodIsUsedByHousehold = 3041, Error removing payment gateway household payment method = 6057,
+            PaymentGatewayNotExist = 6008, PaymentGatewayNotSetForHousehold = 6007,
+            </remarks>
+            <param name="paymentGatewayId">Payment Gateway Identifier</param> 
+            <param name="paymentMethodId">Payment method Identifier</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.HouseholdPaymentMethodController.ForceRemove(System.Int32,System.Int32)">
+            <summary>
+            Force remove of a payment method of the household. 
+            </summary>
+            <remarks>
+            Possible status codes:  
+            Payment method not set for household = 6048, Error removing payment gateway household payment method = 6057,
+            PaymentGatewayNotExist = 6008, PaymentGatewayNotSetForHousehold = 6007
+            </remarks>
+            <param name="paymentGatewayId">Payment Gateway Identifier</param> 
+            <param name="paymentMethodId">Payment method Identifier</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.HouseholdPaymentMethodController.SetExternalId(System.String,System.String,System.String,System.String)">
+            <summary>
+            Set user billing payment method identifier (payment method external id), for a specific household and a specific payment gateway
+            </summary>
+            <remarks>
+            Possible status codes:         
+            Payment gateway not set for household = 6007, Payment gateway not exist = 6008, Payment method not exist = 6049,  Error saving payment gateway household payment method = 6052, 
+            Payment method already set to household payment gateway = 6054, Payment gateway not support payment method = 6056
+            </remarks>        
+            <param name="paymentGatewayId">External identifier for the payment gateway  </param>
+            <param name="paymentMethodName"></param>      
+            <param name="paymentDetails"></param>      
+            <param name="paymentMethodExternalId"></param>        
+        </member>
+        <member name="M:WebAPI.Controllers.HouseholdPaymentGatewayController.List">
+            <summary>
+            Get a list of all configured Payment Gateways providers available for the account. For each payment is provided with the household associated payment methods. 
+            </summary>
+            <remarks>
+            Possible status codes:       
+            User Suspended = 2001
+            </remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.HouseholdPaymentGatewayController.SetChargeID(System.String,System.String)">
+            <summary>
+            Set user billing account identifier (charge ID), for a specific household and a specific payment gateway
+            </summary>
+            <remarks>
+            Possible status codes:         
+            Payment gateway not exist = 6008, Payment gateway charge id required = 6009, External identifier required = 6016, Error saving payment gateway household = 6017, 
+            Charge id already set to household payment gateway = 6025
+            </remarks>        
+            <param name="paymentGatewayExternalId">External identifier for the payment gateway  </param>
+            <param name="chargeId">The billing user account identifier for this household at the given payment gateway</param>        
+        </member>
+        <member name="M:WebAPI.Controllers.HouseholdPaymentGatewayController.GetChargeID(System.String)">
+            <summary>
+            Get a household’s billing account identifier (charge ID) for a given payment gateway
+            </summary>
+            <remarks>
+            Possible status codes: Payment gateway not exist for group = 6008, External identifier is required = 6016, Charge id not set to household = 6026
+            </remarks>        
+            <param name="paymentGatewayExternalId">External identifier for the payment gateway  </param>        
+        </member>
+        <member name="M:WebAPI.Controllers.HouseholdPaymentGatewayController.Enable(System.Int32)">
+            <summary>
+            Enable a payment-gateway provider for the household. 
+            </summary>
+            <remarks>
+            Possible status codes:       
+            user suspended = 2001, payment gateway id is required = 6005, error saving payment gateway household = 6017, household already set to payment gateway = 6024, payment gateway selection is disabled = 6028,
+            payment gateway not valid = 6043
+            </remarks>
+            <param name="paymentGatewayId">Payment Gateway Identifier</param> 
+        </member>
+        <member name="M:WebAPI.Controllers.HouseholdPaymentGatewayController.Disable(System.Int32)">
+            <summary>
+            Disable payment-gateway on the household
+            </summary>
+            <remarks>
+            Possible status codes:       
+            user suspended = 2001, payment gateway identifier is missing = 6005, payment gateway not exist = 6008, household not set to payment gateway = 6027
+            payment gateway selection is disabled = 6028, service forbidden = 500004
+            </remarks>
+            <param name="paymentGatewayId">Payment Gateway Identifier</param>
+        </member>
         <member name="M:WebAPI.Controllers.ProductPriceController.List(WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter)">
             <summary>
             Returns a price and a purchase status for each subscription or/and media file, for a given user (if passed) and with the consideration of a coupon code (if passed). 
@@ -758,7 +871,7 @@
             <summary>
             TBD
             </summary>
-            <param name="payment_gateway_id"> Payment gateway identifier to list the payment methods for</param>
+            <param name="filter">Payment gateway method profile filter</param>
             <remarks>
             Possible status codes: TBD       
             Payment gateway not exist = 6008
@@ -774,7 +887,17 @@
             Payment gateway not exist = 6008
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.PaymentMethodProfileController.Add(System.Int32,WebAPI.Models.Billing.KalturaPaymentMethodProfile)">
+        <member name="M:WebAPI.Controllers.PaymentMethodProfileController.Add(WebAPI.Models.Billing.KalturaPaymentMethodProfile)">
+            <summary>
+            TBD
+            </summary>
+            <param name="paymentMethod">Payment method to add</param>
+            <remarks>
+            Possible status codes: 
+            Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method name required = 6055
+            </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.PaymentMethodProfileController.AddOldStandard(System.Int32,WebAPI.Models.Billing.KalturaPaymentMethodProfile)">
             <summary>
             TBD
             </summary>
@@ -787,6 +910,17 @@
         </member>
         <member name="M:WebAPI.Controllers.PaymentMethodProfileController.Update(System.Int32,WebAPI.Models.Billing.KalturaPaymentMethodProfile)">
             <summary>
+            Update payment method
+            </summary>
+            <param name="paymentMethodId">Payment method identifier to update</param>
+            <param name="paymentMethod">Payment method to update</param>
+            <remarks>
+            Possible status codes: 
+            Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method does not exist = 6049, Payment method ID is required = 6050      
+            </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.PaymentMethodProfileController.UpdateOldStandard(System.Int32,WebAPI.Models.Billing.KalturaPaymentMethodProfile)">
+            <summary>
             TBD
             </summary>
             <param name="paymentGatewayId">Payment gateway identifier to update the payment method for</param>
@@ -796,7 +930,17 @@
             Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method does not exist = 6049, Payment method ID is required = 6050      
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.PaymentMethodProfileController.Delete(System.Int32,System.Int32)">
+        <member name="M:WebAPI.Controllers.PaymentMethodProfileController.Delete(System.Int32)">
+            <summary>
+            Delete payment method profile
+            </summary>
+            <param name="paymentMethodId">Payment method identifier to delete</param>
+            <remarks>
+             Possible status codes: 
+             Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method does not exist = 6049, Payment method ID is required = 6050    
+            </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.PaymentMethodProfileController.DeleteOldStandard(System.Int32,System.Int32)">
             <summary>
             TBD
             </summary>
@@ -3528,6 +3672,21 @@
             Household payment method identifier (internal)
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Billing.KalturaHouseholdPaymentMethod.PaymentGatewayId">
+            <summary>
+            Payment-gateway identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Billing.KalturaHouseholdPaymentMethod.Name">
+            <summary>
+            Payment method name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Billing.KalturaHouseholdPaymentMethod.AllowMultiInstance">
+            <summary>
+            Indicates whether the payment method allow multiple instances 
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Billing.KalturaHouseholdPaymentMethod.Details">
             <summary>
             Payment method details
@@ -3536,6 +3695,16 @@
         <member name="P:WebAPI.Models.Billing.KalturaHouseholdPaymentMethod.Selected">
             <summary>
             Selected payment method 
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Billing.KalturaHouseholdPaymentMethodListResponse">
+            <summary>
+            List of household payment methods.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Billing.KalturaHouseholdPaymentMethodListResponse.Objects">
+            <summary>
+            Follow data list
             </summary>
         </member>
         <member name="T:WebAPI.Models.Billing.KalturaPaymentMethod">
@@ -3601,6 +3770,11 @@
         <member name="P:WebAPI.Models.Billing.KalturaPaymentMethodProfile.Id">
             <summary>
             Payment method identifier (internal)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Billing.KalturaPaymentMethodProfile.PaymentGatewayId">
+            <summary>
+            Payment gateway identifier (internal)
             </summary>
         </member>
         <member name="P:WebAPI.Models.Billing.KalturaPaymentMethodProfile.Name">
@@ -3833,6 +4007,36 @@
         <member name="P:WebAPI.Models.Billing.KalturaPaymentGatewayBaseProfile.PaymentMethods">
             <summary>
             payment method
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Billing.KalturaHouseholdPaymentGateway.Id">
+            <summary>
+            payment gateway id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Billing.KalturaHouseholdPaymentGateway.Name">
+            <summary>
+            payment gateway name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Billing.KalturaHouseholdPaymentGateway.IsDefault">
+            <summary>
+            Payment gateway default (true/false)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Billing.KalturaHouseholdPaymentGateway.selectedBy">
+            <summary>
+            distinction payment gateway selected by account or household
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Billing.KalturaHouseholdPaymentGatewayListResponse">
+            <summary>
+            List of household payment gateways.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Billing.KalturaHouseholdPaymentGatewayListResponse.Objects">
+            <summary>
+            Follow data list
             </summary>
         </member>
         <member name="T:WebAPI.Models.Billing.KalturaPaymentGatewayProfile">
@@ -9406,6 +9610,15 @@
         <member name="M:WebAPI.Billing.module.UpdatePaymentGatewayPaymentMethodAsync(System.String,System.String,System.Int32,System.Int32,System.String,System.Boolean,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.Billing.module.UpdatePaymentMethod(System.String,System.String,System.Int32,System.String,System.Boolean)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.UpdatePaymentMethodAsync(System.String,System.String,System.Int32,System.String,System.Boolean)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.UpdatePaymentMethodAsync(System.String,System.String,System.Int32,System.String,System.Boolean,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.Billing.module.DeletePaymentGatewayPaymentMethod(System.String,System.String,System.Int32,System.Int32)">
             <remarks/>
         </member>
@@ -9413,6 +9626,15 @@
             <remarks/>
         </member>
         <member name="M:WebAPI.Billing.module.DeletePaymentGatewayPaymentMethodAsync(System.String,System.String,System.Int32,System.Int32,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.DeletePaymentMethod(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.DeletePaymentMethodAsync(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.DeletePaymentMethodAsync(System.String,System.String,System.Int32,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Billing.module.GetPaymentGatewayPaymentMethods(System.String,System.String,System.Int32)">
@@ -9604,7 +9826,13 @@
         <member name="E:WebAPI.Billing.module.UpdatePaymentGatewayPaymentMethodCompleted">
             <remarks/>
         </member>
+        <member name="E:WebAPI.Billing.module.UpdatePaymentMethodCompleted">
+            <remarks/>
+        </member>
         <member name="E:WebAPI.Billing.module.DeletePaymentGatewayPaymentMethodCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Billing.module.DeletePaymentMethodCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.Billing.module.GetPaymentGatewayPaymentMethodsCompleted">
@@ -18492,13 +18720,13 @@
         <member name="P:WebAPI.Billing.BillingInfo.variant">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Billing.PaymentMethodsResponse">
+        <member name="T:WebAPI.Billing.PaymentMethodResponse">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Billing.PaymentMethodsResponse.Status">
+        <member name="P:WebAPI.Billing.PaymentMethodResponse.Status">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Billing.PaymentMethodsResponse.PaymentMethods">
+        <member name="P:WebAPI.Billing.PaymentMethodResponse.PaymentMethod">
             <remarks/>
         </member>
         <member name="T:WebAPI.Billing.Status">
@@ -18516,10 +18744,22 @@
         <member name="P:WebAPI.Billing.PaymentMethod.ID">
             <remarks/>
         </member>
+        <member name="P:WebAPI.Billing.PaymentMethod.PaymentGatewayId">
+            <remarks/>
+        </member>
         <member name="P:WebAPI.Billing.PaymentMethod.Name">
             <remarks/>
         </member>
         <member name="P:WebAPI.Billing.PaymentMethod.AllowMultiInstance">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.PaymentMethodsResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentMethodsResponse.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentMethodsResponse.PaymentMethods">
             <remarks/>
         </member>
         <member name="T:WebAPI.Billing.PartnerConfiguration">
@@ -19389,6 +19629,15 @@
         <member name="P:WebAPI.Billing.UpdatePaymentGatewayPaymentMethodCompletedEventArgs.Result">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Billing.UpdatePaymentMethodCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.UpdatePaymentMethodCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.UpdatePaymentMethodCompletedEventArgs.Result">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Billing.DeletePaymentGatewayPaymentMethodCompletedEventHandler">
             <remarks/>
         </member>
@@ -19396,6 +19645,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Billing.DeletePaymentGatewayPaymentMethodCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.DeletePaymentMethodCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.DeletePaymentMethodCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.DeletePaymentMethodCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Billing.GetPaymentGatewayPaymentMethodsCompletedEventHandler">

@@ -129,7 +129,11 @@ namespace WebAPI.Billing {
         
         private System.Threading.SendOrPostCallback UpdatePaymentGatewayPaymentMethodOperationCompleted;
         
+        private System.Threading.SendOrPostCallback UpdatePaymentMethodOperationCompleted;
+        
         private System.Threading.SendOrPostCallback DeletePaymentGatewayPaymentMethodOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback DeletePaymentMethodOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetPaymentGatewayPaymentMethodsOperationCompleted;
         
@@ -328,7 +332,13 @@ namespace WebAPI.Billing {
         public event UpdatePaymentGatewayPaymentMethodCompletedEventHandler UpdatePaymentGatewayPaymentMethodCompleted;
         
         /// <remarks/>
+        public event UpdatePaymentMethodCompletedEventHandler UpdatePaymentMethodCompleted;
+        
+        /// <remarks/>
         public event DeletePaymentGatewayPaymentMethodCompletedEventHandler DeletePaymentGatewayPaymentMethodCompleted;
+        
+        /// <remarks/>
+        public event DeletePaymentMethodCompletedEventHandler DeletePaymentMethodCompleted;
         
         /// <remarks/>
         public event GetPaymentGatewayPaymentMethodsCompletedEventHandler GetPaymentGatewayPaymentMethodsCompleted;
@@ -2365,6 +2375,43 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/UpdatePaymentMethod", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public PaymentMethodResponse UpdatePaymentMethod(string sWSUserName, string sWSPassword, int paymentMethodId, string name, bool allowMultiInstance) {
+            object[] results = this.Invoke("UpdatePaymentMethod", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        paymentMethodId,
+                        name,
+                        allowMultiInstance});
+            return ((PaymentMethodResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void UpdatePaymentMethodAsync(string sWSUserName, string sWSPassword, int paymentMethodId, string name, bool allowMultiInstance) {
+            this.UpdatePaymentMethodAsync(sWSUserName, sWSPassword, paymentMethodId, name, allowMultiInstance, null);
+        }
+        
+        /// <remarks/>
+        public void UpdatePaymentMethodAsync(string sWSUserName, string sWSPassword, int paymentMethodId, string name, bool allowMultiInstance, object userState) {
+            if ((this.UpdatePaymentMethodOperationCompleted == null)) {
+                this.UpdatePaymentMethodOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdatePaymentMethodOperationCompleted);
+            }
+            this.InvokeAsync("UpdatePaymentMethod", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        paymentMethodId,
+                        name,
+                        allowMultiInstance}, this.UpdatePaymentMethodOperationCompleted, userState);
+        }
+        
+        private void OnUpdatePaymentMethodOperationCompleted(object arg) {
+            if ((this.UpdatePaymentMethodCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.UpdatePaymentMethodCompleted(this, new UpdatePaymentMethodCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/DeletePaymentGatewayPaymentMethod", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public Status DeletePaymentGatewayPaymentMethod(string sWSUserName, string sWSPassword, int paymentGatewayId, int paymentMethodId) {
             object[] results = this.Invoke("DeletePaymentGatewayPaymentMethod", new object[] {
@@ -2396,6 +2443,39 @@ namespace WebAPI.Billing {
             if ((this.DeletePaymentGatewayPaymentMethodCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.DeletePaymentGatewayPaymentMethodCompleted(this, new DeletePaymentGatewayPaymentMethodCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/DeletePaymentMethod", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status DeletePaymentMethod(string sWSUserName, string sWSPassword, int paymentMethodId) {
+            object[] results = this.Invoke("DeletePaymentMethod", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        paymentMethodId});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void DeletePaymentMethodAsync(string sWSUserName, string sWSPassword, int paymentMethodId) {
+            this.DeletePaymentMethodAsync(sWSUserName, sWSPassword, paymentMethodId, null);
+        }
+        
+        /// <remarks/>
+        public void DeletePaymentMethodAsync(string sWSUserName, string sWSPassword, int paymentMethodId, object userState) {
+            if ((this.DeletePaymentMethodOperationCompleted == null)) {
+                this.DeletePaymentMethodOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDeletePaymentMethodOperationCompleted);
+            }
+            this.InvokeAsync("DeletePaymentMethod", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        paymentMethodId}, this.DeletePaymentMethodOperationCompleted, userState);
+        }
+        
+        private void OnDeletePaymentMethodOperationCompleted(object arg) {
+            if ((this.DeletePaymentMethodCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.DeletePaymentMethodCompleted(this, new DeletePaymentMethodCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -2682,11 +2762,11 @@ namespace WebAPI.Billing {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
-    public partial class PaymentMethodsResponse {
+    public partial class PaymentMethodResponse {
         
         private Status statusField;
         
-        private PaymentMethod[] paymentMethodsField;
+        private PaymentMethod paymentMethodField;
         
         /// <remarks/>
         public Status Status {
@@ -2699,12 +2779,12 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public PaymentMethod[] PaymentMethods {
+        public PaymentMethod PaymentMethod {
             get {
-                return this.paymentMethodsField;
+                return this.paymentMethodField;
             }
             set {
-                this.paymentMethodsField = value;
+                this.paymentMethodField = value;
             }
         }
     }
@@ -2752,6 +2832,8 @@ namespace WebAPI.Billing {
         
         private int idField;
         
+        private int paymentGatewayIdField;
+        
         private string nameField;
         
         private bool allowMultiInstanceField;
@@ -2763,6 +2845,16 @@ namespace WebAPI.Billing {
             }
             set {
                 this.idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int PaymentGatewayId {
+            get {
+                return this.paymentGatewayIdField;
+            }
+            set {
+                this.paymentGatewayIdField = value;
             }
         }
         
@@ -2783,6 +2875,39 @@ namespace WebAPI.Billing {
             }
             set {
                 this.allowMultiInstanceField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
+    public partial class PaymentMethodsResponse {
+        
+        private Status statusField;
+        
+        private PaymentMethod[] paymentMethodsField;
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public PaymentMethod[] PaymentMethods {
+            get {
+                return this.paymentMethodsField;
+            }
+            set {
+                this.paymentMethodsField = value;
             }
         }
     }
@@ -5466,6 +5591,32 @@ namespace WebAPI.Billing {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    public delegate void UpdatePaymentMethodCompletedEventHandler(object sender, UpdatePaymentMethodCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class UpdatePaymentMethodCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal UpdatePaymentMethodCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public PaymentMethodResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((PaymentMethodResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
     public delegate void DeletePaymentGatewayPaymentMethodCompletedEventHandler(object sender, DeletePaymentGatewayPaymentMethodCompletedEventArgs e);
     
     /// <remarks/>
@@ -5477,6 +5628,32 @@ namespace WebAPI.Billing {
         private object[] results;
         
         internal DeletePaymentGatewayPaymentMethodCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    public delegate void DeletePaymentMethodCompletedEventHandler(object sender, DeletePaymentMethodCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class DeletePaymentMethodCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal DeletePaymentMethodCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }
