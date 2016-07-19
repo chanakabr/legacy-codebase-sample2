@@ -4447,16 +4447,16 @@ namespace ConditionalAccess
                     recordingStatus = TstvRecordingStatus.Failed;
                     break;
                 case RecordingInternalStatus.Waiting:
+                    recordingStatus = TstvRecordingStatus.Scheduled;                    
                     // If we are still waiting for confirmation but program started already, we say it is failed
-                    if (epgStartDate < DateTime.UtcNow)
-                    {
-                        recordingStatus = TstvRecordingStatus.Failed;
-                    }
-                    else
-                    {
-                        recordingStatus = TstvRecordingStatus.Scheduled;
-                    }
-
+                    //if (epgStartDate < DateTime.UtcNow)
+                    //{
+                    //    recordingStatus = TstvRecordingStatus.Failed;
+                    //}
+                    //else
+                    //{
+                        //recordingStatus = TstvRecordingStatus.Scheduled;
+                    //}
                     break;
                 case RecordingInternalStatus.OK:
                     // If program already finished, we say it is recorded

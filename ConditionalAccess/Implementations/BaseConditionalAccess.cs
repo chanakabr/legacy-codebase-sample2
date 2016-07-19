@@ -18931,15 +18931,20 @@ namespace ConditionalAccess
 
                     if (domainRecordingID == 0)
                     {
+                        // try to get recording by epg
+                        Recording recording = ConditionalAccess.Utils.GetRecordingByEpgId(m_nGroupID, epgId);
                         // insert new domains_recordings to domain with status delete / cancel
-                        Recording recording = new Recording()
+                        if (recording == null || recording.Id == 0)
                         {
-                            Id = 0,
-                            ChannelId = (long)epgs[0].ChannelID,
-                            EpgId = epgId,
-                            RecordingStatus = tstvRecordingStatus == TstvRecordingStatus.Canceled ? TstvRecordingStatus.Canceled : TstvRecordingStatus.Deleted,
-                            Type = seriesRecording.SeasonNumber > 0 ? RecordingType.Season : RecordingType.Series
-                        };
+                            recording = new Recording()
+                                {
+                                    Id = 0,
+                                    ChannelId = (long)epgs[0].ChannelID,
+                                    EpgId = epgId,
+                                    RecordingStatus = tstvRecordingStatus == TstvRecordingStatus.Canceled ? TstvRecordingStatus.Canceled : TstvRecordingStatus.Deleted,
+                                    Type = seriesRecording.SeasonNumber > 0 ? RecordingType.Season : RecordingType.Series
+                                };
+                        }
                         bool res = RecordingsDAL.UpdateOrInsertDomainRecording(m_nGroupID, long.Parse(userId), domainId, recording);
                         if (!res)
                         {
