@@ -2070,6 +2070,7 @@ namespace DAL
                     {
                         paymentMethod = new PaymentMethod();
                         paymentMethod.ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "Id");
+                        paymentMethod.PaymentGatewayId = paymentGatewayId;
                     }
                 }
             }
@@ -2105,9 +2106,9 @@ namespace DAL
                 pghhpm = sp.ExecuteReturnValue<int>();
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                log.ErrorFormat("Failed calling to Set_PaymentGatewayHouseholdPaymentMethod. GID:{0},PGID:{1}. Household:{2}", groupID, paymentGatewayId, householdId);
+                log.ErrorFormat("Failed calling to Set_PaymentGatewayHouseholdPaymentMethod. GID:{0},PGID:{1}. Household:{2}. Exception: {3}", groupID, paymentGatewayId, householdId, ex);
             }
             return pghhpm;
         }
@@ -2150,6 +2151,7 @@ namespace DAL
                         response = new PaymentMethod()
                         {
                             ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID"),
+                            PaymentGatewayId = paymentGatewayId,
                             Name = name,
                             AllowMultiInstance = allowMultiInstance,
                         };
@@ -2161,6 +2163,42 @@ namespace DAL
                 log.ErrorFormat("Error at Insert_PaymentGatewayPaymentMethod. groupId: {0}, paymentGatewayId: {1}, name {2}", groupId, paymentGatewayId,
                     !string.IsNullOrEmpty(name) ? name : string.Empty, ex);
                 response = null;
+            }
+
+            return response;
+        }
+
+        public static PaymentMethod Update_PaymentMethod(int paymentMethodId, string name, bool allowMultiInstance)
+        {
+            PaymentMethod response = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_PaymentGatewayPaymentMethod");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@payment_method_id", paymentMethodId);
+                sp.AddParameter("@name", name);
+                sp.AddParameter("@allow_multi_instance", allowMultiInstance ? 1 : 0);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    if (ds.Tables[0].Rows.Count > 0)
+                    {
+                        DataRow row = ds.Tables[0].Rows[0];
+                        response = new PaymentMethod()
+                        {
+                            ID = ODBCWrapper.Utils.GetIntSafeVal(row, "ID"),
+                            PaymentGatewayId = ODBCWrapper.Utils.GetIntSafeVal(row, "PAYMENT_GATEWAY_ID"),
+                            Name = ODBCWrapper.Utils.GetSafeStr(row, "NAME"),
+                            AllowMultiInstance = ODBCWrapper.Utils.GetIntSafeVal(row, "ALLOW_MULTI_INSTANCE") == 1
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at Update_PaymentGatewayPaymentMethod. paymentMethodId: {0}, name = {1}", paymentMethodId, !string.IsNullOrEmpty(name) ? name : string.Empty, ex);
             }
 
             return response;
@@ -2227,6 +2265,7 @@ namespace DAL
                             method = new PaymentMethod()
                             {
                                 ID = ODBCWrapper.Utils.GetIntSafeVal(row, "ID"),
+                            PaymentGatewayId = paymentGatewayId,
                                 Name = ODBCWrapper.Utils.GetSafeStr(row, "NAME"),
                                 AllowMultiInstance = ODBCWrapper.Utils.GetIntSafeVal(row, "ALLOW_MULTI_INSTANCE") == 1
                             };

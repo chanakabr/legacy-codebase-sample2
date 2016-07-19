@@ -17118,11 +17118,18 @@ namespace ConditionalAccess
                     if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK
                         && recording.Id > 0 && Utils.IsValidRecordingStatus(recording.RecordingStatus))
                     {
-                        if (QuotaManager.Instance.DecreaseDomainQuota(m_nGroupID, domainID, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds))
+                        int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
+                        if (QuotaManager.Instance.DecreaseDomainQuota(m_nGroupID, domainID, recordingDuration))
                         {
                             recording.Type = recordingType;
                             if (!RecordingsDAL.UpdateOrInsertDomainRecording(m_nGroupID, long.Parse(userID), domainID, recording))
                             {
+                                // increase the quota back to the user
+                                if (!QuotaManager.Instance.IncreaseDomainQuota(domainID, recordingDuration))
+                                {
+                                    log.ErrorFormat("Failed giving the quota back to the domain, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
+                                }
+
                                 log.ErrorFormat("Failed saving record to domain recordings table, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
                                 recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                             }                                
@@ -18922,15 +18929,20 @@ namespace ConditionalAccess
 
                     if (domainRecordingID == 0)
                     {
+                        // try to get recording by epg
+                        Recording recording = ConditionalAccess.Utils.GetRecordingByEpgId(m_nGroupID, epgId);
                         // insert new domains_recordings to domain with status delete / cancel
-                        Recording recording = new Recording()
+                        if (recording == null || recording.Id == 0)
                         {
-                            Id = 0,
-                            ChannelId = (long)epgs[0].ChannelID,
-                            EpgId = epgId,
-                            RecordingStatus = tstvRecordingStatus == TstvRecordingStatus.Canceled ? TstvRecordingStatus.Canceled : TstvRecordingStatus.Deleted,
-                            Type = seriesRecording.SeasonNumber > 0 ? RecordingType.Season : RecordingType.Series
-                        };
+                            recording = new Recording()
+                                {
+                                    Id = 0,
+                                    ChannelId = (long)epgs[0].ChannelID,
+                                    EpgId = epgId,
+                                    RecordingStatus = tstvRecordingStatus == TstvRecordingStatus.Canceled ? TstvRecordingStatus.Canceled : TstvRecordingStatus.Deleted,
+                                    Type = seriesRecording.SeasonNumber > 0 ? RecordingType.Season : RecordingType.Series
+                                };
+                        }
                         bool res = RecordingsDAL.UpdateOrInsertDomainRecording(m_nGroupID, long.Parse(userId), domainId, recording);
                         if (!res)
                         {
