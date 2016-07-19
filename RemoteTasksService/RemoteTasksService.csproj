@@ -162,6 +162,10 @@
       <Project>{82876744-9a82-4730-b9e0-29810b4cde81}</Project>
       <Name>FileUploadHandler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\FirstFollowerRecordingHandler\FirstFollowerRecordingHandler.csproj">
+      <Project>{f0298f08-3fe2-4962-8862-4fd8db82006c}</Project>
+      <Name>FirstFollowerRecordingHandler</Name>
+    </ProjectReference>
     <ProjectReference Include="..\FreeAssetUpdateHandler\FreeAssetUpdateHandler.csproj">
       <Project>{24639160-158d-4110-9585-eaa81adb5249}</Project>
       <Name>FreeAssetUpdateHandler</Name>
