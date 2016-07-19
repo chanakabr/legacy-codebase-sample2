@@ -4447,17 +4447,6 @@ namespace ConditionalAccess
                     recordingStatus = TstvRecordingStatus.Failed;
                     break;
                 case RecordingInternalStatus.Waiting:
-                    recordingStatus = TstvRecordingStatus.Scheduled;                    
-                    // If we are still waiting for confirmation but program started already, we say it is failed
-                    //if (epgStartDate < DateTime.UtcNow)
-                    //{
-                    //    recordingStatus = TstvRecordingStatus.Failed;
-                    //}
-                    //else
-                    //{
-                        //recordingStatus = TstvRecordingStatus.Scheduled;
-                    //}
-                    break;
                 case RecordingInternalStatus.OK:
                     // If program already finished, we say it is recorded
                     if (epgEndDate < DateTime.UtcNow)
@@ -5118,14 +5107,24 @@ namespace ConditionalAccess
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 if ((ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "countUsers", 0)) == 0)
-                {                    
-                    ApiObjects.Response.Status status = RecordingsManager.Instance.CancelOrDeleteRecording(groupID, recording, tstvRecordingStatus);
-
-                    if (status != null && status.Code == (int)eResponseStatus.OK)
+                {
+                    Recording copyRecording = new Recording(recording);
+                    KlogMonitorHelper.ContextData cd = new KlogMonitorHelper.ContextData();
+                    System.Threading.Tasks.Task async = System.Threading.Tasks.Task.Factory.StartNew((taskRecording) =>
                     {
-                        result = true;
-                    }
+                        cd.Load();
+                        ApiObjects.Response.Status status = RecordingsManager.Instance.CancelOrDeleteRecording(groupID, (Recording)taskRecording, tstvRecordingStatus);
+                        if (status == null)
+                        {
+                            log.ErrorFormat("Failed Utils.CancelOrDeleteRecording when calling RecordingsManager.Instance.CancelOrDeleteRecording, groupId: {0}, recordingId: {1}", groupID, ((Recording)taskRecording).Id);
+                        }
+                        else if(status.Code != (int)eResponseStatus.OK)
+                        {
+                            log.ErrorFormat("Failed Utils.CancelOrDeleteRecording when calling RecordingsManager.Instance.CancelOrDeleteRecording, groupId: {0}, status: {1}, recordingId: {2}", groupID, status.Message, ((Recording)taskRecording).Id);
+                        }
+                    },copyRecording);
 
+                    result = true;
                 }
             }
 
