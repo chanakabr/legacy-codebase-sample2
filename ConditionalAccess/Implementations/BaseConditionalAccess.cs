@@ -18803,6 +18803,8 @@ namespace ConditionalAccess
                 {
                     log.ErrorFormat("Failed completeRecordingsStatus for domainId: {0}, seriesId: {1}, seassonNumber: {2}", domainId, seriesId, seassonNumber);
                 }
+
+                result = true;
             }
 
             catch (Exception ex)
