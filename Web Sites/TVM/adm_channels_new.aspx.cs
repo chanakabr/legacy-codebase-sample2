@@ -639,12 +639,12 @@ public partial class adm_channels_new : System.Web.UI.Page
         //dr_pli_template.SetDefaultVal(sDefPT);
         //theRecord.AddRecord(dr_pli_template);
 
-        DataRecordRadioField dr_cut_type = new DataRecordRadioField("lu_cut_type", "description", "id", "", null);
-        dr_cut_type.Initialize("Cut Tags Type", "adm_table_header_nbg", "FormInput", "IS_AND", false);
-        theRecord.AddRecord(dr_cut_type);
-
         if (int.Parse(Session["channel_type"].ToString()) == 1)
         {
+            DataRecordRadioField dr_cut_type = new DataRecordRadioField("lu_cut_type", "description", "id", "", null);
+            dr_cut_type.Initialize("Cut Tags Type", "adm_table_header_nbg", "FormInput", "IS_AND", false);
+            theRecord.AddRecord(dr_cut_type);
+
             DataRecordBrowserField dr_media_types = new DataRecordBrowserField("OpenMediaTypeBrowser", "adm_channels_new.aspx");
             dr_media_types.Initialize("Media Type", "adm_table_header_nbg", "FormInput", "ID", false);
             theRecord.AddRecord(dr_media_types);
