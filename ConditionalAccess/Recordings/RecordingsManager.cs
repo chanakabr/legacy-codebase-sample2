@@ -1101,12 +1101,22 @@ namespace Recordings
             {
                 log.DebugFormat("Exceeded allowed retried count, trying to mark as failed: groupId {0}, recordingId {1}, nextCheck {2}, recordingTask {3}, retries {4}",
                     groupId, currentRecording.Id, nextCheck.ToString(), recordingTask.ToString(), currentRecording.GetStatusRetries);
+
                 // Otherwise, we tried too much! Mark this recording as failed. Sorry mates!
                 currentRecording.RecordingStatus = TstvRecordingStatus.Failed;
+
                 // Update recording after updating the status
                 ConditionalAccess.Utils.UpdateRecording(currentRecording, groupId, 1, 1, RecordingInternalStatus.Failed);
+
                 // Update all domains that have this recording
-                HandleFailedRecordingForAllDomains(groupId, currentRecording.Id, currentRecording.EpgStartDate, currentRecording.EpgEndDate);
+                GenericCeleryQueue queue = new GenericCeleryQueue();
+                DateTime utcNow = DateTime.UtcNow;
+                ApiObjects.QueueObjects.ExpiredRecordingData data = new ApiObjects.QueueObjects.ExpiredRecordingData(groupId, 0, currentRecording.Id, TVinciShared.DateUtils.DateTimeToUnixTimestamp(utcNow), utcNow) { ETA = utcNow };
+                bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_EXPIRED_RECORDING, groupId));
+                if (!queueExpiredRecordingResult)
+                {
+                    log.ErrorFormat("Failed to queue ExpiredRecording task for RetryTaskAfterProgramEnded when recording FAILED, recordingId: {0}, groupId: {1}", currentRecording.Id, groupId);
+                }
             }
         }
 
@@ -1155,10 +1165,19 @@ namespace Recordings
             {
                 log.DebugFormat("Retry task before program started: program started already, we will mark recording {0} as failed.", recording.Id);
                 recording.RecordingStatus = TstvRecordingStatus.Failed;
+
                 // Update recording after updating the status
                 ConditionalAccess.Utils.UpdateRecording(recording, groupId, 1, 1, RecordingInternalStatus.Failed);
-                // Update all domains that have this recording
-                HandleFailedRecordingForAllDomains(groupId, recording.Id, recording.EpgStartDate, recording.EpgEndDate);
+
+                // Update all domains that have this recording                
+                GenericCeleryQueue queue = new GenericCeleryQueue();
+                DateTime utcNow = DateTime.UtcNow;
+                ApiObjects.QueueObjects.ExpiredRecordingData data = new ApiObjects.QueueObjects.ExpiredRecordingData(groupId, 0, recording.Id, TVinciShared.DateUtils.DateTimeToUnixTimestamp(utcNow), utcNow) { ETA = utcNow };
+                bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_EXPIRED_RECORDING, groupId));
+                if (!queueExpiredRecordingResult)
+                {
+                    log.ErrorFormat("Failed to queue ExpiredRecording task for RetryTaskAfterProgramEnded when recording FAILED, recordingId: {0}, groupId: {1}", recording.Id, groupId);
+                }
             }
         }
 
@@ -1267,43 +1286,6 @@ namespace Recordings
             {
                 log.DebugFormat("Call adapter record for recording {0} will retry", currentRecording.Id);
                 RetryTaskBeforeProgramStarted(groupId, currentRecording, eRecordingTask.Record);
-            }
-        }
-
-        private static void HandleFailedRecordingForAllDomains(int groupId, long recordingId, DateTime startDate, DateTime endDate)
-        {
-            int recordingDuration = (int)(endDate - startDate).TotalSeconds;
-            try 
-            {
-                System.Data.DataTable dt = RecordingsDAL.GetDomainsWithFailedRecording(groupId, recordingId);
-                while (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                {
-                    foreach (System.Data.DataRow dr in dt.Rows)
-                    {
-                        long domainId = ODBCWrapper.Utils.GetLongSafeVal(dr, "DOMAIN_ID", 0);
-                        if (domainId == 0 || !QuotaManager.Instance.IncreaseDomainQuota(domainId, recordingDuration))
-                        {
-                            log.ErrorFormat("Error while handling failed recording, recordingId: {0}, domainId: {1}, recordingDuration: {2}", recordingId, domainId, recordingDuration);
-                        }
-                        else
-                        {
-                            GenericCeleryQueue queue = new GenericCeleryQueue();
-                            DateTime utcNow = DateTime.UtcNow;
-                            ApiObjects.QueueObjects.ExpiredRecordingData data = new ApiObjects.QueueObjects.ExpiredRecordingData(groupId, 0, recordingId, TVinciShared.DateUtils.DateTimeToUnixTimestamp(utcNow) ,utcNow) { ETA = utcNow };
-                            bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_EXPIRED_RECORDING, groupId));
-                            if (!queueExpiredRecordingResult)
-                            {
-                                log.ErrorFormat("Failed to queue ExpiredRecording task for HandleFailedRecordingForAllDomains, recordingId: {0}, groupId: {1}", recordingId, groupId);
-                            }
-                        }
-                    }
-
-                    dt = RecordingsDAL.GetDomainsWithFailedRecording(groupId, recordingId);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Error on HandleFailedRecordingForAllDomains, recordingId: {0}, groupId: {1}", recordingId, groupId), ex);
             }
         }
 
