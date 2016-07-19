@@ -853,6 +853,18 @@ namespace DAL
             return spCountRecordingsByExternalRecordingId.ExecuteReturnValue<int>();           
         }
 
+        public static DataTable GetDomainsWithFailedRecording(int groupId, long recordingId)
+        {
+            DataTable dt = null;
+            ODBCWrapper.StoredProcedure spGetDomainsWithFailedRecording = new ODBCWrapper.StoredProcedure("GetDomainsWithFailedRecording");
+            spGetDomainsWithFailedRecording.SetConnectionKey(RECORDING_CONNECTION);
+            spGetDomainsWithFailedRecording.AddParameter("@GroupID", groupId);
+            spGetDomainsWithFailedRecording.AddParameter("@RecordingId", recordingId);            
+            dt = spGetDomainsWithFailedRecording.Execute();
+
+            return dt;
+        }
+
         #region Couchbase
 
         public static RecordingCB GetRecordingByProgramId_CB(long programId)
