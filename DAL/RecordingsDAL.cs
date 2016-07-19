@@ -1020,7 +1020,7 @@ namespace DAL
                     currentQuota = cbClient.GetWithVersion<int>(domainQuotaKey, out version);
                     if (version != 0 && currentQuota > -1)
                     {
-                        updatedQuota = currentQuota + quotaToDecrease;
+                        updatedQuota = currentQuota - quotaToDecrease;
                         result = cbClient.SetWithVersion<int>(domainQuotaKey, updatedQuota, version);
                     }
                     else if (version == 0)
