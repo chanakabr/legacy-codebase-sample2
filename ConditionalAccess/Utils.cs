@@ -5005,7 +5005,7 @@ namespace ConditionalAccess
                 Type = seasonNumber > 0 ? RecordingType.Season : RecordingType.Series,
                 CreateDate = createDate,
                 UpdateDate = updateDate,
-                Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "TstvRecordingStatus is not cancel or delete")
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
             };
 
         }
@@ -5341,7 +5341,7 @@ namespace ConditionalAccess
             return recording;
         }
 
-        internal static SeriesRecording FollowSeasonOrSeries(int groupId, string userId, long domainID, long epgId, RecordingType recordingType, ref bool isFirstFollower)
+        internal static SeriesRecording FollowSeasonOrSeries(int groupId, string userId, long domainID, long epgId, RecordingType recordingType, ref bool isSeriesFollowed)
         {
             SeriesRecording seriesRecording = new SeriesRecording();
             List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(groupId, new List<long>() { epgId });
@@ -5362,15 +5362,15 @@ namespace ConditionalAccess
             string seriesId = epgFieldMappings[SERIES_ID];
             int seasonNumber = 0, episodeNumber = 0;
 
-            if (!int.TryParse(epgFieldMappings[SEASON_NUMBER], out seasonNumber) && recordingType == RecordingType.Season)
+            if (recordingType == RecordingType.Season && !int.TryParse(epgFieldMappings[SEASON_NUMBER], out seasonNumber))
             {
                 log.ErrorFormat("failed parsing SEASON_NUMBER, groupId: {0}, epgId: {1}, recordingType: {2}", groupId, epg.EPG_ID, recordingType.ToString());
                 return seriesRecording;
             }
 
             int.TryParse(epgFieldMappings[EPISODE_NUMBER], out episodeNumber);
-            isFirstFollower = RecordingsDAL.IsSeriesFollowed(groupId, seriesId, seasonNumber);
-            if (isFirstFollower)
+            isSeriesFollowed = RecordingsDAL.IsSeriesFollowed(groupId, seriesId, seasonNumber);
+            if (!isSeriesFollowed)
             {
                 QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
                 ApiObjects.QueueObjects.FirstFollowerRecordingData data = new ApiObjects.QueueObjects.FirstFollowerRecordingData(groupId, domainID, epg.EPG_CHANNEL_ID, seriesId, seasonNumber) { ETA = DateTime.UtcNow };
