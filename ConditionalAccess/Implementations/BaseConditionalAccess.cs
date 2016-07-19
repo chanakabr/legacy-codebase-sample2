@@ -17226,8 +17226,17 @@ namespace ConditionalAccess
                     {
                         log.DebugFormat("Recording {0} has been updated to status {1}", recording.Id, tstvRecordingStatus.ToString());
 
-                        QuotaManager.Instance.IncreaseDomainQuota(domainId, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds);
-                        CompleteDomainSeriesRecordings(domainId);
+                        if (QuotaManager.Instance.IncreaseDomainQuota(domainId, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds))
+                        {
+                            System.Threading.Tasks.Task async = Task.Factory.StartNew((taskDomainId) =>
+                            {
+                                ApiObjects.Response.Status response = CompleteDomainSeriesRecordings((long)taskDomainId);
+                                if (response == null || response.Code != (int)eResponseStatus.OK)
+                                {
+                                    log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after CancelOrDeleteRecord: domainId: {0}, response: {1}, ", domainId, response != null ? response.Code + ", " + response.Message : "");
+                                }
+                            }, domainId);
+                        }
                     }
                 }
                 else
@@ -17318,7 +17327,7 @@ namespace ConditionalAccess
                         if (recordingType == RecordingType.Single)
                         {
                             Dictionary<string, string> epgFieldMappings = null;
-                            if (!Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, recordingType, epgFieldMappings) || epgFieldMappings == null || epgFieldMappings.Count == 0)
+                            if (!Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, recordingType, out epgFieldMappings) || epgFieldMappings == null || epgFieldMappings.Count == 0)
                             {
                                 log.ErrorFormat("failed GetEpgFieldTypeEntitys, groupId: {0}, epgId: {1}, recordingType: {2}", m_nGroupID, epg.EPG_ID, recordingType.ToString());                                
                             }
@@ -17830,7 +17839,7 @@ namespace ConditionalAccess
                                     {
                                         // check if the epg is series by getting the fields mappings for the epg
                                         Dictionary<string, string> epgFieldMappings = null;
-                                        if (Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, RecordingType.Series, epgFieldMappings) && epgFieldMappings != null && epgFieldMappings.Count > 0)
+                                        if (Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, RecordingType.Series, out epgFieldMappings) && epgFieldMappings != null && epgFieldMappings.Count > 0)
                                         {
                                             // check if followed by at least 1 domain
                                             string sereisId = epgFieldMappings[Utils.SERIES_ID];
@@ -18641,7 +18650,10 @@ namespace ConditionalAccess
             return result;
         }
 
-        public bool HandleExpiredRecording(ExpiredRecordingScheduledTask expiredRecording)
+        /// <summary>
+        /// This method handles both Expired recordings and Failed recordings
+        /// </summary>
+        public bool HandleExpiredOrFailedRecording(ExpiredRecordingScheduledTask expiredRecording)
         {
             bool result = false;
             try
@@ -18708,14 +18720,15 @@ namespace ConditionalAccess
                     log.DebugFormat("recordingId: {0} has no domain recording that protect it");
                 }
 
-                if (!RecordingsDAL.UpdateExpiredRecordingAfterScheduledTask(expiredRecording.Id))
+                // incase expiredRecording.Id = 0 it means we are handling a FAILED recording and no need to update the table recording_scheduled_tasks 
+                if (expiredRecording.Id > 0 && !RecordingsDAL.UpdateExpiredRecordingAfterScheduledTask(expiredRecording.Id))
                 {
                     log.ErrorFormat("failed UpdateExpiredRecordingScheduledTask for expiredRecording: {0}", expiredRecording.ToString());
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error in HandleRecordingScheduledTasks, expiredRecording: {0}, ex = {1}, ST = {2}", expiredRecording.ToString(), ex.Message, ex.StackTrace);
+                log.ErrorFormat("Error in HandleExpiredOrFailedRecording, expiredRecording: {0}, ex = {1}, ST = {2}", expiredRecording.ToString(), ex.Message, ex.StackTrace);
 
             }
 
@@ -18888,8 +18901,6 @@ namespace ConditionalAccess
             {
                 seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 log.DebugFormat("Series recording {0} has been updated to status {1}", seriesRecording.Id, tstvRecordingStatus.ToString());
-
-                CompleteDomainSeriesRecordings(domainId);
             }
             else
             {
@@ -19174,7 +19185,7 @@ namespace ConditionalAccess
 
             EPGChannelProgrammeObject epg = epgs.First();
             Dictionary<string, string> epgFieldMappings = null;
-            if (!Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, RecordingType.Series, epgFieldMappings) || epgFieldMappings == null || epgFieldMappings.Count == 0)
+            if (!Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, RecordingType.Series, out epgFieldMappings) || epgFieldMappings == null || epgFieldMappings.Count == 0)
             {
                 log.ErrorFormat("failed GetEpgFieldTypeEntitys, groupId: {0}, epgId: {1}", m_nGroupID, epg.EPG_ID);
                 return result;

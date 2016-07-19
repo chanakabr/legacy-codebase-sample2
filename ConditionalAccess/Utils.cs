@@ -5354,7 +5354,7 @@ namespace ConditionalAccess
 
             EPGChannelProgrammeObject epg = epgs.First();
             Dictionary<string, string> epgFieldMappings = null;
-            if (!GetEpgFieldTypeEntitys(groupId, epg, recordingType, epgFieldMappings) || epgFieldMappings == null || epgFieldMappings.Count == 0)
+            if (!GetEpgFieldTypeEntitys(groupId, epg, recordingType, out epgFieldMappings) || epgFieldMappings == null || epgFieldMappings.Count == 0)
             {
                 log.ErrorFormat("failed GetEpgFieldTypeEntitys, groupId: {0}, epgId: {1}, recordingType: {2}", groupId, epg.EPG_ID, recordingType.ToString());
                 return seriesRecording;
@@ -5395,7 +5395,7 @@ namespace ConditionalAccess
             return seriesRecording;
         }
 
-        internal static bool GetEpgFieldTypeEntitys(int groupId, EPGChannelProgrammeObject epg, RecordingType recordingType, Dictionary<string, string> epgFieldMappings)
+        internal static bool GetEpgFieldTypeEntitys(int groupId, EPGChannelProgrammeObject epg, RecordingType recordingType, out Dictionary<string, string> epgFieldMappings)
         {
             bool result = false;
             epgFieldMappings = new Dictionary<string, string>();
