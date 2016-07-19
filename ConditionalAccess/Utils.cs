@@ -5191,17 +5191,17 @@ namespace ConditionalAccess
             try
             {
                 StringBuilder ksql = new StringBuilder();
-                ksql.AppendFormat("(and series_id = {0} ", seriesId);
+                ksql.AppendFormat("(and series_id = '{0}' ", seriesId);
 
                 if (seasonNumber > 0)
-                    ksql.AppendFormat("season_number = {0}", seasonNumber);
+                    ksql.AppendFormat("season_number = '{0}'", seasonNumber);
 
                 if (windowStartDate.HasValue)
                 {
-                    ksql.AppendFormat("start_date > {0}", TVinciShared.DateUtils.DateTimeToUnixTimestamp(windowStartDate.Value));
+                    ksql.AppendFormat("start_date > '{0}'", TVinciShared.DateUtils.DateTimeToUnixTimestamp(windowStartDate.Value));
                 }
 
-                ksql.AppendFormat("epg_channel_id = {0})", epgChannelId);
+                ksql.AppendFormat("epg_channel_id = '{0}')", epgChannelId);
 
                 WS_Catalog.ExtendedSearchRequest request = new WS_Catalog.ExtendedSearchRequest()
                 {
