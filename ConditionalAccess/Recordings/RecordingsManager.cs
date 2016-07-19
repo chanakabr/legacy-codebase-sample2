@@ -270,18 +270,29 @@ namespace Recordings
                     Dictionary<long, Recording> recordingsEpgMap = ConditionalAccess.Utils.GetEpgToRecordingsMapByCridAndChannel(groupId, slimRecording.Crid, slimRecording.ChannelId);
                     Recording existingRecordingWithMinStartDate;
 
-                    // get all the recordings with the same CRID if our recording is the earlier - cancel the existing recording and record the new
-                    if (recordingsEpgMap != null && recordingsEpgMap.Count > 0 &&
-                             (existingRecordingWithMinStartDate = recordingsEpgMap.OrderBy(x => x.Value.EpgStartDate).ToList().First().Value) != null
-                             && slimRecording.EpgId == existingRecordingWithMinStartDate.EpgId)
+                    // get all the recordings with the same CRID if our recording is the earliest - record the next before canceling deleting this one
+                    if (recordingsEpgMap != null && recordingsEpgMap.Count > 0)
                     {
-                        CallAdapterRecord(groupId, slimRecording.ChannelId, slimRecording.EpgStartDate, slimRecording.EpgEndDate, false, slimRecording);
-                        if (!RecordingsDAL.UpdateRecordingsExternalId(groupId, slimRecording.ExternalRecordingId, slimRecording.Crid))
+                        var orderedRecordings = recordingsEpgMap.OrderBy(x => x.Value.EpgStartDate).ToList();
+                        existingRecordingWithMinStartDate = orderedRecordings.First().Value;
+
+                        if (slimRecording.EpgId == existingRecordingWithMinStartDate.EpgId && orderedRecordings.Count > 1)
                         {
-                            log.ErrorFormat("Failed UpdateRecordingsExternalId, ExternalRecordingId: {0}, Crid: {1}", slimRecording.ExternalRecordingId, slimRecording.Crid);
+                            Recording secondRecording = orderedRecordings[1].Value;
+                            CallAdapterRecord(groupId, secondRecording.ChannelId, secondRecording.EpgStartDate, secondRecording.EpgEndDate, false, secondRecording);
+                            if (secondRecording.Status == null || secondRecording.Status.Code != (int)eResponseStatus.OK)
+                            {
+                                status = secondRecording.Status;
+                                return status;
+                            }
+                            else if (!RecordingsDAL.UpdateRecordingsExternalId(groupId, secondRecording.ExternalRecordingId, secondRecording.Crid))
+                            {
+                                log.ErrorFormat("Failed UpdateRecordingsExternalId, ExternalRecordingId: {0}, Crid: {1}", secondRecording.ExternalRecordingId, secondRecording.Crid);
+                                status = new Status((int)eResponseStatus.Error, "Failed updating recordings external IDs in database.");
+                                return status;
+                            }
                         }
                     }
-
                     // Call Adapter to cancel or delete recording                    
                     try
                     {
@@ -528,7 +539,7 @@ namespace Recordings
                     Dictionary<long, Recording> recordingsEpgMap = ConditionalAccess.Utils.GetEpgToRecordingsMapByCridAndChannel(groupId, recording.Crid, recording.ChannelId);
                     Recording existingRecordingWithMinStartDate;
                     
-                    // get all the recordings with the same CRID if our recording is the earlier - cancel the existing recording and record the new
+                    // get all the recordings with the same CRID if our recording is the earliest - cancel the existing recording and record the new
                     if (recordingsEpgMap != null && recordingsEpgMap.Count > 0) 
                     {
                         existingRecordingWithMinStartDate = recordingsEpgMap.OrderBy(x => x.Value.EpgStartDate).ToList().First().Value;
