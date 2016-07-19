@@ -19119,8 +19119,8 @@ namespace ConditionalAccess
                     return seriesRecording;
                 }
 
-                bool isFirstFollower = false;
-                seriesRecording = Utils.FollowSeasonOrSeries(m_nGroupID, userID, domainID, epgID, recordingType, ref isFirstFollower);
+                bool isSeriesFollowed = false;
+                seriesRecording = Utils.FollowSeasonOrSeries(m_nGroupID, userID, domainID, epgID, recordingType, ref isSeriesFollowed);
                 if (seriesRecording == null || seriesRecording.Status == null)
                 {
                     log.ErrorFormat("Failed Utils.FollowSeasonOrSeries, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, seriesRecording.ToString());
@@ -19133,8 +19133,8 @@ namespace ConditionalAccess
                     return seriesRecording;
                 }
 
-                // if the domain is not the first to follow the series then complete the series recordings for the domain
-                if (!isFirstFollower)
+                // if series is already followed then complete the series recordings for the domain
+                if (isSeriesFollowed)
                 {
                     ApiObjects.Response.Status completeRecordingsStatus = CompleteDomainSeriesRecordings(domainID, seriesRecording.Id);
                     if (completeRecordingsStatus == null || completeRecordingsStatus.Code != (int)eResponseStatus.OK)

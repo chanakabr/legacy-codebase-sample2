@@ -713,7 +713,7 @@ namespace DAL
 
             int rowsFound = spIsSeriesFollowed.ExecuteReturnValue<int>();
 
-            return rowsFound == 1;
+            return rowsFound > 0;
         }
 
         public static bool IsFollowingSeries(int groupId, long domainID, string seriesId, int seasonNumber)
