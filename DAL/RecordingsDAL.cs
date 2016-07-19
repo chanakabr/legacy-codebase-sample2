@@ -695,7 +695,7 @@ namespace DAL
             spFollowSeries.AddParameter("@DomainID", domainID);
             spFollowSeries.AddParameter("@EpgID", epgId);
             spFollowSeries.AddParameter("@EpgChannelID", epgChannelId);
-            spFollowSeries.AddParameter("@SeriesId", seriesId);
+            spFollowSeries.AddParameter("@SeriesID", seriesId);
             spFollowSeries.AddParameter("@SeasonNumber", seasonNumber);
             spFollowSeries.AddParameter("@EpisodeNumber", episodeNumber);
             DataTable dt = spFollowSeries.Execute();
@@ -851,6 +851,18 @@ namespace DAL
             spCountRecordingsByExternalRecordingId.AddParameter("@ExternalRecordingId", externalRecordingId);
 
             return spCountRecordingsByExternalRecordingId.ExecuteReturnValue<int>();           
+        }
+
+        public static DataTable GetDomainsWithFailedRecording(int groupId, long recordingId)
+        {
+            DataTable dt = null;
+            ODBCWrapper.StoredProcedure spGetDomainsWithFailedRecording = new ODBCWrapper.StoredProcedure("GetDomainsWithFailedRecording");
+            spGetDomainsWithFailedRecording.SetConnectionKey(RECORDING_CONNECTION);
+            spGetDomainsWithFailedRecording.AddParameter("@GroupID", groupId);
+            spGetDomainsWithFailedRecording.AddParameter("@RecordingId", recordingId);            
+            dt = spGetDomainsWithFailedRecording.Execute();
+
+            return dt;
         }
 
         #region Couchbase
