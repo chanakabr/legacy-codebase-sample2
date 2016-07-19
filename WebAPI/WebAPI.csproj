@@ -538,7 +538,6 @@
     <Content Include="testmeDoc\actions\parentalrule.disableDefault.html" />
     <Content Include="testmeDoc\actions\parentalrule.enable.html" />
     <Content Include="testmeDoc\actions\parentalrule.list.html" />
-    <Content Include="testmeDoc\actions\paymentgateway.delete.html" />
     <Content Include="testmeDoc\actions\paymentgatewayprofile.add.html" />
     <Content Include="testmeDoc\actions\paymentgatewayprofile.delete.html" />
     <Content Include="testmeDoc\actions\paymentgatewayprofile.generateSharedSecret.html" />
@@ -768,7 +767,6 @@
     <Content Include="testmeDoc\objects\KalturaPaymentGatewayConfiguration.html" />
     <Content Include="testmeDoc\objects\KalturaPaymentGatewayProfile.html" />
     <Content Include="testmeDoc\objects\KalturaPaymentGatewayProfileListResponse.html" />
-    <Content Include="testmeDoc\objects\KalturaPaymentMethod.html" />
     <Content Include="testmeDoc\objects\KalturaPaymentMethodProfile.html" />
     <Content Include="testmeDoc\objects\KalturaPaymentMethodProfileFilter.html" />
     <Content Include="testmeDoc\objects\KalturaPaymentMethodProfileListResponse.html" />
@@ -871,7 +869,6 @@
     <Content Include="testmeDoc\services\ottcategory.html" />
     <Content Include="testmeDoc\services\ottuser.html" />
     <Content Include="testmeDoc\services\parentalrule.html" />
-    <Content Include="testmeDoc\services\paymentgateway.html" />
     <Content Include="testmeDoc\services\paymentgatewayprofile.html" />
     <Content Include="testmeDoc\services\paymentmethodprofile.html" />
     <Content Include="testmeDoc\services\personalfeed.html" />
