@@ -5191,7 +5191,7 @@ namespace ConditionalAccess
             try
             {
                 StringBuilder ksql = new StringBuilder();
-                ksql.AppendFormat("(And series_id = {0} ", seriesId);
+                ksql.AppendFormat("(and series_id = {0} ", seriesId);
 
                 if (seasonNumber > 0)
                     ksql.AppendFormat("season_number = {0}", seasonNumber);
