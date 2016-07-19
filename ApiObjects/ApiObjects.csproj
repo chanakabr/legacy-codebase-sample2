@@ -72,6 +72,9 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\TVinciCommon\External\Couchbase-Net-Client-2.2.6\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="ServiceExtensions">
+      <HintPath>..\..\TVinciCommon\External\ServiceExtensions.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -112,6 +115,7 @@
     <Compile Include="CDVRAdapter\CDVRAdapterResponseList.cs" />
     <Compile Include="CDVRAdapter\CDVRAdapterSettings.cs" />
     <Compile Include="DevicePinResponse.cs" />
+    <Compile Include="DummyDllLoader.cs" />
     <Compile Include="EpgIngestResponse.cs" />
     <Compile Include="IngestAssetStatus.cs" />
     <Compile Include="IngestBusinessModules\BusinessModuleResponse.cs" />
