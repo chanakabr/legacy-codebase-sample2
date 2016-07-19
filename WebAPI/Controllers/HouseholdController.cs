@@ -242,6 +242,7 @@ namespace WebAPI.Controllers
         /// <param name="charge_id">The billing user account identifier for this household at the given payment gateway</param>        
         [Route("setChargeID"), HttpPost]
         [ApiAuthorize]
+        [Obsolete]
         public bool SetChargeID(string pg_id, string charge_id)
         {
             bool response = false;
@@ -274,6 +275,7 @@ namespace WebAPI.Controllers
         /// <param name="pg_id">External identifier for the payment gateway  </param>        
         [Route("getChargeID"), HttpPost]
         [ApiAuthorize]
+        [Obsolete]
         public string GetChargeID(string pg_id)
         {
             string chargeId = string.Empty;
@@ -310,6 +312,7 @@ namespace WebAPI.Controllers
         /// <param name="payment_method_external_id"></param>        
         [Route("setPaymentMethodExternalId"), HttpPost]
         [ApiAuthorize]
+        [Obsolete]
         public bool SetPaymentMethodExternalId(string payment_gateway_id, string payment_method_name, string payment_details, string payment_method_external_id)
         {
             bool response = false;

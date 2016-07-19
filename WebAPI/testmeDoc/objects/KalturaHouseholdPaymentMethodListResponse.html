@@ -29,7 +29,7 @@
 		<h2>Kaltura API</h2>
 		<table class="action" width="80%">
 			<tr>
-				<th class="service_action_title">KalturaPaymentMethod</th>
+				<th class="service_action_title">KalturaHouseholdPaymentMethodListResponse</th>
 			</tr>
 			<tr>
 				<td class="title">Properties</td>
@@ -70,7 +70,38 @@
 					<table style="">
 						<tbody>
 							<tr>
-								<td class="inheritedFrom"><b>KalturaPaymentMethod</b></td>
+								<td class="inheritedFrom">
+									<b><img class="base-attribute" src="../images/collapsed.gif"> Inherited from <a href="KalturaListResponse.html">KalturaListResponse</a></b>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table style="display: none">
+						<tbody>
+							<tr>
+								<th class="subtitle">Name</th>
+								<th class="subtitle">Type</th>
+								<th class="subtitle">Writable</th>
+								<th class="subtitle">Restrictions</th>
+								<th class="subtitle">Description</th>
+							</tr>
+							<tr >
+								<td>totalCount</td>
+								<td>int</td>
+								<td>V</td>
+								<td></td>
+								<td>Total items</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<table style="">
+						<tbody>
+							<tr>
+								<td class="inheritedFrom"><b>KalturaHouseholdPaymentMethodListResponse</b></td>
 							</tr>
 						</tbody>
 					</table>
@@ -84,32 +115,11 @@
 								<th class="subtitle">Description</th>
 							</tr>
 							<tr >
-								<td>id</td>
-								<td>int</td>
-								<td>V</td>
-								<td></td>
-								<td>Payment method identifier (internal)</td>
-							</tr>
-							<tr class="odd">
-								<td>name</td>
-								<td>string</td>
-								<td>V</td>
-								<td></td>
-								<td>Payment method name</td>
-							</tr>
-							<tr >
-								<td>allowMultiInstance</td>
-								<td>bool</td>
-								<td>V</td>
-								<td></td>
-								<td>Indicates whether the payment method allow multiple instances</td>
-							</tr>
-							<tr class="odd">
-								<td>householdPaymentMethods</td>
+								<td>objects</td>
 								<td>array of <a href="KalturaHouseholdPaymentMethod.html">KalturaHouseholdPaymentMethod</a></td>
 								<td>V</td>
 								<td></td>
-								<td>Payment method name</td>
+								<td>Follow data list</td>
 							</tr>
 						</tbody>
 					</table>

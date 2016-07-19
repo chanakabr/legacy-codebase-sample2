@@ -13,6 +13,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/paymentGateway/action")]
+    [Obsolete]
     public class PaymentGatewayController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -26,7 +27,6 @@ namespace WebAPI.Controllers
         /// </remarks>        
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        [Obsolete]
         public List<Models.Billing.KalturaPaymentGatewayBaseProfile> List()
         {
             List<Models.Billing.KalturaPaymentGatewayBaseProfile> response = null;

@@ -66,6 +66,14 @@ namespace WebAPI.Models.Billing
         public int? Id { get; set; }
 
         /// <summary>
+        /// Payment gateway identifier (internal)
+        /// </summary>
+        [DataMember(Name = "paymentGatewayId")]
+        [JsonProperty("paymentGatewayId")]
+        [XmlElement(ElementName = "paymentGatewayId")]
+        public int? PaymentGatewayId { get; set; }
+
+        /// <summary>
         /// Payment method name
         /// </summary>
         [DataMember(Name = "name")]
@@ -88,7 +96,12 @@ namespace WebAPI.Models.Billing
 
         internal int getId()
         {
-            return Id.HasValue ? (int)Id : 0;
+            return Id.HasValue ? Id.Value : 0;
+        }
+
+        internal int getPaymentGatewayId()
+        {
+            return PaymentGatewayId.HasValue ? PaymentGatewayId.Value : 0;
         }
     }
 }

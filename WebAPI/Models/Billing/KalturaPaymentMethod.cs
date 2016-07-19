@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
@@ -12,6 +13,7 @@ namespace WebAPI.Models.Billing
     /// </summary>
     [OldStandard("allowMultiInstance", "allow_multi_instance")]
     [OldStandard("householdPaymentMethods", "household_payment_methods")]
+    [Obsolete]
     public class KalturaPaymentMethod : KalturaOTTObject
     {
         /// <summary>

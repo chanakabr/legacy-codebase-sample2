@@ -85,6 +85,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.StatusUrl, opt => opt.MapFrom(src => src.PaymentGateway.StatusUrl))
                 .ForMember(dest => dest.TransactUrl, opt => opt.MapFrom(src => src.PaymentGateway.TransactUrl));
 
+            Mapper.CreateMap<PaymentGatewaySelectedBy, WebAPI.Models.Billing.KalturaHouseholdPaymentGateway>()
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+             .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
+             .ForMember(dest => dest.selectedBy, opt => opt.MapFrom(src => ConvertHouseholdPaymentGatewaySelectedBy(src.By)));
+
             Mapper.CreateMap<PaymentGatewaySelectedBy, WebAPI.Models.Billing.KalturaPaymentGatewayBaseProfile>()
              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
@@ -94,6 +100,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             Mapper.CreateMap<PaymentMethod, WebAPI.Models.Billing.KalturaPaymentMethodProfile>()
              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+             .ForMember(dest => dest.PaymentGatewayId, opt => opt.MapFrom(src => src.PaymentGatewayId))
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
              .ForMember(dest => dest.AllowMultiInstance, opt => opt.MapFrom(src => src.AllowMultiInstance));
 
@@ -108,6 +115,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.PaymentMethod.Name))
             .ForMember(dest => dest.AllowMultiInstance, opt => opt.MapFrom(src => src.PaymentMethod.AllowMultiInstance))
             .ForMember(dest => dest.HouseholdPaymentMethods, opt => opt.MapFrom(src => src.HouseHoldPaymentMethods));
+
+            Mapper.CreateMap<PaymentGatwayPaymentMethods, WebAPI.Models.Billing.KalturaHouseholdPaymentMethod>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.PaymentMethod.ID))
+            .ForMember(dest => dest.PaymentGatewayId, opt => opt.MapFrom(src => src.PaymentMethod.PaymentGatewayId))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.PaymentMethod.Name))
+            .ForMember(dest => dest.AllowMultiInstance, opt => opt.MapFrom(src => src.PaymentMethod.AllowMultiInstance));
 
             Mapper.CreateMap<HouseholdPaymentMethod, WebAPI.Models.Billing.KalturaHouseholdPaymentMethod>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
