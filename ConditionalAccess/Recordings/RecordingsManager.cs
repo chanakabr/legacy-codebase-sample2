@@ -23,6 +23,7 @@ namespace Recordings
         #region Consts
 
         private const string SCHEDULED_TASKS_ROUTING_KEY = "PROCESS_RECORDING_TASK\\{0}";
+        private const string ROUTING_KEY_EXPIRED_RECORDING = "PROCESS_EXPIRED_RECORDING\\{0}";
 
         private static readonly int MINUTES_ALLOWED_DIFFERENCE = 5;
         private static readonly int MINUTES_RETRY_INTERVAL;
@@ -1282,7 +1283,18 @@ namespace Recordings
                         long domainId = ODBCWrapper.Utils.GetLongSafeVal(dr, "DOMAIN_ID", 0);
                         if (domainId == 0 || !QuotaManager.Instance.IncreaseDomainQuota(domainId, recordingDuration))
                         {
-                            log.ErrorFormat("Error while handling failed recording, recordingId: {0}, domainId: {1}, recordingDuration: {2}", recordingId, domainId, recordingDuration);                        
+                            log.ErrorFormat("Error while handling failed recording, recordingId: {0}, domainId: {1}, recordingDuration: {2}", recordingId, domainId, recordingDuration);
+                        }
+                        else
+                        {
+                            GenericCeleryQueue queue = new GenericCeleryQueue();
+                            DateTime utcNow = DateTime.UtcNow;
+                            ApiObjects.QueueObjects.ExpiredRecordingData data = new ApiObjects.QueueObjects.ExpiredRecordingData(groupId, 0, recordingId, TVinciShared.DateUtils.DateTimeToUnixTimestamp(utcNow) ,utcNow) { ETA = utcNow };
+                            bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_EXPIRED_RECORDING, groupId));
+                            if (!queueExpiredRecordingResult)
+                            {
+                                log.ErrorFormat("Failed to queue ExpiredRecording task for HandleFailedRecordingForAllDomains, recordingId: {0}, groupId: {1}", recordingId, groupId);
+                            }
                         }
                     }
 

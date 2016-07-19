@@ -18706,7 +18706,7 @@ namespace ConditionalAccess
                     log.DebugFormat("recordingId: {0} has no domain recording that protect it");
                 }
 
-                if (!RecordingsDAL.UpdateExpiredRecordingAfterScheduledTask(expiredRecording.Id))
+                if (expiredRecording.Id > 0 && !RecordingsDAL.UpdateExpiredRecordingAfterScheduledTask(expiredRecording.Id))
                 {
                     log.ErrorFormat("failed UpdateExpiredRecordingScheduledTask for expiredRecording: {0}", expiredRecording.ToString());
                 }
