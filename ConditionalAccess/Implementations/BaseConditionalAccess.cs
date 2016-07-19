@@ -18932,7 +18932,7 @@ namespace ConditionalAccess
                         // try to get recording by epg
                         Recording recording = ConditionalAccess.Utils.GetRecordingByEpgId(m_nGroupID, epgId);
                         // insert new domains_recordings to domain with status delete / cancel
-                        if (recording == null)
+                        if (recording == null || recording.Id == 0)
                         {
                             recording = new Recording()
                                 {
