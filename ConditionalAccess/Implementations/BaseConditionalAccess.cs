@@ -17318,7 +17318,7 @@ namespace ConditionalAccess
                         if (recordingType == RecordingType.Single)
                         {
                             Dictionary<string, string> epgFieldMappings = null;
-                            if (!Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, recordingType, epgFieldMappings) || epgFieldMappings == null || epgFieldMappings.Count == 0)
+                            if (!Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, recordingType, out epgFieldMappings) || epgFieldMappings == null || epgFieldMappings.Count == 0)
                             {
                                 log.ErrorFormat("failed GetEpgFieldTypeEntitys, groupId: {0}, epgId: {1}, recordingType: {2}", m_nGroupID, epg.EPG_ID, recordingType.ToString());                                
                             }
@@ -17828,7 +17828,7 @@ namespace ConditionalAccess
 
                                     // check if the epg is series by getting the fields mappings for the epg
                                     Dictionary<string, string> epgFieldMappings = null;
-                                    if (Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, RecordingType.Series, epgFieldMappings) && epgFieldMappings != null && epgFieldMappings.Count > 0)
+                                    if (Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, RecordingType.Series, out epgFieldMappings) && epgFieldMappings != null && epgFieldMappings.Count > 0)
                                     {
                                         // check if followed by at least 1 domain
                                         string sereisId = epgFieldMappings[Utils.SERIES_ID];
@@ -19172,7 +19172,7 @@ namespace ConditionalAccess
 
             EPGChannelProgrammeObject epg = epgs.First();
             Dictionary<string, string> epgFieldMappings = null;
-            if (!Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, RecordingType.Series, epgFieldMappings) || epgFieldMappings == null || epgFieldMappings.Count == 0)
+            if (!Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, RecordingType.Series, out epgFieldMappings) || epgFieldMappings == null || epgFieldMappings.Count == 0)
             {
                 log.ErrorFormat("failed GetEpgFieldTypeEntitys, groupId: {0}, epgId: {1}", m_nGroupID, epg.EPG_ID);
                 return result;

@@ -695,7 +695,7 @@ namespace DAL
             spFollowSeries.AddParameter("@DomainID", domainID);
             spFollowSeries.AddParameter("@EpgID", epgId);
             spFollowSeries.AddParameter("@EpgChannelID", epgChannelId);
-            spFollowSeries.AddParameter("@SeriesId", seriesId);
+            spFollowSeries.AddParameter("@SeriesID", seriesId);
             spFollowSeries.AddParameter("@SeasonNumber", seasonNumber);
             spFollowSeries.AddParameter("@EpisodeNumber", episodeNumber);
             DataTable dt = spFollowSeries.Execute();
