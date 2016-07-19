@@ -4454,7 +4454,7 @@ namespace ConditionalAccess
                         recordingStatus = TstvRecordingStatus.Recorded;
                     }
                     // If program already started but didn't finish, we say it is recording
-                    else if (epgEndDate < DateTime.UtcNow)
+                    else if (epgStartDate < DateTime.UtcNow)
                     {
                         recordingStatus = TstvRecordingStatus.Recording;
                     }
@@ -5305,12 +5305,6 @@ namespace ConditionalAccess
                 {
                     log.ErrorFormat("Failed Convert RecordingInternalStatus: {0} to TstvRecordingStatus for recordingID: {1}", recordingInternalStatus, id);
                     return recording;
-                }
-
-                // if internal recording status was 0 now recordingStatus is OK and we need to set recording status according to RecordingsManager
-                if (recordingStatus.Value == TstvRecordingStatus.OK)
-                {
-                    recordingStatus = RecordingsManager.GetTstvRecordingStatus(epgStartDate, epgEndDate, TstvRecordingStatus.Scheduled);
                 }
 
                 // create recording object
