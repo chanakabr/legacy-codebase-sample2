@@ -53,7 +53,7 @@
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\tvincicommon\External\Couchbase-2.2.5\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\PGAdapter\PGAdapterCommon\CommonBin\Newtonsoft.Json.8.0.3\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="ServiceExtensions">
       <HintPath>..\..\tvincicommon\External\ServiceExtensions.dll</HintPath>
