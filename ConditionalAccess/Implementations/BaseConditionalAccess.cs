@@ -18792,10 +18792,13 @@ namespace ConditionalAccess
                     }
                 }
 
-                ApiObjects.Response.Status completeRecordingsStatus = CompleteDomainSeriesRecordings(domainId);
-                if (completeRecordingsStatus.Code != (int)eResponseStatus.OK)
+                if (epgsToRecord.Count > 0)
                 {
-                    log.ErrorFormat("Failed completeRecordingsStatus for domainId: {0}, seriesId: {1}, seassonNumber: {2}", domainId, seriesId, seassonNumber);
+                    ApiObjects.Response.Status completeRecordingsStatus = CompleteDomainSeriesRecordings(domainId);
+                    if (completeRecordingsStatus.Code != (int)eResponseStatus.OK)
+                    {
+                        log.ErrorFormat("Failed completeRecordingsStatus for domainId: {0}, seriesId: {1}, seassonNumber: {2}", domainId, seriesId, seassonNumber);
+                    }
                 }
 
                 result = true;
