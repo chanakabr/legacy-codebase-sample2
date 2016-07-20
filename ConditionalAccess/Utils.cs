@@ -5200,7 +5200,7 @@ namespace ConditionalAccess
                     {
                         m_bOnlyActiveMedia = true
                     },
-                    ExtraReturnFields = new string[] { "epg_id", "epg_channel_id", "crid" },
+                    ExtraReturnFields = new string[] { "epg_channel_id", "crid" },
                 };
                 FillCatalogSignature(request);
                 client = new WS_Catalog.IserviceClient();
