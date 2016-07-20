@@ -21,7 +21,7 @@ namespace FirstFollowerRecordingHandler
             string result = "failure";
             try
             {
-                log.DebugFormat("starting ExpiredRecording request. data={0}", data);
+                log.DebugFormat("starting FirstFollowerRecording request. data={0}", data);
                 FirstFollowerRecordingRequest request = JsonConvert.DeserializeObject<FirstFollowerRecordingRequest>(data);
                 string url = TVinciShared.WS_Utils.GetTcmConfigValue("WS_CAS");
                 using (WS_CAS.module cas = new WS_CAS.module())
