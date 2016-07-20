@@ -17,7 +17,9 @@ namespace DAL
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int RETRY_LIMIT = 5;
-        private const string RECORDING_CONNECTION = "RECORDING_CONNECTION_STRING";
+        private const uint FIRST_FOLLOWER_BLOCK_LOCK_TTL_SEC = 600;
+        private const uint FIRST_FOLLOWER_INDEX_LOCK_TTL_SEC = 60;
+        private const string RECORDING_CONNECTION = "RECORDING_CONNECTION_STRING";        
 
         private static void HandleException(Exception ex)
         {
@@ -1057,48 +1059,123 @@ namespace DAL
             return result;
         }
 
-        ///// <summary>
-        ///// DO NOT DIRECTLY USE THIS FUNCTION, should be called only from QuotaManager
-        ///// </summary>
-        //public static bool InsertQuotaForDomain(long domainId, int quotaToInsert)
-        //{
-        //    bool result = false;
-        //    CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
-        //    int limitRetries = RETRY_LIMIT;
-        //    Random r = new Random();
-        //    string domainQuotaKey = UtilsDal.GetDomainQuotaKey(domainId);
-        //    if (string.IsNullOrEmpty(domainQuotaKey))
-        //    {
-        //        log.ErrorFormat("Failed getting domainQuotaKey for domainId: {0}", domainId);
-        //        return result;
-        //    }
+        public static bool InsertFirstFollowerLock(int groupId, string seriesId, int seasonNumber, string channelId, bool isBlockLock)
+        {
+            bool result = false;
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
+            int limitRetries = RETRY_LIMIT;
+            Random r = new Random();
+            string firstFollowerLockKey = UtilsDal.GetFirstFollowerLockKey(groupId, seriesId, seasonNumber, channelId);
+            if (string.IsNullOrEmpty(firstFollowerLockKey))
+            {
+                log.ErrorFormat("Failed getting firstFollowerLockKey for groupId: {0}, seriesId: {1}, seasonNumber: {2}, channelId: {3}, isBlockLock: {4}", groupId, seriesId, seasonNumber, channelId, isBlockLock);
+                return result;
+            }
 
-        //    try
-        //    {
-        //        int numOfRetries = 0;
-        //        while (!result && numOfRetries < limitRetries)
-        //        {                                                            
-        //            if (version != 0 && currentQuota > -1)
-        //            {
-        //                int updatedQuota = currentQuota + quotaToDecrease;
-        //                result = cbClient.SetWithVersion<int>(domainQuotaKey, updatedQuota, version);
-        //            }
+            try
+            {
+                uint ttl = isBlockLock ? FIRST_FOLLOWER_BLOCK_LOCK_TTL_SEC : FIRST_FOLLOWER_INDEX_LOCK_TTL_SEC;
+                int numOfRetries = 0;
+                while (!result && numOfRetries < limitRetries)
+                {
+                    result = cbClient.Set<long>(firstFollowerLockKey, ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow), ttl, true);                    
+                    if (!result)
+                    {
+                        numOfRetries++;
+                        log.ErrorFormat("Error while InsertFirstFollowerLock. number of tries: {0}/{1}. groupId: {2}, seriesId: {3}, seasonNumber: {4}, channelId: {5}, isBlockLock: {6}",
+                                        numOfRetries, limitRetries, groupId, seriesId, seasonNumber, channelId, isBlockLock);
+                        System.Threading.Thread.Sleep(r.Next(50));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error on InsertFirstFollowerLock, groupId: {0}, seriesId: {1}, seasonNumber: {2}, channelId: {3}, isBlockLock: {4}",
+                                            groupId, seriesId, seasonNumber, channelId, isBlockLock), ex);
+            }
 
-        //            if (!result)
-        //            {
-        //                numOfRetries++;
-        //                log.ErrorFormat("Error while adding quota to domain. number of tries: {0}/{1}. domainId: {2}, currentQuota: {3}, quotaToDecrease: {4}", numOfRetries, limitRetries, domainId, currentQuota, quotaToDecrease);
-        //                System.Threading.Thread.Sleep(r.Next(50));
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        log.ErrorFormat("Error while adding quota to domain, domainId: {0}, quotaToDecrease: {1}, ex: {2}", domainId, quotaToDecrease, ex);
-        //    }
+            return result;
+        }
 
-        //    return result;
-        //}
+        public static long GetFirstFollowerLock(int groupId, string seriesId, int seasonNumber, string channelId)
+        {
+            long lockTime = 0;            
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
+            int limitRetries = RETRY_LIMIT;
+            Random r = new Random();
+            string firstFollowerLockKey = UtilsDal.GetFirstFollowerLockKey(groupId, seriesId, seasonNumber, channelId);
+            if (string.IsNullOrEmpty(firstFollowerLockKey))
+            {
+                log.ErrorFormat("Failed getting firstFollowerLockKey for groupId: {0}, seriesId: {1}, seasonNumber: {2}, channelId: {3}", groupId, seriesId, seasonNumber, channelId);
+                return lockTime;
+            }
+
+            try
+            {                
+                int numOfRetries = 0;
+                while (numOfRetries < limitRetries)
+                {                    
+                    Couchbase.IO.ResponseStatus cbResponse;
+                    lockTime = cbClient.Get<long>(firstFollowerLockKey, out cbResponse);
+                    if (cbResponse != Couchbase.IO.ResponseStatus.KeyNotFound && cbResponse != Couchbase.IO.ResponseStatus.Success)
+                    {
+                        numOfRetries++;
+                        log.ErrorFormat("Error while GetFirstFollowerLock. number of tries: {0}/{1}. groupId: {2}, seriesId: {3}, seasonNumber: {4}, channelId: {5}",
+                                        numOfRetries, limitRetries, groupId, seriesId, seasonNumber, channelId);
+                        System.Threading.Thread.Sleep(r.Next(50));
+                    }
+                    // exit while, we are OK!
+                    else
+                    {
+                        numOfRetries = limitRetries;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error on GetFirstFollowerLock, groupId: {0}, seriesId: {1}, seasonNumber: {2}, channelId: {3}",
+                                            groupId, seriesId, seasonNumber, channelId), ex);
+            }
+
+            return lockTime;
+        }
+
+        public static bool DeleteFirstFollowerLock(int groupId, string seriesId, int seasonNumber, string channelId)
+        {
+            bool result = false;
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
+            int limitRetries = RETRY_LIMIT;
+            Random r = new Random();
+            string firstFollowerLockKey = UtilsDal.GetFirstFollowerLockKey(groupId, seriesId, seasonNumber, channelId);
+            if (string.IsNullOrEmpty(firstFollowerLockKey))
+            {
+                log.ErrorFormat("Failed getting firstFollowerLockKey for groupId: {0}, seriesId: {1}, seasonNumber: {2}, channelId: {3}", groupId, seriesId, seasonNumber, channelId);
+                return result;
+            }
+
+            try
+            {
+                int numOfRetries = 0;
+                while (!result && numOfRetries < limitRetries)
+                {
+                    result = cbClient.Remove(firstFollowerLockKey);
+                    if (!result)
+                    {
+                        numOfRetries++;
+                        log.ErrorFormat("Error while InsertFirstFollowerLock. number of tries: {0}/{1}. groupId: {2}, seriesId: {3}, seasonNumber: {4}, channelId: {5}",
+                                        numOfRetries, limitRetries, groupId, seriesId, seasonNumber, channelId);
+                        System.Threading.Thread.Sleep(r.Next(50));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error on InsertFirstFollowerLock, groupId: {0}, seriesId: {1}, seasonNumber: {2}, channelId: {3}",
+                                            groupId, seriesId, seasonNumber, channelId), ex);
+            }
+
+            return result;
+        }
 
         #endregion
 

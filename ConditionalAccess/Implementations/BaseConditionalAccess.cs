@@ -17227,10 +17227,9 @@ namespace ConditionalAccess
                     {
                         System.Threading.Tasks.Task async = Task.Factory.StartNew((taskDomainId) =>
                         {
-                            ApiObjects.Response.Status response = CompleteDomainSeriesRecordings((long)taskDomainId);
-                            if (response == null || response.Code != (int)eResponseStatus.OK)
+                            if (!CompleteDomainSeriesRecordings((long)taskDomainId))
                             {
-                                log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after CancelOrDeleteRecord: domainId: {0}, response: {1}, ", domainId, response != null ? response.Code + ", " + response.Message : "");
+                                log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after CancelOrDeleteRecord: domainId: {0}", domainId);
                             }
                         }, domainId);
                     }
@@ -18382,18 +18381,27 @@ namespace ConditionalAccess
             return response;
         }
 
-        public ApiObjects.Response.Status CompleteDomainSeriesRecordings(long domainId, long domainSeriesRecordingId = 0)
+        public bool CompleteDomainSeriesRecordings(long domainId, long domainSeriesRecordingId = 0)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-
+            bool response = true;
+            List<DomainSeriesRecording> unlockedSeriesToComplete = new List<DomainSeriesRecording>();
             try
-            {
+            {                
                 // check if recording is enabled only in advanced - in this case nothing to do
                 var tstvSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
                 if (tstvSettings.IsRecordingScheduleWindowEnabled.HasValue && tstvSettings.IsRecordingScheduleWindowEnabled.Value && tstvSettings.RecordingScheduleWindow <= 0)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     log.DebugFormat("recording is enabled only in advanced, cannot complete series recordings for domainId = {0}", domainId);
+                    return response;
+                }
+
+                // get household quota - if no quota - nothing to do
+                int availibleQuota = QuotaManager.Instance.GetDomainQuota(m_nGroupID, domainId);
+
+                // min quota threshold for skipping this process                
+                if (availibleQuota <= 60)
+                {
+                    log.DebugFormat("Not enough quota to complete series recordings for domainId = {0}", domainId);
                     return response;
                 }
 
@@ -18414,20 +18422,31 @@ namespace ConditionalAccess
 
                 if (series == null || series.Count == 0)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     log.DebugFormat("no series to complete for domainId = {0}", domainId);
                     return response;
                 }
-
-                // get household quota - if no quota - nothing to do
-                int availibleQuota = QuotaManager.Instance.GetDomainQuota(m_nGroupID, domainId);
-
-                // min quota threshold for skipping this process                
-                if (availibleQuota <= 60)
+                else
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    log.DebugFormat("Not enough quota to complete series recordings for domainId = {0}", domainId);
-                    return response;
+                    bool shouldCallAgain = false;                    
+                    foreach (DomainSeriesRecording currentDomainSeries in series)
+                    {
+                        // if first follower document NOT locked then add to unlockedSeriesToComplete
+                        if (RecordingsDAL.GetFirstFollowerLock(m_nGroupID, currentDomainSeries.SeriesId, currentDomainSeries.SeasonNumber, currentDomainSeries.EpgChannelId.ToString()) <= 0)
+                        {
+                            unlockedSeriesToComplete.Add(currentDomainSeries);
+                        }
+                        else
+                        {
+                            shouldCallAgain = true;
+                        }
+                    }
+
+                    if (shouldCallAgain)
+                    {
+                        QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
+                        ApiObjects.QueueObjects.SeriesRecordingTaskData data = new ApiObjects.QueueObjects.SeriesRecordingTaskData(m_nGroupID, string.Empty, domainId, string.Empty, string.Empty, 0, eSeriesRecordingTask.CompleteRecordings);
+                        queue.Enqueue(data, string.Format(Utils.ROUTING_KEY_SERIES_RECORDING_TASK, m_nGroupID));
+                    }
                 }
 
                 List<ApiObjects.TstvRecordingStatus> recordingsStatusesToExclude = new List<ApiObjects.TstvRecordingStatus>() 
@@ -18454,18 +18473,17 @@ namespace ConditionalAccess
                 // get all the relevant (series + seasons + CRID not in the list of household recordings) existing recordings from ES
                 List<ConditionalAccess.WS_Catalog.ExtendedSearchResult> relevantRecordingsForRecord = null;
 
-                relevantRecordingsForRecord = Utils.SearchPastSeriesRecordings(m_nGroupID, excludedCrids, series);
+                relevantRecordingsForRecord = Utils.SearchPastSeriesRecordings(m_nGroupID, excludedCrids, unlockedSeriesToComplete);
 
                 if (relevantRecordingsForRecord == null)
                 {
                     log.ErrorFormat("failed to search relevant recordings of series for domainId = {0}", domainId);
-                    return response;
+                    return false;
                 }
 
                 // if there are no available recordings to complete - nothing to do
                 if (relevantRecordingsForRecord.Count == 0)
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                {                    
                     log.DebugFormat("no relevant recordings of series were found for domainId = {0}", domainId);
                     return response;
                 }
@@ -18495,15 +18513,14 @@ namespace ConditionalAccess
 
                         // check if a program with the same CRID was already recorded
                         if (recordedCridsPerChannel.ContainsKey(epgChannelId) && recordedCridsPerChannel[epgChannelId].Contains(crid))
-                        {
-                            response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        {                            
                             log.DebugFormat("found relevant program to record but a program with the same CRID already recorded for the channel. household  = {0}, crid = {1}, recordingId = {2}",
                                 domainId, crid, potentialRecording.AssetId);
                             return response;
                         }
 
                         RecordingType recordingType;
-                        userId = Utils.GetFollowingUserIdForSerie(m_nGroupID, series, potentialRecording, out recordingType);
+                        userId = Utils.GetFollowingUserIdForSerie(m_nGroupID, unlockedSeriesToComplete, potentialRecording, out recordingType);
                         epgId = Utils.GetLongParamFromExtendedSearchResult(potentialRecording, "epg_id");
 
                         if (epgId > 0 && !string.IsNullOrEmpty(userId))
@@ -18533,9 +18550,7 @@ namespace ConditionalAccess
                             log.ErrorFormat("received extended search result without 'epg_id' for recording = {0}, for domainId = {1}", potentialRecording.AssetId, domainId);
                         }
                     }
-                }
-
-                response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }                
             }
             catch (Exception ex)
             {
@@ -18684,10 +18699,10 @@ namespace ConditionalAccess
                             long domainId = ODBCWrapper.Utils.GetLongSafeVal(dr, "DOMAIN_ID", 0);                            
                             if (QuotaManager.Instance.IncreaseDomainQuota(domainId, recordingDuration))
                             {
-                                ApiObjects.Response.Status response = CompleteDomainSeriesRecordings(domainId);
-                                if (response == null || response.Code != (int)eResponseStatus.OK)
+                                
+                                if (!CompleteDomainSeriesRecordings(domainId))
                                 {
-                                    log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after expiredRecordingId: {0}, for domainId: {1}, response: {2}, ", expiredRecording.RecordingId, domainId, response != null ? response.Code + ", " + response.Message : "");
+                                    log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after expiredRecordingId: {0}, for domainId: {1}", expiredRecording.RecordingId, domainId);
                                 }
                             }
                             else
@@ -18733,7 +18748,7 @@ namespace ConditionalAccess
             return result;
         }
 
-        public bool HandleFirstFollowerRecording(long domainId, string channelId, string seriesId, int seassonNumber)
+        public bool HandleFirstFollowerRecording(string userId, long domainId, string channelId, string seriesId, int seasonNumber)
         {
             bool result = false;
             try
@@ -18746,10 +18761,10 @@ namespace ConditionalAccess
                     windowStartDate = DateTime.UtcNow.AddMinutes(accountSettings.RecordingScheduleWindow.Value);
                 }
 
-                List<ConditionalAccess.WS_Catalog.ExtendedSearchResult> epgsToRecord = Utils.GetFirstFollowerEpgIdsToRecord(m_nGroupID, channelId, seriesId, seassonNumber, windowStartDate);
+                List<ConditionalAccess.WS_Catalog.ExtendedSearchResult> epgsToRecord = Utils.GetFirstFollowerEpgIdsToRecord(m_nGroupID, channelId, seriesId, seasonNumber, windowStartDate);
                 if (epgsToRecord == null)
                 {
-                    log.ErrorFormat("Failed GetFirstFollowerEpgIdsToRecord, seriesId: {0}, seassonNumber: {1}", seriesId, seassonNumber);
+                    log.ErrorFormat("Failed GetFirstFollowerEpgIdsToRecord, seriesId: {0}, seassonNumber: {1}", seriesId, seasonNumber);
                     return result;
                 }
 
@@ -18768,17 +18783,17 @@ namespace ConditionalAccess
                 long epgId = 0;
                 long epgChannelId;
                 string crid = string.Empty;
-
+                List<long> epgsInThePastToRecord = new List<long>();
                 foreach (ConditionalAccess.WS_Catalog.ExtendedSearchResult epg in epgsToRecord)
                 {
                     if (!long.TryParse(epg.AssetId, out epgId))
                     {
-                        log.ErrorFormat("failed parsing assetId on HandleFirstFollowerRecording, domainId: {0}, channelId: {1}, seriesId: {2}, seassonNumber: {3}", domainId, channelId, seriesId, seassonNumber);
+                        log.ErrorFormat("failed parsing assetId on HandleFirstFollowerRecording, domainId: {0}, channelId: {1}, seriesId: {2}, seassonNumber: {3}", domainId, channelId, seriesId, seasonNumber);
                         continue;
                     }
                     if (!long.TryParse(Utils.GetStringParamFromExtendedSearchResult(epg, "epg_channel_id"), out epgChannelId))
                     {
-                        log.ErrorFormat("failed parsing epgChannelId on HandleFirstFollowerRecording, domainId: {0}, channelId: {1}, seriesId: {2}, seassonNumber: {3}", domainId, channelId, seriesId, seassonNumber);
+                        log.ErrorFormat("failed parsing epgChannelId on HandleFirstFollowerRecording, domainId: {0}, channelId: {1}, seriesId: {2}, seassonNumber: {3}", domainId, channelId, seriesId, seasonNumber);
                         continue;
                     }
                     crid = Utils.GetStringParamFromExtendedSearchResult(epg, "crid");                    
@@ -18799,15 +18814,26 @@ namespace ConditionalAccess
                         eRecordingTask task = eRecordingTask.DistributeRecording;
                         RecordingsManager.EnqueueMessage(m_nGroupID, globalRecording.EpgId, globalRecording.Id, epgPaddedStartDate, distributeTime, task);
                     }
+                    else
+                    {
+                        Recording userRecording = Record(userId, globalRecording.EpgId, seasonNumber == 0 ? RecordingType.Series : RecordingType.Season);
+                        if (userRecording != null && userRecording.Status != null && userRecording.Status.Code == (int)eResponseStatus.OK && userRecording.Id > 0)
+                        {
+                            log.DebugFormat("successfully distributed recording for domainId = {0}, epgId = {1}, new recordingId = {2}", domainId, epgId, userRecording.Id);
+                        }
+                    }
                 }
 
                 if (epgsToRecord.Count > 0)
                 {
-                    ApiObjects.Response.Status completeRecordingsStatus = CompleteDomainSeriesRecordings(domainId);
-                    if (completeRecordingsStatus.Code != (int)eResponseStatus.OK)
+                    if (!RecordingsDAL.InsertFirstFollowerLock(m_nGroupID, seriesId, seasonNumber, channelId, false))
                     {
-                        log.ErrorFormat("Failed completeRecordingsStatus for domainId: {0}, seriesId: {1}, seassonNumber: {2}", domainId, seriesId, seassonNumber);
+                        log.ErrorFormat("Failed InsertFirstFollowerLock, groupId: {0}, seriesId: {1}, seasonNumber: {2}, channelId: {3}", m_nGroupID, seriesId, seasonNumber, channelId);
                     }
+                }
+                else if(!RecordingsDAL.DeleteFirstFollowerLock(m_nGroupID, seriesId, seasonNumber, channelId))
+                {
+                    log.ErrorFormat("Failed DeleteFirstFollowerLock, groupId: {0}, seriesId: {1}, seasonNumber: {2}, channelId: {3}", m_nGroupID, seriesId, seasonNumber, channelId);
                 }
 
                 result = true;
@@ -19156,12 +19182,11 @@ namespace ConditionalAccess
 
                 // if series is already followed then complete the series recordings for the domain
                 if (isSeriesFollowed)
-                {
-                    ApiObjects.Response.Status completeRecordingsStatus = CompleteDomainSeriesRecordings(domainID, seriesRecording.Id);
-                    if (completeRecordingsStatus == null || completeRecordingsStatus.Code != (int)eResponseStatus.OK)
+                {                    
+                    if (!CompleteDomainSeriesRecordings(domainID, seriesRecording.Id))
                     {
                         log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings for userId: {0}, domainId: {1}, epgId: {2}", userID, domainID, epgID);
-                        seriesRecording.Status = completeRecordingsStatus;
+                        seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed CompleteHouseholdSeriesRecordings");
                     }
                 }
 
@@ -19247,6 +19272,10 @@ namespace ConditionalAccess
                     if (domainId > 0 && userId > 0 && QuotaManager.Instance.GetDomainQuota(m_nGroupID, domainId) >= recordingDuration)
                     {
                         Recording userRecording = Record(userId.ToString(), epgId, recordingType);
+                        if (userRecording != null && userRecording.Status != null && userRecording.Status.Code == (int)eResponseStatus.OK && userRecording.Id > 0)
+                        {
+                            log.DebugFormat("successfully distributed recording for domainId = {0}, epgId = {1}, new recordingId = {2}", domainId, epgId, userRecording.Id);
+                        }
                     }
                 });
 

@@ -34,7 +34,7 @@ namespace ConditionalAccess
         private const string SERIES_ALIAS = "series_id";
         private const string SEASON_ALIAS = "season_number";
         private const string EPISODE_ALIAS = "episode_number";
-        private const string ROUTING_KEY_FIRST_FOLLOWER_RECORDING = "PROCESS_FIRST_FOLLOWER_RECORDING\\{0}";
+        public const string ROUTING_KEY_SERIES_RECORDING_TASK = "PROCESS_SERIES_RECORDING_TASK\\{0}";
 
         internal const double DEFAULT_MIN_PRICE_FOR_PREVIEW_MODULE = 0.2;
         public const int DEFAULT_MPP_RENEW_FAIL_COUNT = 10; // to be group specific override this value in the 
@@ -5063,7 +5063,7 @@ namespace ConditionalAccess
         {
             long epgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID");
             long epgChannelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_CHANNEL_ID");
-            long domainRecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+            long domainSeriesRecordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
             int seasonNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "SEASON_NUMBER");
             string seriesId = ODBCWrapper.Utils.GetSafeStr(dr, "SERIES_ID");
             DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
@@ -5073,7 +5073,7 @@ namespace ConditionalAccess
             {
                 EpgChannelId = epgChannelId,
                 EpgId = epgId,
-                Id = domainRecordingID,
+                Id = domainSeriesRecordingId,
                 SeasonNumber = seasonNumber,
                 SeriesId = seriesId,
                 Type = seasonNumber > 0 ? RecordingType.Season : RecordingType.Series,
@@ -5407,13 +5407,6 @@ namespace ConditionalAccess
 
             int.TryParse(epgFieldMappings[EPISODE_NUMBER], out episodeNumber);
             isSeriesFollowed = RecordingsDAL.IsSeriesFollowed(groupId, seriesId, seasonNumber);
-            if (!isSeriesFollowed)
-            {
-                QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
-                ApiObjects.QueueObjects.FirstFollowerRecordingData data = new ApiObjects.QueueObjects.FirstFollowerRecordingData(groupId, domainID, epg.EPG_CHANNEL_ID, seriesId, seasonNumber);
-                queue.Enqueue(data, string.Format(ROUTING_KEY_FIRST_FOLLOWER_RECORDING, groupId));
-            }
-
             long channelId;
             if (!long.TryParse(epg.EPG_CHANNEL_ID, out channelId))
             {
@@ -5426,6 +5419,19 @@ namespace ConditionalAccess
             if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
             {
                 seriesRecording = BuildSeriesRecordingDetails(dt.Rows[0]);
+            }
+
+            // if first user
+            if (!isSeriesFollowed)
+            {
+                if (!RecordingsDAL.InsertFirstFollowerLock(groupId, seriesId, seasonNumber, epg.EPG_CHANNEL_ID, true))
+                {
+                    log.ErrorFormat("Failed InsertFirstFollowerLock, groupId: {0}, seriesId: {1}, seasonNumber: {2}, channelId: {3}", groupId, seriesId, seasonNumber, epg.EPG_CHANNEL_ID);
+                }
+
+                QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
+                ApiObjects.QueueObjects.SeriesRecordingTaskData data = new ApiObjects.QueueObjects.SeriesRecordingTaskData(groupId, userId, domainID, epg.EPG_CHANNEL_ID, seriesId, seasonNumber, eSeriesRecordingTask.FirstFollower);
+                queue.Enqueue(data, string.Format(ROUTING_KEY_SERIES_RECORDING_TASK, groupId));
             }
 
             return seriesRecording;

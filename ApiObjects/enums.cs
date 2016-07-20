@@ -643,6 +643,12 @@ namespace ApiObjects
         DistributeRecording = 4
     }
 
+    public enum eSeriesRecordingTask
+    {
+        FirstFollower = 1,
+        CompleteRecordings = 2
+    }
+
     public enum RecordingType
     {
         Single = 0,

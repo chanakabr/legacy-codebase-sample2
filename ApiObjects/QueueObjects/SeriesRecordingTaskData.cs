@@ -6,16 +6,18 @@ using System.Threading.Tasks;
 
 namespace ApiObjects.QueueObjects
 {
-    public class FirstFollowerRecordingData : BaseCeleryData
+    public class SeriesRecordingTaskData : BaseCeleryData
     {
-        public const string TASK = "distributed_tasks.process_first_follower_recording";
-        
+        public const string TASK = "distributed_tasks.process_series_recording_task";
+
+        private string UserId;
         private long DomainId;
         private string ChannelId;
         private string SeriesId;
         private int SeasonNumber;
+        private eSeriesRecordingTask SeriesRecordingTaskType;
 
-        public FirstFollowerRecordingData(int groupId, long domainId, string channelId, string seriesId, int seasonNumber) :
+        public SeriesRecordingTaskData(int groupId, string userId, long domainId, string channelId, string seriesId, int seasonNumber, eSeriesRecordingTask seriesRecordingTaskType) :
             base(// id = guid
                  Guid.NewGuid().ToString(),
                 // task = const
@@ -23,18 +25,22 @@ namespace ApiObjects.QueueObjects
         {
             // Basic member initialization
             this.GroupId = groupId;
+            this.UserId = userId;
             this.DomainId = domainId;
             this.ChannelId = channelId;
             this.SeriesId = seriesId;
             this.SeasonNumber = seasonNumber;
+            this.SeriesRecordingTaskType = seriesRecordingTaskType;
 
             this.args = new List<object>()
             {
                 groupId,
+                userId,
                 domainId,
                 channelId,
                 seriesId,
-                seasonNumber
+                seasonNumber,
+                seriesRecordingTaskType
             };
         }
     }
