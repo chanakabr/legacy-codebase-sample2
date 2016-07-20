@@ -81,7 +81,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="clear_cache.aspx" />
-    <Content Include="clear_cache1.aspx" />
     <Content Include="Global.asax" />
     <Content Include="Service References\Catalog\Ingest.Catalog.BaseResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
@@ -387,10 +386,6 @@
     </Compile>
     <Compile Include="clear_cache.aspx.designer.cs">
       <DependentUpon>clear_cache.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="clear_cache1.aspx.cs">
-      <DependentUpon>clear_cache1.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Clients\ApiClient.cs" />
     <Compile Include="Clients\CatalogClient.cs" />
