@@ -18890,24 +18890,27 @@ namespace ConditionalAccess
 
                 TvinciEpgBL epgBLTvinci = new TvinciEpgBL(m_nGroupID);
                 List<EpgCB> epgs = epgBLTvinci.GetEpgs(epgIds);
-                // chaeck if epg related to series and season
-                bool result = Utils.GetEpgRelatedToSeriesRecording(m_nGroupID, epgs, seriesRecording);
+                if (epgs != null && epgs.Count > 0)
+                {
+                    // chaeck if epg related to series and season
+                    bool result = Utils.GetEpgRelatedToSeriesRecording(m_nGroupID, epgs, seriesRecording);
 
-                // convert status Cancel/Delete ==> SeriesCancel/SeriesDelete
-                TstvRecordingStatus? seriesStatus = Utils.ConvertToSeriesStatus(tstvRecordingStatus);
-                if (!seriesStatus.HasValue)
-                {
-                    log.ErrorFormat("fail to perform cancel or delete domainSeriesRecordingId = {1}, tstvRecordingStatus = {2}", domainSeriesRecordingId, tstvRecordingStatus.ToString());
-                    return;
-                }
-                //call cancelOrDelete
-                Parallel.ForEach(epgs, (currentEpg) =>
-                {
-                    if (epgRecordingMapping.ContainsKey((long)currentEpg.EpgID))
+                    // convert status Cancel/Delete ==> SeriesCancel/SeriesDelete
+                    TstvRecordingStatus? seriesStatus = Utils.ConvertToSeriesStatus(tstvRecordingStatus);
+                    if (!seriesStatus.HasValue)
                     {
-                        CancelOrDeleteRecord(userId, domainId, epgRecordingMapping[(long)currentEpg.EpgID], seriesStatus.Value);
+                        log.ErrorFormat("fail to perform cancel or delete domainSeriesRecordingId = {1}, tstvRecordingStatus = {2}", domainSeriesRecordingId, tstvRecordingStatus.ToString());
+                        return;
                     }
-                });
+                    //call cancelOrDelete
+                    Parallel.ForEach(epgs, (currentEpg) =>
+                    {
+                        if (epgRecordingMapping.ContainsKey((long)currentEpg.EpgID))
+                        {
+                            CancelOrDeleteRecord(userId, domainId, epgRecordingMapping[(long)currentEpg.EpgID], seriesStatus.Value);
+                        }
+                    });
+                }
             }
             // mark the row in status = 2
             if (RecordingsDAL.CancelSeriesRecording(domainSeriesRecordingId))
