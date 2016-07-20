@@ -4447,6 +4447,18 @@ namespace ConditionalAccess
                     recordingStatus = TstvRecordingStatus.Failed;
                     break;
                 case RecordingInternalStatus.Waiting:
+                    /* Unlike RecordingInternalStatus.OK we don't check the epg end date because
+                     * we won't return recorded since the adapter call is async, so if the program
+                     * already started it doesn't matter if it finished or not we will return recording */                      
+                    if (epgStartDate < DateTime.UtcNow)
+                    {
+                        recordingStatus = TstvRecordingStatus.Recording;
+                    }
+                    else
+                    {
+                        recordingStatus = TstvRecordingStatus.Scheduled;
+                    }
+                    break;
                 case RecordingInternalStatus.OK:
                     // If program already finished, we say it is recorded
                     if (epgEndDate < DateTime.UtcNow)
@@ -5098,37 +5110,6 @@ namespace ConditionalAccess
             }
 
             return recording;
-        }
-
-        internal static bool CancelOrDeleteRecording(int groupID, Recording recording, TstvRecordingStatus tstvRecordingStatus)
-        {
-            bool result = false;
-            DataTable dt = RecordingsDAL.GetExistingRecordingsByRecordingID(groupID, recording.Id);
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-            {
-                if ((ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "countUsers", 0)) == 0)
-                {
-                    Recording copyRecording = new Recording(recording);
-                    KlogMonitorHelper.ContextData cd = new KlogMonitorHelper.ContextData();
-                    System.Threading.Tasks.Task async = System.Threading.Tasks.Task.Factory.StartNew((taskRecording) =>
-                    {
-                        cd.Load();
-                        ApiObjects.Response.Status status = RecordingsManager.Instance.CancelOrDeleteRecording(groupID, (Recording)taskRecording, tstvRecordingStatus);
-                        if (status == null)
-                        {
-                            log.ErrorFormat("Failed Utils.CancelOrDeleteRecording when calling RecordingsManager.Instance.CancelOrDeleteRecording, groupId: {0}, recordingId: {1}", groupID, ((Recording)taskRecording).Id);
-                        }
-                        else if(status.Code != (int)eResponseStatus.OK)
-                        {
-                            log.ErrorFormat("Failed Utils.CancelOrDeleteRecording when calling RecordingsManager.Instance.CancelOrDeleteRecording, groupId: {0}, status: {1}, recordingId: {2}", groupID, status.Message, ((Recording)taskRecording).Id);
-                        }
-                    },copyRecording);
-
-                    result = true;
-                }
-            }
-
-            return result;
         }
 
         internal static Dictionary<long, ExpiredRecordingScheduledTask> GetExpiredRecordingsTasks(long unixTimeStampNow)
