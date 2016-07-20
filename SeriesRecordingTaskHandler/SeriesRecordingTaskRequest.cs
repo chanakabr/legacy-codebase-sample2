@@ -1,18 +1,26 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FirstFollowerRecordingHandler
+namespace SeriesRecordingTaskHandler
 {
     [Serializable]
-    public class FirstFollowerRecordingRequest
+    public class SeriesRecordingTaskRequest
     {
 
         [JsonProperty("group_id", Required = Required.Always)]
         public int GroupId
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty("user_id", Required = Required.Always)]
+        public string UserId
         {
             get;
             set;
@@ -46,14 +54,23 @@ namespace FirstFollowerRecordingHandler
             set;
         }
 
+        [JsonProperty("series_recording_task_type", Required = Required.Always)]
+        public eSeriesRecordingTask SeriesRecordingTaskType
+        {
+            get;
+            set;
+        }
+
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
+            sb.Append(string.Format("UserId: {0}, ", !string.IsNullOrEmpty(UserId) ? UserId.ToString() : ""));
             sb.Append(string.Format("DomainId: {0}, ", DomainId));
             sb.Append(string.Format("ChannelId: {0}, ", !string.IsNullOrEmpty(ChannelId) ? ChannelId.ToString() : ""));
             sb.Append(string.Format("GroupId: {0}, ", GroupId));
             sb.Append(string.Format("SeriesId: {0}, ", !string.IsNullOrEmpty(SeriesId) ? SeriesId.ToString() : ""));
             sb.Append(string.Format("SeasonNumber: {0}, ", SeasonNumber));
+            sb.Append(string.Format("SeriesRecordingTaskType: {0}, ", SeriesRecordingTaskType.ToString()));
 
             return sb.ToString();
         }

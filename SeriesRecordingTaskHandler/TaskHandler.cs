@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.ServiceModel;
 
-namespace SeriesRecordingTaskHandler1
+namespace SeriesRecordingTaskHandler
 {
     public class TaskHandler : ITaskHandler
     {
@@ -76,8 +76,7 @@ namespace SeriesRecordingTaskHandler1
     }
 }
 
-
-namespace SeriesRecordingTaskHandler1.WS_CAS
+namespace SeriesRecordingTaskHandler.WS_CAS
 {
     // adding request ID to header
     public partial class module
