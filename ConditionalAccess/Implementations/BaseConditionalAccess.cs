@@ -17219,25 +17219,19 @@ namespace ConditionalAccess
                 }
                 if (res)
                 {
+                    if (QuotaManager.Instance.IncreaseDomainQuota(domainId, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds))
+                    {
+                        System.Threading.Tasks.Task async = Task.Factory.StartNew((taskDomainId) =>
+                        {
+                            ApiObjects.Response.Status response = CompleteDomainSeriesRecordings((long)taskDomainId);
+                            if (response == null || response.Code != (int)eResponseStatus.OK)
+                            {
+                                log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after CancelOrDeleteRecord: domainId: {0}, response: {1}, ", domainId, response != null ? response.Code + ", " + response.Message : "");
+                            }
+                        }, domainId);
+                    }
                     recording.RecordingStatus = tstvRecordingStatus;
                     recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    // if no other users assign to this record id - ask adapter to cancel
-                    if (Utils.CancelOrDeleteRecording(m_nGroupID, recording, tstvRecordingStatus))
-                    {
-                        log.DebugFormat("Recording {0} has been updated to status {1}", recording.Id, tstvRecordingStatus.ToString());
-
-                        if (QuotaManager.Instance.IncreaseDomainQuota(domainId, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds))
-                        {
-                            System.Threading.Tasks.Task async = Task.Factory.StartNew((taskDomainId) =>
-                            {
-                                ApiObjects.Response.Status response = CompleteDomainSeriesRecordings((long)taskDomainId);
-                                if (response == null || response.Code != (int)eResponseStatus.OK)
-                                {
-                                    log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after CancelOrDeleteRecord: domainId: {0}, response: {1}, ", domainId, response != null ? response.Code + ", " + response.Message : "");
-                                }
-                            }, domainId);
-                        }
-                    }
                 }
                 else
                 {
@@ -17364,7 +17358,7 @@ namespace ConditionalAccess
                 if (recordingType == RecordingType.Single)
                 {
                     int totalSeconds = QuotaManager.Instance.GetDomainQuota(this.m_nGroupID, domainID);
-                    foreach (Recording recording in response.Recordings.Where(x => x.Status != null && x.Status.Code == (int)eResponseStatus.OK && Utils.IsValidRecordingStatus(x.RecordingStatus, true)))
+                    foreach (Recording recording in response.Recordings.Where(x => x.Status != null && x.Status.Code == (int)eResponseStatus.OK && x.RecordingStatus == TstvRecordingStatus.OK))
                     {
                         int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
                         if (recordingDuration > totalSeconds)
