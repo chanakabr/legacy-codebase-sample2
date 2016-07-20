@@ -316,14 +316,14 @@ namespace DAL
             dt = spGetDomainRecordingsByIds.Execute();
 
             return dt;
-        }        
+        }
 
-        public static bool CancelDomainRecording(long recordingID)
+        public static bool CancelDomainRecording(long recordingID, DomainRecordingStatus recordingState)
         {
             ODBCWrapper.StoredProcedure spCancelDomainRecording = new ODBCWrapper.StoredProcedure("CancelDomainRecording");
             spCancelDomainRecording.SetConnectionKey(RECORDING_CONNECTION);
             spCancelDomainRecording.AddParameter("@RecordID", recordingID);
-
+            spCancelDomainRecording.AddParameter("@RecordingState", (int)recordingState);
             return spCancelDomainRecording.ExecuteReturnValue<bool>();
         }
 
@@ -339,15 +339,15 @@ namespace DAL
 
         }
 
-        public static bool DeleteDomainRecording(long recordingID)
+        public static bool DeleteDomainRecording(long recordingID, DomainRecordingStatus recordingState)
         {
             ODBCWrapper.StoredProcedure spDeleteDomainRecording = new ODBCWrapper.StoredProcedure("DeleteDomainRecording");
             spDeleteDomainRecording.SetConnectionKey(RECORDING_CONNECTION);
             spDeleteDomainRecording.AddParameter("@RecordID", recordingID);
-
+            spDeleteDomainRecording.AddParameter("@RecordingState", (int)recordingState);
             return spDeleteDomainRecording.ExecuteReturnValue<bool>();
         }
-
+        
         public static DataTable GetDomainProtectedRecordings(int groupID, long domainID, long unixTimeStampNow)
         {
             DataTable dt = null;
