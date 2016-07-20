@@ -14,6 +14,7 @@ namespace WebAPI.Controllers
     [OldStandardAction("addOldStandard", "add")]
     [OldStandardAction("updateOldStandard", "update")]
     [OldStandardAction("listOldStandard", "list")]
+    [OldStandardAction("deleteOldStandard", "delete")]
     public class PaymentMethodProfileController : ApiController
     {
         /// <summary>
@@ -58,9 +59,9 @@ namespace WebAPI.Controllers
         [Route("listOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
-        public List<Models.Billing.KalturaPaymentMethodProfile> ListOldStandard(int payment_gateway_id)
+        public List<KalturaPaymentMethodProfile> ListOldStandard(int payment_gateway_id)
         {
-            List<Models.Billing.KalturaPaymentMethodProfile> response = null;
+            List<KalturaPaymentMethodProfile> response = null;
 
             if (payment_gateway_id <= 0)
             {
