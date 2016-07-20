@@ -19,6 +19,7 @@ using System.Web;
 using System.Xml;
 using Tvinic.GoogleAPI;
 using System.Net;
+using System.ServiceModel;
 
 namespace ConditionalAccess
 {
@@ -5885,11 +5886,23 @@ namespace ConditionalAccess.TvinciAPI
         {
             HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
 
-            if (request.Headers != null &&
+            if (KLogMonitor.KLogger.AppType == KLogEnums.AppType.WCF)
+            {
+                if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
+                {
+                    request.Headers.Add(Constants.REQUEST_ID_KEY, OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY].ToString());
+                }
+            }
+            else
+            {
+                if (request.Headers != null &&
                 request.Headers[Constants.REQUEST_ID_KEY] == null &&
                 HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
-            {
-                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+                {
+                    request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+                }
             }
             return request;
         }
@@ -5905,11 +5918,23 @@ namespace ConditionalAccess.TvinciDomains
         {
             HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
 
-            if (request.Headers != null &&
+            if (KLogMonitor.KLogger.AppType == KLogEnums.AppType.WCF)
+            {
+                if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
+                {
+                    request.Headers.Add(Constants.REQUEST_ID_KEY, OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY].ToString());
+                }
+            }
+            else
+            {
+                if (request.Headers != null &&
                 request.Headers[Constants.REQUEST_ID_KEY] == null &&
                 HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
-            {
-                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+                {
+                    request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+                }
             }
             return request;
         }
@@ -5925,11 +5950,23 @@ namespace ConditionalAccess.TvinciPricing
         {
             HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
 
-            if (request.Headers != null &&
+            if (KLogMonitor.KLogger.AppType == KLogEnums.AppType.WCF)
+            {
+                if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
+                {
+                    request.Headers.Add(Constants.REQUEST_ID_KEY, OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY].ToString());
+                }
+            }
+            else
+            {
+                if (request.Headers != null &&
                 request.Headers[Constants.REQUEST_ID_KEY] == null &&
                 HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
-            {
-                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+                {
+                    request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+                }
             }
             return request;
         }
@@ -5945,11 +5982,23 @@ namespace ConditionalAccess.TvinciUsers
         {
             HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
 
-            if (request.Headers != null &&
+            if (KLogMonitor.KLogger.AppType == KLogEnums.AppType.WCF)
+            {
+                if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
+                {
+                    request.Headers.Add(Constants.REQUEST_ID_KEY, OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY].ToString());
+                }
+            }
+            else
+            {
+                if (request.Headers != null &&
                 request.Headers[Constants.REQUEST_ID_KEY] == null &&
                 HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
-            {
-                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+                {
+                    request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+                }
             }
             return request;
         }
@@ -5965,11 +6014,23 @@ namespace ConditionalAccess.TvinciBilling
         {
             HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
 
-            if (request.Headers != null &&
+            if (KLogMonitor.KLogger.AppType == KLogEnums.AppType.WCF)
+            {
+                if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
+                {
+                    request.Headers.Add(Constants.REQUEST_ID_KEY, OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY].ToString());
+                }
+            }
+            else
+            {
+                if (request.Headers != null &&
                 request.Headers[Constants.REQUEST_ID_KEY] == null &&
                 HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
-            {
-                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+                {
+                    request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+                }
             }
             return request;
         }
