@@ -16,6 +16,7 @@ using System.Linq;
 using WebAPI.Models.ConditionalAccess;
 using System.Net;
 using System.Web;
+using System.ServiceModel;
 
 namespace WebAPI.Clients
 {
@@ -510,7 +511,7 @@ namespace WebAPI.Clients
             {
                 throw new ClientException(webServiceResponse.status.Code, webServiceResponse.status.Message);
             }
-            
+
             KalturaPurchaseSettings response = AutoMapper.Mapper.Map<WebAPI.Models.API.KalturaPurchaseSettings>(webServiceResponse);
 
             return response;
@@ -1173,7 +1174,7 @@ namespace WebAPI.Clients
         }
 
         [Obsolete]
-        internal List<Models.API.KalturaGenericRule> GetMediaRulesOldStandard(int groupId, string userId, long mediaId, int domainId, string udid, 
+        internal List<Models.API.KalturaGenericRule> GetMediaRulesOldStandard(int groupId, string userId, long mediaId, int domainId, string udid,
             KalturaUserAssetRuleOrderBy orderBy = KalturaUserAssetRuleOrderBy.NAME_ASC)
         {
             GenericRuleResponse response = null;
@@ -1257,7 +1258,7 @@ namespace WebAPI.Clients
             List<Models.API.KalturaGenericRule> rules = new List<Models.API.KalturaGenericRule>();
 
             Group group = GroupsManager.GetGroup(groupId);
-            
+
             //convert order by
             GenericRuleOrderBy wsOrderBy = ApiMappings.ConvertUserAssetRuleOrderBy(orderBy);
 
@@ -1295,7 +1296,7 @@ namespace WebAPI.Clients
             List<KalturaUserAssetRule> rules = new List<KalturaUserAssetRule>();
 
             Group group = GroupsManager.GetGroup(groupId);
-            
+
             //convert order by
             GenericRuleOrderBy wsOrderBy = ApiMappings.ConvertUserAssetRuleOrderBy(orderBy);
 
@@ -1328,7 +1329,7 @@ namespace WebAPI.Clients
         }
         #endregion
 
-        internal Dictionary<string,int> GetErrorCodesDictionary()
+        internal Dictionary<string, int> GetErrorCodesDictionary()
         {
             StatusErrorCodesResponse response = null;
             Dictionary<string, int> codes = new Dictionary<string, int>();
@@ -1966,7 +1967,7 @@ namespace WebAPI.Clients
 
             return kalturaRecommendationEngineProfile;
         }
-        
+
         #endregion
 
         #region ExternalChannel
@@ -2125,7 +2126,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Api.AddBulkExportTask(group.ApiCredentials.Username, group.ApiCredentials.Password, externalKey, name, wsDataType, filter, wsExportType, frequency,
-                        notificationUrl, vodTypes != null ? vodTypes.ToArray(): null, isActive);
+                        notificationUrl, vodTypes != null ? vodTypes.ToArray() : null, isActive);
                 }
             }
             catch (Exception ex)
@@ -2143,7 +2144,7 @@ namespace WebAPI.Clients
             {
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
-            
+
             task = AutoMapper.Mapper.Map<KalturaExportTask>(response.Task);
 
             return task;
@@ -2412,7 +2413,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.AddPermission(group.ApiCredentials.Username, group.ApiCredentials.Password, permission.Name, 
+                    response = Api.AddPermission(group.ApiCredentials.Username, group.ApiCredentials.Password, permission.Name,
                         permission.PermissionItems != null ? permission.PermissionItems.Select(p => p.getId()).ToArray() : null, type, usersGroup, 0);
                 }
             }
@@ -2659,7 +2660,7 @@ namespace WebAPI.Clients
 
             WebAPI.Api.Status response = null;
             int mediaId = 0;
-            List<int> mediaIds = new List<int>();            
+            List<int> mediaIds = new List<int>();
 
             try
             {
@@ -2667,8 +2668,8 @@ namespace WebAPI.Clients
                 {
                     if (assetsList != null)
                     {
-                       mediaIds = assetsList.Where(assetType => assetType.Type == Models.Catalog.KalturaAssetType.media
-                            && int.TryParse(assetType.Id, out mediaId)).Select(x => int.Parse(x.Id)).ToList();
+                        mediaIds = assetsList.Where(assetType => assetType.Type == Models.Catalog.KalturaAssetType.media
+                             && int.TryParse(assetType.Id, out mediaId)).Select(x => int.Parse(x.Id)).ToList();
                     }
 
                     response = Api.CleanUserHistory(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, mediaIds.ToArray());
@@ -2704,7 +2705,7 @@ namespace WebAPI.Clients
             Group group = GroupsManager.GetGroup(groupId);
 
             RegistryResponse response = null;
-           try
+            try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -2745,7 +2746,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Api.GetTimeShiftedTvPartnerSettings(group.ApiCredentials.Username, group.ApiCredentials.Password);
-                }                
+                }
             }
             catch (Exception ex)
             {
@@ -3070,11 +3071,23 @@ namespace WebAPI.Api
         {
             HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
 
-            if (request.Headers != null &&
-                request.Headers[Constants.REQUEST_ID_KEY] == null &&
-                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
+            if (KLogMonitor.KLogger.AppType == KLogEnums.AppType.WCF)
             {
-                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+                if (request.Headers != null &&
+                request.Headers[KLogMonitor.Constants.REQUEST_ID_KEY] == null &&
+                OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
+                {
+                    request.Headers.Add(KLogMonitor.Constants.REQUEST_ID_KEY, OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY].ToString());
+                }
+            }
+            else
+            {
+                if (request.Headers != null &&
+                request.Headers[KLogMonitor.Constants.REQUEST_ID_KEY] == null &&
+                HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
+                {
+                    request.Headers.Add(KLogMonitor.Constants.REQUEST_ID_KEY, HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY].ToString());
+                }
             }
             return request;
         }

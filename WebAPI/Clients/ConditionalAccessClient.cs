@@ -18,6 +18,7 @@ using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
 using System.Net;
 using System.Web;
+using System.ServiceModel;
 
 namespace WebAPI.Clients
 {
@@ -363,7 +364,7 @@ namespace WebAPI.Clients
             }
 
             prices = WebAPI.Mapping.ObjectsConvertor.PricingMappings.ConvertPpvPrice(response.ItemsPrices);
-            
+
             return prices;
         }
 
@@ -532,7 +533,7 @@ namespace WebAPI.Clients
 
         //    return entitlements;
         //}
-        internal List<KalturaEntitlement> GetDomainEntitlements(int groupId, int domainId, KalturaTransactionType type, bool isExpired = false, int pageSize = 500, int pageIndex = 0, 
+        internal List<KalturaEntitlement> GetDomainEntitlements(int groupId, int domainId, KalturaTransactionType type, bool isExpired = false, int pageSize = 500, int pageIndex = 0,
             KalturaEntitlementOrderBy orderBy = KalturaEntitlementOrderBy.PURCHASE_DATE_ASC)
         {
             List<KalturaEntitlement> entitlements = null;
@@ -543,7 +544,7 @@ namespace WebAPI.Clients
 
             // get group ID
             Group group = GroupsManager.GetGroup(groupId);
-            
+
             // convert order by
             EntitlementOrderBy wsOrderBy = ConditionalAccessMappings.ConvertEntitlementOrderBy(orderBy);
 
@@ -580,7 +581,7 @@ namespace WebAPI.Clients
             return entitlements;
         }
 
-        internal List<KalturaEntitlement> GetUserEntitlements(int groupId, string userId, KalturaTransactionType type, bool isExpired = false, int pageSize = 50, int pageIndex = 0, 
+        internal List<KalturaEntitlement> GetUserEntitlements(int groupId, string userId, KalturaTransactionType type, bool isExpired = false, int pageSize = 50, int pageIndex = 0,
             KalturaEntitlementOrderBy orderBy = KalturaEntitlementOrderBy.PURCHASE_DATE_ASC)
         {
             List<KalturaEntitlement> entitlements = null;
@@ -591,7 +592,7 @@ namespace WebAPI.Clients
 
             // get group ID
             Group group = GroupsManager.GetGroup(groupId);
-            
+
             // convert order by
             EntitlementOrderBy wsOrderBy = ConditionalAccessMappings.ConvertEntitlementOrderBy(orderBy);
 
@@ -1244,7 +1245,7 @@ namespace WebAPI.Clients
                 // internal web service exception
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
-            
+
             // convert response
             recording = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaRecording>(response);
 
@@ -1253,8 +1254,8 @@ namespace WebAPI.Clients
 
         internal KalturaRecordingContextListResponse QueryRecords(int groupID, string userID, long[] assetIds)
         {
-            KalturaRecordingContextListResponse result = null;            
-            RecordingResponse response = null;           
+            KalturaRecordingContextListResponse result = null;
+            RecordingResponse response = null;
 
             // get group ID
             Group group = GroupsManager.GetGroup(groupID);
@@ -1262,7 +1263,7 @@ namespace WebAPI.Clients
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {                    
+                {
                     // fire request
                     response = ConditionalAccess.QueryRecords(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, assetIds);
                 }
@@ -1296,9 +1297,9 @@ namespace WebAPI.Clients
                     if (recording.Status.Code == (int)StatusCode.OK && recording.RecordingStatus != TstvRecordingStatus.OK)
                     {
                         recordingContext.Recording = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaRecording>(recording);
-                    }                    
+                    }
                     result.Objects.Add(recordingContext);
-                }                
+                }
             }
 
             return result;
@@ -1368,7 +1369,7 @@ namespace WebAPI.Clients
                                                                          KalturaRecordingStatus.CANCELED, KalturaRecordingStatus.FAILED };
             }
 
-            List<WebAPI.ConditionalAccess.TstvRecordingStatus> convertedRecordingStatuses = recordingStatuses.Select(x => ConditionalAccessMappings.ConvertKalturaRecordingStatus(x)).ToList();            
+            List<WebAPI.ConditionalAccess.TstvRecordingStatus> convertedRecordingStatuses = recordingStatuses.Select(x => ConditionalAccessMappings.ConvertKalturaRecordingStatus(x)).ToList();
 
             // get group configuration
             Group group = GroupsManager.GetGroup(groupID);
@@ -1399,9 +1400,9 @@ namespace WebAPI.Clients
                 // internal web service exception
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
-            
+
             if (response.Recordings != null && response.Recordings.Length > 0)
-            {                
+            {
                 result.TotalCount = response.TotalItems;
                 // convert recordings            
                 result.Objects = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaRecording>>(response.Recordings);
@@ -1689,34 +1690,34 @@ namespace WebAPI.Clients
         {
             KalturaSeriesRecordingListResponse result = new KalturaSeriesRecordingListResponse() { TotalCount = 0 };
             SeriesResponse response = null;
-          
+
             // get group configuration
-         Group group = GroupsManager.GetGroup(groupID);
-                // Create catalog order object
-                SeriesRecordingOrderObj order = new SeriesRecordingOrderObj();
-                if (orderBy == null)
-                {
-                    order.OrderBy = SeriesOrderBy.ID;
-                    order.OrderDir = OrderDir.ASC;
-                }
-                else
-                {
-                    order = ConditionalAccessMappings.ConvertOrderToSeriesOrderObj(orderBy.Value);
-                }
+            Group group = GroupsManager.GetGroup(groupID);
+            // Create catalog order object
+            SeriesRecordingOrderObj order = new SeriesRecordingOrderObj();
+            if (orderBy == null)
+            {
+                order.OrderBy = SeriesOrderBy.ID;
+                order.OrderDir = OrderDir.ASC;
+            }
+            else
+            {
+                order = ConditionalAccessMappings.ConvertOrderToSeriesOrderObj(orderBy.Value);
+            }
 
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    // fire request
-                    response = ConditionalAccess.GetFollowSeries(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, domainID, order);
-                }
-                if (response.SeriesRecordings != null && response.SeriesRecordings.Length > 0)
-                {
-                    result.TotalCount = response.TotalItems;
-                    // convert recordings            
-                    result.Objects = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaSeriesRecording>>(response.SeriesRecordings);
-                }
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+            {
+                // fire request
+                response = ConditionalAccess.GetFollowSeries(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, domainID, order);
+            }
+            if (response.SeriesRecordings != null && response.SeriesRecordings.Length > 0)
+            {
+                result.TotalCount = response.TotalItems;
+                // convert recordings            
+                result.Objects = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaSeriesRecording>>(response.SeriesRecordings);
+            }
 
-                return result;
+            return result;
         }
 
         internal KalturaSeriesRecording RecordSeasonOrSeries(int groupID, string userID, long epgID, KalturaRecordingType recordingType)
@@ -1769,11 +1770,23 @@ namespace WebAPI.ConditionalAccess
         {
             HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
 
-            if (request.Headers != null &&
-                request.Headers[Constants.REQUEST_ID_KEY] == null &&
-                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
+            if (KLogMonitor.KLogger.AppType == KLogEnums.AppType.WCF)
             {
-                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+                if (request.Headers != null &&
+                request.Headers[KLogMonitor.Constants.REQUEST_ID_KEY] == null &&
+                OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
+                {
+                    request.Headers.Add(KLogMonitor.Constants.REQUEST_ID_KEY, OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY].ToString());
+                }
+            }
+            else
+            {
+                if (request.Headers != null &&
+                request.Headers[KLogMonitor.Constants.REQUEST_ID_KEY] == null &&
+                HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
+                {
+                    request.Headers.Add(KLogMonitor.Constants.REQUEST_ID_KEY, HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY].ToString());
+                }
             }
             return request;
         }

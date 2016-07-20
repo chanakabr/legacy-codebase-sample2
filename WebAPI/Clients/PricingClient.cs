@@ -14,6 +14,7 @@ using WebAPI.Models.Pricing;
 using WebAPI.Pricing;
 using WebAPI.Utils;
 using System.Net;
+using System.ServiceModel;
 
 namespace WebAPI.Clients
 {
@@ -188,11 +189,23 @@ namespace WebAPI.Pricing
         {
             HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
 
-            if (request.Headers != null &&
-                request.Headers[Constants.REQUEST_ID_KEY] == null &&
-                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
+            if (KLogMonitor.KLogger.AppType == KLogEnums.AppType.WCF)
             {
-                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+                if (request.Headers != null &&
+                request.Headers[KLogMonitor.Constants.REQUEST_ID_KEY] == null &&
+                OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
+                {
+                    request.Headers.Add(KLogMonitor.Constants.REQUEST_ID_KEY, OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY].ToString());
+                }
+            }
+            else
+            {
+                if (request.Headers != null &&
+                request.Headers[KLogMonitor.Constants.REQUEST_ID_KEY] == null &&
+                HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
+                {
+                    request.Headers.Add(KLogMonitor.Constants.REQUEST_ID_KEY, HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY].ToString());
+                }
             }
             return request;
         }
