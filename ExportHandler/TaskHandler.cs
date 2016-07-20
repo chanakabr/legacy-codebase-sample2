@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -71,11 +72,23 @@ namespace ExportHandler.WS_API
         {
             HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
 
-            if (request.Headers != null &&
+            if (KLogMonitor.KLogger.AppType == KLogEnums.AppType.WCF)
+            {
+                if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
+                {
+                    request.Headers.Add(Constants.REQUEST_ID_KEY, OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY].ToString());
+                }
+            }
+            else
+            {
+                if (request.Headers != null &&
                 request.Headers[Constants.REQUEST_ID_KEY] == null &&
                 HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
-            {
-                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+                {
+                    request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+                }
             }
             return request;
         }

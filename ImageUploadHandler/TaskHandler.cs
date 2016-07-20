@@ -10,6 +10,7 @@ using TVinciShared;
 using ImageUploadHandler.WS_API;
 using ApiObjects;
 using System.Web;
+using System.ServiceModel;
 
 namespace ImageUploadHandler
 {
@@ -182,11 +183,23 @@ namespace ImageUploadHandler.WS_API
         {
             HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
 
-            if (request.Headers != null &&
+            if (KLogMonitor.KLogger.AppType == KLogEnums.AppType.WCF)
+            {
+                if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
+                {
+                    request.Headers.Add(Constants.REQUEST_ID_KEY, OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY].ToString());
+                }
+            }
+            else
+            {
+                if (request.Headers != null &&
                 request.Headers[Constants.REQUEST_ID_KEY] == null &&
                 HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
-            {
-                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+                {
+                    request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+                }
             }
             return request;
         }
