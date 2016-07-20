@@ -4447,16 +4447,17 @@ namespace ConditionalAccess
                     recordingStatus = TstvRecordingStatus.Failed;
                     break;
                 case RecordingInternalStatus.Waiting:
-                    recordingStatus = TstvRecordingStatus.Scheduled;                    
-                    // If we are still waiting for confirmation but program started already, we say it is failed
-                    //if (epgStartDate < DateTime.UtcNow)
-                    //{
-                    //    recordingStatus = TstvRecordingStatus.Failed;
-                    //}
-                    //else
-                    //{
-                        //recordingStatus = TstvRecordingStatus.Scheduled;
-                    //}
+                    /* Unlike RecordingInternalStatus.OK we don't check the epg end date because
+                     * we won't return recorded since the adapter call is async, so if the program
+                     * already started it doesn't matter if it finished or not we will return recording */                      
+                    if (epgStartDate < DateTime.UtcNow)
+                    {
+                        recordingStatus = TstvRecordingStatus.Recording;
+                    }
+                    else
+                    {
+                        recordingStatus = TstvRecordingStatus.Scheduled;
+                    }
                     break;
                 case RecordingInternalStatus.OK:
                     // If program already finished, we say it is recorded
@@ -4465,7 +4466,7 @@ namespace ConditionalAccess
                         recordingStatus = TstvRecordingStatus.Recorded;
                     }
                     // If program already started but didn't finish, we say it is recording
-                    else if (epgEndDate < DateTime.UtcNow)
+                    else if (epgStartDate < DateTime.UtcNow)
                     {
                         recordingStatus = TstvRecordingStatus.Recording;
                     }
@@ -5077,7 +5078,7 @@ namespace ConditionalAccess
                 Type = seasonNumber > 0 ? RecordingType.Season : RecordingType.Series,
                 CreateDate = createDate,
                 UpdateDate = updateDate,
-                Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "TstvRecordingStatus is not cancel or delete")
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
             };
 
         }
@@ -5172,27 +5173,6 @@ namespace ConditionalAccess
             return recording;
         }
 
-        internal static bool CancelOrDeleteRecording(int groupID, Recording recording, TstvRecordingStatus tstvRecordingStatus)
-        {
-            bool result = false;
-            DataTable dt = RecordingsDAL.GetExistingRecordingsByRecordingID(groupID, recording.Id);
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-            {
-                if ((ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "countUsers", 0)) == 0)
-                {                    
-                    ApiObjects.Response.Status status = RecordingsManager.Instance.CancelOrDeleteRecording(groupID, recording, tstvRecordingStatus);
-
-                    if (status != null && status.Code == (int)eResponseStatus.OK)
-                    {
-                        result = true;
-                    }
-
-                }
-            }
-
-            return result;
-        }
-
         internal static Dictionary<long, ExpiredRecordingScheduledTask> GetExpiredRecordingsTasks(long unixTimeStampNow)
         {
             Dictionary<long, ExpiredRecordingScheduledTask> expiredRecordings = new Dictionary<long, ExpiredRecordingScheduledTask>();
@@ -5253,17 +5233,17 @@ namespace ConditionalAccess
             try
             {
                 StringBuilder ksql = new StringBuilder();
-                ksql.AppendFormat("(And series_id = {0} ", seriesId);
+                ksql.AppendFormat("(and series_id = '{0}' ", seriesId);
 
                 if (seasonNumber > 0)
-                    ksql.AppendFormat("season_number = {0}", seasonNumber);
+                    ksql.AppendFormat("season_number = '{0}'", seasonNumber);
 
                 if (windowStartDate.HasValue)
                 {
-                    ksql.AppendFormat("start_date > {0}", TVinciShared.DateUtils.DateTimeToUnixTimestamp(windowStartDate.Value));
+                    ksql.AppendFormat("start_date > '{0}'", TVinciShared.DateUtils.DateTimeToUnixTimestamp(windowStartDate.Value));
                 }
 
-                ksql.AppendFormat("epg_channel_id = {0})", epgChannelId);
+                ksql.AppendFormat("epg_channel_id = '{0}')", epgChannelId);
 
                 WS_Catalog.ExtendedSearchRequest request = new WS_Catalog.ExtendedSearchRequest()
                 {
@@ -5369,12 +5349,6 @@ namespace ConditionalAccess
                     return recording;
                 }
 
-                // if internal recording status was 0 now recordingStatus is OK and we need to set recording status according to RecordingsManager
-                if (recordingStatus.Value == TstvRecordingStatus.OK)
-                {
-                    recordingStatus = RecordingsManager.GetTstvRecordingStatus(epgStartDate, epgEndDate, TstvRecordingStatus.Scheduled);
-                }
-
                 // create recording object
                 recording = new Recording()
                 {
@@ -5403,7 +5377,7 @@ namespace ConditionalAccess
             return recording;
         }
 
-        internal static SeriesRecording FollowSeasonOrSeries(int groupId, string userId, long domainID, long epgId, RecordingType recordingType, ref bool isFirstFollower)
+        internal static SeriesRecording FollowSeasonOrSeries(int groupId, string userId, long domainID, long epgId, RecordingType recordingType, ref bool isSeriesFollowed)
         {
             SeriesRecording seriesRecording = new SeriesRecording();
             List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(groupId, new List<long>() { epgId });
@@ -5424,15 +5398,15 @@ namespace ConditionalAccess
             string seriesId = epgFieldMappings[SERIES_ID];
             int seasonNumber = 0, episodeNumber = 0;
 
-            if (!int.TryParse(epgFieldMappings[SEASON_NUMBER], out seasonNumber) && recordingType == RecordingType.Season)
+            if (recordingType == RecordingType.Season && !int.TryParse(epgFieldMappings[SEASON_NUMBER], out seasonNumber))
             {
                 log.ErrorFormat("failed parsing SEASON_NUMBER, groupId: {0}, epgId: {1}, recordingType: {2}", groupId, epg.EPG_ID, recordingType.ToString());
                 return seriesRecording;
             }
 
             int.TryParse(epgFieldMappings[EPISODE_NUMBER], out episodeNumber);
-            isFirstFollower = RecordingsDAL.IsSeriesFollowed(groupId, seriesId, seasonNumber);
-            if (isFirstFollower)
+            isSeriesFollowed = RecordingsDAL.IsSeriesFollowed(groupId, seriesId, seasonNumber);
+            if (!isSeriesFollowed)
             {
                 QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
                 ApiObjects.QueueObjects.FirstFollowerRecordingData data = new ApiObjects.QueueObjects.FirstFollowerRecordingData(groupId, domainID, epg.EPG_CHANNEL_ID, seriesId, seasonNumber) { ETA = DateTime.UtcNow };

@@ -17223,16 +17223,19 @@ namespace ConditionalAccess
                 }
                 if (res)
                 {
+                    if (QuotaManager.Instance.IncreaseDomainQuota(domainId, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds))
+                    {
+                        System.Threading.Tasks.Task async = Task.Factory.StartNew((taskDomainId) =>
+                        {
+                            ApiObjects.Response.Status response = CompleteDomainSeriesRecordings((long)taskDomainId);
+                            if (response == null || response.Code != (int)eResponseStatus.OK)
+                            {
+                                log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after CancelOrDeleteRecord: domainId: {0}, response: {1}, ", domainId, response != null ? response.Code + ", " + response.Message : "");
+                            }
+                        }, domainId);
+                    }
                     recording.RecordingStatus = tstvRecordingStatus;
                     recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    // if no other users assign to this record id - ask adapter to cancel
-                    if (Utils.CancelOrDeleteRecording(m_nGroupID, recording, tstvRecordingStatus))
-                    {
-                        log.DebugFormat("Recording {0} has been updated to status {1}", recording.Id, tstvRecordingStatus.ToString());
-
-                        QuotaManager.Instance.IncreaseDomainQuota(domainId, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds);
-                        CompleteDomainSeriesRecordings(domainId);
-                    }
                 }
                 else
                 {
@@ -17359,7 +17362,7 @@ namespace ConditionalAccess
                 if (recordingType == RecordingType.Single)
                 {
                     int totalSeconds = QuotaManager.Instance.GetDomainQuota(this.m_nGroupID, domainID);
-                    foreach (Recording recording in response.Recordings.Where(x => x.Status != null && x.Status.Code == (int)eResponseStatus.OK && Utils.IsValidRecordingStatus(x.RecordingStatus, true)))
+                    foreach (Recording recording in response.Recordings.Where(x => x.Status != null && x.Status.Code == (int)eResponseStatus.OK && x.RecordingStatus == TstvRecordingStatus.OK))
                     {
                         int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
                         if (recordingDuration > totalSeconds)
@@ -17753,9 +17756,9 @@ namespace ConditionalAccess
             {
                 foreach (var id in epgIds)
                 {
+                    Recording recording = ConditionalAccess.Utils.GetRecordingByEpgId(m_nGroupID, id);
 
-
-                    var currentStatus = RecordingsManager.Instance.CancelOrDeleteRecording(m_nGroupID, id, TstvRecordingStatus.Canceled);
+                    var currentStatus = RecordingsManager.Instance.CancelOrDeleteRecording(m_nGroupID, recording, TstvRecordingStatus.Canceled);
 
                     // If something went wrong, use the first status that failed
                     if (status == null)
@@ -17794,11 +17797,11 @@ namespace ConditionalAccess
                     TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
                     if (accountSettings != null && accountSettings.PaddingBeforeProgramStarts.HasValue && accountSettings.PaddingAfterProgramEnds.HasValue)
                     {
+                        DateTime startDate;
+                        DateTime endDate;
+
                         foreach (var epg in epgs)
                         {
-                            DateTime startDate;
-                            DateTime endDate;
-
                             // Parse start date
                             if (!DateTime.TryParseExact(epg.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out startDate))
                             {
@@ -17815,6 +17818,7 @@ namespace ConditionalAccess
                                 {
                                     DateTime paddedStartDate = startDate.AddSeconds((-1) * accountSettings.PaddingBeforeProgramStarts.Value);
                                     DateTime paddedEndDate = endDate.AddSeconds(accountSettings.PaddingAfterProgramEnds.Value);
+                                    
                                     var currentStatus = RecordingsManager.Instance.UpdateRecording(m_nGroupID, epg.EPG_ID, paddedStartDate, paddedEndDate);
 
                                     if (status == null)
@@ -17829,30 +17833,31 @@ namespace ConditionalAccess
                                             status = currentStatus;
                                         }
                                     }
-
-                                    // check if the epg is series by getting the fields mappings for the epg
-                                    Dictionary<string, string> epgFieldMappings = null;
-                                    if (Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, RecordingType.Series, out epgFieldMappings) && epgFieldMappings != null && epgFieldMappings.Count > 0)
+                                    if (currentStatus != null && currentStatus.Code == (int)eResponseStatus.OK)
                                     {
-                                        // check if followed by at least 1 domain
-                                        string sereisId = epgFieldMappings[Utils.SERIES_ID];
-                                        int seasonNum = epgFieldMappings.ContainsKey(Utils.SEASON_NUMBER) ? int.Parse(epgFieldMappings[Utils.SEASON_NUMBER]) : 0;
-                                        if (RecordingsDAL.IsSeriesFollowed(m_nGroupID, sereisId, seasonNum))
+                                        // check if the epg is series by getting the fields mappings for the epg
+                                        Dictionary<string, string> epgFieldMappings = null;
+                                        if (Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, RecordingType.Series, out epgFieldMappings) && epgFieldMappings != null && epgFieldMappings.Count > 0)
                                         {
-                                            // record
-                                            Recording recording = RecordingsManager.Instance.Record(m_nGroupID, epg.EPG_ID, int.Parse(epg.EPG_CHANNEL_ID), startDate, endDate, epg.CRID);
-                                            if (recording == null || recording.Status == null || recording.Status.Code != (int)eResponseStatus.OK || recording.Id == 0)
+                                            // check if followed by at least 1 domain
+                                            string sereisId = epgFieldMappings[Utils.SERIES_ID];
+                                            int seasonNum = epgFieldMappings.ContainsKey(Utils.SEASON_NUMBER) ? int.Parse(epgFieldMappings[Utils.SEASON_NUMBER]) : 0;
+                                            if (RecordingsDAL.IsSeriesFollowed(m_nGroupID, sereisId, seasonNum))
                                             {
-                                                log.ErrorFormat("failed to record epg as series on UpdateRecording, epgId = {0}", epg.EPG_ID);
+                                                // record
+                                                Recording serieRecording = RecordingsManager.Instance.Record(m_nGroupID, epg.EPG_ID, int.Parse(epg.EPG_CHANNEL_ID), startDate, endDate, epg.CRID);
+                                                if (serieRecording == null || serieRecording.Status == null || serieRecording.Status.Code != (int)eResponseStatus.OK || serieRecording.Id == 0)
+                                                {
+                                                    log.ErrorFormat("failed to record epg as series on UpdateRecording, epgId = {0}", epg.EPG_ID);
+                                                }
+                                                else
+                                                {
+                                                    log.DebugFormat("successfully recorded epg as series on UpdateRecording, epgId = {0}, recordingId = {1}", epg.EPG_ID, serieRecording.Id);
+                                                    DateTime distributeTime = startDate.AddMinutes(1);
+                                                    eRecordingTask task = eRecordingTask.DistributeRecording;
+                                                    RecordingsManager.EnqueueMessage(m_nGroupID, serieRecording.EpgId, serieRecording.Id, serieRecording.EpgStartDate, distributeTime, task);
+                                                }
                                             }
-                                            else
-                                            {
-                                                log.DebugFormat("successfully recorded epg as series on UpdateRecording, epgId = {0}, recordingId = {1}", epg.EPG_ID, recording.Id);
-                                                DateTime distributeTime = startDate.AddMinutes(1);
-                                                eRecordingTask task = eRecordingTask.DistributeRecording;
-                                                RecordingsManager.EnqueueMessage(m_nGroupID, recording.EpgId, recording.Id, recording.EpgStartDate, distributeTime, task);
-                                            }
-                                            //TODO: CRID!!!!!
                                         }
                                     }
                                 }
@@ -18638,7 +18643,10 @@ namespace ConditionalAccess
             return result;
         }
 
-        public bool HandleExpiredRecording(ExpiredRecordingScheduledTask expiredRecording)
+        /// <summary>
+        /// This method handles both Expired recordings and Failed recordings
+        /// </summary>
+        public bool HandleExpiredOrFailedRecording(ExpiredRecordingScheduledTask expiredRecording)
         {
             bool result = false;
             try
@@ -18705,6 +18713,7 @@ namespace ConditionalAccess
                     log.DebugFormat("recordingId: {0} has no domain recording that protect it");
                 }
 
+                // incase expiredRecording.Id = 0 it means we are handling a FAILED recording and no need to update the table recording_scheduled_tasks 
                 if (expiredRecording.Id > 0 && !RecordingsDAL.UpdateExpiredRecordingAfterScheduledTask(expiredRecording.Id))
                 {
                     log.ErrorFormat("failed UpdateExpiredRecordingScheduledTask for expiredRecording: {0}", expiredRecording.ToString());
@@ -18712,7 +18721,7 @@ namespace ConditionalAccess
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error in HandleRecordingScheduledTasks, expiredRecording: {0}, ex = {1}, ST = {2}", expiredRecording.ToString(), ex.Message, ex.StackTrace);
+                log.ErrorFormat("Error in HandleExpiredOrFailedRecording, expiredRecording: {0}, ex = {1}, ST = {2}", expiredRecording.ToString(), ex.Message, ex.StackTrace);
 
             }
 
@@ -18782,11 +18791,16 @@ namespace ConditionalAccess
                     }
                 }
 
-                ApiObjects.Response.Status completeRecordingsStatus = CompleteDomainSeriesRecordings(domainId);
-                if (completeRecordingsStatus.Code != (int)eResponseStatus.OK)
+                if (epgsToRecord.Count > 0)
                 {
-                    log.ErrorFormat("Failed completeRecordingsStatus for domainId: {0}, seriesId: {1}, seassonNumber: {2}", domainId, seriesId, seassonNumber);
+                    ApiObjects.Response.Status completeRecordingsStatus = CompleteDomainSeriesRecordings(domainId);
+                    if (completeRecordingsStatus.Code != (int)eResponseStatus.OK)
+                    {
+                        log.ErrorFormat("Failed completeRecordingsStatus for domainId: {0}, seriesId: {1}, seassonNumber: {2}", domainId, seriesId, seassonNumber);
+                    }
                 }
+
+                result = true;
             }
 
             catch (Exception ex)
@@ -18892,8 +18906,6 @@ namespace ConditionalAccess
             {
                 seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 log.DebugFormat("Series recording {0} has been updated to status {1}", seriesRecording.Id, tstvRecordingStatus.ToString());
-
-                CompleteDomainSeriesRecordings(domainId);
             }
             else
             {
@@ -19112,8 +19124,8 @@ namespace ConditionalAccess
                     return seriesRecording;
                 }
 
-                bool isFirstFollower = false;
-                seriesRecording = Utils.FollowSeasonOrSeries(m_nGroupID, userID, domainID, epgID, recordingType, ref isFirstFollower);
+                bool isSeriesFollowed = false;
+                seriesRecording = Utils.FollowSeasonOrSeries(m_nGroupID, userID, domainID, epgID, recordingType, ref isSeriesFollowed);
                 if (seriesRecording == null || seriesRecording.Status == null)
                 {
                     log.ErrorFormat("Failed Utils.FollowSeasonOrSeries, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, seriesRecording.ToString());
@@ -19126,8 +19138,8 @@ namespace ConditionalAccess
                     return seriesRecording;
                 }
 
-                // if the domain is not the first to follow the series then complete the series recordings for the domain
-                if (!isFirstFollower)
+                // if series is already followed then complete the series recordings for the domain
+                if (isSeriesFollowed)
                 {
                     ApiObjects.Response.Status completeRecordingsStatus = CompleteDomainSeriesRecordings(domainID, seriesRecording.Id);
                     if (completeRecordingsStatus == null || completeRecordingsStatus.Code != (int)eResponseStatus.OK)

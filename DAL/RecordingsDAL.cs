@@ -713,7 +713,7 @@ namespace DAL
 
             int rowsFound = spIsSeriesFollowed.ExecuteReturnValue<int>();
 
-            return rowsFound == 1;
+            return rowsFound > 0;
         }
 
         public static bool IsFollowingSeries(int groupId, long domainID, string seriesId, int seasonNumber)
@@ -759,12 +759,12 @@ namespace DAL
         {
             Dictionary<long, long> epgsToRecordingsMap = new Dictionary<long, long>();
 
-            ODBCWrapper.StoredProcedure spGetRecordingsToEpgMap = new ODBCWrapper.StoredProcedure("GetRecordingsEpgs");
-            spGetRecordingsToEpgMap.SetConnectionKey(RECORDING_CONNECTION);
-            spGetRecordingsToEpgMap.AddParameter("@GroupID", groupId);
-            spGetRecordingsToEpgMap.AddIDListParameter<int>("@RecordingIds", recordingIds.Select(s => (int)s).ToList(), "ID");
+            ODBCWrapper.StoredProcedure spGetEpgsByRecordingIds = new ODBCWrapper.StoredProcedure("GetEpgsByRecordingIds");
+            spGetEpgsByRecordingIds.SetConnectionKey(RECORDING_CONNECTION);
+            spGetEpgsByRecordingIds.AddParameter("@GroupID", groupId);
+            spGetEpgsByRecordingIds.AddIDListParameter<int>("@RecordingIds", recordingIds.Select(s => (int)s).ToList(), "ID");
 
-            DataTable dt = spGetRecordingsToEpgMap.Execute();
+            DataTable dt = spGetEpgsByRecordingIds.Execute();
             if (dt != null && dt.Rows != null)
             {
                 foreach (DataRow dr in dt.Rows)
