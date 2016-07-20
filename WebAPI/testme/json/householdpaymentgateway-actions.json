@@ -1,0 +1,1 @@
+[{"action":"delete","name":"delete","label":"delete"},{"action":"set","name":"set","label":"set"},{"action":"getChargeID","name":"getChargeID","label":"getChargeID"},{"action":"list","name":"list","label":"list"},{"action":"setChargeID","name":"setChargeID","label":"setChargeID"}]

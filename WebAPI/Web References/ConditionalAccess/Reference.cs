@@ -7279,6 +7279,12 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         LifeTimePeriodExpired,
+        
+        /// <remarks/>
+        SeriesCancel,
+        
+        /// <remarks/>
+        SeriesDelete,
     }
     
     /// <remarks/>

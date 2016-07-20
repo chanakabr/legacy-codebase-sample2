@@ -16,6 +16,8 @@ using WebAPI.Utils;
 using System.Net;
 using System.Web;
 using System.ServiceModel;
+using System.Linq;
+
 
 namespace WebAPI.Clients
 {
@@ -108,6 +110,80 @@ namespace WebAPI.Clients
             return KalturaPaymentGatewayProfileList;
         }
 
+        public List<Models.Billing.KalturaHouseholdPaymentGateway> GetHouseholdPaymentGatewaysList(int groupId, string siteGuid, long householdId)
+        {
+            List<Models.Billing.KalturaHouseholdPaymentGateway> KalturaPaymentGatewayBaseProfileList = null;
+            WebAPI.Billing.PaymentGatewayListResponse response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Billing.GetHouseholdPaymentGateways(group.BillingCredentials.Username, group.BillingCredentials.Password, siteGuid, (int)householdId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetHouseHoldPaymentGW.  groupID: {0}, siteGuid: {1}, exception: {1}", groupId, siteGuid, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            KalturaPaymentGatewayBaseProfileList = Mapper.Map<List<Models.Billing.KalturaHouseholdPaymentGateway>>(response.PaymentGateways);
+
+            return KalturaPaymentGatewayBaseProfileList;
+        }
+
+        public List<KalturaHouseholdPaymentMethod> GetHouseholdPaymentMethods(int groupId, string siteGuid, long householdId)
+        {   
+            WebAPI.Billing.PaymentGatewayListResponse response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Billing.GetHouseholdPaymentGateways(group.BillingCredentials.Username, group.BillingCredentials.Password, siteGuid, (int)householdId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetHouseHoldPaymentGW.  groupID: {0}, siteGuid: {1}, exception: {1}", groupId, siteGuid, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            List<KalturaHouseholdPaymentMethod> list = new List<KalturaHouseholdPaymentMethod>();
+            List<KalturaHouseholdPaymentMethod> householdPaymentMethods;
+            foreach (PaymentGatewaySelectedBy paymentGateway in response.PaymentGateways)
+            {
+                householdPaymentMethods = Mapper.Map<List<KalturaHouseholdPaymentMethod>>(paymentGateway.PaymentMethods);
+                list.AddRange(householdPaymentMethods);
+            }
+
+            return list;
+        }
+
+        [Obsolete]
         public List<Models.Billing.KalturaPaymentGatewayBaseProfile> GetHouseholdPaymentGateways(int groupId, string siteGuid, long householdId)
         {
             List<Models.Billing.KalturaPaymentGatewayBaseProfile> KalturaPaymentGatewayBaseProfileList = null;
@@ -702,6 +778,72 @@ namespace WebAPI.Clients
             return true;
         }
 
+        internal KalturaPaymentMethodProfile UpdatePaymentMethod(int groupId, int paymentMethodId, string name, bool allowMultiInstance)
+        {
+            PaymentMethodResponse response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Billing.UpdatePaymentMethod(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentMethodId, name, allowMultiInstance);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while UpdatePaymentMethod.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            KalturaPaymentMethodProfile paymentMethod = Mapper.Map<KalturaPaymentMethodProfile>(response.PaymentMethod);
+            return paymentMethod;
+        }
+
+        internal bool DeletePaymentMethod(int groupId, int paymentMethodId)
+        {
+            WebAPI.Billing.Status response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Billing.DeletePaymentMethod(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentMethodId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while DeletePaymentMethod.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        [Obsolete]
         internal bool DeletePaymentGatewayPaymentMethod(int groupId, int paymentGatewayId, int paymentMethodId)
         {
             WebAPI.Billing.Status response = null;

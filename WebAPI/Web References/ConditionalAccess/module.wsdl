@@ -2988,6 +2988,8 @@
           <s:enumeration value="Canceled" />
           <s:enumeration value="Deleted" />
           <s:enumeration value="LifeTimePeriodExpired" />
+          <s:enumeration value="SeriesCancel" />
+          <s:enumeration value="SeriesDelete" />
         </s:restriction>
       </s:simpleType>
       <s:element name="CancelRecord">

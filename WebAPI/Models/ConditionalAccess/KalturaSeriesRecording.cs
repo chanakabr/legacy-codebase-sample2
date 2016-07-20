@@ -41,7 +41,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "seriesId")]
         [JsonProperty("seriesId")]
         [XmlElement(ElementName = "seriesId", IsNullable = true)]
-        public long SeriesId { get; set; }
+        public string SeriesId { get; set; }
 
         /// <summary>
         /// Kaltura SeasonNumber
@@ -49,7 +49,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "seasonNumber")]
         [JsonProperty("seasonNumber")]
         [XmlElement(ElementName = "seasonNumber", IsNullable = true)]
-        public long SeasonNumber { get; set; }
+        public int? SeasonNumber { get; set; }
 
         /// <summary>
         /// Recording Type: single/series/season

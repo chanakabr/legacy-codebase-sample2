@@ -20,11 +20,36 @@ namespace WebAPI.Models.Billing
         public int? Id { get; set; }
 
         /// <summary>
+        /// Payment-gateway identifier
+        /// </summary>
+        [DataMember(Name = "paymentGatewayId")]
+        [JsonProperty("paymentGatewayId")]
+        [XmlElement(ElementName = "paymentGatewayId")]
+        public int? PaymentGatewayId { get; set; }
+
+        /// <summary>
+        /// Payment method name
+        /// </summary>
+        [DataMember(Name = "name")]
+        [JsonProperty("name")]
+        [XmlElement(ElementName = "name")]
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Indicates whether the payment method allow multiple instances 
+        /// </summary>
+        [DataMember(Name = "allowMultiInstance")]
+        [JsonProperty("allowMultiInstance")]
+        [XmlElement(ElementName = "allowMultiInstance")]
+        public bool? AllowMultiInstance { get; set; }
+
+        /// <summary>
         /// Payment method details
         /// </summary>
         [DataMember(Name = "details")]
         [JsonProperty("details")]
         [XmlElement(ElementName = "details")]
+        [Obsolete]
         public string Details { get; set; }
 
         /// <summary>
@@ -33,6 +58,24 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "selected")]
         [JsonProperty("selected")]
         [XmlElement(ElementName = "selected")]
+        [Obsolete]
         public bool? Selected { get; set; }
+    }
+
+    /// <summary>
+    /// List of household payment methods.
+    /// </summary>
+    [DataContract(Name = "KalturaHouseholdPaymentMethodListResponse", Namespace = "")]
+    [XmlRoot("KalturaHouseholdPaymentMethodListResponse")]
+    public class KalturaHouseholdPaymentMethodListResponse : KalturaListResponse
+    {
+        /// <summary>
+        /// Follow data list
+        /// </summary>
+        [DataMember(Name = "objects")]
+        [JsonProperty("objects")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem(ElementName = "item")]
+        public List<KalturaHouseholdPaymentMethod> Objects { get; set; }
     }
 }
