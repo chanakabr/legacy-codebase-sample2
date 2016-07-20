@@ -5626,12 +5626,12 @@ namespace ConditionalAccess
                 int seasonNumber = 0;
                 foreach (var field in potentialRecording.ExtraFields)
                 {
-                    if (field.key == seriesIdName)
+                    if (field.key.ToLower() == seriesIdName.ToLower())
                     {
                         seriesId = field.value;
                     }
 
-                    if (field.key == seasonNumberName)
+                    if (field.key.ToLower() == seasonNumberName.ToLower())
                     {
                         int.TryParse(field.value, out seasonNumber);
                     }

@@ -17814,22 +17814,27 @@ namespace ConditionalAccess
                                 {
                                     DateTime paddedStartDate = startDate.AddSeconds((-1) * accountSettings.PaddingBeforeProgramStarts.Value);
                                     DateTime paddedEndDate = endDate.AddSeconds(accountSettings.PaddingAfterProgramEnds.Value);
-                                    
-                                    var currentStatus = RecordingsManager.Instance.UpdateRecording(m_nGroupID, epg.EPG_ID, paddedStartDate, paddedEndDate);
 
-                                    if (status == null)
+                                    ApiObjects.Response.Status currentStatus = null;
+                                    if (action == eAction.Update)
                                     {
-                                        // If we failed with one (and it is the first) - save it so we would later return it
-                                        if (currentStatus == null)
+                                        currentStatus = RecordingsManager.Instance.UpdateRecording(m_nGroupID, epg.EPG_ID, paddedStartDate, paddedEndDate);
+
+                                        if (status == null)
                                         {
-                                            status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Recording manager failed to update recording");
-                                        }
-                                        else if (currentStatus.Code != (int)eResponseStatus.Error)
-                                        {
-                                            status = currentStatus;
+                                            // If we failed with one (and it is the first) - save it so we would later return it
+                                            if (currentStatus == null)
+                                            {
+                                                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Recording manager failed to update recording");
+                                            }
+                                            else if (currentStatus.Code != (int)eResponseStatus.Error)
+                                            {
+                                                status = currentStatus;
+                                            }
                                         }
                                     }
-                                    if (currentStatus != null && currentStatus.Code == (int)eResponseStatus.OK)
+
+                                    if (action == eAction.On || (currentStatus != null && currentStatus.Code == (int)eResponseStatus.OK))
                                     {
                                         // check if the epg is series by getting the fields mappings for the epg
                                         Dictionary<string, string> epgFieldMappings = null;
