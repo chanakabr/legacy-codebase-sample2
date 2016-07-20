@@ -5410,7 +5410,7 @@ namespace ConditionalAccess
             if (!isSeriesFollowed)
             {
                 QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
-                ApiObjects.QueueObjects.FirstFollowerRecordingData data = new ApiObjects.QueueObjects.FirstFollowerRecordingData(groupId, domainID, epg.EPG_CHANNEL_ID, seriesId, seasonNumber) { ETA = DateTime.UtcNow };
+                ApiObjects.QueueObjects.FirstFollowerRecordingData data = new ApiObjects.QueueObjects.FirstFollowerRecordingData(groupId, domainID, epg.EPG_CHANNEL_ID, seriesId, seasonNumber);
                 queue.Enqueue(data, string.Format(ROUTING_KEY_FIRST_FOLLOWER_RECORDING, groupId));
             }
 
