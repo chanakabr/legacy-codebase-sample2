@@ -71,7 +71,7 @@ namespace CouchbaseManager
         private string configurationSection;
         private string bucketName;
         private ClientConfiguration clientConfiguration;
-        
+
         #endregion
 
         #region Ctor
@@ -172,15 +172,6 @@ namespace CouchbaseManager
             return transcoder;
         }
 
-        //private ITypeSerializer GetSerializer()
-        //{
-        //    Couchbase.Core.Serialization.DefaultSerializer serializer = new DefaultSerializer();
-        //    serializer.DeserializationSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
-        //    serializer.SerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
-
-        //    return serializer;   
-        //}
-
         private string GetBucketName(string configurationSection)
         {
             string bucketName = string.Empty;
@@ -221,13 +212,9 @@ namespace CouchbaseManager
                 {
                     // 1 - not found
                     if (statusCode.Value == 1)
-                    {
                         log.DebugFormat("Could not find key on couchbase: {0}", key);
-                    }
                     else
-                    {
                         log.ErrorFormat("Error while executing action on CB. Status code = {0}", statusCode.Value);
-                    }
                 }
 
                 // Cases of retry
@@ -245,7 +232,6 @@ namespace CouchbaseManager
                     case 148:
                         {
                             //m_Client = CouchbaseManager.CouchbaseManager.RefreshInstance(bucket);
-
                             break;
                         }
                     default:
@@ -260,12 +246,10 @@ namespace CouchbaseManager
             {
                 // 1 - not found
                 if (result.Status == Couchbase.IO.ResponseStatus.KeyNotFound)
-                {
                     log.DebugFormat("Could not find key on couchbase: {0}", key);
-                }
                 else
                 {
-                    log.ErrorFormat("Error while executing action on CB. Key = {0}, Status code = {1}; Status = {2}, Message = {3}, EX = {4}", 
+                    log.ErrorFormat("Error while executing action on CB. Key = {0}, Status code = {1}; Status = {2}, Message = {3}, EX = {4}",
                         key,
                         (int)result.Status, result.Status.ToString(),
                         result.Message,
@@ -327,26 +311,6 @@ namespace CouchbaseManager
                 default:
                     break;
             }
-            //switch (statusCode)
-            //{
-            //    // Busy
-            //    case 133:
-            //    // SocketPoolTimeout
-            //    case 145:
-            //    // UnableToLocateNode
-            //    case 146:
-            //    // NodeShutdown
-            //    case 147:
-            //    // OperationTimeout
-            //    case 148:
-            //    {
-            //        //m_Client = CouchbaseManager.CouchbaseManager.RefreshInstance(bucket);
-
-            //        break;
-            //    }
-            //    default:
-            //    break;
-            //}
         }
 
         private static string ObjectToJson<T>(T obj)
@@ -378,7 +342,6 @@ namespace CouchbaseManager
             if (expiration > monthInSeconds)
             {
                 DateTime expirationDate = DateTime.UtcNow.AddSeconds(expiration);
-
                 result = DateTimeToUnixTimestamp(expirationDate);
             }
 
@@ -406,55 +369,42 @@ namespace CouchbaseManager
 
             try
             {
-                //using (var cluster = new Cluster(clientConfiguration))
+                var bucket = ClusterHelper.GetBucket(bucketName);
+                expiration = FixExpirationTime(expiration);
+
+                IOperationResult insertResult = null;
+
+                string action = string.Format("Action: Insert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
-                    var bucket = ClusterHelper.GetBucket(bucketName);
+                    if (!asJson)
+                        insertResult = bucket.Insert(key, value, expiration);
+                    else
                     {
-                        expiration = FixExpirationTime(expiration);
+                        string serializedValue = ObjectToJson(value);
+                        insertResult = bucket.Insert(key, serializedValue, expiration);
+                    }
+                }
 
-                        IOperationResult insertResult = null;
+                if (insertResult != null)
+                {
+                    if (insertResult.Exception != null)
+                        throw insertResult.Exception;
 
-                        string action = string.Format("Action: Insert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
+                    if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
+                        result = insertResult.Success;
+                    else
+                    {
+                        HandleStatusCode(insertResult, key);
+
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                         {
                             if (!asJson)
-                            {
                                 insertResult = bucket.Insert(key, value, expiration);
-                            }
                             else
                             {
                                 string serializedValue = ObjectToJson(value);
                                 insertResult = bucket.Insert(key, serializedValue, expiration);
-                            }
-                        }
-
-                        if (insertResult != null)
-                        {
-                            if (insertResult.Exception != null)
-                            {
-                                throw insertResult.Exception;
-                            }
-
-                            if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
-                            {
-                                result = insertResult.Success;
-                            }
-                            else
-                            {
-                                HandleStatusCode(insertResult, key);
-
-                                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
-                                {
-                                    if (!asJson)
-                                    {
-                                        insertResult = bucket.Insert(key, value, expiration);
-                                    }
-                                    else
-                                    {
-                                        string serializedValue = ObjectToJson(value);
-                                        insertResult = bucket.Insert(key, serializedValue, expiration);
-                                    }
-                                }
                             }
                         }
                     }
@@ -481,54 +431,41 @@ namespace CouchbaseManager
 
             try
             {
-                //using (var cluster = new Cluster(clientConfiguration))
-                {
-                    var bucket = ClusterHelper.GetBucket(bucketName);
-                    {
-                        IOperationResult insertResult = null;
-                        expiration = FixExpirationTime(expiration);
+                var bucket = ClusterHelper.GetBucket(bucketName);
+                IOperationResult insertResult = null;
+                expiration = FixExpirationTime(expiration);
 
-                        string action = string.Format("Action: Insert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
+                string action = string.Format("Action: Insert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                {
+                    if (!asJson)
+                        insertResult = bucket.Insert<T>(key, value, expiration);
+                    else
+                    {
+                        string serializedValue = ObjectToJson(value);
+                        insertResult = bucket.Insert<string>(key, serializedValue, expiration);
+                    }
+                }
+
+                if (insertResult != null)
+                {
+                    if (insertResult.Exception != null)
+                        throw insertResult.Exception;
+
+                    if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
+                        result = insertResult.Success;
+                    else
+                    {
+                        HandleStatusCode(insertResult, key);
+
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                         {
                             if (!asJson)
-                            {
                                 insertResult = bucket.Insert<T>(key, value, expiration);
-                            }
                             else
                             {
                                 string serializedValue = ObjectToJson(value);
                                 insertResult = bucket.Insert<string>(key, serializedValue, expiration);
-                            }
-                        }
-
-                        if (insertResult != null)
-                        {
-                            if (insertResult.Exception != null)
-                            {
-                                throw insertResult.Exception;
-                            }
-
-                            if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
-                            {
-                                result = insertResult.Success;
-                            }
-                            else
-                            {
-                                HandleStatusCode(insertResult, key);
-
-                                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
-                                {
-                                    if (!asJson)
-                                    {
-                                        insertResult = bucket.Insert<T>(key, value, expiration);
-                                    }
-                                    else
-                                    {
-                                        string serializedValue = ObjectToJson(value);
-                                        insertResult = bucket.Insert<string>(key, serializedValue, expiration);
-                                    }
-                                }
                             }
                         }
                     }
@@ -555,54 +492,41 @@ namespace CouchbaseManager
 
             try
             {
-                //using (var cluster = new Cluster(clientConfiguration))
-                {
-                    var bucket = ClusterHelper.GetBucket(bucketName);
-                    {
-                        IOperationResult insertResult = null;
-                        expiration = FixExpirationTime(expiration);
+                var bucket = ClusterHelper.GetBucket(bucketName);
+                IOperationResult insertResult = null;
+                expiration = FixExpirationTime(expiration);
 
-                        string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
+                string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                {
+                    if (!asJson)
+                        insertResult = bucket.Upsert(key, value, expiration);
+                    else
+                    {
+                        string serializedValue = ObjectToJson(value);
+                        insertResult = bucket.Upsert(key, serializedValue, expiration);
+                    }
+                }
+
+                if (insertResult != null)
+                {
+                    if (insertResult.Exception != null)
+                        throw insertResult.Exception;
+
+                    if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
+                        result = insertResult.Success;
+                    else
+                    {
+                        HandleStatusCode(insertResult, key);
+
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                         {
                             if (!asJson)
-                            {
                                 insertResult = bucket.Upsert(key, value, expiration);
-                            }
                             else
                             {
                                 string serializedValue = ObjectToJson(value);
                                 insertResult = bucket.Upsert(key, serializedValue, expiration);
-                            }
-                        }
-
-                        if (insertResult != null)
-                        {
-                            if (insertResult.Exception != null)
-                            {
-                                throw insertResult.Exception;
-                            }
-
-                            if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
-                            {
-                                result = insertResult.Success;
-                            }
-                            else
-                            {
-                                HandleStatusCode(insertResult, key);
-
-                                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
-                                {
-                                    if (!asJson)
-                                    {
-                                        insertResult = bucket.Upsert(key, value, expiration);
-                                    }
-                                    else
-                                    {
-                                        string serializedValue = ObjectToJson(value);
-                                        insertResult = bucket.Upsert(key, serializedValue, expiration);
-                                    }
-                                }
                             }
                         }
                     }
@@ -629,54 +553,41 @@ namespace CouchbaseManager
 
             try
             {
-                //using (var cluster = new Cluster(clientConfiguration))
-                {
-                    var bucket = ClusterHelper.GetBucket(bucketName);
-                    {
-                        IOperationResult insertResult = null;
-                        expiration = FixExpirationTime(expiration);
+                var bucket = ClusterHelper.GetBucket(bucketName);
+                IOperationResult insertResult = null;
+                expiration = FixExpirationTime(expiration);
 
-                        string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
+                string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                {
+                    if (!asJson)
+                        insertResult = bucket.Upsert<T>(key, value, expiration);
+                    else
+                    {
+                        string serializedValue = ObjectToJson(value);
+                        insertResult = bucket.Upsert<string>(key, serializedValue, expiration);
+                    }
+                }
+
+                if (insertResult != null)
+                {
+                    if (insertResult.Exception != null)
+                        throw insertResult.Exception;
+
+                    if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
+                        result = insertResult.Success;
+                    else
+                    {
+                        HandleStatusCode(insertResult, key);
+
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                         {
                             if (!asJson)
-                            {
                                 insertResult = bucket.Upsert<T>(key, value, expiration);
-                            }
                             else
                             {
                                 string serializedValue = ObjectToJson(value);
                                 insertResult = bucket.Upsert<string>(key, serializedValue, expiration);
-                            }
-                        }
-
-                        if (insertResult != null)
-                        {
-                            if (insertResult.Exception != null)
-                            {
-                                throw insertResult.Exception;
-                            }
-
-                            if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
-                            {
-                                result = insertResult.Success;
-                            }
-                            else
-                            {
-                                HandleStatusCode(insertResult, key);
-
-                                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
-                                {
-                                    if (!asJson)
-                                    {
-                                        insertResult = bucket.Upsert<T>(key, value, expiration);
-                                    }
-                                    else
-                                    {
-                                        string serializedValue = ObjectToJson(value);
-                                        insertResult = bucket.Upsert<string>(key, serializedValue, expiration);
-                                    }
-                                }
                             }
                         }
                     }
@@ -695,40 +606,61 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(clientConfiguration))
-                {
-                    using (var bucket = cluster.OpenBucket(bucketName))
-                    {
-                        IOperationResult insertResult = null;
-                        expiration = FixExpirationTime(expiration);
+                var bucket = ClusterHelper.GetBucket(bucketName);
 
-                        string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
+                IOperationResult insertResult = null;
+                expiration = FixExpirationTime(expiration);
+
+                string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                {
+                    if (cas > 0)
+                    {
+                        log.DebugFormat("Upsert cas. key: {0}, cas: {1}", key, cas);
+                        insertResult = bucket.Upsert<T>(key, value, cas, expiration);
+                    }
+                    else
+                    {
+                        log.DebugFormat("Upsert cas. key: {0}, cas: {1}", key, cas);
+                        insertResult = bucket.Upsert<T>(key, value, expiration);
+                    }
+                }
+
+                if (insertResult != null)
+                {
+                    if (insertResult.Exception != null)
+                        throw insertResult.Exception;
+
+                    if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
+                    {
+                        result = insertResult.Success;
+
+                        log.DebugFormat("SET before unlocking {0}, cas: {1}", key, cas);
+                        if (unlock && cas > 0)
+                        {
+                            var unlockResult = bucket.Unlock(key, cas);
+                            if (unlockResult.Success)
+                                log.DebugFormat("SET after unlocking {0}, cas: {1}", key, cas);
+                            else
+                                log.DebugFormat("failed to unlock - key: {0}, cas: {1}, error = {2}", key, cas, unlockResult.Status.ToString());
+                        }
+                    }
+                    else
+                    {
+                        HandleStatusCode(insertResult, key);
+
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                         {
                             if (cas > 0)
-                            {
-                                log.DebugFormat("Upsert cas. key: {0}, cas: {1}", key, cas);
                                 insertResult = bucket.Upsert<T>(key, value, cas, expiration);
-                            }
                             else
-                            {
-                                log.DebugFormat("Upsert cas. key: {0}, cas: {1}", key, cas);
                                 insertResult = bucket.Upsert<T>(key, value, expiration);
-                            }
-                        }
-
-                        if (insertResult != null)
-                        {
-                            if (insertResult.Exception != null)
-                            {
-                                throw insertResult.Exception;
-                            }
 
                             if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
                             {
                                 result = insertResult.Success;
 
-                                log.DebugFormat("SET before unlocking {0}, cas: {1}", key, cas);
+                                log.Debug("before lock2");
                                 if (unlock && cas > 0)
                                 {
                                     var unlockResult = bucket.Unlock(key, cas);
@@ -736,41 +668,12 @@ namespace CouchbaseManager
                                         log.DebugFormat("SET after unlocking {0}, cas: {1}", key, cas);
                                     else
                                         log.DebugFormat("failed to unlock - key: {0}, cas: {1}, error = {2}", key, cas, unlockResult.Status.ToString());
-                                }
-                            }
-                            else
-                            {
-                                HandleStatusCode(insertResult, key);
-
-                                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
-                                {
-                                    if (cas > 0)
-                                        insertResult = bucket.Upsert<T>(key, value, cas, expiration);
-                                    else
-                                        insertResult = bucket.Upsert<T>(key, value, expiration);
-
-                                    if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
-                                    {
-                                        result = insertResult.Success;
-
-                                        log.Debug("before lock2");
-                                        if (unlock && cas > 0)
-                                        {
-                                            var unlockResult = bucket.Unlock(key, cas);
-                                            if (unlockResult.Success)
-                                                log.DebugFormat("SET after unlocking {0}, cas: {1}", key, cas);
-                                            else
-                                                log.DebugFormat("failed to unlock - key: {0}, cas: {1}, error = {2}", key, cas, unlockResult.Status.ToString());
 
 
-                                            log.Debug("after lock2");
-                                        }
-                                    }
+                                    log.Debug("after lock2");
                                 }
                             }
                         }
-
-
                     }
                 }
             }
@@ -787,22 +690,17 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(clientConfiguration))
+                var bucket = ClusterHelper.GetBucket(bucketName);
+                IOperationResult unlockResult = bucket.Unlock(key, cas);
+                if (unlockResult != null)
                 {
-                    using (var bucket = cluster.OpenBucket(bucketName))
-                    {
-                        IOperationResult unlockResult = bucket.Unlock(key, cas);
-                        if (unlockResult != null)
-                        {
-                            if (unlockResult.Exception != null)
-                                throw unlockResult.Exception;
+                    if (unlockResult.Exception != null)
+                        throw unlockResult.Exception;
 
-                            if (unlockResult.Status == Couchbase.IO.ResponseStatus.Success)
-                                result = true;
-                            else                                
-                                HandleStatusCode(unlockResult, key);
-                        }
-                    }
+                    if (unlockResult.Status == Couchbase.IO.ResponseStatus.Success)
+                        result = true;
+                    else
+                        HandleStatusCode(unlockResult, key);
                 }
             }
             catch (Exception ex)
@@ -817,35 +715,28 @@ namespace CouchbaseManager
             T result = default(T);
 
             if (asJson)
-            {
                 return this.GetJsonAsT<T>(key);
-            }
 
             try
             {
-                //using (var cluster = new Cluster(clientConfiguration))
+                var bucket = ClusterHelper.GetBucket(bucketName);
+                IOperationResult<T> getResult = null;
+
+                string action = string.Format("Action: Get bucket: {0} key: {1}", bucketName, key);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
-                    var bucket = ClusterHelper.GetBucket(bucketName);
-                    {
-                        IOperationResult<T> getResult = null;
+                    getResult = bucket.Get<T>(key);
+                }
 
-                        string action = string.Format("Action: Get bucket: {0} key: {1}", bucketName, key);
-                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
-                        {
-                            getResult = bucket.Get<T>(key);
-                        }
+                if (getResult != null)
+                {
+                    if (getResult.Exception != null)
+                        throw getResult.Exception;
 
-                        if (getResult != null)
-                        {
-                            if (getResult.Exception != null)
-                                throw getResult.Exception;
-
-                            if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
-                                result = getResult.Value;
-                            else
-                                HandleStatusCode(getResult, key);
-                        }
-                    }
+                    if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
+                        result = getResult.Value;
+                    else
+                        HandleStatusCode(getResult, key);
                 }
             }
             catch (Exception ex)
@@ -863,30 +754,25 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(clientConfiguration))
+                var bucket = ClusterHelper.GetBucket(bucketName);
+                IOperationResult<T> getResult = null;
+
+                string action = string.Format("Action: Get bucket: {0} key: {1}", bucketName, key);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
-                    using (var bucket = cluster.OpenBucket(bucketName))
-                    {
-                        IOperationResult<T> getResult = null;
+                    getResult = bucket.Get<T>(key);
+                }
 
-                        string action = string.Format("Action: Get bucket: {0} key: {1}", bucketName, key);
-                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
-                        {
-                            getResult = bucket.Get<T>(key);
-                        }
+                if (getResult != null)
+                {
+                    status = getResult.Status;
+                    if (getResult.Exception != null)
+                        throw getResult.Exception;
 
-                        if (getResult != null)
-                        {
-                            status = getResult.Status;
-                            if (getResult.Exception != null)
-                                throw getResult.Exception;
-
-                            if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
-                                result = getResult.Value;
-                            else
-                                HandleStatusCode(getResult, key);
-                        }
-                    }
+                    if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
+                        result = getResult.Value;
+                    else
+                        HandleStatusCode(getResult, key);
                 }
             }
             catch (Exception ex)
@@ -905,44 +791,38 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(clientConfiguration))
+                var bucket = ClusterHelper.GetBucket(bucketName);
+                IOperationResult<T> getResult = null;
+
+                string action = string.Format("Action: GetWithLock bucket: {0} key: {1}", bucketName, key);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
-                    using (var bucket = cluster.OpenBucket(bucketName))
+                    if (withLock)
                     {
-                        IOperationResult<T> getResult = null;
-
-                        string action = string.Format("Action: GetWithLock bucket: {0} key: {1}", bucketName, key);
-                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
-                        {
-                            if (withLock)
-                            {
-
-                                getResult = bucket.GetWithLock<T>(key, TimeSpan.FromSeconds(GET_LOCK_TS_SECONDS));
-                                log.DebugFormat("GET locking {0}, cas: {1}", key, getResult.Cas);
-                            }
-                            else
-                            {
-                                getResult = bucket.Get<T>(key);
-                                log.DebugFormat("GET not locking {0}", key);
-                            }
-                        }
-
-                        if (getResult != null)
-                        {
-                            if (getResult.Exception != null)
-                                throw getResult.Exception;
-
-                            status = getResult.Status;
-
-                            if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
-                            {
-                                result = getResult.Value;
-                                cas = getResult.Cas;
-                            }
-                            else
-                                HandleStatusCode(getResult, key);
-                        }
+                        getResult = bucket.GetWithLock<T>(key, TimeSpan.FromSeconds(GET_LOCK_TS_SECONDS));
+                        log.DebugFormat("GET locking {0}, cas: {1}", key, getResult.Cas);
                     }
+                    else
+                    {
+                        getResult = bucket.Get<T>(key);
+                        log.DebugFormat("GET not locking {0}", key);
+                    }
+                }
+
+                if (getResult != null)
+                {
+                    if (getResult.Exception != null)
+                        throw getResult.Exception;
+
+                    status = getResult.Status;
+
+                    if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
+                    {
+                        result = getResult.Value;
+                        cas = getResult.Cas;
+                    }
+                    else
+                        HandleStatusCode(getResult, key);
                 }
             }
             catch (Exception ex)
@@ -959,29 +839,21 @@ namespace CouchbaseManager
 
             try
             {
-                //using (var cluster = new Cluster(clientConfiguration))
+                var bucket = ClusterHelper.GetBucket(bucketName);
+
+                string action = string.Format("Action: Exists bucket: {0} key: {1}", bucketName, key);
+                IOperationResult removeResult;
+                action = string.Format("Action: Remove bucket: {0} key: {1}", bucketName, key);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
-                    var bucket = ClusterHelper.GetBucket(bucketName);
-                    {
-                        string action = string.Format("Action: Exists bucket: {0} key: {1}", bucketName, key);
-                        IOperationResult removeResult;
-                        action = string.Format("Action: Remove bucket: {0} key: {1}", bucketName, key);
-                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
-                        {
-                            removeResult = bucket.Remove(key);
-                        }
-
-                        if (removeResult.Exception != null)
-                        {
-                            throw removeResult.Exception;
-                        }
-
-                        if (removeResult.Status == Couchbase.IO.ResponseStatus.Success || removeResult.Status == Couchbase.IO.ResponseStatus.KeyNotFound)
-                        {
-                            result = removeResult.Success;
-                        }
-                    }
+                    removeResult = bucket.Remove(key);
                 }
+
+                if (removeResult.Exception != null)
+                    throw removeResult.Exception;
+
+                if (removeResult.Status == Couchbase.IO.ResponseStatus.Success || removeResult.Status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                    result = removeResult.Success;
             }
             catch (Exception ex)
             {
@@ -997,49 +869,40 @@ namespace CouchbaseManager
             T result = default(T);
 
             if (asJson)
-            {
                 return GetJsonAsTWithVersion<T>(key, out version);
-            }
 
             try
             {
-                //using (var cluster = new Cluster(clientConfiguration))
+                var bucket = ClusterHelper.GetBucket(bucketName);
+
+                IOperationResult<T> getResult;
+
+                string action = string.Format("Action: Get bucket: {0} key: {1}", bucketName, key);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
-                    var bucket = ClusterHelper.GetBucket(bucketName);
+                    getResult = bucket.Get<T>(key);
+                }
+
+                if (getResult != null)
+                {
+                    if (getResult.Exception != null)
+                        throw getResult.Exception;
+
+                    if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
                     {
-                        IOperationResult<T> getResult;
+                        result = getResult.Value;
+                        version = getResult.Cas;
+                    }
+                    else
+                    {
+                        HandleStatusCode(getResult, key);
 
-
-                        string action = string.Format("Action: Get bucket: {0} key: {1}", bucketName, key);
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                         {
-                            getResult = bucket.Get<T>(key);
+                            result = bucket.Get<T>(key).Value;
                         }
 
-                        if (getResult != null)
-                        {
-                            if (getResult.Exception != null)
-                            {
-                                throw getResult.Exception;
-                            }
-
-                            if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
-                            {
-                                result = getResult.Value;
-                                version = getResult.Cas;
-                            }
-                            else
-                            {
-                                HandleStatusCode(getResult, key);
-
-                                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
-                                {
-                                    result = bucket.Get<T>(key).Value;
-                                }
-
-                                version = getResult.Cas;
-                            }
-                        }
+                        version = getResult.Cas;
                     }
                 }
             }
@@ -1064,54 +927,41 @@ namespace CouchbaseManager
         {
             bool result = false;
 
-            //using (var cluster = new Cluster(clientConfiguration))
-            {
-                var bucket = ClusterHelper.GetBucket(bucketName);
-                {
-                    IOperationResult setResult;
-                    expiration = FixExpirationTime(expiration);
+            var bucket = ClusterHelper.GetBucket(bucketName);
+            IOperationResult setResult;
+            expiration = FixExpirationTime(expiration);
 
-                    string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
+            string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+            {
+                if (!asJson)
+                    setResult = bucket.Upsert(key, value, version, expiration);
+                else
+                {
+                    string serializedValue = ObjectToJson(value);
+                    setResult = bucket.Upsert(key, serializedValue, version, expiration);
+                }
+            }
+
+            if (setResult != null)
+            {
+                if (setResult.Exception != null)
+                    throw setResult.Exception;
+
+                if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
+                    result = setResult.Success;
+                else
+                {
+                    HandleStatusCode(setResult, key);
+
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                     {
                         if (!asJson)
-                        {
                             setResult = bucket.Upsert(key, value, version, expiration);
-                        }
                         else
                         {
                             string serializedValue = ObjectToJson(value);
                             setResult = bucket.Upsert(key, serializedValue, version, expiration);
-                        }
-                    }
-
-                    if (setResult != null)
-                    {
-                        if (setResult.Exception != null)
-                        {
-                            throw setResult.Exception;
-                        }
-
-                        if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
-                        {
-                            result = setResult.Success;
-                        }
-                        else
-                        {
-                            HandleStatusCode(setResult, key);
-
-                            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
-                            {
-                                if (!asJson)
-                                {
-                                    setResult = bucket.Upsert(key, value, version, expiration);
-                                }
-                                else
-                                {
-                                    string serializedValue = ObjectToJson(value);
-                                    setResult = bucket.Upsert(key, serializedValue, version, expiration);
-                                }
-                            }
                         }
                     }
                 }
@@ -1125,20 +975,40 @@ namespace CouchbaseManager
             bool result = false;
             newVersion = 0;
 
-            //using (var cluster = new Cluster(clientConfiguration))
-            {
-                var bucket = ClusterHelper.GetBucket(bucketName);
-                {
-                    IOperationResult setResult;
-                    expiration = FixExpirationTime(expiration);
+            var bucket = ClusterHelper.GetBucket(bucketName);
+            IOperationResult setResult;
+            expiration = FixExpirationTime(expiration);
 
-                    string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
+            string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+            {
+                if (!asJson)
+                    setResult = bucket.Upsert(key, value, version, expiration);
+                else
+                {
+                    string serializedValue = ObjectToJson(value);
+                    setResult = bucket.Upsert(key, serializedValue, version, expiration);
+                }
+            }
+
+            if (setResult != null)
+            {
+                if (setResult.Exception != null)
+                    throw setResult.Exception;
+
+                if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
+                {
+                    result = setResult.Success;
+                    newVersion = setResult.Cas;
+                }
+                else
+                {
+                    HandleStatusCode(setResult, key);
+
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                     {
                         if (!asJson)
-                        {
                             setResult = bucket.Upsert(key, value, version, expiration);
-                        }
                         else
                         {
                             string serializedValue = ObjectToJson(value);
@@ -1146,38 +1016,7 @@ namespace CouchbaseManager
                         }
                     }
 
-                    if (setResult != null)
-                    {
-                        if (setResult.Exception != null)
-                        {
-                            throw setResult.Exception;
-                        }
-
-                        if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
-                        {
-                            result = setResult.Success;
-                            newVersion = setResult.Cas;
-                        }
-                        else
-                        {
-                            HandleStatusCode(setResult, key);
-
-                            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
-                            {
-                                if (!asJson)
-                                {
-                                    setResult = bucket.Upsert(key, value, version, expiration);
-                                }
-                                else
-                                {
-                                    string serializedValue = ObjectToJson(value);
-                                    setResult = bucket.Upsert(key, serializedValue, version, expiration);
-                                }
-                            }
-
-                            newVersion = setResult.Cas;
-                        }
-                    }
+                    newVersion = setResult.Cas;
                 }
             }
 
@@ -1197,54 +1036,42 @@ namespace CouchbaseManager
         {
             bool result = false;
 
-            //using (var cluster = new Cluster(clientConfiguration))
-            {
-                var bucket = ClusterHelper.GetBucket(bucketName);
-                {
-                    IOperationResult setResult;
-                    expiration = FixExpirationTime(expiration);
+            var bucket = ClusterHelper.GetBucket(bucketName);
 
-                    string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
+            IOperationResult setResult;
+            expiration = FixExpirationTime(expiration);
+
+            string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+            {
+                if (!asJson)
+                    setResult = bucket.Upsert<T>(key, value, version, expiration);
+                else
+                {
+                    string serializedValue = ObjectToJson(value);
+                    setResult = bucket.Upsert(key, serializedValue, version, expiration);
+                }
+            }
+
+            if (setResult != null)
+            {
+                if (setResult.Exception != null)
+                    throw setResult.Exception;
+
+                if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
+                    result = setResult.Success;
+                else
+                {
+                    HandleStatusCode(setResult, key);
+
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                     {
                         if (!asJson)
-                        {
                             setResult = bucket.Upsert<T>(key, value, version, expiration);
-                        }
                         else
                         {
                             string serializedValue = ObjectToJson(value);
                             setResult = bucket.Upsert(key, serializedValue, version, expiration);
-                        }
-                    }
-
-                    if (setResult != null)
-                    {
-                        if (setResult.Exception != null)
-                        {
-                            throw setResult.Exception;
-                        }
-
-                        if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
-                        {
-                            result = setResult.Success;
-                        }
-                        else
-                        {
-                            HandleStatusCode(setResult, key);
-
-                            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
-                            {
-                                if (!asJson)
-                                {
-                                    setResult = bucket.Upsert<T>(key, value, version, expiration);
-                                }
-                                else
-                                {
-                                    string serializedValue = ObjectToJson(value);
-                                    setResult = bucket.Upsert(key, serializedValue, version, expiration);
-                                }
-                            }
                         }
                     }
                 }
@@ -1258,20 +1085,40 @@ namespace CouchbaseManager
             bool result = false;
             newVersion = 0;
 
-            //using (var cluster = new Cluster(clientConfiguration))
-            {
-                var bucket = ClusterHelper.GetBucket(bucketName);
-                {
-                    IOperationResult setResult;
-                    expiration = FixExpirationTime(expiration);
+            var bucket = ClusterHelper.GetBucket(bucketName);
+            IOperationResult setResult;
+            expiration = FixExpirationTime(expiration);
 
-                    string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
+            string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+            {
+                if (!asJson)
+                    setResult = bucket.Upsert<T>(key, value, version, expiration);
+                else
+                {
+                    string serializedValue = ObjectToJson(value);
+                    setResult = bucket.Upsert(key, serializedValue, version, expiration);
+                }
+            }
+
+            if (setResult != null)
+            {
+                if (setResult.Exception != null)
+                    throw setResult.Exception;
+
+                if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
+                {
+                    result = setResult.Success;
+                    newVersion = setResult.Cas;
+                }
+                else
+                {
+                    HandleStatusCode(setResult, key);
+
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                     {
                         if (!asJson)
-                        {
                             setResult = bucket.Upsert<T>(key, value, version, expiration);
-                        }
                         else
                         {
                             string serializedValue = ObjectToJson(value);
@@ -1279,38 +1126,7 @@ namespace CouchbaseManager
                         }
                     }
 
-                    if (setResult != null)
-                    {
-                        if (setResult.Exception != null)
-                        {
-                            throw setResult.Exception;
-                        }
-
-                        if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
-                        {
-                            result = setResult.Success;
-                            newVersion = setResult.Cas;
-                        }
-                        else
-                        {
-                            HandleStatusCode(setResult, key);
-
-                            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
-                            {
-                                if (!asJson)
-                                {
-                                    setResult = bucket.Upsert<T>(key, value, version, expiration);
-                                }
-                                else
-                                {
-                                    string serializedValue = ObjectToJson(value);
-                                    setResult = bucket.Upsert(key, serializedValue, version, expiration);
-                                }
-                            }
-
-                            newVersion = setResult.Cas;
-                        }
-                    }
+                    newVersion = setResult.Cas;
                 }
             }
 
@@ -1346,9 +1162,7 @@ namespace CouchbaseManager
                     result = SetWithVersionWithRetry<T>(key, value, newVersion, numOfRetries, retryInterval, expiration, asJson);
                 }
                 else
-                {
                     result = true;
-                }
             }
 
             return result;
@@ -1363,84 +1177,62 @@ namespace CouchbaseManager
                 IDictionary<string, string> jsonValues = this.GetValues<string>(keys, shouldAllowPartialQuery);
 
                 if (jsonValues != null)
-                {
                     result = new Dictionary<string, T>();
-                }
 
                 // Convert all strings to objects
                 foreach (var jsonValue in jsonValues)
-                {
-                    result.Add(
-                        jsonValue.Key,
-                        JsonToObject<T>(jsonValue.Value));
-                }
+                    result.Add(jsonValue.Key, JsonToObject<T>(jsonValue.Value));
 
                 return result;
             }
 
             try
             {
-                //using (var cluster = new Cluster(clientConfiguration))
+                var bucket = ClusterHelper.GetBucket(bucketName);
+                IDictionary<string, IOperationResult<T>> getResult;
+
+                string action = string.Format("Action: Get bucket: {0} keys: {1}", bucketName, string.Join(",", keys.ToArray()));
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
-                    var bucket = ClusterHelper.GetBucket(bucketName);
+                    getResult = bucket.Get<T>(keys);
+                }
+
+                // Success until proven otherwise
+                Couchbase.IO.ResponseStatus status = Couchbase.IO.ResponseStatus.Success;
+
+                foreach (var item in getResult)
+                {
+                    // Throw exception if there is one
+                    if (item.Value.Exception != null)
+                        throw item.Value.Exception;
+
+                    // If any of the rows wasn't successful, maybe we need to break - depending if we allow partials or not
+                    if (item.Value.Status != Couchbase.IO.ResponseStatus.Success)
                     {
-                        IDictionary<string, IOperationResult<T>> getResult;
+                        log.ErrorFormat("Couchbase manager: failed to get key {0}, status {1}", item.Key, item.Value.Status);
 
-                        string action = string.Format("Action: Get bucket: {0} keys: {1}", bucketName, string.Join(",", keys.ToArray()));
-                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
-                        {
-                            getResult = bucket.Get<T>(keys);
-                        }
+                        status = item.Value.Status;
 
-                        // Success until proven otherwise
-                        Couchbase.IO.ResponseStatus status = Couchbase.IO.ResponseStatus.Success;
+                        if (!shouldAllowPartialQuery)
+                            break;
+                    }
+                    else
+                        log.DebugFormat("Couchbase manager: GetValues success - get key {0}, status {1}", item.Key, item.Value.Status);
+                }
 
-                        foreach (var item in getResult)
-                        {
-                            // Throw exception if there is one
-                            if (item.Value.Exception != null)
-                            {
-                                throw item.Value.Exception;
-                            }
+                if (shouldAllowPartialQuery || status == Couchbase.IO.ResponseStatus.Success)
+                {
+                    // if successful - build dictionary based on execution result
+                    result = new Dictionary<string, T>();
 
-                            // If any of the rows wasn't successful, maybe we need to break - depending if we allow partials or not
-                            if (item.Value.Status != Couchbase.IO.ResponseStatus.Success)
-                            {
-                                log.ErrorFormat("Couchbase manager: failed to get key {0}, status {1}", item.Key, item.Value.Status);
-
-                                status = item.Value.Status;
-
-                                if (!shouldAllowPartialQuery)
-                                {
-                                    break;
-                                }
-                            }
-                            else
-                            {
-                                log.DebugFormat("Couchbase manager: GetValues success - get key {0}, status {1}", item.Key, item.Value.Status);
-                            }
-                        }
-
-                        if (shouldAllowPartialQuery || status == Couchbase.IO.ResponseStatus.Success)
-                        {
-                            // if successful - build dictionary based on execution result
-                            result = new Dictionary<string, T>();
-
-                            foreach (var item in getResult)
-                            {
-                                if (item.Value.Status == Couchbase.IO.ResponseStatus.Success)
-                                {
-                                    result.Add(item.Key, item.Value.Value);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            log.ErrorFormat("Error while executing action on CB. Status code = {0}; Status = {1}",
-                                (int)status, status.ToString());
-                        }
+                    foreach (var item in getResult)
+                    {
+                        if (item.Value.Status == Couchbase.IO.ResponseStatus.Success)
+                            result.Add(item.Key, item.Value.Value);
                     }
                 }
+                else
+                    log.ErrorFormat("Error while executing action on CB. Status code = {0}; Status = {1}", (int)status, status.ToString());
             }
             catch (Exception ex)
             {
@@ -1462,7 +1254,6 @@ namespace CouchbaseManager
         public bool SetJson<T>(string key, T value, uint expiration = 0)
         {
             var json = ObjectToJson<T>(value);
-
             return this.Set(key, json, expiration);
         }
 
@@ -1473,9 +1264,7 @@ namespace CouchbaseManager
             var json = Get<string>(key);
 
             if (!string.IsNullOrEmpty(json))
-            {
                 result = JsonToObject<T>(json);
-            }
 
             return result;
         }
@@ -1483,13 +1272,10 @@ namespace CouchbaseManager
         public T GetJsonAsTWithVersion<T>(string key, out ulong version)
         {
             T result = default(T);
-
             var json = GetWithVersion<string>(key, out version);
 
             if (!string.IsNullOrEmpty(json))
-            {
                 result = JsonToObject<T>(json);
-            }
 
             return result;
         }
@@ -1509,72 +1295,63 @@ namespace CouchbaseManager
 
             try
             {
-                //using (var cluster = new Cluster(clientConfiguration))
+                var bucket = ClusterHelper.GetBucket(bucketName);
+                Dictionary<string, int> keysToIndexes = new Dictionary<string, int>();
+                List<string> missingKeys = new List<string>();
+                T defaultValue = default(T);
+
+                if (definitions.asJson)
                 {
-                    var bucket = ClusterHelper.GetBucket(bucketName);
+                    List<ViewRow<object>> rowsJson = definitions.QueryRows<object>(bucket);
+
+                    foreach (var viewRow in rowsJson)
                     {
-                        Dictionary<string, int> keysToIndexes = new Dictionary<string, int>();
-                        List<string> missingKeys = new List<string>();
-                        T defaultValue = default(T);
-
-                        if (definitions.asJson)
+                        if (viewRow != null)
                         {
-                            List<ViewRow<object>> rowsJson = definitions.QueryRows<object>(bucket);
-
-                            foreach (var viewRow in rowsJson)
+                            // If we have a result - convert it to the typed object and add it to list
+                            if (null != viewRow.Value)
+                                result.Add(JsonToObject<T>(viewRow.Value.ToString()));
+                            else
                             {
-                                if (viewRow != null)
-                                {
-                                    // If we have a result - convert it to the typed object and add it to list
-                                    if (null != viewRow.Value)
-                                    {
-                                        result.Add(JsonToObject<T>(viewRow.Value.ToString()));
-                                    }
-                                    else
-                                    {
-                                        // If we don't - list all missing keys so that we get them later on
-                                        result.Add(defaultValue);
-                                        missingKeys.Add(viewRow.Id);
-                                        keysToIndexes.Add(viewRow.Id, result.Count - 1);
-                                    }
-                                }
+                                // If we don't - list all missing keys so that we get them later on
+                                result.Add(defaultValue);
+                                missingKeys.Add(viewRow.Id);
+                                keysToIndexes.Add(viewRow.Id, result.Count - 1);
                             }
                         }
-                        else
-                        {
-                            List<ViewRow<T>> rowsAsT = definitions.QueryRows<T>(bucket);
+                    }
+                }
+                else
+                {
+                    List<ViewRow<T>> rowsAsT = definitions.QueryRows<T>(bucket);
 
-                            foreach (var viewRow in rowsAsT)
+                    foreach (var viewRow in rowsAsT)
+                    {
+                        if (viewRow != null)
+                        {
+                            // If we have a result - simply add it to list
+                            if (null != viewRow.Value)
+                                result.Add(viewRow.Value);
+                            else
                             {
-                                if (viewRow != null)
-                                {
-                                    // If we have a result - simply add it to list
-                                    if (null != viewRow.Value)
-                                    {
-                                        result.Add(viewRow.Value);
-                                    }
-                                    else
-                                    {
-                                        // If we don't - list all missing keys so that we get them later on
-                                        result.Add(defaultValue);
-                                        missingKeys.Add(viewRow.Id);
-                                        keysToIndexes.Add(viewRow.Id, result.Count - 1);
-                                    }
-                                }
+                                // If we don't - list all missing keys so that we get them later on
+                                result.Add(defaultValue);
+                                missingKeys.Add(viewRow.Id);
+                                keysToIndexes.Add(viewRow.Id, result.Count - 1);
                             }
                         }
+                    }
+                }
 
-                        // Get all missing values from Couchbase and fill the list
-                        var missingValues = GetValues<T>(missingKeys, definitions.allowPartialQuery, definitions.asJson);
+                // Get all missing values from Couchbase and fill the list
+                var missingValues = GetValues<T>(missingKeys, definitions.allowPartialQuery, definitions.asJson);
 
-                        if (missingValues != null)
-                        {
-                            foreach (var currentValue in missingValues)
-                            {
-                                int index = keysToIndexes[currentValue.Key];
-                                result[index] = currentValue.Value;
-                            }
-                        }
+                if (missingValues != null)
+                {
+                    foreach (var currentValue in missingValues)
+                    {
+                        int index = keysToIndexes[currentValue.Key];
+                        result[index] = currentValue.Value;
                     }
                 }
             }
@@ -1597,28 +1374,16 @@ namespace CouchbaseManager
 
             try
             {
-                //using (var cluster = new Cluster(clientConfiguration))
+                var bucket = ClusterHelper.GetBucket(bucketName);
+                if (definitions.asJson)
                 {
-                    var bucket = ClusterHelper.GetBucket(bucketName);
-                    {
-                        if (definitions.asJson)
-                        {
-                            var jsonResults = definitions.QueryKeyValuePairs<object>(bucket);
+                    var jsonResults = definitions.QueryKeyValuePairs<object>(bucket);
 
-                            foreach (var jsonResult in jsonResults)
-                            {
-                                result.Add(new KeyValuePair<object, T1>(
-                                    jsonResult.Key,
-                                    JsonToObject<T1>(jsonResult.Value.ToString())
-                                    ));
-                            }
-                        }
-                        else
-                        {
-                            result = definitions.QueryKeyValuePairs<T1>(bucket);
-                        }
-                    }
+                    foreach (var jsonResult in jsonResults)
+                        result.Add(new KeyValuePair<object, T1>(jsonResult.Key, JsonToObject<T1>(jsonResult.Value.ToString())));
                 }
+                else
+                    result = definitions.QueryKeyValuePairs<T1>(bucket);
             }
             catch (Exception ex)
             {
@@ -1639,13 +1404,8 @@ namespace CouchbaseManager
 
             try
             {
-                //using (var cluster = new Cluster(clientConfiguration))
-                {
-                    var bucket = ClusterHelper.GetBucket(bucketName);
-                    {
-                        result = definitions.QueryIds(bucket);
-                    }
-                }
+                var bucket = ClusterHelper.GetBucket(bucketName);
+                result = definitions.QueryIds(bucket);
             }
             catch (Exception ex)
             {
@@ -1667,30 +1427,23 @@ namespace CouchbaseManager
 
             try
             {
-                //using (var cluster = new Cluster(clientConfiguration))
+                var bucket = ClusterHelper.GetBucket(bucketName);
+                if (definitions.asJson)
                 {
-                    var bucket = ClusterHelper.GetBucket(bucketName);
-                    {
-                        if (definitions.asJson)
-                        {
-                            var jsonResults = definitions.QueryRows<object>(bucket);
+                    var jsonResults = definitions.QueryRows<object>(bucket);
 
-                            foreach (var jsonResult in jsonResults)
-                            {
-                                result.Add(new ViewRow<T>()
-                                {
-                                    Id = jsonResult.Id,
-                                    Key = jsonResult.Key,
-                                    Value = JsonToObject<T>(jsonResult.Value.ToString())
-                                });
-                            }
-                        }
-                        else
+                    foreach (var jsonResult in jsonResults)
+                    {
+                        result.Add(new ViewRow<T>()
                         {
-                            result = definitions.QueryRows<T>(bucket);
-                        }
+                            Id = jsonResult.Id,
+                            Key = jsonResult.Key,
+                            Value = JsonToObject<T>(jsonResult.Value.ToString())
+                        });
                     }
                 }
+                else
+                    result = definitions.QueryRows<T>(bucket);
             }
             catch (Exception ex)
             {
@@ -1706,41 +1459,29 @@ namespace CouchbaseManager
         {
             ulong result = 0;
 
-            //using (var cluster = new Cluster(clientConfiguration))
+            var bucket = ClusterHelper.GetBucket(bucketName);
+            IOperationResult<ulong> incrementResult = null;
+
+            string action = string.Format("Action: Increment bucket: {0} key: {1}", bucketName, key);
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
             {
-                var bucket = ClusterHelper.GetBucket(bucketName);
-                {
-                    IOperationResult<ulong> incrementResult = null;
+                incrementResult = bucket.Increment(key, delta);
+            }
 
-                    string action = string.Format("Action: Increment bucket: {0} key: {1}", bucketName, key);
-                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
-                    {
-                        incrementResult = bucket.Increment(key, delta);
-                    }
+            if (incrementResult != null)
+            {
+                if (incrementResult.Exception != null)
+                    throw incrementResult.Exception;
 
-                    if (incrementResult != null)
-                    {
-                        if (incrementResult.Exception != null)
-                        {
-                            throw incrementResult.Exception;
-                        }
-
-                        if (incrementResult.Status == Couchbase.IO.ResponseStatus.Success)
-                        {
-                            result = incrementResult.Value;
-                        }
-                        else
-                        {
-                            HandleStatusCode(incrementResult, key);
-                        }
-                    }
-                }
+                if (incrementResult.Status == Couchbase.IO.ResponseStatus.Success)
+                    result = incrementResult.Value;
+                else
+                    HandleStatusCode(incrementResult, key);
             }
 
             return result;
         }
 
         #endregion
-
     }
 }
