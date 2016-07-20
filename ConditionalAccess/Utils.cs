@@ -19,6 +19,7 @@ using System.Web;
 using System.Xml;
 using Tvinic.GoogleAPI;
 using System.Net;
+using System.ServiceModel;
 
 namespace ConditionalAccess
 {
@@ -4501,7 +4502,31 @@ namespace ConditionalAccess
                 case DomainRecordingStatus.OK:
                     recordingStatus = TstvRecordingStatus.OK;
                     break;
+                case DomainRecordingStatus.SeriesDelete:
+                    recordingStatus = TstvRecordingStatus.SeriesDelete;
+                    break;
+                case DomainRecordingStatus.SeriesCancel:
+                    recordingStatus = TstvRecordingStatus.SeriesCancel;
+                    break;
                 default:
+                    break;
+            }
+
+            return recordingStatus;
+        }
+
+        internal static TstvRecordingStatus? ConvertToSeriesStatus(TstvRecordingStatus status)
+        {
+            TstvRecordingStatus? recordingStatus = null;
+            switch (status)
+            {
+                case TstvRecordingStatus.Canceled:
+                    recordingStatus = TstvRecordingStatus.SeriesCancel;
+                    break;
+                case TstvRecordingStatus.Deleted:
+                    recordingStatus = TstvRecordingStatus.SeriesDelete;
+                    break;
+                default:                   
                     break;
             }
 
@@ -4530,6 +4555,12 @@ namespace ConditionalAccess
                             result.Add(DomainRecordingStatus.Canceled);
                         }
                         break;
+                    case TstvRecordingStatus.SeriesCancel:
+                        if (!result.Contains(DomainRecordingStatus.SeriesCancel))
+                        {
+                            result.Add(DomainRecordingStatus.SeriesCancel);
+                        }
+                        break;
                     /***** Currently the LifeTimePeriodExpired status is only for backend inner needs and we are not exposing it on the REST to the client *****/
                     /*
                     // add both DomainRecordingStatus.OK and DomainRecordingStatus.DeletedByCleanup because we don't know if the recording has already been deleted
@@ -4544,11 +4575,42 @@ namespace ConditionalAccess
                             result.Add(DomainRecordingStatus.DeletedBySystem);
                         }
                         break;
-                     */
+                     */                   
                     case TstvRecordingStatus.Deleted:
+                    case TstvRecordingStatus.SeriesDelete:
                     default:
                         break;
                 }
+            }
+
+            return result;
+        }
+
+        internal static DomainRecordingStatus? ConvertToDomainRecordingStatus(TstvRecordingStatus recordingStatus)
+        {
+            DomainRecordingStatus? result = null;
+            switch (recordingStatus)
+            {
+                case TstvRecordingStatus.Failed:
+                case TstvRecordingStatus.Scheduled:
+                case TstvRecordingStatus.Recording:
+                case TstvRecordingStatus.Recorded:
+                    result = DomainRecordingStatus.OK;
+                    break;
+                case TstvRecordingStatus.Canceled:
+                    result = DomainRecordingStatus.Canceled;
+                    break;
+                case TstvRecordingStatus.Deleted:
+                    result = DomainRecordingStatus.Deleted;
+                    break;
+                case TstvRecordingStatus.SeriesCancel:
+                    result = DomainRecordingStatus.SeriesCancel;
+                    break;
+                case TstvRecordingStatus.SeriesDelete:
+                    result = DomainRecordingStatus.SeriesDelete;
+                    break;
+                default:
+                    break;
             }
 
             return result;
@@ -5824,11 +5886,23 @@ namespace ConditionalAccess.TvinciAPI
         {
             HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
 
-            if (request.Headers != null &&
+            if (KLogMonitor.KLogger.AppType == KLogEnums.AppType.WCF)
+            {
+                if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
+                {
+                    request.Headers.Add(Constants.REQUEST_ID_KEY, OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY].ToString());
+                }
+            }
+            else
+            {
+                if (request.Headers != null &&
                 request.Headers[Constants.REQUEST_ID_KEY] == null &&
                 HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
-            {
-                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+                {
+                    request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+                }
             }
             return request;
         }
@@ -5844,11 +5918,23 @@ namespace ConditionalAccess.TvinciDomains
         {
             HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
 
-            if (request.Headers != null &&
+            if (KLogMonitor.KLogger.AppType == KLogEnums.AppType.WCF)
+            {
+                if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
+                {
+                    request.Headers.Add(Constants.REQUEST_ID_KEY, OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY].ToString());
+                }
+            }
+            else
+            {
+                if (request.Headers != null &&
                 request.Headers[Constants.REQUEST_ID_KEY] == null &&
                 HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
-            {
-                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+                {
+                    request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+                }
             }
             return request;
         }
@@ -5864,11 +5950,23 @@ namespace ConditionalAccess.TvinciPricing
         {
             HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
 
-            if (request.Headers != null &&
+            if (KLogMonitor.KLogger.AppType == KLogEnums.AppType.WCF)
+            {
+                if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
+                {
+                    request.Headers.Add(Constants.REQUEST_ID_KEY, OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY].ToString());
+                }
+            }
+            else
+            {
+                if (request.Headers != null &&
                 request.Headers[Constants.REQUEST_ID_KEY] == null &&
                 HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
-            {
-                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+                {
+                    request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+                }
             }
             return request;
         }
@@ -5884,11 +5982,23 @@ namespace ConditionalAccess.TvinciUsers
         {
             HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
 
-            if (request.Headers != null &&
+            if (KLogMonitor.KLogger.AppType == KLogEnums.AppType.WCF)
+            {
+                if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
+                {
+                    request.Headers.Add(Constants.REQUEST_ID_KEY, OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY].ToString());
+                }
+            }
+            else
+            {
+                if (request.Headers != null &&
                 request.Headers[Constants.REQUEST_ID_KEY] == null &&
                 HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
-            {
-                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+                {
+                    request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+                }
             }
             return request;
         }
@@ -5904,11 +6014,23 @@ namespace ConditionalAccess.TvinciBilling
         {
             HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
 
-            if (request.Headers != null &&
+            if (KLogMonitor.KLogger.AppType == KLogEnums.AppType.WCF)
+            {
+                if (request.Headers != null &&
+                request.Headers[Constants.REQUEST_ID_KEY] == null &&
+                OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
+                {
+                    request.Headers.Add(Constants.REQUEST_ID_KEY, OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY].ToString());
+                }
+            }
+            else
+            {
+                if (request.Headers != null &&
                 request.Headers[Constants.REQUEST_ID_KEY] == null &&
                 HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
-            {
-                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+                {
+                    request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
+                }
             }
             return request;
         }
