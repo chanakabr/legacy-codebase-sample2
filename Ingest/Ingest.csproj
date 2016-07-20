@@ -80,6 +80,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="clear_cache.aspx" />
+    <Content Include="clear_cache1.aspx" />
     <Content Include="Global.asax" />
     <Content Include="Service References\Catalog\Ingest.Catalog.BaseResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
@@ -379,6 +381,17 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="clear_cache.aspx.cs">
+      <DependentUpon>clear_cache.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="clear_cache.aspx.designer.cs">
+      <DependentUpon>clear_cache.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="clear_cache1.aspx.cs">
+      <DependentUpon>clear_cache1.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="Clients\ApiClient.cs" />
     <Compile Include="Clients\CatalogClient.cs" />
     <Compile Include="Clients\ClientManager\BaseClient.cs" />
@@ -476,6 +489,10 @@
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\TvmCore\CachingManager\CachingManager.csproj">
+      <Project>{ccda61b3-0e68-483c-ab7f-3ed36e3384e2}</Project>
+      <Name>CachingManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\EpgIngest\EpgIngest.csproj">
       <Project>{13504508-227b-4099-9987-3df3d2f8e792}</Project>
       <Name>EpgIngest</Name>
@@ -483,6 +500,10 @@
     <ProjectReference Include="..\..\tvmcore\ScheduledTasks\ScheduledTasks.csproj">
       <Project>{4eb719ed-06b1-4c05-a7ca-269d802105ea}</Project>
       <Name>ScheduledTasks</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TvmCore\TvinciCache\TvinciCache.csproj">
+      <Project>{d57b2371-da31-4035-8b00-6a6d0256ec00}</Project>
+      <Name>TvinciCache</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\TvinciImporter\TvinciImporter.csproj">
       <Project>{0a7d54e6-41a3-4f53-bbdd-81fd9a67a2c1}</Project>
