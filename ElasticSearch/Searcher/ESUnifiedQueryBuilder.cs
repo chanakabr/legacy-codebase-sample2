@@ -143,7 +143,7 @@ namespace ElasticSearch.Searcher
         public virtual string BuildSearchQueryString(bool bIgnoreDeviceRuleID = false, bool bAddActive = true)
         {
             this.ReturnFields = DEFAULT_RETURN_FIELDS.ToList();
-            this.ReturnFields.AddRange(this.SearchDefinitions.extraReturnFields.Select(field => string.Format("\"{0}\"", field)));
+            this.ReturnFields.AddRange(this.SearchDefinitions.extraReturnFields.Distinct().Select(field => string.Format("\"{0}\"", field)));
 
             string epg_id_field = "\"epg_id\"";
 

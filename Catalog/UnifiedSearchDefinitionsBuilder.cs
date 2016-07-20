@@ -233,7 +233,10 @@ namespace Catalog
                 {
                     foreach (var field in extraReturnFields)
                     {
-                        definitions.extraReturnFields.Add(field.ToLower());                        
+                        if (!definitions.extraReturnFields.Contains(field.ToLower()))
+                        {
+                            definitions.extraReturnFields.Add(field.ToLower());
+                        }
                     }
                     definitions.shouldReturnExtendedSearchResult = true;
                 }

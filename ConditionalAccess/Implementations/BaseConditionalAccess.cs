@@ -18766,10 +18766,15 @@ namespace ConditionalAccess
 
                 foreach (ConditionalAccess.WS_Catalog.ExtendedSearchResult epg in epgsToRecord)
                 {
-                    epgId = Utils.GetLongParamFromExtendedSearchResult(epg, "epg_id");
+                    if (!long.TryParse(epg.AssetId, out epgId))
+                    {
+                        log.ErrorFormat("failed parsing assetId on HandleFirstFollowerRecording, domainId: {0}, channelId: {1}, seriesId: {2}, seassonNumber: {3}", domainId, channelId, seriesId, seassonNumber);
+                        continue;
+                    }
                     if (!long.TryParse(Utils.GetStringParamFromExtendedSearchResult(epg, "epg_channel_id"), out epgChannelId))
                     {
                         log.ErrorFormat("failed parsing epgChannelId on HandleFirstFollowerRecording, domainId: {0}, channelId: {1}, seriesId: {2}, seassonNumber: {3}", domainId, channelId, seriesId, seassonNumber);
+                        continue;
                     }
                     crid = Utils.GetStringParamFromExtendedSearchResult(epg, "crid");                    
 

@@ -38,7 +38,9 @@ namespace Catalog.Request
         {
             if (this.ExtraReturnFields != null)
             {
-                return this.ExtraReturnFields;
+                ExtraReturnFields.Add("start_date");
+                ExtraReturnFields.Add("end_date");
+                return this.ExtraReturnFields.Distinct().ToList();
             }
             else
             {
