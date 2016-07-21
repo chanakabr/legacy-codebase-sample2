@@ -30,6 +30,10 @@ namespace GroupsCacheManager
             Group group = null;
             try
             {
+                System.Diagnostics.StackTrace st = new System.Diagnostics.StackTrace();
+
+                Logger.Logger.Log("BuildGroup", string.Format("Started for nGroupID={0}, from ST={1}", nGroupID, st.ToString()), "Catalog");
+
                 DateTime dNow = DateTime.Now;
 
                 group = ChannelRepository.BuildGroup(nGroupID);
