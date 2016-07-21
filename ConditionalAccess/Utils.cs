@@ -5309,10 +5309,10 @@ namespace ConditionalAccess
                 foreach (DataRow dr in dt.Rows)
                 {
                     Recording recording = BuildRecordingFromDataRow(dr);
-                    // add recording if its valid and doesn't already exist in dictionary
-                    if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK && !epgToRecordingMap.ContainsKey(recording.Id))
+                    // add recording if its valid and the epg doesn't already exist in dictionary
+                    if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK && !epgToRecordingMap.ContainsKey(recording.EpgId))
                     {
-                        epgToRecordingMap.Add(recording.Id, recording);
+                        epgToRecordingMap.Add(recording.EpgId, recording);
                     }
                 }
             }
