@@ -261,6 +261,10 @@ namespace GroupsCacheManager
         /// <returns></returns>
         public static Channel GetChannel(int nChannelId, Group group)
         {
+            System.Diagnostics.StackTrace st = new System.Diagnostics.StackTrace();
+
+            log.DebugFormat("GetChannel Started for nChannelId={0}, from ST={1}", nChannelId, st.ToString());
+
             Channel channel = null;
             DataSet dataSet = Tvinci.Core.DAL.CatalogDAL.GetChannelDetails(new List<int>() { nChannelId });
 
