@@ -11,6 +11,7 @@ using System.Text;
 using TVinciShared;
 using System.Net;
 using System.Web;
+using System.ServiceModel;
 
 namespace RecordingTaskHandler
 {
@@ -160,13 +161,7 @@ namespace RecordingTaskHandler.WS_CAS
         protected override WebRequest GetWebRequest(Uri uri)
         {
             HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-
-            if (request.Headers != null &&
-                request.Headers[Constants.REQUEST_ID_KEY] == null &&
-                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
-            {
-                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
-            }
+            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
             return request;
         }
     }

@@ -13,7 +13,7 @@
 // 
 #pragma warning disable 1591
 
-namespace SeriesRecordingTaskHandler1.WS_CAS {
+namespace SeriesRecordingTaskHandler.WS_CAS {
     using System;
     using System.Web.Services;
     using System.Diagnostics;
@@ -293,7 +293,7 @@ namespace SeriesRecordingTaskHandler1.WS_CAS {
         
         /// <remarks/>
         public module() {
-            this.Url = global::SeriesRecordingTaskHandler1.Properties.Settings.Default.FirstFollowerRecordingHandler_WS_CAS_module;
+            this.Url = global::SeriesRecordingTaskHandler.Properties.Settings.Default.SeriesRecordingTaskHandler_WS_CAS_module;
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;

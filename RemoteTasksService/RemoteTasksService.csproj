@@ -53,6 +53,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
     </Reference>
+    <Reference Include="KlogMonitorHelper, Version=3.4.583.29708, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\TVinciCommon\External\KlogMonitorHelper.dll</HintPath>
+    </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\TVinciCommon\External\log4net.dll</HintPath>
@@ -150,10 +154,6 @@
       <Project>{82876744-9a82-4730-b9e0-29810b4cde81}</Project>
       <Name>FileUploadHandler</Name>
     </ProjectReference>
-    <ProjectReference Include="..\FirstFollowerRecordingHandler\FirstFollowerRecordingHandler.csproj">
-      <Project>{f0298f08-3fe2-4962-8862-4fd8db82006c}</Project>
-      <Name>FirstFollowerRecordingHandler</Name>
-    </ProjectReference>
     <ProjectReference Include="..\FreeAssetUpdateHandler\FreeAssetUpdateHandler.csproj">
       <Project>{24639160-158d-4110-9585-eaa81adb5249}</Project>
       <Name>FreeAssetUpdateHandler</Name>
@@ -185,6 +185,10 @@
     <ProjectReference Include="..\RemoteTasksCommon\RemoteTasksCommon.csproj">
       <Project>{680b9d3b-e9de-4d05-9280-f8e8b3128c48}</Project>
       <Name>RemoteTasksCommon</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SeriesRecordingTaskHandler\SeriesRecordingTaskHandler.csproj">
+      <Project>{e30a1b56-81b4-4bac-98b3-c48c74f93188}</Project>
+      <Name>SeriesRecordingTaskHandler</Name>
     </ProjectReference>
     <ProjectReference Include="..\SetupTaskHandler\SetupTaskHandler.csproj">
       <Project>{350b7f6f-a920-4764-bc90-fc08b0316ca9}</Project>

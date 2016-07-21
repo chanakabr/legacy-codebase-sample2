@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.ServiceModel;
 
-namespace SeriesRecordingTaskHandler1
+namespace SeriesRecordingTaskHandler
 {
     public class TaskHandler : ITaskHandler
     {
@@ -76,8 +76,7 @@ namespace SeriesRecordingTaskHandler1
     }
 }
 
-
-namespace SeriesRecordingTaskHandler1.WS_CAS
+namespace SeriesRecordingTaskHandler.WS_CAS
 {
     // adding request ID to header
     public partial class module
@@ -85,25 +84,7 @@ namespace SeriesRecordingTaskHandler1.WS_CAS
         protected override WebRequest GetWebRequest(Uri uri)
         {
             HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-
-            if (KLogMonitor.KLogger.AppType == KLogEnums.AppType.WCF)
-            {
-                if (request.Headers != null &&
-                request.Headers[Constants.REQUEST_ID_KEY] == null &&
-                OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
-                {
-                    request.Headers.Add(Constants.REQUEST_ID_KEY, OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY].ToString());
-                }
-            }
-            else
-            {
-                if (request.Headers != null &&
-                request.Headers[Constants.REQUEST_ID_KEY] == null &&
-                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
-                {
-                    request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
-                }
-            }
+            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
             return request;
         }
     }
