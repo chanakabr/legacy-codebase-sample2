@@ -45,8 +45,9 @@
     <Reference Include="KLogMonitor">
       <HintPath>..\..\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
     </Reference>
-    <Reference Include="KlogMonitorHelper">
-      <HintPath>..\..\tvmcore\External\KlogMonitorHelper.dll</HintPath>
+    <Reference Include="KlogMonitorHelper, Version=3.4.583.29708, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\TVinciCommon\External\KlogMonitorHelper.dll</HintPath>
     </Reference>
     <Reference Include="log4net">
       <HintPath>..\..\tvincicommon\External\log4net.dll</HintPath>
