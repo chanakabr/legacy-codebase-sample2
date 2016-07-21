@@ -34,7 +34,7 @@
       <HintPath>..\..\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
     </Reference>
     <Reference Include="KlogMonitorHelper">
-      <HintPath>..\..\TvmCore\External\KlogMonitorHelper.dll</HintPath>
+      <HintPath>..\..\TVinciCommon\External\KlogMonitorHelper.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\tvincicommon\External\Couchbase-Net-Client-2.2.6\Newtonsoft.Json.dll</HintPath>
