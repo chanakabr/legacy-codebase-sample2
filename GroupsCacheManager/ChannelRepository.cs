@@ -220,6 +220,10 @@ namespace GroupsCacheManager
 
         public static Channel GetChannel(int nChannelId, Group group)
         {
+            System.Diagnostics.StackTrace st = new System.Diagnostics.StackTrace();
+
+            log.DebugFormat("GetChannel Started for nChannelId={0}, from ST={1}", nChannelId, st.ToString());
+
             #region - select channel by channelId, and the parent_group_id
 
             Channel oChannel = null;

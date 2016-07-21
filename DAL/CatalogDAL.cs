@@ -1563,12 +1563,25 @@ namespace Tvinci.Core.DAL
 
             try
             {
+                CouchbaseManager.ViewStaleState staleState = ViewStaleState.Ok;
+
+                string staleStateConfiguration = ODBCWrapper.Utils.GetTcmConfigValue("WatchHistory_StaleMode");
+
+                if (!string.IsNullOrEmpty(staleStateConfiguration))
+                {
+                    // try to parse the TCM value - if successful, use it, if not, make sure we are with default value of OK
+                    if (!Enum.TryParse<CouchbaseManager.ViewStaleState>(staleStateConfiguration, out staleState))
+                    {
+                        staleState = ViewStaleState.Ok;
+                    }
+                }
+
                 // get views
                 ViewManager viewManager = new ViewManager(CB_MEDIA_MARK_DESGIN, "users_watch_history")
                 {
                     startKey = new object[] { long.Parse(siteGuid), minFilterdate },
                     endKey = new object[] { long.Parse(siteGuid), maxFilterDate },
-                    staleState = CouchbaseManager.ViewStaleState.False,
+                    staleState = staleState,
                     asJson = true
                 };
 
