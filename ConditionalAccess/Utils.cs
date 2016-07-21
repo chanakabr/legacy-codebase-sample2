@@ -5091,6 +5091,7 @@ namespace ConditionalAccess
             if (recordingID > 0)
             {
                 long epgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID");
+                long epgChannelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_CHANNEL_ID");
                 DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
                 DateTime updateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE");
                 DateTime viewableUntilDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "VIEWABLE_UNTIL_DATE");
@@ -5102,6 +5103,7 @@ namespace ConditionalAccess
                 DateTime epgEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
                 string externalRecordingId = ODBCWrapper.Utils.GetSafeStr(dr, "EXTERNAL_RECORDING_ID");
                 string crid = ODBCWrapper.Utils.GetSafeStr(dr, "CRID");
+                RecordingType recordingType = (RecordingType)ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_TYPE");
 
                 if (!recordingStatus.HasValue)
                 {
@@ -5132,13 +5134,15 @@ namespace ConditionalAccess
                 {
                     Id = recordingID,
                     EpgId = epgId,
+                    ChannelId = epgChannelId,
                     EpgStartDate = epgStartDate,
                     EpgEndDate = epgEndDate,
                     CreateDate = createDate,
                     UpdateDate = updateDate,
                     RecordingStatus = recordingStatus.Value,
                     ExternalRecordingId = externalRecordingId,
-                    Crid = crid
+                    Crid = crid,
+                    Type = recordingType
                 };
 
                 // if recording status is Recorded then set ViewableUntilDate
