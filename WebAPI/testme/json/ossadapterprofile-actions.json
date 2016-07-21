@@ -1,1 +1,1 @@
-[{"action":"add","name":"add","label":"add"},{"action":"delete","name":"delete","label":"delete"},{"action":"generateSharedSecret","name":"generateSharedSecret","label":"generateSharedSecret"}]
+[{"action":"add","name":"add","label":"add"},{"action":"delete","name":"delete","label":"delete"},{"action":"generateSharedSecret","name":"generateSharedSecret","label":"generateSharedSecret"},{"action":"update","name":"update","label":"update"}]
