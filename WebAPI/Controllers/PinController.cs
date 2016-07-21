@@ -24,13 +24,14 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="type">The PIN type to retrieve</param>
         /// <param name="by">Reference type to filter by</param>
+        /// <param name="ruleId">Rule ID - for PIN per rule (MediaCorp): BEO-1923</param>
         /// <remarks>Possible status codes: 
         /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001, No PIN defined = 5001</remarks>
         /// <returns>The PIN that applies for the user</returns>
         [Route("get"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
-        public KalturaPin Get(KalturaEntityReferenceBy by, KalturaPinType type)
+        public KalturaPin Get(KalturaEntityReferenceBy by, KalturaPinType type, int? ruleId = null)
         {
             KalturaPin pinResponse = null;
 
@@ -47,7 +48,7 @@ namespace WebAPI.Controllers
                     if (type == KalturaPinType.parental)
                     {
                         // call client
-                        pinResponse = ClientsManager.ApiClient().GetUserParentalPIN(groupId, userId, householdId);
+                        pinResponse = ClientsManager.ApiClient().GetUserParentalPIN(groupId, userId, householdId, ruleId);
                     }
                     else if (type == KalturaPinType.purchase)
                     {
@@ -61,7 +62,7 @@ namespace WebAPI.Controllers
                     if (type == KalturaPinType.parental)
                     {
                         // call client
-                        pinResponse = ClientsManager.ApiClient().GetDomainParentalPIN(groupId, householdId);
+                        pinResponse = ClientsManager.ApiClient().GetDomainParentalPIN(groupId, householdId, ruleId);
                     }
                     else if (type == KalturaPinType.purchase)
                     {
@@ -83,6 +84,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="type">The PIN type to retrieve</param>
         /// <param name="by">Reference type to filter by</param>
+        /// <param name="ruleId">Rule ID - for PIN per rule (MediaCorp): BEO-1923</param>
         /// <remarks>Possible status codes: 
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
         /// <param name="pin">PIN to set</param>
@@ -90,7 +92,7 @@ namespace WebAPI.Controllers
         [Route("update"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
-        public KalturaPin Update(KalturaEntityReferenceBy by, KalturaPinType type, KalturaPin pin)
+        public KalturaPin Update(KalturaEntityReferenceBy by, KalturaPinType type, KalturaPin pin, int? ruleId = null)
         {
             KalturaPin response = null;
 
@@ -105,7 +107,7 @@ namespace WebAPI.Controllers
                     if (type == KalturaPinType.parental)
                     {
                         // call client
-                        response = ClientsManager.ApiClient().SetUserParentalPIN(groupId, userId, pin.PIN);
+                        response = ClientsManager.ApiClient().SetUserParentalPIN(groupId, userId, pin.PIN, ruleId);
                     }
                     else if (type == KalturaPinType.purchase)
                     {
@@ -120,7 +122,7 @@ namespace WebAPI.Controllers
                     if (type == KalturaPinType.parental)
                     {
                         // call client
-                        response = ClientsManager.ApiClient().SetDomainParentalRules(groupId, householdId, pin.PIN);
+                        response = ClientsManager.ApiClient().SetDomainParentalPIN(groupId, householdId, pin.PIN, ruleId);
                     }
                     else if (type == KalturaPinType.purchase)
                     {
@@ -142,13 +144,14 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="type">The PIN type to retrieve</param>
         /// <param name="by">Reference type to filter by</param>
+        /// <param name="ruleId">Rule ID - for PIN per rule (MediaCorp): BEO-1923</param>
         /// <remarks>Possible status codes: 
         /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001, No PIN defined = 5001</remarks>
         /// <returns>The PIN that applies for the user</returns>
         [Route("getOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
-        public KalturaPinResponse GetOldStandard(KalturaEntityReferenceBy by, KalturaPinType type)
+        public KalturaPinResponse GetOldStandard(KalturaEntityReferenceBy by, KalturaPinType type, int? ruleId = null)
         {
             KalturaPinResponse pinResponse = null;
 
@@ -165,7 +168,7 @@ namespace WebAPI.Controllers
                     if (type == KalturaPinType.parental)
                     {
                         // call client
-                        pinResponse = ClientsManager.ApiClient().GetUserParentalPINOldStandard(groupId, userId, householdId);
+                        pinResponse = ClientsManager.ApiClient().GetUserParentalPINOldStandard(groupId, userId, householdId, ruleId);
                     }
                     else if (type == KalturaPinType.purchase)
                     {
@@ -179,7 +182,7 @@ namespace WebAPI.Controllers
                     if (type == KalturaPinType.parental)
                     {
                         // call client
-                        pinResponse = ClientsManager.ApiClient().GetDomainParentalPinOldStandard(groupId, householdId);
+                        pinResponse = ClientsManager.ApiClient().GetDomainParentalPinOldStandard(groupId, householdId, ruleId);
                     }
                     else if (type == KalturaPinType.purchase)
                     {
@@ -201,6 +204,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="type">The PIN type to retrieve</param>
         /// <param name="by">Reference type to filter by</param>
+        /// <param name="ruleId">Rule ID - for PIN per rule (MediaCorp): BEO-1923</param>
         /// <remarks>Possible status codes: 
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
         /// <param name="pin">New PIN to set</param>
@@ -208,7 +212,7 @@ namespace WebAPI.Controllers
         [Route("updateOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
-        public bool UpdateOldStandard(string pin, KalturaEntityReferenceBy by, KalturaPinType type)
+        public bool UpdateOldStandard(string pin, KalturaEntityReferenceBy by, KalturaPinType type, int? ruleId = null)
         {
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -221,7 +225,7 @@ namespace WebAPI.Controllers
                     if (type == KalturaPinType.parental)
                     {
                         // call client
-                        ClientsManager.ApiClient().SetUserParentalPIN(groupId, userId, pin);
+                        ClientsManager.ApiClient().SetUserParentalPIN(groupId, userId, pin, ruleId);
                     }
                     else if (type == KalturaPinType.purchase)
                     {
@@ -236,7 +240,7 @@ namespace WebAPI.Controllers
                     if (type == KalturaPinType.parental)
                     {
                         // call client
-                        ClientsManager.ApiClient().SetDomainParentalRules(groupId, householdId, pin);
+                        ClientsManager.ApiClient().SetDomainParentalPIN(groupId, householdId, pin, ruleId);
                     }
                     else if (type == KalturaPinType.purchase)
                     {
@@ -257,6 +261,7 @@ namespace WebAPI.Controllers
         /// Validate a purchase or parental PIN for a user.
         /// </summary>
         /// <param name="type">The PIN type to retrieve</param>
+        /// <param name="ruleId">Rule ID - for PIN per rule (MediaCorp): BEO-1923</param>
         /// <remarks>Possible status codes: 
         /// No PIN defined = 5001, PIN mismatch = 5002, User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
         /// <param name="pin">PIN to validate</param>
@@ -264,7 +269,7 @@ namespace WebAPI.Controllers
         [Route("validate"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemaValidationType.ACTION_NAME)]
-        public bool Validate(string pin, KalturaPinType type)
+        public bool Validate(string pin, KalturaPinType type, int? ruleId = null)
         {
             bool success = false;
             
@@ -283,7 +288,7 @@ namespace WebAPI.Controllers
                 if (type == KalturaPinType.parental)
                 {
                     // call client
-                    success = ClientsManager.ApiClient().ValidateParentalPIN(groupId, userId, pin);
+                    success = ClientsManager.ApiClient().ValidateParentalPIN(groupId, userId, pin, ruleId);
                 }
                 else if (type == KalturaPinType.purchase)
                 {

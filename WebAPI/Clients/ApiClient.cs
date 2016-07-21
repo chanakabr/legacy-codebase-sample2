@@ -241,7 +241,7 @@ namespace WebAPI.Clients
             return success;
         }
 
-        internal KalturaPin GetUserParentalPIN(int groupId, string userId, int householdId = 0)
+        internal KalturaPin GetUserParentalPIN(int groupId, string userId, int householdId = 0, int? ruleId = null)
         {
             string pin = string.Empty;
 
@@ -253,7 +253,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.GetParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, householdId, userId);
+                    webServiceResponse = Api.GetParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, householdId, userId, ruleId);
                 }
             }
             catch (Exception ex)
@@ -282,7 +282,7 @@ namespace WebAPI.Clients
         }
 
         [Obsolete]
-        internal WebAPI.Models.API.KalturaPinResponse GetUserParentalPINOldStandard(int groupId, string userId, int householdId = 0)
+        internal WebAPI.Models.API.KalturaPinResponse GetUserParentalPINOldStandard(int groupId, string userId, int householdId = 0, int? ruleId = null)
         {
             string pin = string.Empty;
 
@@ -294,7 +294,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.GetParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, householdId, userId);
+                    webServiceResponse = Api.GetParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, householdId, userId, ruleId);
                 }
             }
             catch (Exception ex)
@@ -324,7 +324,7 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal KalturaPin GetDomainParentalPIN(int groupId, int domainId)
+        internal KalturaPin GetDomainParentalPIN(int groupId, int domainId, int? ruleId = null)
         {
             string pin = string.Empty;
 
@@ -336,7 +336,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.GetParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty);
+                    webServiceResponse = Api.GetParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty, ruleId);
                 }
             }
             catch (Exception ex)
@@ -365,7 +365,7 @@ namespace WebAPI.Clients
         }
 
         [Obsolete]
-        internal WebAPI.Models.API.KalturaPinResponse GetDomainParentalPinOldStandard(int groupId, int domainId)
+        internal WebAPI.Models.API.KalturaPinResponse GetDomainParentalPinOldStandard(int groupId, int domainId, int? ruleId)
         {
             string pin = string.Empty;
 
@@ -377,7 +377,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.GetParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty);
+                    webServiceResponse = Api.GetParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty, ruleId);
                 }
             }
             catch (Exception ex)
@@ -407,7 +407,7 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal KalturaPin SetUserParentalPIN(int groupId, string userId, string pin)
+        internal KalturaPin SetUserParentalPIN(int groupId, string userId, string pin, int? ruleId)
         {
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -417,7 +417,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.UpdateParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, 0, userId, pin);
+                    webServiceResponse = Api.UpdateParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, 0, userId, pin, ruleId);
                 }
             }
             catch (Exception ex)
@@ -445,7 +445,7 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal KalturaPin SetDomainParentalRules(int groupId, int domainId, string pin)
+        internal KalturaPin SetDomainParentalPIN(int groupId, int domainId, string pin, int? ruleId)
         {
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -455,7 +455,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.UpdateParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty, pin);
+                    webServiceResponse = Api.UpdateParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty, pin, ruleId);
                 }
             }
             catch (Exception ex)
@@ -1021,7 +1021,7 @@ namespace WebAPI.Clients
             return rules;
         }
 
-        internal bool ValidateParentalPIN(int groupId, string userId, string pin)
+        internal bool ValidateParentalPIN(int groupId, string userId, string pin, int? ruleId)
         {
             bool success = false;
 
@@ -1033,7 +1033,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.ValidateParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, pin, 0);
+                    response = Api.ValidateParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, pin, 0, ruleId);
                 }
             }
             catch (Exception ex)
