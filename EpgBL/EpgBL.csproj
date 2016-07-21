@@ -51,7 +51,7 @@
       <HintPath>..\..\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
     </Reference>
     <Reference Include="KlogMonitorHelper">
-      <HintPath>..\External\KlogMonitorHelper.dll</HintPath>
+      <HintPath>..\..\TVinciCommon\External\KlogMonitorHelper.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />

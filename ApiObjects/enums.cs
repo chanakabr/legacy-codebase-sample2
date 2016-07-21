@@ -611,7 +611,9 @@ namespace ApiObjects
         Recorded = 4,
         Canceled = 5,
         Deleted = 6,
-        LifeTimePeriodExpired = 7
+        LifeTimePeriodExpired = 7,
+        SeriesCancel = 8,
+        SeriesDelete = 9
     }
 
     public enum DomainRecordingStatus
@@ -620,7 +622,9 @@ namespace ApiObjects
         OK = 1,
         Canceled = 2,        
         Deleted = 3,
-        DeletedBySystem = 4
+        DeletedBySystem = 4,
+        SeriesCancel = 5,
+        SeriesDelete = 6
     }
 
     public enum RecordingInternalStatus
@@ -638,6 +642,12 @@ namespace ApiObjects
         Record = 2,
         UpdateRecording = 3,
         DistributeRecording = 4
+    }
+
+    public enum eSeriesRecordingTask
+    {
+        FirstFollower = 1,
+        CompleteRecordings = 2
     }
 
     public enum RecordingType

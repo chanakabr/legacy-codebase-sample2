@@ -5,6 +5,8 @@ using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using System.Web;
+using System.ServiceModel;
 
 namespace TvinciImporter
 {
@@ -60,5 +62,19 @@ namespace TvinciImporter
             return null;
         }
 
+    }
+}
+
+namespace TvinciImporter.WS_ConditionalAccess
+{
+    // adding request ID to header
+    public partial class module
+    {
+        protected override WebRequest GetWebRequest(Uri uri)
+        {
+            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
+            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
+            return request;
+        }
     }
 }

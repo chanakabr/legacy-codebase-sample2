@@ -19,6 +19,7 @@ using System.Web;
 using System.Xml;
 using Tvinic.GoogleAPI;
 using System.Net;
+using System.ServiceModel;
 
 namespace ConditionalAccess
 {
@@ -33,7 +34,7 @@ namespace ConditionalAccess
         private const string SERIES_ALIAS = "series_id";
         private const string SEASON_ALIAS = "season_number";
         private const string EPISODE_ALIAS = "episode_number";
-        private const string ROUTING_KEY_FIRST_FOLLOWER_RECORDING = "PROCESS_FIRST_FOLLOWER_RECORDING\\{0}";
+        public const string ROUTING_KEY_SERIES_RECORDING_TASK = "PROCESS_SERIES_RECORDING_TASK\\{0}";
 
         internal const double DEFAULT_MIN_PRICE_FOR_PREVIEW_MODULE = 0.2;
         public const int DEFAULT_MPP_RENEW_FAIL_COUNT = 10; // to be group specific override this value in the 
@@ -4447,6 +4448,18 @@ namespace ConditionalAccess
                     recordingStatus = TstvRecordingStatus.Failed;
                     break;
                 case RecordingInternalStatus.Waiting:
+                    /* Unlike RecordingInternalStatus.OK we don't check the epg end date because
+                     * we won't return recorded since the adapter call is async, so if the program
+                     * already started it doesn't matter if it finished or not we will return recording */                      
+                    if (epgStartDate < DateTime.UtcNow)
+                    {
+                        recordingStatus = TstvRecordingStatus.Recording;
+                    }
+                    else
+                    {
+                        recordingStatus = TstvRecordingStatus.Scheduled;
+                    }
+                    break;
                 case RecordingInternalStatus.OK:
                     // If program already finished, we say it is recorded
                     if (epgEndDate < DateTime.UtcNow)
@@ -4489,7 +4502,31 @@ namespace ConditionalAccess
                 case DomainRecordingStatus.OK:
                     recordingStatus = TstvRecordingStatus.OK;
                     break;
+                case DomainRecordingStatus.SeriesDelete:
+                    recordingStatus = TstvRecordingStatus.SeriesDelete;
+                    break;
+                case DomainRecordingStatus.SeriesCancel:
+                    recordingStatus = TstvRecordingStatus.SeriesCancel;
+                    break;
                 default:
+                    break;
+            }
+
+            return recordingStatus;
+        }
+
+        internal static TstvRecordingStatus? ConvertToSeriesStatus(TstvRecordingStatus status)
+        {
+            TstvRecordingStatus? recordingStatus = null;
+            switch (status)
+            {
+                case TstvRecordingStatus.Canceled:
+                    recordingStatus = TstvRecordingStatus.SeriesCancel;
+                    break;
+                case TstvRecordingStatus.Deleted:
+                    recordingStatus = TstvRecordingStatus.SeriesDelete;
+                    break;
+                default:                   
                     break;
             }
 
@@ -4518,6 +4555,12 @@ namespace ConditionalAccess
                             result.Add(DomainRecordingStatus.Canceled);
                         }
                         break;
+                    case TstvRecordingStatus.SeriesCancel:
+                        if (!result.Contains(DomainRecordingStatus.SeriesCancel))
+                        {
+                            result.Add(DomainRecordingStatus.SeriesCancel);
+                        }
+                        break;
                     /***** Currently the LifeTimePeriodExpired status is only for backend inner needs and we are not exposing it on the REST to the client *****/
                     /*
                     // add both DomainRecordingStatus.OK and DomainRecordingStatus.DeletedByCleanup because we don't know if the recording has already been deleted
@@ -4532,11 +4575,42 @@ namespace ConditionalAccess
                             result.Add(DomainRecordingStatus.DeletedBySystem);
                         }
                         break;
-                     */
+                     */                   
                     case TstvRecordingStatus.Deleted:
+                    case TstvRecordingStatus.SeriesDelete:
                     default:
                         break;
                 }
+            }
+
+            return result;
+        }
+
+        internal static DomainRecordingStatus? ConvertToDomainRecordingStatus(TstvRecordingStatus recordingStatus)
+        {
+            DomainRecordingStatus? result = null;
+            switch (recordingStatus)
+            {
+                case TstvRecordingStatus.Failed:
+                case TstvRecordingStatus.Scheduled:
+                case TstvRecordingStatus.Recording:
+                case TstvRecordingStatus.Recorded:
+                    result = DomainRecordingStatus.OK;
+                    break;
+                case TstvRecordingStatus.Canceled:
+                    result = DomainRecordingStatus.Canceled;
+                    break;
+                case TstvRecordingStatus.Deleted:
+                    result = DomainRecordingStatus.Deleted;
+                    break;
+                case TstvRecordingStatus.SeriesCancel:
+                    result = DomainRecordingStatus.SeriesCancel;
+                    break;
+                case TstvRecordingStatus.SeriesDelete:
+                    result = DomainRecordingStatus.SeriesDelete;
+                    break;
+                default:
+                    break;
             }
 
             return result;
@@ -4989,7 +5063,7 @@ namespace ConditionalAccess
         {
             long epgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID");
             long epgChannelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_CHANNEL_ID");
-            long domainRecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+            long domainSeriesRecordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
             int seasonNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "SEASON_NUMBER");
             string seriesId = ODBCWrapper.Utils.GetSafeStr(dr, "SERIES_ID");
             DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
@@ -4999,7 +5073,7 @@ namespace ConditionalAccess
             {
                 EpgChannelId = epgChannelId,
                 EpgId = epgId,
-                Id = domainRecordingID,
+                Id = domainSeriesRecordingId,
                 SeasonNumber = seasonNumber,
                 SeriesId = seriesId,
                 Type = seasonNumber > 0 ? RecordingType.Season : RecordingType.Series,
@@ -5100,37 +5174,6 @@ namespace ConditionalAccess
             return recording;
         }
 
-        internal static bool CancelOrDeleteRecording(int groupID, Recording recording, TstvRecordingStatus tstvRecordingStatus)
-        {
-            bool result = false;
-            DataTable dt = RecordingsDAL.GetExistingRecordingsByRecordingID(groupID, recording.Id);
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-            {
-                if ((ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "countUsers", 0)) == 0)
-                {
-                    Recording copyRecording = new Recording(recording);
-                    KlogMonitorHelper.ContextData cd = new KlogMonitorHelper.ContextData();
-                    System.Threading.Tasks.Task async = System.Threading.Tasks.Task.Factory.StartNew((taskRecording) =>
-                    {
-                        cd.Load();
-                        ApiObjects.Response.Status status = RecordingsManager.Instance.CancelOrDeleteRecording(groupID, (Recording)taskRecording, tstvRecordingStatus);
-                        if (status == null)
-                        {
-                            log.ErrorFormat("Failed Utils.CancelOrDeleteRecording when calling RecordingsManager.Instance.CancelOrDeleteRecording, groupId: {0}, recordingId: {1}", groupID, ((Recording)taskRecording).Id);
-                        }
-                        else if(status.Code != (int)eResponseStatus.OK)
-                        {
-                            log.ErrorFormat("Failed Utils.CancelOrDeleteRecording when calling RecordingsManager.Instance.CancelOrDeleteRecording, groupId: {0}, status: {1}, recordingId: {2}", groupID, status.Message, ((Recording)taskRecording).Id);
-                        }
-                    },copyRecording);
-
-                    result = true;
-                }
-            }
-
-            return result;
-        }
-
         internal static Dictionary<long, ExpiredRecordingScheduledTask> GetExpiredRecordingsTasks(long unixTimeStampNow)
         {
             Dictionary<long, ExpiredRecordingScheduledTask> expiredRecordings = new Dictionary<long, ExpiredRecordingScheduledTask>();
@@ -5219,7 +5262,7 @@ namespace ConditionalAccess
                     {
                         m_bOnlyActiveMedia = true
                     },
-                    ExtraReturnFields = new string[] { "epg_id", "epg_channel_id", "crid" },
+                    ExtraReturnFields = new string[] { "epg_channel_id", "crid" },
                 };
                 FillCatalogSignature(request);
                 client = new WS_Catalog.IserviceClient();
@@ -5362,15 +5405,8 @@ namespace ConditionalAccess
                 return seriesRecording;
             }
 
+            // currently we don't care about episode number
             int.TryParse(epgFieldMappings[EPISODE_NUMBER], out episodeNumber);
-            isSeriesFollowed = RecordingsDAL.IsSeriesFollowed(groupId, seriesId, seasonNumber);
-            if (!isSeriesFollowed)
-            {
-                QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
-                ApiObjects.QueueObjects.FirstFollowerRecordingData data = new ApiObjects.QueueObjects.FirstFollowerRecordingData(groupId, domainID, epg.EPG_CHANNEL_ID, seriesId, seasonNumber) { ETA = DateTime.UtcNow };
-                queue.Enqueue(data, string.Format(ROUTING_KEY_FIRST_FOLLOWER_RECORDING, groupId));
-            }
-
             long channelId;
             if (!long.TryParse(epg.EPG_CHANNEL_ID, out channelId))
             {
@@ -5378,11 +5414,25 @@ namespace ConditionalAccess
                 return seriesRecording;
             }
 
+            isSeriesFollowed = RecordingsDAL.IsSeriesFollowed(groupId, seriesId, seasonNumber);
             // insert or update domain_series table
             DataTable dt = RecordingsDAL.FollowSeries(groupId, userId, domainID, epgId, channelId, seriesId, seasonNumber, episodeNumber);
             if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
             {
                 seriesRecording = BuildSeriesRecordingDetails(dt.Rows[0]);
+            }
+
+            // if first user
+            if (!isSeriesFollowed)
+            {
+                if (!RecordingsDAL.InsertFirstFollowerLock(groupId, seriesId, seasonNumber, epg.EPG_CHANNEL_ID, true))
+                {
+                    log.ErrorFormat("Failed InsertFirstFollowerLock, groupId: {0}, seriesId: {1}, seasonNumber: {2}, channelId: {3}", groupId, seriesId, seasonNumber, epg.EPG_CHANNEL_ID);
+                }
+
+                QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
+                ApiObjects.QueueObjects.SeriesRecordingTaskData data = new ApiObjects.QueueObjects.SeriesRecordingTaskData(groupId, userId, domainID, epg.EPG_CHANNEL_ID, seriesId, seasonNumber, eSeriesRecordingTask.FirstFollower);
+                queue.Enqueue(data, string.Format(ROUTING_KEY_SERIES_RECORDING_TASK, groupId));
             }
 
             return seriesRecording;
@@ -5645,12 +5695,12 @@ namespace ConditionalAccess
                 int seasonNumber = 0;
                 foreach (var field in potentialRecording.ExtraFields)
                 {
-                    if (field.key == seriesIdName)
+                    if (field.key.ToLower() == seriesIdName.ToLower())
                     {
                         seriesId = field.value;
                     }
 
-                    if (field.key == seasonNumberName)
+                    if (field.key.ToLower() == seasonNumberName.ToLower())
                     {
                         int.TryParse(field.value, out seasonNumber);
                     }
@@ -5842,13 +5892,7 @@ namespace ConditionalAccess.TvinciAPI
         protected override WebRequest GetWebRequest(Uri uri)
         {
             HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-
-            if (request.Headers != null &&
-                request.Headers[Constants.REQUEST_ID_KEY] == null &&
-                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
-            {
-                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
-            }
+            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
             return request;
         }
     }
@@ -5862,13 +5906,7 @@ namespace ConditionalAccess.TvinciDomains
         protected override WebRequest GetWebRequest(Uri uri)
         {
             HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-
-            if (request.Headers != null &&
-                request.Headers[Constants.REQUEST_ID_KEY] == null &&
-                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
-            {
-                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
-            }
+            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
             return request;
         }
     }
@@ -5882,13 +5920,7 @@ namespace ConditionalAccess.TvinciPricing
         protected override WebRequest GetWebRequest(Uri uri)
         {
             HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-
-            if (request.Headers != null &&
-                request.Headers[Constants.REQUEST_ID_KEY] == null &&
-                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
-            {
-                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
-            }
+            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
             return request;
         }
     }
@@ -5902,13 +5934,7 @@ namespace ConditionalAccess.TvinciUsers
         protected override WebRequest GetWebRequest(Uri uri)
         {
             HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-
-            if (request.Headers != null &&
-                request.Headers[Constants.REQUEST_ID_KEY] == null &&
-                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
-            {
-                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
-            }
+            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
             return request;
         }
     }
@@ -5922,13 +5948,7 @@ namespace ConditionalAccess.TvinciBilling
         protected override WebRequest GetWebRequest(Uri uri)
         {
             HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-
-            if (request.Headers != null &&
-                request.Headers[Constants.REQUEST_ID_KEY] == null &&
-                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
-            {
-                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
-            }
+            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
             return request;
         }
     }

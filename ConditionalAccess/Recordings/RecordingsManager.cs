@@ -165,31 +165,6 @@ namespace Recordings
                         {
                             recording = ConditionalAccess.Utils.GetRecordingByEpgId(groupId, programId);
                         }
-
-                        //AdapterControllers.CDVR.CdvrAdapterController adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
-                        //int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
-                        //RecordResult adapterResponse = null;
-                        //// only cancel is possible because existingRecordingWithMinStartDate hasn't been recorded yet
-                        //adapterResponse = adapterController.CancelRecording(groupId, existingRecordingWithMinStartDate.ExternalRecordingId, adapterId);
-
-                        //if (adapterResponse == null)
-                        //{
-                        //    recording.Status = new Status((int)eResponseStatus.Error, "Adapter controller returned null response.");
-                        //    return recording;
-                        //}
-                        //else if (adapterResponse.FailReason != 0)
-                        //{
-                        //    recording.Status = CreateFailStatus(adapterResponse);
-                        //    return recording;
-                        //}
-                        //else
-                        //{
-                        //    CallAdapterRecord(groupId, epgChannelID, recording.EpgStartDate, recording.EpgEndDate, false, recording);
-                        //    if (!RecordingsDAL.UpdateRecordingsExternalId(groupId, recording.ExternalRecordingId, recording.Crid))
-                        //    {
-                        //        log.ErrorFormat("Failed UpdateRecordingsExternalId, ExternalRecordingId: {0}, Crid: {1}", recording.ExternalRecordingId, recording.Crid);
-                        //    }                            
-                        //}
                     }
                     else
                     {
@@ -519,10 +494,10 @@ namespace Recordings
 
             Recording recording = ConditionalAccess.Utils.GetRecordingByEpgId(groupId, programId);
 
-            // If there is no recording - error?
+            // If there is no recording, nothing to do
             if (recording == null)
             {
-                status = new Status((int)eResponseStatus.Error, string.Format("No recording for program {0}", programId));
+                status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             else
             {
@@ -700,85 +675,6 @@ namespace Recordings
                         }
                     }
                 }
-
-                // OLD code:
-                /*
-                //    // Update recording data
-                //    recording.EpgStartDate = startDate;
-                //    recording.EpgEndDate = endDate;
-
-                //    int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
-
-                //    var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
-
-                //    // Call Adapter to update recording schedule
-
-                //    // Initialize parameters for adapter controller
-                //    long startTimeSeconds = ODBCWrapper.Utils.DateTimeToUnixTimestamp(startDate);
-                //    long durationSeconds = (long)(endDate - startDate).TotalSeconds;
-
-                //    RecordResult adapterResponse = null;
-
-                //    try
-                //    {
-                //        adapterResponse = adapterController.UpdateRecordingSchedule(
-                //            groupId, recording.ExternalRecordingId, adapterId, startTimeSeconds, durationSeconds);
-                //    }
-                //    catch (KalturaException ex)
-                //    {
-                //        recording.Status = new Status((int)eResponseStatus.Error,
-                //            string.Format("Code: {0} Message: {1}", (int)ex.Data["StatusCode"], ex.Message));
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        recording.Status = new Status((int)eResponseStatus.Error, "Adapter controller excpetion: " + ex.Message);
-                //    }
-
-                //    if (recording.Status != null)
-                //    {
-                //        return recording.Status;
-                //    }
-
-                //    if (adapterResponse == null)
-                //    {
-                //        status = new Status((int)eResponseStatus.Error, "Adapter controller returned null response.");
-                //    }
-                //    //
-                //    // TODO: Validate adapter response
-                //    //
-                //    else if (adapterResponse.FailReason != 0)
-                //    {
-                //        status = CreateFailStatus(adapterResponse);
-                //    }
-                //    else
-                //    {
-                //        try
-                //        {
-                //            // Insert recording information to database
-                //            bool updateResult = ConditionalAccessDAL.UpdateRecording(recording, groupId, 1, 1, null);
-
-                //            if (!updateResult)
-                //            {
-                //                return new Status((int)eResponseStatus.Error, "Failed update recording");
-                //            }
-
-                //            // Schedule a message tocheck status 1 minute after recording of program is supposed to be over
-
-                //            DateTime checkTime = endDate.AddMinutes(1);
-                //            eRecordingTask task = eRecordingTask.GetStatusAfterProgramEnded;
-
-                //            EnqueueMessage(groupId, programId, recordingId, checkTime, task);
-
-                //            // We're OK
-                //            status = new Status((int)eResponseStatus.OK);
-                //        }
-                //        catch (Exception ex)
-                //        {
-                //            status = new Status((int)eResponseStatus.Error, "Failed inserting recording to database and queue.");
-                //        }
-                //    }
-                //}
-                 */
             }
 
             return status;

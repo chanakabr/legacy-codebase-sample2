@@ -51,7 +51,7 @@
       <HintPath>..\..\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
     </Reference>
     <Reference Include="KlogMonitorHelper">
-      <HintPath>..\External\KlogMonitorHelper.dll</HintPath>
+      <HintPath>..\..\TVinciCommon\External\KlogMonitorHelper.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -72,7 +72,6 @@
     <Compile Include="Copy of WSExtension.cs" />
     <Compile Include="MessageBehaviourExtension.cs" />
     <Compile Include="MessageInspector.cs" />
-    <Compile Include="ReqIdHeader.cs" />
     <Compile Include="WSExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -7145,13 +7145,7 @@ namespace Catalog.ws_api
         protected override WebRequest GetWebRequest(Uri uri)
         {
             HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-
-            if (request.Headers != null &&
-                request.Headers[Constants.REQUEST_ID_KEY] == null &&
-                OperationContext.Current.IncomingMessageProperties[Constants.REQUEST_ID_KEY] != null)
-            {
-                request.Headers.Add(Constants.REQUEST_ID_KEY, OperationContext.Current.IncomingMessageProperties[Constants.REQUEST_ID_KEY].ToString());
-            }
+            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
             return request;
         }
     }
@@ -7166,13 +7160,7 @@ namespace Catalog.WS_Domains
         protected override WebRequest GetWebRequest(Uri uri)
         {
             HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-
-            if (request.Headers != null &&
-                request.Headers[Constants.REQUEST_ID_KEY] == null &&
-                OperationContext.Current.IncomingMessageProperties[Constants.REQUEST_ID_KEY] != null)
-            {
-                request.Headers.Add(Constants.REQUEST_ID_KEY, OperationContext.Current.IncomingMessageProperties[Constants.REQUEST_ID_KEY].ToString());
-            }
+            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
             return request;
         }
     }
@@ -7186,13 +7174,7 @@ namespace Catalog.ws_users
         protected override WebRequest GetWebRequest(Uri uri)
         {
             HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-
-            if (request.Headers != null &&
-                request.Headers[Constants.REQUEST_ID_KEY] == null &&
-                OperationContext.Current.IncomingMessageProperties[Constants.REQUEST_ID_KEY] != null)
-            {
-                request.Headers.Add(Constants.REQUEST_ID_KEY, OperationContext.Current.IncomingMessageProperties[Constants.REQUEST_ID_KEY].ToString());
-            }
+            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
             return request;
         }
     }

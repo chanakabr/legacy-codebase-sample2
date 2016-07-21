@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Text;
 using System.Net;
 using System.Web;
+using System.ServiceModel;
 
 namespace Catalog
 {
@@ -38,7 +39,7 @@ namespace Catalog
 
             List<int> subscriptionIds = new List<int>();
             List<int> collectionIds = new List<int>();
-            
+
             string userName = string.Empty;
             string password = string.Empty;
 
@@ -174,7 +175,7 @@ namespace Catalog
             return result;
         }
 
-        internal static List<int> GetUserEntitledEpgChannelIds(int parentGroupID, string siteGuid, 
+        internal static List<int> GetUserEntitledEpgChannelIds(int parentGroupID, string siteGuid,
             UnifiedSearchDefinitions originalDefinitions,
             List<int> linearChannelMediaTypes)
         {
@@ -223,13 +224,7 @@ namespace Catalog.ws_cas
         protected override WebRequest GetWebRequest(Uri uri)
         {
             HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-
-            if (request.Headers != null &&
-                request.Headers[Constants.REQUEST_ID_KEY] == null &&
-                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
-            {
-                request.Headers.Add(Constants.REQUEST_ID_KEY, HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString());
-            }
+            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
             return request;
         }
     }

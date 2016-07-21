@@ -26,11 +26,19 @@ namespace ServiceExtensions
             // are sent to the service
 
             // add request ID to message header
-            if (request.Headers.FindHeader(KLogMonitor.Constants.REQUEST_ID_KEY.ToString(), string.Empty) == -1 &&
-                HttpContext.Current != null &&
-                HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
+            if (request.Headers != null &&
+                request.Headers.FindHeader(KLogMonitor.Constants.REQUEST_ID_KEY.ToString(), string.Empty) == -1)
             {
-                request.Headers.Add(MessageHeader.CreateHeader(KLogMonitor.Constants.REQUEST_ID_KEY.ToString(), string.Empty, HttpContext.Current.Items[Constants.REQUEST_ID_KEY]));
+                if (KLogMonitor.KLogger.AppType == KLogEnums.AppType.WCF)
+                {
+                    if (OperationContext.Current != null && OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
+                        request.Headers.Add(MessageHeader.CreateHeader(KLogMonitor.Constants.REQUEST_ID_KEY, string.Empty, OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY].ToString()));
+                }
+                else
+                {
+                    if (HttpContext.Current != null && HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
+                        request.Headers.Add(MessageHeader.CreateHeader(KLogMonitor.Constants.REQUEST_ID_KEY, string.Empty, HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY].ToString()));
+                }
             }
 
             return null;

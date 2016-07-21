@@ -725,5 +725,10 @@ namespace DAL
         {
             return string.Format("{0}_{1}", groupId, "DefaultQuotaSeconds");
         }
+
+        public static string GetFirstFollowerLockKey(int groupId, string seriesId, int seasonNumber, string channelId)
+        {
+            return string.Format("{0}_series{1}_seasson{2}_channel{3}", groupId, seriesId, seasonNumber, channelId);
+        }
     }
 }
