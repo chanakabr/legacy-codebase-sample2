@@ -12,7 +12,7 @@ namespace WebAPI.Models.Notification
 {
     [OldStandard("pushNotificationEnabled", "push_notification_enabled")]
     [OldStandard("pushFollowEnabled", "push_follow_enabled")]
-    public class KalturaNotificationSettings : KalturaOTTObject
+    public class KalturaNotificationsSettings : KalturaOTTObject
     {
         /// <summary>
         /// Specify if the user want to receive push notifications or not
@@ -29,5 +29,10 @@ namespace WebAPI.Models.Notification
         [JsonProperty("pushFollowEnabled")]
         [XmlElement(ElementName = "pushFollowEnabled", IsNullable = true)]
         public bool? PushFollowEnabled { get; set; }
+    }
+
+
+    public class KalturaNotificationSettings : KalturaNotificationsSettings
+    {
     }
 }

@@ -14,6 +14,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/ossAdapterProfile/action")]
+    [OldStandardAction("updateOldStandard", "update")]
     public class OssAdapterProfileController : ApiController
     {
         /// <summary>
@@ -110,10 +111,42 @@ namespace WebAPI.Controllers
         /// Possible status codes:   
         /// name required = 5005, oss adapter identifier required = 5007, no oss adapter to update = 5012, adapter url required = 5013, external identifier required = 6016
         /// </remarks>
-        /// <param name="oss_adapter">OSS adapter Object</param>       
+        /// <param name="ossAdapterId">OSS adapter identifier</param>       
+        /// <param name="ossAdapter">OSS adapter Object</param>       
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        public KalturaOSSAdapterProfile Update(KalturaOSSAdapterProfile oss_adapter)
+        public KalturaOSSAdapterProfile Update(int ossAdapterId, KalturaOSSAdapterProfile ossAdapter)
+        {
+            KalturaOSSAdapterProfile response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            ossAdapter.Id = ossAdapterId;
+
+            try
+            {
+                // call client
+                response = ClientsManager.ApiClient().SetOSSAdapter(groupId, ossAdapter);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Update OSS adapter details
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:   
+        /// name required = 5005, oss adapter identifier required = 5007, no oss adapter to update = 5012, adapter url required = 5013, external identifier required = 6016
+        /// </remarks>
+        /// <param name="oss_adapter">OSS adapter Object</param>       
+        [Route("updateOldStandard"), HttpPost]
+        [ApiAuthorize]
+        [Obsolete]
+        public KalturaOSSAdapterProfile UpdateOldStandard(KalturaOSSAdapterProfile oss_adapter)
         {
             KalturaOSSAdapterProfile response = null;
 

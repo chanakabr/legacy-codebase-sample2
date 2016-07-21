@@ -11,6 +11,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/recommendationProfileSettings/action")]
+    [Obsolete]
     public class RecommendationProfileSettingsController : ApiController
     {
         /// <summary>

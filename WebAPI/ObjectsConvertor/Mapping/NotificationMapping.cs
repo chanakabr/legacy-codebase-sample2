@@ -36,6 +36,30 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.TopicExpirationDurationDays, opt => opt.MapFrom(src => src.TopicExpirationDurationDays))
                  ;
 
+            //NotificationPartnerSettings to KalturaNotificationPartnerSettings
+            Mapper.CreateMap<NotificationPartnerSettings, KalturaNotificationsPartnerSettings>()
+                 .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.IsPushNotificationEnabled))
+                 .ForMember(dest => dest.PushSystemAnnouncementsEnabled, opt => opt.MapFrom(src => src.IsPushSystemAnnouncementsEnabled))
+                 .ForMember(dest => dest.PushStartHour, opt => opt.MapFrom(src => src.PushStartHour))
+                 .ForMember(dest => dest.PushEndHour, opt => opt.MapFrom(src => src.PushEndHour))
+                 .ForMember(dest => dest.InboxEnabled, opt => opt.MapFrom(src => src.IsInboxEnabled))
+                 .ForMember(dest => dest.MessageTTLDays, opt => opt.MapFrom(src => src.MessageTTLDays))
+                 .ForMember(dest => dest.AutomaticIssueFollowNotification, opt => opt.MapFrom(src => src.AutomaticIssueFollowNotifications))
+                 .ForMember(dest => dest.TopicExpirationDurationDays, opt => opt.MapFrom(src => src.TopicExpirationDurationDays))
+                 ;
+
+            //KalturaNotificationPartnerSettings TO NotificationPartnerSettings
+            Mapper.CreateMap<KalturaNotificationsPartnerSettings, NotificationPartnerSettings>()
+                 .ForMember(dest => dest.IsPushNotificationEnabled, opt => opt.MapFrom(src => src.PushNotificationEnabled))
+                 .ForMember(dest => dest.IsPushSystemAnnouncementsEnabled, opt => opt.MapFrom(src => src.PushSystemAnnouncementsEnabled))
+                 .ForMember(dest => dest.PushStartHour, opt => opt.MapFrom(src => src.PushStartHour))
+                 .ForMember(dest => dest.PushEndHour, opt => opt.MapFrom(src => src.PushEndHour))
+                 .ForMember(dest => dest.IsInboxEnabled, opt => opt.MapFrom(src => src.InboxEnabled))
+                 .ForMember(dest => dest.MessageTTLDays, opt => opt.MapFrom(src => src.MessageTTLDays))
+                 .ForMember(dest => dest.AutomaticIssueFollowNotifications, opt => opt.MapFrom(src => src.AutomaticIssueFollowNotification))
+                 .ForMember(dest => dest.TopicExpirationDurationDays, opt => opt.MapFrom(src => src.TopicExpirationDurationDays))
+                 ;
+
             Mapper.CreateMap<UserNotificationSettings, KalturaNotificationSettings>()
                  .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.EnablePush))
                  .ForMember(dest => dest.PushFollowEnabled, opt => opt.MapFrom(src => src.FollowSettings.EnablePush));

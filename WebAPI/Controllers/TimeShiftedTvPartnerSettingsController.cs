@@ -6,6 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.API;
 using WebAPI.Utils;
 
@@ -22,6 +23,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: BadRequest = 500003, TimeShiftedTvPartnerSettingsNotFound = 5022</remarks>   
         [Route("get"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
         public KalturaTimeShiftedTvPartnerSettings Get()
         {
             KalturaTimeShiftedTvPartnerSettings response = null;
@@ -47,6 +49,8 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: BadRequest = 500003, TimeShiftedTvPartnerSettingsNotSent = 5023, TimeShiftedTvPartnerSettingsNegativeBufferSent = 5024</remarks>  
         [Route("update"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemaValidationType.ACTION_RETURN_TYPE)]
         public bool Update(KalturaTimeShiftedTvPartnerSettings settings)
         {
             bool response = false;

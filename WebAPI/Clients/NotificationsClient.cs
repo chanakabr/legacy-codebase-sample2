@@ -128,7 +128,7 @@ namespace WebAPI.Clients
             }
         }
 
-        internal bool Update(int groupId, KalturaPartnerNotificationSettings settings)
+        internal bool Update(int groupId, KalturaNotificationsPartnerSettings settings)
         {
             bool success = false;
             Status response = null;
@@ -170,7 +170,7 @@ namespace WebAPI.Clients
 
         }
 
-        internal bool Update(int groupId, string userId, KalturaNotificationSettings settings)
+        internal bool Update(int groupId, string userId, KalturaNotificationsSettings settings)
         {
             bool success = false;
             Status response = null;

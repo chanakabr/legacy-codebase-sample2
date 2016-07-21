@@ -14,7 +14,7 @@ namespace WebAPI.Models.Notification
     [OldStandard("pushSystemAnnouncementsEnabled", "push_system_announcements_enabled")]
     [OldStandard("pushStartHour", "push_start_hour")]
     [OldStandard("pushEndHour", "push_end_hour")]
-    public class KalturaPartnerNotificationSettings : KalturaOTTObject
+    public class KalturaNotificationsPartnerSettings : KalturaOTTObject
     {
         /// <summary>
         /// Push notification capability is enabled for the account
@@ -72,13 +72,18 @@ namespace WebAPI.Models.Notification
         [XmlElement(ElementName = "automaticIssueFollowNotification", IsNullable = true)]
         public bool? AutomaticIssueFollowNotification { get; set; }
 
-         /// <summary>
+        /// <summary>
         /// Topic expiration duration in days
         /// </summary>
         [DataMember(Name = "topicExpirationDurationDays")]
         [JsonProperty("topicExpirationDurationDays")]
         [XmlElement(ElementName = "topicExpirationDurationDays", IsNullable = true)]
         public int? TopicExpirationDurationDays { get; set; }
-        
+
+    }
+
+    [Obsolete]
+    public class KalturaPartnerNotificationSettings : KalturaNotificationsPartnerSettings
+    {
     }
 }
