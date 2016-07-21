@@ -18384,7 +18384,6 @@ namespace ConditionalAccess
         public bool CompleteDomainSeriesRecordings(long domainId, long domainSeriesRecordingId = 0)
         {
             bool response = true;
-            List<DomainSeriesRecording> unlockedSeriesToComplete = new List<DomainSeriesRecording>();
             try
             {                
                 // check if recording is enabled only in advanced - in this case nothing to do
@@ -18472,7 +18471,7 @@ namespace ConditionalAccess
                 // get all the relevant (series + seasons + CRID not in the list of household recordings) existing recordings from ES
                 List<ConditionalAccess.WS_Catalog.ExtendedSearchResult> relevantRecordingsForRecord = null;
 
-                relevantRecordingsForRecord = Utils.SearchPastSeriesRecordings(m_nGroupID, excludedCrids, unlockedSeriesToComplete);
+                relevantRecordingsForRecord = Utils.SearchPastSeriesRecordings(m_nGroupID, excludedCrids, series);
 
                 if (relevantRecordingsForRecord == null)
                 {
@@ -18519,7 +18518,7 @@ namespace ConditionalAccess
                         }
 
                         RecordingType recordingType;
-                        userId = Utils.GetFollowingUserIdForSerie(m_nGroupID, unlockedSeriesToComplete, potentialRecording, out recordingType);
+                        userId = Utils.GetFollowingUserIdForSerie(m_nGroupID, series, potentialRecording, out recordingType);
                         epgId = Utils.GetLongParamFromExtendedSearchResult(potentialRecording, "epg_id");
 
                         if (epgId > 0 && !string.IsNullOrEmpty(userId))
