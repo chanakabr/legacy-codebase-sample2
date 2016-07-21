@@ -1078,7 +1078,7 @@ namespace DAL
                 int numOfRetries = 0;
                 while (!result && numOfRetries < limitRetries)
                 {
-                    result = cbClient.Set<long>(firstFollowerLockKey, ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow), ttl, true);                    
+                    result = cbClient.Set<long>(firstFollowerLockKey, ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow), ttl);                    
                     if (!result)
                     {
                         numOfRetries++;
