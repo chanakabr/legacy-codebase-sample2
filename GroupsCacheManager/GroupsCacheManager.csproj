@@ -43,6 +43,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CouchbaseManager, Version=3.4.118.16724, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\TVinciCommon\External\4.5\CouchbaseManager.dll</HintPath>
+    </Reference>
     <Reference Include="KLogMonitor, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
@@ -80,10 +84,6 @@
     <ProjectReference Include="..\CachingProvider\CachingProvider.csproj">
       <Project>{4191d9e7-8502-4b00-a488-771240e2cf40}</Project>
       <Name>CachingProvider</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj">
-      <Project>{b44dc37d-5658-4b85-8cc4-0ec72838cafc}</Project>
-      <Name>CouchbaseManager</Name>
     </ProjectReference>
     <ProjectReference Include="..\DAL\DAL.csproj">
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>

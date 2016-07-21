@@ -43,6 +43,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CouchbaseManager, Version=3.4.118.16724, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\TVinciCommon\External\4.5\CouchbaseManager.dll</HintPath>
+    </Reference>
     <Reference Include="Jil">
       <HintPath>..\..\tvincicommon\External\Jil.dll</HintPath>
     </Reference>
@@ -103,10 +107,6 @@
     <ProjectReference Include="..\ApiObjects\ApiObjects.csproj">
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj">
-      <Project>{b44dc37d-5658-4b85-8cc4-0ec72838cafc}</Project>
-      <Name>CouchbaseManager</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
