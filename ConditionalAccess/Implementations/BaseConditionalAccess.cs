@@ -18427,25 +18427,24 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    bool shouldCallAgain = false;                    
+                    bool shouldCallAgain = false;
                     foreach (DomainSeriesRecording currentDomainSeries in series)
                     {
-                        // if first follower document NOT locked then add to unlockedSeriesToComplete
-                        if (RecordingsDAL.GetFirstFollowerLock(m_nGroupID, currentDomainSeries.SeriesId, currentDomainSeries.SeasonNumber, currentDomainSeries.EpgChannelId.ToString()) <= 0)
+                        shouldCallAgain = RecordingsDAL.IsFirstFollowerLockExists(m_nGroupID, currentDomainSeries.SeriesId, currentDomainSeries.SeasonNumber, currentDomainSeries.EpgChannelId.ToString());
+                        // if first one of the series is locked we stop and call complete again in 1 min
+                        if (shouldCallAgain)
                         {
-                            unlockedSeriesToComplete.Add(currentDomainSeries);
-                        }
-                        else
-                        {
-                            shouldCallAgain = true;
+                            break;
                         }
                     }
 
                     if (shouldCallAgain)
-                    {
+                    {                        
                         QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
-                        ApiObjects.QueueObjects.SeriesRecordingTaskData data = new ApiObjects.QueueObjects.SeriesRecordingTaskData(m_nGroupID, string.Empty, domainId, string.Empty, string.Empty, 0, eSeriesRecordingTask.CompleteRecordings);
+                        ApiObjects.QueueObjects.SeriesRecordingTaskData data = new ApiObjects.QueueObjects.SeriesRecordingTaskData(m_nGroupID, string.Empty, domainId, string.Empty, string.Empty, 0,
+                                                                                                                     eSeriesRecordingTask.CompleteRecordings) { ETA = DateTime.UtcNow.AddMinutes(1) };
                         queue.Enqueue(data, string.Format(Utils.ROUTING_KEY_SERIES_RECORDING_TASK, m_nGroupID));
+                        return response;
                     }
                 }
 

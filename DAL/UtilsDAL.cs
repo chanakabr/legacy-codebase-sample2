@@ -728,7 +728,7 @@ namespace DAL
 
         public static string GetFirstFollowerLockKey(int groupId, string seriesId, int seasonNumber, string channelId)
         {
-            return string.Format("{0}_sId{1}_seNum{2}_cId{3}", groupId, seriesId, seasonNumber, channelId);
+            return string.Format("{0}_series{1}_seasson{2}_channel{3}", groupId, seriesId, seasonNumber, channelId);
         }
     }
 }

@@ -5405,8 +5405,8 @@ namespace ConditionalAccess
                 return seriesRecording;
             }
 
+            // currently we don't care about episode number
             int.TryParse(epgFieldMappings[EPISODE_NUMBER], out episodeNumber);
-            isSeriesFollowed = RecordingsDAL.IsSeriesFollowed(groupId, seriesId, seasonNumber);
             long channelId;
             if (!long.TryParse(epg.EPG_CHANNEL_ID, out channelId))
             {
@@ -5414,6 +5414,7 @@ namespace ConditionalAccess
                 return seriesRecording;
             }
 
+            isSeriesFollowed = RecordingsDAL.IsSeriesFollowed(groupId, seriesId, seasonNumber);
             // insert or update domain_series table
             DataTable dt = RecordingsDAL.FollowSeries(groupId, userId, domainID, epgId, channelId, seriesId, seasonNumber, episodeNumber);
             if (dt != null && dt.Rows != null && dt.Rows.Count == 1)

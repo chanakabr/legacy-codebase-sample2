@@ -17,7 +17,7 @@ namespace DAL
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int RETRY_LIMIT = 5;
-        private const uint FIRST_FOLLOWER_BLOCK_LOCK_TTL_SEC = 600;
+        private const uint FIRST_FOLLOWER_BLOCK_LOCK_TTL_SEC = 300;
         private const uint FIRST_FOLLOWER_INDEX_LOCK_TTL_SEC = 60;
         private const string RECORDING_CONNECTION = "RECORDING_CONNECTION_STRING";        
 
@@ -1097,9 +1097,8 @@ namespace DAL
             return result;
         }
 
-        public static long GetFirstFollowerLock(int groupId, string seriesId, int seasonNumber, string channelId)
+        public static bool IsFirstFollowerLockExists(int groupId, string seriesId, int seasonNumber, string channelId)
         {
-            long lockTime = 0;            
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
@@ -1107,7 +1106,7 @@ namespace DAL
             if (string.IsNullOrEmpty(firstFollowerLockKey))
             {
                 log.ErrorFormat("Failed getting firstFollowerLockKey for groupId: {0}, seriesId: {1}, seasonNumber: {2}, channelId: {3}", groupId, seriesId, seasonNumber, channelId);
-                return lockTime;
+                return true;
             }
 
             try
@@ -1116,6 +1115,7 @@ namespace DAL
                 while (numOfRetries < limitRetries)
                 {                    
                     Couchbase.IO.ResponseStatus cbResponse;
+                    long lockTime = 0;
                     lockTime = cbClient.Get<long>(firstFollowerLockKey, out cbResponse);
                     if (cbResponse != Couchbase.IO.ResponseStatus.KeyNotFound && cbResponse != Couchbase.IO.ResponseStatus.Success)
                     {
@@ -1124,20 +1124,26 @@ namespace DAL
                                         numOfRetries, limitRetries, groupId, seriesId, seasonNumber, channelId);
                         System.Threading.Thread.Sleep(r.Next(50));
                     }
-                    // exit while, we are OK!
+                    // if document exists return true
+                    else if (lockTime > 0)
+                    {
+                        return true;
+                    }
+                    // if document does not exists return false
                     else
                     {
-                        numOfRetries = limitRetries;
+                        return false;
                     }
                 }
+
+                return true;
             }
             catch (Exception ex)
             {
                 log.Error(string.Format("Error on GetFirstFollowerLock, groupId: {0}, seriesId: {1}, seasonNumber: {2}, channelId: {3}",
                                             groupId, seriesId, seasonNumber, channelId), ex);
-            }
-
-            return lockTime;
+                return true;
+            }            
         }
 
         public static bool DeleteFirstFollowerLock(int groupId, string seriesId, int seasonNumber, string channelId)
