@@ -32,7 +32,7 @@ namespace GroupsCacheManager
             {
                 System.Diagnostics.StackTrace st = new System.Diagnostics.StackTrace();
 
-                Logger.Logger.Log("BuildGroup", string.Format("Started for nGroupID={0}, from ST={1}", nGroupID, st.ToString()), "Catalog");
+                log.DebugFormat("BuildGroup - Started for nGroupID={0}, from ST={1}", nGroupID, st.ToString());
 
                 DateTime dNow = DateTime.Now;
 
