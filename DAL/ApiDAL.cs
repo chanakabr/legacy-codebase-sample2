@@ -1719,7 +1719,7 @@ namespace DAL
             return newId;
         }
 
-        public static string Get_ParentalPIN(int groupId, int domainId, string siteGuid, out eRuleLevel level, bool getUserDomain)
+        public static string Get_ParentalPIN(int groupId, int domainId, string siteGuid, out eRuleLevel level, bool getUserDomain, int? ruleId)
         {
             string pin = null;
             level = eRuleLevel.User;
@@ -1731,6 +1731,7 @@ namespace DAL
             storedProcedure.AddParameter("@GroupID", groupId);
             storedProcedure.AddParameter("@RuleType", (int)eGroupRuleType.Parental);
             storedProcedure.AddParameter("@GetUserDomain", getUserDomain);
+            storedProcedure.AddNullableParameter<int?>("@RuleId", ruleId);
 
             DataSet dataSet = storedProcedure.ExecuteDataSet();
 
@@ -1751,7 +1752,7 @@ namespace DAL
             return pin;
         }
 
-        public static int Set_ParentalPIN(int groupId, string siteGuid, int domainId, string pin)
+        public static int Set_ParentalPIN(int groupId, string siteGuid, int domainId, string pin, int? ruleId = null)
         {
             int newId = 0;
 
@@ -1762,6 +1763,7 @@ namespace DAL
             storedProcedure.AddParameter("@Pin", pin);
             storedProcedure.AddParameter("@GroupID", groupId);
             storedProcedure.AddParameter("@RuleType", (int)eGroupRuleType.Parental);
+            storedProcedure.AddNullableParameter<int?>("@RuleId", ruleId);
 
             newId = storedProcedure.ExecuteReturnValue<int>();
 

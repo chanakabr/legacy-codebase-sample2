@@ -936,7 +936,7 @@ namespace DAL
                         quota = cbClient.Get<int>(domainQuotaKey, out getResult);
                         if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
                         {
-                            log.ErrorFormat("Error while trying to get domain quota, domainId: {0}, key: {1}", domainId, domainQuotaKey);
+                            log.DebugFormat("domain: {0} does not have a quota document with key: {1}", domainId, domainQuotaKey);
                             break;
                         }
                         else if (getResult == Couchbase.IO.ResponseStatus.Success)
