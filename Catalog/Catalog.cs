@@ -6894,12 +6894,25 @@ namespace Catalog
 
             try
             {
+                CouchbaseManager.ViewStaleState staleState = CouchbaseManager.ViewStaleState.Ok;
+
+                string staleStateConfiguration = ODBCWrapper.Utils.GetTcmConfigValue("WatchHistory_StaleMode");
+
+                if (!string.IsNullOrEmpty(staleStateConfiguration))
+                {
+                    // try to parse the TCM value - if successful, use it, if not, make sure we are with default value of OK
+                    if (!Enum.TryParse<CouchbaseManager.ViewStaleState>(staleStateConfiguration, out staleState))
+                    {
+                        staleState = CouchbaseManager.ViewStaleState.Ok;
+                    }
+                }
+
                 // get views
                 CouchbaseManager.ViewManager viewManager = new CouchbaseManager.ViewManager(CB_MEDIA_MARK_DESGIN, "users_watch_history")
                 {
                     startKey = new object[] { long.Parse(siteGuid), minFilterdate },
                     endKey = new object[] { long.Parse(siteGuid), maxFilterDate },
-                    staleState = CouchbaseManager.ViewStaleState.False,
+                    staleState = staleState,
                     asJson = true
                 };
 
