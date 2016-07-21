@@ -18,7 +18,7 @@ namespace RecordingTaskHandler
         }
 
         [JsonProperty("recording_task")]
-        public eRecordingTask? Task
+        public eRecordingTask Task
         {
             get;
             set;
