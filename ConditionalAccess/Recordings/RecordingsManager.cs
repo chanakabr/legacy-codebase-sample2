@@ -238,6 +238,10 @@ namespace Recordings
 
             if (groupId > 0 && slimRecording != null && slimRecording.Id > 0 && slimRecording.EpgId > 0 && !string.IsNullOrEmpty(slimRecording.ExternalRecordingId))
             {
+                UpdateIndex(groupId, slimRecording.Id);
+                UpdateCouchbase(groupId, slimRecording.Id, slimRecording.Id, false);
+
+
                 bool shouldCallAdapter = RecordingsDAL.CountRecordingsByExternalRecordingId(groupId, slimRecording.ExternalRecordingId) == 1 ? true : false;
                 RecordResult adapterResponse = null;
                 if (shouldCallAdapter)
@@ -294,8 +298,6 @@ namespace Recordings
                     {
                         log.ErrorFormat("failed to update recording status deleted, recordingId = {0}", slimRecording.Id);
                     }
-
-                    UpdateIndex(groupId, slimRecording.Id);
                     
                     // Call Adapter to cancel or delete recording                    
                     try
@@ -360,8 +362,6 @@ namespace Recordings
                         {
                             return new Status((int)eResponseStatus.Error, string.Format("Failed updating recording {0} to status {1}", slimRecording.Id, recordingStatus));
                         }
-
-                        UpdateCouchbase(groupId, slimRecording.EpgId, slimRecording.Id, false);
 
                         // We're OK
                         status = new Status((int)eResponseStatus.OK);
@@ -515,6 +515,8 @@ namespace Recordings
 
             Recording recording = ConditionalAccess.Utils.GetRecordingByEpgId(groupId, programId);
 
+            bool shouldUpdateDomainsQuota = false;
+
             // If there is no recording, nothing to do
             if (recording == null)
             {
@@ -538,6 +540,14 @@ namespace Recordings
                 }
                 else
                 {
+                    var oldRecordingLength = (recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
+                    var newRecordingLength = (endDate - startDate).TotalSeconds;
+
+                    if (oldRecordingLength != newRecordingLength)
+                    {
+                        shouldUpdateDomainsQuota = true;
+                    }
+
                     recording.EpgStartDate = startDate;
                     recording.EpgEndDate = endDate;
 
@@ -552,11 +562,7 @@ namespace Recordings
                         // OR the updated recording is the first and there are no others - update adapter
                         existingRecordingWithMinStartDate = recordingsEpgMap.OrderBy(x => x.Value.EpgStartDate).ToList().First().Value;
                         if (recording.EpgId == existingRecordingWithMinStartDate.EpgId &&
-                            ((recording.EpgStartDate < existingRecordingWithMinStartDate.EpgStartDate && recording.EpgEndDate > DateTime.UtcNow)
-                                || 
-                                recordingsEpgMap.Count == 1
-                            )
-                            )
+                            ((recording.EpgStartDate < existingRecordingWithMinStartDate.EpgStartDate && recording.EpgEndDate > DateTime.UtcNow) || recordingsEpgMap.Count == 1))
                         {
                             // until proven otherwise - the recording is invalid
                             bool shouldRetry = true;
@@ -684,6 +690,11 @@ namespace Recordings
                         }
                     }
                 }
+            }
+
+            if (shouldUpdateDomainsQuota && status.Code == (int)eResponseStatus.OK)
+            {
+                //TODO: update domains quota
             }
 
             return status;
