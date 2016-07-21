@@ -449,7 +449,13 @@ namespace AdapterControllers.CDVR
             }
             return recordResult;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="partnerId"></param>
+        /// <param name="recordingId">External recording ID</param>
+        /// <param name="adapterId"></param>
+        /// <returns></returns>
         public RecordResult CancelRecording(int partnerId, string recordingId, int adapterId)
         {
             RecordResult recordResult = new RecordResult();

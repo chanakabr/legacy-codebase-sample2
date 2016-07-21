@@ -5877,7 +5877,6 @@ namespace ConditionalAccess
 
             return result;
         }
-
     }
 }
 
