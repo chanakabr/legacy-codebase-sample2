@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://api.tvinci.com/" xmlns:s1="http://api.tvinci.com/AbstractTypes" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://api.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://api.tvinci.com/" xmlns:s1="http://api.tvinci.com/schemas/eAssetTypes1" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s2="http://api.tvinci.com/schemas/EPGChannelProgrammeObject1" xmlns:s3="http://api.tvinci.com/AbstractTypes" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://api.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://api.tvinci.com/">
+      <s:import namespace="http://api.tvinci.com/schemas/eAssetTypes1" />
+      <s:import namespace="http://api.tvinci.com/schemas/EPGChannelProgrammeObject1" />
       <s:element name="MessageRecovery">
         <s:complexType>
           <s:sequence>
@@ -485,6 +487,327 @@
           <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
         </s:sequence>
       </s:complexType>
+      <s:element name="GetGroupIdByUsernamePassword">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetGroupIdByUsernamePasswordResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetGroupIdByUsernamePasswordResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="InitializeFreeItemsUpdate">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="InitializeFreeItemsUpdateResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="InitializeFreeItemsUpdateResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateFreeFileTypeOfModule">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="groupID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="moduleID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateFreeFileTypeOfModuleResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateFreeFileTypeOfModuleResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTimeShiftedTvPartnerSettings">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTimeShiftedTvPartnerSettingsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetTimeShiftedTvPartnerSettingsResult" type="tns:TimeShiftedTvPartnerSettingsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="TimeShiftedTvPartnerSettingsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="Settings" type="tns:TimeShiftedTvPartnerSettings" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="TimeShiftedTvPartnerSettings">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="IsCatchUpEnabled" nillable="true" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsCdvrEnabled" nillable="true" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsStartOverEnabled" nillable="true" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsTrickPlayEnabled" nillable="true" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsRecordingScheduleWindowEnabled" nillable="true" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="CatchUpBufferLength" nillable="true" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="TrickPlayBufferLength" nillable="true" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="RecordingScheduleWindow" nillable="true" type="s:long" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateTimeShiftedTvPartnerSettings">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="settings" type="tns:TimeShiftedTvPartnerSettings" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateTimeShiftedTvPartnerSettingsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpdateTimeShiftedTvPartnerSettingsResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateTimeShiftedTvEpgChannelsSettings">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="settings" type="tns:TimeShiftedTvPartnerSettings" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateTimeShiftedTvEpgChannelsSettingsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpdateTimeShiftedTvEpgChannelsSettingsResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetCDNAdapters">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetCDNAdaptersResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetCDNAdaptersResult" type="tns:CDNAdapterListResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="CDNAdapterListResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="Adapters" type="tns:ArrayOfCDNAdapter" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfCDNAdapter">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="CDNAdapter" nillable="true" type="tns:CDNAdapter" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="CDNAdapter">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="ID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsActive" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="AdapterUrl" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="BaseUrl" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="SystemName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="SharedSecret" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Settings" type="tns:ArrayOfCDNAdapterSettings" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfCDNAdapterSettings">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="CDNAdapterSettings" nillable="true" type="tns:CDNAdapterSettings" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="CDNAdapterSettings">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DeleteCDNAdapter">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="adapterId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteCDNAdapterResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteCDNAdapterResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="InsertCDNAdapter">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="adapter" type="tns:CDNAdapter" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="InsertCDNAdapterResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="InsertCDNAdapterResult" type="tns:CDNAdapterResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="CDNAdapterResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="Adapter" type="tns:CDNAdapter" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GenerateCDNSharedSecret">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="adapterId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GenerateCDNSharedSecretResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GenerateCDNSharedSecretResult" type="tns:CDNAdapterResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetCDNAdapter">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="adapter" type="tns:CDNAdapter" />
+            <s:element minOccurs="1" maxOccurs="1" name="adapterID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetCDNAdapterResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SetCDNAdapterResult" type="tns:CDNAdapterResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SendCDNAdapterConfiguration">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="adapterID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SendCDNAdapterConfigurationResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SendCDNAdapterConfigurationResult" type="tns:CDNAdapterResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetCDNPartnerSettings">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetCDNPartnerSettingsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetCDNPartnerSettingsResult" type="tns:CDNPartnerSettingsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="CDNPartnerSettingsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="CDNPartnerSettings" type="tns:CDNPartnerSettings" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="CDNPartnerSettings">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="DefaultAdapter" nillable="true" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="DefaultRecordingAdapter" nillable="true" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateCDNPartnerSettings">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="settings" type="tns:CDNPartnerSettings" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateCDNPartnerSettingsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpdateCDNPartnerSettingsResult" type="tns:CDNPartnerSettingsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetCDNAdapter">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="adapterId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetCDNAdapterResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetCDNAdapterResult" type="tns:CDNAdapterResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetGroupDefaultCDNAdapter">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="assetType" type="s1:eAssetTypes" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetGroupDefaultCDNAdapterResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetGroupDefaultCDNAdapterResult" type="tns:CDNAdapterResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="TVAPI_GetTvinciGUID">
         <s:complexType>
           <s:sequence>
@@ -1834,17 +2157,6 @@
           <s:enumeration value="AddDeviceToDomain" />
         </s:restriction>
       </s:simpleType>
-      <s:complexType name="SendPasswordMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="ForgotPasswordMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
@@ -1865,14 +2177,23 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="CinepolisPurchaseMailRequest">
+      <s:complexType name="CinepolisRenewalFailMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="SendPasswordMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -1925,28 +2246,6 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="CinepolisRenewalFailMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="AddUserMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewFirstName" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="SendAdminTokenRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
@@ -1954,6 +2253,17 @@
               <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sIP" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sDuration" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ChangedPinMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGuid" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sRuleName" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -2000,13 +2310,26 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="ChangedPinMailRequest">
+      <s:complexType name="AddUserMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGuid" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sRuleName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewFirstName" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="CinepolisPurchaseMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -2563,7 +2886,7 @@
       </s:element>
       <s:complexType name="RecordedEPGChannelProgrammeObject">
         <s:complexContent mixed="false">
-          <s:extension base="tns:EPGChannelProgrammeObject">
+          <s:extension base="s2:EPGChannelProgrammeObject">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="RecordingID" type="s:string" />
               <s:element minOccurs="1" maxOccurs="1" name="IsAssetProtected" type="s:boolean" />
@@ -2572,56 +2895,6 @@
             </s:sequence>
           </s:extension>
         </s:complexContent>
-      </s:complexType>
-      <s:complexType name="EPGChannelProgrammeObject">
-        <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="EPG_ID" type="s:long" />
-          <s:element minOccurs="0" maxOccurs="1" name="EPG_CHANNEL_ID" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="EPG_IDENTIFIER" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="NAME" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="DESCRIPTION" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="START_DATE" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="END_DATE" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="PIC_URL" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="PIC_ID" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="STATUS" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="IS_ACTIVE" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="GROUP_ID" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="UPDATER_ID" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="UPDATE_DATE" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="PUBLISH_DATE" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="CREATE_DATE" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="LIKE_COUNTER" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="EPG_TAGS" type="tns:ArrayOfEPGDictionary" />
-          <s:element minOccurs="0" maxOccurs="1" name="EPG_Meta" type="tns:ArrayOfEPGDictionary" />
-          <s:element minOccurs="0" maxOccurs="1" name="EPG_PICTURES" type="tns:ArrayOfEpgPicture" />
-          <s:element minOccurs="0" maxOccurs="1" name="media_id" type="s:string" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="ArrayOfEPGDictionary">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="EPGDictionary" type="tns:EPGDictionary" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="EPGDictionary">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="Key" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="Value" type="s:string" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="ArrayOfEpgPicture">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="EpgPicture" nillable="true" type="tns:EpgPicture" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="EpgPicture">
-        <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="PicWidth" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="PicHeight" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="Ratio" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="PicID" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="Url" type="s:string" />
-        </s:sequence>
       </s:complexType>
       <s:element name="GetNpvrRulesResponse">
         <s:complexType>
@@ -2716,6 +2989,65 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="EPGChannelProgrammeObject">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ExtensionData" type="tns:ExtensionDataObject" />
+          <s:element minOccurs="1" maxOccurs="1" name="CHANNEL_CATCH_UP_BUFFER" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="CREATE_DATE" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="DESCRIPTION" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_CATCH_UP" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_CDVR" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_START_OVER" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_TRICK_PLAY" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="END_DATE" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_CHANNEL_ID" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="EPG_ID" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_IDENTIFIER" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_Meta" type="tns:ArrayOfEPGDictionary" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_PICTURES" type="tns:ArrayOfEpgPicture" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_TAGS" type="tns:ArrayOfEPGDictionary" />
+          <s:element minOccurs="0" maxOccurs="1" name="GROUP_ID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="IS_ACTIVE" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="IS_RECORDED" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="LIKE_COUNTER" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="NAME" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="PIC_ID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="PIC_URL" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="PUBLISH_DATE" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="START_DATE" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="STATUS" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="UPDATER_ID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="UPDATE_DATE" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="media_id" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfEPGDictionary">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="EPGDictionary" type="tns:EPGDictionary" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="EPGDictionary">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ExtensionData" type="tns:ExtensionDataObject" />
+          <s:element minOccurs="0" maxOccurs="1" name="Key" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Value" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfEpgPicture">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="EpgPicture" nillable="true" type="tns:EpgPicture" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="EpgPicture">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ExtensionData" type="tns:ExtensionDataObject" />
+          <s:element minOccurs="1" maxOccurs="1" name="PicHeight" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="PicID" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="PicWidth" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Ratio" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Url" type="s:string" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="GetMediaConcurrencyRules">
         <s:complexType>
           <s:sequence>
@@ -2956,6 +3288,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
             <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="ruleId" nillable="true" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -2981,6 +3314,7 @@
             <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
             <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="pin" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="ruleId" nillable="true" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -3084,6 +3418,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="pin" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="ruleId" nillable="true" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -4082,6 +4417,10 @@
       <s:element name="OSSAdapterEntitlementsResponse" nillable="true" type="tns:OSSAdapterEntitlementsResponse" />
       <s:element name="RegistryResponse" nillable="true" type="tns:RegistryResponse" />
       <s:element name="int" type="s:int" />
+      <s:element name="TimeShiftedTvPartnerSettingsResponse" nillable="true" type="tns:TimeShiftedTvPartnerSettingsResponse" />
+      <s:element name="CDNAdapterListResponse" nillable="true" type="tns:CDNAdapterListResponse" />
+      <s:element name="CDNAdapterResponse" nillable="true" type="tns:CDNAdapterResponse" />
+      <s:element name="CDNPartnerSettingsResponse" nillable="true" type="tns:CDNPartnerSettingsResponse" />
       <s:element name="ArrayOfEPGChannelObject" nillable="true" type="tns:ArrayOfEPGChannelObject" />
       <s:element name="AdminAccountUserResponse" nillable="true" type="tns:AdminAccountUserResponse" />
       <s:element name="string" nillable="true" type="s:string" />
@@ -4101,7 +4440,6 @@
       <s:element name="ArrayOfMediaConcurrencyRule" nillable="true" type="tns:ArrayOfMediaConcurrencyRule" />
       <s:element name="ArrayOfLanguageObj" nillable="true" type="tns:ArrayOfLanguageObj" />
       <s:element name="ParentalRulesResponse" nillable="true" type="tns:ParentalRulesResponse" />
-      <s:element name="PinResponse" nillable="true" type="tns:PinResponse" />
       <s:element name="PurchaseSettingsResponse" nillable="true" type="tns:PurchaseSettingsResponse" />
       <s:element name="GenericRuleResponse" nillable="true" type="tns:GenericRuleResponse" />
       <s:element name="ParentalRulesTagsResponse" nillable="true" type="tns:ParentalRulesTagsResponse" />
@@ -4114,6 +4452,74 @@
       <s:element name="RecommendationEngineSettinsResponse" nillable="true" type="tns:RecommendationEngineSettinsResponse" />
       <s:element name="RecommendationEngineResponse" nillable="true" type="tns:RecommendationEngineResponse" />
       <s:element name="ExternalChannelResponseList" nillable="true" type="tns:ExternalChannelResponseList" />
+    </s:schema>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://api.tvinci.com/schemas/eAssetTypes1">
+      <s:simpleType name="eAssetTypes">
+        <s:restriction base="s:string">
+          <s:enumeration value="UNKNOWN" />
+          <s:enumeration value="EPG" />
+          <s:enumeration value="NPVR" />
+          <s:enumeration value="MEDIA" />
+        </s:restriction>
+      </s:simpleType>
+    </s:schema>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://api.tvinci.com/schemas/EPGChannelProgrammeObject1">
+      <s:complexType name="EPGChannelProgrammeObject">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="EPG_ID" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_CHANNEL_ID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_IDENTIFIER" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="NAME" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="DESCRIPTION" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="START_DATE" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="END_DATE" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="PIC_URL" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="PIC_ID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="STATUS" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="IS_ACTIVE" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="GROUP_ID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="UPDATER_ID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="UPDATE_DATE" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="PUBLISH_DATE" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="CREATE_DATE" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="LIKE_COUNTER" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_TAGS" type="s2:ArrayOfEPGDictionary" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_Meta" type="s2:ArrayOfEPGDictionary" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_PICTURES" type="s2:ArrayOfEpgPicture" />
+          <s:element minOccurs="0" maxOccurs="1" name="media_id" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_CDVR" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_CATCH_UP" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="CHANNEL_CATCH_UP_BUFFER" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_START_OVER" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_TRICK_PLAY" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="IS_RECORDED" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfEPGDictionary">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="EPGDictionary" type="s2:EPGDictionary" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="EPGDictionary">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Key" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Value" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfEpgPicture">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="EpgPicture" nillable="true" type="s2:EpgPicture" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="EpgPicture">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="PicWidth" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="PicHeight" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Ratio" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="PicID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Url" type="s:string" />
+        </s:sequence>
+      </s:complexType>
     </s:schema>
     <s:schema targetNamespace="http://api.tvinci.com/AbstractTypes">
       <s:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
@@ -4217,6 +4623,102 @@
   </wsdl:message>
   <wsdl:message name="GetAllRegistrySoapOut">
     <wsdl:part name="parameters" element="tns:GetAllRegistryResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupIdByUsernamePasswordSoapIn">
+    <wsdl:part name="parameters" element="tns:GetGroupIdByUsernamePassword" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupIdByUsernamePasswordSoapOut">
+    <wsdl:part name="parameters" element="tns:GetGroupIdByUsernamePasswordResponse" />
+  </wsdl:message>
+  <wsdl:message name="InitializeFreeItemsUpdateSoapIn">
+    <wsdl:part name="parameters" element="tns:InitializeFreeItemsUpdate" />
+  </wsdl:message>
+  <wsdl:message name="InitializeFreeItemsUpdateSoapOut">
+    <wsdl:part name="parameters" element="tns:InitializeFreeItemsUpdateResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateFreeFileTypeOfModuleSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateFreeFileTypeOfModule" />
+  </wsdl:message>
+  <wsdl:message name="UpdateFreeFileTypeOfModuleSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateFreeFileTypeOfModuleResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetTimeShiftedTvPartnerSettingsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetTimeShiftedTvPartnerSettings" />
+  </wsdl:message>
+  <wsdl:message name="GetTimeShiftedTvPartnerSettingsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetTimeShiftedTvPartnerSettingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateTimeShiftedTvPartnerSettingsSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateTimeShiftedTvPartnerSettings" />
+  </wsdl:message>
+  <wsdl:message name="UpdateTimeShiftedTvPartnerSettingsSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateTimeShiftedTvPartnerSettingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateTimeShiftedTvEpgChannelsSettingsSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateTimeShiftedTvEpgChannelsSettings" />
+  </wsdl:message>
+  <wsdl:message name="UpdateTimeShiftedTvEpgChannelsSettingsSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateTimeShiftedTvEpgChannelsSettingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetCDNAdaptersSoapIn">
+    <wsdl:part name="parameters" element="tns:GetCDNAdapters" />
+  </wsdl:message>
+  <wsdl:message name="GetCDNAdaptersSoapOut">
+    <wsdl:part name="parameters" element="tns:GetCDNAdaptersResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteCDNAdapterSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteCDNAdapter" />
+  </wsdl:message>
+  <wsdl:message name="DeleteCDNAdapterSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteCDNAdapterResponse" />
+  </wsdl:message>
+  <wsdl:message name="InsertCDNAdapterSoapIn">
+    <wsdl:part name="parameters" element="tns:InsertCDNAdapter" />
+  </wsdl:message>
+  <wsdl:message name="InsertCDNAdapterSoapOut">
+    <wsdl:part name="parameters" element="tns:InsertCDNAdapterResponse" />
+  </wsdl:message>
+  <wsdl:message name="GenerateCDNSharedSecretSoapIn">
+    <wsdl:part name="parameters" element="tns:GenerateCDNSharedSecret" />
+  </wsdl:message>
+  <wsdl:message name="GenerateCDNSharedSecretSoapOut">
+    <wsdl:part name="parameters" element="tns:GenerateCDNSharedSecretResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetCDNAdapterSoapIn">
+    <wsdl:part name="parameters" element="tns:SetCDNAdapter" />
+  </wsdl:message>
+  <wsdl:message name="SetCDNAdapterSoapOut">
+    <wsdl:part name="parameters" element="tns:SetCDNAdapterResponse" />
+  </wsdl:message>
+  <wsdl:message name="SendCDNAdapterConfigurationSoapIn">
+    <wsdl:part name="parameters" element="tns:SendCDNAdapterConfiguration" />
+  </wsdl:message>
+  <wsdl:message name="SendCDNAdapterConfigurationSoapOut">
+    <wsdl:part name="parameters" element="tns:SendCDNAdapterConfigurationResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetCDNPartnerSettingsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetCDNPartnerSettings" />
+  </wsdl:message>
+  <wsdl:message name="GetCDNPartnerSettingsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetCDNPartnerSettingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateCDNPartnerSettingsSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateCDNPartnerSettings" />
+  </wsdl:message>
+  <wsdl:message name="UpdateCDNPartnerSettingsSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateCDNPartnerSettingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetCDNAdapterSoapIn">
+    <wsdl:part name="parameters" element="tns:GetCDNAdapter" />
+  </wsdl:message>
+  <wsdl:message name="GetCDNAdapterSoapOut">
+    <wsdl:part name="parameters" element="tns:GetCDNAdapterResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupDefaultCDNAdapterSoapIn">
+    <wsdl:part name="parameters" element="tns:GetGroupDefaultCDNAdapter" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupDefaultCDNAdapterSoapOut">
+    <wsdl:part name="parameters" element="tns:GetGroupDefaultCDNAdapterResponse" />
   </wsdl:message>
   <wsdl:message name="TVAPI_GetTvinciGUIDSoapIn">
     <wsdl:part name="parameters" element="tns:TVAPI_GetTvinciGUID" />
@@ -5065,6 +5567,88 @@
   <wsdl:message name="GetAllRegistryHttpPostOut">
     <wsdl:part name="Body" element="tns:RegistryResponse" />
   </wsdl:message>
+  <wsdl:message name="GetGroupIdByUsernamePasswordHttpPostIn">
+    <wsdl:part name="username" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupIdByUsernamePasswordHttpPostOut">
+    <wsdl:part name="Body" element="tns:int" />
+  </wsdl:message>
+  <wsdl:message name="InitializeFreeItemsUpdateHttpPostIn">
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="InitializeFreeItemsUpdateHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="UpdateFreeFileTypeOfModuleHttpPostIn">
+    <wsdl:part name="groupID" type="s:string" />
+    <wsdl:part name="moduleID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="UpdateFreeFileTypeOfModuleHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetTimeShiftedTvPartnerSettingsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetTimeShiftedTvPartnerSettingsHttpPostOut">
+    <wsdl:part name="Body" element="tns:TimeShiftedTvPartnerSettingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetCDNAdaptersHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetCDNAdaptersHttpPostOut">
+    <wsdl:part name="Body" element="tns:CDNAdapterListResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteCDNAdapterHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="adapterId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DeleteCDNAdapterHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="GenerateCDNSharedSecretHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="adapterId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GenerateCDNSharedSecretHttpPostOut">
+    <wsdl:part name="Body" element="tns:CDNAdapterResponse" />
+  </wsdl:message>
+  <wsdl:message name="SendCDNAdapterConfigurationHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="adapterID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SendCDNAdapterConfigurationHttpPostOut">
+    <wsdl:part name="Body" element="tns:CDNAdapterResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetCDNPartnerSettingsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetCDNPartnerSettingsHttpPostOut">
+    <wsdl:part name="Body" element="tns:CDNPartnerSettingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetCDNAdapterHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="adapterId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetCDNAdapterHttpPostOut">
+    <wsdl:part name="Body" element="tns:CDNAdapterResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupDefaultCDNAdapterHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="assetType" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupDefaultCDNAdapterHttpPostOut">
+    <wsdl:part name="Body" element="tns:CDNAdapterResponse" />
+  </wsdl:message>
   <wsdl:message name="InsertEPGScheduleHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -5129,8 +5713,8 @@
   <wsdl:message name="GetChannelsMediaIDsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nChannels" type="s1:StringArray" />
-    <wsdl:part name="nFileTypeIDs" type="s1:StringArray" />
+    <wsdl:part name="nChannels" type="s3:StringArray" />
+    <wsdl:part name="nFileTypeIDs" type="s3:StringArray" />
     <wsdl:part name="bWithCache" type="s:string" />
     <wsdl:part name="sDevice" type="s:string" />
   </wsdl:message>
@@ -5140,8 +5724,8 @@
   <wsdl:message name="GetChannelsAssetsIDsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nChannels" type="s1:StringArray" />
-    <wsdl:part name="nFileTypeIDs" type="s1:StringArray" />
+    <wsdl:part name="nChannels" type="s3:StringArray" />
+    <wsdl:part name="nFileTypeIDs" type="s3:StringArray" />
     <wsdl:part name="bWithCache" type="s:string" />
     <wsdl:part name="sDevice" type="s:string" />
     <wsdl:part name="activeAssets" type="s:string" />
@@ -5169,7 +5753,7 @@
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="nChannelID" type="s:string" />
-    <wsdl:part name="nFileTypeIDs" type="s1:StringArray" />
+    <wsdl:part name="nFileTypeIDs" type="s3:StringArray" />
     <wsdl:part name="bWithCache" type="s:string" />
     <wsdl:part name="sDevice" type="s:string" />
   </wsdl:message>
@@ -5179,8 +5763,8 @@
   <wsdl:message name="DoesMediaBelongToChannelsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nChannels" type="s1:StringArray" />
-    <wsdl:part name="nFileTypeIDs" type="s1:StringArray" />
+    <wsdl:part name="nChannels" type="s3:StringArray" />
+    <wsdl:part name="nFileTypeIDs" type="s3:StringArray" />
     <wsdl:part name="nMediaID" type="s:string" />
     <wsdl:part name="bWithCache" type="s:string" />
     <wsdl:part name="sDevice" type="s:string" />
@@ -5200,7 +5784,7 @@
   <wsdl:message name="MapMediaFilesHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nMediaFileIDs" type="s1:StringArray" />
+    <wsdl:part name="nMediaFileIDs" type="s3:StringArray" />
   </wsdl:message>
   <wsdl:message name="MapMediaFilesHttpPostOut">
     <wsdl:part name="Body" element="tns:ArrayOfMeidaMaper" />
@@ -5417,7 +6001,7 @@
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="nSubscriptionCode" type="s:string" />
-    <wsdl:part name="nFileTypeIDs" type="s1:StringArray" />
+    <wsdl:part name="nFileTypeIDs" type="s3:StringArray" />
     <wsdl:part name="nMediaID" type="s:string" />
     <wsdl:part name="sDevice" type="s:string" />
   </wsdl:message>
@@ -5428,7 +6012,7 @@
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="nCollectionCode" type="s:string" />
-    <wsdl:part name="nFileTypeIDs" type="s1:StringArray" />
+    <wsdl:part name="nFileTypeIDs" type="s3:StringArray" />
     <wsdl:part name="nMediaID" type="s:string" />
     <wsdl:part name="sDevice" type="s:string" />
   </wsdl:message>
@@ -5462,7 +6046,7 @@
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="nSubscriptionCode" type="s:string" />
-    <wsdl:part name="nFileTypeIDs" type="s1:StringArray" />
+    <wsdl:part name="nFileTypeIDs" type="s3:StringArray" />
     <wsdl:part name="sDevice" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetSubscriptionMediaIdsHttpPostOut">
@@ -5472,7 +6056,7 @@
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="nCollectionCode" type="s:string" />
-    <wsdl:part name="nFileTypeIDs" type="s1:StringArray" />
+    <wsdl:part name="nFileTypeIDs" type="s3:StringArray" />
     <wsdl:part name="sDevice" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetCollectionMediaIdsHttpPostOut">
@@ -5557,25 +6141,6 @@
   <wsdl:message name="SetDomainParentalRulesHttpPostOut">
     <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
-  <wsdl:message name="GetParentalPINHttpPostIn">
-    <wsdl:part name="userName" type="s:string" />
-    <wsdl:part name="password" type="s:string" />
-    <wsdl:part name="domainId" type="s:string" />
-    <wsdl:part name="siteGuid" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetParentalPINHttpPostOut">
-    <wsdl:part name="Body" element="tns:PinResponse" />
-  </wsdl:message>
-  <wsdl:message name="SetParentalPINHttpPostIn">
-    <wsdl:part name="userName" type="s:string" />
-    <wsdl:part name="password" type="s:string" />
-    <wsdl:part name="domainId" type="s:string" />
-    <wsdl:part name="siteGuid" type="s:string" />
-    <wsdl:part name="pin" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="SetParentalPINHttpPostOut">
-    <wsdl:part name="Body" element="tns:Status" />
-  </wsdl:message>
   <wsdl:message name="GetPurchaseSettingsHttpPostIn">
     <wsdl:part name="userName" type="s:string" />
     <wsdl:part name="password" type="s:string" />
@@ -5612,16 +6177,6 @@
     <wsdl:part name="pin" type="s:string" />
   </wsdl:message>
   <wsdl:message name="SetPurchasePINHttpPostOut">
-    <wsdl:part name="Body" element="tns:Status" />
-  </wsdl:message>
-  <wsdl:message name="ValidateParentalPINHttpPostIn">
-    <wsdl:part name="userName" type="s:string" />
-    <wsdl:part name="password" type="s:string" />
-    <wsdl:part name="siteGuid" type="s:string" />
-    <wsdl:part name="pin" type="s:string" />
-    <wsdl:part name="domainId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="ValidateParentalPINHttpPostOut">
     <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:message name="ValidatePurchasePINHttpPostIn">
@@ -5769,7 +6324,7 @@
   <wsdl:message name="UpdateCacheHttpPostIn">
     <wsdl:part name="groupId" type="s:string" />
     <wsdl:part name="bucket" type="s:string" />
-    <wsdl:part name="keys" type="s1:StringArray" />
+    <wsdl:part name="keys" type="s3:StringArray" />
   </wsdl:message>
   <wsdl:message name="UpdateCacheHttpPostOut">
     <wsdl:part name="Body" element="tns:boolean" />
@@ -5919,6 +6474,70 @@
     <wsdl:operation name="GetAllRegistry">
       <wsdl:input message="tns:GetAllRegistrySoapIn" />
       <wsdl:output message="tns:GetAllRegistrySoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupIdByUsernamePassword">
+      <wsdl:input message="tns:GetGroupIdByUsernamePasswordSoapIn" />
+      <wsdl:output message="tns:GetGroupIdByUsernamePasswordSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="InitializeFreeItemsUpdate">
+      <wsdl:input message="tns:InitializeFreeItemsUpdateSoapIn" />
+      <wsdl:output message="tns:InitializeFreeItemsUpdateSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateFreeFileTypeOfModule">
+      <wsdl:input message="tns:UpdateFreeFileTypeOfModuleSoapIn" />
+      <wsdl:output message="tns:UpdateFreeFileTypeOfModuleSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTimeShiftedTvPartnerSettings">
+      <wsdl:input message="tns:GetTimeShiftedTvPartnerSettingsSoapIn" />
+      <wsdl:output message="tns:GetTimeShiftedTvPartnerSettingsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTimeShiftedTvPartnerSettings">
+      <wsdl:input message="tns:UpdateTimeShiftedTvPartnerSettingsSoapIn" />
+      <wsdl:output message="tns:UpdateTimeShiftedTvPartnerSettingsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTimeShiftedTvEpgChannelsSettings">
+      <wsdl:input message="tns:UpdateTimeShiftedTvEpgChannelsSettingsSoapIn" />
+      <wsdl:output message="tns:UpdateTimeShiftedTvEpgChannelsSettingsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCDNAdapters">
+      <wsdl:input message="tns:GetCDNAdaptersSoapIn" />
+      <wsdl:output message="tns:GetCDNAdaptersSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteCDNAdapter">
+      <wsdl:input message="tns:DeleteCDNAdapterSoapIn" />
+      <wsdl:output message="tns:DeleteCDNAdapterSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="InsertCDNAdapter">
+      <wsdl:input message="tns:InsertCDNAdapterSoapIn" />
+      <wsdl:output message="tns:InsertCDNAdapterSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GenerateCDNSharedSecret">
+      <wsdl:input message="tns:GenerateCDNSharedSecretSoapIn" />
+      <wsdl:output message="tns:GenerateCDNSharedSecretSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetCDNAdapter">
+      <wsdl:input message="tns:SetCDNAdapterSoapIn" />
+      <wsdl:output message="tns:SetCDNAdapterSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SendCDNAdapterConfiguration">
+      <wsdl:input message="tns:SendCDNAdapterConfigurationSoapIn" />
+      <wsdl:output message="tns:SendCDNAdapterConfigurationSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCDNPartnerSettings">
+      <wsdl:input message="tns:GetCDNPartnerSettingsSoapIn" />
+      <wsdl:output message="tns:GetCDNPartnerSettingsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateCDNPartnerSettings">
+      <wsdl:input message="tns:UpdateCDNPartnerSettingsSoapIn" />
+      <wsdl:output message="tns:UpdateCDNPartnerSettingsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCDNAdapter">
+      <wsdl:input message="tns:GetCDNAdapterSoapIn" />
+      <wsdl:output message="tns:GetCDNAdapterSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupDefaultCDNAdapter">
+      <wsdl:input message="tns:GetGroupDefaultCDNAdapterSoapIn" />
+      <wsdl:output message="tns:GetGroupDefaultCDNAdapterSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <wsdl:input message="tns:TVAPI_GetTvinciGUIDSoapIn" />
@@ -6470,6 +7089,50 @@
       <wsdl:input message="tns:GetAllRegistryHttpPostIn" />
       <wsdl:output message="tns:GetAllRegistryHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetGroupIdByUsernamePassword">
+      <wsdl:input message="tns:GetGroupIdByUsernamePasswordHttpPostIn" />
+      <wsdl:output message="tns:GetGroupIdByUsernamePasswordHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="InitializeFreeItemsUpdate">
+      <wsdl:input message="tns:InitializeFreeItemsUpdateHttpPostIn" />
+      <wsdl:output message="tns:InitializeFreeItemsUpdateHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateFreeFileTypeOfModule">
+      <wsdl:input message="tns:UpdateFreeFileTypeOfModuleHttpPostIn" />
+      <wsdl:output message="tns:UpdateFreeFileTypeOfModuleHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTimeShiftedTvPartnerSettings">
+      <wsdl:input message="tns:GetTimeShiftedTvPartnerSettingsHttpPostIn" />
+      <wsdl:output message="tns:GetTimeShiftedTvPartnerSettingsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCDNAdapters">
+      <wsdl:input message="tns:GetCDNAdaptersHttpPostIn" />
+      <wsdl:output message="tns:GetCDNAdaptersHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteCDNAdapter">
+      <wsdl:input message="tns:DeleteCDNAdapterHttpPostIn" />
+      <wsdl:output message="tns:DeleteCDNAdapterHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GenerateCDNSharedSecret">
+      <wsdl:input message="tns:GenerateCDNSharedSecretHttpPostIn" />
+      <wsdl:output message="tns:GenerateCDNSharedSecretHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SendCDNAdapterConfiguration">
+      <wsdl:input message="tns:SendCDNAdapterConfigurationHttpPostIn" />
+      <wsdl:output message="tns:SendCDNAdapterConfigurationHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCDNPartnerSettings">
+      <wsdl:input message="tns:GetCDNPartnerSettingsHttpPostIn" />
+      <wsdl:output message="tns:GetCDNPartnerSettingsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCDNAdapter">
+      <wsdl:input message="tns:GetCDNAdapterHttpPostIn" />
+      <wsdl:output message="tns:GetCDNAdapterHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupDefaultCDNAdapter">
+      <wsdl:input message="tns:GetGroupDefaultCDNAdapterHttpPostIn" />
+      <wsdl:output message="tns:GetGroupDefaultCDNAdapterHttpPostOut" />
+    </wsdl:operation>
     <wsdl:operation name="InsertEPGSchedule">
       <wsdl:input message="tns:InsertEPGScheduleHttpPostIn" />
       <wsdl:output message="tns:InsertEPGScheduleHttpPostOut" />
@@ -6682,14 +7345,6 @@
       <wsdl:input message="tns:SetDomainParentalRulesHttpPostIn" />
       <wsdl:output message="tns:SetDomainParentalRulesHttpPostOut" />
     </wsdl:operation>
-    <wsdl:operation name="GetParentalPIN">
-      <wsdl:input message="tns:GetParentalPINHttpPostIn" />
-      <wsdl:output message="tns:GetParentalPINHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="SetParentalPIN">
-      <wsdl:input message="tns:SetParentalPINHttpPostIn" />
-      <wsdl:output message="tns:SetParentalPINHttpPostOut" />
-    </wsdl:operation>
     <wsdl:operation name="GetPurchaseSettings">
       <wsdl:input message="tns:GetPurchaseSettingsHttpPostIn" />
       <wsdl:output message="tns:GetPurchaseSettingsHttpPostOut" />
@@ -6705,10 +7360,6 @@
     <wsdl:operation name="SetPurchasePIN">
       <wsdl:input message="tns:SetPurchasePINHttpPostIn" />
       <wsdl:output message="tns:SetPurchasePINHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="ValidateParentalPIN">
-      <wsdl:input message="tns:ValidateParentalPINHttpPostIn" />
-      <wsdl:output message="tns:ValidateParentalPINHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="ValidatePurchasePIN">
       <wsdl:input message="tns:ValidatePurchasePINHttpPostIn" />
@@ -6953,6 +7604,150 @@
     </wsdl:operation>
     <wsdl:operation name="GetAllRegistry">
       <soap:operation soapAction="http://api.tvinci.com/GetAllRegistry" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupIdByUsernamePassword">
+      <soap:operation soapAction="http://api.tvinci.com/GetGroupIdByUsernamePassword" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InitializeFreeItemsUpdate">
+      <soap:operation soapAction="http://api.tvinci.com/InitializeFreeItemsUpdate" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateFreeFileTypeOfModule">
+      <soap:operation soapAction="http://api.tvinci.com/UpdateFreeFileTypeOfModule" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTimeShiftedTvPartnerSettings">
+      <soap:operation soapAction="http://api.tvinci.com/GetTimeShiftedTvPartnerSettings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTimeShiftedTvPartnerSettings">
+      <soap:operation soapAction="http://api.tvinci.com/UpdateTimeShiftedTvPartnerSettings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTimeShiftedTvEpgChannelsSettings">
+      <soap:operation soapAction="http://api.tvinci.com/UpdateTimeShiftedTvEpgChannelsSettings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCDNAdapters">
+      <soap:operation soapAction="http://api.tvinci.com/GetCDNAdapters" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteCDNAdapter">
+      <soap:operation soapAction="http://api.tvinci.com/DeleteCDNAdapter" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InsertCDNAdapter">
+      <soap:operation soapAction="http://api.tvinci.com/InsertCDNAdapter" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GenerateCDNSharedSecret">
+      <soap:operation soapAction="http://api.tvinci.com/GenerateCDNSharedSecret" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetCDNAdapter">
+      <soap:operation soapAction="http://api.tvinci.com/SetCDNAdapter" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendCDNAdapterConfiguration">
+      <soap:operation soapAction="http://api.tvinci.com/SendCDNAdapterConfiguration" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCDNPartnerSettings">
+      <soap:operation soapAction="http://api.tvinci.com/GetCDNPartnerSettings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateCDNPartnerSettings">
+      <soap:operation soapAction="http://api.tvinci.com/UpdateCDNPartnerSettings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCDNAdapter">
+      <soap:operation soapAction="http://api.tvinci.com/GetCDNAdapter" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupDefaultCDNAdapter">
+      <soap:operation soapAction="http://api.tvinci.com/GetGroupDefaultCDNAdapter" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -8250,6 +9045,150 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetGroupIdByUsernamePassword">
+      <soap12:operation soapAction="http://api.tvinci.com/GetGroupIdByUsernamePassword" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InitializeFreeItemsUpdate">
+      <soap12:operation soapAction="http://api.tvinci.com/InitializeFreeItemsUpdate" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateFreeFileTypeOfModule">
+      <soap12:operation soapAction="http://api.tvinci.com/UpdateFreeFileTypeOfModule" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTimeShiftedTvPartnerSettings">
+      <soap12:operation soapAction="http://api.tvinci.com/GetTimeShiftedTvPartnerSettings" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTimeShiftedTvPartnerSettings">
+      <soap12:operation soapAction="http://api.tvinci.com/UpdateTimeShiftedTvPartnerSettings" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTimeShiftedTvEpgChannelsSettings">
+      <soap12:operation soapAction="http://api.tvinci.com/UpdateTimeShiftedTvEpgChannelsSettings" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCDNAdapters">
+      <soap12:operation soapAction="http://api.tvinci.com/GetCDNAdapters" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteCDNAdapter">
+      <soap12:operation soapAction="http://api.tvinci.com/DeleteCDNAdapter" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InsertCDNAdapter">
+      <soap12:operation soapAction="http://api.tvinci.com/InsertCDNAdapter" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GenerateCDNSharedSecret">
+      <soap12:operation soapAction="http://api.tvinci.com/GenerateCDNSharedSecret" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetCDNAdapter">
+      <soap12:operation soapAction="http://api.tvinci.com/SetCDNAdapter" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendCDNAdapterConfiguration">
+      <soap12:operation soapAction="http://api.tvinci.com/SendCDNAdapterConfiguration" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCDNPartnerSettings">
+      <soap12:operation soapAction="http://api.tvinci.com/GetCDNPartnerSettings" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateCDNPartnerSettings">
+      <soap12:operation soapAction="http://api.tvinci.com/UpdateCDNPartnerSettings" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCDNAdapter">
+      <soap12:operation soapAction="http://api.tvinci.com/GetCDNAdapter" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupDefaultCDNAdapter">
+      <soap12:operation soapAction="http://api.tvinci.com/GetGroupDefaultCDNAdapter" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <soap12:operation soapAction="http://api.tvinci.com/TVAPI_GetTvinciGUID" style="document" />
       <wsdl:input>
@@ -9486,6 +10425,105 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetGroupIdByUsernamePassword">
+      <http:operation location="/GetGroupIdByUsernamePassword" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InitializeFreeItemsUpdate">
+      <http:operation location="/InitializeFreeItemsUpdate" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateFreeFileTypeOfModule">
+      <http:operation location="/UpdateFreeFileTypeOfModule" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTimeShiftedTvPartnerSettings">
+      <http:operation location="/GetTimeShiftedTvPartnerSettings" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCDNAdapters">
+      <http:operation location="/GetCDNAdapters" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteCDNAdapter">
+      <http:operation location="/DeleteCDNAdapter" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GenerateCDNSharedSecret">
+      <http:operation location="/GenerateCDNSharedSecret" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendCDNAdapterConfiguration">
+      <http:operation location="/SendCDNAdapterConfiguration" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCDNPartnerSettings">
+      <http:operation location="/GetCDNPartnerSettings" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCDNAdapter">
+      <http:operation location="/GetCDNAdapter" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupDefaultCDNAdapter">
+      <http:operation location="/GetGroupDefaultCDNAdapter" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="InsertEPGSchedule">
       <http:operation location="/InsertEPGSchedule" />
       <wsdl:input>
@@ -9963,24 +11001,6 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetParentalPIN">
-      <http:operation location="/GetParentalPIN" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="SetParentalPIN">
-      <http:operation location="/SetParentalPIN" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
     <wsdl:operation name="GetPurchaseSettings">
       <http:operation location="/GetPurchaseSettings" />
       <wsdl:input>
@@ -10010,15 +11030,6 @@
     </wsdl:operation>
     <wsdl:operation name="SetPurchasePIN">
       <http:operation location="/SetPurchasePIN" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="ValidateParentalPIN">
-      <http:operation location="/ValidateParentalPIN" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -10281,13 +11292,13 @@
   </wsdl:binding>
   <wsdl:service name="API">
     <wsdl:port name="APISoap" binding="tns:APISoap">
-      <soap:address location="http://localhost/ws_api/api.asmx" />
+      <soap:address location="http://localhost:98/ws_api/api.asmx" />
     </wsdl:port>
     <wsdl:port name="APISoap12" binding="tns:APISoap12">
-      <soap12:address location="http://localhost/ws_api/api.asmx" />
+      <soap12:address location="http://localhost:98/ws_api/api.asmx" />
     </wsdl:port>
     <wsdl:port name="APIHttpPost" binding="tns:APIHttpPost">
-      <http:address location="http://localhost/ws_api/api.asmx" />
+      <http:address location="http://localhost:98/ws_api/api.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
