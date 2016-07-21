@@ -190,6 +190,10 @@
       <Project>{1aae1b8a-483d-423a-97b8-1430098cef46}</Project>
       <Name>PendingTransactionHandler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\RecordingTaskHandler\RecordingTaskHandler.csproj">
+      <Project>{97b5d68d-d64b-459e-a206-7be9c99635e3}</Project>
+      <Name>RecordingTaskHandler</Name>
+    </ProjectReference>
     <ProjectReference Include="..\RemoteTasksCommon\RemoteTasksCommon.csproj">
       <Project>{680b9d3b-e9de-4d05-9280-f8e8b3128c48}</Project>
       <Name>RemoteTasksCommon</Name>
