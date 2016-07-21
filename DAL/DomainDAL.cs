@@ -657,7 +657,7 @@ namespace DAL
             bool res = false;
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("__Get_DomainDataByID");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_DomainDataByID");
                 sp.SetConnectionKey("USERS_CONNECTION_STRING");
                 sp.AddParameter("@GroupId", groupID);
                 sp.AddParameter("@Id", domainID);
