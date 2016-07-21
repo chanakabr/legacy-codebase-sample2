@@ -80,6 +80,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
     </Reference>
+    <Reference Include="KlogMonitorHelper, Version=3.4.583.16084, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\TVinciCommon\External\KlogMonitorHelper.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\TVinciCommon\External\Couchbase-Net-Client-2.2.6\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -238,10 +242,6 @@
     <ProjectReference Include="..\ElasticSearch\ElasticSearch.csproj">
       <Project>{c9718e6d-f866-4991-80cd-4bafdf4d8878}</Project>
       <Name>ElasticSearch</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\KlogMonitorHelper\KlogMonitorHelper.csproj">
-      <Project>{fa277e9a-4c82-4ff7-a6e7-60feaeb363e2}</Project>
-      <Name>KlogMonitorHelper</Name>
     </ProjectReference>
     <ProjectReference Include="..\MCGroupRules\MCGroupRules.csproj">
       <Project>{7a9c7a82-02fa-4b2e-9391-175ca212012d}</Project>

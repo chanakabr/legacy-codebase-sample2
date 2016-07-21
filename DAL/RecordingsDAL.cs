@@ -936,7 +936,7 @@ namespace DAL
                         quota = cbClient.Get<int>(domainQuotaKey, out getResult);
                         if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
                         {
-                            log.ErrorFormat("Error while trying to get domain quota, domainId: {0}, key: {1}", domainId, domainQuotaKey);
+                            log.DebugFormat("domain: {0} does not have a quota document with key: {1}", domainId, domainQuotaKey);
                             break;
                         }
                         else if (getResult == Couchbase.IO.ResponseStatus.Success)
@@ -1078,7 +1078,7 @@ namespace DAL
                 int numOfRetries = 0;
                 while (!result && numOfRetries < limitRetries)
                 {
-                    result = cbClient.Set<long>(firstFollowerLockKey, ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow), ttl, true);                    
+                    result = cbClient.Set<long>(firstFollowerLockKey, ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow), ttl);                    
                     if (!result)
                     {
                         numOfRetries++;
