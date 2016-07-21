@@ -145,7 +145,7 @@ namespace WebAPI.Clients
         }
 
         public List<KalturaHouseholdPaymentMethod> GetHouseholdPaymentMethods(int groupId, string siteGuid, long householdId)
-        {   
+        {
             WebAPI.Billing.PaymentGatewayListResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -919,25 +919,7 @@ namespace WebAPI.Billing
         protected override WebRequest GetWebRequest(Uri uri)
         {
             HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-
-            if (KLogMonitor.KLogger.AppType == KLogEnums.AppType.WCF)
-            {
-                if (request.Headers != null &&
-                request.Headers[KLogMonitor.Constants.REQUEST_ID_KEY] == null &&
-                OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
-                {
-                    request.Headers.Add(KLogMonitor.Constants.REQUEST_ID_KEY, OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY].ToString());
-                }
-            }
-            else
-            {
-                if (request.Headers != null &&
-                request.Headers[KLogMonitor.Constants.REQUEST_ID_KEY] == null &&
-                HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
-                {
-                    request.Headers.Add(KLogMonitor.Constants.REQUEST_ID_KEY, HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY].ToString());
-                }
-            }
+            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
             return request;
         }
     }
