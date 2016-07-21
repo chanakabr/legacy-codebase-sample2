@@ -617,7 +617,7 @@ namespace TVPApiModule.Services
             return status;
         }
 
-        public TVPApiModule.Objects.Responses.PinResponse GetParentalPIN(int domainId, string siteGuid)
+        public TVPApiModule.Objects.Responses.PinResponse GetParentalPIN(int domainId, string siteGuid, int? ruleId)
         {
             TVPApiModule.Objects.Responses.PinResponse response = new Objects.Responses.PinResponse();
 
@@ -625,7 +625,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var webServiceResponse = m_Module.GetParentalPIN(m_wsUserName, m_wsPassword, domainId, siteGuid);
+                    var webServiceResponse = m_Module.GetParentalPIN(m_wsUserName, m_wsPassword, domainId, siteGuid, ruleId);
                     response = new Objects.Responses.PinResponse(webServiceResponse);
                 }
             }
@@ -638,7 +638,7 @@ namespace TVPApiModule.Services
             return response;
         }
 
-        public TVPApiModule.Objects.Responses.Status SetParentalPIN(string siteGuid, int domainID, string pin)
+        public TVPApiModule.Objects.Responses.Status SetParentalPIN(string siteGuid, int domainID, string pin, int? ruleId)
         {
             TVPApiModule.Objects.Responses.Status status = new Objects.Responses.Status();
 
@@ -646,7 +646,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var webServiceRespone = m_Module.SetParentalPIN(m_wsUserName, m_wsPassword, domainID, siteGuid, pin);
+                    var webServiceRespone = m_Module.SetParentalPIN(m_wsUserName, m_wsPassword, domainID, siteGuid, pin, ruleId);
                     status.Code = webServiceRespone.Code;
                     status.Message = webServiceRespone.Message;
                 }
@@ -746,7 +746,7 @@ namespace TVPApiModule.Services
             return status;
         }
 
-        public TVPApiModule.Objects.Responses.Status ValidateParentalPIN(int domainId, string siteGuid, string pin)
+        public TVPApiModule.Objects.Responses.Status ValidateParentalPIN(int domainId, string siteGuid, string pin, int? ruleId)
         {
             TVPApiModule.Objects.Responses.Status status = new Objects.Responses.Status();
 
@@ -754,7 +754,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var webServiceRespone = m_Module.ValidateParentalPIN(m_wsUserName, m_wsPassword, siteGuid, pin, domainId);
+                    var webServiceRespone = m_Module.ValidateParentalPIN(m_wsUserName, m_wsPassword, siteGuid, pin, domainId, ruleId);
                     status.Code = webServiceRespone.Code;
                     status.Message = webServiceRespone.Message;
                 }
