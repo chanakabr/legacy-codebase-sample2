@@ -555,25 +555,14 @@
         </member>
         <member name="M:WebAPI.Controllers.InboxMessageController.List(WebAPI.Models.Notification.KalturaInboxMessageFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
-            TBD
+            List inbox messages
             </summary>
             <remarks>
             Possible status codes:       
             message identifier required = 8019, user inbox message not exist = 8020,
-            </remarks>
+            </remarks>     
+            <param name="filter">filter</param>   
             <param name="pager">Page size and index</param>        
-            <param name="filter">filter</param>        
-        </member>
-        <member name="M:WebAPI.Controllers.InboxMessageController.ListOldStandard(WebAPI.Models.General.KalturaFilterPager,WebAPI.Models.Notification.KalturaInboxMessageFilter)">
-            <summary>
-            TBD
-            </summary>
-            <remarks>
-            Possible status codes:       
-            message identifier required = 8019, user inbox message not exist = 8020,
-            </remarks>
-            <param name="pager">Page size and index</param>        
-            <param name="filter">filter</param>        
         </member>
         <member name="M:WebAPI.Controllers.InboxMessageController.UpdateStatus(System.String,WebAPI.Models.Notification.KalturaInboxMessageStatus)">
             <summary>
@@ -836,7 +825,28 @@
             <returns>The notification settings that apply for the partner</returns>
             
         </member>
-        <member name="M:WebAPI.Controllers.NotificationsPartnerSettingsController.Update(WebAPI.Models.Notification.KalturaPartnerNotificationSettings)">
+        <member name="M:WebAPI.Controllers.NotificationsPartnerSettingsController.GetOldStandard">
+            <summary>
+            Retrieve the partner notification settings.       
+            </summary>    
+            
+            <remarks>        
+            </remarks>
+            <returns>The notification settings that apply for the partner</returns>
+            
+        </member>
+        <member name="M:WebAPI.Controllers.NotificationsPartnerSettingsController.Update(WebAPI.Models.Notification.KalturaNotificationsPartnerSettings)">
+            <summary>
+            Update the account notification settings
+            </summary>
+            <param name="settings">Account notification settings model</param>
+            <remarks>        
+            Possible status codes: 
+            Push notification false = 8001 
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.NotificationsPartnerSettingsController.UpdateOldStandard(WebAPI.Models.Notification.KalturaPartnerNotificationSettings)">
             <summary>
             Update the account notification settings
             </summary>
@@ -857,7 +867,27 @@
             <returns>The notification settings that apply</returns>
             
         </member>
-        <member name="M:WebAPI.Controllers.NotificationsSettingsController.Update(WebAPI.Models.Notification.KalturaNotificationSettings)">
+        <member name="M:WebAPI.Controllers.NotificationsSettingsController.GetOldStandard">
+            <summary>
+            Retrieve the user’s notification settings.    
+            </summary>    
+            
+            <remarks>        
+            </remarks>
+            <returns>The notification settings that apply</returns>
+            
+        </member>
+        <member name="M:WebAPI.Controllers.NotificationsSettingsController.Update(WebAPI.Models.Notification.KalturaNotificationsSettings)">
+            <summary>
+            Update the user’s notification settings.      
+            </summary>    
+            
+            <remarks>        
+            </remarks>
+            <returns>The notification settings that apply for the user</returns>
+            
+        </member>
+        <member name="M:WebAPI.Controllers.NotificationsSettingsController.UpdateOldStandard(WebAPI.Models.Notification.KalturaNotificationSettings)">
             <summary>
             Update the user’s notification settings.      
             </summary>    
@@ -1338,7 +1368,18 @@
             </remarks>
             <param name="ossAdapter">OSS adapter Object</param>
         </member>
-        <member name="M:WebAPI.Controllers.OssAdapterProfileController.Update(WebAPI.Models.API.KalturaOSSAdapterProfile)">
+        <member name="M:WebAPI.Controllers.OssAdapterProfileController.Update(System.Int32,WebAPI.Models.API.KalturaOSSAdapterProfile)">
+            <summary>
+            Update OSS adapter details
+            </summary>
+            <remarks>
+            Possible status codes:   
+            name required = 5005, oss adapter identifier required = 5007, no oss adapter to update = 5012, adapter url required = 5013, external identifier required = 6016
+            </remarks>
+            <param name="ossAdapterId">OSS adapter identifier</param>       
+            <param name="ossAdapter">OSS adapter Object</param>       
+        </member>
+        <member name="M:WebAPI.Controllers.OssAdapterProfileController.UpdateOldStandard(WebAPI.Models.API.KalturaOSSAdapterProfile)">
             <summary>
             Update OSS adapter details
             </summary>
@@ -1405,7 +1446,19 @@
             </remarks>
             <param name="recommendationEngine">recommendation engine Object</param>
         </member>
-        <member name="M:WebAPI.Controllers.RecommendationProfileController.Update(WebAPI.Models.API.KalturaRecommendationProfile)">
+        <member name="M:WebAPI.Controllers.RecommendationProfileController.Update(System.Int32,WebAPI.Models.API.KalturaRecommendationProfile)">
+            <summary>
+            Update recommendation engine details
+            </summary>
+            <remarks>
+            Possible status codes:      
+            recommendation engine not exist = 4007, recommendation engine identifier required = 4008, name required = 5005, 
+            adapter url required = 5013, external identifier required = 6016, external identifier must be unique = 6040
+            </remarks>        
+            <param name="recommendationEngineId">recommendation engine identifier</param>    
+            <param name="recommendationEngine">recommendation engine Object</param>       
+        </member>
+        <member name="M:WebAPI.Controllers.RecommendationProfileController.UpdateOldStandard(WebAPI.Models.API.KalturaRecommendationProfile)">
             <summary>
             Update recommendation engine details
             </summary>
@@ -5034,52 +5087,52 @@
             Announcements
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaNotificationSettings.PushNotificationEnabled">
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsSettings.PushNotificationEnabled">
             <summary>
             Specify if the user want to receive push notifications or not
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaNotificationSettings.PushFollowEnabled">
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsSettings.PushFollowEnabled">
             <summary>
             Specify if the user will be notified for followed content via push. (requires push_notification_enabled to be enabled)
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaPartnerNotificationSettings.PushNotificationEnabled">
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.PushNotificationEnabled">
             <summary>
             Push notification capability is enabled for the account
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaPartnerNotificationSettings.PushSystemAnnouncementsEnabled">
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.PushSystemAnnouncementsEnabled">
             <summary>
             System announcement capability is enabled for the account
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaPartnerNotificationSettings.PushStartHour">
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.PushStartHour">
             <summary>
             Window start time (UTC) for send automated push messages
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaPartnerNotificationSettings.PushEndHour">
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.PushEndHour">
             <summary>
             Window end time (UTC) for send automated push messages
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaPartnerNotificationSettings.InboxEnabled">
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.InboxEnabled">
             <summary>
             Inbox enabled
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaPartnerNotificationSettings.MessageTTLDays">
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.MessageTTLDays">
             <summary>
             Message TTL in days
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaPartnerNotificationSettings.AutomaticIssueFollowNotification">
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.AutomaticIssueFollowNotification">
             <summary>
             Automatic issue follow notification
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaPartnerNotificationSettings.TopicExpirationDurationDays">
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.TopicExpirationDurationDays">
             <summary>
             Topic expiration duration in days
             </summary>

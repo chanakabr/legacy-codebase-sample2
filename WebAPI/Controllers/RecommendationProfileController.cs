@@ -12,6 +12,7 @@ namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/recommendationProfile/action")]
     [OldStandardAction("listOldStandard", "list")]
+    [OldStandardAction("updateOldStandard", "update")]
     public class RecommendationProfileController : ApiController
     {
         /// <summary>
@@ -138,10 +139,42 @@ namespace WebAPI.Controllers
         /// recommendation engine not exist = 4007, recommendation engine identifier required = 4008, name required = 5005, 
         /// adapter url required = 5013, external identifier required = 6016, external identifier must be unique = 6040
         /// </remarks>        
-        /// <param name="recommendation_engine">recommendation engine Object</param>       
+        /// <param name="recommendationEngineId">recommendation engine identifier</param>    
+        /// <param name="recommendationEngine">recommendation engine Object</param>       
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        public KalturaRecommendationProfile Update(KalturaRecommendationProfile recommendation_engine)
+        public KalturaRecommendationProfile Update(int recommendationEngineId, KalturaRecommendationProfile recommendationEngine)
+        {
+            KalturaRecommendationProfile response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                response = ClientsManager.ApiClient().SetRecommendationEngine(groupId, recommendationEngineId, recommendationEngine);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Update recommendation engine details
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:      
+        /// recommendation engine not exist = 4007, recommendation engine identifier required = 4008, name required = 5005, 
+        /// adapter url required = 5013, external identifier required = 6016, external identifier must be unique = 6040
+        /// </remarks>        
+        /// <param name="recommendation_engine">recommendation engine Object</param>       
+        [Route("updateOldStandard"), HttpPost]
+        [ApiAuthorize]
+        [Obsolete]
+        public KalturaRecommendationProfile UpdateOldStandard(KalturaRecommendationProfile recommendation_engine)
         {
             KalturaRecommendationProfile response = null;
 

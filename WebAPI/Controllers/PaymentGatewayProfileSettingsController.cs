@@ -15,6 +15,7 @@ namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/paymentGatewayProfileSettings/action")]
     [OldStandardAction("addOldStandard", "add")]
+    [Obsolete]
     public class PaymentGatewayProfileSettingsController : ApiController
     {
         /// <summary>

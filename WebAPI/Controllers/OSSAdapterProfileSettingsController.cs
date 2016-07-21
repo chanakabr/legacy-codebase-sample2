@@ -14,6 +14,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/ossAdapterProfileSettings/action")]
+    [Obsolete]
     public class OssAdapterProfileSettingsController : ApiController
     {
         /// <summary>

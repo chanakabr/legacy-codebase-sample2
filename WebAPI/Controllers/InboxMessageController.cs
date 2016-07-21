@@ -53,14 +53,14 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// TBD
+        /// List inbox messages
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
         /// message identifier required = 8019, user inbox message not exist = 8020,
-        /// </remarks>
+        /// </remarks>     
+        /// <param name="filter">filter</param>   
         /// <param name="pager">Page size and index</param>        
-        /// <param name="filter">filter</param>        
         [Route("list"), HttpPost]
         [ApiAuthorize]
         public KalturaInboxMessageListResponse List(KalturaInboxMessageFilter filter = null, KalturaFilterPager pager = null)
@@ -90,53 +90,6 @@ namespace WebAPI.Controllers
 
                 // call client                
                 response = ClientsManager.NotificationClient().GetInboxMessageList(groupId, userId, pager.getPageSize(), pager.getPageIndex(), filter.getTypeIn(), filter.CreatedAtGreaterThanOrEqual.Value, filter.CreatedAtLessThanOrEqual.Value);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-            return response;
-        }
-
-        /// <summary>
-        /// TBD
-        /// </summary>
-        /// <remarks>
-        /// Possible status codes:       
-        /// message identifier required = 8019, user inbox message not exist = 8020,
-        /// </remarks>
-        /// <param name="pager">Page size and index</param>        
-        /// <param name="filter">filter</param>        
-        [Route("listOldStandard"), HttpPost]
-        [ApiAuthorize]
-        [Obsolete]
-        public KalturaInboxMessageResponse ListOldStandard(KalturaFilterPager pager = null, KalturaInboxMessageFilter filter = null)
-        {
-            KalturaInboxMessageResponse response = null;
-
-            try
-            {
-                int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;
-
-                if (pager == null)
-                    pager = new KalturaFilterPager();
-
-                if (filter == null)
-                    filter = new KalturaInboxMessageFilter();
-
-                if (!filter.CreatedAtGreaterThanOrEqual.HasValue)
-                {
-                    filter.CreatedAtGreaterThanOrEqual = 0;
-                }
-
-                if (!filter.CreatedAtLessThanOrEqual.HasValue)
-                {
-                    filter.CreatedAtLessThanOrEqual = 0;
-                }
-
-                // call client                
-                response = ClientsManager.NotificationClient().GetInboxMessages(groupId, userId, pager.getPageSize(), pager.getPageIndex(), filter.getTypeIn(), filter.CreatedAtGreaterThanOrEqual.Value, filter.CreatedAtLessThanOrEqual.Value);
             }
             catch (ClientException ex)
             {
