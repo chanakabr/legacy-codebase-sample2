@@ -72,7 +72,6 @@
     <Compile Include="Copy of WSExtension.cs" />
     <Compile Include="MessageBehaviourExtension.cs" />
     <Compile Include="MessageInspector.cs" />
-    <Compile Include="ReqIdHeader.cs" />
     <Compile Include="WSExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
