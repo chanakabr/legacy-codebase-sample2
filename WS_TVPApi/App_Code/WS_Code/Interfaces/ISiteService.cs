@@ -131,10 +131,10 @@ namespace TVPApiServices
         TVPApiModule.Objects.Responses.Status SetDomainParentalRules(InitializationObject initObj, long ruleId, int isActive);
 
         [OperationContract]
-        TVPApiModule.Objects.Responses.PinResponse GetParentalPIN(InitializationObject initObj, string siteGuid);
+        TVPApiModule.Objects.Responses.PinResponse GetParentalPIN(InitializationObject initObj, string siteGuid, int? ruleId);
 
         [OperationContract]
-        TVPApiModule.Objects.Responses.Status SetParentalPIN(InitializationObject initObj, string siteGuid, string pin);
+        TVPApiModule.Objects.Responses.Status SetParentalPIN(InitializationObject initObj, string siteGuid, string pin, int? ruleId);
 
         [OperationContract]
         TVPApiModule.Objects.Responses.PurchaseSettingsResponse GetPurchaseSettings(InitializationObject initObj, string siteGuid);
@@ -149,7 +149,7 @@ namespace TVPApiServices
         TVPApiModule.Objects.Responses.Status SetPurchasePIN(InitializationObject initObj, string siteGuid, string pin);
 
         [OperationContract]
-        TVPApiModule.Objects.Responses.Status ValidateParentalPIN(InitializationObject initObj, string siteGuid, string pin);
+        TVPApiModule.Objects.Responses.Status ValidateParentalPIN(InitializationObject initObj, string siteGuid, string pin, int? ruleId);
 
         [OperationContract]
         TVPApiModule.Objects.Responses.Status ValidatePurchasePIN(InitializationObject initObj, string siteGuid, string pin);

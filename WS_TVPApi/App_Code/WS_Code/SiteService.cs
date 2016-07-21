@@ -1798,7 +1798,7 @@ namespace TVPApiServices
         /// <param name="siteGuid">Optional - if we want to retrieve parental PIN of user and not of domain</param>
         /// <returns>The parental PIN of the HH/User</returns>
         [WebMethod(EnableSession = true, Description = "Gets Parental PIN")]
-        public PinResponse GetParentalPIN(InitializationObject initObj, string siteGuid)
+        public PinResponse GetParentalPIN(InitializationObject initObj, string siteGuid, int? ruleId)
         {
             PinResponse response = null;
 
@@ -1810,7 +1810,7 @@ namespace TVPApiServices
                 {
                     string siteUserGuid = !string.IsNullOrEmpty(siteGuid) ? siteGuid : initObj.SiteGuid;
 
-                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetParentalPIN(initObj.DomainID, siteUserGuid);
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).GetParentalPIN(initObj.DomainID, siteUserGuid, ruleId);
                 }
                 catch (Exception ex)
                 {
@@ -1833,7 +1833,7 @@ namespace TVPApiServices
         /// <param name="pin">The new PIN</param>
         /// <returns>Success / Fail and reason</returns>
         [WebMethod(EnableSession = true, Description = "Sets Parental PIN")]
-        public TVPApiModule.Objects.Responses.Status SetParentalPIN(InitializationObject initObj, string siteGuid, string pin)
+        public TVPApiModule.Objects.Responses.Status SetParentalPIN(InitializationObject initObj, string siteGuid, string pin, int? ruleId)
         {
             TVPApiModule.Objects.Responses.Status response = null;
 
@@ -1843,7 +1843,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).SetParentalPIN(siteGuid, initObj.DomainID, pin);
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).SetParentalPIN(siteGuid, initObj.DomainID, pin, ruleId);
                 }
                 catch (Exception ex)
                 {
@@ -2000,7 +2000,7 @@ namespace TVPApiServices
         /// <param name="pin">The given PIN</param>
         /// <returns>Success if PINs match, fail if otherwise</returns>
         [WebMethod(EnableSession = true, Description = "Validates Parental PIN")]
-        public TVPApiModule.Objects.Responses.Status ValidateParentalPIN(InitializationObject initObj, string siteGuid, string pin)
+        public TVPApiModule.Objects.Responses.Status ValidateParentalPIN(InitializationObject initObj, string siteGuid, string pin, int? ruleId)
         {
             TVPApiModule.Objects.Responses.Status response = null;
 
@@ -2012,7 +2012,7 @@ namespace TVPApiServices
                 {
                     string siteUserGuid = !string.IsNullOrEmpty(siteGuid) ? siteGuid : initObj.SiteGuid;
 
-                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).ValidateParentalPIN(initObj.DomainID, siteUserGuid, pin);
+                    response = new TVPApiModule.Services.ApiApiService(groupID, initObj.Platform).ValidateParentalPIN(initObj.DomainID, siteUserGuid, pin, ruleId);
                 }
                 catch (Exception ex)
                 {
