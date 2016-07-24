@@ -5178,9 +5178,9 @@ namespace ConditionalAccess
             return recording;
         }
 
-        internal static Dictionary<long, ExpiredRecordingScheduledTask> GetExpiredRecordingsTasks(long unixTimeStampNow)
+        internal static Dictionary<long, UpdateDomainQuotaByTypeTask> GetExpiredRecordingsTasks(long unixTimeStampNow)
         {
-            Dictionary<long, ExpiredRecordingScheduledTask> expiredRecordings = new Dictionary<long, ExpiredRecordingScheduledTask>();
+            Dictionary<long, UpdateDomainQuotaByTypeTask> expiredRecordings = new Dictionary<long, UpdateDomainQuotaByTypeTask>();
             DataTable dt = RecordingsDAL.GetExpiredRecordingsTasks(unixTimeStampNow);
             if (dt != null && dt.Rows != null)
             {
@@ -5193,7 +5193,7 @@ namespace ConditionalAccess
                         int groupId = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_ID", 0);
                         DateTime scheduledExpirationDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "scheduled_expiration_date");
                         long scheduledExpirationEpoch = ODBCWrapper.Utils.GetLongSafeVal(dr, "scheduled_expiration_epoch", 0);
-                        ExpiredRecordingScheduledTask expiredRecording = new ExpiredRecordingScheduledTask()
+                        UpdateDomainQuotaByTypeTask expiredRecording = new UpdateDomainQuotaByTypeTask()
                         {
                             Id = id,
                             RecordingId = recordingId,
@@ -5461,11 +5461,27 @@ namespace ConditionalAccess
             }
             else if (field.FieldType == FieldTypes.Meta)
             {
-                epgFieldMappings.Add(SERIES_ID, epg.EPG_Meta.Where(x => x.Key == field.Name).First().Value);
+                if (epg.EPG_Meta != null && epg.EPG_Meta.Count > 0)
+                {
+                    epgFieldMappings.Add(SERIES_ID, epg.EPG_Meta.Where(x => x.Key == field.Name).First().Value);
+                }
+                else
+                {
+                    log.ErrorFormat("alias for series_id was not found - no metas on epg. group_id = {0}", groupId);
+                    return result;
+                }
             }
-            else if (field.FieldType == FieldTypes.Tag)
+            else if (field.FieldType == FieldTypes.Tag) 
             {
-                epgFieldMappings.Add(SERIES_ID, epg.EPG_TAGS.Where(x => x.Key == field.Name).First().Value);
+                if (epg.EPG_TAGS != null && epg.EPG_TAGS.Count > 0)
+                {
+                    epgFieldMappings.Add(SERIES_ID, epg.EPG_TAGS.Where(x => x.Key == field.Name).First().Value);
+                }
+                else
+                {
+                    log.ErrorFormat("alias for series_id was not found - no tags on epg. group_id = {0}", groupId);
+                    return result;
+                }
             }
 
             field = metaTagsMappings.Where(m => m.Alias.ToLower() == SEASON_ALIAS).FirstOrDefault();
@@ -5476,11 +5492,11 @@ namespace ConditionalAccess
             }
             else if (field != null)
             {
-                if (field.FieldType == FieldTypes.Meta)
+                if (field.FieldType == FieldTypes.Meta && epg.EPG_Meta != null && epg.EPG_Meta.Count > 0)
                 {
                     epgFieldMappings.Add(SEASON_NUMBER, epg.EPG_Meta.Where(x => x.Key == field.Name).First().Value);
                 }
-                else if (field.FieldType == FieldTypes.Tag)
+                else if (field.FieldType == FieldTypes.Tag && epg.EPG_TAGS != null && epg.EPG_TAGS.Count > 0)
                 {
                     epgFieldMappings.Add(SEASON_NUMBER, epg.EPG_TAGS.Where(x => x.Key == field.Name).First().Value);
                 }
@@ -5489,11 +5505,11 @@ namespace ConditionalAccess
             field = metaTagsMappings.Where(m => m.Alias.ToLower() == EPISODE_ALIAS).FirstOrDefault();
             if (field != null)
             {
-                if (field.FieldType == FieldTypes.Meta)
+                if (field.FieldType == FieldTypes.Meta && epg.EPG_Meta != null && epg.EPG_Meta.Count > 0)
                 {
                     epgFieldMappings.Add(EPISODE_NUMBER, epg.EPG_Meta.Where(x => x.Key == field.Name).First().Value);
                 }
-                else if (field.FieldType == FieldTypes.Tag)
+                else if (field.FieldType == FieldTypes.Tag && epg.EPG_TAGS != null && epg.EPG_TAGS.Count > 0)
                 {
                     epgFieldMappings.Add(EPISODE_NUMBER, epg.EPG_TAGS.Where(x => x.Key == field.Name).First().Value);
                 }
