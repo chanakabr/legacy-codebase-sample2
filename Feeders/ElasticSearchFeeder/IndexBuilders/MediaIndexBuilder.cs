@@ -72,7 +72,7 @@ namespace ElasticSearchFeeder.IndexBuilders
                 string autocompleteIndexAnalyzer = null;
                 string autocompleteSearchAnalyzer = null;
 
-                string analyzerDefinitionName = ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code);
+                string analyzerDefinitionName = ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code, string.Empty);
 
                 if (ElasticSearchApi.AnalyzerExists(analyzerDefinitionName))
                 {
@@ -134,7 +134,7 @@ namespace ElasticSearchFeeder.IndexBuilders
                         }
                         if (lBulkObj.Count >= 50)
                         {
-                            Task<List<ESBulkRequestObj<int>>> t = Task<List<ESBulkRequestObj<int>>>.Factory.StartNew(() => m_oESApi.CreateBulkIndexRequest(lBulkObj));
+                            Task t = Task.Factory.StartNew(() =>  m_oESApi.CreateBulkRequest(lBulkObj));
                             t.Wait();
                             lBulkObj = new List<ESBulkRequestObj<int>>();
                         }
@@ -143,7 +143,7 @@ namespace ElasticSearchFeeder.IndexBuilders
 
                 if (lBulkObj.Count > 0)
                 {
-                    Task<List<ESBulkRequestObj<int>>> t = Task<List<ESBulkRequestObj<int>>>.Factory.StartNew(() => m_oESApi.CreateBulkIndexRequest(lBulkObj));
+                    Task t = Task.Factory.StartNew(() => m_oESApi.CreateBulkRequest(lBulkObj));
                     t.Wait();
                 }
             }
@@ -226,9 +226,9 @@ namespace ElasticSearchFeeder.IndexBuilders
             {
                 foreach (ApiObjects.LanguageObj language in lLanguages)
                 {
-                    string analyzer = ElasticSearchApi.GetAnalyzerDefinition(ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code));
-                    string filter = ElasticSearchApi.GetFilterDefinition(ElasticSearch.Common.Utils.GetLangCodeFilterKey(language.Code));
-                    string tokenizer = ElasticSearchApi.GetTokenizerDefinition(ElasticSearch.Common.Utils.GetLangCodeTokenizerKey(language.Code));
+                    string analyzer = ElasticSearchApi.GetAnalyzerDefinition(ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code, string.Empty));
+                    string filter = ElasticSearchApi.GetFilterDefinition(ElasticSearch.Common.Utils.GetLangCodeFilterKey(language.Code, string.Empty));
+                    string tokenizer = ElasticSearchApi.GetTokenizerDefinition(ElasticSearch.Common.Utils.GetLangCodeTokenizerKey(language.Code, string.Empty));
 
                     if (string.IsNullOrEmpty(analyzer))
                     {
