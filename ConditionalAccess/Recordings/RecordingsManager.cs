@@ -15,6 +15,8 @@ using Tvinci.Core.DAL;
 using TVinciShared;
 using Synchronizer;
 using KlogMonitorHelper;
+using ApiObjects.QueueObjects;
+using ApiObjects.ScheduledTasks;
 
 namespace Recordings
 {
@@ -286,7 +288,7 @@ namespace Recordings
                         // Update all domains that have this recording
                         GenericCeleryQueue queue = new GenericCeleryQueue();
                         DateTime utcNow = DateTime.UtcNow;
-                        ApiObjects.QueueObjects.ExpiredRecordingData data = new ApiObjects.QueueObjects.ExpiredRecordingData(groupId, 0, slimRecording.Id, TVinciShared.DateUtils.DateTimeToUnixTimestamp(utcNow), utcNow) { ETA = utcNow };
+                        ApiObjects.QueueObjects.RecordingModificationData data = new ApiObjects.QueueObjects.RecordingModificationData(groupId, 0, slimRecording.Id, 0) { ETA = utcNow };
                         bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_EXPIRED_RECORDING, groupId));
                         if (!queueExpiredRecordingResult)
                         {
@@ -515,6 +517,7 @@ namespace Recordings
 
             Recording recording = ConditionalAccess.Utils.GetRecordingByEpgId(groupId, programId);
 
+            double oldRecordingLength = 0;
             bool shouldUpdateDomainsQuota = false;
 
             // If there is no recording, nothing to do
@@ -540,7 +543,7 @@ namespace Recordings
                 }
                 else
                 {
-                    var oldRecordingLength = (recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
+                    oldRecordingLength = (recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
                     var newRecordingLength = (endDate - startDate).TotalSeconds;
 
                     if (oldRecordingLength != newRecordingLength)
@@ -695,6 +698,13 @@ namespace Recordings
             if (shouldUpdateDomainsQuota && status.Code == (int)eResponseStatus.OK)
             {
                 //TODO: update domains quota
+                GenericCeleryQueue queue = new GenericCeleryQueue();
+                RecordingModificationData data = new RecordingModificationData(groupId, 0, recording.Id, 0) { ETA = DateTime.UtcNow };
+                bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_EXPIRED_RECORDING, groupId));
+                if (!queueExpiredRecordingResult)
+                {
+                    log.ErrorFormat("Failed to queue task in UpdateRecording, recording: {0}", recording.ToString());
+                }
             }
 
             return status;
@@ -1059,7 +1069,7 @@ namespace Recordings
                 // Update all domains that have this recording
                 GenericCeleryQueue queue = new GenericCeleryQueue();
                 DateTime utcNow = DateTime.UtcNow;
-                ApiObjects.QueueObjects.ExpiredRecordingData data = new ApiObjects.QueueObjects.ExpiredRecordingData(groupId, 0, currentRecording.Id, TVinciShared.DateUtils.DateTimeToUnixTimestamp(utcNow), utcNow) { ETA = utcNow };
+                ApiObjects.QueueObjects.RecordingModificationData data = new ApiObjects.QueueObjects.RecordingModificationData(groupId, 0, currentRecording.Id, 0) { ETA = utcNow };
                 bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_EXPIRED_RECORDING, groupId));
                 if (!queueExpiredRecordingResult)
                 {
@@ -1143,7 +1153,7 @@ namespace Recordings
                 // Update all domains that have this recording                
                 GenericCeleryQueue queue = new GenericCeleryQueue();
                 DateTime utcNow = DateTime.UtcNow;
-                ApiObjects.QueueObjects.ExpiredRecordingData data = new ApiObjects.QueueObjects.ExpiredRecordingData(groupId, 0, recording.Id, TVinciShared.DateUtils.DateTimeToUnixTimestamp(utcNow), utcNow) { ETA = utcNow };
+                ApiObjects.QueueObjects.RecordingModificationData data = new ApiObjects.QueueObjects.RecordingModificationData(groupId, 0, recording.Id, 0) { ETA = utcNow };
                 bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_EXPIRED_RECORDING, groupId));
                 if (!queueExpiredRecordingResult)
                 {

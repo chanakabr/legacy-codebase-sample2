@@ -138,16 +138,25 @@ namespace Recordings
             return RecordingsDAL.IncreaseDomainQuota(domainId, quotaToIncrease);
         }
 
-        public bool DecreaseDomainQuota(int groupId, long domainId, int quotaToDecrease)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="domainId"></param>
+        /// <param name="quotaToDecrease"></param>
+        /// <param name="shouldForseDecrease">If true - decrease the quota to 0 if not enough quota</param>
+        /// <returns></returns>
+        public bool DecreaseDomainQuota(int groupId, long domainId, int quotaToDecrease, bool shouldForseDecrease = false)
         {
             bool result = false;
-            if (GetDomainQuota(groupId, domainId) >= quotaToDecrease)
+            int domainQuota = GetDomainQuota(groupId, domainId);
+            if (domainQuota >= quotaToDecrease)
             {
-                int defaultDomainQuota = ConditionalAccess.Utils.GetDomainDefaultQuota(groupId, domainId);
-                if (defaultDomainQuota >= quotaToDecrease)
-                {
-                    result = RecordingsDAL.DecreaseDomainQuota(domainId, quotaToDecrease, defaultDomainQuota);
-                }                
+                result = RecordingsDAL.DecreaseDomainQuota(domainId, quotaToDecrease, domainQuota);
+            }
+            else if (shouldForseDecrease)
+            {
+                result = RecordingsDAL.DecreaseDomainQuota(domainId, domainQuota, domainQuota);
             }
 
             return result;

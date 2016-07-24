@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ApiObjects.ScheduledTasks
 {
-    public class ExpiredRecordingScheduledTask
+    public class HandleDomainQuataByRecordingTask
     {
 
         public long Id { get; set; }
@@ -15,11 +15,11 @@ namespace ApiObjects.ScheduledTasks
 
         public int GroupId { get; set; }
 
-        public DateTime ScheduledExpirationDate;
-
         public long ScheduledExpirationEpoch;
 
-        public ExpiredRecordingScheduledTask() {}
+        public int OldRecordingDuration { get; set; }
+
+        public HandleDomainQuataByRecordingTask() {}
 
         public override string ToString()
         {
@@ -27,9 +27,8 @@ namespace ApiObjects.ScheduledTasks
             sb.Append(string.Format("Id: {0}, ", Id));
             sb.Append(string.Format("RecordingId: {0}, ", RecordingId));
             sb.Append(string.Format("GroupId: {0}, ", GroupId));            
-            sb.Append(string.Format("scheduledExpirationDate: {0}, ", ScheduledExpirationDate != null ? ScheduledExpirationDate.ToString() : ""));
             sb.Append(string.Format("scheduledExpirationEpoch: {0}, ", ScheduledExpirationEpoch));
-
+            sb.Append(string.Format("RecordingDurationChange: {0}, ", OldRecordingDuration));
             return sb.ToString();
         }
     }
