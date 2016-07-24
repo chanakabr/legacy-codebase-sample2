@@ -693,7 +693,8 @@ namespace Catalog
                 {
                     string sQuery = queries[0];
                     searchRes = m_oESApi.Search(sGroupAlias, ES_EPG_TYPE, ref sQuery, lRouting);
-                    lDocs = DecodeEpgSearchJsonObject(searchRes, ref nTotalRecords);
+                    lDocs = DecodeAssetSearchJsonObject(searchRes, ref nTotalRecords);
+                        //DecodeEpgSearchJsonObject(searchRes, ref nTotalRecords);
                 }
                 else
                 {
@@ -797,7 +798,7 @@ namespace Catalog
             string searchRes = m_oESApi.Search(sGroupAlias, ES_EPG_TYPE, ref sQuery, lRouting);
 
             int nTotalRecords = 0;
-            List<ElasticSearchApi.ESAssetDocument> lDocs = DecodeEpgSearchJsonObject(searchRes, ref nTotalRecords);
+            List<ElasticSearchApi.ESAssetDocument> lDocs = DecodeAssetSearchJsonObject(searchRes, ref nTotalRecords);
 
             if (lDocs != null)
             {
@@ -819,19 +820,7 @@ namespace Catalog
 
                 if (jsonObj != null)
                 {
-                    doc = new ElasticSearchApi.ESAssetDocument();
-                    JToken tempToken;
-
-                    doc.id = ((tempToken = jsonObj.SelectToken("_id")) == null ? string.Empty : (string)tempToken);
-                    doc.index = ((tempToken = jsonObj.SelectToken("_index")) == null ? string.Empty : (string)tempToken);
-                    doc.type = ((tempToken = jsonObj.SelectToken("_type")) == null ? string.Empty : (string)tempToken);
-                    doc.asset_id = ((tempToken = jsonObj.SelectToken("_source.media_id")) == null ? 0 : (int)tempToken);
-                    doc.group_id = ((tempToken = jsonObj.SelectToken("_source.group_id")) == null ? 0 : (int)tempToken);
-                    doc.name = ((tempToken = jsonObj.SelectToken("_source.name")) == null ? string.Empty : (string)tempToken);
-                    doc.cache_date = ((tempToken = jsonObj.SelectToken("_source.cache_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
-                                    DateTime.ParseExact((string)tempToken, DATE_FORMAT, null));
-                    doc.update_date = ((tempToken = jsonObj.SelectToken("_source.update_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
-                                    DateTime.ParseExact((string)tempToken, DATE_FORMAT, null));
+                    doc = DecodeSingleAssetJsonObject(jsonObj, "_source");
                 }
             }
             catch (Exception ex)
@@ -889,7 +878,7 @@ namespace Catalog
                     List<ElasticSearchApi.ESAssetDocument> tempDocs;
                     List<List<ElasticSearchApi.ESAssetDocument>> l = jsonObj.SelectToken("responses").Select(item =>
                     {
-                        tempDocs = DecodeEpgSearchJsonObject(item.ToString(), ref tempTotal);
+                        tempDocs = DecodeAssetSearchJsonObject(item.ToString(), ref tempTotal);
                         nTotalItems += tempTotal;
                         if (tempDocs != null && tempDocs.Count > 0)
                             documents.AddRange(tempDocs);
@@ -922,77 +911,12 @@ namespace Catalog
                     {
                         documents = new List<ElasticSearchApi.ESAssetDocument>();
 
+                        string prefix = "fields";
                         foreach (var item in jsonObj.SelectToken("hits.hits"))
                         {
-                            string typeString = ((tempToken = item.SelectToken("_type")) == null ? string.Empty : (string)tempToken);
-                            eAssetTypes assetType = UnifiedSearchResult.ParseType(typeString);
+                            var newDocument = DecodeSingleAssetJsonObject(item, prefix, extraReturnFields);
 
-                            string assetIdField = string.Empty;
-
-                            switch (assetType)
-                            {
-                                case eAssetTypes.MEDIA:
-                                {
-                                    assetIdField = "fields.media_id";
-                                    break;
-                                }
-                                case eAssetTypes.EPG:
-                                {
-                                    assetIdField = "fields.epg_id";
-                                    break;
-                                }
-                                case eAssetTypes.NPVR:
-                                {
-                                    assetIdField = "fields.recording_id";
-                                    break;
-                                }
-                                default:
-                                {
-                                    break;
-                                }
-                            }
-
-                            var doc = new ElasticSearchApi.ESAssetDocument()
-                            {
-                                id = ((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken),
-                                index = ((tempToken = item.SelectToken("_index")) == null ? string.Empty : (string)tempToken),
-                                type = typeString,
-                                asset_id = ((tempToken = item.SelectToken(assetIdField)) == null ? 0 : (int)tempToken),
-                                group_id = ((tempToken = item.SelectToken("fields.group_id")) == null ? 0 : (int)tempToken),
-                                name = ((tempToken = item.SelectToken("fields.name")) == null ? string.Empty : (string)tempToken),
-                                cache_date = ((tempToken = item.SelectToken("fields.cache_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
-                                                DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
-                                update_date = ((tempToken = item.SelectToken("fields.update_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
-                                                DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
-                                start_date = ((tempToken = item.SelectToken("fields.start_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
-                                                DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
-                                media_type_id = ((tempToken = item.SelectToken("fields.media_type_id")) == null ? 0 : (int)tempToken),
-                                epg_identifier = ((tempToken = item.SelectToken("fields.epg_identifier")) == null ? string.Empty : (string)tempToken),
-                                end_date = ((tempToken = item.SelectToken("fields.end_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
-                                                DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
-                            };
-
-                            if (extraReturnFields != null)
-                            {
-                                doc.extraReturnFields = new Dictionary<string, string>();
-                                string fieldValue = null;
-                                
-                                foreach (var fieldName in extraReturnFields)
-                                {
-                                    if (fieldName.StartsWith("metas.") || fieldName.StartsWith("tags."))
-                                    {
-                                        fieldValue = ((fieldValue = (string)item["fields"][fieldName][0]) == null ? string.Empty : fieldValue);
-                                    }
-                                    else
-                                    {
-                                        fieldValue = ((tempToken = item.SelectToken(string.Format("fields.{0}", fieldName.ToLower()))) == null ? string.Empty : (string)tempToken);
-                                    }
-                                    if (!string.IsNullOrEmpty(fieldValue))
-                                        doc.extraReturnFields.Add(fieldName, fieldValue);
-                                }
-                            }
-
-                            documents.Add(doc);
+                            documents.Add(newDocument);
                         }
                     }
                 }
@@ -1003,6 +927,168 @@ namespace Catalog
             }
 
             return documents;
+        }
+
+        private static ElasticSearchApi.ESAssetDocument DecodeSingleAssetJsonObject(JToken item, string fieldNamePrefix, List<string> extraReturnFields = null)
+        {
+            JToken tempToken = null;
+            string typeString = ((tempToken = item.SelectToken("_type")) == null ? string.Empty : (string)tempToken);
+            eAssetTypes assetType = UnifiedSearchResult.ParseType(typeString);
+
+            string assetIdField = string.Empty;
+
+            switch (assetType)
+            {
+                case eAssetTypes.MEDIA:
+                {
+                    assetIdField = AddPrefixToFieldName("media_id", fieldNamePrefix);
+                    break;
+                }
+                case eAssetTypes.EPG:
+                {
+                    assetIdField = AddPrefixToFieldName("epg_id", fieldNamePrefix);
+                    break;
+                }
+                case eAssetTypes.NPVR:
+                {
+                    assetIdField = AddPrefixToFieldName("recording_id", fieldNamePrefix);
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+            }
+
+            string id = ((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken);
+            string index = ((tempToken = item.SelectToken("_index")) == null ? string.Empty : (string)tempToken);
+            int assetId = 0;
+            int groupId = 0;
+            string name = string.Empty;
+            DateTime cacheDate = new DateTime(1970, 1, 1, 0, 0, 0);
+            DateTime updateDate = new DateTime(1970, 1, 1, 0, 0, 0);
+            DateTime startDate = new DateTime(1970, 1, 1, 0, 0, 0);
+            int mediaTypeId = 0;
+            string epgIdentifier = string.Empty;
+
+            assetId = ExtractValueFromToken<int>(item, assetIdField);
+            groupId = ExtractValueFromToken<int>(item, AddPrefixToFieldName("group_id", fieldNamePrefix));
+            name = ExtractValueFromToken<string>(item, AddPrefixToFieldName("name", fieldNamePrefix));
+            cacheDate = ExtractDateFromToken(item, AddPrefixToFieldName("cache_date", fieldNamePrefix));
+            updateDate = ExtractDateFromToken(item, AddPrefixToFieldName("update_date", fieldNamePrefix));
+            startDate = ExtractDateFromToken(item, AddPrefixToFieldName("start_date", fieldNamePrefix));
+            mediaTypeId = ExtractValueFromToken<int>(item, AddPrefixToFieldName("media_type_id", fieldNamePrefix));
+            epgIdentifier = ExtractValueFromToken<string>(item, AddPrefixToFieldName("epg_identifier", fieldNamePrefix));
+
+            var newDocument = new ElasticSearchApi.ESAssetDocument()
+            {
+                id = id,
+                index = index,
+                type = typeString,
+                asset_id = assetId,
+                group_id = groupId,
+                name = name,
+                cache_date = cacheDate,
+                update_date = updateDate,
+                start_date = startDate,
+                media_type_id = mediaTypeId,
+                epg_identifier = epgIdentifier,
+            };
+
+            if (extraReturnFields != null)
+            {
+                newDocument.extraReturnFields = new Dictionary<string, string>();
+
+                foreach (var fieldName in extraReturnFields)
+                {
+                    string fieldValue = null;
+
+                    if (fieldName.Contains("."))
+                    {
+                        var fieldsToken = item["fields"];
+
+                        if (fieldsToken != null)
+                        {
+                            var specificFieldToken = fieldsToken[fieldName];
+
+                            if (specificFieldToken != null)
+                            {
+                                fieldValue = ExtractValueFromToken<string>(specificFieldToken);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        fieldValue = ExtractValueFromToken<string>(item, AddPrefixToFieldName(fieldName, fieldNamePrefix));
+                    }
+
+                    if (!string.IsNullOrEmpty(fieldValue))
+                    {
+                        newDocument.extraReturnFields.Add(fieldName, fieldValue);
+                    }
+                }
+            }
+
+            return newDocument;
+        }
+
+        private static T ExtractValueFromToken<T>(JToken item, string fieldName)
+        {
+            T result = default(T);
+
+            JToken tempToken = item.SelectToken(fieldName);
+
+            result = ExtractValueFromToken<T>(tempToken);
+
+            return result;
+        }
+
+        private static T ExtractValueFromToken<T>(JToken tempToken)
+        {
+            T result = default(T);
+
+            JArray tempArray = null;
+
+            if (tempToken != null)
+            {
+                tempArray = tempToken as JArray;
+
+                if (tempArray != null && tempArray.Count > 0)
+                {
+                    result = tempArray[0].ToObject<T>();
+                }
+                else
+                {
+                    result = tempToken.ToObject<T>();
+                }
+            }
+
+            return result;
+        }
+        
+        private static DateTime ExtractDateFromToken(JToken item, string fieldName)
+        {
+            DateTime result = new DateTime(1970, 1, 1, 0, 0, 0);
+            string dateString = ExtractValueFromToken<string>(item, fieldName);
+
+            if (!string.IsNullOrEmpty(dateString))
+            {
+                result = DateTime.ParseExact(dateString, DATE_FORMAT, null);
+            }
+
+            return result;
+        }
+
+        private static string AddPrefixToFieldName(string fieldName, string prefix)
+        {
+            string result = fieldName;
+
+            if (!string.IsNullOrEmpty(prefix))
+            {
+                result = string.Format("{0}.{1}", prefix, fieldName);
+            }
+
+            return result;
         }
 
         private List<ElasticSearchApi.ESAssetDocument> DecodeEpgSearchJsonObject(string sObj, ref int totalItems)
@@ -1267,8 +1353,8 @@ namespace Catalog
                 {
                     #region Process ElasticSearch result
 
-                    List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded = DecodeAssetSearchJsonObject(queryResultString, ref totalItems, 
-                        unifiedSearchDefinitions.extraReturnFields);
+                    List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded = 
+                        DecodeAssetSearchJsonObject(queryResultString, ref totalItems, unifiedSearchDefinitions.extraReturnFields);
 
                     if (assetsDocumentsDecoded != null && assetsDocumentsDecoded.Count > 0)
                     {
@@ -1279,16 +1365,18 @@ namespace Catalog
                             if (unifiedSearchDefinitions.shouldReturnExtendedSearchResult)
                             {
                                 var result = new ExtendedSearchResult()
-                                {
-                                    AssetId = doc.asset_id.ToString(),
-                                    m_dUpdateDate = doc.update_date,
-                                    AssetType = UnifiedSearchResult.ParseType(doc.type),
-                                    EndDate = doc.end_date,
-                                    StartDate = doc.start_date
-                                };
+                                    {
+                                        AssetId = doc.asset_id.ToString(),
+                                        m_dUpdateDate = doc.update_date,
+                                        AssetType = UnifiedSearchResult.ParseType(doc.type),
+                                        EndDate = doc.end_date,
+                                        StartDate = doc.start_date
+                                    };
+
                                 if (doc.extraReturnFields != null)
                                 {
                                     result.ExtraFields = new List<KeyValuePair>();
+
                                     foreach (var field in doc.extraReturnFields)
                                     {
                                         result.ExtraFields.Add(new KeyValuePair()
@@ -1298,6 +1386,7 @@ namespace Catalog
                                         });
                                     }
                                 }
+
                                 searchResultsList.Add(result);
                             }
                             else
@@ -1310,6 +1399,7 @@ namespace Catalog
                                 });
                             }
                         }
+
                         // If this is orderd by a social-stat - first we will get all asset Ids and only then we will sort and page
                         if (isOrderedByStat)
                         {
@@ -1445,7 +1535,7 @@ namespace Catalog
 
             #endregion
 
-            #region Define Facet Query
+            #region Define Aggregations Search Query
 
             FilteredQuery filteredQuery = new FilteredQuery()
             {
@@ -1506,77 +1596,90 @@ namespace Catalog
             filterSettings.AddChild(endDateRange);
             filterSettings.AddChild(tagsFilter);
             filteredQuery.Filter.FilterSettings = filterSettings;
-
-            ESTermsStatsFacet facet = new ESTermsStatsFacet()
-            {
-                Query = filteredQuery
-            };
-
-            // Create a term stats facet for each association tag we have
+ 
+            // Create an aggregation search object for each association tag we have
             foreach (var associationTag in associationTags)
             {
-                // Filter each facet according to its media type
-                BaseFilterCompositeType facetFilter = new FilterCompositeType(CutWith.AND);
-                facetFilter.AddChild(new ESTerm(true)
-                {
-                    Key = "media_type_id",
-                    // key of association tag is the child media type
-                    Value = associationTag.Key.ToString()
-                });
+                ESTerm filter = new ESTerm(true)
+                    {
+                        Key = "media_type_id",
+                        // key of association tag is the child media type
+                        Value = associationTag.Key.ToString()
+                    };
 
-                // Group by the association tag. Get statistics for start_date - we are interested in maximum start date
-                ElasticSearch.Searcher.ESTermsStatsFacet.ESTermsStatsFacetItem facetItem = new ESTermsStatsFacet.ESTermsStatsFacetItem()
+                ESFilterAggregation currentAggregation = new ESFilterAggregation(filter)
                 {
-                    // the name of the tag will be the facet name
-                    FacetName = associationTag.Value,
-                    KeyField = string.Format("tags.{0}", associationTag.Value.ToLower()),
-                    ValueField = "start_date",
-                    FacetFilter = facetFilter
+                    Name = associationTag.Value
                 };
 
-                facet.AddTermStatsFacet(facetItem);
+                ESBaseAggsItem subAggregation1 = new ESBaseAggsItem()
+                {
+                    Name = associationTag.Value + "_sub1",
+                    Field = string.Format("tags.{0}", associationTag.Value).ToLower(),
+                    Type = eElasticAggregationType.terms
+                };
+
+                ESBaseAggsItem subAggregation2 = new ESBaseAggsItem()
+                {
+                    Name = associationTag.Value + "_sub2",
+                    Field = "start_date",
+                    Type = eElasticAggregationType.stats
+                };
+
+                subAggregation1.SubAggrgations.Add(subAggregation2);
+                currentAggregation.SubAggrgations.Add(subAggregation1);
+
+                filteredQuery.Aggregations.Add(currentAggregation);
             }
 
             #endregion
 
-            #region Get Facets Results
+            #region Get Aggregations Results
 
-            string facetRequestBody = facet.ToString();
+            string searchRequestBody = filteredQuery.ToString();
             string index = groupId.ToString();
 
-            string facetsResults = m_oESApi.Search(index, "media", ref facetRequestBody);
+            string searchResults = m_oESApi.Search(index, "media", ref searchRequestBody);
 
-            // Get facet results
-            Dictionary<string, List<ESTermsStatsFacet.StatisticFacetResult>> facetsDictionary =
-                ESTermsStatsFacet.FacetResults(ref facetsResults);
+            ESAggregationsResult aggregationsResult =
+                ESAggregationsResult.FullParse(searchResults, filteredQuery.Aggregations);
 
             #endregion
 
-            #region Process Facets Results
+            #region Process Aggregations Results
 
-            if (facetsDictionary != null && facetsDictionary.Count > 0)
+            if (aggregationsResult != null && aggregationsResult.Aggregations != null && aggregationsResult.Aggregations.Count > 0)
             {
                 foreach (var associationTag in associationTags)
                 {
                     int parentMediaType = mediaTypeParent[associationTag.Key];
 
-                    // Get the current tag's statistics 
-                    if (facetsDictionary.ContainsKey(associationTag.Value))
+                    if (aggregationsResult.Aggregations.ContainsKey(associationTag.Value))
                     {
-                        List<ESTermsStatsFacet.StatisticFacetResult> currentFacetList = facetsDictionary[associationTag.Value];
+                        ESAggregationResult currentResult = aggregationsResult.Aggregations[associationTag.Value];
 
-                        foreach (ESTermsStatsFacet.StatisticFacetResult facetTerm in currentFacetList)
+                        ESAggregationResult firstSub;
+
+                        if (currentResult.Aggregations.TryGetValue(associationTag.Value + "_sub1", out firstSub))
                         {
-                            // "series name" is the facets term
-                            string tagValue = facetTerm.term;
-
-                            if (nameToTypeToId.ContainsKey(tagValue) && nameToTypeToId[tagValue].ContainsKey(parentMediaType))
+                            foreach (var bucket in firstSub.buckets)
                             {
-                                foreach (var assetId in nameToTypeToId[tagValue][parentMediaType])
-                                {
-                                    string maximumStartDate = facetTerm.max.ToString();
+                                ESAggregationResult subBucket;
 
-                                    idToStartDate[assetId] = DateTime.ParseExact(maximumStartDate, DATE_FORMAT, null);
+                                if (bucket.Aggregations.TryGetValue(associationTag.Value + "_sub2", out subBucket))
+                                {
+                                    // "series name" is the bucket's key
+                                    string tagValue = bucket.key;
+
+                                    if (nameToTypeToId.ContainsKey(tagValue) && nameToTypeToId[tagValue].ContainsKey(parentMediaType))
+                                    {
+                                        foreach (var assetId in nameToTypeToId[tagValue][parentMediaType])
+                                        {
+                                            string maximumStartDate = subBucket.max_as_string.ToString();
+
+                                            idToStartDate[assetId] = DateTime.ParseExact(maximumStartDate, DATE_FORMAT, null);
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -1648,12 +1751,12 @@ namespace Catalog
             List<long> sortedList = null;
             HashSet<long> alreadyContainedIds = null;
 
-            ConcurrentDictionary<string, List<ESTermsStatsFacet.StatisticFacetResult>> ratingsFacetsDictionary =
-                new ConcurrentDictionary<string, List<ESTermsStatsFacet.StatisticFacetResult>>();
-            ConcurrentDictionary<string, ConcurrentDictionary<string, int>> countsFacetsDictionary =
+            ConcurrentDictionary<string, List<StatisticsAggregationResult>> ratingsAggregationsDictionary =
+                new ConcurrentDictionary<string, List<StatisticsAggregationResult>>();
+            ConcurrentDictionary<string, ConcurrentDictionary<string, int>> countsAggregationsDictionary =
                 new ConcurrentDictionary<string, ConcurrentDictionary<string, int>>();
 
-            #region Define Facet Query
+            #region Define Aggregation Query
 
             FilteredQuery filteredQuery = new FilteredQuery()
             {
@@ -1728,90 +1831,103 @@ namespace Catalog
 
             filteredQuery.Filter.FilterSettings = filter;
 
-            IESFacet facet = null;
+            ESBaseAggsItem aggregations = null;
 
             // Ratings is a special case, because it is not based on count, but on average instead
             if (orderBy == ApiObjects.SearchObjects.OrderBy.RATING)
             {
-                facet = new ESTermsStatsFacet("stats", "media_id", Catalog.STAT_ACTION_RATE_VALUE_FIELD, 10000)
+                aggregations = new ESBaseAggsItem()
                 {
-                    Query = filteredQuery
+                    Name = "stats",
+                    Field = "media_id",
+                    Type = eElasticAggregationType.terms
                 };
+
+                aggregations.SubAggrgations.Add(new ESBaseAggsItem()
+                {
+                    Name = "sub_stats",
+                    Type = eElasticAggregationType.stats,
+                    Field = Catalog.STAT_ACTION_RATE_VALUE_FIELD
+                });
             }
             else
             {
-                facet = new ESTermsFacet("stats", "media_id", 100000)
+                aggregations = new ESBaseAggsItem()
                 {
-                    Query = filteredQuery
+                    Name = "stats",
+                    Field = "media_id",
+                    Type = eElasticAggregationType.terms
                 };
             }
 
+            filteredQuery.Aggregations.Add(aggregations);
+
             #endregion
 
-            #region Split call of facets query to pieces
+            #region Split call of aggregations query to pieces
 
-            int facetsSize = 5000;
+            int aggregationssSize = 5000;
 
             //Start MultiThread Call
             List<Task> tasks = new List<Task>();
 
             // Split the request to small pieces, to avoid timeout exceptions
-            for (int assetIndex = 0; assetIndex < assetIds.Count; assetIndex += facetsSize)
+            for (int assetIndex = 0; assetIndex < assetIds.Count; assetIndex += aggregationssSize)
             {
                 idsTerm.Value.Clear();
 
                 // Convert partial Ids to strings
-                idsTerm.Value.AddRange(assetIds.Skip(assetIndex).Take(facetsSize).Select(id => id.ToString()));
+                idsTerm.Value.AddRange(assetIds.Skip(assetIndex).Take(aggregationssSize).Select(id => id.ToString()));
 
-                string facetRequestBody = facet.ToString();
+                string aggregationsRequestBody = filteredQuery.ToString();
 
                 string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(groupId);
 
                 try
                 {
                     ContextData contextData = new ContextData();
-                    // Create a task for the search and merge of partial facets
+                    // Create a task for the search and merge of partial aggregations
                     Task task = Task.Factory.StartNew((obj) =>
                         {
                             contextData.Load();
-                            // Get facet results
-                            string facetsResults = m_oESApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref facetRequestBody);
+                            // Get aggregations results
+                            string aggregationsResults = m_oESApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref aggregationsRequestBody);
 
                             if (orderBy == ApiObjects.SearchObjects.OrderBy.RATING)
                             {
                                 // Parse string into dictionary
-                                var partialDictionary = ESTermsStatsFacet.FacetResults(ref facetsResults);
+                                var partialDictionary = ESAggregationsResult.DeserializeStatisticsAggregations(aggregationsResults, "sub_stats");
 
                                 // Run on partial dictionary and merge into main dictionary
                                 foreach (var mainPart in partialDictionary)
                                 {
-                                    if (!ratingsFacetsDictionary.ContainsKey(mainPart.Key))
+                                    if (!ratingsAggregationsDictionary.ContainsKey(mainPart.Key))
                                     {
-                                        ratingsFacetsDictionary[mainPart.Key] = new List<ESTermsStatsFacet.StatisticFacetResult>();
+                                        ratingsAggregationsDictionary[mainPart.Key] = new List<StatisticsAggregationResult>();
                                     }
 
                                     foreach (var singleResult in mainPart.Value)
                                     {
-                                        ratingsFacetsDictionary[mainPart.Key].Add(singleResult);
+                                        ratingsAggregationsDictionary[mainPart.Key].Add(singleResult);
                                     }
                                 }
                             }
                             else
                             {
                                 // Parse string into dictionary
-                                var partialDictionary = ESTermsFacet.FacetResults(ref facetsResults);
+                                var partialDictionary = ESAggregationsResult.DeserializeAggrgations<string>(aggregationsResults);
 
                                 // Run on partial dictionary and merge into main dictionary
                                 foreach (var mainPart in partialDictionary)
                                 {
-                                    if (!countsFacetsDictionary.ContainsKey(mainPart.Key))
+                                    if (!countsAggregationsDictionary.ContainsKey(mainPart.Key))
                                     {
-                                        countsFacetsDictionary[mainPart.Key] = new ConcurrentDictionary<string, int>();
+                                        countsAggregationsDictionary[mainPart.Key] = new ConcurrentDictionary<string, int>();
                                     }
 
                                     foreach (var singleResult in mainPart.Value)
                                     {
-                                        countsFacetsDictionary[mainPart.Key][singleResult.Key] = singleResult.Value;
+                                        countsAggregationsDictionary[mainPart.Key][singleResult.Key] = singleResult.Value;
                                     }
                                 }
                             }
@@ -1839,21 +1955,21 @@ namespace Catalog
 
             #endregion
 
-            #region Process Facets
+            #region Process Aggregations
 
-            // get a sorted list of the asset Ids that have statistical data in the facet
+            // get a sorted list of the asset Ids that have statistical data in the aggregations dictionary
             sortedList = new List<long>();
             alreadyContainedIds = new HashSet<long>();
 
             // Ratings is a special case, because it is not based on count, but on average instead
             if (orderBy == ApiObjects.SearchObjects.OrderBy.RATING)
             {
-                ProcessRatingsFacetsResult(ratingsFacetsDictionary, orderDirection, alreadyContainedIds, sortedList);
+                ProcessRatingsAggregationsResult(ratingsAggregationsDictionary, orderDirection, alreadyContainedIds, sortedList);
             }
             // If it is not ratings - just use count
             else
             {
-                ProcessCountFacetsResults(countsFacetsDictionary, orderDirection, alreadyContainedIds, sortedList);
+                ProcessCountDictionaryResults(countsAggregationsDictionary, orderDirection, alreadyContainedIds, sortedList);
             }
 
             #endregion
@@ -1886,31 +2002,31 @@ namespace Catalog
         /// <summary>
         /// After receiving a result from ES server, process it to create a list of Ids with the given order
         /// </summary>
-        /// <param name="facetsResults"></param>
+        /// <param name="statsDictionary"></param>
         /// <param name="orderBy"></param>
         /// <param name="orderDirection"></param>
         /// <param name="alreadyContainedIds"></param>
         /// <returns></returns>
-        private static void ProcessCountFacetsResults(ConcurrentDictionary<string, ConcurrentDictionary<string, int>> facetsDictionary,
+        private static void ProcessCountDictionaryResults(ConcurrentDictionary<string, ConcurrentDictionary<string, int>> statsDictionary,
             OrderDir orderDirection, HashSet<long> alreadyContainedIds, List<long> sortedList)
         {
-            if (facetsDictionary != null && facetsDictionary.Count > 0)
+            if (statsDictionary != null && statsDictionary.Count > 0)
             {
                 ConcurrentDictionary<string, int> statResult;
 
-                //retrieve specific facet result
-                facetsDictionary.TryGetValue("stats", out statResult);
+                //retrieve specific stats result
+                statsDictionary.TryGetValue("stats", out statResult);
 
                 if (statResult != null && statResult.Count > 0)
                 {
-                    // We base this section on the assumption that facets request is sorted, descending
-                    foreach (string facetKey in statResult.Keys)
+                    // We base this section on the assumption that aggregations request is sorted, descending
+                    foreach (string currentKey in statResult.Keys)
                     {
-                        int count = statResult[facetKey];
+                        int count = statResult[currentKey];
 
                         int currentId;
 
-                        if (int.TryParse(facetKey, out currentId))
+                        if (int.TryParse(currentKey, out currentId))
                         {
                             // Depending on direction - if it is ascending, insert Id at start. Otherwise at end
                             if (orderDirection == OrderDir.ASC)
@@ -1932,32 +2048,32 @@ namespace Catalog
         /// <summary>
         /// After receiving a result from ES server, process it to create a list of Ids with the given order
         /// </summary>
-        /// <param name="facetsResults"></param>
+        /// <param name=")"></param>
         /// <param name="orderBy"></param>
         /// <param name="orderDirection"></param>
         /// <param name="alreadyContainedIds"></param>
         /// <returns></returns>
-        private static void ProcessRatingsFacetsResult(ConcurrentDictionary<string, List<ESTermsStatsFacet.StatisticFacetResult>> facetsDictionary,
+        private static void ProcessRatingsAggregationsResult(ConcurrentDictionary<string, List<StatisticsAggregationResult>> statisticsDictionary,
             OrderDir orderDirection, HashSet<long> alreadyContainedIds, List<long> sortedList)
         {
-            if (facetsDictionary != null && facetsDictionary.Count > 0)
+            if (statisticsDictionary != null && statisticsDictionary.Count > 0)
             {
-                List<ESTermsStatsFacet.StatisticFacetResult> statResult;
+                List<StatisticsAggregationResult> statResult;
 
-                //retrieve specific facet result
-                facetsDictionary.TryGetValue("stats", out statResult);
+                //retrieve specific aggregation result
+                statisticsDictionary.TryGetValue("stats", out statResult);
 
                 if (statResult != null && statResult.Count > 0)
                 {
                     // sort ASCENDING - different than normal execution!
-                    statResult.Sort(new ESTermsStatsFacet.FacetCompare(ESTermsStatsFacet.FacetCompare.eCompareType.MEAN));
+                    statResult.Sort(new AggregationsComparer(AggregationsComparer.eCompareType.Average));
 
                     foreach (var result in statResult)
                     {
                         int currentId;
 
                         // Depending on direction - if it is ascending, insert Id at end. Otherwise at start
-                        if (int.TryParse(result.term, out currentId))
+                        if (int.TryParse(result.key, out currentId))
                         {
                             if (orderDirection == OrderDir.ASC)
                             {
@@ -2297,15 +2413,16 @@ namespace Catalog
 
                         if (lBulkObj.Count >= sizeOfBulk)
                         {
-                            Task<List<ESBulkRequestObj<string>>> t = Task<List<ESBulkRequestObj<string>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(lBulkObj));
+                            Task<object> t = Task<object>.Factory.StartNew(() => api.CreateBulkRequest(lBulkObj));
                             t.Wait();
+                            
                             lBulkObj = new List<ESBulkRequestObj<string>>();
                         }
                 }
 
                 if (lBulkObj.Count > 0)
                 {
-                    Task<List<ESBulkRequestObj<string>>> t = Task<List<ESBulkRequestObj<string>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(lBulkObj));
+                    Task<object> t = Task<object>.Factory.StartNew(() => api.CreateBulkRequest(lBulkObj));
                     t.Wait();
                 }
 

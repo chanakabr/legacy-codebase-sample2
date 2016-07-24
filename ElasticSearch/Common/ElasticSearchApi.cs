@@ -26,6 +26,8 @@ namespace ElasticSearch.Common
             get;
             set;
         }
+      
+        #region Ctor
 
         public ElasticSearchApi(string elaticSearchUrl = null)
         {
@@ -38,74 +40,72 @@ namespace ElasticSearch.Common
                 baseUrl = elaticSearchUrl;
             }
         }
+
+        #endregion
         
-        public string GetDoc(string sIndex, string sType, string sDocId)
-        {
-            string sRes = string.Empty;
+        #region Index creation
 
-            if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sType))
-                return sRes;
-
-            string sUrl = string.Format("{0}/{1}/{2}/{3}", ES_URL, sIndex, sType, sDocId);
-            int nStatus = 0;
-
-            sRes = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
-
-            if (nStatus != 200)
-            {
-                log.Error("Error - " + string.Format("Get record failed. url={0};docID={1}", sUrl, sDocId));
-                sRes = string.Empty;
-            }
-
-            return sRes;
-        }
-
-        public bool BuildIndex(string sIndex, int nShards, int nReplicas,
-            List<string> lAnalyzers, List<string> lFilters, List<string> tokenizers = null)
+        public bool BuildIndex(string index, int shards, int replicas,
+            List<string> analyzers, List<string> filters, List<string> tokenizers = null, int maxResultWindow = 0)
         {
             bool bRes = false;
 
-            if (string.IsNullOrEmpty(sIndex))
+            if (string.IsNullOrEmpty(index))
                 return bRes;
 
-            StringBuilder sBuildIndex = new StringBuilder();
+            StringBuilder stringBuilder = new StringBuilder();
 
-            sBuildIndex.Append(@"{ ""settings"": {");
+            stringBuilder.Append(@"{ ""settings"": {");
 
             bool bShards = false;
-            if (nShards > 0 && nReplicas > 0)
+            if ((shards > 0 && replicas > 0) || maxResultWindow > 0)
             {
                 bShards = true;
-                sBuildIndex.Append(@"""index"": {");
-                sBuildIndex.AppendFormat(" \"number_of_shards\": {0}, \"number_of_replicas\": {1}", nShards, nReplicas);
-                sBuildIndex.Append("} ");
+                stringBuilder.Append(@"""index"": {");
+
+                if (shards > 0 && replicas > 0)
+                {
+                    stringBuilder.AppendFormat(" \"number_of_shards\": {0}, \"number_of_replicas\": {1}", shards, replicas);
+
+                    if (maxResultWindow > 0)
+                    {
+                        stringBuilder.Append(",");
+                    }
+                }
+
+                if (maxResultWindow > 0)
+                {
+                    stringBuilder.AppendFormat("\"max_result_window\" : {0}", maxResultWindow);
+                }
+
+                stringBuilder.Append("} ");
             }
 
             #region add analyzers/filters/tokenizers
 
             if (bShards)
-                sBuildIndex.Append(",");
+                stringBuilder.Append(",");
 
-            sBuildIndex.Append("\"analysis\": {");
+            stringBuilder.Append("\"analysis\": {");
             bool bAnalyzer = false;
-            if (lAnalyzers != null && lAnalyzers.Count > 0)
+            if (analyzers != null && analyzers.Count > 0)
             {
                 bAnalyzer = true;
-                sBuildIndex.Append("\"analyzer\":{");
-                sBuildIndex.Append(string.Join(",", lAnalyzers));
-                sBuildIndex.Append("}");
+                stringBuilder.Append("\"analyzer\":{");
+                stringBuilder.Append(string.Join(",", analyzers));
+                stringBuilder.Append("}");
             }
 
             bool hasFilter = false;
 
-            if (lFilters != null && lFilters.Count > 0)
+            if (filters != null && filters.Count > 0)
             {
                 if (bAnalyzer)
-                    sBuildIndex.Append(",");
+                    stringBuilder.Append(",");
 
-                sBuildIndex.Append("\"filter\":{");
-                sBuildIndex.Append(string.Join(",", lFilters));
-                sBuildIndex.Append("}");
+                stringBuilder.Append("\"filter\":{");
+                stringBuilder.Append(string.Join(",", filters));
+                stringBuilder.Append("}");
 
                 hasFilter = true;
             }
@@ -114,210 +114,37 @@ namespace ElasticSearch.Common
             {
                 if (bAnalyzer || hasFilter)
                 {
-                    sBuildIndex.Append(",");
+                    stringBuilder.Append(",");
                 }
 
-                sBuildIndex.Append("\"tokenizer\":{");
-                sBuildIndex.Append(string.Join(",", tokenizers));
-                sBuildIndex.Append("}");
+                stringBuilder.Append("\"tokenizer\":{");
+                stringBuilder.Append(string.Join(",", tokenizers));
+                stringBuilder.Append("}");
             }
 
-            sBuildIndex.Append("}");
+            stringBuilder.Append("}");
             #endregion
 
-            sBuildIndex.Append("} }");
+            stringBuilder.Append("} }");
 
-            string sUrl = string.Format("{0}/{1}", baseUrl, sIndex);
+            string sUrl = string.Format("{0}/{1}", baseUrl, index);
             int nStatus = 0;
 
-            string sResponse = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sBuildIndex.ToString(), true);
+            string sResponse = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, stringBuilder.ToString(), true);
 
             bRes = (nStatus == 200) ? true : false;
 
             if (!bRes)
             {
-                log.ErrorFormat("Error when building index {0}. Response is: {1}", sIndex, sResponse);
+                log.ErrorFormat("Error when building index {0}. Response is: {1}", index, sResponse);
             }
 
             return bRes;
         }
 
-        public bool InsertMapping(string sIndex, string sMapName, string sMappingObject)
-        {
-            bool bResult = false;
-
-            if (!string.IsNullOrEmpty(sIndex) && !string.IsNullOrEmpty(sMappingObject) && !string.IsNullOrEmpty(sMapName))
-            {
-                string sUrl = string.Format("{0}/{1}/{2}/_mapping", baseUrl, sIndex, sMapName);
-
-                int nStatus = 0;
-
-                string sRetval = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sMappingObject, true);
-
-                bResult = (nStatus == 200) ? true : false;
-
-                if (!bResult)
-                    log.Error("Error - " + string.Format("Failed creating map. Explaination: {0}", sRetval));
-            }
-
-            return bResult;
-        }
-
-        public bool SwitchIndex(string sIndex, string sAlias, List<string> lIndicesForRemoval, string sSearchRouting = null)
-        {
-            bool bResult = false;
-
-            if (!string.IsNullOrEmpty(sIndex) && !string.IsNullOrEmpty(sAlias))
-            {
-                StringBuilder sActionRequest = new StringBuilder();
-                sActionRequest.Append("{ \"actions\": [");
-
-                if (lIndicesForRemoval != null)
-                {
-                    foreach (string sOldIndex in lIndicesForRemoval)
-                    {
-                        sActionRequest.Append(@" { ""remove"": { ");
-                        sActionRequest.AppendFormat(" \"alias\": \"{0}\", \"index\": \"{1}\"", sAlias, sOldIndex);
-                        sActionRequest.Append(" } },");
-                    }
-                }
-                sActionRequest.Append(@" { ""add"": { ");
-                sActionRequest.AppendFormat(" \"alias\": \"{0}\", \"index\": \"{1}\"", sAlias, sIndex);
-
-                if (!string.IsNullOrEmpty(sSearchRouting))
-                {
-                    sActionRequest.AppendFormat(", \"routing\":\"{0}\"", sSearchRouting);
-                }
-
-                sActionRequest.Append(" } } ] }");
-
-                string sUrl = string.Format("{0}/_aliases", baseUrl);
-                int nStatus = 0;
-
-                string sRetVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sActionRequest.ToString(), true);
-
-                bResult = (nStatus == 200) ? true : false;
-
-                if (bResult == false)
-                    log.Error("Error - " + string.Format("error received when trying to switch indices. Message: {0}", sRetVal));
-            }
-
-            return bResult;
-        }
-
-        public void DeleteIndices(List<string> lIndices)
-        {
-            if (lIndices != null)
-            {
-                string sUrl;
-                int nStatus;
-                foreach (string sIndex in lIndices)
-                {
-                    sUrl = string.Format("{0}/{1}", baseUrl, sIndex);
-                    nStatus = 0;
-                    string sRetval = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, string.Empty, true);
-
-                    if (nStatus != 200)
-                        log.Error("Error - " + string.Format("Unable to delete index. index={0}; Explanation{1}", sIndex, sRetval));
-                }
-
-            }
-        }
-
-        public ESDeleteResult DeleteDoc(string sIndex, string sType, string sId)
-        {
-            ESDeleteResult deleteResult = null;
-
-            if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sType) || string.IsNullOrEmpty(sId))
-            {
-                deleteResult = new ESDeleteResult();
-                return deleteResult;
-            }
-
-
-            string sUrl = string.Format("{0}/{1}/{2}/{3}", baseUrl, sIndex, sType, sId);
-            int nStatus = 0;
-
-            string sRetVal = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, string.Empty, true);
-
-            deleteResult = ESDeleteResult.GetDeleteResult(sRetVal);
-
-            return deleteResult;
-        }
-
-        public bool DeleteDocsByQuery(string sIndex, string sType, ref string sQuery)
-        {
-            bool bResult = true;
-            try
-            {
-                string sUrl = string.Format("{0}/{1}/{2}/_query", baseUrl, sIndex, sType);
-                int nStatus = 0;
-
-                string sResult = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery, true);
-                log.Debug("Status - " + string.Format("DeleteDocsByQuery. Returned JSON from ES: ", sResult, " Query: ", sQuery));
-                bResult = nStatus == 200;
-
-            }
-            catch (Exception ex)
-            {
-                StringBuilder sb = new StringBuilder("Exception at DeleteDocsByQuery.");
-                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
-                sb.Append(String.Concat(" Index: ", sIndex));
-                sb.Append(String.Concat(" Type: ", sType));
-                sb.Append(String.Concat(" Query: ", sQuery));
-                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
-                sb.Append(String.Concat(" ST: ", ex.StackTrace));
-                log.Error("Exception - " + sb.ToString(), ex);
-                bResult = false;
-            }
-
-            return bResult;
-        }
-
-        public List<string> GetAliases(string sIndex)
-        {
-            List<string> aliases = new List<string>();
-
-            if (!string.IsNullOrEmpty(sIndex))
-            {
-                string url = string.Format("{0}/{1}/_aliases", baseUrl, sIndex);
-                int status = 0;
-
-                string httpResponse = SendGetHttpReq(url, ref status, string.Empty, string.Empty, true);
-
-                if (status == 200 && !string.IsNullOrEmpty(httpResponse))
-                {
-                    try
-                    {
-                        var jsonObj =
-                            JObject.Parse(httpResponse);
-
-                        if (jsonObj != null)
-                        {
-                            foreach (var alias in jsonObj)
-                            {
-                                string indexName = alias.Key;
-
-                                if (!string.IsNullOrEmpty(indexName))
-                                    aliases.Add(indexName);
-                            }
-                        }
-
-                    }
-                    catch (Exception ex)
-                    {
-                        string s = ex.Message;
-                    }
-                }
-            }
-
-            return aliases;
-
-        }
-
         public bool IndexExists(string sIndex)
         {
-            bool bRes = false;
+            bool result = false;
 
             if (!string.IsNullOrEmpty(sIndex))
             {
@@ -326,292 +153,13 @@ namespace ElasticSearch.Common
                 int nStatus = 0;
                 string sResponse = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
 
-                bRes = nStatus == 200;
+                result = nStatus == 200;
             }
 
-            return bRes;
+            return result;
         }
 
-        public bool MappingExists(string sIndex, string sType)
-        {
-            bool bRes = false;
-
-            if (!string.IsNullOrEmpty(sIndex) && !string.IsNullOrEmpty(sType))
-            {
-
-                string sUrl = string.Format("{0}/{1}/{2}/_mapping", baseUrl, sIndex, sType);
-                int nStatus = 0;
-                string sResponse = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
-
-                bRes = (nStatus == 200) ? true : false;
-            }
-
-            return bRes;
-        }
-
-        public string GetAllMappings(string sIndex)
-        {
-            string sRes = string.Empty;
-
-            if (!string.IsNullOrEmpty(sIndex))
-            {
-                string sUrl = string.Format("{0}/{1}/_mapping", baseUrl, sIndex);
-                int nStatus = 0;
-                string sResponse = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
-
-                sRes = (nStatus == 200) ? sResponse : sRes;
-            }
-
-            return sRes;
-        }
-
-        public bool InsertRecord(string sIndex, string sType, string sID, string sDoc)
-        {
-            bool bRes = false;
-            if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sType) || string.IsNullOrEmpty(sDoc) || string.IsNullOrEmpty(sID))
-                return bRes;
-
-            string sUrl = string.Format("{0}/{1}/{2}/{3}", baseUrl, sIndex, sType, sID);
-            int nStatus = 0;
-
-            string sRes = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sDoc, true);
-
-            bRes = (nStatus == 200) ? true : false;
-            if (!bRes)
-                log.Error("Error - " + string.Format("Unable to insert record into elasticsearch. url={0};document={1};Explanation{2}", sUrl, sDoc, sRes));
-
-            return bRes;
-        }
-
-        public List<ESBulkRequestObj<T>> CreateBulkIndexRequest<T>(List<ESBulkRequestObj<T>> lBulkRequest)
-        {
-            log.Debug("STart ES Update - Start Bulk Update ");
-            StringBuilder sBulkRequest = new StringBuilder();
-            List<ESBulkRequestObj<T>> sInvalidRecords = new List<ESBulkRequestObj<T>>();
-
-
-            if (lBulkRequest != null)
-            {
-                foreach (var bulkObj in lBulkRequest)
-                {
-                    sBulkRequest.Append("{ \"");
-                    sBulkRequest.Append(bulkObj.Operation.ToString());
-                    sBulkRequest.Append("\": { ");
-
-
-                    sBulkRequest.AppendFormat("\"_index\": \"{0}\"", bulkObj.index);
-                    sBulkRequest.AppendFormat(", \"_type\": \"{0}\"", bulkObj.type);
-
-                    if (!string.IsNullOrEmpty(bulkObj.routing))
-                    {
-                        sBulkRequest.AppendFormat(", \"_routing\": \"{0}\"", bulkObj.routing);
-                    }
-                    sBulkRequest.AppendFormat(",\"_id\" : \"{0}\"", bulkObj.docID);
-
-                    sBulkRequest.Append(" } }\n");
-
-                    if (!string.IsNullOrEmpty(bulkObj.document))
-                    {
-                        sBulkRequest.AppendFormat("{0}\n", bulkObj.document);
-                    }
-                }
-            }
-
-            string sUrl = string.Format("{0}/_bulk", baseUrl);
-            int nStatus = 0;
-            string sParams = sBulkRequest.ToString();
-            string sRetVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sParams, true);
-            log.Debug("Finish ES Update - " + sRetVal);
-            //Will need to add treatment on objects that returned with an "ok": false
-
-            return sInvalidRecords;
-        }
-
-        public List<KeyValuePair<T, string>> CreateBulkIndexRequest<T>(string sIndex, string sType, List<KeyValuePair<T, string>> lObjects, string sRouting = null)
-        {
-            log.Debug("STart ES Update - Start Bulk Update ");
-            StringBuilder sBulkRequest = new StringBuilder();
-            List<KeyValuePair<T, string>> sInvalidRecords = new List<KeyValuePair<T, string>>();
-
-
-            if (lObjects != null)
-            {
-                foreach (KeyValuePair<T, string> sObj in lObjects)
-                {
-                    sBulkRequest.Append("{ \"index\": { ");
-
-
-                    sBulkRequest.AppendFormat("\"_index\": \"{0}\"", sIndex);
-                    sBulkRequest.AppendFormat(", \"_type\": \"{0}\"", sType);
-
-                    if (!string.IsNullOrEmpty(sRouting))
-                    {
-                        sBulkRequest.AppendFormat(", \"_routing\": \"{0}\"", sRouting);
-                    }
-                    sBulkRequest.AppendFormat(",\"_id\" : \"{0}\"", sObj.Key);
-
-                    sBulkRequest.Append(" } }\n");
-                    sBulkRequest.AppendFormat("{0}\n", sObj.Value);
-                }
-            }
-
-            string sUrl = string.Format("{0}/_bulk", baseUrl);
-            int nStatus = 0;
-            string sParams = sBulkRequest.ToString();
-            string sRetVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sParams, true);
-            log.Debug("Finish ES Update - " + sRetVal);
-            //Will need to add treatment on objects that returned with an "ok": false
-
-            return sInvalidRecords;
-        }
-
-        public string Search(string sIndex, string sType, ref string sSearchQuery, List<string> routing = null)
-        {
-            string sRes = string.Empty;
-
-            if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sType) || string.IsNullOrEmpty(sSearchQuery))
-                return sRes;
-
-            string sUrl;
-            if (routing != null && routing.Count > 0)
-            {
-                string sRouting = routing.Aggregate((current, next) => current + "," + next);
-                sUrl = string.Format("{0}/{1}/{2}/_search?routing={3}", baseUrl, sIndex, sType, sRouting);
-            }
-            else
-            {
-                sUrl = string.Format("{0}/{1}/{2}/_search", baseUrl, sIndex, sType);
-            }
-            int nStatus = 0;
-
-            sRes = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sSearchQuery, true);
-
-            log.DebugFormat("ES API request: URL = {0}, body = {1}, result = {2}", sUrl, sSearchQuery, sRes);
-
-            if (nStatus != 200)
-            {
-                log.Error("Error - " + string.Format("Search query failed. url={0};query={1}; explanation={2}", sUrl, sSearchQuery, sRes));
-                sRes = string.Empty;
-            }
-
-            return sRes;
-        }
-
-        public string MultiSearch(string sIndex, string sType, List<string> lSearchQueries, List<string> lRouting)
-        {
-            string sRes = string.Empty;
-
-            if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sType) || lSearchQueries == null || lSearchQueries.Count <= 0)
-                return sRes;
-
-            StringBuilder sb = new StringBuilder();
-            string routingStr = string.Empty;
-            if (lRouting != null && lRouting.Count > 0)
-            {
-                routingStr = lRouting.Aggregate((current, next) => String.Concat(current, ",", next));
-            }
-
-            foreach (string query in lSearchQueries)
-            {
-                if (string.IsNullOrEmpty(query))
-                    continue;
-
-                sb.Append("{");
-                if (routingStr.Length == 0)
-                {
-                    sb.AppendFormat("\"index\":\"{0}\", \"type\":\"{1}\"", sIndex, sType);
-                }
-                else
-                {
-                    sb.AppendFormat("\"index\":\"{0}\", \"type\":\"{1}\", \"routing\":\"{2}\"", sIndex, sType, routingStr);
-                }
-                sb.Append("}\n");
-                sb.Append(query);
-                sb.Append("\n");
-            }
-
-            string sUrl = string.Format("{0}/_msearch", baseUrl);
-            int nStatus = 0;
-            sRes = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sb.ToString(), true);
-            log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", sUrl, sb.ToString(), sRes);
-            
-
-            if (nStatus != 200)
-            {
-                log.Error("Error - " + string.Format("Search query failed. url={0};query={1}; Explanation={2}", sUrl, sb.ToString()));
-                sRes = string.Empty;
-            }
-
-            return sRes;
-        }
-
-        public List<string> SearchPercolator(string sIndex, string sType, ref string sDoc)
-        {
-            List<string> lResult = new List<string>();
-
-            if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sType) || string.IsNullOrEmpty(sDoc))
-                return lResult;
-
-            string sUrl = string.Format("{0}/{1}/{2}/_percolate ", baseUrl, sIndex, sType);
-            int nStatus = 0;
-
-            string retVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sDoc, true);
-
-            if (nStatus != 200)
-            {
-                log.Error("Error - " + string.Format("Search Percolator query failed. url={0};doc={1}; Explanation={2}", sUrl, sDoc, retVal));
-            }
-            else
-            {
-                try
-                {
-                    var jsonObj = JObject.Parse(retVal);
-
-                    if (jsonObj != null)
-                    {
-                        JToken jToken = jsonObj.SelectToken("matches");
-                        if (jToken != null)
-                        {
-                            lResult = jToken.Select(item =>
-                            {
-                                return (string)item.ToString();
-                            }
-                            ).ToList();
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    log.Error("Error - " + string.Format("SearchPercolator Could not parse response. Ex={0}", ex.Message));
-                }
-            }
-
-            return lResult;
-        }
-
-        public bool AddQueryToPercolator(string sIndex, string sQueryName, ref string sQuery)
-        {
-            bool bResult = false;
-
-            if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sQueryName) || string.IsNullOrEmpty(sQuery))
-                return bResult;
-
-            string sUrl = string.Format("{0}/_percolator/{1}/{2} ", baseUrl, sIndex, sQueryName);
-            int nStatus = 0;
-
-            string sRetVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery, true);
-
-            if (nStatus == 200)
-            {
-                bResult = true;
-            }
-            else
-            {
-                log.Error("Error - " + string.Format("Adding Query to Percolator failed. url={0};query={1}; Explanation={2}", sUrl, sQuery, sRetVal));
-            }
-
-            return bResult;
-        }
+        #region Index definitions: Analyzers, filters, tokenizers
 
         protected static Dictionary<string, string> dESAnalyzers = new Dictionary<string, string>();
         protected static Dictionary<string, string> dESFilters = new Dictionary<string, string>();
@@ -684,6 +232,666 @@ namespace ElasticSearch.Common
             return result;
         }
 
+        #endregion
+
+        #endregion
+
+        #region Mapping
+
+        public string GetAllMappings(string sIndex)
+        {
+            string sRes = string.Empty;
+
+            if (!string.IsNullOrEmpty(sIndex))
+            {
+                string sUrl = string.Format("{0}/{1}/_mapping", baseUrl, sIndex);
+                int nStatus = 0;
+                string sResponse = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
+
+                sRes = (nStatus == 200) ? sResponse : sRes;
+            }
+
+            return sRes;
+        }
+
+        public bool InsertMapping(string sIndex, string sMapName, string sMappingObject)
+        {
+            bool bResult = false;
+
+            if (!string.IsNullOrEmpty(sIndex) && !string.IsNullOrEmpty(sMappingObject) && !string.IsNullOrEmpty(sMapName))
+            {
+                string sUrl = string.Format("{0}/{1}/{2}/_mapping", baseUrl, sIndex, sMapName);
+
+                int nStatus = 0;
+
+                string sRetval = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sMappingObject, true);
+
+                bResult = (nStatus == 200) ? true : false;
+
+                if (!bResult)
+                    log.Error("Error - " + string.Format("Failed creating map. Explaination: {0}", sRetval));
+            }
+
+            return bResult;
+        }
+
+        public bool MappingExists(string sIndex, string sType)
+        {
+            bool bRes = false;
+
+            if (!string.IsNullOrEmpty(sIndex) && !string.IsNullOrEmpty(sType))
+            {
+
+                string sUrl = string.Format("{0}/{1}/{2}/_mapping", baseUrl, sIndex, sType);
+                int nStatus = 0;
+                string sResponse = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
+
+                bRes = (nStatus == 200) ? true : false;
+            }
+
+            return bRes;
+        }
+
+        #endregion
+
+        #region Aliases
+
+        #region Switch index, delete old indices (For rebuildind index)
+
+        public bool SwitchIndex(string sIndex, string sAlias, List<string> lIndicesForRemoval, string sSearchRouting = null)
+        {
+            bool bResult = false;
+
+            if (!string.IsNullOrEmpty(sIndex) && !string.IsNullOrEmpty(sAlias))
+            {
+                StringBuilder sActionRequest = new StringBuilder();
+                sActionRequest.Append("{ \"actions\": [");
+
+                if (lIndicesForRemoval != null)
+                {
+                    foreach (string sOldIndex in lIndicesForRemoval)
+                    {
+                        sActionRequest.Append(@" { ""remove"": { ");
+                        sActionRequest.AppendFormat(" \"alias\": \"{0}\", \"index\": \"{1}\"", sAlias, sOldIndex);
+                        sActionRequest.Append(" } },");
+                    }
+                }
+                sActionRequest.Append(@" { ""add"": { ");
+                sActionRequest.AppendFormat(" \"alias\": \"{0}\", \"index\": \"{1}\"", sAlias, sIndex);
+
+                if (!string.IsNullOrEmpty(sSearchRouting))
+                {
+                    sActionRequest.AppendFormat(", \"routing\":\"{0}\"", sSearchRouting);
+                }
+
+                sActionRequest.Append(" } } ] }");
+
+                string sUrl = string.Format("{0}/_aliases", baseUrl);
+                int nStatus = 0;
+
+                string sRetVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sActionRequest.ToString(), true);
+
+                bResult = (nStatus == 200) ? true : false;
+
+                if (bResult == false)
+                    log.Error("Error - " + string.Format("error received when trying to switch indices. Message: {0}", sRetVal));
+            }
+
+            return bResult;
+        }
+
+        public void DeleteIndices(List<string> lIndices)
+        {
+            if (lIndices != null)
+            {
+                string sUrl;
+                int nStatus;
+                foreach (string sIndex in lIndices)
+                {
+                    sUrl = string.Format("{0}/{1}", baseUrl, sIndex);
+                    nStatus = 0;
+                    string sRetval = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, string.Empty, true);
+
+                    if (nStatus != 200)
+                        log.Error("Error - " + string.Format("Unable to delete index. index={0}; Explanation{1}", sIndex, sRetval));
+                }
+
+            }
+        }
+
+        #endregion     
+
+        public List<string> GetAliases(string sIndex)
+        {
+            List<string> aliases = new List<string>();
+
+            if (!string.IsNullOrEmpty(sIndex))
+            {
+                string url = string.Format("{0}/{1}/_aliases", baseUrl, sIndex);
+                int status = 0;
+
+                string httpResponse = SendGetHttpReq(url, ref status, string.Empty, string.Empty, true);
+
+                if (status == 200 && !string.IsNullOrEmpty(httpResponse))
+                {
+                    try
+                    {
+                        var jsonObj =
+                            JObject.Parse(httpResponse);
+
+                        if (jsonObj != null)
+                        {
+                            foreach (var alias in jsonObj)
+                            {
+                                string indexName = alias.Key;
+
+                                if (!string.IsNullOrEmpty(indexName))
+                                    aliases.Add(indexName);
+                            }
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        string s = ex.Message;
+                    }
+                }
+            }
+
+            return aliases;
+
+        }
+
+        #endregion
+
+        #region Insert, Update, Delet
+
+        public bool InsertRecord(string sIndex, string sType, string sID, string sDoc)
+        {
+            bool bRes = false;
+            if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sType) || string.IsNullOrEmpty(sDoc) || string.IsNullOrEmpty(sID))
+                return bRes;
+
+            string sUrl = string.Format("{0}/{1}/{2}/{3}", baseUrl, sIndex, sType, sID);
+            int nStatus = 0;
+
+            string sRes = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sDoc, true);
+
+            bRes = (nStatus == 200) ? true : false;
+            if (!bRes)
+                log.Error("Error - " + string.Format("Unable to insert record into elasticsearch. url={0};document={1};Explanation{2}", sUrl, sDoc, sRes));
+
+            return bRes;
+        }
+
+        public ESDeleteResult DeleteDoc(string sIndex, string sType, string sId)
+        {
+            ESDeleteResult deleteResult = null;
+
+            if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sType) || string.IsNullOrEmpty(sId))
+            {
+                deleteResult = new ESDeleteResult();
+                return deleteResult;
+            }
+
+
+            string sUrl = string.Format("{0}/{1}/{2}/{3}", baseUrl, sIndex, sType, sId);
+            int nStatus = 0;
+
+            string sRetVal = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, string.Empty, true);
+
+            deleteResult = ESDeleteResult.GetDeleteResult(sRetVal);
+
+            return deleteResult;
+        }
+
+        public bool DeleteDocsByQuery(string sIndex, string sType, ref string sQuery)
+        {
+            bool bResult = true;
+            try
+            {
+                string sUrl = string.Format("{0}/{1}/{2}/_query", baseUrl, sIndex, sType);
+                int nStatus = 0;
+
+                string sResult = SendDeleteHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery, true);
+                log.Debug("Status - " + string.Format("DeleteDocsByQuery. Returned JSON from ES: ", sResult, " Query: ", sQuery));
+                bResult = nStatus == 200;
+
+            }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("Exception at DeleteDocsByQuery.");
+                sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(" Index: ", sIndex));
+                sb.Append(String.Concat(" Type: ", sType));
+                sb.Append(String.Concat(" Query: ", sQuery));
+                sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                log.Error("Exception - " + sb.ToString(), ex);
+                bResult = false;
+            }
+
+            return bResult;
+        }
+
+        /// <summary>
+        /// Performs a partial update on a document
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="type"></param>
+        /// <param name="docId"></param>
+        /// <param name="partialUpdate"></param>
+        /// <returns></returns>
+        public bool PartialUpdate(string index, string type, string docId, string partialUpdate)
+        {
+            bool result = false;
+
+            // Validate parameters
+            if (string.IsNullOrEmpty(index) || string.IsNullOrEmpty(type) || string.IsNullOrEmpty(docId) || string.IsNullOrEmpty(partialUpdate))
+            {
+                return result;
+            }
+
+            string url = string.Format("{0}/{1}/{2}/{3}/_update", baseUrl, index, type, docId);
+            int httpStatus = 0;
+
+            string postResult = SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, partialUpdate, true);
+
+            result = (httpStatus == 200) ? true : false;
+
+            if (!result)
+            {
+                log.Error("Error - " + string.Format("Unable to partial update record into elasticsearch. url={0};id={1};Explanation{2}", baseUrl, docId, postResult));
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Increases a single value of a document using a partial update. Useful for counting an additional view, for example
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="type"></param>
+        /// <param name="docId"></param>
+        /// <param name="field"></param>
+        /// <returns></returns>
+        public bool IncrementField(string index, string type, string docId, string field)
+        {
+            bool result = false;
+            string partialUpdate = string.Concat("{ \"script\": \"ctx._source.", field, "+=1\" }");
+
+            result = PartialUpdate(index, type, docId, partialUpdate);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Decreases a single value of a document using a partial update. Useful for removing a like, for example
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="type"></param>
+        /// <param name="docId"></param>
+        /// <param name="field"></param>
+        /// <returns></returns>
+        public bool DecrementField(string index, string type, string docId, string field)
+        {
+            bool result = false;
+            string partialUpdate = string.Concat("{ \"script\": \"ctx._source.", field, "-=1\" }");
+
+            result = PartialUpdate(index, type, docId, partialUpdate);
+
+            return result;
+        }
+
+        #endregion
+
+        #region Bulk Requests
+
+        /// <summary>
+        /// Creates and sends an ElasticSearch bulk request bulk request. Returns the requests that failed and their errors.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="bulkRequests"></param>
+        /// <returns></returns>
+        public List<KeyValuePair<string, string>> CreateBulkRequest<T>(List<ESBulkRequestObj<T>> bulkRequests)
+        {
+            log.Debug("Start Elastic Search Bulk requests");
+            StringBuilder requestString = new StringBuilder();
+            List<KeyValuePair<string, string>> invalidRecords = new List<KeyValuePair<string, string>>();
+
+            // Serialize/Build elastic search request body
+            if (bulkRequests != null)
+            {
+                foreach (var bulk in bulkRequests)
+                {
+                    requestString.Append("{ \"");
+                    requestString.Append(bulk.Operation.ToString());
+                    requestString.Append("\": { ");
+
+                    requestString.AppendFormat("\"_index\": \"{0}\"", bulk.index);
+                    requestString.AppendFormat(", \"_type\": \"{0}\"", bulk.type);
+
+                    if (!string.IsNullOrEmpty(bulk.routing))
+                    {
+                        requestString.AppendFormat(", \"_routing\": \"{0}\"", bulk.routing);
+                    }
+                    requestString.AppendFormat(",\"_id\" : \"{0}\"", bulk.docID);
+
+                    requestString.Append(" } }\n");
+
+                    if (!string.IsNullOrEmpty(bulk.document))
+                    {
+                        requestString.AppendFormat("{0}\n", bulk.document);
+                    }
+                }
+            }
+
+            // send request to ES server
+            string url = string.Format("{0}/_bulk", baseUrl);
+            int httpStatus = 0;
+            string bodyRequest = requestString.ToString();
+
+            string response = SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, bodyRequest, true);
+
+            log.Debug("Finish Elastic Search Bulk requests. result is " + response);
+
+            // Find out if there are errors
+            try
+            {
+                var json = JObject.Parse(response);
+
+                if (json != null)
+                {
+                    var errors = json["errors"];
+
+                    //json["items"][0].First.First.ToString()
+                    // If there are errors, report it
+                    if (errors != null && Convert.ToBoolean(errors))
+                    {
+                        var items = json["items"];
+
+                        var type = typeof(T);
+
+                        foreach (var item in items)
+                        {
+                            if (item.First != null && item.First.First != null)
+                            {
+                                var itemError = item.First.First["error"];
+                                var id = item.First.First["_id"];
+
+                                if (itemError != null)
+                                {
+                                    invalidRecords.Add(new KeyValuePair<string, string>(id.ToString(), itemError.ToString()));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed parsing Elastic Search bulk request, error = {0}", ex);
+            }
+
+            return invalidRecords;
+        }
+
+        /// <summary>
+        /// Creates and sends an ElasticSearch bulk request bulk request. Returns the requests that failed and their errors.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="index"></param>
+        /// <param name="type"></param>
+        /// <param name="objects"></param>
+        /// <param name="routing"></param>
+        /// <returns></returns>
+        public List<KeyValuePair<string, string>> CreateBulkIndexRequest<T>(
+            string index, string type, List<KeyValuePair<T, string>> objects, string routing = null)
+        {
+            log.Debug("Start ES Update - Start Bulk Update");
+
+            StringBuilder sBulkRequest = new StringBuilder();
+
+            List<ESBulkRequestObj<T>> bulkRequests = new List<ESBulkRequestObj<T>>();
+
+            // Create a bulk request object from each of the objects in the parameter list
+            foreach (var item in objects)
+            {
+                bulkRequests.Add(new ESBulkRequestObj<T>()
+                {
+                    docID = item.Key,
+                    document = item.Value,
+                    index = index,
+                    type = type,
+                    routing = routing,
+                    Operation = eOperation.index
+                });
+            }
+
+            List<KeyValuePair<T, string>> sInvalidRecords = new List<KeyValuePair<T, string>>();
+
+            // Use other method to perform request
+            var requestResult = CreateBulkRequest(bulkRequests);
+
+            return requestResult;
+        }
+
+        #endregion
+
+        #region Search
+
+        public string Search(string sIndex, string sType, ref string sSearchQuery, List<string> routing = null)
+        {
+            string sRes = string.Empty;
+
+            if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sType) || string.IsNullOrEmpty(sSearchQuery))
+                return sRes;
+
+            string sUrl;
+            if (routing != null && routing.Count > 0)
+            {
+                string sRouting = routing.Aggregate((current, next) => current + "," + next);
+                sUrl = string.Format("{0}/{1}/{2}/_search?routing={3}", baseUrl, sIndex, sType, sRouting);
+            }
+            else
+            {
+                sUrl = string.Format("{0}/{1}/{2}/_search", baseUrl, sIndex, sType);
+            }
+            int nStatus = 0;
+
+            sRes = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sSearchQuery, true);
+
+            log.DebugFormat("ES API request: URL = {0}, body = {1}, result = {2}", sUrl, sSearchQuery, sRes);
+
+            if (nStatus != 200)
+            {
+                log.Error("Error - " + string.Format("Search query failed. url={0};query={1}; explanation={2}", sUrl, sSearchQuery, sRes));
+                sRes = string.Empty;
+            }
+
+            return sRes;
+        }
+
+        public string MultiSearch(string sIndex, string sType, List<string> lSearchQueries, List<string> lRouting)
+        {
+            string sRes = string.Empty;
+
+            if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sType) || lSearchQueries == null || lSearchQueries.Count <= 0)
+                return sRes;
+
+            StringBuilder sb = new StringBuilder();
+            string routingStr = string.Empty;
+            if (lRouting != null && lRouting.Count > 0)
+            {
+                routingStr = lRouting.Aggregate((current, next) => String.Concat(current, ",", next));
+            }
+
+            foreach (string query in lSearchQueries)
+            {
+                if (string.IsNullOrEmpty(query))
+                    continue;
+
+                sb.Append("{");
+                if (routingStr.Length == 0)
+                {
+                    sb.AppendFormat("\"index\":\"{0}\", \"type\":\"{1}\"", sIndex, sType);
+                }
+                else
+                {
+                    sb.AppendFormat("\"index\":\"{0}\", \"type\":\"{1}\", \"routing\":\"{2}\"", sIndex, sType, routingStr);
+                }
+                sb.Append("}\n");
+                sb.Append(query);
+                sb.Append("\n");
+            }
+
+            string sUrl = string.Format("{0}/_msearch", baseUrl);
+            int nStatus = 0;
+            sRes = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sb.ToString(), true);
+            log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", sUrl, sb.ToString(), sRes);
+
+
+            if (nStatus != 200)
+            {
+                log.Error("Error - " + string.Format("Search query failed. url={0};query={1}; Explanation={2}", sUrl, sb.ToString()));
+                sRes = string.Empty;
+            }
+
+            return sRes;
+        }
+
+        #endregion
+
+        #region Percolator
+
+        public List<string> SearchPercolator(string sIndex, string sType, ref string sDoc)
+        {
+            List<string> lResult = new List<string>();
+
+            if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sType) || string.IsNullOrEmpty(sDoc))
+                return lResult;
+
+            string sUrl = string.Format("{0}/{1}/{2}/_percolate ", baseUrl, sIndex, sType);
+            int nStatus = 0;
+
+            string retVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sDoc, true);
+
+            if (nStatus != 200)
+            {
+                log.Error("Error - " + string.Format("Search Percolator query failed. url={0};doc={1}; Explanation={2}", sUrl, sDoc, retVal));
+            }
+            else
+            {
+                try
+                {
+                    var jsonObj = JObject.Parse(retVal);
+
+                    if (jsonObj != null)
+                    {
+                        JToken jToken = jsonObj.SelectToken("matches");
+                        if (jToken != null)
+                        {
+                            lResult = jToken.Select(item =>
+                            {
+                                if (item is JValue)
+                                {
+                                    return item.ToString();
+                                }
+
+                                var itemId = item["_id"];
+
+                                if (itemId != null)
+                                {
+                                    return itemId.ToString();
+                                }
+                                else
+                                {
+                                    return item.ToString();
+                                }
+                            }
+                            ).ToList();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Error - " + string.Format("SearchPercolator Could not parse response. Ex={0}", ex.Message));
+                }
+            }
+
+            return lResult;
+        }
+
+        public bool AddQueryToPercolator(string sIndex, string sQueryName, ref string sQuery)
+        {
+            bool bResult = false;
+
+            if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sQueryName) || string.IsNullOrEmpty(sQuery))
+                return bResult;
+
+            string sUrl = string.Format("{0}/_percolator/{1}/{2} ", baseUrl, sIndex, sQueryName);
+            int nStatus = 0;
+
+            string sRetVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery, true);
+
+            if (nStatus == 200)
+            {
+                bResult = true;
+            }
+            else
+            {
+                log.Error("Error - " + string.Format("Adding Query to Percolator failed. url={0};query={1}; Explanation={2}", sUrl, sQuery, sRetVal));
+            }
+
+            return bResult;
+        }
+
+        #endregion
+
+        #region Get methods
+
+        public string GetDoc(string sIndex, string sType, string sDocId)
+        {
+            string sRes = string.Empty;
+
+            if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sType))
+                return sRes;
+
+            string sUrl = string.Format("{0}/{1}/{2}/{3}", baseUrl, sIndex, sType, sDocId);
+            int nStatus = 0;
+
+            sRes = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
+
+            if (nStatus != 200)
+            {
+                log.Error("Error - " + string.Format("Get record failed. url={0};docID={1}", sUrl, sDocId));
+                sRes = string.Empty;
+            }
+
+            return sRes;
+        }
+
+        public string GetDoc(string sIndex, string sType, string sDocId, string routing)
+        {
+            string sRes = string.Empty;
+
+            if (string.IsNullOrEmpty(sIndex) || string.IsNullOrEmpty(sType))
+                return sRes;
+
+            string sUrl = string.Format("{0}/{1}/{2}/{3}?routing={4}", baseUrl, sIndex, sType, sDocId, routing);
+            int nStatus = 0;
+
+            sRes = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
+
+            if (nStatus != 200)
+            {
+                log.Error("Error - " + string.Format("Get record failed. url={0};docID={1}", sUrl, sDocId));
+                sRes = string.Empty;
+            }
+
+            return sRes;
+        }
+
         public string MultiGetIDs<T>(string sIndex, string sType, List<T> oIDsList, int nNumOfResultsToReturn)
         {
             string res = string.Empty;
@@ -719,40 +927,40 @@ namespace ElasticSearch.Common
                 case "int16":
                 case "int32":
                 case "int64":
+                {
+                    sb = new StringBuilder(String.Concat("{\"size\": ", nNumOfResultsToReturn, ", \"ids\": ["));
+                    for (int i = 0; i < listLength; i++)
                     {
-                        sb = new StringBuilder(String.Concat("{\"size\": ", nNumOfResultsToReturn, ", \"ids\": ["));
-                        for (int i = 0; i < listLength; i++)
+                        if (i != 0)
+                            sb.Append(",");
+                        sb.Append(String.Concat("\"", oIDsList[i].ToString(), "\""));
+                    }
+                    sb.Append("] }");
+                    break;
+                }
+                case "string":
+                {
+                    bool isFirstIDWritten = false;
+                    sb = new StringBuilder(String.Concat("{\"size\": ", nNumOfResultsToReturn, ", \"ids\": ["));
+                    for (int i = 0; i < listLength; i++)
+                    {
+                        long temp = 0;
+                        if (Int64.TryParse(oIDsList[i].ToString(), out temp))
                         {
-                            if (i != 0)
+                            if (isFirstIDWritten)
                                 sb.Append(",");
                             sb.Append(String.Concat("\"", oIDsList[i].ToString(), "\""));
+                            isFirstIDWritten = true;
                         }
-                        sb.Append("] }");
-                        break;
                     }
-                case "string":
-                    {
-                        bool isFirstIDWritten = false;
-                        sb = new StringBuilder(String.Concat("{\"size\": ", nNumOfResultsToReturn, ", \"ids\": ["));
-                        for (int i = 0; i < listLength; i++)
-                        {
-                            long temp = 0;
-                            if (Int64.TryParse(oIDsList[i].ToString(), out temp))
-                            {
-                                if (isFirstIDWritten)
-                                    sb.Append(",");
-                                sb.Append(String.Concat("\"", oIDsList[i].ToString(), "\""));
-                                isFirstIDWritten = true;
-                            }
-                        }
-                        sb.Append("] }");
-                        break;
-                    }
+                    sb.Append("] }");
+                    break;
+                }
                 default:
-                    {
-                        sb = new StringBuilder();
-                        break;
-                    }
+                {
+                    sb = new StringBuilder();
+                    break;
+                }
 
             }
 
@@ -760,7 +968,10 @@ namespace ElasticSearch.Common
             return res;
         }
 
+        #endregion
+
         #region HTTP requests
+
         public string SendPostHttpReq(string url, ref int status, string userName, string password, string parameters, bool isFirstTry)
         {
             Int32 nStatusCode = -1;
@@ -949,6 +1160,7 @@ namespace ElasticSearch.Common
             return (int)HttpStatusCode.InternalServerError;
 
         }
+        
         #endregion
 
         public class ESAssetDocument

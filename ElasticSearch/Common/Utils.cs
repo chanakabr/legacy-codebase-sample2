@@ -15,6 +15,7 @@ namespace ElasticSearch.Common
 
         public static readonly string ES_STATS_TYPE = "stats";
         public static readonly string ES_DATE_FORMAT = "yyyyMMddHHmmss";
+        public static readonly string ES_PERCOLATOR_TYPE = ".percolator";
 
         public static string GetWSURL(string sKey)
         {
@@ -125,19 +126,40 @@ namespace ElasticSearch.Common
             return sRes;
         }
 
-        public static string GetLangCodeAnalyzerKey(string sLanguageCode)
+        public static string GetLangCodeAnalyzerKey(string languageCode, string version)
         {
-            return string.Concat(sLanguageCode, "_analyzer");
+            if (string.IsNullOrEmpty(version))
+            {
+                return string.Concat(languageCode, "_analyzer");
+            }
+            else
+            {
+                return string.Concat(languageCode, "_analyzer_v", version);
+            }
         }
 
-        public static string GetLangCodeFilterKey(string sLanguageCode)
+        public static string GetLangCodeFilterKey(string languageCode, string version)
         {
-            return string.Concat(sLanguageCode, "_filter");
+            if (string.IsNullOrEmpty(version))
+            {
+                return string.Concat(languageCode, "_filter");
+            }
+            else
+            {
+                return string.Concat(languageCode, "_filter_v", version);
+            }
         }
 
-        public static string GetLangCodeTokenizerKey(string languageCode)
+        public static string GetLangCodeTokenizerKey(string languageCode, string version)
         {
-            return string.Concat(languageCode, "_tokenizer");
+            if (string.IsNullOrEmpty(version))
+            {
+                return string.Concat(languageCode, "_tokenizer");
+            }
+            else
+            {
+                return string.Concat(languageCode, "_tokenizer_v", version);
+            }
         }
 
         public static string GetGroupStatisticsIndex(int nParentGroupId)

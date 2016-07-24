@@ -43,7 +43,7 @@ namespace ElasticSearch.Searcher
             string sMaxResults = Common.Utils.GetWSURL("MAX_RESULTS");
 
             if (!int.TryParse(sMaxResults, out MAX_RESULTS))
-                MAX_RESULTS = 100000;
+                MAX_RESULTS = 10000;
         }
 
         public virtual FilteredQuery BuildChannelFilteredQuery(bool bAddDeviceRuleID = true)
@@ -725,7 +725,7 @@ namespace ElasticSearch.Searcher
             if (bOrderByScore)
                 sSort.Append(", \"_score\"");
 
-            // Always add sort by _uid to avoid ES weirdness of same sort-value 
+            // Always add sort by _id to avoid ES weirdness of same sort-value 
             sSort.Append(", { \"_uid\": { \"order\": \"desc\" } }");
 
             sSort.Append(" ]");
@@ -795,7 +795,7 @@ namespace ElasticSearch.Searcher
                             if (string.IsNullOrEmpty(sValue))
                                 continue;
 
-                            ESMatchQuery matchQuery = new ESMatchQuery(ESMatchQuery.eMatchQueryType.match) { eOperator = CutWith.AND, Field = sSearchKey, Query = sValue };
+                            ESMatchQuery matchQuery = new ESMatchQuery(null) { eOperator = CutWith.AND, Field = sSearchKey, Query = sValue };
                             oValueBoolQuery.AddChild(matchQuery, searchValue.m_eInnerCutWith);
                         }
                     }

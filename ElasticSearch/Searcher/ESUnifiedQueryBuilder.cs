@@ -110,7 +110,7 @@ namespace ElasticSearch.Searcher
 
             if (!int.TryParse(maxResults, out MAX_RESULTS))
             {
-                MAX_RESULTS = 100000;
+                MAX_RESULTS = 10000;
             }
         }
 
@@ -1483,12 +1483,12 @@ namespace ElasticSearch.Searcher
                         {
                             field = string.Format("{0}.autocomplete", leaf.field);
                         }
-                        else
+                        else 
                         {
                             field = string.Format("{0}.analyzed", leaf.field);
                         }
 
-                        term = new ESMatchQuery(ESMatchQuery.eMatchQueryType.match)
+                        term = new ESMatchQuery(null)
                         {
                             Field = field,
                             eOperator = CutWith.AND,
@@ -1503,7 +1503,7 @@ namespace ElasticSearch.Searcher
                         term = new BoolQuery();
 
                         (term as BoolQuery).AddNot(
-                            new ESMatchQuery(ESMatchQuery.eMatchQueryType.match)
+                            new ESMatchQuery(null)
                             {
                                 Field = field,
                                 eOperator = CutWith.AND,
@@ -1800,7 +1800,7 @@ namespace ElasticSearch.Searcher
                 {
                     result.AddChild(new ESTerm(true)
                     {
-                        Key = "_uid",
+                        Key = "_id",
                         Value = "-1"
                     }, 
                     CutWith.OR);
@@ -2007,7 +2007,7 @@ namespace ElasticSearch.Searcher
 
             if (order.m_eOrderBy != OrderBy.ID)
             {
-                // Always add sort by _uid to avoid ES weirdness of same sort-value 
+                // Always add sort by _id to avoid ES weirdness of same sort-value 
                 sortBuilder.Append(", { \"_uid\": { \"order\": \"desc\" } }");
             }
 

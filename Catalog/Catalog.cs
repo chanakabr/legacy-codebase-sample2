@@ -54,7 +54,7 @@ namespace Catalog
         private static readonly int ASSET_STATS_VOTES_SUM_INDEX = 2;
         private static readonly int ASSET_STATS_LIKES_INDEX = 3;
 
-        private const int DEFAULT_SEARCHER_MAX_RESULTS_SIZE = 100000;
+        private const int DEFAULT_SEARCHER_MAX_RESULTS_SIZE = 10000;
 
         internal const int DEFAULT_PWWAWP_MAX_RESULTS_SIZE = 8;
         internal const int DEFAULT_PWLALP_MAX_RESULTS_SIZE = 8;
@@ -66,7 +66,7 @@ namespace Catalog
         internal static readonly string STAT_ACTION_LIKE = "like";
         internal static readonly string STAT_ACTION_RATES = "rates";
         internal static readonly string STAT_ACTION_RATE_VALUE_FIELD = "rate_value";
-        internal static readonly string STAT_SLIDING_WINDOW_FACET_NAME = "sliding_window";
+        internal static readonly string STAT_SLIDING_WINDOW_AGGREGATION_NAME = "sliding_window";
         private const string USE_OLD_IMAGE_SERVER_KEY = "USE_OLD_IMAGE_SERVER";
         private static readonly long UNIX_TIME_1980 = DateUtils.DateTimeToUnixTimestamp(new DateTime(1980, 1, 1, 0, 0, 0));
 
@@ -1176,7 +1176,7 @@ namespace Catalog
         /// <param name="group"></param>
         /// <param name="isTagOrMeta"></param>
         /// <returns></returns>
-        private static HashSet<string> GetUnifiedSearchKey(string originalKey, Group group, out bool isTagOrMeta)
+        public static HashSet<string> GetUnifiedSearchKey(string originalKey, Group group, out bool isTagOrMeta)
         {
             isTagOrMeta = false;          
 
@@ -2237,25 +2237,61 @@ namespace Catalog
                         break;
                 }
 
-                searchObject.m_lFilterTagsAndMetas = ConvertKeyValuePairsToSearchValues(request.m_lFilterTags);
+                searchObject.m_lFilterTagsAndMetas = 
+                    ConvertKeyValuePairsToSearchValues(request.m_lFilterTags, request.m_nGroupID, request.m_eFilterCutWith);
             }
         }
 
-        private static List<SearchValue> ConvertKeyValuePairsToSearchValues(List<KeyValue> keyValues)
+        private static List<SearchValue> ConvertKeyValuePairsToSearchValues(List<KeyValue> keyValues, int groupId, CutWith cutWith)
         {
             List<SearchValue> returnedSearchValues = null;
 
             if (keyValues != null && keyValues.Count > 0)
             {
+                Group group = GroupsCache.Instance().GetGroup(groupId);
+
                 returnedSearchValues = new List<SearchValue>();
                 foreach (KeyValue keyValue in keyValues)
                 {
                     if (!string.IsNullOrEmpty(keyValue.m_sKey) && !string.IsNullOrEmpty(keyValue.m_sValue))
                     {
-                        SearchValue searchVal = new SearchValue();
-                        searchVal.m_sKey = keyValue.m_sKey;
-                        searchVal.m_lValue = new List<string> { keyValue.m_sValue };
-                        returnedSearchValues.Add(searchVal);
+                        bool isTagOrMeta;
+                        var searchKeys = GetUnifiedSearchKey(keyValue.m_sKey, group, out isTagOrMeta);
+
+                        switch (cutWith)
+                        {
+                            case CutWith.OR:
+                            {
+                                foreach (var currentKey in searchKeys)
+                                {
+                                    SearchValue search = new SearchValue();
+                                    search.m_sKey = currentKey;
+                                    search.m_lValue = new List<string> { keyValue.m_sValue };
+                                    returnedSearchValues.Add(search);
+                                }
+
+                                break;
+                            }
+                            case CutWith.AND:
+                            {
+                                SearchValue search = new SearchValue();
+
+                                string searchKey = keyValue.m_sKey;
+
+                                if (isTagOrMeta)
+                                {
+                                    searchKey = searchKeys.First();
+                                }
+
+                                search.m_sKey = searchKey;
+                                search.m_lValue = new List<string> { keyValue.m_sValue };
+
+                                returnedSearchValues.Add(search);
+                                break;
+                            }
+                            default:
+                            break;
+                        }
                     }
                 }
             }
@@ -2311,30 +2347,77 @@ namespace Catalog
             SearchValue search = new SearchValue();
             if (channelSearchValues != null && channelSearchValues.Count > 0)
             {
+                Group group = GroupsCache.Instance().GetGroup(searchObject.m_nGroupId);
+
                 foreach (SearchValue searchValue in channelSearchValues)
                 {
                     if (!string.IsNullOrEmpty(searchValue.m_sKey))
                     {
-                        search = new SearchValue();
-                        search.m_sKey = searchValue.m_sKey;
-                        search.m_lValue = searchValue.m_lValue;
-                        search.m_sKeyPrefix = searchValue.m_sKeyPrefix;
-                        search.m_eInnerCutWith = searchValue.m_eInnerCutWith;
-
-                        switch (cutWith)
+                        if (!string.IsNullOrEmpty(searchValue.m_sKeyPrefix))
                         {
-                            case CutWith.OR:
-                                {
+                            search = new SearchValue();
+                            search.m_sKey = searchValue.m_sKey;
+                            search.m_lValue = searchValue.m_lValue;
+                            search.m_sKeyPrefix = searchValue.m_sKeyPrefix;
+                            search.m_eInnerCutWith = searchValue.m_eInnerCutWith;
+
+                            switch (cutWith)
+                            {
+                                case CutWith.WCF_ONLY_DEFAULT_VALUE:
+                                break;
+                                case CutWith.OR:
                                     m_dOr.Add(search);
                                     break;
-                                }
-                            case CutWith.AND:
+                                case CutWith.AND:
+                                    m_dAnd.Add(search);
+                                    break;
+                                default:
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            bool isTagOrMeta;
+                            var searchKeys = GetUnifiedSearchKey(searchValue.m_sKey, group, out isTagOrMeta);
+
+                            switch (cutWith)
+                            {
+                                case CutWith.OR:
                                 {
+                                    foreach (var currentKey in searchKeys)
+                                    {
+                                        search = new SearchValue();
+                                        search.m_sKey = currentKey;
+                                        search.m_lValue = searchValue.m_lValue;
+                                        search.m_sKeyPrefix = searchValue.m_sKeyPrefix;
+                                        search.m_eInnerCutWith = searchValue.m_eInnerCutWith;
+                                        m_dOr.Add(search);
+                                    }
+
+                                    break;
+                                }
+                                case CutWith.AND:
+                                {
+                                    search = new SearchValue();
+
+                                    string searchKey = searchValue.m_sKey;
+
+                                    if (isTagOrMeta)
+                                    {
+                                        searchKey = searchKeys.First();
+                                    }
+
+                                    search.m_sKey = searchKey;
+                                    search.m_lValue = searchValue.m_lValue;
+                                    search.m_sKeyPrefix = searchValue.m_sKeyPrefix;
+                                    search.m_eInnerCutWith = searchValue.m_eInnerCutWith;
+
                                     m_dAnd.Add(search);
                                     break;
                                 }
-                            default:
+                                default:
                                 break;
+                            }
                         }
                     }
                 }
@@ -3084,43 +3167,48 @@ namespace Catalog
             {
                 case StatsType.MEDIA:
                     {
-                        List<string> facets = new List<string>(3);
-                        facets.Add(BuildSlidingWindowCountFacetRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_FIRST_PLAY)); // views count
-                        facets.Add(BuildSlidingWindowCountFacetRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_LIKE));
-                        facets.Add(BuildSlidingWindowStatisticsFacetRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_RATES, STAT_ACTION_RATE_VALUE_FIELD));
-                        string esResp = esApi.MultiSearch(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, facets, null);
-                        List<string> responses = ParseResponsesFromMultiFacet(esResp);
+                        List<string> aggregations = new List<string>(3);
+                        aggregations.Add(BuildSlidingWindowCountAggregationRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_FIRST_PLAY)); // views count
+                        aggregations.Add(BuildSlidingWindowCountAggregationRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_LIKE));
+                        aggregations.Add(BuildSlidingWindowStatisticsAggregationRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_RATES, STAT_ACTION_RATE_VALUE_FIELD));
+
+                        string esResp = esApi.MultiSearch(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, aggregations, null);
+
+                        List<string> responses = ParseResponsesFromMultiAggregations(esResp);
                         string currResp = responses[0];
-                        Dictionary<string, Dictionary<int, int>> viewsRaw = ESTermsFacet.IntegerFacetResults(ref currResp);
+                        Dictionary<string, Dictionary<int, int>> viewsRaw = ESAggregationsResult.DeserializeAggrgations<int>(currResp);
                         currResp = responses[1];
-                        Dictionary<string, Dictionary<int, int>> likesRaw = ESTermsFacet.IntegerFacetResults(ref currResp);
+                        Dictionary<string, Dictionary<int, int>> likesRaw = ESAggregationsResult.DeserializeAggrgations<int>(currResp);
                         currResp = responses[2];
-                        Dictionary<string, List<ESTermsStatsFacet.StatisticFacetResult>> ratesRaw = ESTermsStatsFacet.FacetResults(ref currResp);
+                        Dictionary<string, List<StatisticsAggregationResult>> ratesRaw = ESAggregationsResult.DeserializeStatisticsAggregations(currResp, "sub_stats");
 
                         Dictionary<int, int> views = null, likes = null;
-                        List<ESTermsStatsFacet.StatisticFacetResult> rates = null;
-                        viewsRaw.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out views);
-                        likesRaw.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out likes);
-                        ratesRaw.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out rates);
+                        List<StatisticsAggregationResult> rates = null;
+                        viewsRaw.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out views);
+                        likesRaw.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out likes);
+                        ratesRaw.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out rates);
+
                         InjectResultsIntoAssetStatsResponse(assetIDsToStatsMapping, views != null ? views : new Dictionary<int, int>(0),
                             likes != null ? likes : new Dictionary<int, int>(0),
-                            rates != null ? rates : new List<ESTermsStatsFacet.StatisticFacetResult>(0));
+                            rates != null ? rates : new List<StatisticsAggregationResult>(0));
                         break;
                     }
                 case StatsType.EPG:
                     {
                         // in epg we bring just likes
-                        string likesFacet = BuildSlidingWindowCountFacetRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_LIKE);
-                        string esResp = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref likesFacet);
-                        if (!string.IsNullOrEmpty(esResp))
+                        string likesAggregations = BuildSlidingWindowCountAggregationRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_LIKE);
+                        string searchResponse = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref likesAggregations);
+
+                        if (!string.IsNullOrEmpty(searchResponse))
                         {
-                            Dictionary<string, Dictionary<int, int>> likesRaw = ESTermsFacet.IntegerFacetResults(ref esResp);
+                            Dictionary<string, Dictionary<int, int>> likesRaw = ESAggregationsResult.DeserializeAggrgations<int>(searchResponse);
                             Dictionary<int, int> likes = null;
-                            likesRaw.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out likes);
+                            likesRaw.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out likes);
+
                             if (likes != null && likes.Count > 0)
                             {
                                 InjectResultsIntoAssetStatsResponse(assetIDsToStatsMapping, new Dictionary<int, int>(0), likes,
-                                    new List<ESTermsStatsFacet.StatisticFacetResult>(0));
+                                    new List<StatisticsAggregationResult>(0));
                             }
                         }
                         break;
@@ -3135,7 +3223,7 @@ namespace Catalog
 
         private static void InjectResultsIntoAssetStatsResponse(Dictionary<int, AssetStatsResult> assetIDsToStatsMapping,
             Dictionary<int, int> views, Dictionary<int, int> likes,
-            List<ESTermsStatsFacet.StatisticFacetResult> rates)
+            List<StatisticsAggregationResult> rates)
         {
 
             // views and likes
@@ -3157,16 +3245,16 @@ namespace Catalog
             {
                 int assetId = 0;
 
-                if (Int32.TryParse(rates[i].term, out assetId) && assetId > 0 && assetIDsToStatsMapping.ContainsKey(assetId))
+                if (Int32.TryParse(rates[i].key, out assetId) && assetId > 0 && assetIDsToStatsMapping.ContainsKey(assetId))
                 {
                     assetIDsToStatsMapping[assetId].m_nVotes = rates[i].count;
-                    assetIDsToStatsMapping[assetId].m_dRate = rates[i].mean;
+                    assetIDsToStatsMapping[assetId].m_dRate = rates[i].avg;
                 }
 
             }
         }
 
-        private static List<string> ParseResponsesFromMultiFacet(string esResp)
+        private static List<string> ParseResponsesFromMultiAggregations(string esResp)
         {
             List<string> res = new List<string>();
             if (!string.IsNullOrEmpty(esResp))
@@ -3933,7 +4021,7 @@ namespace Catalog
         {
             List<ChannelViewsResult> channelViews = new List<ChannelViewsResult>();
 
-            #region Define Facet Query
+            #region Define Aggregations Query
             ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery()
             {
                 PageIndex = 0,
@@ -3971,36 +4059,43 @@ namespace Catalog
 
             filteredQuery.Filter.FilterSettings = filter;
 
-            ESTermsFacet facet = new ESTermsFacet("channel_views", "media_id", 100000);
-            facet.Query = filteredQuery;
+            var aggregations = new ESBaseAggsItem()
+            {
+                Name = "stats",
+                Field = "media_id",
+                Type = eElasticAggregationType.terms,
+            };
+
+            filteredQuery.Aggregations.Add(aggregations);
+
             #endregion
 
-            string sFacetQuery = facet.ToString();
+            string aggregationsQuery = filteredQuery.ToString();
 
             //Search
             string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nGroupID);
             ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
-            string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref sFacetQuery);
+            string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref aggregationsQuery);
 
             if (!string.IsNullOrEmpty(retval))
             {
-                //Get facet results
-                Dictionary<string, Dictionary<string, int>> dFacets = ESTermsFacet.FacetResults(ref retval);
+                //Get aggregations results
+                Dictionary<string, Dictionary<string, int>> aggregationResults = ESAggregationsResult.DeserializeAggrgations<string>(retval);
 
-                if (dFacets != null && dFacets.Count > 0)
+                if (aggregationResults != null && aggregationResults.Count > 0)
                 {
-                    Dictionary<string, int> dFacetResult;
-                    //retrieve channel_views facet results
-                    dFacets.TryGetValue("channel_views", out dFacetResult);
+                    Dictionary<string, int> aggregationResult;
+                    //retrieve channel_views aggregations results
+                    aggregationResults.TryGetValue("channel_views", out aggregationResult);
 
-                    if (dFacetResult != null && dFacetResult.Count > 0)
+                    if (aggregationResult != null && aggregationResult.Count > 0)
                     {
-                        foreach (string sFacetKey in dFacetResult.Keys)
+                        foreach (string key in aggregationResult.Keys)
                         {
-                            int count = dFacetResult[sFacetKey];
+                            int count = aggregationResult[key];
 
                             int nChannelID;
-                            if (int.TryParse(sFacetKey, out nChannelID))
+                            if (int.TryParse(key, out nChannelID))
                             {
                                 channelViews.Add(new ChannelViewsResult(nChannelID, count));
                             }
@@ -4158,42 +4253,10 @@ namespace Catalog
 
         }
 
-        internal static bool InsertStatisticsRequestToES(int groupID, int mediaID, int mediaTypeID, string action, int playTime)
-        {
-            CatalogCache catalogCache = CatalogCache.Instance();
-            int parentGroupID = catalogCache.GetParentGroup(groupID);
-
-
-            MediaView view = new MediaView()
-            {
-                GroupID = parentGroupID,
-                MediaID = mediaID,
-                Location = playTime,
-                MediaType = mediaTypeID.ToString(),
-                Action = action,
-                Date = DateTime.UtcNow
-            };
-
-            bool bRes = false;
-            ElasticSearch.Common.ElasticSearchApi oESApi = new ElasticSearch.Common.ElasticSearchApi();
-
-            string sJsonView = Newtonsoft.Json.JsonConvert.SerializeObject(view);
-            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(view.GroupID);
-
-            if (oESApi.IndexExists(index) && !string.IsNullOrEmpty(sJsonView))
-            {
-                string guidStr = Guid.NewGuid().ToString();
-
-                bRes = oESApi.InsertRecord(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, guidStr, sJsonView);
-            }
-
-            return bRes;
-        }
-
-        private static string BuildSlidingWindowCountFacetRequest(int groupID, List<int> mediaIDs, DateTime startDate, DateTime endDate,
+        private static string BuildSlidingWindowCountAggregationRequest(int groupID, List<int> mediaIDs, DateTime startDate, DateTime endDate,
             string action)
         {
-            #region Define Facet Query
+            #region Define Aggregation Query 
             ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery()
             {
                 PageIndex = 0,
@@ -4244,46 +4307,51 @@ namespace Catalog
 
             filteredQuery.Filter.FilterSettings = filter;
 
-            ESTermsFacet facet = new ESTermsFacet(STAT_SLIDING_WINDOW_FACET_NAME, "media_id", 100000);
-            facet.Query = filteredQuery;
+            ESBaseAggsItem aggregation = new ESBaseAggsItem()
+            {
+                Field = "media_id",
+                Name = STAT_SLIDING_WINDOW_AGGREGATION_NAME,
+                Type = eElasticAggregationType.terms
+            };
+
+            filteredQuery.Aggregations.Add(aggregation);
             #endregion
 
-            return facet.ToString();
+            return filteredQuery.ToString();
         }
 
-        internal static List<int> SlidingWindowCountFacet(int nGroupId, List<int> lMediaIds, DateTime dtStartDate,
+        internal static List<int> SlidingWindowCountAggregations(int nGroupId, List<int> lMediaIds, DateTime dtStartDate,
             DateTime dtEndDate, string action)
         {
             List<int> result = new List<int>();
 
-            // if no ordering is specified to BuildSlidingWindowCountFacetRequest function then default is order by count descending
-            string sFacetQuery = BuildSlidingWindowCountFacetRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate, action);
-
+            // if no ordering is specified to BuildSlidingWindowCountAggregationsRequest function then default is order by count descending
+            string aggregationsQuery = BuildSlidingWindowCountAggregationRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate, action);
 
             //Search
             string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nGroupId);
             ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
-            string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref sFacetQuery);
+            string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref aggregationsQuery);
 
             if (!string.IsNullOrEmpty(retval))
             {
-                //Get facet results
-                Dictionary<string, Dictionary<string, int>> dFacets = ESTermsFacet.FacetResults(ref retval);
+                //Get aggregations results
+                Dictionary<string, Dictionary<string, int>> aggregationResults = ESAggregationsResult.DeserializeAggrgations<string>(retval);
 
-                if (dFacets != null && dFacets.Count > 0)
+                if (aggregationResults != null && aggregationResults.Count > 0)
                 {
-                    Dictionary<string, int> dFacetResult;
-                    //retrieve channel_views facet results
-                    dFacets.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out dFacetResult);
+                    Dictionary<string, int> aggregationResult;
+                    //retrieve channel_views aggregations results
+                    aggregationResults.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out aggregationResult);
 
-                    if (dFacetResult != null && dFacetResult.Count > 0)
+                    if (aggregationResult != null && aggregationResult.Count > 0)
                     {
-                        foreach (string sFacetKey in dFacetResult.Keys)
+                        foreach (string key in aggregationResult.Keys)
                         {
-                            int count = dFacetResult[sFacetKey];
+                            int count = aggregationResult[key];
 
                             int nMediaId;
-                            if (int.TryParse(sFacetKey, out nMediaId))
+                            if (int.TryParse(key, out nMediaId))
                             {
                                 result.Add(nMediaId);
                             }
@@ -4295,38 +4363,37 @@ namespace Catalog
             return result;
         }
 
-        internal static Dictionary<int, int> SlidingWindowCountFacetMappings(int nGroupId, List<int> lMediaIds, DateTime dtStartDate,
+        internal static Dictionary<int, int> SlidingWindowCountAggregationsMappings(int nGroupId, List<int> lMediaIds, DateTime dtStartDate,
             DateTime dtEndDate, string action)
         {
             Dictionary<int, int> result = new Dictionary<int, int>();
 
-            string sFacetQuery = BuildSlidingWindowCountFacetRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate, action);
-
+            string aggregationsQuery = BuildSlidingWindowCountAggregationRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate, action);
 
             //Search
             string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nGroupId);
             ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
-            string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref sFacetQuery);
+            string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref aggregationsQuery);
 
             if (!string.IsNullOrEmpty(retval))
             {
-                //Get facet results
-                Dictionary<string, Dictionary<string, int>> dFacets = ESTermsFacet.FacetResults(ref retval);
+                //Get aggregations results
+                Dictionary<string, Dictionary<string, int>> aggregationResults = ESAggregationsResult.DeserializeAggrgations<string>(retval);
 
-                if (dFacets != null && dFacets.Count > 0)
+                if (aggregationResults != null && aggregationResults.Count > 0)
                 {
-                    Dictionary<string, int> dFacetResult;
-                    //retrieve channel_views facet results
-                    dFacets.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out dFacetResult);
+                    Dictionary<string, int> aggregationResult;
+                    //retrieve channel_views aggregations results
+                    aggregationResults.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out aggregationResult);
 
-                    if (dFacetResult != null && dFacetResult.Count > 0)
+                    if (aggregationResult != null && aggregationResult.Count > 0)
                     {
-                        foreach (string sFacetKey in dFacetResult.Keys)
+                        foreach (string key in aggregationResult.Keys)
                         {
-                            int count = dFacetResult[sFacetKey];
+                            int count = aggregationResult[key];
 
                             int nMediaId;
-                            if (int.TryParse(sFacetKey, out nMediaId) && !result.ContainsKey(nMediaId))
+                            if (int.TryParse(key, out nMediaId) && !result.ContainsKey(nMediaId))
                             {
                                 result.Add(nMediaId, count);
                             }
@@ -4338,10 +4405,10 @@ namespace Catalog
             return result;
         }
 
-        private static string BuildSlidingWindowStatisticsFacetRequest(int groupID, List<int> mediaIDs, DateTime startDate,
+        private static string BuildSlidingWindowStatisticsAggregationRequest(int groupID, List<int> mediaIDs, DateTime startDate,
             DateTime endDate, string action, string valueField)
         {
-            #region Define Facet Query
+            #region Define Aggregation Query
             ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery()
             {
                 PageIndex = 0,
@@ -4388,47 +4455,62 @@ namespace Catalog
 
             filteredQuery.Filter.FilterSettings = filter;
 
-            ESTermsStatsFacet facet = new ESTermsStatsFacet(STAT_SLIDING_WINDOW_FACET_NAME, "media_id", valueField, 100000);
-            facet.Query = filteredQuery;
             #endregion
 
-            return facet.ToString();
+            var aggregation = new ESBaseAggsItem()
+            {
+                Name = STAT_SLIDING_WINDOW_AGGREGATION_NAME,
+                Field = "media_id",
+                Type = eElasticAggregationType.terms,
+            };
+
+            aggregation.SubAggrgations.Add(new ESBaseAggsItem()
+            {
+                Name = "sub_stats",
+                Type = eElasticAggregationType.stats,
+                Field = Catalog.STAT_ACTION_RATE_VALUE_FIELD
+            });
+
+            filteredQuery.Aggregations.Add(aggregation);
+
+            return filteredQuery.ToString();
         }
 
-        internal static List<int> SlidingWindowStatisticsFacet(int nGroupId, List<int> lMediaIds, DateTime dtStartDate,
-            DateTime dtEndDate, string action, string valueField, ESTermsStatsFacet.FacetCompare.eCompareType compareType)
+        internal static List<int> SlidingWindowStatisticsAggregations(int nGroupId, List<int> lMediaIds, DateTime dtStartDate,
+            DateTime dtEndDate, string action, string valueField, AggregationsComparer.eCompareType compareType)
         {
             List<int> result = new List<int>();
 
-            string sFacetQuery = BuildSlidingWindowStatisticsFacetRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate,
+            string aggregationsQuery = BuildSlidingWindowStatisticsAggregationRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate,
                 action, valueField);
 
             //Search
             string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nGroupId);
             ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
-            string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref sFacetQuery);
+            string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref aggregationsQuery);
 
             if (!string.IsNullOrEmpty(retval))
             {
-                //Get facet results
-                Dictionary<string, List<ESTermsStatsFacet.StatisticFacetResult>> dFacets = ESTermsStatsFacet.FacetResults(ref retval);
+                //Get aggregation results
+                Dictionary<string, List<StatisticsAggregationResult>> aggregationResults = 
+                    ESAggregationsResult.DeserializeStatisticsAggregations(retval, "sub_stats");
 
-                if (dFacets != null && dFacets.Count > 0)
+                if (aggregationResults != null && aggregationResults.Count > 0)
                 {
-                    List<ESTermsStatsFacet.StatisticFacetResult> lFacetResult;
-                    //retrieve channel_views facet results
-                    dFacets.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out lFacetResult);
+                    List<StatisticsAggregationResult> aggregationResult;
+                    //retrieve channel_views aggregation results
+                    aggregationResults.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out aggregationResult);
 
-                    if (lFacetResult != null && lFacetResult.Count > 0)
+                    if (aggregationResult != null && aggregationResult.Count > 0)
                     {
                         int mediaId;
 
-                        // sorts order by descending (due to FacetCompare)
-                        lFacetResult.Sort(new ESTermsStatsFacet.FacetCompare(compareType));
+                        // sorts order by descending
+                        aggregationResult.Sort(new AggregationsComparer(compareType));
 
-                        foreach (var stats in lFacetResult)
+                        foreach (var stats in aggregationResult)
                         {
-                            if (int.TryParse(stats.term, out mediaId))
+                            if (int.TryParse(stats.key, out mediaId))
                             {
                                 result.Add(mediaId);
                             }

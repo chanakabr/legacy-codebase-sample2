@@ -269,17 +269,18 @@ namespace Catalog.Request
                     /************* For versions after Joker that don't want to use DB for getting view stats (first_play), we fetch the data from ES statistics index **********/
                     else
                     {
-                        result = Catalog.SlidingWindowCountFacet(nGroupId, media, windowTime, now, Catalog.STAT_ACTION_FIRST_PLAY);
+                        result = Catalog.SlidingWindowCountAggregations(nGroupId, media, windowTime, now, Catalog.STAT_ACTION_FIRST_PLAY);
                     }
                     break;
                 case OrderBy.RATING:
-                    result = Catalog.SlidingWindowStatisticsFacet(nGroupId, media, windowTime, now, Catalog.STAT_ACTION_RATES, Catalog.STAT_ACTION_RATE_VALUE_FIELD, ElasticSearch.Searcher.ESTermsStatsFacet.FacetCompare.eCompareType.MEAN);
+                    result = Catalog.SlidingWindowStatisticsAggregations(nGroupId, media, windowTime, now, Catalog.STAT_ACTION_RATES, Catalog.STAT_ACTION_RATE_VALUE_FIELD, 
+                        ElasticSearch.Searcher.AggregationsComparer.eCompareType.Average);
                     break;
                 case OrderBy.VOTES_COUNT:
-                    result = Catalog.SlidingWindowCountFacet(nGroupId, media, windowTime, now, Catalog.STAT_ACTION_RATES);
+                    result = Catalog.SlidingWindowCountAggregations(nGroupId, media, windowTime, now, Catalog.STAT_ACTION_RATES);
                     break;
                 case OrderBy.LIKE_COUNTER:
-                    result = Catalog.SlidingWindowCountFacet(nGroupId, media, windowTime, now, Catalog.STAT_ACTION_LIKE);
+                    result = Catalog.SlidingWindowCountAggregations(nGroupId, media, windowTime, now, Catalog.STAT_ACTION_LIKE);
                     break;
                 default:
                     result = media;

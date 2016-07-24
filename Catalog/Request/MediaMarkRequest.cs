@@ -427,7 +427,9 @@ namespace Catalog.Request
             try
             {
                 context.Load();
-                if (!Catalog.InsertStatisticsRequestToES(groupID, mediaID, mediaTypeID, Catalog.STAT_ACTION_MEDIA_HIT, playTime))
+                int parentGroupID = Cache.CatalogCache.Instance().GetParentGroup(groupID);
+
+                if (!ElasticSearch.Utilities.ESStatisticsUtilities.InsertMediaView(parentGroupID, mediaID, mediaTypeID, Catalog.STAT_ACTION_MEDIA_HIT, playTime, false))
                     log.Error("Error - " + String.Concat("Failed to write mediahit into stats index. M ID: ", mediaID, " MT ID: ", mediaTypeID));
             }
             catch (Exception ex)
@@ -444,7 +446,9 @@ namespace Catalog.Request
             {
                 context.Load();
                 ApiDAL.Update_MediaViews(mediaID, mediaFileID);
-                if (!Catalog.InsertStatisticsRequestToES(groupID, mediaID, mediaTypeID, Catalog.STAT_ACTION_FIRST_PLAY, playTime))
+                int parentGroupID = Cache.CatalogCache.Instance().GetParentGroup(groupID);
+
+                if (!ElasticSearch.Utilities.ESStatisticsUtilities.InsertMediaView(parentGroupID, mediaID, mediaTypeID, Catalog.STAT_ACTION_FIRST_PLAY, playTime, true))
                 {
                     log.Error("Error - " + String.Concat("Failed to write firstplay into stats index. Req: ", ToString()));
                 }

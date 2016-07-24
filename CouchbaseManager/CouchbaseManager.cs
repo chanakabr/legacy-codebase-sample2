@@ -182,6 +182,7 @@ namespace CouchbaseManager
             // Should be only one!
             foreach (var currentBucket in this.clientConfiguration.BucketConfigs)
             {
+                
                 bucketName = currentBucket.Value.BucketName;
                 break;
             }

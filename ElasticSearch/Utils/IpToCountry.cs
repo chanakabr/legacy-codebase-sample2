@@ -118,6 +118,13 @@ namespace ElasticSearch.Utilities
                 {
                     // get country from first (and hopefully only) result
                     result = jsonObj.SelectToken("hits.hits").First().SelectToken(string.Format("fields.{0}", fieldName));
+
+                    JArray tempArray = result as JArray;
+
+                    if (tempArray != null && tempArray.Count > 0)
+                    {
+                        result = tempArray[0];
+                    }
                 }
             }
 

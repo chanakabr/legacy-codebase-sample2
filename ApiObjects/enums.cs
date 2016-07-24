@@ -465,6 +465,7 @@ namespace ApiObjects
         InitializeFreeItemUpdateQueue,
         NotificationCleanupIteration,
         RecordingsCleanup,
+        MigrateStatistics,
         InsertExpiredRecordingsTasks,
         RecordingScheduledTasks
     }

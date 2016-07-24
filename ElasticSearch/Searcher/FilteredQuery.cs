@@ -17,16 +17,26 @@ namespace ElasticSearch.Searcher
         public List<string> ReturnFields { get; protected set; }
         public List<ESOrderObj> ESSort { get; protected set; }
         public bool m_bIsRoot { get; set; }
+        public List<ESBaseAggsItem> Aggregations
+        {
+            get;
+            set;
+        }
 
         public FilteredQuery(bool bIsRoot = true)
         {
-            ReturnFields = new List<string>() { "\"_id\"", "\"_index\"", "\"_type\"", "\"_score\"", "\"group_id\"", "\"media_id\"", "\"epg_id\"", "\"name\"", "\"cache_date\"", "\"update_date\"" };
+            Aggregations = new List<ESBaseAggsItem>();
+
+            ReturnFields = new List<string>() 
+            { "\"_id\"", "\"_index\"", "\"_type\"", 
+                "\"_score\"", "\"group_id\"", "\"media_id\"", 
+                "\"epg_id\"", "\"name\"", "\"cache_date\"", "\"update_date\"" };
             ESSort = new List<ESOrderObj>();
             string sMaxResults = Common.Utils.GetWSURL("MAX_RESULTS");
             m_bIsRoot = bIsRoot;
 
             if (!int.TryParse(sMaxResults, out MAX_RESULTS))
-                MAX_RESULTS = 100000;
+                MAX_RESULTS = 10000;
         }
 
         public override string ToString()
@@ -104,6 +114,19 @@ namespace ElasticSearch.Searcher
 
             sbFilteredQuery.Append("}}");
 
+            if (this.Aggregations != null && this.Aggregations.Count > 0)
+            {
+                sbFilteredQuery.Append(", \"aggs\": {");
+
+                    foreach (ESBaseAggsItem item in this.Aggregations)
+                    {
+                        sbFilteredQuery.AppendFormat("{0},", item.ToString());
+                    }
+
+                    sbFilteredQuery.Remove(sbFilteredQuery.Length - 1, 1);
+                    sbFilteredQuery.Append("}");
+            }
+
             if (m_bIsRoot)
                 sbFilteredQuery.Append("}");
 
@@ -156,7 +179,7 @@ namespace ElasticSearch.Searcher
             }
             else if (oOrderObj.m_eOrderBy == OrderBy.ID)
             {
-                sRes = "_uid";
+                sRes = "_id";
             }
             else if (oOrderObj.m_eOrderBy == OrderBy.RELATED)
             {
