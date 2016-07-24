@@ -15,18 +15,42 @@ namespace SetupTaskHandler
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         
-        protected ESSerializer serializer;
+        protected BaseESSeralizer serializer;
         protected ElasticSearchApi api;
 
         public IPToCountryIndexBuilder()
         {
-            serializer = new ESSerializer();
+            serializer = null;
             api = new ElasticSearchApi();
         }
 
-        public bool BuildIndex()
+        public bool BuildIndex(string elasticSearchUrl = "", int version = 1)
         {
             bool result = false;
+
+            if (!string.IsNullOrEmpty(elasticSearchUrl))
+            {
+                api.baseUrl = elasticSearchUrl;
+            }
+
+            switch (version)
+            {
+                case 1:
+                {
+                    serializer = new ESSerializerV1();
+                    break;
+                }
+                case 2:
+                {
+                    serializer = new ESSerializerV2();
+                    break;
+                }
+                default:
+                {
+                    serializer = new ESSerializerV1();
+                    break;
+                }
+            }
 
             string newIndex = "utils";
             string type = "iptocountry";
@@ -71,7 +95,7 @@ namespace SetupTaskHandler
 
                         if (bulkObjects.Count >= 5000)
                         {
-                            Task<List<ESBulkRequestObj<int>>> t = Task<List<ESBulkRequestObj<int>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(bulkObjects));
+                            Task<object> t = Task<object>.Factory.StartNew(() => api.CreateBulkRequest(bulkObjects));
                             t.Wait();
                             bulkObjects = new List<ESBulkRequestObj<int>>();
                         }
@@ -79,7 +103,7 @@ namespace SetupTaskHandler
 
                     if (bulkObjects.Count > 0)
                     {
-                        Task<List<ESBulkRequestObj<int>>> t = Task<List<ESBulkRequestObj<int>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(bulkObjects));
+                        Task<object> t = Task<object>.Factory.StartNew(() => api.CreateBulkRequest(bulkObjects));
                         t.Wait();
                     }
                 }

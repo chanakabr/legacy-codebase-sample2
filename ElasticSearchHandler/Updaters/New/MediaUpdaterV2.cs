@@ -15,7 +15,7 @@ using System.Reflection;
 
 namespace ElasticSearchHandler.Updaters
 {
-    public class MediaUpdater : IUpdateable
+    public class MediaUpdaterV2 : IElasticSearchUpdater
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public static readonly string MEDIA = "media";
@@ -23,7 +23,7 @@ namespace ElasticSearchHandler.Updaters
         #region Data Members
 
         private int groupID;
-        private ElasticSearch.Common.ESSerializer esSerializer;
+        private ElasticSearch.Common.ESSerializerV2 esSerializer;
         private ElasticSearch.Common.ElasticSearchApi esApi;
 
         #endregion
@@ -33,14 +33,36 @@ namespace ElasticSearchHandler.Updaters
         public List<int> IDs { get; set; }
         public ApiObjects.eAction Action { get; set; }
 
+        public string ElasticSearchUrl
+        {
+            get
+            {
+                if (esApi != null)
+                {
+                    return esApi.baseUrl;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            set
+            {
+                if (esApi != null)
+                {
+                    esApi.baseUrl = value;
+                }
+            }
+        }
+
         #endregion
 
         #region Ctors
 
-        public MediaUpdater(int groupID)
+        public MediaUpdaterV2(int groupID)
         {
             this.groupID = groupID;
-            esSerializer = new ElasticSearch.Common.ESSerializer();
+            esSerializer = new ElasticSearch.Common.ESSerializerV2();
             esApi = new ElasticSearch.Common.ElasticSearchApi();
         }
 

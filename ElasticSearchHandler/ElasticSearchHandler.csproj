@@ -44,6 +44,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
     </Reference>
+    <Reference Include="KlogMonitorHelper, Version=3.4.583.29708, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\tvmcore\External\KlogMonitorHelper.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\TVinciCommon\External\Couchbase-Net-Client-2.2.6\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -65,22 +69,41 @@
   <ItemGroup>
     <Compile Include="ElasticSearchRequest.cs" />
     <Compile Include="ElasticSearchTaskUtils.cs" />
-    <Compile Include="IndexBuilders\AbstractIndexBuilder.cs" />
-    <Compile Include="IndexBuilders\ChannelIndexBuilder.cs" />
-    <Compile Include="IndexBuilders\EpgIndexBuilder.cs" />
-    <Compile Include="IndexBuilders\IIndexBuilder.cs" />
-    <Compile Include="IndexBuilders\IndexBuilderFactory.cs" />
-    <Compile Include="IndexBuilders\MediaIndexBuilder.cs" />
-    <Compile Include="IndexBuilders\RecordingIndexBuilder.cs" />
+    <Compile Include="IndexBuilders\Dual\DualChannelIndexBuilder.cs" />
+    <Compile Include="IndexBuilders\Dual\DualEPGIndexBuilder.cs" />
+    <Compile Include="IndexBuilders\Dual\DualMediaIndexBuilder.cs" />
+    <Compile Include="IndexBuilders\Dual\DualRecordingIndexBuilder.cs" />
+    <Compile Include="IndexBuilders\New\ChannelIndexBuilderV2.cs" />
+    <Compile Include="IndexBuilders\New\EpgIndexBuilderV2.cs" />
+    <Compile Include="IndexBuilders\New\MediaIndexBuilderV2.cs" />
+    <Compile Include="IndexBuilders\New\RecordingIndexBuilderV2.cs" />
+    <Compile Include="IndexBuilders\Old\ChannelIndexBuilderV1.cs" />
+    <Compile Include="Infra\AbstractIndexBuilder.cs" />
+    <Compile Include="IndexBuilders\Old\EpgIndexBuilderV1.cs" />
+    <Compile Include="Infra\IIndexBuilder.cs" />
+    <Compile Include="Infra\IndexBuilderFactory.cs" />
+    <Compile Include="IndexBuilders\Old\MediaIndexBuilderV1.cs" />
+    <Compile Include="IndexBuilders\Old\RecordingIndexBuilderV1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TaskHandler.cs" />
-    <Compile Include="Updaters\ChannelUpdater.cs" />
-    <Compile Include="Updaters\EpgChannelUpdater.cs" />
-    <Compile Include="Updaters\EpgUpdater.cs" />
-    <Compile Include="Updaters\IUpdateable.cs" />
-    <Compile Include="Updaters\MediaUpdater.cs" />
-    <Compile Include="Updaters\RecordingUpdater.cs" />
-    <Compile Include="Updaters\UpdaterFactory.cs" />
+    <Compile Include="Updaters\Dual\DualEpgChannelUpdater.cs" />
+    <Compile Include="Updaters\Dual\DualChannelUpdater.cs" />
+    <Compile Include="Updaters\Dual\DualRecordingUpdater.cs" />
+    <Compile Include="Updaters\Dual\DualEpgUpdater.cs" />
+    <Compile Include="Updaters\Dual\DualMediaUpdater.cs" />
+    <Compile Include="Updaters\Dual\DualUpdater.cs" />
+    <Compile Include="Updaters\New\ChannelUpdaterV2.cs" />
+    <Compile Include="Updaters\New\EpgChannelUpdaterV2.cs" />
+    <Compile Include="Updaters\New\EpgUpdaterV2.cs" />
+    <Compile Include="Updaters\New\MediaUpdaterV2.cs" />
+    <Compile Include="Updaters\New\RecordingUpdaterV2.cs" />
+    <Compile Include="Updaters\Old\ChannelUpdaterV1.cs" />
+    <Compile Include="Updaters\Old\EpgChannelUpdaterV1.cs" />
+    <Compile Include="Updaters\Old\EpgUpdaterV1.cs" />
+    <Compile Include="Infra\IElasticSearchUpdater.cs" />
+    <Compile Include="Updaters\Old\MediaUpdaterV1.cs" />
+    <Compile Include="Updaters\Old\RecordingUpdaterV1.cs" />
+    <Compile Include="Infra\UpdaterFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\TvmCore\ApiObjects\ApiObjects.csproj">

@@ -8,10 +8,11 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using EpgBL;
+using ElasticSearch.Common;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
-    public class RecordingIndexBuilder : EpgIndexBuilder
+    public class RecordingIndexBuilderV2 : EpgIndexBuilderV1
     {
         #region Data Members
 
@@ -20,13 +21,15 @@ namespace ElasticSearchHandler.IndexBuilders
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         protected Dictionary<long, long> epgToRecordingMapping = null;
-
+        
         #endregion
 
         #region Ctor
 
-        public RecordingIndexBuilder(int groupId) : base(groupId)
+        public RecordingIndexBuilderV2(int groupId)
+            : base(groupId)
         {
+            serializer = new ESSerializerV2();
             epgToRecordingMapping = new Dictionary<long, long>();
         }
 
@@ -46,7 +49,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
             // Get information about relevant recordings
             epgToRecordingMapping = DAL.RecordingsDAL.GetEpgToRecordingsMapByRecordingStatuses(this.groupId, statuses);
-            List<string> epgIds = epgToRecordingMapping.Select(x => x.ToString()).ToList();                        
+            List<string> epgIds = epgToRecordingMapping.Select(x => x.ToString()).ToList();
 
             EpgBL.TvinciEpgBL epgBL = new TvinciEpgBL(this.groupId);
 

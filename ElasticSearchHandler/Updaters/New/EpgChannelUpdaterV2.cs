@@ -11,18 +11,18 @@ using System.Threading.Tasks;
 
 namespace ElasticSearchHandler.Updaters
 {
-    class EpgChannelUpdater : IUpdateable
+    class EpgChannelUpdaterV2 : IElasticSearchUpdater
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public static readonly string EPG = "epg";
-        public static readonly int DAYS = 14;
+        public static readonly int DAYS = 30;
 
 
         #region Data Members
 
         private int groupId;
-        private ElasticSearch.Common.ESSerializer esSerializer;
+        private ElasticSearch.Common.ESSerializerV2 esSerializer;
         private ElasticSearch.Common.ElasticSearchApi esApi;
 
         #endregion
@@ -32,14 +32,36 @@ namespace ElasticSearchHandler.Updaters
         public List<int> IDs { get; set; }
         public ApiObjects.eAction Action { get; set; }
 
+        public string ElasticSearchUrl
+        {
+            get
+            {
+                if (esApi != null)
+                {
+                    return esApi.baseUrl;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            set
+            {
+                if (esApi != null)
+                {
+                    esApi.baseUrl = value;
+                }
+            }
+        }
+
         #endregion
 
         #region Ctors
 
-        public EpgChannelUpdater(int groupId)
+        public EpgChannelUpdaterV2(int groupId)
         {
             this.groupId = groupId;
-            esSerializer = new ElasticSearch.Common.ESSerializer();
+            esSerializer = new ElasticSearch.Common.ESSerializerV2();
             esApi = new ElasticSearch.Common.ElasticSearchApi();
         }
 
@@ -85,6 +107,7 @@ namespace ElasticSearchHandler.Updaters
         
 
         #endregion
+
         private bool UpdateEpg(List<int> epgIds)
         {
             bool result = false;
@@ -92,7 +115,7 @@ namespace ElasticSearchHandler.Updaters
             try
             {
 
-                EpgUpdater epgUpdater = new EpgUpdater(this.groupId);
+                EpgUpdaterV1 epgUpdater = new EpgUpdaterV1(this.groupId);
                 epgUpdater.IDs = epgIds;
                 epgUpdater.Action = eAction.Update;
 
@@ -131,13 +154,14 @@ namespace ElasticSearchHandler.Updaters
                 int days = TCMClient.Settings.Instance.GetValue<int>("Channel_StartDate_Days");
                 if (days == 0)
                     days = DAYS;
+                
+                DateTime fromUTCDay = DateTime.UtcNow.AddDays(-days);                 
+                 DateTime toUTCDay = new DateTime(2100,12,01);
 
-                DateTime fromUTCDay = DateTime.UtcNow.AddDays(-days);
-                DateTime toUTCDay = new DateTime(2100, 12, 01);
-
-                List<int> epgIds = Tvinci.Core.DAL.EpgDal.GetEpgProgramsByChannelIds(this.groupId, epgChannelIDs, fromUTCDay, toUTCDay);
+                 List<int> epgIds = Tvinci.Core.DAL.EpgDal.GetEpgProgramsByChannelIds(this.groupId, epgChannelIDs, fromUTCDay, toUTCDay);
 
                 result = UpdateEpg(epgIds);
+                
             }
             catch (Exception ex)
             {

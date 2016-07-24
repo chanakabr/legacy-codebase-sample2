@@ -61,13 +61,13 @@ namespace ElasticSearchHandler
                 else
                 {
                     #region Update
-                    Updaters.IUpdateable updater = Updaters.UpdaterFactory.CreateUpdater(request.GroupID, request.Type);
+                    Updaters.IElasticSearchUpdater updater = Updaters.UpdaterFactory.CreateUpdater(request.GroupID, request.Type);
 
                     if (updater != null)
                     {
                         updater.Action = request.Action;
                         updater.IDs = request.DocumentIDs;
-
+                        
                         bool result = updater.Start();
 
                         if (result)

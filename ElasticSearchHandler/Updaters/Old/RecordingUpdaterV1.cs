@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ElasticSearchHandler.Updaters
 {
-    public class RecordingUpdater : EpgUpdater
+    public class RecordingUpdaterV1 : EpgUpdaterV1
     {
         #region Consts
 
@@ -27,7 +27,7 @@ namespace ElasticSearchHandler.Updaters
 
         #region Ctor
 
-        public RecordingUpdater(int groupId)
+        public RecordingUpdaterV1(int groupId)
             : base (groupId)
         {
             epgToRecordingMapping = new Dictionary<long, long>();
@@ -60,6 +60,7 @@ namespace ElasticSearchHandler.Updaters
             // Get information about relevant recordings
             epgToRecordingMapping = DAL.RecordingsDAL.GetEpgToRecordingsMap(this.groupId, recordingIds.Select(i => (long)i).ToList());            
 
+            
             // Map EPGs to original recordings,
             // Get all program IDs
 
@@ -134,7 +135,7 @@ namespace ElasticSearchHandler.Updaters
         protected override string SerializeEPG(ApiObjects.EpgCB epg)
         {
             long recordingId = (long)(epgToRecordingMapping[(int)epg.EpgID]);
-
+            
             return esSerializer.SerializeRecordingObject(epg, recordingId);
         }
 

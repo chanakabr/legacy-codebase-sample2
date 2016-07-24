@@ -14,14 +14,17 @@ using ElasticSearch.Searcher;
 using ApiObjects.SearchObjects;
 using ApiObjects.Response;
 using System.Data;
+using KlogMonitorHelper;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
-    public class EpgIndexBuilder : AbstractIndexBuilder
+    public class EpgIndexBuilderV2 : AbstractIndexBuilder
     {
         private static readonly string EPG = "epg";
+        protected const string VERSION = "2";
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
 
         #region Data Members
 
@@ -31,10 +34,10 @@ namespace ElasticSearchHandler.IndexBuilders
 
         #region Ctor
 
-        public EpgIndexBuilder(int groupID)
+        public EpgIndexBuilderV2(int groupID)
             : base(groupID)
         {
-
+            serializer = new ESSerializerV2();
         }
 
         #endregion
@@ -44,6 +47,8 @@ namespace ElasticSearchHandler.IndexBuilders
         public override bool BuildIndex()
         {
             bool success = false;
+
+            ContextData cd = new ContextData();
             GroupManager groupManager = new GroupManager();
             groupManager.RemoveGroup(groupId);
             Group group = groupManager.GetGroup(groupId);
@@ -75,16 +80,21 @@ namespace ElasticSearchHandler.IndexBuilders
 
             GetAnalyzers(group.GetLangauges(), out analyzers, out filters, out tokenizers);
 
-            string sizeOfBulkString = ElasticSearchTaskUtils.GetTcmConfigValue("ES_BULK_SIZE");
-
-            int.TryParse(sizeOfBulkString, out sizeOfBulk);
+            sizeOfBulk = TVinciShared.WS_Utils.GetTcmIntValue("ES_BULK_SIZE");
 
             if (sizeOfBulk == 0)
             {
                 sizeOfBulk = 50;
             }
 
-            success = api.BuildIndex(newIndexName, 0, 0, analyzers, filters, tokenizers);
+            int maxResults = TVinciShared.WS_Utils.GetTcmIntValue("MAX_RESULTS");
+
+            if (maxResults == 0)
+            {
+                maxResults = 100000;
+            }
+
+            success = api.BuildIndex(newIndexName, 0, 0, analyzers, filters, tokenizers, maxResults);
 
             #region create mapping
             foreach (ApiObjects.LanguageObj language in group.GetLangauges())
@@ -93,7 +103,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 string autocompleteIndexAnalyzer = null;
                 string autocompleteSearchAnalyzer = null;
 
-                string analyzerDefinitionName = ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code);
+                string analyzerDefinitionName = ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code, VERSION);
 
                 if (ElasticSearchApi.AnalyzerExists(analyzerDefinitionName))
                 {
@@ -216,7 +226,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                             if (channelRequests.Count > 50)
                             {
-                                api.CreateBulkIndexRequest("_percolator", newIndexName, channelRequests);
+                                api.CreateBulkIndexRequest(newIndexName, ElasticSearch.Common.Utils.ES_PERCOLATOR_TYPE, channelRequests);
                                 channelRequests.Clear();
                             }
                         }
@@ -224,7 +234,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                     if (channelRequests.Count > 0)
                     {
-                        api.CreateBulkIndexRequest("_percolator", newIndexName, channelRequests);
+                        api.CreateBulkIndexRequest(newIndexName, ElasticSearch.Common.Utils.ES_PERCOLATOR_TYPE, channelRequests);
                     }
                 }
                 catch (Exception ex)
@@ -275,9 +285,9 @@ namespace ElasticSearchHandler.IndexBuilders
             {
                 foreach (ApiObjects.LanguageObj language in lLanguages)
                 {
-                    string analyzer = ElasticSearchApi.GetAnalyzerDefinition(ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code));
-                    string filter = ElasticSearchApi.GetFilterDefinition(ElasticSearch.Common.Utils.GetLangCodeFilterKey(language.Code));
-                    string tokenizer = ElasticSearchApi.GetTokenizerDefinition(ElasticSearch.Common.Utils.GetLangCodeTokenizerKey(language.Code));
+                    string analyzer = ElasticSearchApi.GetAnalyzerDefinition(ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code, VERSION));
+                    string filter = ElasticSearchApi.GetFilterDefinition(ElasticSearch.Common.Utils.GetLangCodeFilterKey(language.Code, VERSION));
+                    string tokenizer = ElasticSearchApi.GetTokenizerDefinition(ElasticSearch.Common.Utils.GetLangCodeTokenizerKey(language.Code, VERSION));
 
                     if (string.IsNullOrEmpty(analyzer))
                     {
@@ -321,7 +331,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
         protected virtual void AddEPGsToIndex(string index, string type, Dictionary<ulong, EpgCB> programs)
         {
-            List<KeyValuePair<ulong, string>> epgList = new List<KeyValuePair<ulong, string>>();
+            List<ESBulkRequestObj<ulong>> bulkRequests = new List<ESBulkRequestObj<ulong>>();
 
             // GetLinear Channel Values 
             ElasticSearchTaskUtils.GetLinearChannelValues(programs.Values.ToList(), groupId);
@@ -335,24 +345,50 @@ namespace ElasticSearchHandler.IndexBuilders
                 {
                     // Serialize EPG object to string
                     string serializedEpg = SerializeEPGObject(epg);
-                    epgList.Add(new KeyValuePair<ulong, string>(
-                        GetDocumentId(epg.EpgID), serializedEpg));
+
+                    bulkRequests.Add(new ESBulkRequestObj<ulong>()
+                    {
+                        docID = epg.EpgID,
+                        document = serializedEpg,
+                        index = index,
+                        Operation = eOperation.index,
+                        routing = epg.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
+                        type = type
+                    });
                 }
 
                 // If we exceeded maximum size of bulk 
-                if (epgList.Count >= sizeOfBulk)
+                if (bulkRequests.Count >= sizeOfBulk)
                 {
                     // create bulk request now and clear list
-                    api.CreateBulkIndexRequest(index, type, epgList);
+                    var invalidResults = api.CreateBulkRequest(bulkRequests);
 
-                    epgList.Clear();
+                    if (invalidResults != null && invalidResults.Count > 0)
+                    {
+                        foreach (var item in invalidResults)
+                        {
+                            log.ErrorFormat("Error - Could not add EPG to ES index. GroupID={0};Type={1};EPG_ID={2};error={3};",
+                                groupId, EPG, item.Key, item.Value);
+                        }
+                    }
+
+                    bulkRequests.Clear();
                 }
             }
 
             // If we have anything left that is less than the size of the bulk
-            if (epgList.Count > 0)
+            if (bulkRequests.Count > 0)
             {
-                api.CreateBulkIndexRequest(index, type, epgList);
+                var invalidResults = api.CreateBulkRequest(bulkRequests);
+
+                if (invalidResults != null && invalidResults.Count > 0)
+                {
+                    foreach (var item in invalidResults)
+                    {
+                        log.ErrorFormat("Error - Could not add EPG to ES index. GroupID={0};Type={1};EPG_ID={2};error={3};",
+                            groupId, EPG, item.Key, item.Value);
+                    }
+                }
             }
         }
 

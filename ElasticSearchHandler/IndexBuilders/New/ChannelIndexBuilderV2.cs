@@ -13,19 +13,19 @@ using System.Threading.Tasks;
 using KLogMonitor;
 using System.Reflection;
 using ApiObjects.Response;
+using KlogMonitorHelper;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
-    public class ChannelIndexBuilder : AbstractIndexBuilder
+    public class ChannelIndexBuilderV2 : AbstractIndexBuilder
     {
-        private static readonly string PERCOLATOR = "_percolator";
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public ChannelIndexBuilder(int groupID)
+        public ChannelIndexBuilderV2(int groupID)
             : base(groupID)
         {
-
+            serializer = new ESSerializerV2();
         }
 
         #region Interface Methods
@@ -33,6 +33,8 @@ namespace ElasticSearchHandler.IndexBuilders
         public override bool BuildIndex()
         {
             bool result = false;
+
+            ContextData cd = new ContextData();
 
             // get index name
             string indexName = ElasticSearchTaskUtils.GetMediaGroupAliasStr(groupId);
@@ -45,7 +47,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                 if (group == null)
                 {
-                    log.ErrorFormat("Could not load group {0} in channel index builder", groupId);
+                    log.ErrorFormat("Could not load group {0} in media index builder", groupId);
                     return false;
                 }
                 try
@@ -59,58 +61,74 @@ namespace ElasticSearchHandler.IndexBuilders
 
                     string query = filteredQuery.ToString();
 
-                    string searchResults = api.Search(PERCOLATOR, indexName, ref query);
+                    string searchResults = api.Search(indexName, ElasticSearch.Common.Utils.ES_PERCOLATOR_TYPE, ref query);
 
                     List<string> currentChannelIds = ElasticSearch.Common.Utils.GetDocumentIds(searchResults);
-                    
+
                     HashSet<string> channelsToRemove;
 
-                    var indexAliases = api.GetAliases(indexName);
-                    if (indexAliases == null || indexAliases.Count != 1)
-                    {
-                        log.ErrorFormat("Could not get valid index alias for group {0} in channel index builder, with index name = {1}", groupId, indexName);
-                        return false;
-                    }
-
                     // insert / update new channels
-                    result = BuildChannelQueries(groupId, api, group.channelIDs, indexAliases[0], out channelsToRemove);
+                    result = BuildChannelQueries(groupId, api, group.channelIDs, indexName, out channelsToRemove);
 
-                    if (result)
+                    // remove old deleted channels
+                    List<ESBulkRequestObj<string>> bulkList = new List<ESBulkRequestObj<string>>();
+                    int sizeOfBulk = 500;
+
+                    int id = 0;
+                    foreach (var channelId in currentChannelIds)
                     {
-                        // remove old deleted channels
-                        List<ESBulkRequestObj<string>> bulkList = new List<ESBulkRequestObj<string>>();
-                        int sizeOfBulk = 500;
-
-                        int id = 0;
-                        foreach (var channelId in currentChannelIds)
+                        // channel is not in groups channel anymore / channel with empty query / channel id is not int - must be garbage
+                        if ((int.TryParse(channelId, out id) && !group.channelIDs.Contains(id)) || id == 0 || channelsToRemove.Contains(channelId))
                         {
-                            // channel is not in groups channel anymore / channel with empty query / channel id is not int - must be garbage
-                            if ((int.TryParse(channelId, out id) && !group.channelIDs.Contains(id)) || id == 0 || channelsToRemove.Contains(channelId))
+                            log.DebugFormat("Removing channel from percolator - channelId = {0}", channelId);
+
+                            bulkList.Add(new ESBulkRequestObj<string>()
                             {
-                                log.DebugFormat("Removing channel from percolator - channelId = {0}", channelId);
+                                docID = channelId,
+                                index = indexName,
+                                type = ElasticSearch.Common.Utils.ES_PERCOLATOR_TYPE,
+                                Operation = eOperation.delete
+                            });
 
-                                bulkList.Add(new ESBulkRequestObj<string>()
+                            if (bulkList.Count >= sizeOfBulk)
+                            {
+                                Task t = Task.Factory.StartNew(() =>
                                 {
-                                    docID = channelId,
-                                    index = PERCOLATOR,
-                                    type = indexName,
-                                    Operation = eOperation.delete
+                                    cd.Load();
+                                    var invalidResults = api.CreateBulkRequest(bulkList);
+
+                                    if (invalidResults != null && invalidResults.Count > 0)
+                                    {
+                                        foreach (var item in invalidResults)
+                                        {
+                                            log.ErrorFormat("Error - Could not add channel to ES index. GroupID={0};ID={1};error={2};",
+                                                groupId, item.Key, item.Value);
+                                        }
+                                    }
                                 });
-
-                                if (bulkList.Count >= sizeOfBulk)
-                                {
-                                    Task<List<ESBulkRequestObj<string>>> t = Task<List<ESBulkRequestObj<string>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(bulkList));
-                                    t.Wait();
-                                    bulkList = new List<ESBulkRequestObj<string>>();
-                                }
+                                t.Wait();
+                                bulkList = new List<ESBulkRequestObj<string>>();
                             }
                         }
+                    }
 
-                        if (bulkList.Count > 0)
+                    if (bulkList.Count > 0)
+                    {
+                        Task t = Task.Factory.StartNew(() =>
                         {
-                            Task<List<ESBulkRequestObj<string>>> t = Task<List<ESBulkRequestObj<string>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(bulkList));
-                            t.Wait();
-                        }
+                            cd.Load();
+                            var invalidResults = api.CreateBulkRequest(bulkList);
+
+                            if (invalidResults != null && invalidResults.Count > 0)
+                            {
+                                foreach (var item in invalidResults)
+                                {
+                                    log.ErrorFormat("Error - Could not add channel to ES index. GroupID={0};ID={1};error={2};",
+                                        groupId, item.Key, item.Value);
+                                }
+                            }
+                        });
+                        t.Wait();
                     }
                 }
                 catch (Exception ex)
@@ -122,10 +140,10 @@ namespace ElasticSearchHandler.IndexBuilders
             else
             {
                 // TODO: Ira decide
-                return new MediaIndexBuilder(groupId).BuildIndex();
+                return new MediaIndexBuilderV1(groupId).BuildIndex();
             }
 
-            return result;
+            return true;
         }
 
         #endregion
@@ -175,7 +193,7 @@ namespace ElasticSearchHandler.IndexBuilders
                             }
                             catch (Exception ex)
                             {
-                                log.ErrorFormat("Failed indexing channel. ID = {0}, message = {1}", currentChannel.m_nChannelID, ex.Message, ex);
+                                throw ex;
                             }
                         }
                         else
@@ -196,7 +214,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                             if (channelRequests.Count > 50)
                             {
-                                api.CreateBulkIndexRequest("_percolator", newIndexName, channelRequests);
+                                api.CreateBulkIndexRequest(newIndexName, ElasticSearch.Common.Utils.ES_PERCOLATOR_TYPE, channelRequests);
                                 channelRequests.Clear();
                             }
                         }
@@ -209,7 +227,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                     if (channelRequests.Count > 0)
                     {
-                        api.CreateBulkIndexRequest("_percolator", newIndexName, channelRequests);
+                        api.CreateBulkIndexRequest(newIndexName, ElasticSearch.Common.Utils.ES_PERCOLATOR_TYPE, channelRequests);
                     }
                 }
                 catch (Exception ex)
@@ -261,17 +279,17 @@ namespace ElasticSearchHandler.IndexBuilders
                         switch (cutWith)
                         {
                             case ApiObjects.SearchObjects.CutWith.OR:
-                                {
-                                    m_dOr.Add(search);
-                                    break;
-                                }
-                            case ApiObjects.SearchObjects.CutWith.AND:
-                                {
-                                    m_dAnd.Add(search);
-                                    break;
-                                }
-                            default:
+                            {
+                                m_dOr.Add(search);
                                 break;
+                            }
+                            case ApiObjects.SearchObjects.CutWith.AND:
+                            {
+                                m_dAnd.Add(search);
+                                break;
+                            }
+                            default:
+                            break;
                         }
                     }
                 }

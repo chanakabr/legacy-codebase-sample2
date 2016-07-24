@@ -5,8 +5,14 @@ using System.Text;
 
 namespace ElasticSearchHandler.Updaters
 {
-    public interface IUpdateable
+    public interface IElasticSearchUpdater
     {
+        string ElasticSearchUrl
+        {
+            get;
+            set;
+        }
+
         List<int> IDs { get; set; }
         ApiObjects.eAction Action { get; set; }
 

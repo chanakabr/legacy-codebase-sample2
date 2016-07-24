@@ -36,12 +36,43 @@ namespace SetupTaskHandler
                 switch (request.Mission.Value)
                 {
                     case ApiObjects.eSetupTask.BuildIPToCountry:
+                    {
+                        #region IP to Country
 
                         var worker = new IPToCountryIndexBuilder();
-                        success = worker.BuildIndex();
+
+                        bool v1Success = true;
+                        bool v2Success = true;
+
+                        string urlV1 = TVinciShared.WS_Utils.GetTcmConfigValue("ES_URL_V1");
+                        string urlV2 = TVinciShared.WS_Utils.GetTcmConfigValue("ES_URL_V2");
+
+                        if (string.IsNullOrEmpty(urlV1) && string.IsNullOrEmpty(urlV2))
+                        {
+                            success = worker.BuildIndex();
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrEmpty(urlV1))
+                            {
+                                v1Success = worker.BuildIndex(urlV1, 1);
+                            }
+
+                            if (!string.IsNullOrEmpty(urlV2))
+                            {
+                                v2Success = worker.BuildIndex(urlV2, 2);
+                            }
+
+                            success = v1Success && v2Success;
+                        }
+
                         break;
 
+                        #endregion
+                    }
                     case ApiObjects.eSetupTask.NotificationCleanupIteration:
+                    {
+                        #region Notification Clean Iteration
 
                         //Call Notifications WCF service
                         string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("ws_notifications");
@@ -58,10 +89,14 @@ namespace SetupTaskHandler
                             else
                                 log.Error("NotificationCleanupIteration: Error received when trying to run cleanup notifications");
                         }
-                        break;
+                        break; 
 
+                        #endregion
+                    }
                     case ApiObjects.eSetupTask.RecordingsCleanup:
-                        
+                    {
+                        #region Recordings Cleanup
+
                         string url = TVinciShared.WS_Utils.GetTcmConfigValue("WS_CAS");
                         using (SetupTaskHandler.WS_ConditionalAccess.module cas = new SetupTaskHandler.WS_ConditionalAccess.module())
                         {
@@ -85,6 +120,36 @@ namespace SetupTaskHandler
 
                         break;
 
+                        #endregion
+                    }
+                    case ApiObjects.eSetupTask.MigrateStatistics:
+                    {
+                        #region Migrate Statistics
+
+                        string urlV1 = TVinciShared.WS_Utils.GetTcmConfigValue("ES_URL_V1");
+                        string urlV2 = TVinciShared.WS_Utils.GetTcmConfigValue("ES_URL_V2");
+
+                        DateTime? startDate = null;
+
+                        if (request.DynamicData.ContainsKey("START_DATE"))
+                        {
+                            string startDateString = request.DynamicData["START_DATE"].ToString();
+                            DateTime temp;
+
+                            DateTime.TryParseExact(startDateString, "yyyyMMddHHmmss",
+                                System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None,
+                                out temp);
+
+                            startDate = temp;
+                        }
+
+                        var worker = new StatisticsMigrationTool(urlV1, urlV2);
+                        success = worker.Migrate(request.GroupID, startDate);
+
+                        break;
+
+                        #endregion
+                    }
                     case ApiObjects.eSetupTask.InsertExpiredRecordingsTasks:
 
                         string casUrl = TVinciShared.WS_Utils.GetTcmConfigValue("WS_CAS");
@@ -108,7 +173,6 @@ namespace SetupTaskHandler
                             }
                         }
                         break;
-
                     default:
                         break;
                 }

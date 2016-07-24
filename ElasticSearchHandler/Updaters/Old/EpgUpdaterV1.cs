@@ -10,10 +10,11 @@ using KLogMonitor;
 using System.Reflection;
 using Catalog;
 using Catalog.Cache;
+using KlogMonitorHelper;
 
 namespace ElasticSearchHandler.Updaters
 {
-    public class EpgUpdater : IUpdateable
+    public class EpgUpdaterV1 : IElasticSearchUpdater
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -23,7 +24,7 @@ namespace ElasticSearchHandler.Updaters
         #region Data Members
 
         protected int groupId;
-        protected ElasticSearch.Common.ESSerializer esSerializer;
+        protected ElasticSearch.Common.ESSerializerV1 esSerializer;
         protected ElasticSearch.Common.ElasticSearchApi esApi;
 
         #endregion
@@ -33,14 +34,36 @@ namespace ElasticSearchHandler.Updaters
         public List<int> IDs { get; set; }
         public ApiObjects.eAction Action { get; set; }
 
+        public string ElasticSearchUrl
+        {
+            get
+            {
+                if (esApi != null)
+                {
+                    return esApi.baseUrl;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            set
+            {
+                if (esApi != null)
+                {
+                    esApi.baseUrl = value;
+                }
+            }
+        }
+
         #endregion
 
         #region Ctors
 
-        public EpgUpdater(int groupId)
+        public EpgUpdaterV1(int groupId)
         {
             this.groupId = groupId;
-            esSerializer = new ElasticSearch.Common.ESSerializer();
+            esSerializer = new ElasticSearch.Common.ESSerializerV1();
             esApi = new ElasticSearch.Common.ElasticSearchApi();
         }
 
@@ -116,6 +139,7 @@ namespace ElasticSearchHandler.Updaters
                 }
 
                 Task<List<EpgCB>>[] programsTasks = new Task<List<EpgCB>>[epgIds.Count];
+                ContextData cd = new ContextData();
 
                 //open task factory and run GetEpgProgram on different threads
                 //wait to finish
@@ -125,6 +149,7 @@ namespace ElasticSearchHandler.Updaters
                     programsTasks[i] = Task.Factory.StartNew<List<EpgCB>>(
                         (epgId) =>
                         {
+                            cd.Load();
                             return ElasticsearchTasksCommon.Utils.GetEpgPrograms(groupId, (int)epgId, languageCodes);
                         }, epgIds[i]);
                 }
@@ -168,15 +193,15 @@ namespace ElasticSearchHandler.Updaters
                             }
 
                             // send request to ES API
-                            var invalidResults = esApi.CreateBulkIndexRequest(bulkRequests);
+                            var invalidResults = esApi.CreateBulkRequest(bulkRequests);
 
                             if (invalidResults != null && invalidResults.Count > 0)
                             {
                                 foreach (var invalidResult in invalidResults)
                                 {
                                     log.Error("Error - " + string.Format(
-                                        "Could not update EPG in ES. GroupID={0};Type={1};EPG_ID={2};serializedObj={3};",
-                                        groupId, EPG, invalidResult.docID, invalidResult.document));
+                                        "Could not update EPG in ES. GroupID={0};Type={1};EPG_ID={2};error={3};",
+                                        groupId, EPG, invalidResult.Key, invalidResult.Value));
                                 }
 
                                 result = false;
@@ -241,7 +266,7 @@ namespace ElasticSearchHandler.Updaters
                     });
                 }
 
-                esApi.CreateBulkIndexRequest(bulkRequests);
+                esApi.CreateBulkRequest(bulkRequests);
 
                 result = true;
             }

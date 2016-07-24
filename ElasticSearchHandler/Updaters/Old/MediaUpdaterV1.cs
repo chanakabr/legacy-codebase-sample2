@@ -13,26 +13,62 @@ using GroupsCacheManager;
 using KLogMonitor;
 using System.Reflection;
 
-namespace ESIndexUpdateHandler.Updaters
+namespace ElasticSearchHandler.Updaters
 {
-    public class MediaUpdater : IUpdateable
+    public class MediaUpdaterV1 : IElasticSearchUpdater
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public static readonly string MEDIA = "media";
 
+        #region Data Members
+
         private int groupID;
-        private ElasticSearch.Common.ESSerializer esSerializer;
+        private ElasticSearch.Common.ESSerializerV1 esSerializer;
         private ElasticSearch.Common.ElasticSearchApi esApi;
+
+        #endregion
+
+        #region Properties
 
         public List<int> IDs { get; set; }
         public ApiObjects.eAction Action { get; set; }
 
-        public MediaUpdater(int groupID)
+        public string ElasticSearchUrl
+        {
+            get
+            {
+                if (esApi != null)
+                {
+                    return esApi.baseUrl;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            set
+            {
+                if (esApi != null)
+                {
+                    esApi.baseUrl = value;
+                }
+            }
+        }
+
+        #endregion
+
+        #region Ctors
+
+        public MediaUpdaterV1(int groupID)
         {
             this.groupID = groupID;
-            esSerializer = new ElasticSearch.Common.ESSerializer(); 
+            esSerializer = new ElasticSearch.Common.ESSerializerV1();
             esApi = new ElasticSearch.Common.ElasticSearchApi();
         }
+
+        #endregion
+
+        #region Interface Methods
 
         public bool Start()
         {
@@ -73,6 +109,10 @@ namespace ESIndexUpdateHandler.Updaters
             return result;
         }
 
+        #endregion
+
+        #region Private Methods
+
         private bool UpdateMedias(List<int> mediaIds)
         {
             bool result = true;
@@ -81,6 +121,7 @@ namespace ESIndexUpdateHandler.Updaters
 
             if (group == null)
             {
+                log.ErrorFormat("Couldn't get group {0}", this.groupID);
                 return false;
             }
 
@@ -129,7 +170,7 @@ namespace ESIndexUpdateHandler.Updaters
                 }
                 catch (Exception ex)
                 {
-                    log.Error("Error - " + string.Format("Update medias threw an exception. Exception={0};Stack={1}", ex.Message, ex.StackTrace));
+                    log.Error("Error - " + string.Format("Update medias threw an exception. Exception={0};Stack={1}", ex.Message, ex.StackTrace), ex);
                     throw ex;
                 }
             }
@@ -158,5 +199,7 @@ namespace ESIndexUpdateHandler.Updaters
 
             return result;
         }
+
+        #endregion
     }
 }
