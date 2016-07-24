@@ -994,6 +994,7 @@ namespace Catalog
                 cache_date = cacheDate,
                 update_date = updateDate,
                 start_date = startDate,
+                end_date = endDate,
                 media_type_id = mediaTypeId,
                 epg_identifier = epgIdentifier,
             };
