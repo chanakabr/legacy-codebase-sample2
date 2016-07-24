@@ -56,7 +56,7 @@ namespace ODBCWrapper
 
             m_Parameters.Add(key, value);
 
-            Utils.CheckDBReadWrite(key, value,  m_sProcedureName, m_bIsWritable, ref Utils.UseWritable);
+            Utils.CheckDBReadWrite(key, value, m_sProcedureName, m_bIsWritable, ref Utils.UseWritable);
         }
 
         /// <summary>
@@ -111,11 +111,11 @@ namespace ODBCWrapper
 
         private object CreateDataTable<T1, T2>(List<KeyValuePair<T1, T2>> oListValue, string colNameKey, string colNameValue)
         {
-            DataTable table = new DataTable();            
+            DataTable table = new DataTable();
             table.Columns.Add(colNameKey, typeof(T1));
             table.Columns.Add(colNameValue, typeof(T2));
 
-            
+
             foreach (KeyValuePair<T1, T2> obj in oListValue)
             {
                 DataRow dr = table.NewRow();
@@ -269,7 +269,7 @@ namespace ODBCWrapper
                     command.Connection = con;
 
                     SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = m_bIsWritable.ToString() })
                     {
                         using (SqlDataReader reader = command.ExecuteReader())
                         {
@@ -316,7 +316,7 @@ namespace ODBCWrapper
                 try
                 {
                     SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = m_bIsWritable.ToString() })
                     {
                         con.Open();
                         SetLockTimeOut(con);
@@ -370,7 +370,7 @@ namespace ODBCWrapper
                 try
                 {
                     SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = m_bIsWritable.ToString() })
                     {
                         con.Open();
                         SetLockTimeOut(con);
@@ -424,7 +424,7 @@ namespace ODBCWrapper
                 try
                 {
                     SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = m_bIsWritable.ToString() })
                     {
                         con.Open();
                         SetLockTimeOut(con);
@@ -471,7 +471,7 @@ namespace ODBCWrapper
                 try
                 {
                     SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = m_bIsWritable.ToString() })
                     {
                         con.Open();
                         SetLockTimeOut(con);
@@ -535,7 +535,7 @@ namespace ODBCWrapper
                 try
                 {
                     SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = m_bIsWritable.ToString() })
                     {
                         con.Open();
                         SetLockTimeOut(con);

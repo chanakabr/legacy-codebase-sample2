@@ -108,7 +108,7 @@ namespace ODBCWrapper
                     try
                     {
                         SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                        using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
+                        using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = m_bIsWritable.ToString() })
                         {
                             DataTable dataTable = new DataTable(sVirtualTableName);
                             dataTable.BeginLoadData();
