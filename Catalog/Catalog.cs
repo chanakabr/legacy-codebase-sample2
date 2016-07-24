@@ -5995,22 +5995,28 @@ namespace Catalog
                         definitions.defaultStartDate = false;
                         GetLeafDate(ref leaf, request.m_dServerTime);
 
-                        leaf.assetTypes = new List<eAssetTypes>()
+                        if (!definitions.shouldDateSearchesApplyToAllTypes)
                         {
-                            eAssetTypes.EPG,
-                            eAssetTypes.NPVR
-                        };
+                            leaf.assetTypes = new List<eAssetTypes>()
+                            {
+                                eAssetTypes.EPG,
+                                eAssetTypes.NPVR
+                            };
+                        }
                     }
                     else if (searchKeyLowered == "end_date")
                     {
                         definitions.defaultEndDate = false;
                         GetLeafDate(ref leaf, request.m_dServerTime);
 
-                        leaf.assetTypes = new List<eAssetTypes>()
+                        if (!definitions.shouldDateSearchesApplyToAllTypes)
                         {
-                            eAssetTypes.EPG,
-                            eAssetTypes.NPVR
-                        };
+                            leaf.assetTypes = new List<eAssetTypes>()
+                            {
+                                eAssetTypes.EPG,
+                                eAssetTypes.NPVR
+                            };
+                        }
                     }
                     else if (searchKeyLowered == "update_date")
                     {
