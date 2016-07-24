@@ -5910,16 +5910,8 @@ namespace TvinciImporter
                             break;
                     }
 
-                    var status = cas.UpdateRecording(sWSUserName, sWSPassword, epgIds.Select(i => (long)i).ToArray(), casAction);
-
-                    if (status == null)
-                    {
-                        log.Error("ImporterImpl - Update Recording returned empty status");
-                    }
-                    else if (status.Code != (int)ApiObjects.Response.eResponseStatus.OK)
-                    {
-                        log.ErrorFormat("ImporterImpl - Update Recording did not finish successfully: code = {0}, message = {1}", status.Code, status.Message);
-                    }
+                    cas.UpdateRecordingAsync(sWSUserName, sWSPassword, epgIds.Select(i => (long)i).ToArray(), casAction);
+                    log.DebugFormat("cas.UpdateRecordingAsync has been called for epgIds {0}", string.Join(", ",  epgIds.Select(x => x.ToString()).ToArray()));
                 }
             }
             catch (Exception ex)

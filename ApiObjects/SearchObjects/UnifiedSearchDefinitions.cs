@@ -279,7 +279,14 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         [JsonProperty()]
         [DataMember]
+
         public bool shouldReturnExtendedSearchResult;
+        /// Defines if start/end date KSQL search will be used only for EPG/recordings or for media as well
+        /// </summary>
+        [JsonProperty()]
+        [DataMember]
+        public bool shouldDateSearchesApplyToAllTypes;
+
         #endregion
 
         #region Ctor
@@ -316,6 +323,7 @@ namespace ApiObjects.SearchObjects
             entitlementSearchDefinitions = null;
 
             shouldUseSearchEndDate = false;
+            shouldDateSearchesApplyToAllTypes = false;
         }
 
 

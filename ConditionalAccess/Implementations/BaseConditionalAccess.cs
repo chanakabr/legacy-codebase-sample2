@@ -17320,13 +17320,14 @@ namespace ConditionalAccess
                     Recording recording = Utils.ValidateEpgForRecord(accountSettings, epg, recordingType);
                     if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK)
                     {
-                        validEpgsForRecording.Add(recording.EpgId, false);
                         if (recordingType == RecordingType.Single)
                         {
                             Dictionary<string, string> epgFieldMappings = null;
                             if (!Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, recordingType, out epgFieldMappings) || epgFieldMappings == null || epgFieldMappings.Count == 0)
                             {
-                                log.ErrorFormat("failed GetEpgFieldTypeEntitys, groupId: {0}, epgId: {1}, recordingType: {2}", m_nGroupID, epg.EPG_ID, recordingType.ToString());                                
+                                log.ErrorFormat("failed GetEpgFieldTypeEntitys, groupId: {0}, epgId: {1}, recordingType: {2}", m_nGroupID, epg.EPG_ID, recordingType.ToString());
+                                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                                return response;
                             }
                             else
                             {
@@ -17336,15 +17337,23 @@ namespace ConditionalAccess
                                 {
                                     log.ErrorFormat("failed parsing SEASON_NUMBER, groupId: {0}, epgId: {1}, recordingType: {2}", m_nGroupID, epg.EPG_ID, recordingType.ToString());
                                     recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                                    return response;  
+                                    response.Recordings.Add(recording);
                                 }
                                 if (RecordingsDAL.IsFollowingSeries(m_nGroupID, domainID, seriesId, seasonNumber))
                                 {
                                     log.DebugFormat("domain already follows the series, can't record as single, DomainID: {0}, UserID: {1}, seriesID: {2}", domainID, userID, seriesId);
                                     recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.AlreadyRecordedAsSeriesOrSeason, eResponseStatus.AlreadyRecordedAsSeriesOrSeason.ToString());
-                                    return response;  
+                                    response.Recordings.Add(recording);
+                                }
+                                else
+                                {
+                                    validEpgsForRecording.Add(recording.EpgId, false);
                                 }
                             }
+                        }
+                        else
+                        {
+                            validEpgsForRecording.Add(recording.EpgId, false);
                         }
                     }
                     else
@@ -18672,11 +18681,12 @@ namespace ConditionalAccess
                 int recordingDuration = RecordingsDAL.GetRecordingDuration(task.RecordingId);
                 if (recordingDuration <= 0)
                 {
-                    log.ErrorFormat("Failed GetRecordingDuration for expiredRecording: {0}, returned recordingDuration = {1}", task, recordingDuration);
+                    log.ErrorFormat("Failed GetRecordingDuration for modifiedRecording: {0}, returned recordingDuration = {1}", task, recordingDuration);
                     return result;
                 }
 
-                DataTable expiredDomainRecordings = RecordingsDAL.GetExpiredDomainsRecordings(task.RecordingId, task.ScheduledExpirationEpoch);
+                DataTable modifiedDomainRecordings = RecordingsDAL.GetDomainsRecordingsByRecordingIdAndProtectDate(task.RecordingId, task.ScheduledExpirationEpoch);
+
                 // set max amount of concurrent tasks
                 int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
                 if (maxDegreeOfParallelism == 0)
@@ -18685,13 +18695,13 @@ namespace ConditionalAccess
                 }
 
                 ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
-                while (expiredDomainRecordings != null && expiredDomainRecordings.Rows != null && expiredDomainRecordings.Rows.Count > 0)
+                while (modifiedDomainRecordings != null && modifiedDomainRecordings.Rows != null && modifiedDomainRecordings.Rows.Count > 0)
                 {
                     ContextData contextData = new ContextData();
-                    Parallel.For(0, expiredDomainRecordings.Rows.Count, options, i =>
+                    Parallel.For(0, modifiedDomainRecordings.Rows.Count, options, i =>
                     {
                         contextData.Load();
-                        DataRow dr = expiredDomainRecordings.Rows[i];
+                        DataRow dr = modifiedDomainRecordings.Rows[i];
                         if (dr != null)
                         {
                             long domainId = ODBCWrapper.Utils.GetLongSafeVal(dr, "DOMAIN_ID", 0);
@@ -18712,7 +18722,7 @@ namespace ConditionalAccess
                             {
                                 if (!CompleteDomainSeriesRecordings(domainId))
                                 {
-                                    log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after expiredRecordingId: {0}, for domainId: {1}", task.RecordingId, domainId);
+                                    log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after modifiedRecordingId: {0}, for domainId: {1}", task.RecordingId, domainId);
                                 }
                             }
                             else
@@ -18722,11 +18732,11 @@ namespace ConditionalAccess
                         }
                         else
                         {
-                            log.ErrorFormat("Data row is null for expiredDomainRecordings[{0}]", i);
+                            log.ErrorFormat("Data row is null for modifiedRecordingId[{0}]", i);
                         }
                     });
 
-                    expiredDomainRecordings = RecordingsDAL.GetExpiredDomainsRecordings(task.RecordingId, task.ScheduledExpirationEpoch);
+                    modifiedDomainRecordings = RecordingsDAL.GetDomainsRecordingsByRecordingIdAndProtectDate(task.RecordingId, task.ScheduledExpirationEpoch);
                 }
 
                 long minProtectionEpoch = RecordingsDAL.GetRecordingMinProtectedEpoch(task.RecordingId, task.ScheduledExpirationEpoch);
@@ -18751,7 +18761,7 @@ namespace ConditionalAccess
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error in HandleExpiredOrFailedRecording, expiredRecording: {0}, ex = {1}, ST = {2}", task.ToString(), ex.Message, ex.StackTrace);
+                log.ErrorFormat("Error in HandleDomainQuotaByRecording, expiredRecording: {0}, ex = {1}, ST = {2}", task.ToString(), ex.Message, ex.StackTrace);
 
             }
 
