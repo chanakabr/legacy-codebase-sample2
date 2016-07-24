@@ -691,5 +691,47 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+
+
+        /// <summary>
+        /// Retrieve the user’s lists 
+        /// </summary>
+        /// <remarks>Possible status codes: 
+        /// Invalid user = 1026</remarks>
+        /// <returns></returns>
+        [Route("list"), HttpPost]
+        [ApiAuthorize]
+        public KalturaOTTUserListResponse List(KalturaOTTUserFilter filter)
+        {
+            KalturaOTTUserListResponse response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                switch (filter.UserByEqual)
+                {
+                    case KalturaOTTUserBy.EXTERNAL_ID:
+                        response = ClientsManager.UsersClient().GetUserDataByCoGuid(groupId, filter.ValueEqual);
+                        break;
+                    case KalturaOTTUserBy.USER_NAME:
+                        response = ClientsManager.UsersClient().GetUserByUsername(groupId, filter.ValueEqual);
+                        
+                        break;
+                    default:
+                        break;
+
+                } 
+
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }

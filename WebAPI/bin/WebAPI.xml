@@ -494,23 +494,44 @@
             <param name="filter">Request filter</param>
             <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.SeriesRecordingController.Cancel(System.Int64)">
+        <member name="M:WebAPI.Controllers.SeriesRecordingController.Cancel(System.Int64,System.Int64)">
             <summary>        
             Cancel a previously requested series recording. Cancel series recording can be called for recording in status Scheduled or Recording Only 
             </summary>
             <param name="id">Series Recording identifier</param>
+            <param name="epgId">epg program identifier</param>
             <returns></returns>
             <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
             UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048 </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.SeriesRecordingController.Delete(System.Int64)">
+        <member name="M:WebAPI.Controllers.SeriesRecordingController.Delete(System.Int64,System.Int64)">
             <summary>        
             Delete series recording(s). Delete series recording can be called recordings in any status
             </summary>
             <param name="id">Series Recording identifier</param>
+            <param name="epgId">epg program identifier</param>
             <returns></returns>
             <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
             UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048 </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.SeriesRecordingController.List(WebAPI.Models.ConditionalAccess.KalturaSeriesRecordingFilter)">
+            <summary>
+            Return a list of series recordings for the household with optional filter by status and KSQL.
+            </summary>
+            <param name="filter">Filter parameters for filtering out the result - support order by only - START_DATE_ASC, START_DATE_DESC, ID_ASC,ID_DESC,SERIES_ID_ASC, SERIES_ID_DESC</param>
+            <returns></returns>
+            <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024</remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.SeriesRecordingController.Add(WebAPI.Models.ConditionalAccess.KalturaSeriesRecording)">
+            <summary>
+            Issue a record request for a complete season or series
+            </summary>
+            <param name="seriesRecording">SeriesRecording Object</param>
+            <returns></returns>
+            <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+            UserWithNoDomain = 2024, ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034,
+            ProgramCdvrNotEnabled = 3035, ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3038,
+            ExceededQuota = 3042, AccountSeriesRecordingNotEnabled = 3046, AlreadyRecordedAsSeriesOrSeason = 3047, InvalidAssetId = 4024</remarks>
         </member>
         <member name="M:WebAPI.Controllers.SystemController.GetCountry(System.String)">
             <summary>
@@ -656,18 +677,6 @@
             <returns></returns>
             <remarks>Possible status codes: BadRequest = 500003, RecordingNotFound = 3039</remarks>     
         </member>
-        <member name="M:WebAPI.Controllers.RecordingController.GetContext(WebAPI.Models.ConditionalAccess.KalturaRecordingContextFilter)">
-            <summary>
-            Return recording information and status for collection of program for a user.
-            Specify per programs if it can be recorded or not.
-            If program record request was already issued – return recording status
-            </summary>
-            <param name="filter">Filter parameters for filtering out the result</param>
-            <returns></returns>
-            <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024,
-            ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034, ProgramCdvrNotEnabled = 3035,
-            ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3038, ExceededQuota = 3042, InvalidAssetId = 4024</remarks>
-        </member>
         <member name="M:WebAPI.Controllers.RecordingController.Add(WebAPI.Models.ConditionalAccess.KalturaRecording)">
             <summary>
             Issue a record request for a program
@@ -677,7 +686,7 @@
             <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
             UserWithNoDomain = 2024, ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034,
             ProgramCdvrNotEnabled = 3035, ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3038,
-            ExceededQuota = 3042, InvalidAssetId = 4024</remarks>
+            ExceededQuota = 3042, AccountSeriesRecordingNotEnabled = 3046, AlreadyRecordedAsSeriesOrSeason = 3047, InvalidAssetId = 4024</remarks>
         </member>
         <member name="M:WebAPI.Controllers.RecordingController.List(WebAPI.Models.ConditionalAccess.KalturaRecordingFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
@@ -777,11 +786,11 @@
             </remarks>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Controllers.NotificationController.SetPush(System.String)">
+        <member name="M:WebAPI.Controllers.NotificationController.SetDevicePushToken(System.String)">
             <summary>
-            TBD
+            Registers the device push token to the push service
             </summary>
-            <param name="push_token">TBD</param>
+            <param name="push_token">The device-application pair authentication for push delivery</param>
             <remarks>
             
             </remarks>
@@ -2445,53 +2454,58 @@
             <param name="pin_code">Login pin code to expire</param>
             <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.PinController.Get(WebAPI.Models.General.KalturaEntityReferenceBy,WebAPI.Models.API.KalturaPinType)">
+        <member name="M:WebAPI.Controllers.PinController.Get(WebAPI.Models.General.KalturaEntityReferenceBy,WebAPI.Models.API.KalturaPinType,System.Nullable{System.Int32})">
             <summary>
             Retrieve the parental or purchase PIN that applies for the household or user. Includes specification of where the PIN was defined at – account, household or user  level
             </summary>
             <param name="type">The PIN type to retrieve</param>
             <param name="by">Reference type to filter by</param>
+            <param name="ruleId">Rule ID - for PIN per rule (MediaCorp): BEO-1923</param>
             <remarks>Possible status codes: 
             Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001, No PIN defined = 5001</remarks>
             <returns>The PIN that applies for the user</returns>
         </member>
-        <member name="M:WebAPI.Controllers.PinController.Update(WebAPI.Models.General.KalturaEntityReferenceBy,WebAPI.Models.API.KalturaPinType,WebAPI.Models.API.KalturaPin)">
+        <member name="M:WebAPI.Controllers.PinController.Update(WebAPI.Models.General.KalturaEntityReferenceBy,WebAPI.Models.API.KalturaPinType,WebAPI.Models.API.KalturaPin,System.Nullable{System.Int32})">
             <summary>
             Set the parental or purchase PIN that applies for the user or the household.        
             </summary>
             <param name="type">The PIN type to retrieve</param>
             <param name="by">Reference type to filter by</param>
+            <param name="ruleId">Rule ID - for PIN per rule (MediaCorp): BEO-1923</param>
             <remarks>Possible status codes: 
             User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
             <param name="pin">PIN to set</param>
             <returns>The PIN</returns>
         </member>
-        <member name="M:WebAPI.Controllers.PinController.GetOldStandard(WebAPI.Models.General.KalturaEntityReferenceBy,WebAPI.Models.API.KalturaPinType)">
+        <member name="M:WebAPI.Controllers.PinController.GetOldStandard(WebAPI.Models.General.KalturaEntityReferenceBy,WebAPI.Models.API.KalturaPinType,System.Nullable{System.Int32})">
             <summary>
             Retrieve the parental or purchase PIN that applies for the household or user. Includes specification of where the PIN was defined at – account, household or user  level
             </summary>
             <param name="type">The PIN type to retrieve</param>
             <param name="by">Reference type to filter by</param>
+            <param name="ruleId">Rule ID - for PIN per rule (MediaCorp): BEO-1923</param>
             <remarks>Possible status codes: 
             Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001, No PIN defined = 5001</remarks>
             <returns>The PIN that applies for the user</returns>
         </member>
-        <member name="M:WebAPI.Controllers.PinController.UpdateOldStandard(System.String,WebAPI.Models.General.KalturaEntityReferenceBy,WebAPI.Models.API.KalturaPinType)">
+        <member name="M:WebAPI.Controllers.PinController.UpdateOldStandard(System.String,WebAPI.Models.General.KalturaEntityReferenceBy,WebAPI.Models.API.KalturaPinType,System.Nullable{System.Int32})">
             <summary>
             Set the parental or purchase PIN that applies for the user or the household.        
             </summary>
             <param name="type">The PIN type to retrieve</param>
             <param name="by">Reference type to filter by</param>
+            <param name="ruleId">Rule ID - for PIN per rule (MediaCorp): BEO-1923</param>
             <remarks>Possible status codes: 
             User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
             <param name="pin">New PIN to set</param>
             <returns>Success / Fail</returns>
         </member>
-        <member name="M:WebAPI.Controllers.PinController.Validate(System.String,WebAPI.Models.API.KalturaPinType)">
+        <member name="M:WebAPI.Controllers.PinController.Validate(System.String,WebAPI.Models.API.KalturaPinType,System.Nullable{System.Int32})">
             <summary>
             Validate a purchase or parental PIN for a user.
             </summary>
             <param name="type">The PIN type to retrieve</param>
+            <param name="ruleId">Rule ID - for PIN per rule (MediaCorp): BEO-1923</param>
             <remarks>Possible status codes: 
             No PIN defined = 5001, PIN mismatch = 5002, User does not exist = 2000, User with no household = 2024, User suspended = 2001</remarks>
             <param name="pin">PIN to validate</param>
@@ -3132,6 +3146,21 @@
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaSeriesRecording.UpdateDate">
             <summary>
             Specifies when was the series recording last updated. Date and time represented as epoch.
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaSeriesRecordingFilter">
+            <summary>
+            Filtering recordings
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaSeriesRecordingListResponse">
+            <summary>
+            Series Recordings info wrapper
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSeriesRecordingListResponse.Objects">
+            <summary>
+            Series Recordings
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaTransactionStatus.AdapterStatus">
@@ -4245,11 +4274,6 @@
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.AssetId">
             <summary>
             Kaltura unique ID representing the program identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.RecordingAssetId">
-            <summary>
-            Kaltura unique ID representing the recording program identifier
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.Type">
@@ -6509,9 +6533,14 @@
             OTT User filter
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaOTTUserFilter.UserIDs">
+        <member name="P:WebAPI.Models.Users.KalturaOTTUserFilter.UserByEqual">
+             <summary>
+            User Filter By
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaOTTUserFilter.ValueEqual">
             <summary>
-            User IDs to retrieve
+            The User identifiers
             </summary>
         </member>
         <member name="T:WebAPI.Models.Users.KalturaSession">
@@ -7258,6 +7287,393 @@
             <remarks/>
         </member>
         <member name="M:WebAPI.Api.API.#ctor">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdatePurchasePIN(System.String,System.String,System.Int32,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdatePurchasePINAsync(System.String,System.String,System.Int32,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdatePurchasePINAsync(System.String,System.String,System.Int32,System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SetPurchasePIN(System.String,System.String,System.Int32,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SetPurchasePINAsync(System.String,System.String,System.Int32,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SetPurchasePINAsync(System.String,System.String,System.Int32,System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.ValidateParentalPIN(System.String,System.String,System.String,System.String,System.Int32,System.Nullable{System.Int32})">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.ValidateParentalPINAsync(System.String,System.String,System.String,System.String,System.Int32,System.Nullable{System.Int32})">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.ValidateParentalPINAsync(System.String,System.String,System.String,System.String,System.Int32,System.Nullable{System.Int32},System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.ValidatePurchasePIN(System.String,System.String,System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.ValidatePurchasePINAsync(System.String,System.String,System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.ValidatePurchasePINAsync(System.String,System.String,System.String,System.String,System.Int32,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetParentalMediaRules(System.String,System.String,System.String,System.Int64,System.Int64)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetParentalMediaRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetParentalMediaRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetParentalEPGRules(System.String,System.String,System.String,System.Int64,System.Int64)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetParentalEPGRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetParentalEPGRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DisableUserDefaultParentalRule(System.String,System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DisableUserDefaultParentalRuleAsync(System.String,System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DisableUserDefaultParentalRuleAsync(System.String,System.String,System.String,System.Int32,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DisableDomainDefaultParentalRule(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DisableDomainDefaultParentalRuleAsync(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DisableDomainDefaultParentalRuleAsync(System.String,System.String,System.Int32,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetMediaRules(System.String,System.String,System.String,System.Int64,System.Int64,System.String,System.String,WebAPI.Api.GenericRuleOrderBy)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetMediaRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.String,System.String,WebAPI.Api.GenericRuleOrderBy)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetMediaRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.String,System.String,WebAPI.Api.GenericRuleOrderBy,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetEpgRules(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.String,WebAPI.Api.GenericRuleOrderBy)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetEpgRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.String,WebAPI.Api.GenericRuleOrderBy)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetEpgRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.String,WebAPI.Api.GenericRuleOrderBy,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetUserParentalRuleTags(System.String,System.String,System.String,System.Int64)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetUserParentalRuleTagsAsync(System.String,System.String,System.String,System.Int64)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetUserParentalRuleTagsAsync(System.String,System.String,System.String,System.Int64,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.BuildIPToCountryIndex(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.BuildIPToCountryIndexAsync(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.BuildIPToCountryIndexAsync(System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetErrorCodesDictionary(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetErrorCodesDictionaryAsync(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetErrorCodesDictionaryAsync(System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.InsertOSSAdapter(System.String,System.String,WebAPI.Api.OSSAdapter)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.InsertOSSAdapterAsync(System.String,System.String,WebAPI.Api.OSSAdapter)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.InsertOSSAdapterAsync(System.String,System.String,WebAPI.Api.OSSAdapter,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DeleteOSSAdapter(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DeleteOSSAdapterAsync(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DeleteOSSAdapterAsync(System.String,System.String,System.Int32,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SetOSSAdapter(System.String,System.String,WebAPI.Api.OSSAdapter)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SetOSSAdapterAsync(System.String,System.String,WebAPI.Api.OSSAdapter)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SetOSSAdapterAsync(System.String,System.String,WebAPI.Api.OSSAdapter,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetOSSAdapter(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetOSSAdapterAsync(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetOSSAdapterAsync(System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.InsertOSSAdapterSettings(System.String,System.String,System.Int32,WebAPI.Api.OSSAdapterSettings[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.InsertOSSAdapterSettingsAsync(System.String,System.String,System.Int32,WebAPI.Api.OSSAdapterSettings[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.InsertOSSAdapterSettingsAsync(System.String,System.String,System.Int32,WebAPI.Api.OSSAdapterSettings[],System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SetOSSAdapterSettings(System.String,System.String,System.Int32,WebAPI.Api.OSSAdapterSettings[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SetOSSAdapterSettingsAsync(System.String,System.String,System.Int32,WebAPI.Api.OSSAdapterSettings[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SetOSSAdapterSettingsAsync(System.String,System.String,System.Int32,WebAPI.Api.OSSAdapterSettings[],System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DeleteOSSAdapterSettings(System.String,System.String,System.Int32,WebAPI.Api.OSSAdapterSettings[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DeleteOSSAdapterSettingsAsync(System.String,System.String,System.Int32,WebAPI.Api.OSSAdapterSettings[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DeleteOSSAdapterSettingsAsync(System.String,System.String,System.Int32,WebAPI.Api.OSSAdapterSettings[],System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetOSSAdapterSettings(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetOSSAdapterSettingsAsync(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetOSSAdapterSettingsAsync(System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetUserBillingDetails(System.String,System.String,System.Int64,System.Int32,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetUserBillingDetailsAsync(System.String,System.String,System.Int64,System.Int32,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetUserBillingDetailsAsync(System.String,System.String,System.Int64,System.Int32,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SetOSSAdapterConfiguration(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SetOSSAdapterConfigurationAsync(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SetOSSAdapterConfigurationAsync(System.String,System.String,System.Int32,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GenerateOSSSharedSecret(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GenerateOSSSharedSecretAsync(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GenerateOSSSharedSecretAsync(System.String,System.String,System.Int32,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdateCache(System.Int32,System.String,System.String[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdateCacheAsync(System.Int32,System.String,System.String[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdateCacheAsync(System.Int32,System.String,System.String[],System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdateGeoBlockRulesCache(System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdateGeoBlockRulesCacheAsync(System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdateGeoBlockRulesCacheAsync(System.Int32,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.InsertRecommendationEngine(System.String,System.String,WebAPI.Api.RecommendationEngine)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.InsertRecommendationEngineAsync(System.String,System.String,WebAPI.Api.RecommendationEngine)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.InsertRecommendationEngineAsync(System.String,System.String,WebAPI.Api.RecommendationEngine,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DeleteRecommendationEngine(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DeleteRecommendationEngineAsync(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DeleteRecommendationEngineAsync(System.String,System.String,System.Int32,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SetRecommendationEngine(System.String,System.String,WebAPI.Api.RecommendationEngine)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SetRecommendationEngineAsync(System.String,System.String,WebAPI.Api.RecommendationEngine)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SetRecommendationEngineAsync(System.String,System.String,WebAPI.Api.RecommendationEngine,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetRecommendationEngines(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetRecommendationEnginesAsync(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetRecommendationEnginesAsync(System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.InsertRecommendationEngineSettings(System.String,System.String,System.Int32,WebAPI.Api.RecommendationEngineSettings[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.InsertRecommendationEngineSettingsAsync(System.String,System.String,System.Int32,WebAPI.Api.RecommendationEngineSettings[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.InsertRecommendationEngineSettingsAsync(System.String,System.String,System.Int32,WebAPI.Api.RecommendationEngineSettings[],System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SetRecommendationEngineSettings(System.String,System.String,System.Int32,WebAPI.Api.RecommendationEngineSettings[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SetRecommendationEngineSettingsAsync(System.String,System.String,System.Int32,WebAPI.Api.RecommendationEngineSettings[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SetRecommendationEngineSettingsAsync(System.String,System.String,System.Int32,WebAPI.Api.RecommendationEngineSettings[],System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DeleteRecommendationEngineSettings(System.String,System.String,System.Int32,WebAPI.Api.RecommendationEngineSettings[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DeleteRecommendationEngineSettingsAsync(System.String,System.String,System.Int32,WebAPI.Api.RecommendationEngineSettings[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DeleteRecommendationEngineSettingsAsync(System.String,System.String,System.Int32,WebAPI.Api.RecommendationEngineSettings[],System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetRecommendationEngineSettings(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetRecommendationEngineSettingsAsync(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetRecommendationEngineSettingsAsync(System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdateRecommendationEngineConfiguration(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdateRecommendationEngineConfigurationAsync(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdateRecommendationEngineConfigurationAsync(System.String,System.String,System.Int32,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GenerateRecommendationEngineSharedSecret(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GenerateRecommendationEngineSharedSecretAsync(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GenerateRecommendationEngineSharedSecretAsync(System.String,System.String,System.Int32,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.InsertExternalChannel(System.String,System.String,WebAPI.Api.ExternalChannel)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.InsertExternalChannelAsync(System.String,System.String,WebAPI.Api.ExternalChannel)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.InsertExternalChannelAsync(System.String,System.String,WebAPI.Api.ExternalChannel,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DeleteExternalChannel(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DeleteExternalChannelAsync(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DeleteExternalChannelAsync(System.String,System.String,System.Int32,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SetExternalChannel(System.String,System.String,WebAPI.Api.ExternalChannel)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SetExternalChannelAsync(System.String,System.String,WebAPI.Api.ExternalChannel)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SetExternalChannelAsync(System.String,System.String,WebAPI.Api.ExternalChannel,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetExternalChannels(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetExternalChannelsAsync(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetExternalChannelsAsync(System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.AddBulkExportTask(System.String,System.String,System.String,System.String,WebAPI.Api.eBulkExportDataType,System.String,WebAPI.Api.eBulkExportExportType,System.Int64,System.String,System.Int32[],System.Boolean)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.AddBulkExportTaskAsync(System.String,System.String,System.String,System.String,WebAPI.Api.eBulkExportDataType,System.String,WebAPI.Api.eBulkExportExportType,System.Int64,System.String,System.Int32[],System.Boolean)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.AddBulkExportTaskAsync(System.String,System.String,System.String,System.String,WebAPI.Api.eBulkExportDataType,System.String,WebAPI.Api.eBulkExportExportType,System.Int64,System.String,System.Int32[],System.Boolean,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdateBulkExportTask(System.String,System.String,System.Int64,System.String,System.String,WebAPI.Api.eBulkExportDataType,System.String,WebAPI.Api.eBulkExportExportType,System.Int64,System.String,System.Int32[],System.Nullable{System.Boolean})">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdateBulkExportTaskAsync(System.String,System.String,System.Int64,System.String,System.String,WebAPI.Api.eBulkExportDataType,System.String,WebAPI.Api.eBulkExportExportType,System.Int64,System.String,System.Int32[],System.Nullable{System.Boolean})">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdateBulkExportTaskAsync(System.String,System.String,System.Int64,System.String,System.String,WebAPI.Api.eBulkExportDataType,System.String,WebAPI.Api.eBulkExportExportType,System.Int64,System.String,System.Int32[],System.Nullable{System.Boolean},System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DeleteBulkExportTask(System.String,System.String,System.Int64,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DeleteBulkExportTaskAsync(System.String,System.String,System.Int64,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DeleteBulkExportTaskAsync(System.String,System.String,System.Int64,System.String,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Api.API.GetBulkExportTasks(System.String,System.String,System.Int64[],System.String[],WebAPI.Api.BulkExportTaskOrderBy)">
@@ -8268,31 +8684,31 @@
         <member name="M:WebAPI.Api.API.SetDomainParentalRulesAsync(System.String,System.String,System.Int32,System.Int64,System.Int32,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.GetParentalPIN(System.String,System.String,System.Int32,System.String)">
+        <member name="M:WebAPI.Api.API.GetParentalPIN(System.String,System.String,System.Int32,System.String,System.Nullable{System.Int32})">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.GetParentalPINAsync(System.String,System.String,System.Int32,System.String)">
+        <member name="M:WebAPI.Api.API.GetParentalPINAsync(System.String,System.String,System.Int32,System.String,System.Nullable{System.Int32})">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.GetParentalPINAsync(System.String,System.String,System.Int32,System.String,System.Object)">
+        <member name="M:WebAPI.Api.API.GetParentalPINAsync(System.String,System.String,System.Int32,System.String,System.Nullable{System.Int32},System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.UpdateParentalPIN(System.String,System.String,System.Int32,System.String,System.String)">
+        <member name="M:WebAPI.Api.API.UpdateParentalPIN(System.String,System.String,System.Int32,System.String,System.String,System.Nullable{System.Int32})">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.UpdateParentalPINAsync(System.String,System.String,System.Int32,System.String,System.String)">
+        <member name="M:WebAPI.Api.API.UpdateParentalPINAsync(System.String,System.String,System.Int32,System.String,System.String,System.Nullable{System.Int32})">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.UpdateParentalPINAsync(System.String,System.String,System.Int32,System.String,System.String,System.Object)">
+        <member name="M:WebAPI.Api.API.UpdateParentalPINAsync(System.String,System.String,System.Int32,System.String,System.String,System.Nullable{System.Int32},System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.SetParentalPIN(System.String,System.String,System.Int32,System.String,System.String)">
+        <member name="M:WebAPI.Api.API.SetParentalPIN(System.String,System.String,System.Int32,System.String,System.String,System.Nullable{System.Int32})">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.SetParentalPINAsync(System.String,System.String,System.Int32,System.String,System.String)">
+        <member name="M:WebAPI.Api.API.SetParentalPINAsync(System.String,System.String,System.Int32,System.String,System.String,System.Nullable{System.Int32})">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.SetParentalPINAsync(System.String,System.String,System.Int32,System.String,System.String,System.Object)">
+        <member name="M:WebAPI.Api.API.SetParentalPINAsync(System.String,System.String,System.Int32,System.String,System.String,System.Nullable{System.Int32},System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Api.API.GetPurchaseSettings(System.String,System.String,System.Int32,System.String)">
@@ -8331,394 +8747,136 @@
         <member name="M:WebAPI.Api.API.GetPurchasePINAsync(System.String,System.String,System.Int32,System.String,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.UpdatePurchasePIN(System.String,System.String,System.Int32,System.String,System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.UpdatePurchasePINAsync(System.String,System.String,System.Int32,System.String,System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.UpdatePurchasePINAsync(System.String,System.String,System.Int32,System.String,System.String,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.SetPurchasePIN(System.String,System.String,System.Int32,System.String,System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.SetPurchasePINAsync(System.String,System.String,System.Int32,System.String,System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.SetPurchasePINAsync(System.String,System.String,System.Int32,System.String,System.String,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.ValidateParentalPIN(System.String,System.String,System.String,System.String,System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.ValidateParentalPINAsync(System.String,System.String,System.String,System.String,System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.ValidateParentalPINAsync(System.String,System.String,System.String,System.String,System.Int32,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.ValidatePurchasePIN(System.String,System.String,System.String,System.String,System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.ValidatePurchasePINAsync(System.String,System.String,System.String,System.String,System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.ValidatePurchasePINAsync(System.String,System.String,System.String,System.String,System.Int32,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetParentalMediaRules(System.String,System.String,System.String,System.Int64,System.Int64)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetParentalMediaRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetParentalMediaRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetParentalEPGRules(System.String,System.String,System.String,System.Int64,System.Int64)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetParentalEPGRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetParentalEPGRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.DisableUserDefaultParentalRule(System.String,System.String,System.String,System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.DisableUserDefaultParentalRuleAsync(System.String,System.String,System.String,System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.DisableUserDefaultParentalRuleAsync(System.String,System.String,System.String,System.Int32,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.DisableDomainDefaultParentalRule(System.String,System.String,System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.DisableDomainDefaultParentalRuleAsync(System.String,System.String,System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.DisableDomainDefaultParentalRuleAsync(System.String,System.String,System.Int32,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetMediaRules(System.String,System.String,System.String,System.Int64,System.Int64,System.String,System.String,WebAPI.Api.GenericRuleOrderBy)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetMediaRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.String,System.String,WebAPI.Api.GenericRuleOrderBy)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetMediaRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.String,System.String,WebAPI.Api.GenericRuleOrderBy,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetEpgRules(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.String,WebAPI.Api.GenericRuleOrderBy)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetEpgRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.String,WebAPI.Api.GenericRuleOrderBy)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetEpgRulesAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.String,WebAPI.Api.GenericRuleOrderBy,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetUserParentalRuleTags(System.String,System.String,System.String,System.Int64)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetUserParentalRuleTagsAsync(System.String,System.String,System.String,System.Int64)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetUserParentalRuleTagsAsync(System.String,System.String,System.String,System.Int64,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.BuildIPToCountryIndex(System.String,System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.BuildIPToCountryIndexAsync(System.String,System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.BuildIPToCountryIndexAsync(System.String,System.String,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetErrorCodesDictionary(System.String,System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetErrorCodesDictionaryAsync(System.String,System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetErrorCodesDictionaryAsync(System.String,System.String,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.InsertOSSAdapter(System.String,System.String,WebAPI.Api.OSSAdapter)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.InsertOSSAdapterAsync(System.String,System.String,WebAPI.Api.OSSAdapter)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.InsertOSSAdapterAsync(System.String,System.String,WebAPI.Api.OSSAdapter,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.DeleteOSSAdapter(System.String,System.String,System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.DeleteOSSAdapterAsync(System.String,System.String,System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.DeleteOSSAdapterAsync(System.String,System.String,System.Int32,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.SetOSSAdapter(System.String,System.String,WebAPI.Api.OSSAdapter)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.SetOSSAdapterAsync(System.String,System.String,WebAPI.Api.OSSAdapter)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.SetOSSAdapterAsync(System.String,System.String,WebAPI.Api.OSSAdapter,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetOSSAdapter(System.String,System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetOSSAdapterAsync(System.String,System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetOSSAdapterAsync(System.String,System.String,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.InsertOSSAdapterSettings(System.String,System.String,System.Int32,WebAPI.Api.OSSAdapterSettings[])">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.InsertOSSAdapterSettingsAsync(System.String,System.String,System.Int32,WebAPI.Api.OSSAdapterSettings[])">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.InsertOSSAdapterSettingsAsync(System.String,System.String,System.Int32,WebAPI.Api.OSSAdapterSettings[],System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.SetOSSAdapterSettings(System.String,System.String,System.Int32,WebAPI.Api.OSSAdapterSettings[])">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.SetOSSAdapterSettingsAsync(System.String,System.String,System.Int32,WebAPI.Api.OSSAdapterSettings[])">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.SetOSSAdapterSettingsAsync(System.String,System.String,System.Int32,WebAPI.Api.OSSAdapterSettings[],System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.DeleteOSSAdapterSettings(System.String,System.String,System.Int32,WebAPI.Api.OSSAdapterSettings[])">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.DeleteOSSAdapterSettingsAsync(System.String,System.String,System.Int32,WebAPI.Api.OSSAdapterSettings[])">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.DeleteOSSAdapterSettingsAsync(System.String,System.String,System.Int32,WebAPI.Api.OSSAdapterSettings[],System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetOSSAdapterSettings(System.String,System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetOSSAdapterSettingsAsync(System.String,System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetOSSAdapterSettingsAsync(System.String,System.String,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetUserBillingDetails(System.String,System.String,System.Int64,System.Int32,System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetUserBillingDetailsAsync(System.String,System.String,System.Int64,System.Int32,System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetUserBillingDetailsAsync(System.String,System.String,System.Int64,System.Int32,System.String,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.SetOSSAdapterConfiguration(System.String,System.String,System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.SetOSSAdapterConfigurationAsync(System.String,System.String,System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.SetOSSAdapterConfigurationAsync(System.String,System.String,System.Int32,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GenerateOSSSharedSecret(System.String,System.String,System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GenerateOSSSharedSecretAsync(System.String,System.String,System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GenerateOSSSharedSecretAsync(System.String,System.String,System.Int32,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.UpdateCache(System.Int32,System.String,System.String[])">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.UpdateCacheAsync(System.Int32,System.String,System.String[])">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.UpdateCacheAsync(System.Int32,System.String,System.String[],System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.UpdateGeoBlockRulesCache(System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.UpdateGeoBlockRulesCacheAsync(System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.UpdateGeoBlockRulesCacheAsync(System.Int32,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.InsertRecommendationEngine(System.String,System.String,WebAPI.Api.RecommendationEngine)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.InsertRecommendationEngineAsync(System.String,System.String,WebAPI.Api.RecommendationEngine)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.InsertRecommendationEngineAsync(System.String,System.String,WebAPI.Api.RecommendationEngine,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.DeleteRecommendationEngine(System.String,System.String,System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.DeleteRecommendationEngineAsync(System.String,System.String,System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.DeleteRecommendationEngineAsync(System.String,System.String,System.Int32,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.SetRecommendationEngine(System.String,System.String,WebAPI.Api.RecommendationEngine)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.SetRecommendationEngineAsync(System.String,System.String,WebAPI.Api.RecommendationEngine)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.SetRecommendationEngineAsync(System.String,System.String,WebAPI.Api.RecommendationEngine,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetRecommendationEngines(System.String,System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetRecommendationEnginesAsync(System.String,System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetRecommendationEnginesAsync(System.String,System.String,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.InsertRecommendationEngineSettings(System.String,System.String,System.Int32,WebAPI.Api.RecommendationEngineSettings[])">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.InsertRecommendationEngineSettingsAsync(System.String,System.String,System.Int32,WebAPI.Api.RecommendationEngineSettings[])">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.InsertRecommendationEngineSettingsAsync(System.String,System.String,System.Int32,WebAPI.Api.RecommendationEngineSettings[],System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.SetRecommendationEngineSettings(System.String,System.String,System.Int32,WebAPI.Api.RecommendationEngineSettings[])">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.SetRecommendationEngineSettingsAsync(System.String,System.String,System.Int32,WebAPI.Api.RecommendationEngineSettings[])">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.SetRecommendationEngineSettingsAsync(System.String,System.String,System.Int32,WebAPI.Api.RecommendationEngineSettings[],System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.DeleteRecommendationEngineSettings(System.String,System.String,System.Int32,WebAPI.Api.RecommendationEngineSettings[])">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.DeleteRecommendationEngineSettingsAsync(System.String,System.String,System.Int32,WebAPI.Api.RecommendationEngineSettings[])">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.DeleteRecommendationEngineSettingsAsync(System.String,System.String,System.Int32,WebAPI.Api.RecommendationEngineSettings[],System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetRecommendationEngineSettings(System.String,System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetRecommendationEngineSettingsAsync(System.String,System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetRecommendationEngineSettingsAsync(System.String,System.String,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.UpdateRecommendationEngineConfiguration(System.String,System.String,System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.UpdateRecommendationEngineConfigurationAsync(System.String,System.String,System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.UpdateRecommendationEngineConfigurationAsync(System.String,System.String,System.Int32,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GenerateRecommendationEngineSharedSecret(System.String,System.String,System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GenerateRecommendationEngineSharedSecretAsync(System.String,System.String,System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GenerateRecommendationEngineSharedSecretAsync(System.String,System.String,System.Int32,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.InsertExternalChannel(System.String,System.String,WebAPI.Api.ExternalChannel)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.InsertExternalChannelAsync(System.String,System.String,WebAPI.Api.ExternalChannel)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.InsertExternalChannelAsync(System.String,System.String,WebAPI.Api.ExternalChannel,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.DeleteExternalChannel(System.String,System.String,System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.DeleteExternalChannelAsync(System.String,System.String,System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.DeleteExternalChannelAsync(System.String,System.String,System.Int32,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.SetExternalChannel(System.String,System.String,WebAPI.Api.ExternalChannel)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.SetExternalChannelAsync(System.String,System.String,WebAPI.Api.ExternalChannel)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.SetExternalChannelAsync(System.String,System.String,WebAPI.Api.ExternalChannel,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetExternalChannels(System.String,System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetExternalChannelsAsync(System.String,System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.GetExternalChannelsAsync(System.String,System.String,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.AddBulkExportTask(System.String,System.String,System.String,System.String,WebAPI.Api.eBulkExportDataType,System.String,WebAPI.Api.eBulkExportExportType,System.Int64,System.String,System.Int32[],System.Boolean)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.AddBulkExportTaskAsync(System.String,System.String,System.String,System.String,WebAPI.Api.eBulkExportDataType,System.String,WebAPI.Api.eBulkExportExportType,System.Int64,System.String,System.Int32[],System.Boolean)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.AddBulkExportTaskAsync(System.String,System.String,System.String,System.String,WebAPI.Api.eBulkExportDataType,System.String,WebAPI.Api.eBulkExportExportType,System.Int64,System.String,System.Int32[],System.Boolean,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.UpdateBulkExportTask(System.String,System.String,System.Int64,System.String,System.String,WebAPI.Api.eBulkExportDataType,System.String,WebAPI.Api.eBulkExportExportType,System.Int64,System.String,System.Int32[],System.Nullable{System.Boolean})">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.UpdateBulkExportTaskAsync(System.String,System.String,System.Int64,System.String,System.String,WebAPI.Api.eBulkExportDataType,System.String,WebAPI.Api.eBulkExportExportType,System.Int64,System.String,System.Int32[],System.Nullable{System.Boolean})">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.UpdateBulkExportTaskAsync(System.String,System.String,System.Int64,System.String,System.String,WebAPI.Api.eBulkExportDataType,System.String,WebAPI.Api.eBulkExportExportType,System.Int64,System.String,System.Int32[],System.Nullable{System.Boolean},System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.DeleteBulkExportTask(System.String,System.String,System.Int64,System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.DeleteBulkExportTaskAsync(System.String,System.String,System.Int64,System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.DeleteBulkExportTaskAsync(System.String,System.String,System.Int64,System.String,System.Object)">
-            <remarks/>
-        </member>
         <member name="M:WebAPI.Api.API.CancelAsync(System.Object)">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.UpdatePurchasePINCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.SetPurchasePINCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.ValidateParentalPINCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.ValidatePurchasePINCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.GetParentalMediaRulesCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.GetParentalEPGRulesCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.DisableUserDefaultParentalRuleCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.DisableDomainDefaultParentalRuleCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.GetMediaRulesCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.GetEpgRulesCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.GetUserParentalRuleTagsCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.BuildIPToCountryIndexCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.GetErrorCodesDictionaryCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.InsertOSSAdapterCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.DeleteOSSAdapterCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.SetOSSAdapterCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.GetOSSAdapterCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.InsertOSSAdapterSettingsCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.SetOSSAdapterSettingsCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.DeleteOSSAdapterSettingsCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.GetOSSAdapterSettingsCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.GetUserBillingDetailsCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.SetOSSAdapterConfigurationCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.GenerateOSSSharedSecretCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.UpdateCacheCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.UpdateGeoBlockRulesCacheCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.InsertRecommendationEngineCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.DeleteRecommendationEngineCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.SetRecommendationEngineCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.GetRecommendationEnginesCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.InsertRecommendationEngineSettingsCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.SetRecommendationEngineSettingsCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.DeleteRecommendationEngineSettingsCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.GetRecommendationEngineSettingsCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.UpdateRecommendationEngineConfigurationCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.GenerateRecommendationEngineSharedSecretCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.InsertExternalChannelCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.DeleteExternalChannelCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.SetExternalChannelCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.GetExternalChannelsCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.AddBulkExportTaskCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.UpdateBulkExportTaskCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.DeleteBulkExportTaskCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.Api.API.GetBulkExportTasksCompleted">
@@ -9076,135 +9234,6 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.Api.API.GetPurchasePINCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.UpdatePurchasePINCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.SetPurchasePINCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.ValidateParentalPINCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.ValidatePurchasePINCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.GetParentalMediaRulesCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.GetParentalEPGRulesCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.DisableUserDefaultParentalRuleCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.DisableDomainDefaultParentalRuleCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.GetMediaRulesCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.GetEpgRulesCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.GetUserParentalRuleTagsCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.BuildIPToCountryIndexCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.GetErrorCodesDictionaryCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.InsertOSSAdapterCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.DeleteOSSAdapterCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.SetOSSAdapterCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.GetOSSAdapterCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.InsertOSSAdapterSettingsCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.SetOSSAdapterSettingsCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.DeleteOSSAdapterSettingsCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.GetOSSAdapterSettingsCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.GetUserBillingDetailsCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.SetOSSAdapterConfigurationCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.GenerateOSSSharedSecretCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.UpdateCacheCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.UpdateGeoBlockRulesCacheCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.InsertRecommendationEngineCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.DeleteRecommendationEngineCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.SetRecommendationEngineCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.GetRecommendationEnginesCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.InsertRecommendationEngineSettingsCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.SetRecommendationEngineSettingsCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.DeleteRecommendationEngineSettingsCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.GetRecommendationEngineSettingsCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.UpdateRecommendationEngineConfigurationCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.GenerateRecommendationEngineSharedSecretCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.InsertExternalChannelCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.DeleteExternalChannelCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.SetExternalChannelCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.GetExternalChannelsCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.AddBulkExportTaskCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.UpdateBulkExportTaskCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.DeleteBulkExportTaskCompleted">
             <remarks/>
         </member>
         <member name="T:WebAPI.Billing.module">
@@ -10860,22 +10889,22 @@
         <member name="M:WebAPI.ConditionalAccess.module.DeleteRecordAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.CancelSeriesRecord(System.String,System.String,System.String,System.Int64,System.Int64)">
+        <member name="M:WebAPI.ConditionalAccess.module.CancelSeriesRecord(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.CancelSeriesRecordAsync(System.String,System.String,System.String,System.Int64,System.Int64)">
+        <member name="M:WebAPI.ConditionalAccess.module.CancelSeriesRecordAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.CancelSeriesRecordAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Object)">
+        <member name="M:WebAPI.ConditionalAccess.module.CancelSeriesRecordAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.DeleteSeriesRecord(System.String,System.String,System.String,System.Int64,System.Int64)">
+        <member name="M:WebAPI.ConditionalAccess.module.DeleteSeriesRecord(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.DeleteSeriesRecordAsync(System.String,System.String,System.String,System.Int64,System.Int64)">
+        <member name="M:WebAPI.ConditionalAccess.module.DeleteSeriesRecordAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.DeleteSeriesRecordAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Object)">
+        <member name="M:WebAPI.ConditionalAccess.module.DeleteSeriesRecordAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.ConditionalAccess.module.RecordRetry(System.String,System.String,System.Int64)">
@@ -11029,6 +11058,33 @@
             <remarks/>
         </member>
         <member name="M:WebAPI.ConditionalAccess.module.HandleFirstFollowerRecordingAsync(System.String,System.String,System.Int64,System.String,System.String,System.Int32,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GetFollowSeries(System.String,System.String,System.String,System.Int64,WebAPI.ConditionalAccess.SeriesRecordingOrderObj)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GetFollowSeriesAsync(System.String,System.String,System.String,System.Int64,WebAPI.ConditionalAccess.SeriesRecordingOrderObj)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GetFollowSeriesAsync(System.String,System.String,System.String,System.Int64,WebAPI.ConditionalAccess.SeriesRecordingOrderObj,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.RecordSeasonOrSeries(System.String,System.String,System.String,System.Int64,WebAPI.ConditionalAccess.RecordingType)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.RecordSeasonOrSeriesAsync(System.String,System.String,System.String,System.Int64,WebAPI.ConditionalAccess.RecordingType)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.RecordSeasonOrSeriesAsync(System.String,System.String,System.String,System.Int64,WebAPI.ConditionalAccess.RecordingType,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.DistributeRecording(System.String,System.String,System.Int64,System.Int64,System.DateTime)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.DistributeRecordingAsync(System.String,System.String,System.Int64,System.Int64,System.DateTime)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.DistributeRecordingAsync(System.String,System.String,System.Int64,System.Int64,System.DateTime,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.ConditionalAccess.module.CancelAsync(System.Object)">
@@ -11407,6 +11463,15 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.ConditionalAccess.module.HandleFirstFollowerRecordingCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.ConditionalAccess.module.GetFollowSeriesCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.ConditionalAccess.module.RecordSeasonOrSeriesCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.ConditionalAccess.module.DistributeRecordingCompleted">
             <remarks/>
         </member>
         <member name="T:WebAPI.Domains.module">
@@ -14313,6 +14378,14 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.OttUserController.List(WebAPI.Models.Users.KalturaOTTUserFilter)">
+            <summary>
+            Retrieve the user’s lists 
+            </summary>
+            <remarks>Possible status codes: 
+            Invalid user = 1026</remarks>
+            <returns></returns>
+        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetInfoListResponse">
             <summary>
             Asset info wrapper
@@ -14585,402 +14658,6 @@
             Summary description for Swagger
             </summary>
         </member>
-        <member name="T:WebAPI.Api.BulkExportTaskOrderBy">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.BulkExportTaskOrderBy.CreateDateAsc">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.BulkExportTaskOrderBy.CreateDateDesc">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.BulkExportTasksResponse">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.BulkExportTasksResponse.Tasks">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.BulkExportTasksResponse.Status">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.BulkExportTask">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.BulkExportTask.Id">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.BulkExportTask.ExternalKey">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.BulkExportTask.Name">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.BulkExportTask.DataType">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.BulkExportTask.Filter">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.BulkExportTask.ExportType">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.BulkExportTask.Frequency">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.BulkExportTask.Version">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.BulkExportTask.InProcess">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.BulkExportTask.LastProcess">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.BulkExportTask.VodTypes">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.BulkExportTask.NotificationUrl">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.BulkExportTask.IsActive">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.eBulkExportDataType">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.eBulkExportDataType.VOD">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.eBulkExportDataType.EPG">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.eBulkExportDataType.Users">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.eBulkExportExportType">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.eBulkExportExportType.Full">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.eBulkExportExportType.Incremental">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.BulkExportTaskResponse">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.BulkExportTaskResponse.Task">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.BulkExportTaskResponse.Status">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.Status">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.Status.Code">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.Status.Message">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.ExternalChannelResponseList">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ExternalChannelResponseList.Status">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ExternalChannelResponseList.ExternalChannels">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.ExternalChannel">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ExternalChannel.Enrichments">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ExternalChannel.ID">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ExternalChannel.Name">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ExternalChannel.ExternalIdentifier">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ExternalChannel.RecommendationEngineId">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ExternalChannel.IsActive">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ExternalChannel.FilterExpression">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.ExternalRecommendationEngineEnrichment">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.ExternalRecommendationEngineEnrichment.ClientLocation">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.ExternalRecommendationEngineEnrichment.UserId">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.ExternalRecommendationEngineEnrichment.HouseholdId">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.ExternalRecommendationEngineEnrichment.DeviceId">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.ExternalRecommendationEngineEnrichment.DeviceType">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.ExternalRecommendationEngineEnrichment.UTCOffset">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.ExternalRecommendationEngineEnrichment.Language">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.ExternalRecommendationEngineEnrichment.NPVRSupport">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.ExternalRecommendationEngineEnrichment.Catchup">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.ExternalRecommendationEngineEnrichment.Parental">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.ExternalRecommendationEngineEnrichment.DTTRegion">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.ExternalRecommendationEngineEnrichment.AtHome">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.ExternalChannelResponse">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ExternalChannelResponse.Status">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ExternalChannelResponse.ExternalChannel">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.RecommendationEngineSettinsResponse">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.RecommendationEngineSettinsResponse.Status">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.RecommendationEngineSettinsResponse.RecommendationEngines">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.RecommendationEngine">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.RecommendationEngine.ID">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.RecommendationEngine.Name">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.RecommendationEngine.IsDefault">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.RecommendationEngine.IsActive">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.RecommendationEngine.AdapterUrl">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.RecommendationEngine.ExternalIdentifier">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.RecommendationEngine.SharedSecret">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.RecommendationEngine.Settings">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.RecommendationEngineSettings">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.RecommendationEngineSettings.key">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.RecommendationEngineSettings.value">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.RecommendationEnginesResponseList">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.RecommendationEnginesResponseList.Status">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.RecommendationEnginesResponseList.RecommendationEngines">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.RecommendationEngineResponse">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.RecommendationEngineResponse.Status">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.RecommendationEngineResponse.RecommendationEngine">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.OSSAdapterBillingDetailsResponse">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.OSSAdapterBillingDetailsResponse.Status">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.OSSAdapterBillingDetailsResponse.ChargeId">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.OSSAdapterBillingDetailsResponse.PaymentGatewayId">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.OSSAdapterSettingsResponse">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.OSSAdapterSettingsResponse.Status">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.OSSAdapterSettingsResponse.OSSAdapters">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.OSSAdapter">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.OSSAdapterBase">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.OSSAdapterBase.ID">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.OSSAdapterBase.Name">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.OSSAdapter.IsActive">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.OSSAdapter.AdapterUrl">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.OSSAdapter.ExternalIdentifier">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.OSSAdapter.SharedSecret">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.OSSAdapter.Settings">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.OSSAdapterSettings">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.OSSAdapterSettings.key">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.OSSAdapterSettings.value">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.OSSAdapterResponseList">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.OSSAdapterResponseList.Status">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.OSSAdapterResponseList.OSSAdapters">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.OSSAdapterResponse">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.OSSAdapterResponse.Status">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.OSSAdapterResponse.OSSAdapter">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.StatusErrorCodesResponse">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.StatusErrorCodesResponse.ErrorsDictionary">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.StatusErrorCodesResponse.Status">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.KeyValuePair">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.KeyValuePair.key">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.KeyValuePair.value">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.IdValuePair">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.IdValuePair.id">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.IdValuePair.value">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.ParentalRulesTagsResponse">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ParentalRulesTagsResponse.status">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ParentalRulesTagsResponse.mediaTags">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ParentalRulesTagsResponse.epgTags">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GenericRule">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.GenericRule.Id">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.GenericRule.RuleType">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.GenericRule.Name">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.GenericRule.Description">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.RuleType">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.RuleType.Parental">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.RuleType.Geo">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.RuleType.UserType">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.RuleType.Device">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GenericRuleResponse">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.GenericRuleResponse.Status">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.GenericRuleResponse.Rules">
-            <remarks/>
-        </member>
         <member name="T:WebAPI.Api.PurchaseSettingsResponse">
             <remarks/>
         </member>
@@ -14996,28 +14673,13 @@
         <member name="P:WebAPI.Api.PurchaseSettingsResponse.level">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Api.ePurchaeSettingsType">
+        <member name="T:WebAPI.Api.Status">
             <remarks/>
         </member>
-        <member name="F:WebAPI.Api.ePurchaeSettingsType.Block">
+        <member name="P:WebAPI.Api.Status.Code">
             <remarks/>
         </member>
-        <member name="F:WebAPI.Api.ePurchaeSettingsType.Ask">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.ePurchaeSettingsType.Allow">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.eRuleLevel">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.eRuleLevel.User">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.eRuleLevel.Domain">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.eRuleLevel.Group">
+        <member name="P:WebAPI.Api.Status.Message">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.PinResponse">
@@ -15032,64 +14694,16 @@
         <member name="P:WebAPI.Api.PinResponse.level">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Api.ParentalRule">
+        <member name="T:WebAPI.Api.eRuleLevel">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.ParentalRule.id">
+        <member name="F:WebAPI.Api.eRuleLevel.User">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.ParentalRule.name">
+        <member name="F:WebAPI.Api.eRuleLevel.Domain">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.ParentalRule.description">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ParentalRule.order">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ParentalRule.mediaTagTypeId">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ParentalRule.epgTagTypeId">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ParentalRule.blockAnonymousAccess">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ParentalRule.ruleType">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ParentalRule.mediaTagValues">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ParentalRule.epgTagValues">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ParentalRule.isDefault">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ParentalRule.level">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.eParentalRuleType">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.eParentalRuleType.All">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.eParentalRuleType.Movies">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.eParentalRuleType.TVSeries">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.ParentalRulesResponse">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ParentalRulesResponse.status">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ParentalRulesResponse.rules">
+        <member name="F:WebAPI.Api.eRuleLevel.Group">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.LanguageObj">
@@ -15129,6 +14743,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.Region.groupId">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.KeyValuePair">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.KeyValuePair.key">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.KeyValuePair.value">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.RegionsResponse">
@@ -15393,9 +15016,6 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.EPGChannelProgrammeObject.ENABLE_TRICK_PLAY">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.EPGChannelProgrammeObject.IS_RECORDED">
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.EPGChannelProgrammeObject.CRID">
@@ -17150,6 +16770,465 @@
         <member name="P:WebAPI.Api.RolesResponse.Status">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Api.BulkExportTasksResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.BulkExportTasksResponse.Tasks">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.BulkExportTasksResponse.Status">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.BulkExportTask">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.BulkExportTask.Id">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.BulkExportTask.ExternalKey">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.BulkExportTask.Name">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.BulkExportTask.DataType">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.BulkExportTask.Filter">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.BulkExportTask.ExportType">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.BulkExportTask.Frequency">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.BulkExportTask.Version">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.BulkExportTask.InProcess">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.BulkExportTask.LastProcess">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.BulkExportTask.VodTypes">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.BulkExportTask.NotificationUrl">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.BulkExportTask.IsActive">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.eBulkExportDataType">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.eBulkExportDataType.VOD">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.eBulkExportDataType.EPG">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.eBulkExportDataType.Users">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.eBulkExportExportType">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.eBulkExportExportType.Full">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.eBulkExportExportType.Incremental">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.BulkExportTaskResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.BulkExportTaskResponse.Task">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.BulkExportTaskResponse.Status">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.ExternalChannelResponseList">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ExternalChannelResponseList.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ExternalChannelResponseList.ExternalChannels">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.ExternalChannel">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ExternalChannel.Enrichments">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ExternalChannel.ID">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ExternalChannel.Name">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ExternalChannel.ExternalIdentifier">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ExternalChannel.RecommendationEngineId">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ExternalChannel.IsActive">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ExternalChannel.FilterExpression">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.ExternalRecommendationEngineEnrichment">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.ExternalRecommendationEngineEnrichment.ClientLocation">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.ExternalRecommendationEngineEnrichment.UserId">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.ExternalRecommendationEngineEnrichment.HouseholdId">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.ExternalRecommendationEngineEnrichment.DeviceId">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.ExternalRecommendationEngineEnrichment.DeviceType">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.ExternalRecommendationEngineEnrichment.UTCOffset">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.ExternalRecommendationEngineEnrichment.Language">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.ExternalRecommendationEngineEnrichment.NPVRSupport">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.ExternalRecommendationEngineEnrichment.Catchup">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.ExternalRecommendationEngineEnrichment.Parental">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.ExternalRecommendationEngineEnrichment.DTTRegion">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.ExternalRecommendationEngineEnrichment.AtHome">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.ExternalChannelResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ExternalChannelResponse.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ExternalChannelResponse.ExternalChannel">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.RecommendationEngineSettinsResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.RecommendationEngineSettinsResponse.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.RecommendationEngineSettinsResponse.RecommendationEngines">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.RecommendationEngine">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.RecommendationEngine.ID">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.RecommendationEngine.Name">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.RecommendationEngine.IsDefault">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.RecommendationEngine.IsActive">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.RecommendationEngine.AdapterUrl">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.RecommendationEngine.ExternalIdentifier">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.RecommendationEngine.SharedSecret">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.RecommendationEngine.Settings">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.RecommendationEngineSettings">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.RecommendationEngineSettings.key">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.RecommendationEngineSettings.value">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.RecommendationEnginesResponseList">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.RecommendationEnginesResponseList.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.RecommendationEnginesResponseList.RecommendationEngines">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.RecommendationEngineResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.RecommendationEngineResponse.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.RecommendationEngineResponse.RecommendationEngine">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.OSSAdapterBillingDetailsResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.OSSAdapterBillingDetailsResponse.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.OSSAdapterBillingDetailsResponse.ChargeId">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.OSSAdapterBillingDetailsResponse.PaymentGatewayId">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.OSSAdapterSettingsResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.OSSAdapterSettingsResponse.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.OSSAdapterSettingsResponse.OSSAdapters">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.OSSAdapter">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.OSSAdapterBase">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.OSSAdapterBase.ID">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.OSSAdapterBase.Name">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.OSSAdapter.IsActive">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.OSSAdapter.AdapterUrl">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.OSSAdapter.ExternalIdentifier">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.OSSAdapter.SharedSecret">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.OSSAdapter.Settings">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.OSSAdapterSettings">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.OSSAdapterSettings.key">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.OSSAdapterSettings.value">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.OSSAdapterResponseList">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.OSSAdapterResponseList.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.OSSAdapterResponseList.OSSAdapters">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.OSSAdapterResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.OSSAdapterResponse.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.OSSAdapterResponse.OSSAdapter">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.StatusErrorCodesResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.StatusErrorCodesResponse.ErrorsDictionary">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.StatusErrorCodesResponse.Status">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.IdValuePair">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.IdValuePair.id">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.IdValuePair.value">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.ParentalRulesTagsResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ParentalRulesTagsResponse.status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ParentalRulesTagsResponse.mediaTags">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ParentalRulesTagsResponse.epgTags">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GenericRule">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GenericRule.Id">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GenericRule.RuleType">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GenericRule.Name">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GenericRule.Description">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.RuleType">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.RuleType.Parental">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.RuleType.Geo">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.RuleType.UserType">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.RuleType.Device">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GenericRuleResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GenericRuleResponse.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GenericRuleResponse.Rules">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.ParentalRule">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ParentalRule.id">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ParentalRule.name">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ParentalRule.description">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ParentalRule.order">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ParentalRule.mediaTagTypeId">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ParentalRule.epgTagTypeId">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ParentalRule.blockAnonymousAccess">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ParentalRule.ruleType">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ParentalRule.mediaTagValues">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ParentalRule.epgTagValues">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ParentalRule.isDefault">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ParentalRule.level">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.eParentalRuleType">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.eParentalRuleType.All">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.eParentalRuleType.Movies">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.eParentalRuleType.TVSeries">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.ParentalRulesResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ParentalRulesResponse.status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ParentalRulesResponse.rules">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.ePurchaeSettingsType">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.ePurchaeSettingsType.Block">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.ePurchaeSettingsType.Ask">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.ePurchaeSettingsType.Allow">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GenericRuleOrderBy">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.GenericRuleOrderBy.NameAsc">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.GenericRuleOrderBy.NameDesc">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.BulkExportTaskOrderBy">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.BulkExportTaskOrderBy.CreateDateAsc">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.BulkExportTaskOrderBy.CreateDateDesc">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Api.ePermissionType">
             <remarks/>
         </member>
@@ -17267,13 +17346,391 @@
         <member name="F:WebAPI.Api.eBusinessModule.Subscription">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Api.GenericRuleOrderBy">
+        <member name="T:WebAPI.Api.UpdatePurchasePINCompletedEventHandler">
             <remarks/>
         </member>
-        <member name="F:WebAPI.Api.GenericRuleOrderBy.NameAsc">
+        <member name="T:WebAPI.Api.UpdatePurchasePINCompletedEventArgs">
             <remarks/>
         </member>
-        <member name="F:WebAPI.Api.GenericRuleOrderBy.NameDesc">
+        <member name="P:WebAPI.Api.UpdatePurchasePINCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.SetPurchasePINCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.SetPurchasePINCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.SetPurchasePINCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.ValidateParentalPINCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.ValidateParentalPINCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ValidateParentalPINCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.ValidatePurchasePINCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.ValidatePurchasePINCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ValidatePurchasePINCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetParentalMediaRulesCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetParentalMediaRulesCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GetParentalMediaRulesCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetParentalEPGRulesCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetParentalEPGRulesCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GetParentalEPGRulesCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.DisableUserDefaultParentalRuleCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.DisableUserDefaultParentalRuleCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.DisableUserDefaultParentalRuleCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.DisableDomainDefaultParentalRuleCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.DisableDomainDefaultParentalRuleCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.DisableDomainDefaultParentalRuleCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetMediaRulesCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetMediaRulesCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GetMediaRulesCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetEpgRulesCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetEpgRulesCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GetEpgRulesCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetUserParentalRuleTagsCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetUserParentalRuleTagsCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GetUserParentalRuleTagsCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.BuildIPToCountryIndexCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.BuildIPToCountryIndexCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.BuildIPToCountryIndexCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetErrorCodesDictionaryCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetErrorCodesDictionaryCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GetErrorCodesDictionaryCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.InsertOSSAdapterCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.InsertOSSAdapterCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.InsertOSSAdapterCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.DeleteOSSAdapterCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.DeleteOSSAdapterCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.DeleteOSSAdapterCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.SetOSSAdapterCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.SetOSSAdapterCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.SetOSSAdapterCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetOSSAdapterCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetOSSAdapterCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GetOSSAdapterCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.InsertOSSAdapterSettingsCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.InsertOSSAdapterSettingsCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.InsertOSSAdapterSettingsCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.SetOSSAdapterSettingsCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.SetOSSAdapterSettingsCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.SetOSSAdapterSettingsCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.DeleteOSSAdapterSettingsCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.DeleteOSSAdapterSettingsCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.DeleteOSSAdapterSettingsCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetOSSAdapterSettingsCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetOSSAdapterSettingsCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GetOSSAdapterSettingsCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetUserBillingDetailsCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetUserBillingDetailsCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GetUserBillingDetailsCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.SetOSSAdapterConfigurationCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.SetOSSAdapterConfigurationCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.SetOSSAdapterConfigurationCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GenerateOSSSharedSecretCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GenerateOSSSharedSecretCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GenerateOSSSharedSecretCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.UpdateCacheCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.UpdateCacheCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.UpdateCacheCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.UpdateGeoBlockRulesCacheCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.UpdateGeoBlockRulesCacheCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.UpdateGeoBlockRulesCacheCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.InsertRecommendationEngineCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.InsertRecommendationEngineCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.InsertRecommendationEngineCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.DeleteRecommendationEngineCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.DeleteRecommendationEngineCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.DeleteRecommendationEngineCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.SetRecommendationEngineCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.SetRecommendationEngineCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.SetRecommendationEngineCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetRecommendationEnginesCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetRecommendationEnginesCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GetRecommendationEnginesCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.InsertRecommendationEngineSettingsCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.InsertRecommendationEngineSettingsCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.InsertRecommendationEngineSettingsCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.SetRecommendationEngineSettingsCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.SetRecommendationEngineSettingsCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.SetRecommendationEngineSettingsCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.DeleteRecommendationEngineSettingsCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.DeleteRecommendationEngineSettingsCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.DeleteRecommendationEngineSettingsCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetRecommendationEngineSettingsCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetRecommendationEngineSettingsCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GetRecommendationEngineSettingsCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.UpdateRecommendationEngineConfigurationCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.UpdateRecommendationEngineConfigurationCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.UpdateRecommendationEngineConfigurationCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GenerateRecommendationEngineSharedSecretCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GenerateRecommendationEngineSharedSecretCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GenerateRecommendationEngineSharedSecretCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.InsertExternalChannelCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.InsertExternalChannelCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.InsertExternalChannelCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.DeleteExternalChannelCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.DeleteExternalChannelCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.DeleteExternalChannelCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.SetExternalChannelCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.SetExternalChannelCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.SetExternalChannelCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetExternalChannelsCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetExternalChannelsCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GetExternalChannelsCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.AddBulkExportTaskCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.AddBulkExportTaskCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.AddBulkExportTaskCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.UpdateBulkExportTaskCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.UpdateBulkExportTaskCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.UpdateBulkExportTaskCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.DeleteBulkExportTaskCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.DeleteBulkExportTaskCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.DeleteBulkExportTaskCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.GetBulkExportTasksCompletedEventHandler">
@@ -18357,393 +18814,6 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.GetPurchasePINCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.UpdatePurchasePINCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.UpdatePurchasePINCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.UpdatePurchasePINCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.SetPurchasePINCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.SetPurchasePINCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.SetPurchasePINCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.ValidateParentalPINCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.ValidateParentalPINCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ValidateParentalPINCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.ValidatePurchasePINCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.ValidatePurchasePINCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ValidatePurchasePINCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GetParentalMediaRulesCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GetParentalMediaRulesCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.GetParentalMediaRulesCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GetParentalEPGRulesCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GetParentalEPGRulesCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.GetParentalEPGRulesCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.DisableUserDefaultParentalRuleCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.DisableUserDefaultParentalRuleCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.DisableUserDefaultParentalRuleCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.DisableDomainDefaultParentalRuleCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.DisableDomainDefaultParentalRuleCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.DisableDomainDefaultParentalRuleCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GetMediaRulesCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GetMediaRulesCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.GetMediaRulesCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GetEpgRulesCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GetEpgRulesCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.GetEpgRulesCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GetUserParentalRuleTagsCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GetUserParentalRuleTagsCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.GetUserParentalRuleTagsCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.BuildIPToCountryIndexCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.BuildIPToCountryIndexCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.BuildIPToCountryIndexCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GetErrorCodesDictionaryCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GetErrorCodesDictionaryCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.GetErrorCodesDictionaryCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.InsertOSSAdapterCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.InsertOSSAdapterCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.InsertOSSAdapterCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.DeleteOSSAdapterCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.DeleteOSSAdapterCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.DeleteOSSAdapterCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.SetOSSAdapterCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.SetOSSAdapterCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.SetOSSAdapterCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GetOSSAdapterCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GetOSSAdapterCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.GetOSSAdapterCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.InsertOSSAdapterSettingsCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.InsertOSSAdapterSettingsCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.InsertOSSAdapterSettingsCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.SetOSSAdapterSettingsCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.SetOSSAdapterSettingsCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.SetOSSAdapterSettingsCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.DeleteOSSAdapterSettingsCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.DeleteOSSAdapterSettingsCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.DeleteOSSAdapterSettingsCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GetOSSAdapterSettingsCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GetOSSAdapterSettingsCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.GetOSSAdapterSettingsCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GetUserBillingDetailsCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GetUserBillingDetailsCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.GetUserBillingDetailsCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.SetOSSAdapterConfigurationCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.SetOSSAdapterConfigurationCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.SetOSSAdapterConfigurationCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GenerateOSSSharedSecretCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GenerateOSSSharedSecretCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.GenerateOSSSharedSecretCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.UpdateCacheCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.UpdateCacheCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.UpdateCacheCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.UpdateGeoBlockRulesCacheCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.UpdateGeoBlockRulesCacheCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.UpdateGeoBlockRulesCacheCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.InsertRecommendationEngineCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.InsertRecommendationEngineCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.InsertRecommendationEngineCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.DeleteRecommendationEngineCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.DeleteRecommendationEngineCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.DeleteRecommendationEngineCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.SetRecommendationEngineCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.SetRecommendationEngineCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.SetRecommendationEngineCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GetRecommendationEnginesCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GetRecommendationEnginesCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.GetRecommendationEnginesCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.InsertRecommendationEngineSettingsCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.InsertRecommendationEngineSettingsCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.InsertRecommendationEngineSettingsCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.SetRecommendationEngineSettingsCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.SetRecommendationEngineSettingsCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.SetRecommendationEngineSettingsCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.DeleteRecommendationEngineSettingsCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.DeleteRecommendationEngineSettingsCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.DeleteRecommendationEngineSettingsCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GetRecommendationEngineSettingsCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GetRecommendationEngineSettingsCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.GetRecommendationEngineSettingsCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.UpdateRecommendationEngineConfigurationCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.UpdateRecommendationEngineConfigurationCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.UpdateRecommendationEngineConfigurationCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GenerateRecommendationEngineSharedSecretCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GenerateRecommendationEngineSharedSecretCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.GenerateRecommendationEngineSharedSecretCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.InsertExternalChannelCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.InsertExternalChannelCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.InsertExternalChannelCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.DeleteExternalChannelCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.DeleteExternalChannelCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.DeleteExternalChannelCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.SetExternalChannelCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.SetExternalChannelCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.SetExternalChannelCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GetExternalChannelsCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.GetExternalChannelsCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.GetExternalChannelsCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.AddBulkExportTaskCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.AddBulkExportTaskCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.AddBulkExportTaskCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.UpdateBulkExportTaskCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.UpdateBulkExportTaskCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.UpdateBulkExportTaskCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.DeleteBulkExportTaskCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.DeleteBulkExportTaskCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.DeleteBulkExportTaskCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Billing.AdyenBillingDetail">
@@ -19835,6 +19905,108 @@
         <member name="F:WebAPI.ConditionalAccess.PaymentMethod.Offline">
             <remarks/>
         </member>
+        <member name="T:WebAPI.ConditionalAccess.SeriesResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.SeriesResponse.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.SeriesResponse.SeriesRecordings">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.SeriesResponse.TotalItems">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.Status.Code">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.Status.Message">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.SeriesRecording">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.DomainSeriesRecording">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.DomainSeriesRecording.SeriesId">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.DomainSeriesRecording.SeasonNumber">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.DomainSeriesRecording.EpgId">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.DomainSeriesRecording.UserId">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.DomainSeriesRecording.EpgChannelId">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.SeriesRecording.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.SeriesRecording.Id">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.SeriesRecording.CreateDate">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.SeriesRecording.UpdateDate">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.SeriesRecording.Type">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RecordingType">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.RecordingType.Single">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.RecordingType.Season">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.RecordingType.Series">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.SeriesRecordingOrderObj">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.SeriesRecordingOrderObj.OrderBy">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.SeriesRecordingOrderObj.OrderDir">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.SeriesOrderBy">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.SeriesOrderBy.ID">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.SeriesOrderBy.START_DATE">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.SeriesOrderBy.SERIES_ID">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.OrderDir">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.OrderDir.ASC">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.OrderDir.DESC">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.OrderDir.NONE">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.ConditionalAccess.ExpiredRecordingScheduledTask">
             <remarks/>
         </member>
@@ -19866,15 +20038,6 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.ScheduledTaskLastRunResponse.NextRunIntervalInSeconds">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.Status">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.Status.Code">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.Status.Message">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.RecordingCleanupResponse">
@@ -19967,18 +20130,6 @@
         <member name="F:WebAPI.ConditionalAccess.OrderBy.RECOMMENDATION">
             <remarks/>
         </member>
-        <member name="T:WebAPI.ConditionalAccess.OrderDir">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.ConditionalAccess.OrderDir.ASC">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.ConditionalAccess.OrderDir.DESC">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.ConditionalAccess.OrderDir.NONE">
-            <remarks/>
-        </member>
         <member name="T:WebAPI.ConditionalAccess.RecordingResponse">
             <remarks/>
         </member>
@@ -20066,46 +20217,10 @@
         <member name="F:WebAPI.ConditionalAccess.TstvRecordingStatus.LifeTimePeriodExpired">
             <remarks/>
         </member>
-        <member name="T:WebAPI.ConditionalAccess.RecordingType">
+        <member name="F:WebAPI.ConditionalAccess.TstvRecordingStatus.SeriesCancel">
             <remarks/>
         </member>
-        <member name="F:WebAPI.ConditionalAccess.RecordingType.Single">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.ConditionalAccess.RecordingType.Season">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.ConditionalAccess.RecordingType.Series">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.SeriesRecording">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.SeriesRecording.Status">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.SeriesRecording.Id">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.SeriesRecording.EpgId">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.SeriesRecording.ChannelId">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.SeriesRecording.SeriesId">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.SeriesRecording.SeasonNumber">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.SeriesRecording.CreateDate">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.SeriesRecording.UpdateDate">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.SeriesRecording.Type">
+        <member name="F:WebAPI.ConditionalAccess.TstvRecordingStatus.SeriesDelete">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.CDVRAdapterResponse">
@@ -20957,6 +21072,9 @@
         <member name="P:WebAPI.ConditionalAccess.BaseNPVRCommand.assetID">
             <remarks/>
         </member>
+        <member name="T:WebAPI.ConditionalAccess.DeleteSeriesNPVRCommand">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.ConditionalAccess.ProtectNPVRCommand">
             <remarks/>
         </member>
@@ -21012,9 +21130,6 @@
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.RecordSeriesByNameNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.DeleteSeriesNPVRCommand">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.EntitlementResponse">
@@ -22785,6 +22900,33 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.HandleFirstFollowerRecordingCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.GetFollowSeriesCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.GetFollowSeriesCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.GetFollowSeriesCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RecordSeasonOrSeriesCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RecordSeasonOrSeriesCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.RecordSeasonOrSeriesCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.DistributeRecordingCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.DistributeRecordingCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.DistributeRecordingCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Domains.DomainStatusResponse">

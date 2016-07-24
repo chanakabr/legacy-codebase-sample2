@@ -12,15 +12,41 @@ namespace WebAPI.Models.Users
     /// <summary>
     /// OTT User filter
     /// </summary>
-    public class KalturaOTTUserFilter : KalturaOTTObject
+    public class KalturaOTTUserFilter : KalturaFilter<KalturaOTTUserOrderBy>
     {
         /// <summary>
-        /// User IDs to retrieve
+        ///User Filter By
         /// </summary>
-        [DataMember(Name = "user_ids")]
-        [JsonProperty("user_ids")]
-        [XmlArray(ElementName = "user_ids", IsNullable = true)]
-        [XmlArrayItem("item")]
-        public List<KalturaStringValue> UserIDs { get; set; }
+        [DataMember(Name = "userByEqual")]
+        [JsonProperty("userByEqual")]
+        [XmlElement(ElementName = "userByEqual")]
+        public KalturaOTTUserBy UserByEqual { get; set; }
+
+        /// <summary>
+        /// The User identifiers
+        /// </summary>
+        [DataMember(Name = "valueEqual")]
+        [XmlElement("valueEqual", IsNullable = true)]
+        [JsonProperty("valueEqual")]
+        public string ValueEqual { get; set; }
+
+        public override KalturaOTTUserOrderBy GetDefaultOrderByValue()
+        {
+            return KalturaOTTUserOrderBy.ID_ASC;
+        }
+
+
+    }
+
+
+    public enum KalturaOTTUserOrderBy
+    {
+        ID_ASC   
+    }
+
+    public enum KalturaOTTUserBy
+    {
+        USER_NAME,
+        EXTERNAL_ID
     }
 }

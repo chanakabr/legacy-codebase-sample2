@@ -996,6 +996,98 @@ namespace WebAPI.Clients
 
             return listItem;
         }
+
+        internal KalturaOTTUserListResponse GetUserDataByCoGuid(int groupId, string coGuid)
+        {
+            KalturaOTTUserListResponse listUser = null;
+            UserResponseObject response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Users.GetUserDataByCoGuid(group.UsersCredentials.Username, group.UsersCredentials.Password, coGuid, -1);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetUserDataByCoGuid. Username: {0}, Password: {1}, coGuid: {2}", group.UsersCredentials.Username, group.UsersCredentials.Password, coGuid);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.m_RespStatus != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.m_RespStatus, response.m_RespStatus.ToString());
+            }
+
+            if (response.m_user == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            KalturaOTTUser User;
+            User = Mapper.Map<KalturaOTTUser>(response.m_user);
+            listUser = new KalturaOTTUserListResponse()
+            {
+                Users = new List<KalturaOTTUser>() { User },
+                TotalCount = 1,
+            };
+
+            return listUser;
+        }
+
+        internal KalturaOTTUserListResponse GetUserByUsername(int groupId, string userName)
+        {
+            KalturaOTTUserListResponse listUser = null;
+            UserResponseObject response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Users.GetUserByUsername(group.UsersCredentials.Username, group.UsersCredentials.Password, userName);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetUserDataByCoGuid. Username: {0}, Password: {1}, userNameFilter: {2}", group.UsersCredentials.Username, group.UsersCredentials.Password, userName);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.m_RespStatus != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.m_RespStatus, response.m_RespStatus.ToString());
+            }
+
+            if (response.m_user == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            KalturaOTTUser User;
+            User = Mapper.Map<KalturaOTTUser>(response.m_user);
+            listUser = new KalturaOTTUserListResponse()
+            {
+                Users = new List<KalturaOTTUser>() { User },
+                TotalCount = 1,                
+            };
+
+            return listUser;
+        }
     }
 }
 
