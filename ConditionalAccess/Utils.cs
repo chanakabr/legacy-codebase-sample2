@@ -5178,9 +5178,9 @@ namespace ConditionalAccess
             return recording;
         }
 
-        internal static Dictionary<long, UpdateDomainQuotaByTypeTask> GetExpiredRecordingsTasks(long unixTimeStampNow)
+        internal static Dictionary<long, ExpiredRecordingScheduledTask> GetExpiredRecordingsTasks(long unixTimeStampNow)
         {
-            Dictionary<long, UpdateDomainQuotaByTypeTask> expiredRecordings = new Dictionary<long, UpdateDomainQuotaByTypeTask>();
+            Dictionary<long, ExpiredRecordingScheduledTask> expiredRecordings = new Dictionary<long, ExpiredRecordingScheduledTask>();
             DataTable dt = RecordingsDAL.GetExpiredRecordingsTasks(unixTimeStampNow);
             if (dt != null && dt.Rows != null)
             {
@@ -5193,7 +5193,7 @@ namespace ConditionalAccess
                         int groupId = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_ID", 0);
                         DateTime scheduledExpirationDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "scheduled_expiration_date");
                         long scheduledExpirationEpoch = ODBCWrapper.Utils.GetLongSafeVal(dr, "scheduled_expiration_epoch", 0);
-                        UpdateDomainQuotaByTypeTask expiredRecording = new UpdateDomainQuotaByTypeTask()
+                        ExpiredRecordingScheduledTask expiredRecording = new ExpiredRecordingScheduledTask()
                         {
                             Id = id,
                             RecordingId = recordingId,
