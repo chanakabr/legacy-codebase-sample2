@@ -17,14 +17,15 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Registers the device push token to the push service
         /// </summary>
-        /// <param name="push_token">The device-application pair authentication for push delivery</param>
+        /// <param name="pushToken">The device-application pair authentication for push delivery</param>
         /// <remarks>
         /// 
         /// </remarks>
         /// <returns></returns>
         [Route("setDevicePushToken"), HttpPost]
         [ApiAuthorize]
-        public bool SetDevicePushToken(string push_token)
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        public bool SetDevicePushToken(string pushToken)
         {
             bool response = false;
 
@@ -35,10 +36,10 @@ namespace WebAPI.Controllers
             try
             {
                 // validate push token
-                if (string.IsNullOrWhiteSpace(push_token))
+                if (string.IsNullOrWhiteSpace(pushToken))
                     throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "push token cannot be empty");
 
-                response = ClientsManager.NotificationClient().SetPush(groupId, userId, udid, push_token);
+                response = ClientsManager.NotificationClient().SetPush(groupId, userId, udid, pushToken);
             }
             catch (ClientException ex)
             {
@@ -57,6 +58,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("initiateCleanup"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
         public bool InitiateCleanup()
         {
             bool response = false;
@@ -85,6 +87,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("getLastCleanupDate"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
         public long GetLastCleanupDate()
         {
             long response = 0;
