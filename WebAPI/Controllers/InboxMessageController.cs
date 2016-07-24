@@ -14,7 +14,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/inboxMessage/action")]
-    [OldStandardAction("listOldStandard", "list")]
     public class InboxMessageController : ApiController
     {
 
