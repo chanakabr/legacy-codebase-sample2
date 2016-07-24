@@ -611,9 +611,9 @@ namespace DAL
             return spGetExpiredRecordingsTasks.Execute();
         }
 
-        public static DataTable GetExpiredDomainsRecordings(long recordingId, long unixTimeStampNow)
+        public static DataTable GetDomainsRecordingsByRecordingIdAndProtectDate(long recordingId, long unixTimeStampNow)
         {
-            ODBCWrapper.StoredProcedure spGetExpiredDomainsRecordings = new ODBCWrapper.StoredProcedure("GetExpiredDomainsRecordings");
+            ODBCWrapper.StoredProcedure spGetExpiredDomainsRecordings = new ODBCWrapper.StoredProcedure("GetDomainsRecordingsByRecordingIdAndProtectDate");
             spGetExpiredDomainsRecordings.SetConnectionKey(RECORDING_CONNECTION);
             spGetExpiredDomainsRecordings.AddParameter("@RecordingId", recordingId);
             spGetExpiredDomainsRecordings.AddParameter("@UtcNowEpoch", unixTimeStampNow);
@@ -853,18 +853,6 @@ namespace DAL
             spCountRecordingsByExternalRecordingId.AddParameter("@ExternalRecordingId", externalRecordingId);
 
             return spCountRecordingsByExternalRecordingId.ExecuteReturnValue<int>();           
-        }
-
-        public static DataTable GetDomainsWithFailedRecording(int groupId, long recordingId)
-        {
-            DataTable dt = null;
-            ODBCWrapper.StoredProcedure spGetDomainsWithFailedRecording = new ODBCWrapper.StoredProcedure("GetDomainsWithFailedRecording");
-            spGetDomainsWithFailedRecording.SetConnectionKey(RECORDING_CONNECTION);
-            spGetDomainsWithFailedRecording.AddParameter("@GroupID", groupId);
-            spGetDomainsWithFailedRecording.AddParameter("@RecordingId", recordingId);            
-            dt = spGetDomainsWithFailedRecording.Execute();
-
-            return dt;
         }
 
         #region Couchbase

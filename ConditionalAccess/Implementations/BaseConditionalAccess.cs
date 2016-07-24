@@ -18685,7 +18685,7 @@ namespace ConditionalAccess
                     return result;
                 }
 
-                DataTable expiredDomainRecordings = RecordingsDAL.GetExpiredDomainsRecordings(expiredRecording.RecordingId, expiredRecording.ScheduledExpirationEpoch);
+                DataTable expiredDomainRecordings = RecordingsDAL.GetDomainsRecordingsByRecordingIdAndProtectDate(expiredRecording.RecordingId, expiredRecording.ScheduledExpirationEpoch);
                 // set max amount of concurrent tasks
                 int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
                 if (maxDegreeOfParallelism == 0)
@@ -18723,7 +18723,7 @@ namespace ConditionalAccess
                         }
                     });
 
-                    expiredDomainRecordings = RecordingsDAL.GetExpiredDomainsRecordings(expiredRecording.RecordingId, expiredRecording.ScheduledExpirationEpoch);
+                    expiredDomainRecordings = RecordingsDAL.GetDomainsRecordingsByRecordingIdAndProtectDate(expiredRecording.RecordingId, expiredRecording.ScheduledExpirationEpoch);
                 }
 
                 long minProtectionEpoch = RecordingsDAL.GetRecordingMinProtectedEpoch(expiredRecording.RecordingId, expiredRecording.ScheduledExpirationEpoch);
