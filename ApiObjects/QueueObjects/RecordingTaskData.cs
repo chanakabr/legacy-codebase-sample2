@@ -42,10 +42,10 @@ namespace ApiObjects
             this.args = new List<object>()
             {
                 groupId,
-                recordingTask.ToString(),
+                recordingTask,
+                epgStartDate,
                 programId,
-                recordingId,
-                epgStartDate
+                recordingId,                
             };
         }
     }
