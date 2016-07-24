@@ -968,6 +968,8 @@ namespace Catalog
             DateTime cacheDate = new DateTime(1970, 1, 1, 0, 0, 0);
             DateTime updateDate = new DateTime(1970, 1, 1, 0, 0, 0);
             DateTime startDate = new DateTime(1970, 1, 1, 0, 0, 0);
+            DateTime endDate = new DateTime(1970, 1, 1, 0, 0, 0);
+
             int mediaTypeId = 0;
             string epgIdentifier = string.Empty;
 
@@ -979,6 +981,7 @@ namespace Catalog
             startDate = ExtractDateFromToken(item, AddPrefixToFieldName("start_date", fieldNamePrefix));
             mediaTypeId = ExtractValueFromToken<int>(item, AddPrefixToFieldName("media_type_id", fieldNamePrefix));
             epgIdentifier = ExtractValueFromToken<string>(item, AddPrefixToFieldName("epg_identifier", fieldNamePrefix));
+            endDate = ExtractDateFromToken(item, AddPrefixToFieldName("end_date", fieldNamePrefix));
 
             var newDocument = new ElasticSearchApi.ESAssetDocument()
             {
