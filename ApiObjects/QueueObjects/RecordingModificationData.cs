@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace ApiObjects.QueueObjects
 {
-    public class ExpiredRecordingData : BaseCeleryData
+    public class RecordingModificationData : BaseCeleryData
     {
-        public const string TASK = "distributed_tasks.process_expired_recording";
+        public const string TASK = "distributed_tasks.process_modified_recording";
 
         private long Id;
         private long RecordingId;
         private long RecordingExpirationEpoch;
-        private DateTime RecordingExpirationDate;
+        private int OldRecordingDuration;
 
-        public ExpiredRecordingData(int groupId, long id, long recordingId, long recordingExpirationEpoch, DateTime recordingExpirationDate) :
+        public RecordingModificationData(int groupId, long id, long recordingId, long recordingExpirationEpoch, int oldRecordingDuration = 0) :
             base(// id = guid
                  Guid.NewGuid().ToString(),
                 // task = const
@@ -26,7 +26,7 @@ namespace ApiObjects.QueueObjects
             this.Id = id;
             this.RecordingId = recordingId;
             this.RecordingExpirationEpoch = recordingExpirationEpoch;
-            this.RecordingExpirationDate = recordingExpirationDate;
+            this.OldRecordingDuration = oldRecordingDuration;
 
             this.args = new List<object>()
             {
@@ -34,7 +34,7 @@ namespace ApiObjects.QueueObjects
                 id,
                 recordingId,
                 recordingExpirationEpoch,
-                recordingExpirationDate
+                oldRecordingDuration
             };
         }
     }

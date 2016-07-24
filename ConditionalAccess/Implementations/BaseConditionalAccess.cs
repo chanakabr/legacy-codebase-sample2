@@ -60,7 +60,7 @@ namespace ConditionalAccess
         private const string RECORDINGS_SCHEDULED_TASKS = "recordingsScheduledTasks";
         private const double HANDLE_RECORDINGS_SCHEDULED_TASKS_INTERVAL_SEC = 60;
         private const string RECORDING_TASKS_ROUTING_KEY = "PROCESS_RECORDING_SCHEDULED_TASKS";
-        private const string ROUTING_KEY_EXPIRED_RECORDING = "PROCESS_EXPIRED_RECORDING\\{0}";
+        private const string ROUTING_KEY_MODIFIED_RECORDING = "PROCESS_MODIFIED_RECORDING\\{0}";
 
         //errors
         private const string CONFLICTED_PARAMS = "Conflicted params";
@@ -18609,15 +18609,15 @@ namespace ConditionalAccess
                 // get current utc epoch
                 long utcNowEpoch = TVinciShared.DateUtils.UnixTimeStampNow();
                 // get first batch
-                Dictionary<long, ExpiredRecordingScheduledTask> expiredRecordingsToSchedule = Utils.GetExpiredRecordingsTasks(utcNowEpoch);
+                Dictionary<long, HandleDomainQuataByRecordingTask> expiredRecordingsToSchedule = Utils.GetExpiredRecordingsTasks(utcNowEpoch);
                 // update successful run date
                 if (expiredRecordingsToSchedule != null)
                 {
-                    foreach (ExpiredRecordingScheduledTask expiredRecording in expiredRecordingsToSchedule.Values)
+                    foreach (HandleDomainQuataByRecordingTask expiredRecording in expiredRecordingsToSchedule.Values)
                     {
                         GenericCeleryQueue queue = new GenericCeleryQueue();
-                        ExpiredRecordingData data = new ExpiredRecordingData(expiredRecording.GroupId, expiredRecording.Id, expiredRecording.RecordingId, expiredRecording.ScheduledExpirationEpoch, expiredRecording.ScheduledExpirationDate) { ETA = DateTime.UtcNow };
-                        bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_EXPIRED_RECORDING, expiredRecording.GroupId));
+                        RecordingModificationData data = new RecordingModificationData(expiredRecording.GroupId, expiredRecording.Id, expiredRecording.RecordingId, expiredRecording.ScheduledExpirationEpoch) { ETA = DateTime.UtcNow };
+                        bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_MODIFIED_RECORDING, expiredRecording.GroupId));
                         if (!queueExpiredRecordingResult)
                         {
                             log.ErrorFormat("Failed to queue ExpiredRecordingScheduledTask: {0}", expiredRecording.ToString());
@@ -18664,19 +18664,19 @@ namespace ConditionalAccess
         /// <summary>
         /// This method handles both Expired recordings and Failed recordings
         /// </summary>
-        public bool HandleExpiredOrFailedRecording(ExpiredRecordingScheduledTask expiredRecording)
+        public bool HandleDomainQuotaByRecording(HandleDomainQuataByRecordingTask task)
         {
             bool result = false;
             try
             {
-                int recordingDuration = RecordingsDAL.GetRecordingDuration(expiredRecording.RecordingId);
+                int recordingDuration = RecordingsDAL.GetRecordingDuration(task.RecordingId);
                 if (recordingDuration <= 0)
                 {
-                    log.ErrorFormat("Failed GetRecordingDuration for expiredRecording: {0}, returned recordingDuration = {1}", expiredRecording, recordingDuration);
+                    log.ErrorFormat("Failed GetRecordingDuration for expiredRecording: {0}, returned recordingDuration = {1}", task, recordingDuration);
                     return result;
                 }
 
-                DataTable expiredDomainRecordings = RecordingsDAL.GetExpiredDomainsRecordings(expiredRecording.RecordingId, expiredRecording.ScheduledExpirationEpoch);
+                DataTable expiredDomainRecordings = RecordingsDAL.GetExpiredDomainsRecordings(task.RecordingId, task.ScheduledExpirationEpoch);
                 // set max amount of concurrent tasks
                 int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
                 if (maxDegreeOfParallelism == 0)
@@ -18694,13 +18694,25 @@ namespace ConditionalAccess
                         DataRow dr = expiredDomainRecordings.Rows[i];
                         if (dr != null)
                         {
-                            long domainId = ODBCWrapper.Utils.GetLongSafeVal(dr, "DOMAIN_ID", 0);                            
-                            if (QuotaManager.Instance.IncreaseDomainQuota(domainId, recordingDuration))
+                            long domainId = ODBCWrapper.Utils.GetLongSafeVal(dr, "DOMAIN_ID", 0);
+                            bool quotaSuccessfullyUpdated = false;
+
+                            // if old recording duration was sent use the difference, otherwise use the recording length  
+                            int recordingDurationDif = task.OldRecordingDuration != 0 ? task.OldRecordingDuration - recordingDuration : recordingDuration;
+                            if (recordingDurationDif > 0)
                             {
-                                
+                                quotaSuccessfullyUpdated = QuotaManager.Instance.IncreaseDomainQuota(domainId, recordingDurationDif);
+                            }
+                            else if (recordingDurationDif < 0)
+                            {
+                                quotaSuccessfullyUpdated = QuotaManager.Instance.DecreaseDomainQuota(task.GroupId, domainId, -recordingDurationDif, true);
+                            }
+
+                            if (quotaSuccessfullyUpdated)
+                            {
                                 if (!CompleteDomainSeriesRecordings(domainId))
                                 {
-                                    log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after expiredRecordingId: {0}, for domainId: {1}", expiredRecording.RecordingId, domainId);
+                                    log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after expiredRecordingId: {0}, for domainId: {1}", task.RecordingId, domainId);
                                 }
                             }
                             else
@@ -18714,16 +18726,16 @@ namespace ConditionalAccess
                         }
                     });
 
-                    expiredDomainRecordings = RecordingsDAL.GetExpiredDomainsRecordings(expiredRecording.RecordingId, expiredRecording.ScheduledExpirationEpoch);
+                    expiredDomainRecordings = RecordingsDAL.GetExpiredDomainsRecordings(task.RecordingId, task.ScheduledExpirationEpoch);
                 }
 
-                long minProtectionEpoch = RecordingsDAL.GetRecordingMinProtectedEpoch(expiredRecording.RecordingId, expiredRecording.ScheduledExpirationEpoch);
+                long minProtectionEpoch = RecordingsDAL.GetRecordingMinProtectedEpoch(task.RecordingId, task.ScheduledExpirationEpoch);
                 // add recording schedule task for next min protected date
                 if (minProtectionEpoch > 0)
                 {
-                    if (!RecordingsDAL.InsertExpiredRecordingNextTask(expiredRecording.RecordingId, expiredRecording.GroupId, minProtectionEpoch, TVinciShared.DateUtils.UnixTimeStampToDateTime(minProtectionEpoch)))
+                    if (!RecordingsDAL.InsertExpiredRecordingNextTask(task.RecordingId, task.GroupId, minProtectionEpoch, TVinciShared.DateUtils.UnixTimeStampToDateTime(minProtectionEpoch)))
                     {
-                        log.ErrorFormat("failed InsertExpiredRecordingNextTask for recordingId: {0}, minProtectionDate {1}", expiredRecording.RecordingId, minProtectionEpoch);
+                        log.ErrorFormat("failed InsertExpiredRecordingNextTask for recordingId: {0}, minProtectionDate {1}", task.RecordingId, minProtectionEpoch);
                     }
                 }
                 else
@@ -18732,14 +18744,14 @@ namespace ConditionalAccess
                 }
 
                 // incase expiredRecording.Id = 0 it means we are handling a FAILED recording and no need to update the table recording_scheduled_tasks 
-                if (expiredRecording.Id > 0 && !RecordingsDAL.UpdateExpiredRecordingAfterScheduledTask(expiredRecording.Id))
+                if (task.Id > 0 && !RecordingsDAL.UpdateExpiredRecordingAfterScheduledTask(task.Id))
                 {
-                    log.ErrorFormat("failed UpdateExpiredRecordingScheduledTask for expiredRecording: {0}", expiredRecording.ToString());
+                    log.ErrorFormat("failed UpdateExpiredRecordingScheduledTask for expiredRecording: {0}", task.ToString());
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error in HandleExpiredOrFailedRecording, expiredRecording: {0}, ex = {1}, ST = {2}", expiredRecording.ToString(), ex.Message, ex.StackTrace);
+                log.ErrorFormat("Error in HandleExpiredOrFailedRecording, expiredRecording: {0}, ex = {1}, ST = {2}", task.ToString(), ex.Message, ex.StackTrace);
 
             }
 

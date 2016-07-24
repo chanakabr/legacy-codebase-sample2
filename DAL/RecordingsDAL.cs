@@ -1010,7 +1010,7 @@ namespace DAL
         /// <summary>
         /// DO NOT DIRECTLY USE THIS FUNCTION, USE QuotaManager.DecreaseDomainQuota
         /// </summary>
-        public static bool DecreaseDomainQuota(long domainId, int quotaToDecrease, int defaultDomainQuota)
+        public static bool DecreaseDomainQuota(long domainId, int quotaToDecrease, int domainQuota)
         {
             bool result = false;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
@@ -1039,7 +1039,7 @@ namespace DAL
                     }
                     else if (version == 0)
                     {
-                        updatedQuota = defaultDomainQuota - quotaToDecrease;
+                        updatedQuota = domainQuota - quotaToDecrease;
                         result = cbClient.SetWithVersion<int>(domainQuotaKey, updatedQuota, version);
                     }
 
