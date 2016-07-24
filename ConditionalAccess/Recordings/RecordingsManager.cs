@@ -238,7 +238,7 @@ namespace Recordings
 
             if (groupId > 0 && slimRecording != null && slimRecording.Id > 0 && slimRecording.EpgId > 0 && !string.IsNullOrEmpty(slimRecording.ExternalRecordingId))
             {
-                UpdateIndex(groupId, slimRecording.Id);
+                UpdateIndex(groupId, slimRecording.Id, eAction.Delete);
                 UpdateCouchbase(groupId, slimRecording.Id, slimRecording.Id, false);
 
 
@@ -473,7 +473,7 @@ namespace Recordings
                                 // Update recording after setting the new status
                                 ConditionalAccess.Utils.UpdateRecording(currentRecording, groupId, 1, 1, null);
 
-                                UpdateIndex(groupId, recordingId);
+                                UpdateIndex(groupId, recordingId, eAction.Update);
                             }
                         }
                         else
@@ -527,7 +527,7 @@ namespace Recordings
                 long recordingId = recording.Id;
 
                 // First of all - if EPG was updated, update the recording index, nevermind what was the change
-                UpdateIndex(groupId, recordingId);
+                UpdateIndex(groupId, recordingId, eAction.Update);
 
                 UpdateCouchbase(groupId, programId, recordingId, false);
 
@@ -916,7 +916,7 @@ namespace Recordings
                     recording.RecordingStatus == TstvRecordingStatus.Recording ||
                     recording.RecordingStatus == TstvRecordingStatus.Scheduled)
                 {
-                    UpdateIndex(groupId, recording.Id);
+                    UpdateIndex(groupId, recording.Id, eAction.Update);
                 }
 
                 // We're OK
@@ -945,7 +945,7 @@ namespace Recordings
 
         #region Private Methods
 
-        private static void UpdateIndex(int groupId, long recordingId)
+        private static void UpdateIndex(int groupId, long recordingId, eAction action)
         {
             using (ConditionalAccess.WS_Catalog.IserviceClient catalog = new ConditionalAccess.WS_Catalog.IserviceClient())
             {
@@ -954,7 +954,7 @@ namespace Recordings
                 long[] objectIds = new long[]{
                                     recordingId
                                 };
-                catalog.UpdateRecordingsIndex(objectIds, groupId, eAction.Update);
+                catalog.UpdateRecordingsIndex(objectIds, groupId, action);
             }
         }
 
