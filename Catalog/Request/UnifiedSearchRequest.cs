@@ -52,6 +52,12 @@ namespace Catalog.Request
         [DataMember]
         public List<KeyValuePair<eAssetTypes, long>> specificAssets;
 
+        /// <summary>
+        /// Defines if start/end date KSQL search will be used only for EPG/recordings or for media as well
+        /// </summary>
+        [DataMember]
+        public bool shouldDateSearchesApplyToAllTypes;
+
         #endregion
 
         #region Ctor

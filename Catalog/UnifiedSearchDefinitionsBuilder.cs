@@ -40,6 +40,7 @@ namespace Catalog
                 int parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
 
                 definitions.shouldUseSearchEndDate = catalogCache.IsTstvSettingsExists(request.m_nGroupID);
+                definitions.shouldDateSearchesApplyToAllTypes = request.shouldDateSearchesApplyToAllTypes;
 
                 GroupManager groupManager = new GroupManager();
                 Group group = groupManager.GetGroup(parentGroupID);

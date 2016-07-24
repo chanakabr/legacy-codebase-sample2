@@ -5811,11 +5811,14 @@ namespace Catalog
 
                         leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
 
-                        leaf.assetTypes = new List<eAssetTypes>()
+                        if (!definitions.shouldDateSearchesApplyToAllTypes)
                         {
-                            eAssetTypes.EPG,
-                            eAssetTypes.NPVR
-                        };
+                            leaf.assetTypes = new List<eAssetTypes>()
+                            {
+                                eAssetTypes.EPG,
+                                eAssetTypes.NPVR
+                            };
+                        }
                     }
                     else if (searchKeyLowered == "end_date")
                     {
@@ -5826,11 +5829,14 @@ namespace Catalog
 
                         leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
 
-                        leaf.assetTypes = new List<eAssetTypes>()
+                        if (!definitions.shouldDateSearchesApplyToAllTypes)
                         {
-                            eAssetTypes.EPG,
-                            eAssetTypes.NPVR
-                        };
+                            leaf.assetTypes = new List<eAssetTypes>()
+                            {
+                                eAssetTypes.EPG,
+                                eAssetTypes.NPVR
+                            };
+                        }
                     }
                     else if (searchKeyLowered == "update_date")
                     {
