@@ -63,7 +63,6 @@ namespace KLogMonitor
         [DataMember(Name = "q")]
         public string QueryTypeString { get; private set; }
 
-
         public KLogMonitor.KLogEnums.eDBQueryType QueryType
         {
             set { this.QueryTypeString = value.ToString(); }
@@ -82,6 +81,10 @@ namespace KLogMonitor
                 return this.Watch.Elapsed.TotalSeconds.ToString("0.0000000000");
             }
         }
+
+        [Newtonsoft.Json.JsonProperty(PropertyName = "w")]
+        [DataMember(Name = "w")]
+        public string IsWritable { get; set; }
 
         private Stopwatch Watch { get; set; }
 
