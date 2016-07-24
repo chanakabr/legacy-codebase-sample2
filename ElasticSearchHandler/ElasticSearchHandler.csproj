@@ -33,6 +33,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CouchbaseManager, Version=3.4.118.16724, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\TVinciCommon\External\4.5\CouchbaseManager.dll</HintPath>
+    </Reference>
     <Reference Include="Jil">
       <HintPath>..\..\tvincicommon\External\Jil.dll</HintPath>
     </Reference>
@@ -113,10 +117,6 @@
     <ProjectReference Include="..\..\TvmCore\Catalog\Catalog.csproj">
       <Project>{1c524197-e2b6-437e-80de-7f307a9b36f1}</Project>
       <Name>Catalog</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TvmCore\CouchbaseManager\CouchbaseManager.csproj">
-      <Project>{b44dc37d-5658-4b85-8cc4-0ec72838cafc}</Project>
-      <Name>CouchbaseManager</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\TvmCore\DAL\DAL.csproj">
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>

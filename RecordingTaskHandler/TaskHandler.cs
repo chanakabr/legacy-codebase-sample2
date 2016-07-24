@@ -34,10 +34,10 @@ namespace RecordingTaskHandler
                 bool success = false;
                 string message = string.Empty;
 
-                if (request.Task == null || !request.Task.HasValue)
-                {
-                    throw new Exception("Received invalid recording task");
-                }
+                //if (request.Task == null || !request.Task.HasValue)
+                //{
+                //    throw new Exception("Received invalid recording task");
+                //}
 
                 string url = WS_Utils.GetTcmConfigValue("WS_CAS");
                 string username = string.Empty;
@@ -55,7 +55,7 @@ namespace RecordingTaskHandler
                 log.DebugFormat("Trying to handle recording task. Task = {0}, recordingId = {1}, programId = {2}, URL = {3}",
                     request.Task, request.RecordingId, request.ProgramId, url);
 
-                switch (request.Task.Value)
+                switch (request.Task)
                 {
                     case eRecordingTask.GetStatusAfterProgramEnded:
                     {
