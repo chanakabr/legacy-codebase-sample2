@@ -258,13 +258,11 @@
             BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, 
             RecommendationEngineNotExist = 4007, ExternalChannelNotExist = 4011</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.AssetFileController.GetContext(System.String,System.Boolean,System.String)">
+        <member name="M:WebAPI.Controllers.AssetFileController.GetContext(System.String)">
             <summary>
             get KalturaAssetFileContext
             </summary>
-            <param name="id">Asset file identifier</param>                
-            <param name="isCoGuid">isCoGuid true/false</param>     
-            <param name="countryCode">countryCode</param>
+            <param name="id">Asset file identifier</param>
             <remarks></remarks>
         </member>
         <member name="M:WebAPI.Controllers.CdnAdapterProfileController.List">
@@ -3116,9 +3114,19 @@
             Trick-play buffer
             </summary>
         </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.Duration">
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.ViewLifeCycle">
             <summary>
-            duration
+            viewLifeCycle
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.FullLifeCycle">
+            <summary>
+            fullLifeCycle
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.IsOfflinePlayBack">
+            <summary>
+            isOfflinePlayBack
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaSeriesRecording.Id">
