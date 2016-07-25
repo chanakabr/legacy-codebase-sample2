@@ -401,9 +401,12 @@ namespace DAL
                     string externalRecordingID = ODBCWrapper.Utils.GetSafeStr(dr, "EXTERNAL_RECORDING_ID");
                     long epgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_PROGRAM_ID", 0);
                     long recordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "id", 0);
+                    long channelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_CHANNEL_ID");
+                    string crid = ODBCWrapper.Utils.GetSafeStr(dr, "CRID");
                     if (groupID > 0 && recordingId > 0 && epgId > 0 && !string.IsNullOrEmpty(externalRecordingID) && !recordingsForCleanup.ContainsKey(recordingId))
                     {
-                        KeyValuePair<int, Recording> pair = new KeyValuePair<int, Recording>(groupID, new Recording() { Id = recordingId, ExternalRecordingId = externalRecordingID, EpgId = epgId });
+                        KeyValuePair<int, Recording> pair = new KeyValuePair<int, Recording>(groupID, new Recording() { Id = recordingId, ExternalRecordingId = externalRecordingID, EpgId = epgId,
+                                                                                                                        ChannelId = channelId, Crid = crid });
                         recordingsForCleanup.Add(recordingId, pair);
                     }
                 }
