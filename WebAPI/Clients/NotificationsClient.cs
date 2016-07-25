@@ -552,6 +552,48 @@ namespace WebAPI.Clients
             return result;
         }
 
+        internal KalturaFollowTvSeriesListResponse ListUserTvSeriesFollows(int groupId, string userID, int pageSize, int pageIndex, KalturaFollowTvSeriesOrderBy orderBy)
+        {
+            List<KalturaFollowTvSeries> result = null;
+            GetUserFollowsResponse response = null;
+
+            // create order object
+            OrderDir order = OrderDir.DESC;
+            if (orderBy == KalturaFollowTvSeriesOrderBy.START_DATE_ASC)
+                order = OrderDir.ASC;
+
+            Group group = GroupsManager.GetGroup(groupId);
+            int userId = 0;
+            if (!int.TryParse(userID, out userId))
+            {
+                throw new ClientException((int)StatusCode.UserIDInvalid, "Invalid UID");
+            }
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Notification.GetUserFollows(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, pageSize, pageIndex, order);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetUserTvSeriesFollows.  groupID: {0}, userId: {1}, exception: {2}", groupId, userID, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            result = Mapper.Map<List<KalturaFollowTvSeries>>(response.Follows);
+
+            KalturaFollowTvSeriesListResponse ret = new KalturaFollowTvSeriesListResponse() { FollowDataList = result, TotalCount = response.TotalCount };
+            return ret;
+        }
+
+        [Obsolete]
         internal KalturaListFollowDataTvSeriesResponse GetUserTvSeriesFollows(int groupId, string userID, int pageSize, int pageIndex, KalturaOrder? orderBy)
         {
             List<KalturaFollowDataTvSeries> result = null;
@@ -641,9 +683,9 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal bool AddUserTvSeriesFollow(int groupId, string userID, int asset_id)
+        internal KalturaFollowTvSeries AddUserTvSeriesFollow(int groupId, string userID, int asset_id)
         {
-            Status response = null;
+            FollowResponse response = null;
             FollowDataTvSeries followDataNotification = null;
             KalturaFollowDataTvSeries followData = new KalturaFollowDataTvSeries();
             followData.AssetId = asset_id;
@@ -681,13 +723,14 @@ namespace WebAPI.Clients
                 log.ErrorFormat("Error while GetUserTvSeriesFollows.  groupID: {0}, userId: {1}, exception: {2}", groupId, userID, ex);
                 ErrorUtils.HandleWSException(ex);
             }
-            if (response.Code != (int)StatusCode.OK)
+            if (response.Status.Code != (int)StatusCode.OK)
             {
                 // Bad response received from WS
-                throw new ClientException(response.Code, response.Message);
+                throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            return true;
+            KalturaFollowTvSeries result = AutoMapper.Mapper.Map<KalturaFollowTvSeries>(response.Follow);
+            return result;
         }
 
         internal KalturaMessageTemplate GetMessageTemplate(int groupId, KalturaOTTAssetType asset_Type)

@@ -16,7 +16,7 @@ namespace WebAPI.Models.Users
     [OldStandard("pinCode", "pin_code")]
     [OldStandard("expirationTime", "expiration_time")]
     [OldStandard("userId", "user_id")]
-    public class KalturaLoginPin : KalturaOTTObject
+    public class KalturaUserLoginPin : KalturaOTTObject
     {
         /// <summary>
         /// Generated login pin code

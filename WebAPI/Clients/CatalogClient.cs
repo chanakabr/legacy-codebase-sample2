@@ -1454,7 +1454,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal bool AddBookmark(int groupId, string siteGuid, int householdId, string udid, string assetId, KalturaAssetType assetType, long fileId, KalturaPlayerAssetData PlayerAssetData)
+        internal bool AddBookmark(int groupId, string siteGuid, int householdId, string udid, string assetId, KalturaAssetType assetType, long fileId, int Position, string action, int averageBitRate, int totalBitRate, int currentBitRate)
         {
             int t;
 
@@ -1487,15 +1487,15 @@ namespace WebAPI.Clients
                 m_oMediaPlayRequestData = new MediaPlayRequestData()
                 {
                     m_eAssetType = CatalogAssetType,
-                    m_nLoc = PlayerAssetData.getLocation(),
+                    m_nLoc = Position,
                     m_nMediaFileID = (int)fileId,
                     m_sAssetID = assetId,
-                    m_sAction = PlayerAssetData.action,
+                    m_sAction = action,
                     m_sSiteGuid = siteGuid,
                     m_sUDID = udid,
-                    m_nAvgBitRate = PlayerAssetData.getAverageBitRate(),
-                    m_nCurrentBitRate = PlayerAssetData.getCurrentBitRate(),
-                    m_nTotalBitRate = PlayerAssetData.getTotalBitRate()
+                    m_nAvgBitRate = averageBitRate,
+                    m_nCurrentBitRate = currentBitRate,
+                    m_nTotalBitRate = totalBitRate
                 }
             };
             

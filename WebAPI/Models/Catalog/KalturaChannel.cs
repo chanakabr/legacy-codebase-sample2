@@ -56,5 +56,29 @@ namespace WebAPI.Models.Catalog
             set;
         }
 
+        /// <summary>
+        /// active status
+        /// </summary>
+        [DataMember(Name = "isActive")]
+        [JsonProperty("isActive")]
+        [XmlElement(ElementName = "isActive")]
+        public bool? IsActive
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Channel order
+        /// </summary>
+        [DataMember(Name = "order")]
+        [JsonProperty("order")]
+        [XmlElement(ElementName = "order")]
+        public KalturaAssetOrderBy Order
+        {
+            get;
+            set;
+        }
+
     }
 }

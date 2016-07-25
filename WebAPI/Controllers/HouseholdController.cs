@@ -17,6 +17,7 @@ namespace WebAPI.Controllers
     [RoutePrefix("_service/household/action")]
     [OldStandardAction("getOldStandard", "get")]
     [OldStandardAction("addOldStandard", "add")]
+    [OldStandardAction("updateOldStandard", "update")]
     public class HouseholdController : ApiController
     {
         /// <summary>
@@ -384,12 +385,50 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Update the household name and description    
         /// </summary>        
-        /// <param name="name">Name for the household</param>
-        /// <param name="description">Description for the household</param>
+        /// <param name="household">Household object</param>
         /// <remarks></remarks>
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        public KalturaHousehold Update(string name, string description)
+        public KalturaHousehold Update(KalturaHousehold household)
+        {
+            int groupId = KS.GetFromRequest().GroupId;
+
+            var householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+            // no household to update - return forbidden
+            if (householdId == 0)
+            {
+                throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.ServiceForbidden, "Service Forbidden");
+            }
+
+            try
+            {
+                // call client
+                household = ClientsManager.DomainsClient().SetDomainInfo(groupId, (int)householdId, household.Name, household.Description);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            if (household == null)
+            {
+                throw new InternalServerErrorException();
+            }
+
+            return household;
+        }
+
+        /// <summary>
+        /// Update the household name and description    
+        /// </summary>        
+        /// <param name="name">Name for the household</param>
+        /// <param name="description">Description for the household</param>
+        /// <remarks></remarks>
+        [Route("updateOldStandard"), HttpPost]
+        [ApiAuthorize]
+        [Obsolete]
+        public KalturaHousehold UpdateOldStandard(string name, string description)
         {
             KalturaHousehold household = null;
 

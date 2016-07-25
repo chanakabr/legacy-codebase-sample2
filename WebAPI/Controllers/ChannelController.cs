@@ -15,6 +15,8 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/channel/action")]
+    [OldStandardAction("addOldStandard", "add")]
+    [OldStandardAction("updateOldStandard", "update")]
     public class ChannelController : ApiController
     {
         /// <summary>
@@ -99,9 +101,9 @@ namespace WebAPI.Controllers
         /// <param name="channel">KSQL channel Object</param>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public KalturaChannelProfile Add(KalturaChannelProfile channel)
+        public KalturaChannel Add(KalturaChannel channel)
         {
-            KalturaChannelProfile response = null;
+            KalturaChannel response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -127,10 +129,43 @@ namespace WebAPI.Controllers
         /// NoObjectToInsert = 4019,
         /// NameRequired = 5005
         /// </remarks>
+        /// <param name="channelId">Channel identifier</param>      
         /// <param name="channel">KSQL channel Object</param>       
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        public KalturaChannelProfile Update(KalturaChannelProfile channel)
+        public KalturaChannel Update(int channelId, KalturaChannel channel)
+        {
+            KalturaChannel response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            channel.Id = channelId;
+
+            try
+            {
+                // call client
+                response = ClientsManager.ApiClient().SetKSQLChannel(groupId, channel);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Insert new channel for partner. Currently supports only KSQL channel
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:     
+        /// NoObjectToInsert = 4019,
+        /// NameRequired = 5005,
+        /// </remarks>
+        /// <param name="channel">KSQL channel Object</param>
+        [Route("addOldStandard"), HttpPost]
+        [ApiAuthorize]
+        [Obsolete]
+        public KalturaChannelProfile AddOldStandard(KalturaChannelProfile channel)
         {
             KalturaChannelProfile response = null;
 
@@ -139,7 +174,39 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().SetKSQLChannel(groupId, channel);
+                response = ClientsManager.ApiClient().InsertKSQLChannelProfile(groupId, channel);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Update channel details. Currently supports only KSQL channel
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:
+        /// ObjectNotExist = 4018,
+        /// NoObjectToInsert = 4019,
+        /// NameRequired = 5005
+        /// </remarks>
+        /// <param name="channel">KSQL channel Object</param>       
+        [Route("updateOldStandard"), HttpPost]
+        [ApiAuthorize]
+        [Obsolete]
+        public KalturaChannelProfile UpdateOldStandard(KalturaChannelProfile channel)
+        {
+            KalturaChannelProfile response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                response = ClientsManager.ApiClient().SetKSQLChannelProfile(groupId, channel);
             }
             catch (ClientException ex)
             {

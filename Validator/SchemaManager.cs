@@ -489,15 +489,13 @@ namespace Validator.Managers.Schema
                 {
                     if (parameters.Length > 1)
                     {
-                        logError("Warning", controller, string.Format("Action {0}.{1} ({2}) only one id arguments is expected", serviceId, actionId, controller.Name));
-                        if (strict)
-                            valid = false;
+                        logError("Error", controller, string.Format("Action {0}.{1} ({2}) only one id arguments is expected", serviceId, actionId, controller.Name));
+                        valid = false;
                     }
                     else if (parameters.Length == 0)
                     {
-                        logError("Warning", controller, string.Format("Action {0}.{1} ({2}) id arguments is expected", serviceId, actionId, controller.Name));
-                        if (strict)
-                            valid = false;
+                        logError("Error", controller, string.Format("Action {0}.{1} ({2}) id arguments is expected", serviceId, actionId, controller.Name));
+                        valid = false;
                     }
                     else
                     {
@@ -515,18 +513,16 @@ namespace Validator.Managers.Schema
                 {
                     if (parameters.Length != 1)
                     {
-                        logError("Warning", controller, string.Format("Action {0}.{1} ({2}) only one argument is expected", serviceId, actionId, controller.Name));
-                        if (strict)
-                            valid = false;
+                        logError("Error", controller, string.Format("Action {0}.{1} ({2}) only one argument is expected", serviceId, actionId, controller.Name));
+                        valid = false;
                     }
                     else
                     {
                         var objectParam = parameters[0];
                         if (!hasValidationException(action, SchemaValidationType.ACTION_RETURN_TYPE) && objectParam.ParameterType.Name.ToLower() != expectedObjectType.ToLower())
                         {
-                            logError("Warning", controller, string.Format("Action {0}.{1} ({2}) argument type is {3}, expected {4}", serviceId, actionId, controller.Name, objectParam.ParameterType.Name, expectedObjectType));
-                            if (strict)
-                                valid = false;
+                            logError("Error", controller, string.Format("Action {0}.{1} ({2}) argument type is {3}, expected {4}", serviceId, actionId, controller.Name, objectParam.ParameterType.Name, expectedObjectType));
+                            valid = false;
                         }
                     }
                 }
@@ -551,9 +547,8 @@ namespace Validator.Managers.Schema
                         var objectParam = parameters[1];
                         if (objectParam.ParameterType.Name.ToLower() != expectedObjectType.ToLower())
                         {
-                            logError("Warning", controller, string.Format("Action {0}.{1} ({2}) object argument type is {3}, expected {4}", serviceId, actionId, controller.Name, objectParam.ParameterType.Name, expectedObjectType));
-                            if (strict)
-                                valid = false;
+                            logError("Error", controller, string.Format("Action {0}.{1} ({2}) object argument type is {3}, expected {4}", serviceId, actionId, controller.Name, objectParam.ParameterType.Name, expectedObjectType));
+                            valid = false;
                         }
                     }
                 }

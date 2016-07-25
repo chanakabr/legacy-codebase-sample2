@@ -17,6 +17,7 @@ using WebAPI.Models.ConditionalAccess;
 using System.Net;
 using System.Web;
 using System.ServiceModel;
+using WebAPI.Models.Catalog;
 
 namespace WebAPI.Clients
 {
@@ -2516,7 +2517,78 @@ namespace WebAPI.Clients
 
 
         #region KSQL Channel
-        internal KalturaChannelProfile InsertKSQLChannel(int groupId, KalturaChannelProfile channel)
+        internal KalturaChannel InsertKSQLChannel(int groupId, KalturaChannel channel)
+        {
+            WebAPI.Api.KSQLChannelResponse response = null;
+            KalturaChannel profile = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    WebAPI.Api.KSQLChannel request = Mapper.Map<WebAPI.Api.KSQLChannel>(channel);
+                    response = Api.InsertKSQLChannel(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while InsertKSQLChannel.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            profile = Mapper.Map<KalturaChannel>(response.Channel);
+            return profile;
+        }
+
+        internal KalturaChannel SetKSQLChannel(int groupId, KalturaChannel channel)
+        {
+            WebAPI.Api.KSQLChannelResponse response = null;
+            KalturaChannel profile = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    WebAPI.Api.KSQLChannel request = Mapper.Map<WebAPI.Api.KSQLChannel>(channel);
+                    response = Api.SetKSQLChannel(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while SetKSQLChannel. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            profile = Mapper.Map<KalturaChannel>(response.Channel);
+            return profile;
+        }
+
+        [Obsolete]
+        internal KalturaChannelProfile InsertKSQLChannelProfile(int groupId, KalturaChannelProfile channel)
         {
             WebAPI.Api.KSQLChannelResponse response = null;
             KalturaChannelProfile profile = null;
@@ -2551,7 +2623,8 @@ namespace WebAPI.Clients
             return profile;
         }
 
-        internal KalturaChannelProfile SetKSQLChannel(int groupId, KalturaChannelProfile channel)
+        [Obsolete]
+        internal KalturaChannelProfile SetKSQLChannelProfile(int groupId, KalturaChannelProfile channel)
         {
             WebAPI.Api.KSQLChannelResponse response = null;
             KalturaChannelProfile profile = null;

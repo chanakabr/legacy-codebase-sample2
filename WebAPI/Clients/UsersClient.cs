@@ -264,9 +264,9 @@ namespace WebAPI.Clients
         //    return user;
         //}
 
-        public KalturaLoginPin GenerateLoginPin(int groupId, string userId, string secret)
+        public KalturaUserLoginPin GenerateLoginPin(int groupId, string userId, string secret)
         {
-            KalturaLoginPin pinCode = null;
+            KalturaUserLoginPin pinCode = null;
             Group group = GroupsManager.GetGroup(groupId);
 
             PinCodeResponse response = null;
@@ -293,7 +293,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.resp.Code, response.resp.Message);
             }
 
-            pinCode = Mapper.Map<KalturaLoginPin>(response);
+            pinCode = Mapper.Map<KalturaUserLoginPin>(response);
 
             return pinCode;
         }
@@ -368,9 +368,9 @@ namespace WebAPI.Clients
             return user;
         }
 
-        public KalturaLoginPin SetLoginPin(int groupId, string userId, string pin, string secret)
+        public KalturaUserLoginPin SetLoginPin(int groupId, string userId, string pin, string secret)
         {
-            KalturaLoginPin pinCode = null;
+            KalturaUserLoginPin pinCode = null;
             Group group = GroupsManager.GetGroup(groupId);
 
             PinCodeResponse response = null;
@@ -397,7 +397,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.resp.Code, response.resp.Message);
             }
 
-            pinCode = Mapper.Map<WebAPI.Models.Users.KalturaLoginPin>(response);
+            pinCode = Mapper.Map<WebAPI.Models.Users.KalturaUserLoginPin>(response);
 
             return pinCode;
         }

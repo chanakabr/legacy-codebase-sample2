@@ -17,6 +17,7 @@ namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/bookmark/action")]
     [OldStandardAction("listOldStandard", "list")]
+    [OldStandardAction("addOldStandard", "add")]
     public class BookmarkController : ApiController
     {
         /// <summary>
@@ -94,6 +95,41 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Report player position and action for the user on the watched asset. Player position is used to later allow resume watching.
+        /// </summary>
+        /// <param name="bookmark">Bookmark details</param>
+        /// <returns></returns>
+        /// <remarks>Possible status codes: BadRequest = 500003, ConcurrencyLimitation = 4001, InvalidAssetType = 4021, 
+        /// ProgramDoesntExist = 4022, ActionNotRecognized = 4023, InvalidAssetId = 4024,</remarks>
+        [Route("add"), HttpPost]
+        [ApiAuthorize(true)]
+        [ValidationException(SchemaValidationType.ACTION_RETURN_TYPE)]
+        public bool Add(KalturaBookmark bookmark)
+        {
+            if (bookmark.PlayerData == null)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "bookmark.PlayerData cannot be empty");
+            }
+
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                string udid = KSUtils.ExtractKSPayload().UDID;
+                int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+                string siteGuid = KS.GetFromRequest().UserId;
+                ClientsManager.CatalogClient().AddBookmark(groupId, siteGuid, householdId, udid, bookmark.Id, bookmark.Type, bookmark.PlayerData.getFileId(), bookmark.getPosition(), bookmark.PlayerData.action, bookmark.PlayerData.getAverageBitRate(), bookmark.PlayerData.getTotalBitRate(), bookmark.PlayerData.getCurrentBitRate());
+            }
+
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// Report player position and action for the user on the watched asset. Player position is used to later allow resume watching.
         /// </summary>
@@ -104,27 +140,25 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         /// <remarks>Possible status codes: BadRequest = 500003, ConcurrencyLimitation = 4001, InvalidAssetType = 4021, 
         /// ProgramDoesntExist = 4022, ActionNotRecognized = 4023, InvalidAssetId = 4024,</remarks>
-        [Route("add"), HttpPost]
+        [Route("addOldStandard"), HttpPost]
         [ApiAuthorize(true)]
-        public bool Add(string asset_id, KalturaAssetType asset_type, long file_id, KalturaPlayerAssetData player_asset_data)
+        [Obsolete]
+        public bool AddOldStandard(string asset_id, KalturaAssetType asset_type, long file_id, KalturaPlayerAssetData player_asset_data)
         {
-            bool response = false;
-
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string udid = KSUtils.ExtractKSPayload().UDID;
                 int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
                 string siteGuid = KS.GetFromRequest().UserId;
-                response = ClientsManager.CatalogClient().AddBookmark(groupId, siteGuid, householdId, udid, asset_id, asset_type, file_id, player_asset_data);
+                ClientsManager.CatalogClient().AddBookmark(groupId, siteGuid, householdId, udid, asset_id, asset_type, file_id, player_asset_data.getLocation(), player_asset_data.action, player_asset_data.getAverageBitRate(), player_asset_data.getTotalBitRate(), player_asset_data.getCurrentBitRate());
             }
-
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return response;
+            return true;
         }
     }
 }
