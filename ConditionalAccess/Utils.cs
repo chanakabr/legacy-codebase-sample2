@@ -4730,7 +4730,7 @@ namespace ConditionalAccess
 
             try
             {
-                DataTable dt = RecordingsDAL.GetDomainExistingRecordingsByEpdIgs(groupId, domainID, validEpgObjectForRecordingMap.Keys.ToList());
+                DataTable dt = RecordingsDAL.GetDomainExistingRecordingsByEpgIds(groupId, domainID, validEpgObjectForRecordingMap.Keys.ToList());
                 if (dt != null && dt.Rows != null)
                 {
                     foreach (DataRow dr in dt.Rows)
