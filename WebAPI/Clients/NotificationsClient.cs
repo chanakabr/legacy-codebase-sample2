@@ -559,7 +559,7 @@ namespace WebAPI.Clients
 
             // create order object
             OrderDir order = OrderDir.DESC;
-            if (orderBy != null && orderBy == KalturaFollowTvSeriesOrderBy.START_DATE_ASC)
+            if (orderBy == KalturaFollowTvSeriesOrderBy.START_DATE_ASC)
                 order = OrderDir.ASC;
 
             Group group = GroupsManager.GetGroup(groupId);
