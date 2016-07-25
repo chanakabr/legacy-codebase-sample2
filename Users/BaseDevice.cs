@@ -17,6 +17,7 @@ namespace Users
 
         public abstract string GetPINForDevice(int nGroupID, string sDeviceUDID, int nBrandID);
         public abstract ApiObjects.Response.Status SetDeviceInfo(int nGroupID, string sDeviceUDID, string sDeviceName);
+        public abstract DeviceResponseObject SetDevice(int nGroupID, string sDeviceUDID, string sDeviceName);
         public abstract DeviceResponseObject GetDeviceInfo(int nGroupID, string sID, bool bIsUDID);
     }
 }

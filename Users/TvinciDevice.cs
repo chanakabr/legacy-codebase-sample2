@@ -1,4 +1,5 @@
 ﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using Users.Cache;
 
@@ -22,6 +23,7 @@ namespace Users
             return device.GetPINForDevice();
         }
 
+        [Obsolete]
         public override ApiObjects.Response.Status SetDeviceInfo(int nGroupID, string sDeviceUDID, string sDeviceName)
         {
             ApiObjects.Response.Status status = null;
@@ -64,6 +66,53 @@ namespace Users
             }
 
             return status;
+        }
+
+        public override DeviceResponseObject SetDevice(int nGroupID, string sDeviceUDID, string sDeviceName)
+        {
+            DeviceResponseObject ret = new DeviceResponseObject();
+            Device device = new Device(sDeviceUDID, 0, nGroupID, sDeviceName);
+            device.Initialize(sDeviceUDID);
+            bool isSetSucceeded = device.SetDeviceInfo(sDeviceName);
+
+            // in case set device Succeeded
+            // domain should be remove from the cache 
+            if (isSetSucceeded)
+            {
+                ret.m_oDeviceResponseStatus = DeviceResponseStatus.OK;
+                ret.m_oDevice = device;
+
+                Users.BaseDomain baseDomain = null;
+                Utils.GetBaseDomainsImpl(ref baseDomain, nGroupID);
+
+                if (baseDomain != null)
+                {
+                    List<Domain> domains = baseDomain.GetDeviceDomains(sDeviceUDID);
+                    if (domains != null && domains.Count > 0)
+                    {
+                        DomainsCache oDomainCache = DomainsCache.Instance();
+                        foreach (var domain in domains)
+                        {
+                            oDomainCache.RemoveDomain(domain.m_nDomainID);
+
+                        }
+                    }
+                }
+            }
+            else
+            {
+                ret.m_oDeviceResponseStatus = DeviceResponseStatus.Error;
+                if (device != null)
+                {
+                    ret.m_oDevice = device;
+                    if (device.m_state == DeviceState.NotExists)
+                    {
+                        ret.m_oDeviceResponseStatus = DeviceResponseStatus.DeviceNotExists;
+                    }
+                }
+            }
+
+            return ret;
         }
 
         public override DeviceResponseObject GetDeviceInfo(int nGroupID, string sID, bool bIsUDID)

@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddMessageAnnouncementResponse.cs" />
+    <Compile Include="FollowResponse.cs" />
     <Compile Include="DMSPushRequest.cs" />
     <Compile Include="DMSPushResponse.cs" />
     <Compile Include="enums.cs" />
