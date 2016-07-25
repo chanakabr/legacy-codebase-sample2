@@ -24,8 +24,7 @@ namespace WebAPI.Managers
 
         private const string CB_SECTION_NAME = "tokens";
 
-        private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME, true);
-
+        private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
 
         public static KalturaLoginSession RefreshSession(string refreshToken, string udid = null)
         {
