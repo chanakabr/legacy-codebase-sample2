@@ -274,7 +274,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<ConditionalAccess.ServiceObject, Models.ConditionalAccess.KalturaHouseholdPremiumService>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
-                      
+
+            // KalturaAssetFileContext to EntitlementResponse
+            Mapper.CreateMap<KalturaAssetFileContext, WebAPI.ConditionalAccess.EntitlementResponse>()
+              .ForMember(dest => dest.ViewLifeCycle, opt => opt.MapFrom(src => src.ViewLifeCycle))
+              .ForMember(dest => dest.FullLifeCycle, opt => opt.MapFrom(src => src.FullLifeCycle))
+            .ForMember(dest => dest.IsOfflinePlayBack, opt => opt.MapFrom(src => src.IsOfflinePlayBack));
+
+            // EntitlementResponse to KalturaAssetFileContext
+            Mapper.CreateMap<WebAPI.ConditionalAccess.EntitlementResponse, KalturaAssetFileContext>()
+              .ForMember(dest => dest.ViewLifeCycle, opt => opt.MapFrom(src => src.ViewLifeCycle))
+              .ForMember(dest => dest.FullLifeCycle, opt => opt.MapFrom(src => src.FullLifeCycle))
+            .ForMember(dest => dest.IsOfflinePlayBack, opt => opt.MapFrom(src => src.IsOfflinePlayBack));
+
         }
 
         #region Recording Help Methods

@@ -715,10 +715,10 @@ namespace WebAPI.Controllers
                 switch (filter.UserByEqual)
                 {
                     case KalturaOTTUserBy.EXTERNAL_ID:
-                        response = ClientsManager.UsersClient().GetUserDataByCoGuid(groupId, filter.ValueEqual);
+                        response = ClientsManager.UsersClient().GetUserByExternalID(groupId, filter.ValueEqual);
                         break;
                     case KalturaOTTUserBy.USER_NAME:
-                        response = ClientsManager.UsersClient().GetUserByUsername(groupId, filter.ValueEqual);
+                        response = ClientsManager.UsersClient().GetUserByName(groupId, filter.ValueEqual);
                         
                         break;
                     default:

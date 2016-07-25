@@ -22,14 +22,12 @@ namespace WebAPI.Controllers
         /// <summary>
          /// get KalturaAssetFileContext
         /// </summary>
-        /// <param name="id">Asset file identifier</param>                
-        /// <param name="isCoGuid">isCoGuid true/false</param>     
-        /// <param name="countryCode">countryCode</param>
+        /// <param name="id">Asset file identifier</param>
         /// <remarks></remarks>
          [Route("getContext"), HttpPost]
          [ApiAuthorize]
          [ValidationException(SchemaValidationType.ACTION_NAME)]
-         public KalturaAssetFileContext GetContext(string id, bool isCoGuid, string countryCode)
+         public KalturaAssetFileContext GetContext(string id)
          {
              KalturaAssetFileContext response = null;
 
@@ -46,7 +44,7 @@ namespace WebAPI.Controllers
                  string udid = KSUtils.ExtractKSPayload().UDID;
                  string language = Utils.Utils.GetLanguageFromRequest();
 
-                 response = ClientsManager.ConditionalAccessClient().GetAssetFileContext(groupId, userID, id, udid, language, isCoGuid, countryCode);
+                 response = ClientsManager.ConditionalAccessClient().GetAssetFileContext(groupId, userID, id, udid, language);
 
                  // if no response - return not found status 
                  if (response == null)

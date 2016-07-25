@@ -12,11 +12,27 @@ namespace WebAPI.Models.ConditionalAccess
     public class KalturaAssetFileContext : KalturaOTTObject
     {
         /// <summary>
-        /// duration
+        /// viewLifeCycle
         /// </summary>
-        [DataMember(Name = "duration")]
-        [JsonProperty("duration")]
-        [XmlElement(ElementName = "duration")]
-        public string Duration { get; set; }
+        [DataMember(Name = "viewLifeCycle")]
+        [JsonProperty("viewLifeCycle")]
+        [XmlElement(ElementName = "viewLifeCycle")]
+        public string ViewLifeCycle { get; set; }
+
+        /// <summary>
+        /// fullLifeCycle
+        /// </summary>
+        [DataMember(Name = "fullLifeCycle")]
+        [JsonProperty("fullLifeCycle")]
+        [XmlElement(ElementName = "fullLifeCycle")]
+        public string FullLifeCycle { get; set; }
+
+        /// <summary>
+        /// isOfflinePlayBack
+        /// </summary>
+        [DataMember(Name = "isOfflinePlayBack")]
+        [JsonProperty("isOfflinePlayBack")]
+        [XmlElement(ElementName = "isOfflinePlayBack")]
+        public bool IsOfflinePlayBack { get; set; }
     }
 }
