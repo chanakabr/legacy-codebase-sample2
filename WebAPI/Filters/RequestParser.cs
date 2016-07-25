@@ -45,7 +45,7 @@ namespace WebAPI.Filters
         private static int accessTokenLength = TCMClient.Settings.Instance.GetValue<int>("access_token_length");
         private static string accessTokenKeyFormat = TCMClient.Settings.Instance.GetValue<string>("access_token_key_format");
 
-        private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
+        private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME, true);
 
         private static Dictionary<string, Type> types = null;
         private static object locker = new object();
