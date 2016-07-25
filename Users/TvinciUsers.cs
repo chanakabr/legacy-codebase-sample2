@@ -772,6 +772,8 @@ namespace Users
 
         }
 
+
+
         public override UserResponseObject GetUserData(string sSiteGUID, bool shouldSaveInCache = true)
         {
             try
@@ -2000,6 +2002,73 @@ namespace Users
             else
                 response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
+            return response;
+        }
+
+        public override UserResponse GetUserByExternalID(string externalID, int operatorID)
+        {
+            UserResponse response = new UserResponse();
+            try
+            {
+                response.user = GetUserByCoGuid(externalID, operatorID);
+                if (response.user.m_RespStatus == ResponseStatus.UserDoesNotExist)
+                {
+                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.UserDoesNotExist, eResponseStatus.UserDoesNotExist.ToString());
+                }
+                else
+                {
+                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+
+                StringBuilder sb = new StringBuilder("Exception at GetUserByExternalID. ");
+                sb.Append(String.Concat("externalID: ", externalID));
+                sb.Append(String.Concat(" this is: ", this.GetType().Name));
+                sb.Append(String.Concat(" Msg: ", ex.Message));
+                sb.Append(String.Concat(" Stack trace: ", ex.StackTrace));
+                log.Error("Exception - " + sb.ToString(), ex);
+
+                response = new UserResponse()
+                {
+                    resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+                };
+            }
+            return response;
+        }
+
+        public override UserResponse GetUserByName(string userName, int groupId)
+        {
+            UserResponse response = new UserResponse();
+            try
+            {
+                response.user = GetUserByUsername(userName, groupId);
+                if (response.user.m_RespStatus == ResponseStatus.UserDoesNotExist)
+                {
+                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.UserDoesNotExist, eResponseStatus.UserDoesNotExist.ToString());
+                }
+                else
+                {
+                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+
+                StringBuilder sb = new StringBuilder("Exception at GetUserByName. ");
+                sb.Append(String.Concat("userName: ", userName));
+                sb.Append(String.Concat("groupId: ", groupId));
+                sb.Append(String.Concat(" this is: ", this.GetType().Name));
+                sb.Append(String.Concat(" Msg: ", ex.Message));
+                sb.Append(String.Concat(" Stack trace: ", ex.StackTrace));
+                log.Error("Exception - " + sb.ToString(), ex);
+
+                response = new UserResponse()
+                {
+                    resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+                };
+            }
             return response;
         }
     }
