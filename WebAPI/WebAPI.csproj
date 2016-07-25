@@ -2800,10 +2800,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>WebAPI_Social_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/Users_V4_0/module.asmx">
+    <WebReferenceUrl Include="http://localhost/ws_Users/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\Users\</RelPath>
-      <UpdateFromURL>http://localhost/Users_V4_0/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/ws_Users/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

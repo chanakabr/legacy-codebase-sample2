@@ -997,10 +997,10 @@ namespace WebAPI.Clients
             return listItem;
         }
 
-        internal KalturaOTTUserListResponse GetUserDataByCoGuid(int groupId, string coGuid)
+        internal KalturaOTTUserListResponse GetUserByExternalID(int groupId, string externalID)
         {
             KalturaOTTUserListResponse listUser = null;
-            UserResponseObject response = null;
+            UserResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -1008,12 +1008,12 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.GetUserDataByCoGuid(group.UsersCredentials.Username, group.UsersCredentials.Password, coGuid, -1);
+                    response = Users.GetUserByExternalID(group.UsersCredentials.Username, group.UsersCredentials.Password, externalID, -1);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while GetUserDataByCoGuid. Username: {0}, Password: {1}, coGuid: {2}", group.UsersCredentials.Username, group.UsersCredentials.Password, coGuid);
+                log.ErrorFormat("Error while GetUserDataByCoGuid. Username: {0}, Password: {1}, externalID: {2}", group.UsersCredentials.Username, group.UsersCredentials.Password, externalID);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1022,18 +1022,18 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.m_RespStatus != (int)StatusCode.OK)
+            if (response.resp.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.m_RespStatus, response.m_RespStatus.ToString());
+                throw new ClientException((int)response.resp.Code, response.resp.Message.ToString());
             }
 
-            if (response.m_user == null)
+            if (response.user == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
             KalturaOTTUser User;
-            User = Mapper.Map<KalturaOTTUser>(response.m_user);
+            User = Mapper.Map<KalturaOTTUser>(response.user);
             listUser = new KalturaOTTUserListResponse()
             {
                 Users = new List<KalturaOTTUser>() { User },
@@ -1043,10 +1043,10 @@ namespace WebAPI.Clients
             return listUser;
         }
 
-        internal KalturaOTTUserListResponse GetUserByUsername(int groupId, string userName)
+        internal KalturaOTTUserListResponse GetUserByName(int groupId, string userName)
         {
             KalturaOTTUserListResponse listUser = null;
-            UserResponseObject response = null;
+            UserResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -1054,7 +1054,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.GetUserByUsername(group.UsersCredentials.Username, group.UsersCredentials.Password, userName);
+                    response = Users.GetUserByName(group.UsersCredentials.Username, group.UsersCredentials.Password, userName);
                 }
             }
             catch (Exception ex)
@@ -1068,18 +1068,18 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.m_RespStatus != (int)StatusCode.OK)
+            if (response.resp.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.m_RespStatus, response.m_RespStatus.ToString());
+                throw new ClientException((int)response.resp.Code, response.resp.Message.ToString());
             }
 
-            if (response.m_user == null)
+            if (response.user == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
             KalturaOTTUser User;
-            User = Mapper.Map<KalturaOTTUser>(response.m_user);
+            User = Mapper.Map<KalturaOTTUser>(response.user);
             listUser = new KalturaOTTUserListResponse()
             {
                 Users = new List<KalturaOTTUser>() { User },

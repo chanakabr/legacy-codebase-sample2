@@ -13961,6 +13961,24 @@
         <member name="M:WebAPI.Users.UsersService.GetItemFromUsersListAsync(System.String,System.String,System.String,WebAPI.Users.Item,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.Users.UsersService.GetUserByExternalID(System.String,System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Users.UsersService.GetUserByExternalIDAsync(System.String,System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Users.UsersService.GetUserByExternalIDAsync(System.String,System.String,System.String,System.Int32,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Users.UsersService.GetUserByName(System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Users.UsersService.GetUserByNameAsync(System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Users.UsersService.GetUserByNameAsync(System.String,System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.Users.UsersService.CancelAsync(System.Object)">
             <remarks/>
         </member>
@@ -14217,6 +14235,12 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.Users.UsersService.GetItemFromUsersListCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Users.UsersService.GetUserByExternalIDCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Users.UsersService.GetUserByNameCompleted">
             <remarks/>
         </member>
         <member name="T:WebAPI.Controllers.OttUserController">
@@ -27671,6 +27695,24 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Users.GetItemFromUsersListCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Users.GetUserByExternalIDCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Users.GetUserByExternalIDCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Users.GetUserByExternalIDCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Users.GetUserByNameCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Users.GetUserByNameCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Users.GetUserByNameCompletedEventArgs.Result">
             <remarks/>
         </member>
     </members>
