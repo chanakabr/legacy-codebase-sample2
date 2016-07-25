@@ -1646,7 +1646,7 @@ namespace WebAPI.Clients
             return seriesRecording;
         }
 
-        internal KalturaSeriesRecording DeleteSeriesRecord(int groupId, string userId, long domainId, long id, long epgId)
+        internal KalturaSeriesRecording DeleteSeriesRecord(int groupId, string userId, long domainId, long id, long epgId = 0)
         {
             KalturaSeriesRecording seriesRecording = null;
             SeriesRecording response = null;

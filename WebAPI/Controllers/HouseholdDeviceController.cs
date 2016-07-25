@@ -53,9 +53,9 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [OldStandard("deviceName", "device_name")]
         [ValidationException(SchemaValidationType.ACTION_NAME)]
-        public KalturaDevice AddByPin(string deviceName, string pin)
+        public KalturaHouseholdDevice AddByPin(string deviceName, string pin)
         {
-            KalturaDevice device = null;
+            KalturaHouseholdDevice device = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -84,8 +84,7 @@ namespace WebAPI.Controllers
         /// Domain does not exist = 1006, Domain suspended = 1009, Device exists in other domain = 1016 , Device already exists = 1015</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_RETURN_TYPE)]
-        public KalturaDevice Add(KalturaDevice device)
+        public KalturaHouseholdDevice Add(KalturaHouseholdDevice device)
         {
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -139,9 +138,9 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemaValidationType.ACTION_RETURN_TYPE)]
-        public KalturaDevice Get()
+        public KalturaHouseholdDevice Get()
         {
-            KalturaDevice device = null;
+            KalturaHouseholdDevice device = null;
 
             int groupId = KS.GetFromRequest().GroupId;
             string udid = KSUtils.ExtractKSPayload().UDID;
@@ -230,16 +229,14 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Update the name of the device by UDID
         /// </summary>                
-        /// <param name="device_name">Device name</param>
         /// <param name="udid">Device UDID</param>
+        /// <param name="device">Device object</param>
         /// <remarks>Possible status codes: 
         /// Device not exists = 1019</remarks>
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        public bool Update(string device_name, string udid)
+        public KalturaHouseholdDevice Update(string udid, KalturaHouseholdDevice device)
         {
-            bool response = false;
-
             int groupId = KS.GetFromRequest().GroupId;
 
             try
@@ -252,13 +249,46 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                response = ClientsManager.DomainsClient().SetDeviceInfo(groupId, device_name, udid);
+                return ClientsManager.DomainsClient().SetDeviceInfo(groupId, device.Name, udid);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
-            return response;
+            return null;
+        }
+
+        /// <summary>
+        /// Update the name of the device by UDID
+        /// </summary>                
+        /// <param name="device_name">Device name</param>
+        /// <param name="udid">Device UDID</param>
+        /// <remarks>Possible status codes: 
+        /// Device not exists = 1019</remarks>
+        [Route("updateOldStandard"), HttpPost]
+        [ApiAuthorize]
+        [Obsolete]
+        public bool UpdateOldStandard(string device_name, string udid)
+        {
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // check device registration status - return forbidden if device not in domain        
+                var deviceRegistrationStatus = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
+                if (deviceRegistrationStatus != KalturaDeviceRegistrationStatus.registered)
+                {
+                    throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.ServiceForbidden, "Service Forbidden");
+                }
+
+                // call client
+                ClientsManager.DomainsClient().SetDeviceInfo(groupId, device_name, udid);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return true;
         }
     }
 }

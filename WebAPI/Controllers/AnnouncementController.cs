@@ -193,6 +193,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Lists all announcements in the system.
         /// </summary>
+        /// <param name="filter">Filter object</param>
         /// <param name="pager">Paging the request</param>
         /// <returns></returns>
         /// <remarks>FeatureDisabled = 8009</remarks>

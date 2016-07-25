@@ -15,8 +15,41 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/followTvSeries/action")]
+    [OldStandardAction("addOldStandard", "add")]
+    [OldStandardAction("listOldStandard", "list")]
     public class FollowTvSeriesController : ApiController
     {
+        /// <summary>
+        /// List user's tv series follows.
+        /// <remarks>Possible status codes:</remarks>
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="pager"></param>
+        /// <returns></returns>
+        [Route("list"), HttpPost]
+        [ApiAuthorize]
+        public KalturaFollowTvSeriesListResponse List(KalturaFollowTvSeriesFilter filter, KalturaFilterPager pager = null)
+        {
+            KalturaFollowTvSeriesListResponse response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            string userID = KS.GetFromRequest().UserId;
+
+            if (pager == null)
+                pager = new KalturaFilterPager();
+
+            try
+            {
+                response = ClientsManager.NotificationClient().ListUserTvSeriesFollows(groupId, userID, pager.PageSize.Value, pager.PageIndex.Value, filter.OrderBy);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
         /// <summary>
         /// List user's tv series follows.
         /// <remarks>Possible status codes:</remarks>
@@ -24,10 +57,10 @@ namespace WebAPI.Controllers
         /// <param name="order_by"></param>
         /// <param name="pager"></param>
         /// <returns></returns>
-        [Route("list"), HttpPost]
+        [Route("listOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
-        public KalturaListFollowDataTvSeriesResponse List(KalturaOrder? order_by = null, KalturaFilterPager pager = null)
+        public KalturaListFollowDataTvSeriesResponse ListOldStandard(KalturaOrder? order_by = null, KalturaFilterPager pager = null)
         {
             KalturaListFollowDataTvSeriesResponse response = null;
 
@@ -84,14 +117,41 @@ namespace WebAPI.Controllers
         /// Add a user's tv series follow.
         /// <remarks>Possible status codes: UserAlreadyFollowing = 8013, NotFound = 500007, InvalidAssetId = 4024</remarks>
         /// </summary>
-        /// <param name="asset_id"></param>
+        /// <param name="followTvSeries"></param>
         /// <returns></returns>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public bool Add(int asset_id)
+        public KalturaFollowTvSeries Add(KalturaFollowTvSeries followTvSeries)
         {
-            bool response = false;
+            int groupId = KS.GetFromRequest().GroupId;
+            string userID = KS.GetFromRequest().UserId;
 
+            if (followTvSeries.AssetId <= 0)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal asset ID");
+
+            try
+            {
+                return ClientsManager.NotificationClient().AddUserTvSeriesFollow(groupId, userID, followTvSeries.AssetId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Add a user's tv series follow.
+        /// <remarks>Possible status codes: UserAlreadyFollowing = 8013, NotFound = 500007, InvalidAssetId = 4024</remarks>
+        /// </summary>
+        /// <param name="asset_id"></param>
+        /// <returns></returns>
+        [Route("addOldStandard"), HttpPost]
+        [ApiAuthorize]
+        [Obsolete]
+        public bool AddOldStandard(int asset_id)
+        {
             int groupId = KS.GetFromRequest().GroupId;
             string userID = KS.GetFromRequest().UserId;
 
@@ -100,14 +160,14 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.NotificationClient().AddUserTvSeriesFollow(groupId, userID, asset_id);
+                ClientsManager.NotificationClient().AddUserTvSeriesFollow(groupId, userID, asset_id);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return response;
+            return true;
         }
     }
 }

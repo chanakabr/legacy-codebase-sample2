@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         /// List user's feeds.
         /// <remarks>Possible status codes:</remarks>
         /// </summary>
-        /// <param name="order_by">Required sort option to apply for the identified assets. If omitted – will use relevancy.
+        /// <param name="filter">Required sort option to apply for the identified assets. If omitted – will use relevancy.
         /// Possible values: relevancy, a_to_z, z_to_a, views, ratings, votes, newest.</param>        
         /// <param name="pager">Page size and index</param>
         /// <returns></returns>

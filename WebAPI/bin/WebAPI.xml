@@ -54,6 +54,7 @@
             <summary>
             Lists all announcements in the system.
             </summary>
+            <param name="filter">Filter object</param>
             <param name="pager">Paging the request</param>
             <returns></returns>
             <remarks>FeatureDisabled = 8009</remarks>
@@ -257,13 +258,6 @@
             External Channel reference type: ExternalChannelHasNoRecommendationEngine = 4014, AdapterAppFailure = 6012, AdapterUrlRequired = 5013,
             BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, 
             RecommendationEngineNotExist = 4007, ExternalChannelNotExist = 4011</remarks>
-        </member>
-        <member name="M:WebAPI.Controllers.AssetFileController.GetContext(System.String)">
-            <summary>
-            get KalturaAssetFileContext
-            </summary>
-            <param name="id">Asset file identifier</param>
-            <remarks></remarks>
         </member>
         <member name="M:WebAPI.Controllers.CdnAdapterProfileController.List">
             <summary>
@@ -511,9 +505,18 @@
             <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
             UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048 </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.SeriesRecordingController.Delete(System.Int64,System.Int64)">
+        <member name="M:WebAPI.Controllers.SeriesRecordingController.Delete(System.Int64)">
             <summary>        
             Delete series recording(s). Delete series recording can be called recordings in any status
+            </summary>
+            <param name="id">Series Recording identifier</param>
+            <returns></returns>
+            <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+            UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048 </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.SeriesRecordingController.DeleteByEpgId(System.Int64,System.Int64)">
+            <summary>        
+            Delete EPG recording that was recorded as part of series
             </summary>
             <param name="id">Series Recording identifier</param>
             <param name="epgId">epg program identifier</param>
@@ -533,7 +536,7 @@
             <summary>
             Issue a record request for a complete season or series
             </summary>
-            <param name="seriesRecording">SeriesRecording Object</param>
+            <param name="recording">SeriesRecording Object</param>
             <returns></returns>
             <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
             UserWithNoDomain = 2024, ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, ProgramCdvrNotEnabled = 3035,
@@ -622,7 +625,16 @@
             Possible status codes: message template not found = 8016
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.FollowTvSeriesController.List(System.Nullable{WebAPI.Models.Catalog.KalturaOrder},WebAPI.Models.General.KalturaFilterPager)">
+        <member name="M:WebAPI.Controllers.FollowTvSeriesController.List(WebAPI.Models.Notification.KalturaFollowTvSeriesFilter,WebAPI.Models.General.KalturaFilterPager)">
+            <summary>
+            List user's tv series follows.
+            <remarks>Possible status codes:</remarks>
+            </summary>
+            <param name="filter"></param>
+            <param name="pager"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.FollowTvSeriesController.ListOldStandard(System.Nullable{WebAPI.Models.Catalog.KalturaOrder},WebAPI.Models.General.KalturaFilterPager)">
             <summary>
             List user's tv series follows.
             <remarks>Possible status codes:</remarks>
@@ -639,7 +651,15 @@
             <param name="assetId"></param>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Controllers.FollowTvSeriesController.Add(System.Int32)">
+        <member name="M:WebAPI.Controllers.FollowTvSeriesController.Add(WebAPI.Models.Notification.KalturaFollowTvSeries)">
+            <summary>
+            Add a user's tv series follow.
+            <remarks>Possible status codes: UserAlreadyFollowing = 8013, NotFound = 500007, InvalidAssetId = 4024</remarks>
+            </summary>
+            <param name="followTvSeries"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.FollowTvSeriesController.AddOldStandard(System.Int32)">
             <summary>
             Add a user's tv series follow.
             <remarks>Possible status codes: UserAlreadyFollowing = 8013, NotFound = 500007, InvalidAssetId = 4024</remarks>
@@ -652,7 +672,7 @@
             List user's feeds.
             <remarks>Possible status codes:</remarks>
             </summary>
-            <param name="order_by">Required sort option to apply for the identified assets. If omitted – will use relevancy.
+            <param name="filter">Required sort option to apply for the identified assets. If omitted – will use relevancy.
             Possible values: relevancy, a_to_z, z_to_a, views, ratings, votes, newest.</param>        
             <param name="pager">Page size and index</param>
             <returns></returns>
@@ -1572,7 +1592,7 @@
             <remarks>Possible status codes: 
             Exceeded limit = 1001, Duplicate pin = 1028, Device not exists = 1019</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.HouseholdDeviceController.Add(WebAPI.Models.Domains.KalturaDevice)">
+        <member name="M:WebAPI.Controllers.HouseholdDeviceController.Add(WebAPI.Models.Domains.KalturaHouseholdDevice)">
             <summary>
             Add device to household
             </summary>                
@@ -1611,7 +1631,16 @@
             <param name="udid">Device UDID</param>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Controllers.HouseholdDeviceController.Update(System.String,System.String)">
+        <member name="M:WebAPI.Controllers.HouseholdDeviceController.Update(System.String,WebAPI.Models.Domains.KalturaHouseholdDevice)">
+            <summary>
+            Update the name of the device by UDID
+            </summary>                
+            <param name="udid">Device UDID</param>
+            <param name="device">Device object</param>
+            <remarks>Possible status codes: 
+            Device not exists = 1019</remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.HouseholdDeviceController.UpdateOldStandard(System.String,System.String)">
             <summary>
             Update the name of the device by UDID
             </summary>                
@@ -1642,7 +1671,16 @@
             <remarks>Possible status codes: User not exists in domain = 1020, Invalid user = 1026, Invalid asset type = 4021
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.BookmarkController.Add(System.String,WebAPI.Models.Catalog.KalturaAssetType,System.Int64,WebAPI.Models.Catalog.KalturaPlayerAssetData)">
+        <member name="M:WebAPI.Controllers.BookmarkController.Add(WebAPI.Models.Catalog.KalturaBookmark)">
+            <summary>
+            Report player position and action for the user on the watched asset. Player position is used to later allow resume watching.
+            </summary>
+            <param name="bookmark">Bookmark details</param>
+            <returns></returns>
+            <remarks>Possible status codes: BadRequest = 500003, ConcurrencyLimitation = 4001, InvalidAssetType = 4021, 
+            ProgramDoesntExist = 4022, ActionNotRecognized = 4023, InvalidAssetId = 4024,</remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.BookmarkController.AddOldStandard(System.String,WebAPI.Models.Catalog.KalturaAssetType,System.Int64,WebAPI.Models.Catalog.KalturaPlayerAssetData)">
             <summary>
             Report player position and action for the user on the watched asset. Player position is used to later allow resume watching.
             </summary>
@@ -1795,7 +1833,7 @@
             </remarks>
             <param name="channelId">channel identifier</param>
         </member>
-        <member name="M:WebAPI.Controllers.ChannelController.Add(WebAPI.Models.API.KalturaChannelProfile)">
+        <member name="M:WebAPI.Controllers.ChannelController.Add(WebAPI.Models.Catalog.KalturaChannel)">
             <summary>
             Insert new channel for partner. Currently supports only KSQL channel
             </summary>
@@ -1806,7 +1844,31 @@
             </remarks>
             <param name="channel">KSQL channel Object</param>
         </member>
-        <member name="M:WebAPI.Controllers.ChannelController.Update(WebAPI.Models.API.KalturaChannelProfile)">
+        <member name="M:WebAPI.Controllers.ChannelController.Update(System.Int32,WebAPI.Models.Catalog.KalturaChannel)">
+            <summary>
+            Update channel details. Currently supports only KSQL channel
+            </summary>
+            <remarks>
+            Possible status codes:
+            ObjectNotExist = 4018,
+            NoObjectToInsert = 4019,
+            NameRequired = 5005
+            </remarks>
+            <param name="channelId">Channel identifier</param>      
+            <param name="channel">KSQL channel Object</param>       
+        </member>
+        <member name="M:WebAPI.Controllers.ChannelController.AddOldStandard(WebAPI.Models.API.KalturaChannelProfile)">
+            <summary>
+            Insert new channel for partner. Currently supports only KSQL channel
+            </summary>
+            <remarks>
+            Possible status codes:     
+            NoObjectToInsert = 4019,
+            NameRequired = 5005,
+            </remarks>
+            <param name="channel">KSQL channel Object</param>
+        </member>
+        <member name="M:WebAPI.Controllers.ChannelController.UpdateOldStandard(WebAPI.Models.API.KalturaChannelProfile)">
             <summary>
             Update channel details. Currently supports only KSQL channel
             </summary>
@@ -2442,7 +2504,7 @@
             <summary>
             Set a time and usage expiry login-PIN that can allow a single login per PIN. If an active login-PIN already exists. Calling this API again for same user will add another login-PIN 
             </summary>
-            <param name="pin_code">Device Identifier</param>
+            <param name="pinCode">Device Identifier</param>
             <param name="secret">Additional security parameter to validate the login</param>
             <remarks>Possible status codes: MissingSecurityParameter = 2007, LoginViaPinNotAllowed = 2009, PinNotInTheRightLength = 2010,PinExists = 2011
             </remarks>
@@ -2457,7 +2519,7 @@
             <summary>
             Immediately deletes a given pre set login pin code for the user.
             </summary>
-            <param name="pin_code">Login pin code to expire</param>
+            <param name="pinCode">Login pin code to expire</param>
             <remarks></remarks>
         </member>
         <member name="M:WebAPI.Controllers.PinController.Get(WebAPI.Models.General.KalturaEntityReferenceBy,WebAPI.Models.API.KalturaPinType,System.Nullable{System.Int32})">
@@ -2901,6 +2963,11 @@
             User object
              </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBookmark.UserId">
+             <summary>
+            User identifier
+             </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaBookmark.Position">
              <summary>
             The position of the user in the specific asset (in seconds)
@@ -2915,6 +2982,36 @@
              <summary>
             Specifies whether the user's current position exceeded 95% of the duration
              </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBookmark.PlayerData">
+             <summary>
+            Insert only player data
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBookmarkPlayerData.action">
+            <summary>
+            Action
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBookmarkPlayerData.averageBitRate">
+            <summary>
+            Average Bitrate
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBookmarkPlayerData.totalBitRate">
+            <summary>
+            Total Bitrate
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBookmarkPlayerData.currentBitRate">
+            <summary>
+            Current Bitrate
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBookmarkPlayerData.FileId">
+            <summary>
+            Identifier of the file
+            </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaBookmarkListResponse">
             <summary>
@@ -3112,21 +3209,6 @@
         <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.TrickPlayBuffer">
             <summary>
             Trick-play buffer
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.ViewLifeCycle">
-            <summary>
-            viewLifeCycle
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.FullLifeCycle">
-            <summary>
-            fullLifeCycle
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.IsOfflinePlayBack">
-            <summary>
-            isOfflinePlayBack
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaSeriesRecording.Id">
@@ -5027,6 +5109,11 @@
             Asset Id
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Notification.KalturaFollowTvSeries.AssetId">
+            <summary>
+            Asset Id
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Notification.KalturaInboxMessage.Id">
             <summary>
             message id
@@ -5108,6 +5195,16 @@
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaListFollowDataTvSeriesResponse.FollowDataList">
+            <summary>
+            Follow data list
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaFollowTvSeriesListResponse">
+            <summary>
+            List of message follow data.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaFollowTvSeriesListResponse.FollowDataList">
             <summary>
             Follow data list
             </summary>
@@ -5892,37 +5989,37 @@
             A list of entitlements
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Domains.KalturaDevice">
+        <member name="T:WebAPI.Models.Domains.KalturaHouseholdDevice">
             <summary>
             Device details
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Domains.KalturaDevice.Udid">
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.Udid">
             <summary>
             Device UDID
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Domains.KalturaDevice.Name">
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.Name">
             <summary>
             Device name
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Domains.KalturaDevice.Brand">
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.Brand">
             <summary>
             Device brand name
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Domains.KalturaDevice.BrandId">
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.BrandId">
             <summary>
             Device brand identifier
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Domains.KalturaDevice.ActivatedOn">
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.ActivatedOn">
             <summary>
             Device activation date (epoch)
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Domains.KalturaDevice.State">
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.State">
             <summary>
             Device state
             </summary>
@@ -6554,14 +6651,9 @@
             OTT User filter
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaOTTUserFilter.UserByEqual">
-             <summary>
-            User Filter By
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.Users.KalturaOTTUserFilter.ValueEqual">
+        <member name="P:WebAPI.Models.Users.KalturaOTTUserFilter.UserIDs">
             <summary>
-            The User identifiers
+            User IDs to retrieve
             </summary>
         </member>
         <member name="T:WebAPI.Models.Users.KalturaSession">
@@ -6811,6 +6903,16 @@
             Filter expression
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannel.IsActive">
+            <summary>
+            active status
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannel.Order">
+            <summary>
+            Channel order
+            </summary>
+        </member>
         <member name="M:WebAPI.Controllers.HouseholdController.Get">
             <summary>
             Returns the household model       
@@ -6898,7 +7000,14 @@
             <param name="household_frequency_type">Possible values: devices – reset the device change frequency. 
             users – reset the user add/remove frequency</param>        
         </member>
-        <member name="M:WebAPI.Controllers.HouseholdController.Update(System.String,System.String)">
+        <member name="M:WebAPI.Controllers.HouseholdController.Update(WebAPI.Models.Domains.KalturaHousehold)">
+            <summary>
+            Update the household name and description    
+            </summary>        
+            <param name="household">Household object</param>
+            <remarks></remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.HouseholdController.UpdateOldStandard(System.String,System.String)">
             <summary>
             Update the household name and description    
             </summary>        
@@ -7124,22 +7233,22 @@
             Country code
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Users.KalturaLoginPin">
+        <member name="T:WebAPI.Models.Users.KalturaUserLoginPin">
             <summary>
             Log in pin code details
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaLoginPin.PinCode">
+        <member name="P:WebAPI.Models.Users.KalturaUserLoginPin.PinCode">
             <summary>
             Generated login pin code
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaLoginPin.ExpirationTime">
+        <member name="P:WebAPI.Models.Users.KalturaUserLoginPin.ExpirationTime">
             <summary>
             Login pin expiration time (epoch)
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaLoginPin.UserId">
+        <member name="P:WebAPI.Models.Users.KalturaUserLoginPin.UserId">
             <summary>
             User Identifier
             </summary>
@@ -11870,6 +11979,15 @@
         <member name="M:WebAPI.Domains.module.GetDeviceRegistrationStatusAsync(System.String,System.String,System.String,System.Int32,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.Domains.module.SetDevice(System.String,System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Domains.module.SetDeviceAsync(System.String,System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Domains.module.SetDeviceAsync(System.String,System.String,System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.Domains.module.GetDevice(System.String,System.String,System.String,System.Int32)">
             <remarks/>
         </member>
@@ -12030,6 +12148,9 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.Domains.module.GetDeviceRegistrationStatusCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Domains.module.SetDeviceCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.Domains.module.GetDeviceCompleted">
@@ -13961,24 +14082,6 @@
         <member name="M:WebAPI.Users.UsersService.GetItemFromUsersListAsync(System.String,System.String,System.String,WebAPI.Users.Item,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Users.UsersService.GetUserByExternalID(System.String,System.String,System.String,System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Users.UsersService.GetUserByExternalIDAsync(System.String,System.String,System.String,System.Int32)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Users.UsersService.GetUserByExternalIDAsync(System.String,System.String,System.String,System.Int32,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Users.UsersService.GetUserByName(System.String,System.String,System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Users.UsersService.GetUserByNameAsync(System.String,System.String,System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Users.UsersService.GetUserByNameAsync(System.String,System.String,System.String,System.Object)">
-            <remarks/>
-        </member>
         <member name="M:WebAPI.Users.UsersService.CancelAsync(System.Object)">
             <remarks/>
         </member>
@@ -14237,12 +14340,6 @@
         <member name="E:WebAPI.Users.UsersService.GetItemFromUsersListCompleted">
             <remarks/>
         </member>
-        <member name="E:WebAPI.Users.UsersService.GetUserByExternalIDCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Users.UsersService.GetUserByNameCompleted">
-            <remarks/>
-        </member>
         <member name="T:WebAPI.Controllers.OttUserController">
             <summary>
             
@@ -14421,15 +14518,6 @@
             <summary>
             Resend the activation token to a user
             </summary>
-            <returns></returns>
-        </member>
-        <member name="M:WebAPI.Controllers.OttUserController.List(WebAPI.Models.Users.KalturaOTTUserFilter)">
-            <summary>
-            Retrieve the user’s lists 
-            </summary>
-            <param name="filter">Filtering OttUser request</param>
-            <remarks>Possible status codes: 
-            UserDoesNotExist = 2</remarks>
             <returns></returns>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetInfoListResponse">
@@ -23926,6 +24014,15 @@
         <member name="P:WebAPI.Domains.GetDeviceRegistrationStatusCompletedEventArgs.Result">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Domains.SetDeviceCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Domains.SetDeviceCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Domains.SetDeviceCompletedEventArgs.Result">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Domains.GetDeviceCompletedEventHandler">
             <remarks/>
         </member>
@@ -27695,24 +27792,6 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Users.GetItemFromUsersListCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Users.GetUserByExternalIDCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Users.GetUserByExternalIDCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Users.GetUserByExternalIDCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Users.GetUserByNameCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Users.GetUserByNameCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Users.GetUserByNameCompletedEventArgs.Result">
             <remarks/>
         </member>
     </members>

@@ -18,7 +18,16 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "user")]
         [JsonProperty("user")]
         [XmlElement(ElementName = "user", IsNullable = true)]
+        [Obsolete]
         public KalturaBaseOTTUser User { get; set; }
+
+        /// <summary>
+        ///User identifier
+        /// </summary>
+        [DataMember(Name = "userId")]
+        [JsonProperty("userId")]
+        [XmlElement(ElementName = "userId", IsNullable = true)]
+        public string UserId { get; set; }
 
         /// <summary>
         ///The position of the user in the specific asset (in seconds)
@@ -43,5 +52,81 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("finishedWatching")]
         [XmlElement(ElementName = "finishedWatching")]
         public bool? IsFinishedWatching { get; set; }
+
+        /// <summary>
+        ///Insert only player data
+        /// </summary>
+        [DataMember(Name = "playerData")]
+        [JsonProperty("playerData")]
+        [XmlElement(ElementName = "playerData")]
+        public KalturaBookmarkPlayerData PlayerData { get; set; }
+
+        internal int getPosition()
+        {
+            return Position.HasValue ? Position.Value : 0;
+        }
+    }
+
+    public class KalturaBookmarkPlayerData : KalturaOTTObject
+    {
+        /// <summary>
+        /// Action
+        /// </summary>
+        [DataMember(Name = "action")]
+        [JsonProperty(PropertyName = "action")]
+        [XmlArrayItem(ElementName = "action")]
+        public string action { get; set; }
+
+        /// <summary>
+        /// Average Bitrate
+        /// </summary>
+        [DataMember(Name = "averageBitrate")]
+        [JsonProperty(PropertyName = "averageBitrate")]
+        [XmlArrayItem(ElementName = "averageBitrate")]
+        public int? averageBitRate { get; set; }
+
+        /// <summary>
+        /// Total Bitrate
+        /// </summary>
+        [DataMember(Name = "totalBitrate")]
+        [JsonProperty(PropertyName = "totalBitrate")]
+        [XmlArrayItem(ElementName = "totalBitrate")]
+        public int? totalBitRate { get; set; }
+
+        /// <summary>
+        /// Current Bitrate
+        /// </summary>
+        [DataMember(Name = "currentBitrate")]
+        [JsonProperty(PropertyName = "currentBitrate")]
+        [XmlArrayItem(ElementName = "currentBitrate")]
+        public int? currentBitRate { get; set; }
+
+        /// <summary>
+        /// Identifier of the file
+        /// </summary>
+        [DataMember(Name = "fileId")]
+        [JsonProperty(PropertyName = "fileId")]
+        [XmlArrayItem(ElementName = "fileId")]
+        public long? FileId { get; set; }
+
+        internal int getAverageBitRate()
+        {
+            return averageBitRate.HasValue ? averageBitRate.Value : 0;
+        }
+
+        internal int getCurrentBitRate()
+        {
+            return currentBitRate.HasValue ? currentBitRate.Value : 0;
+        }
+
+        internal int getTotalBitRate()
+        {
+            return totalBitRate.HasValue ? totalBitRate.Value : 0;
+        }
+
+        internal long getFileId()
+        {
+            return FileId.HasValue ? FileId.Value : 0;
+        }
     }
 }

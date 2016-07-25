@@ -6,11 +6,13 @@ using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Managers.Schema;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Notification
 {
     [Serializable]
     [OldStandard("assetId", "asset_id")]
+    [Obsolete]
     public class KalturaFollowDataTvSeries : KalturaFollowDataBase
     {
         /// <summary>
@@ -20,5 +22,31 @@ namespace WebAPI.Models.Notification
         [JsonProperty(PropertyName = "assetId")]
         [XmlElement(ElementName = "assetId")]
         public int AssetId { get; set; }
+    }
+
+    public class KalturaFollowTvSeries : KalturaFollowDataBase
+    {
+        /// <summary>
+        /// Asset Id
+        /// </summary>
+        [DataMember(Name = "assetId")]
+        [JsonProperty(PropertyName = "assetId")]
+        [XmlElement(ElementName = "assetId")]
+        public int AssetId { get; set; }
+    }
+
+    public enum KalturaFollowTvSeriesOrderBy
+    {
+        START_DATE_DESC,
+
+        START_DATE_ASC
+    }
+
+    public class KalturaFollowTvSeriesFilter : KalturaFilter<KalturaFollowTvSeriesOrderBy>
+    {
+        public override KalturaFollowTvSeriesOrderBy GetDefaultOrderByValue()
+        {
+            return KalturaFollowTvSeriesOrderBy.START_DATE_DESC;
+        }
     }
 }
