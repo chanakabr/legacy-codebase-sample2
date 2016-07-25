@@ -71,6 +71,7 @@ namespace WebAPI.Models.Domains
         }
     }
 
+    [Obsolete]
     public class KalturaDevice : KalturaHouseholdDevice
     {
     }

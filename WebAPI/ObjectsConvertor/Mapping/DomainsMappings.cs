@@ -24,6 +24,14 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.ActivatedOn, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_activationDate)))
                 .ForMember(dest => dest.State, opt => opt.MapFrom(src => ConvertDeviceState(src.m_state)));
 
+            Mapper.CreateMap<WebAPI.Domains.Device, KalturaDevice>()
+                .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.m_deviceUDID))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_deviceName))
+                .ForMember(dest => dest.Brand, opt => opt.MapFrom(src => src.m_deviceBrand))
+                .ForMember(dest => dest.BrandId, opt => opt.MapFrom(src => src.m_deviceBrandID))
+                .ForMember(dest => dest.ActivatedOn, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_activationDate)))
+                .ForMember(dest => dest.State, opt => opt.MapFrom(src => ConvertDeviceState(src.m_state)));
+
             //HomeNetwork
             Mapper.CreateMap<WebAPI.Domains.HomeNetwork, KalturaHomeNetwork>()
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.UID))

@@ -259,6 +259,15 @@
             BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, 
             RecommendationEngineNotExist = 4007, ExternalChannelNotExist = 4011</remarks>
         </member>
+        <member name="M:WebAPI.Controllers.AssetFileController.GetContext(System.String,System.Boolean,System.String)">
+            <summary>
+            get KalturaAssetFileContext
+            </summary>
+            <param name="id">Asset file identifier</param>                
+            <param name="isCoGuid">isCoGuid true/false</param>     
+            <param name="countryCode">countryCode</param>
+            <remarks></remarks>
+        </member>
         <member name="M:WebAPI.Controllers.CdnAdapterProfileController.List">
             <summary>
             Returns all CDN adapters for partner
@@ -3209,6 +3218,11 @@
         <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.TrickPlayBuffer">
             <summary>
             Trick-play buffer
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.Duration">
+            <summary>
+            duration
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaSeriesRecording.Id">
@@ -6651,9 +6665,14 @@
             OTT User filter
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaOTTUserFilter.UserIDs">
+        <member name="P:WebAPI.Models.Users.KalturaOTTUserFilter.UserByEqual">
+             <summary>
+            User Filter By
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaOTTUserFilter.ValueEqual">
             <summary>
-            User IDs to retrieve
+            The User identifiers
             </summary>
         </member>
         <member name="T:WebAPI.Models.Users.KalturaSession">
@@ -14518,6 +14537,15 @@
             <summary>
             Resend the activation token to a user
             </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.OttUserController.List(WebAPI.Models.Users.KalturaOTTUserFilter)">
+            <summary>
+            Retrieve the user’s lists 
+            </summary>
+            <param name="filter">Filtering OttUser request</param>
+            <remarks>Possible status codes: 
+            UserDoesNotExist = 2</remarks>
             <returns></returns>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetInfoListResponse">
