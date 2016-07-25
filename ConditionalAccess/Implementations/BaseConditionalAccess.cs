@@ -17320,40 +17320,33 @@ namespace ConditionalAccess
                     Recording recording = Utils.ValidateEpgForRecord(accountSettings, epg, recordingType);
                     if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK)
                     {
-                        if (recordingType == RecordingType.Single)
+                        Dictionary<string, string> epgFieldMappings = null;
+                        if (!Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, recordingType, out epgFieldMappings) || epgFieldMappings == null || epgFieldMappings.Count == 0)
                         {
-                            Dictionary<string, string> epgFieldMappings = null;
-                            if (!Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, recordingType, out epgFieldMappings) || epgFieldMappings == null || epgFieldMappings.Count == 0)
-                            {
-                                log.ErrorFormat("failed GetEpgFieldTypeEntitys, groupId: {0}, epgId: {1}, recordingType: {2}", m_nGroupID, epg.EPG_ID, recordingType.ToString());
-                                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                                return response;
-                            }
-                            else
-                            {
-                                string seriesId = epgFieldMappings[Utils.SERIES_ID];
-                                int seasonNumber = 0;
-                                if (epgFieldMappings.ContainsKey(Utils.SEASON_NUMBER) && !int.TryParse(epgFieldMappings[Utils.SEASON_NUMBER], out seasonNumber) && recordingType == RecordingType.Season)
-                                {
-                                    log.ErrorFormat("failed parsing SEASON_NUMBER, groupId: {0}, epgId: {1}, recordingType: {2}", m_nGroupID, epg.EPG_ID, recordingType.ToString());
-                                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                                    response.Recordings.Add(recording);
-                                }
-                                if (RecordingsDAL.IsFollowingSeries(m_nGroupID, domainID, seriesId, seasonNumber))
-                                {
-                                    log.DebugFormat("domain already follows the series, can't record as single, DomainID: {0}, UserID: {1}, seriesID: {2}", domainID, userID, seriesId);
-                                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.AlreadyRecordedAsSeriesOrSeason, eResponseStatus.AlreadyRecordedAsSeriesOrSeason.ToString());
-                                    response.Recordings.Add(recording);
-                                }
-                                else
-                                {
-                                    validEpgsForRecording.Add(recording.EpgId, false);
-                                }
-                            }
+                            log.ErrorFormat("failed GetEpgFieldTypeEntitys, groupId: {0}, epgId: {1}, recordingType: {2}", m_nGroupID, epg.EPG_ID, recordingType.ToString());
+                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                            return response;
                         }
                         else
                         {
-                            validEpgsForRecording.Add(recording.EpgId, false);
+                            string seriesId = epgFieldMappings[Utils.SERIES_ID];
+                            int seasonNumber = 0;
+                            if (epgFieldMappings.ContainsKey(Utils.SEASON_NUMBER) && !int.TryParse(epgFieldMappings[Utils.SEASON_NUMBER], out seasonNumber) && recordingType == RecordingType.Season)
+                            {
+                                log.ErrorFormat("failed parsing SEASON_NUMBER, groupId: {0}, epgId: {1}, recordingType: {2}", m_nGroupID, epg.EPG_ID, recordingType.ToString());
+                                recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                                response.Recordings.Add(recording);
+                            }
+                            if (RecordingsDAL.IsFollowingSeries(m_nGroupID, domainID, seriesId, seasonNumber))
+                            {
+                                log.DebugFormat("domain already follows the series, can't record as single, DomainID: {0}, UserID: {1}, seriesID: {2}", domainID, userID, seriesId);
+                                recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.AlreadyRecordedAsSeriesOrSeason, eResponseStatus.AlreadyRecordedAsSeriesOrSeason.ToString());
+                                response.Recordings.Add(recording);
+                            }
+                            else
+                            {
+                                validEpgsForRecording.Add(recording.EpgId, false);
+                            }
                         }
                     }
                     else
