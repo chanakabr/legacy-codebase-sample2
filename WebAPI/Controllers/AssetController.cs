@@ -475,6 +475,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Missing index = 4003</remarks>
         [Route("autocomplete"), HttpPost]
         [ApiAuthorize]
+        [Obsolete]
         public KalturaSlimAssetInfoWrapper Autocomplete(string query, List<KalturaCatalogWithHolder> with = null, List<KalturaIntegerValue> filter_types = null,
             KalturaOrder? order_by = null, int? size = null)
         {

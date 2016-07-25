@@ -16,7 +16,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
         public static void RegisterMappings()
         {
             //Device
-            Mapper.CreateMap<WebAPI.Domains.Device, KalturaDevice>()
+            Mapper.CreateMap<WebAPI.Domains.Device, KalturaHouseholdDevice>()
                 .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.m_deviceUDID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_deviceName))
                 .ForMember(dest => dest.Brand, opt => opt.MapFrom(src => src.m_deviceBrand))

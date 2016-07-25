@@ -51,29 +51,57 @@ namespace WebAPI.Controllers
         /// Delete series recording(s). Delete series recording can be called recordings in any status
         /// </summary>
         /// <param name="id">Series Recording identifier</param>
-        /// <param name="epgId">epg program identifier</param>
         /// <returns></returns>
         /// <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
         /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048 </remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        public KalturaSeriesRecording Delete(long id, long epgId)
+        public KalturaSeriesRecording Delete(long id)
         {
             KalturaSeriesRecording response = null;
-               try
-               {
-                   int groupId = KS.GetFromRequest().GroupId;
-                   string userId = KS.GetFromRequest().UserId;
-                   long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
-                   // call client                
-                   response = ClientsManager.ConditionalAccessClient().DeleteSeriesRecord(groupId, userId, domainId, id, epgId);
-               }
-               catch (ClientException ex)
-               {
-                   ErrorUtils.HandleClientException(ex);
-               }
-               return response;
-           }
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
+                long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                // call client                
+                response = ClientsManager.ConditionalAccessClient().DeleteSeriesRecord(groupId, userId, domainId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
+
+        /// <summary>        
+        /// Delete EPG recording that was recorded as part of series
+        /// </summary>
+        /// <param name="id">Series Recording identifier</param>
+        /// <param name="epgId">epg program identifier</param>
+        /// <returns></returns>
+        /// <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+        /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048 </remarks>
+        [Route("deleteByEpgId"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        public KalturaSeriesRecording DeleteByEpgId(long id, long epgId)
+        {
+            KalturaSeriesRecording response = null;
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
+                long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                // call client                
+                response = ClientsManager.ConditionalAccessClient().DeleteSeriesRecord(groupId, userId, domainId, id, epgId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
 
            /// <summary>
            /// Return a list of series recordings for the household with optional filter by status and KSQL.
@@ -112,7 +140,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Issue a record request for a complete season or series
         /// </summary>
-        /// <param name="seriesRecording">SeriesRecording Object</param>
+           /// <param name="recording">SeriesRecording Object</param>
         /// <returns></returns>
         /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
         /// UserWithNoDomain = 2024, ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, ProgramCdvrNotEnabled = 3035,

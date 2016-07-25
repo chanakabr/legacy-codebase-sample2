@@ -15,7 +15,7 @@ namespace WebAPI.Models.Domains
     /// </summary>
     [OldStandard("brandId", "brand_id")]
     [OldStandard("activatedOn", "activated_on")]
-    public class KalturaDevice : KalturaOTTObject
+    public class KalturaHouseholdDevice : KalturaOTTObject
     {
         /// <summary>
         /// Device UDID
@@ -69,5 +69,9 @@ namespace WebAPI.Models.Domains
         {
             return BrandId.HasValue ? (int)BrandId : 0;
         }
+    }
+
+    public class KalturaDevice : KalturaHouseholdDevice
+    {
     }
 }

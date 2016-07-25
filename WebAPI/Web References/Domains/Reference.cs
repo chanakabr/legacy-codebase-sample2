@@ -111,6 +111,8 @@ namespace WebAPI.Domains {
         
         private System.Threading.SendOrPostCallback GetDeviceRegistrationStatusOperationCompleted;
         
+        private System.Threading.SendOrPostCallback SetDeviceOperationCompleted;
+        
         private System.Threading.SendOrPostCallback GetDeviceOperationCompleted;
         
         private System.Threading.SendOrPostCallback RemoveDomainByIdOperationCompleted;
@@ -279,6 +281,9 @@ namespace WebAPI.Domains {
         
         /// <remarks/>
         public event GetDeviceRegistrationStatusCompletedEventHandler GetDeviceRegistrationStatusCompleted;
+        
+        /// <remarks/>
+        public event SetDeviceCompletedEventHandler SetDeviceCompleted;
         
         /// <remarks/>
         public event GetDeviceCompletedEventHandler GetDeviceCompleted;
@@ -1764,6 +1769,41 @@ namespace WebAPI.Domains {
             if ((this.GetDeviceRegistrationStatusCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.GetDeviceRegistrationStatusCompleted(this, new GetDeviceRegistrationStatusCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/SetDevice", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public DeviceResponse SetDevice(string sWSUserName, string sWSPassword, string sDeviceUDID, string sDeviceName) {
+            object[] results = this.Invoke("SetDevice", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sDeviceUDID,
+                        sDeviceName});
+            return ((DeviceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SetDeviceAsync(string sWSUserName, string sWSPassword, string sDeviceUDID, string sDeviceName) {
+            this.SetDeviceAsync(sWSUserName, sWSPassword, sDeviceUDID, sDeviceName, null);
+        }
+        
+        /// <remarks/>
+        public void SetDeviceAsync(string sWSUserName, string sWSPassword, string sDeviceUDID, string sDeviceName, object userState) {
+            if ((this.SetDeviceOperationCompleted == null)) {
+                this.SetDeviceOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetDeviceOperationCompleted);
+            }
+            this.InvokeAsync("SetDevice", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sDeviceUDID,
+                        sDeviceName}, this.SetDeviceOperationCompleted, userState);
+        }
+        
+        private void OnSetDeviceOperationCompleted(object arg) {
+            if ((this.SetDeviceCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SetDeviceCompleted(this, new SetDeviceCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -4561,6 +4601,32 @@ namespace WebAPI.Domains {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((DeviceRegistrationStatusResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    public delegate void SetDeviceCompletedEventHandler(object sender, SetDeviceCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SetDeviceCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SetDeviceCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public DeviceResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((DeviceResponse)(this.results[0]));
             }
         }
     }

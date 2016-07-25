@@ -32,6 +32,5 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "type")]
         [XmlElement(ElementName = "type")]
         public KalturaAssetType Type { get; set; }
-
     }
 }

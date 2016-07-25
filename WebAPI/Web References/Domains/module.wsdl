@@ -1026,6 +1026,23 @@
           <s:enumeration value="RegisteredToAnotherDomain" />
         </s:restriction>
       </s:simpleType>
+      <s:element name="SetDevice">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDeviceUDID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetDeviceResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SetDeviceResult" type="tns:DeviceResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="GetDevice">
         <s:complexType>
           <s:sequence>
@@ -1368,6 +1385,12 @@
   </wsdl:message>
   <wsdl:message name="GetDeviceRegistrationStatusSoapOut">
     <wsdl:part name="parameters" element="tns:GetDeviceRegistrationStatusResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetDeviceSoapIn">
+    <wsdl:part name="parameters" element="tns:SetDevice" />
+  </wsdl:message>
+  <wsdl:message name="SetDeviceSoapOut">
+    <wsdl:part name="parameters" element="tns:SetDeviceResponse" />
   </wsdl:message>
   <wsdl:message name="GetDeviceSoapIn">
     <wsdl:part name="parameters" element="tns:GetDevice" />
@@ -1782,6 +1805,15 @@
   <wsdl:message name="GetDeviceRegistrationStatusHttpPostOut">
     <wsdl:part name="Body" element="tns:DeviceRegistrationStatusResponse" />
   </wsdl:message>
+  <wsdl:message name="SetDeviceHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sDeviceUDID" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetDeviceHttpPostOut">
+    <wsdl:part name="Body" element="tns:DeviceResponse" />
+  </wsdl:message>
   <wsdl:message name="GetDeviceHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -1984,6 +2016,10 @@
       <wsdl:input message="tns:GetDeviceRegistrationStatusSoapIn" />
       <wsdl:output message="tns:GetDeviceRegistrationStatusSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="SetDevice">
+      <wsdl:input message="tns:SetDeviceSoapIn" />
+      <wsdl:output message="tns:SetDeviceSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetDevice">
       <wsdl:input message="tns:GetDeviceSoapIn" />
       <wsdl:output message="tns:GetDeviceSoapOut" />
@@ -2165,6 +2201,10 @@
     <wsdl:operation name="GetDeviceRegistrationStatus">
       <wsdl:input message="tns:GetDeviceRegistrationStatusHttpPostIn" />
       <wsdl:output message="tns:GetDeviceRegistrationStatusHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetDevice">
+      <wsdl:input message="tns:SetDeviceHttpPostIn" />
+      <wsdl:output message="tns:SetDeviceHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetDevice">
       <wsdl:input message="tns:GetDeviceHttpPostIn" />
@@ -2547,6 +2587,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetDeviceRegistrationStatus">
       <soap:operation soapAction="http://domains.tvinci.com/GetDeviceRegistrationStatus" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetDevice">
+      <soap:operation soapAction="http://domains.tvinci.com/SetDevice" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2962,6 +3011,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="SetDevice">
+      <soap12:operation soapAction="http://domains.tvinci.com/SetDevice" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetDevice">
       <soap12:operation soapAction="http://domains.tvinci.com/GetDevice" style="document" />
       <wsdl:input>
@@ -3363,6 +3421,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetDeviceRegistrationStatus">
       <http:operation location="/GetDeviceRegistrationStatus" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetDevice">
+      <http:operation location="/SetDevice" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

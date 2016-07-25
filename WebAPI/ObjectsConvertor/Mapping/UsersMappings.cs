@@ -18,7 +18,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
         public static void RegisterMappings()
         {
             // PinCode
-            Mapper.CreateMap<Users.PinCodeResponse, KalturaLoginPin>()
+            Mapper.CreateMap<Users.PinCodeResponse, KalturaUserLoginPin>()
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid))
                 .ForMember(dest => dest.PinCode, opt => opt.MapFrom(src => src.pinCode))
                 .ForMember(dest => dest.ExpirationTime, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.expiredDate)));

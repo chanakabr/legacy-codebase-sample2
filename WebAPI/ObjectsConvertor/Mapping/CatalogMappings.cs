@@ -478,6 +478,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return metas;
         }
 
+        public static KalturaBookmark ConvertBookmark(AssetBookmarks assetBookmark, Bookmark catalogBookmark)
+        {
+            return new KalturaBookmark()
+            {
+                Id = assetBookmark.AssetID,
+                IsFinishedWatching = catalogBookmark.IsFinishedWatching,
+                Position = catalogBookmark.Location,
+                PositionOwner = ConvertPositionOwner(catalogBookmark.UserType),
+                Type = ConvertAssetType(assetBookmark.AssetType),
+                UserId = catalogBookmark.User.m_sSiteGUIDField,
+                User = Mapper.Map<WebAPI.Models.Users.KalturaBaseOTTUser>(catalogBookmark.User)
+            };
+        }
+
         public static List<KalturaBookmark> ConvertBookmarks(List<AssetBookmarks> assetBookmarks, KalturaBookmarkOrderBy orderBy)
         {
             List<KalturaBookmark> bookmarks = null;
@@ -491,15 +505,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     {
                         foreach (var catalogBookmark in assetBookmark.Bookmarks)
                         {
-                            bookmarks.Add(new KalturaBookmark()
-                            {
-                                Id = assetBookmark.AssetID,
-                                IsFinishedWatching = catalogBookmark.IsFinishedWatching,
-                                Position = catalogBookmark.Location,
-                                PositionOwner = ConvertPositionOwner(catalogBookmark.UserType),
-                                Type = ConvertAssetType(assetBookmark.AssetType),
-                                User = Mapper.Map<WebAPI.Models.Users.KalturaBaseOTTUser>(catalogBookmark.User)
-                            });
+                            bookmarks.Add(ConvertBookmark(assetBookmark, catalogBookmark));
                         }
                     }
                 }

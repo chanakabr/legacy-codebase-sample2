@@ -276,9 +276,9 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaDevice RegisterDeviceByPin(int groupId, int domainId, string deviceName, string pin)
+        internal KalturaHouseholdDevice RegisterDeviceByPin(int groupId, int domainId, string deviceName, string pin)
         {
-            KalturaDevice result = null;
+            KalturaHouseholdDevice result = null;
             WebAPI.Domains.DeviceResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -311,7 +311,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            result = Mapper.Map<KalturaDevice>(response.Device.m_oDevice);
+            result = Mapper.Map<KalturaHouseholdDevice>(response.Device.m_oDevice);
 
             return result;
         }
@@ -351,9 +351,9 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaDevice GetDevice(int groupId, int householdId, string udid)
+        internal KalturaHouseholdDevice GetDevice(int groupId, int householdId, string udid)
         {
-            KalturaDevice result;
+            KalturaHouseholdDevice result;
             WebAPI.Domains.DeviceResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -386,7 +386,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            result = Mapper.Map<KalturaDevice>(response.Device.m_oDevice);
+            result = Mapper.Map<KalturaHouseholdDevice>(response.Device.m_oDevice);
 
             return result;
         }
@@ -466,7 +466,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaDevice AddDevice(int groupId, int domainId, string deviceName, string udid, int deviceBrandId)
+        internal KalturaHouseholdDevice AddDevice(int groupId, int domainId, string deviceName, string udid, int deviceBrandId)
         {
             WebAPI.Domains.DeviceResponse response = null;
 
@@ -500,7 +500,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            KalturaDevice result = Mapper.Map<KalturaDevice>(response.Device.m_oDevice);
+            KalturaHouseholdDevice result = Mapper.Map<KalturaHouseholdDevice>(response.Device.m_oDevice);
 
             return result;
         }
@@ -616,9 +616,10 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal bool SetDeviceInfo(int groupId, string deviceName, string udid)
+        internal KalturaHouseholdDevice SetDeviceInfo(int groupId, string deviceName, string udid)
         {
-            WebAPI.Domains.Status response = null;
+            KalturaHouseholdDevice result;
+            WebAPI.Domains.DeviceResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -626,7 +627,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.SetDeviceInfo(group.DomainsCredentials.Username, group.DomainsCredentials.Password, udid, deviceName);
+                    response = Domains.SetDevice(group.DomainsCredentials.Username, group.DomainsCredentials.Password, udid, deviceName);
                 }
             }
             catch (Exception ex)
@@ -635,17 +636,19 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response == null)
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Device == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException(response.Code, response.Message);
-            }
+            result = Mapper.Map<KalturaHouseholdDevice>(response.Device.m_oDevice);
 
-            return true;
+            return result;
         }
 
         internal KalturaHousehold SetDomainInfo(int groupId, int domainId, string name, string description)
