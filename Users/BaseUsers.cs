@@ -60,6 +60,8 @@ namespace Users
         public abstract DomainResponseObject AddNewDomain(string sUN, int nUserID, int nGroupID);
         public abstract ApiObjects.Response.Status DeleteUser(int userId);
         public abstract ApiObjects.Response.Status ChangeUsers(string userId, string userIdToChange, string udid, int groupId);
+        public abstract UserResponse GetUserByExternalID(string externalID, int operatorID);
+        public abstract UserResponse GetUserByName(string userName, int groupId);
 
         public virtual bool WriteToLog(string sSiteGUID, string sMessage, string sWriter)
         {
@@ -1451,6 +1453,6 @@ namespace Users
             }
 
             return response;
-        }
+        }      
     }
 }
