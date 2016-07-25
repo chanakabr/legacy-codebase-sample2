@@ -1,19 +1,20 @@
-﻿using Couchbase;
-using Couchbase.Configuration.Client;
-using Couchbase.Configuration.Client.Providers;
-using Couchbase.Core.Serialization;
-using Couchbase.Core.Transcoders;
-using CouchBaseExtensions;
-using KLogMonitor;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Configuration;
-using System.Reflection;
+using System.Data.Linq;
 using System.Text;
 using System.Threading;
+using System.Configuration;
+using KLogMonitor;
+using System.Reflection;
+using Couchbase;
+using Couchbase.Configuration;
+using Couchbase.Configuration.Client.Providers;
+using Couchbase.Configuration.Client;
+using Couchbase.Core.Serialization;
+using Couchbase.Core.Transcoders;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using CouchBaseExtensions;
 
 namespace CouchbaseManager
 {
@@ -37,8 +38,8 @@ namespace CouchbaseManager
     {
         #region Consts
 
-        public const string COUCHBASE_CONFIG = "couchbaseClients/Couchbase";
-        public const string COUCHBASE_APP_CONFIG = "CouchbaseSectionMapping";
+        //public const string COUCHBASE_CONFIG = "couchbaseClients/couchbase";
+        public const string COUCHBASE_CONFIG = "couchbaseClients/";
         private const string TCM_KEY_FORMAT = "cb_{0}.{1}";
         private const double GET_LOCK_TS_SECONDS = 5;
 
@@ -100,29 +101,50 @@ namespace CouchbaseManager
         {
         }
 
-        public CouchbaseManager(eCouchbaseBucket bucket, bool fromTcm = true, bool useApplicationSettingMapping = false) :
-            this(bucket.ToString(), fromTcm, useApplicationSettingMapping)
-        {
-        }
-
         /// <summary>
         /// Initializes a CouchbaseManager instance with configuration in web.config or TCM, according to dynamic bucket section
         /// </summary>
         /// <param name="bucket"></param>
-        public CouchbaseManager(string subSection, bool fromTcm = true, bool useApplicationSettingMapping = false)
+        public CouchbaseManager(string subSection, bool fromTcm = false)
         {
             subSection = subSection.ToLower();
 
-            ClusterHelper.Initialize(COUCHBASE_CONFIG);
-            this.clientConfiguration = new ClientConfiguration((CouchbaseClientSection)ConfigurationManager.GetSection(COUCHBASE_CONFIG));
-
-            if (fromTcm)
+            if (!fromTcm)
             {
-                bucketName = GetBucketName(subSection);
+                this.configurationSection = string.Format("{0}{1}", COUCHBASE_CONFIG, subSection);
+                bucketName = GetBucketName(configurationSection);
             }
-            else if (useApplicationSettingMapping)
+            else
             {
-                bucketName = GetBucketNameFromSettings(subSection);
+                var urls = TCMClient.Settings.Instance.GetValue<List<string>>(String.Format(TCM_KEY_FORMAT, subSection, "urls"));
+
+                if (urls != null)
+                {
+                    string userName = TCMClient.Settings.Instance.GetValue<string>(String.Format(TCM_KEY_FORMAT, subSection, "username"));
+                    string password = TCMClient.Settings.Instance.GetValue<string>(String.Format(TCM_KEY_FORMAT, subSection, "password"));
+                    this.bucketName = TCMClient.Settings.Instance.GetValue<string>(String.Format(TCM_KEY_FORMAT, subSection, "bucket"));
+
+                    // Convert list of URLs to list of Uris
+                    List<Uri> uris = new List<Uri>();
+                    urls.ForEach(current => uris.Add(new Uri(current)));
+
+                    this.clientConfiguration = new ClientConfiguration()
+                    {
+                        BucketConfigs = new Dictionary<string, BucketConfiguration>()
+                        {
+                            { 
+                                this.bucketName, 
+                                new BucketConfiguration()
+                                    {
+                                        Username = userName,
+                                        Password = password,
+                                        Servers = uris,
+                                        BucketName = this.bucketName
+                                    }
+                            }
+                        }
+                    };
+                }
             }
 
             this.clientConfiguration.Transcoder = GetTranscoder;
@@ -150,59 +172,19 @@ namespace CouchbaseManager
             return transcoder;
         }
 
-        /// <summary>
-        /// Retrieve  bucketName from web.config or app.conifg. in case no TCM application. 
-        ///  configSections should be added to  web.config or app.conifg 
-        ///  Sample:
-        ///  <configSections>
-        ///  <section name="CouchbaseSectionMapping" type="System.Configuration.NameValueFileSectionHandler,System, Version=1.0.3300.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-        ///  </configSections>
-        ///  <CouchbaseSectionMapping><add key="authorization" value="crowdsource" /> </CouchbaseSectionMapping>
-        /// </summary>
-        /// <param name="subSection">key</param>
-        /// <returns>value</returns>
-        private string GetBucketNameFromSettings(string subSection)
+        private string GetBucketName(string configurationSection)
         {
             string bucketName = string.Empty;
-            try
-            {
-                NameValueCollection section = (NameValueCollection)ConfigurationManager.GetSection(COUCHBASE_APP_CONFIG);
-                if (section != null)
-                {
-                    bucketName = section[subSection];
-                    if (string.IsNullOrEmpty(bucketName))
-                        log.ErrorFormat("Error getting bucketName for couchbaseBucket:{0}. Not exist", subSection);
-                }
-                else
-                    log.ErrorFormat("Error getting bucketName for couchbaseBucket:{0}. CouchbaseSectionMapping is empty.", subSection);
-            }
-            catch (Exception exc)
-            {
-                log.ErrorFormat("Error getting bucketName for couchbaseBucket:{0}. Exception:{1}", subSection, exc);
-            }
 
-            return bucketName;
-        }
+            var section = (CouchbaseClientSection)ConfigurationManager.GetSection(configurationSection);
+            this.clientConfiguration = new ClientConfiguration(section);
 
-        private string GetBucketName(string couchbaseBucket)
-        {
-            string bucketName = string.Empty;
-            try
+            // Should be only one!
+            foreach (var currentBucket in this.clientConfiguration.BucketConfigs)
             {
-                Dictionary<string, string> couchbaseBucketWithBucketNameDic = TCMClient.Settings.Instance.GetValue<Dictionary<string, string>>("CouchbaseSectionMapping");
-                if (couchbaseBucketWithBucketNameDic != null)
-                {
-                    if (couchbaseBucketWithBucketNameDic.ContainsKey(couchbaseBucket.ToLower()))
-                        bucketName = couchbaseBucketWithBucketNameDic[couchbaseBucket.ToLower()];
-                    else
-                        log.ErrorFormat("Error getting bucketName for couchbaseBucket:{0}. Not exist", couchbaseBucket);
-                }
-                else
-                    log.ErrorFormat("Error getting bucketName for couchbaseBucket:{0}. CouchbaseSectionMapping is empty.", couchbaseBucket);
-            }
-            catch (Exception exc)
-            {
-                log.ErrorFormat("Error getting bucketName for couchbaseBucket:{0}. Exception:{1}", couchbaseBucket, exc);
+                
+                bucketName = currentBucket.Value.BucketName;
+                break;
             }
 
             return bucketName;

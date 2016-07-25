@@ -18989,7 +18989,7 @@ namespace ConditionalAccess
                 if (epgs != null && epgs.Count > 0) // epg related to series and season
                 {
                     // check if this epg already in DB 
-                    DataTable dt = RecordingsDAL.GetDomainExistingRecordingsByEpdIgs(m_nGroupID, domainId, new List<long>() { epgId });
+                    DataTable dt = RecordingsDAL.GetDomainExistingRecordingsByEpgIds(m_nGroupID, domainId, new List<long>() { epgId });
                     if (dt != null && dt.Rows != null)                    
                     {
                         foreach (DataRow dr in dt.Rows)

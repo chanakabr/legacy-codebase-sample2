@@ -185,9 +185,9 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static DataTable GetDomainExistingRecordingsByEpdIgs(int groupID, long domainID, List<long> epgIds)
+        public static DataTable GetDomainExistingRecordingsByEpgIds(int groupID, long domainID, List<long> epgIds)
         {
-            ODBCWrapper.StoredProcedure spGetDomainExistingRecordingID = new ODBCWrapper.StoredProcedure("GetDomainExistingRecordingsByEpdIgs");
+            ODBCWrapper.StoredProcedure spGetDomainExistingRecordingID = new ODBCWrapper.StoredProcedure("GetDomainExistingRecordingsByEpgIds");
             spGetDomainExistingRecordingID.SetConnectionKey(RECORDING_CONNECTION);
             spGetDomainExistingRecordingID.AddParameter("@GroupID", groupID);
             spGetDomainExistingRecordingID.AddParameter("@DomainID", domainID);
