@@ -697,8 +697,9 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Retrieve the user’s lists 
         /// </summary>
+        /// <param name="filter">Filtering OttUser request</param>
         /// <remarks>Possible status codes: 
-        /// Invalid user = 1026</remarks>
+        /// UserDoesNotExist = 2</remarks>
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]

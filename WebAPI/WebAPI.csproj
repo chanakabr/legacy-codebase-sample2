@@ -2235,6 +2235,7 @@
     <Compile Include="Controllers\AnnouncementController.cs" />
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
+    <Compile Include="Controllers\AssetFileController.cs" />
     <Compile Include="Controllers\CDNAdapterProfileController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
     <Compile Include="Controllers\CDNPartnerSettingsController.cs" />
@@ -2337,6 +2338,7 @@
     <Compile Include="Models\Catalog\KalturaAssetFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAsset.cs" />
     <Compile Include="Models\Catalog\KalturaAssetOrderBy.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaAssetFileContext.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaSeriesRecording.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaSeriesRecordingFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaSeriesRecordingListResponse.cs" />

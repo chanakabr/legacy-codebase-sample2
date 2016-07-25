@@ -258,6 +258,15 @@
             BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, 
             RecommendationEngineNotExist = 4007, ExternalChannelNotExist = 4011</remarks>
         </member>
+        <member name="M:WebAPI.Controllers.AssetFileController.GetContext(System.String,System.Boolean,System.String)">
+            <summary>
+            get KalturaAssetFileContext
+            </summary>
+            <param name="id">Asset file identifier</param>                
+            <param name="isCoGuid">isCoGuid true/false</param>     
+            <param name="countryCode">countryCode</param>
+            <remarks></remarks>
+        </member>
         <member name="M:WebAPI.Controllers.CdnAdapterProfileController.List">
             <summary>
             Returns all CDN adapters for partner
@@ -529,9 +538,8 @@
             <param name="seriesRecording">SeriesRecording Object</param>
             <returns></returns>
             <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-            UserWithNoDomain = 2024, ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034,
-            ProgramCdvrNotEnabled = 3035, ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3038,
-            ExceededQuota = 3042, AccountSeriesRecordingNotEnabled = 3046, AlreadyRecordedAsSeriesOrSeason = 3047, InvalidAssetId = 4024</remarks>
+            UserWithNoDomain = 2024, ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, ProgramCdvrNotEnabled = 3035,
+            AccountSeriesRecordingNotEnabled = 3046, InvalidAssetId = 4024</remarks>
         </member>
         <member name="M:WebAPI.Controllers.SystemController.GetCountry(System.String)">
             <summary>
@@ -790,7 +798,7 @@
             <summary>
             Registers the device push token to the push service
             </summary>
-            <param name="push_token">The device-application pair authentication for push delivery</param>
+            <param name="pushToken">The device-application pair authentication for push delivery</param>
             <remarks>
             
             </remarks>
@@ -3106,6 +3114,11 @@
         <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.TrickPlayBuffer">
             <summary>
             Trick-play buffer
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.Duration">
+            <summary>
+            duration
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaSeriesRecording.Id">
@@ -14382,8 +14395,9 @@
             <summary>
             Retrieve the user’s lists 
             </summary>
+            <param name="filter">Filtering OttUser request</param>
             <remarks>Possible status codes: 
-            Invalid user = 1026</remarks>
+            UserDoesNotExist = 2</remarks>
             <returns></returns>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetInfoListResponse">

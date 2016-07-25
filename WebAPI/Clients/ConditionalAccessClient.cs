@@ -1758,6 +1758,43 @@ namespace WebAPI.Clients
 
             return recording;
         }
+
+        internal KalturaAssetFileContext GetAssetFileContext(int groupId, string userID, string fileId, string udid, string language, bool isCoGuid, string countryCode)
+        {
+            KalturaAssetFileContext kalturaResponse = null;
+            string response = null;
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = ConditionalAccess.GetItemLeftViewLifeCycle(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, fileId.ToString(),
+                        userID, isCoGuid, countryCode, language, udid);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+            // convert response          
+            kalturaResponse = new KalturaAssetFileContext()
+                {
+                    Duration = response
+                };
+
+            return kalturaResponse;
+        }
     }
 }
 
