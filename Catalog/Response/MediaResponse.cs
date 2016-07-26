@@ -76,6 +76,10 @@ namespace Catalog.Response
         public long CatchUpBuffer;
         [DataMember]
         public long TrickPlayBuffer;
+        [DataMember]
+        public bool EnableRecordingPlaybackNonEntitledChannel;
+        [DataMember]
+        public bool EnableRecordingPlaybackNonExistingChannel;
 
         public MediaObj()
             : base()
@@ -86,6 +90,8 @@ namespace Catalog.Response
             EnableTrickPlay = false;
             CatchUpBuffer = 0;
             TrickPlayBuffer = 0;
+            EnableRecordingPlaybackNonEntitledChannel = false;
+            EnableRecordingPlaybackNonExistingChannel = false;
         }
     }
 

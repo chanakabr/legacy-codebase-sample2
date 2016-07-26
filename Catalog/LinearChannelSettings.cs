@@ -21,5 +21,9 @@ namespace Catalog
         public long CatchUpBuffer;
      
         public long TrickPlayBuffer;
+
+        public bool EnableRecordingPlaybackNonEntitledChannel;
+
+        public bool EnableRecordingPlaybackNonExistingChannel;
     }
 }

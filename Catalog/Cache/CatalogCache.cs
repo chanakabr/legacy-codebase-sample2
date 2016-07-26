@@ -367,6 +367,22 @@ namespace Catalog.Cache
              }
              linearChannelSettings.TrickPlayBuffer = buffer;
 
+             enable = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "enable_recording_playback_non_entitled"); // account
+             enableChannel = ODBCWrapper.Utils.GetIntSafeVal(drChannel, "enable_recording_playback_non_entitled"); // channel settings
+             if (enable == 1 && enableChannel == 2)
+             {
+                 enable = enableChannel;
+             }
+             linearChannelSettings.EnableRecordingPlaybackNonEntitledChannel = enable == 1 ? true : false;
+
+             enable = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "enable_recording_playback_non_existing"); // account
+             enableChannel = ODBCWrapper.Utils.GetIntSafeVal(drChannel, "enable_recording_playback_non_existing"); // channel settings
+             if (enable == 1 && enableChannel == 2)
+             {
+                 enable = enableChannel;
+             }
+             linearChannelSettings.EnableRecordingPlaybackNonExistingChannel = enable == 1 ? true : false;
+            
              linearChannelSettings.ChannelID = ODBCWrapper.Utils.GetSafeStr(drChannel, "ID"); 
              return linearChannelSettings;
          }

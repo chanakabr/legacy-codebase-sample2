@@ -4183,13 +4183,6 @@ namespace ConditionalAccess
             TimeShiftedTvPartnerSettings settings = null;
             try
             {
-
-                //if (!TvinciCache.WSCache.Instance.TryGet(key, out settings))
-                //{
-                //    lock (lck)
-                //    {                        
-                //        if (!TvinciCache.WSCache.Instance.TryGet(key, out settings))
-                //        {
                 log.Debug("Getting TSTV Settings from DB");
                 DataRow dr = DAL.ApiDAL.GetTimeShiftedTvPartnerSettings(groupID);
                 if (dr != null)
@@ -4210,21 +4203,18 @@ namespace ConditionalAccess
                     int recordingLifetimePeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "recording_lifetime_period", 182);
                     int cleanupNoticePeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "cleanup_notice_period", 7);
                     int enableSeriesRecording = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_series_recording", 0);
+                    int recordingPlaybackNonEntitledChannel = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_playback_non_entitled", 0);
+                    int recordingPlaybackNonExistingChannel = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_playback_non_existing", 0);
+
                     if (recordingScheduleWindow > -1)
                     {
                         settings = new TimeShiftedTvPartnerSettings(catchup == 1, cdvr == 1, startOver == 1, trickPlay == 1, recordingScheduleWindow == 1, catchUpBuffer,
                                                                     trickPlayBuffer, recordingScheduleWindowBuffer, paddingAfterProgramEnds, paddingBeforeProgramStarts,
-                                                                    protection == 1, protectionPeriod, protectionQuotaPercentage, recordingLifetimePeriod, cleanupNoticePeriod, enableSeriesRecording == 1);
+                                                                    protection == 1, protectionPeriod, protectionQuotaPercentage, recordingLifetimePeriod, cleanupNoticePeriod, enableSeriesRecording == 1,
+                                                                    recordingPlaybackNonEntitledChannel == 1, recordingPlaybackNonExistingChannel == 1);
                         TvinciCache.WSCache.Instance.Add(key, settings);
                     }
                 }
-                //        }
-                //    }
-                //}
-                //else if (settings == null)
-                //{
-                //    log.Error("TSTV settings is null");
-                //}
                 log.DebugFormat("current TSTV settings values are: {0}", settings != null ? settings.ToString() : "null");
             }
 

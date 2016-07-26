@@ -3427,8 +3427,11 @@ namespace DAL
                 {
                     settings.IsSeriesRecordingEnabled = true;
                 }
-                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@AllowSeriesRecording", settings.IsSeriesRecordingEnabled);                
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@AllowSeriesRecording", settings.IsSeriesRecordingEnabled);
 
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@AllowRecordingPlaybackNonEntitled", settings.IsRecordingPlaybackNonEntitledChannelEnabled);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@AllowRecordingPlaybackNonExisting", settings.IsRecordingPlaybackNonExistingChannelEnabled);
+       
                 isUpdated = spUpdateTimeShiftedTvPartnerSettings.ExecuteReturnValue<bool>();
             }
 

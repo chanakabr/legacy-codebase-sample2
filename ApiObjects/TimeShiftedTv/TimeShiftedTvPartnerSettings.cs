@@ -25,6 +25,8 @@ namespace ApiObjects.TimeShiftedTv
         public int? RecordingLifetimePeriod { get; set; }
         public int? CleanupNoticePeroid { get; set; }
         public bool? IsSeriesRecordingEnabled { get; set; }
+        public bool? IsRecordingPlaybackNonEntitledChannelEnabled { get; set; }
+        public bool? IsRecordingPlaybackNonExistingChannelEnabled { get; set; }
 
         public TimeShiftedTvPartnerSettings()
         {
@@ -32,7 +34,8 @@ namespace ApiObjects.TimeShiftedTv
 
         public TimeShiftedTvPartnerSettings(bool? isCatchUpEnabled, bool? isCdvrEnabled, bool? isStartOverEnabled, bool? isTrickPlayEnabled, bool? isRecordingScheduleWindowEnabled,
             long? catchUpBufferLength, long? trickPlayBufferLength, long? recordingScheduleWindowBuffer, long? paddingAfterProgramEnds, long? paddingBeforeProgramStarts,
-            bool? isProtectionEnabled, int? protectionPeriod, int? protectionQuotaPercentage, int? recordingLifetimePeroid, int? cleanupNoticePeroid, bool? isSeriesRecordingEnabled)
+            bool? isProtectionEnabled, int? protectionPeriod, int? protectionQuotaPercentage, int? recordingLifetimePeroid, int? cleanupNoticePeroid, bool? isSeriesRecordingEnabled,
+            bool? isRecordingPlaybackNonEntitledEnabled, bool? isRecordingPlaybackNonExistingEnabled)
         {
             this.IsCatchUpEnabled = isCatchUpEnabled;
             this.IsCdvrEnabled = isCdvrEnabled;
@@ -50,6 +53,8 @@ namespace ApiObjects.TimeShiftedTv
             this.RecordingLifetimePeriod = recordingLifetimePeroid;
             this.CleanupNoticePeroid = cleanupNoticePeroid;
             this.IsSeriesRecordingEnabled = isSeriesRecordingEnabled;
+            this.IsRecordingPlaybackNonEntitledChannelEnabled = isRecordingPlaybackNonEntitledEnabled;
+            this.IsRecordingPlaybackNonExistingChannelEnabled = isRecordingPlaybackNonExistingEnabled;
         }
 
         public override string ToString()
@@ -71,6 +76,8 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("RecordingLifetimePeroid: {0}, ", RecordingLifetimePeriod.HasValue ? RecordingLifetimePeriod.Value.ToString() : "Null"));
             sb.Append(string.Format("CleanupNoticePeroid: {0}, ", CleanupNoticePeroid.HasValue ? CleanupNoticePeroid.Value.ToString() : "Null"));
             sb.Append(string.Format("IsSeriesRecordingEnabled: {0}, ", IsSeriesRecordingEnabled.HasValue ? IsSeriesRecordingEnabled.Value.ToString() : "Null"));
+            sb.Append(string.Format("IsRecordingPlaybackEnabled: {0}, ", IsRecordingPlaybackNonEntitledChannelEnabled.HasValue ? IsRecordingPlaybackNonEntitledChannelEnabled.Value.ToString() : "Null"));
+            sb.Append(string.Format("IsRecordingPlaybackEnabled: {0}, ", IsRecordingPlaybackNonExistingChannelEnabled.HasValue ? IsRecordingPlaybackNonExistingChannelEnabled.Value.ToString() : "Null"));
                         
             return sb.ToString();
         }

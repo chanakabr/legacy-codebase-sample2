@@ -378,10 +378,11 @@ namespace Catalog
                                 oMediaObj.EnableStartOver = linearChannelSettings[oMediaObj.m_ExternalIDs].EnableStartOver;
                                 oMediaObj.EnableTrickPlay = linearChannelSettings[oMediaObj.m_ExternalIDs].EnableTrickPlay;
                                 oMediaObj.CatchUpBuffer = linearChannelSettings[oMediaObj.m_ExternalIDs].CatchUpBuffer;
-                                oMediaObj.TrickPlayBuffer = linearChannelSettings[oMediaObj.m_ExternalIDs].TrickPlayBuffer;   
+                                oMediaObj.TrickPlayBuffer = linearChannelSettings[oMediaObj.m_ExternalIDs].TrickPlayBuffer;
+                                oMediaObj.EnableRecordingPlaybackNonEntitledChannel = linearChannelSettings[oMediaObj.m_ExternalIDs].EnableRecordingPlaybackNonEntitledChannel;
+                                oMediaObj.EnableRecordingPlaybackNonExistingChannel = linearChannelSettings[oMediaObj.m_ExternalIDs].EnableRecordingPlaybackNonExistingChannel;
                             }
                         }
-
 
                         /*last watched - By SiteGuid <> 0*/
 
