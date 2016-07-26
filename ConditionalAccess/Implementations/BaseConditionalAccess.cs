@@ -17096,7 +17096,7 @@ namespace ConditionalAccess
             {
                 long domainID = 0;
 
-                recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID, true, recordingType);
+                recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID, recordingType == RecordingType.Single, true);
                 if (recordingResponse.Status.Code != (int)eResponseStatus.OK || recordingResponse.TotalItems == 0)
                 {
                     log.DebugFormat("RecordingResponse status not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
@@ -17259,7 +17259,7 @@ namespace ConditionalAccess
             return recording;
         }
 
-        public RecordingResponse QueryRecords(string userID, List<long> epgIDs, ref long domainID, bool isAggregative, RecordingType recordingType = RecordingType.Single)
+        public RecordingResponse QueryRecords(string userID, List<long> epgIDs, ref long domainID, bool isSingleRecording, bool shouldCheckCatchup)
         {
             RecordingResponse response = new RecordingResponse();
             try
@@ -17289,7 +17289,7 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                if ((recordingType == RecordingType.Series || recordingType == RecordingType.Season) && (!accountSettings.IsSeriesRecordingEnabled.HasValue || !accountSettings.IsSeriesRecordingEnabled.Value))
+                if (!isSingleRecording && (!accountSettings.IsSeriesRecordingEnabled.HasValue || !accountSettings.IsSeriesRecordingEnabled.Value))
                 {
                     log.DebugFormat("account series recordings not enabled, DomainID: {0}, UserID: {1}", domainID, userID);
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AccountSeriesRecordingNotEnabled, eResponseStatus.AccountSeriesRecordingNotEnabled.ToString());
@@ -17317,15 +17317,15 @@ namespace ConditionalAccess
                 // check if Epgs are valid for recording - CDVR enabled and Catch-Up enabled if needed
                 foreach (EPGChannelProgrammeObject epg in epgs)
                 {
-                    Recording recording = Utils.ValidateEpgForRecord(accountSettings, epg, recordingType);
+                    Recording recording = Utils.ValidateEpgForRecord(accountSettings, epg, shouldCheckCatchup);
                     if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK)
                     {
-                        if (recordingType == RecordingType.Single)
+                        if (isSingleRecording)
                         {
                             Dictionary<string, string> epgFieldMappings = null;
-                            if (!Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, recordingType, out epgFieldMappings) || epgFieldMappings == null || epgFieldMappings.Count == 0)
+                            if (!Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, RecordingType.Single, out epgFieldMappings) || epgFieldMappings == null || epgFieldMappings.Count == 0)
                             {
-                                log.ErrorFormat("failed GetEpgFieldTypeEntitys, groupId: {0}, epgId: {1}, recordingType: {2}", m_nGroupID, epg.EPG_ID, recordingType.ToString());
+                                log.ErrorFormat("failed GetEpgFieldTypeEntitys, groupId: {0}, epgId: {1}, isSingleRecording: {2}", m_nGroupID, epg.EPG_ID, isSingleRecording);
                                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                                 return response;
                             }
@@ -17333,9 +17333,9 @@ namespace ConditionalAccess
                             {
                                 string seriesId = epgFieldMappings[Utils.SERIES_ID];
                                 int seasonNumber = 0;
-                                if (epgFieldMappings.ContainsKey(Utils.SEASON_NUMBER) && !int.TryParse(epgFieldMappings[Utils.SEASON_NUMBER], out seasonNumber) && recordingType == RecordingType.Season)
+                                if (epgFieldMappings.ContainsKey(Utils.SEASON_NUMBER) && !int.TryParse(epgFieldMappings[Utils.SEASON_NUMBER], out seasonNumber))
                                 {
-                                    log.ErrorFormat("failed parsing SEASON_NUMBER, groupId: {0}, epgId: {1}, recordingType: {2}", m_nGroupID, epg.EPG_ID, recordingType.ToString());
+                                    log.ErrorFormat("failed parsing SEASON_NUMBER, groupId: {0}, epgId: {1}, isSingleRecording: {2}", m_nGroupID, epg.EPG_ID, isSingleRecording);
                                     recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                                     response.Recordings.Add(recording);
                                 }
@@ -17367,7 +17367,7 @@ namespace ConditionalAccess
                 ValidateEpgForRecording(userID, domainID, ref response, epgs, validEpgsForRecording);
 
                 // if the recording is of type Single then quota should be checked for each valid recording
-                if (recordingType == RecordingType.Single)
+                if (isSingleRecording)
                 {
                     int totalSeconds = QuotaManager.Instance.GetDomainQuota(this.m_nGroupID, domainID);
                     foreach (Recording recording in response.Recordings.Where(x => x.Status != null && x.Status.Code == (int)eResponseStatus.OK && x.RecordingStatus == TstvRecordingStatus.OK))
@@ -18775,8 +18775,7 @@ namespace ConditionalAccess
             {
                 TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
                 DateTime? windowStartDate = null;
-                if (accountSettings.IsRecordingScheduleWindowEnabled.HasValue && accountSettings.IsRecordingScheduleWindowEnabled.Value
-                    && accountSettings.RecordingScheduleWindow.HasValue && accountSettings.RecordingScheduleWindow.Value > 0)
+                if (accountSettings.IsRecordingScheduleWindowEnabled.HasValue && accountSettings.IsRecordingScheduleWindowEnabled.Value && accountSettings.RecordingScheduleWindow.HasValue)
                 {
                     windowStartDate = DateTime.UtcNow.AddMinutes(-accountSettings.RecordingScheduleWindow.Value);
                 }
@@ -19170,7 +19169,7 @@ namespace ConditionalAccess
             {
                 long domainID = 0;
 
-                recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID, true, recordingType);
+                recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID, false, false);
                 if (recordingResponse.Status.Code != (int)eResponseStatus.OK || recordingResponse.TotalItems == 0)
                 {
                     log.DebugFormat("RecordingResponse status not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, seriesRecording.ToString());

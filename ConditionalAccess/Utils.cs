@@ -4606,7 +4606,7 @@ namespace ConditionalAccess
             return result;
         }
 
-        internal static Recording ValidateEpgForRecord(TimeShiftedTvPartnerSettings accountSettings, EPGChannelProgrammeObject epg, RecordingType recordingType)
+        internal static Recording ValidateEpgForRecord(TimeShiftedTvPartnerSettings accountSettings, EPGChannelProgrammeObject epg, bool shouldCheckCatchUp)
         {
             Recording response = new Recording() { EpgId = epg.EPG_ID, Crid = epg.CRID, Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()) };
             try
@@ -4617,7 +4617,7 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                if (recordingType == RecordingType.Single)
+                if (shouldCheckCatchUp)
                 {
                     DateTime epgStartDate;
                     if (!DateTime.TryParseExact(epg.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgStartDate))
