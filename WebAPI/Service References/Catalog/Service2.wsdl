@@ -12,11 +12,11 @@
       <xsd:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd7" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" />
       <xsd:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd8" namespace="http://schemas.datacontract.org/2004/07/Catalog.Response" />
       <xsd:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd9" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Epg" />
-      <xsd:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd10" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Statistics" />
-      <xsd:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd11" namespace="http://schemas.datacontract.org/2004/07/GroupsCacheManager" />
-      <xsd:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd12" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" />
-      <xsd:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd13" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems" />
-      <xsd:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd14" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Implementations" />
+      <xsd:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd10" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" />
+      <xsd:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd11" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems" />
+      <xsd:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd12" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Implementations" />
+      <xsd:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd13" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Statistics" />
+      <xsd:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd14" namespace="http://schemas.datacontract.org/2004/07/GroupsCacheManager" />
       <xsd:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd15" namespace="http://schemas.datacontract.org/2004/07/Catalog.ws_users" />
       <xsd:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd16" namespace="http://schemas.datacontract.org/2004/07/System.Collections.Generic" />
     </xsd:schema>

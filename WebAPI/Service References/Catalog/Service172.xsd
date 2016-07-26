@@ -19,13 +19,6 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="IngestAssetStatus" nillable="true" type="tns:IngestAssetStatus" />
-  <xs:simpleType name="StatsType">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="MEDIA" />
-      <xs:enumeration value="EPG" />
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:element name="StatsType" nillable="true" type="tns:StatsType" />
   <xs:simpleType name="eAssetTypes">
     <xs:restriction base="xs:string">
       <xs:enumeration value="UNKNOWN">
@@ -66,6 +59,13 @@
     </xs:restriction>
   </xs:simpleType>
   <xs:element name="EpgSearchType" nillable="true" type="tns:EpgSearchType" />
+  <xs:simpleType name="StatsType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="MEDIA" />
+      <xs:enumeration value="EPG" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="StatsType" nillable="true" type="tns:StatsType" />
   <xs:simpleType name="Language">
     <xs:restriction base="xs:string">
       <xs:enumeration value="English" />

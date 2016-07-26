@@ -183,5 +183,22 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "trickPlayBuffer")]
         [XmlElement(ElementName = "trickPlayBuffer")]
         public long? TrickPlayBuffer { get; set; }
+
+        /// <summary>
+        /// Enable Recording playback for non entitled channel
+        /// </summary>
+        [DataMember(Name = "enableRecordingPlaybackNonEntitledChannel")]
+        [JsonProperty(PropertyName = "enableRecordingPlaybackNonEntitledChannel")]
+        [XmlElement(ElementName = "enableRecordingPlaybackNonEntitledChannel")]
+        public bool? EnableRecordingPlaybackNonEntitledChannel { get; set; }
+
+                /// <summary>
+        /// Enable Recording playback for non existing channel
+        /// </summary>
+        [DataMember(Name = "enableRecordingPlaybackNonExistingChannel")]
+        [JsonProperty(PropertyName = "enableRecordingPlaybackNonExistingChannel")]
+        [XmlElement(ElementName = "enableRecordingPlaybackNonExistingChannel")]
+        public bool? EnableRecordingPlaybackNonExistingChannel { get; set; }
+        
     }
 }
