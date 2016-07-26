@@ -18778,7 +18778,7 @@ namespace ConditionalAccess
                 if (accountSettings.IsRecordingScheduleWindowEnabled.HasValue && accountSettings.IsRecordingScheduleWindowEnabled.Value
                     && accountSettings.RecordingScheduleWindow.HasValue && accountSettings.RecordingScheduleWindow.Value > 0)
                 {
-                    windowStartDate = DateTime.UtcNow.AddMinutes(accountSettings.RecordingScheduleWindow.Value);
+                    windowStartDate = DateTime.UtcNow.AddMinutes(-accountSettings.RecordingScheduleWindow.Value);
                 }
 
                 List<ConditionalAccess.WS_Catalog.ExtendedSearchResult> epgsToRecord = Utils.GetFirstFollowerEpgIdsToRecord(m_nGroupID, channelId, seriesId, seasonNumber, windowStartDate);
