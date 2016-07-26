@@ -284,6 +284,14 @@ public partial class adm_epg_channels_new : System.Web.UI.Page
         dr_cdvr_id.Initialize("Cdvr ID", "adm_table_header_nbg", "FormInput", "CDVR_ID", false);
         theRecord.AddRecord(dr_cdvr_id);
 
+        DataRecordDropDownField dr_enableRecordingPlaybackNonEntitled = new DataRecordDropDownField("lu_epg_field_enable", "DESCRIPTION", "id", "", null, 60, false);
+        dr_enableRecordingPlaybackNonEntitled.Initialize("Enable Recording Playback (for non-entitled channel)", "adm_table_header_nbg", "FormInput", "enable_recording_playback_non_entitled", false);
+        theRecord.AddRecord(dr_enableRecordingPlaybackNonEntitled);
+
+        DataRecordDropDownField dr_enableRecordingPlaybackNonExisting = new DataRecordDropDownField("lu_epg_field_enable", "DESCRIPTION", "id", "", null, 60, false);
+        dr_enableRecordingPlaybackNonExisting.Initialize("Enable Recording Playback (for non-entitled channel)", "adm_table_header_nbg", "FormInput", "enable_recording_playback_non_existing", false);
+        theRecord.AddRecord(dr_enableRecordingPlaybackNonExisting);
+
         string sTable = theRecord.GetTableHTML("adm_epg_channels_new.aspx?submited=1");
 
         return sTable;

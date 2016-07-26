@@ -214,6 +214,16 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
         dr_seriesRecording.SetDefault(1);
         theRecord.AddRecord(dr_seriesRecording);
 
+        DataRecordCheckBoxField dr_enableRecordingPlaybackNonEntitled  = new DataRecordCheckBoxField(true);
+        dr_enableRecordingPlaybackNonEntitled.Initialize("Enable Recording Playback (for non-entitled channel) ", "adm_table_header_nbg", "FormInput", "enable_recording_playback_non_entitled", false);
+        dr_enableRecordingPlaybackNonEntitled.SetDefault(0);
+        theRecord.AddRecord(dr_enableRecordingPlaybackNonEntitled);
+
+        DataRecordCheckBoxField dr_enableRecordingPlaybackNonExisting = new DataRecordCheckBoxField(true);
+        dr_enableRecordingPlaybackNonExisting.Initialize("Enable Recording Playback (for non-existing  channel) ", "adm_table_header_nbg", "FormInput", "enable_recording_playback_non_existing", false);
+        dr_enableRecordingPlaybackNonExisting.SetDefault(0);
+        theRecord.AddRecord(dr_enableRecordingPlaybackNonExisting);
+
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
         dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
