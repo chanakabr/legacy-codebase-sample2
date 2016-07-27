@@ -76,6 +76,23 @@ namespace WebAPI.Controllers
                         }
                         break;
                     case KalturaAssetType.recording:
+                        {
+                            if (!startDate.HasValue)
+                            {
+                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "start_date cannot be null for recording");
+                            }
+                            if (string.IsNullOrEmpty(assetId))
+                            {
+                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id cannot be empty for recording");
+                            }
+                            int recordingId;
+                            if (!int.TryParse(assetId, out recordingId))
+                            {
+                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id must be numeric for recording");
+                            }
+                            response = ClientsManager.ConditionalAccessClient().GetRecordingLicensedLink(groupId, userId, udid, recordingId, startDate.Value);
+                        }
+                        break;
                         throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Not implemented");
                     default:
                         throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Not implemented");

@@ -1032,6 +1032,46 @@ namespace WebAPI.Clients
             return urls;
         }
 
+        internal KalturaLicensedUrl GetRecordingLicensedLink(int groupId, string userId, string udid, int recordingId, long startDate)
+        {
+            WebAPI.ConditionalAccess.LicensedLinkResponse response = null;
+            KalturaLicensedUrl urls = null;
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                DateTime startTime = Utils.SerializationUtils.ConvertFromUnixTimestamp(startDate);
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = ConditionalAccess.GetRecordingLicensedLink(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password,
+                        userId, recordingId, startTime,udid, Utils.Utils.GetClientIP());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            urls = Mapper.Map<KalturaLicensedUrl>(response);
+
+            return urls;
+        }
+
         internal List<KalturaCDVRAdapterProfile> GetCDVRAdapters(int groupId)
         {
             List<KalturaCDVRAdapterProfile> adapters = new List<KalturaCDVRAdapterProfile>();
