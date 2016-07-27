@@ -699,20 +699,21 @@ namespace DAL
             return "recordings_cleanup";
         }
 
-        public static string GetScheduledTaksKeyByName(string scheduleTaskName)
+        public static string GetScheduledTaksKeyByName(ApiObjects.ScheduledTaskName scheduledTaskName)
         {
             string key = string.Empty;
-            switch (scheduleTaskName)
+            switch (scheduledTaskName)
             {
-                case "recordingsLifetime":
+                case ApiObjects.ScheduledTaskName.recordingsLifetime:
                     key = "recordings_lifetime";
                     break;
-                case "recordingsScheduledTasks":
+                case ApiObjects.ScheduledTaskName.recordingsScheduledTasks:
                     key = "recordings_scheduledTasks";
                     break;
                 default:
                     break;
             }
+
             return key;
         }
 

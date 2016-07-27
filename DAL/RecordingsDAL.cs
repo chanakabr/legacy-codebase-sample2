@@ -772,14 +772,14 @@ namespace DAL
             return response;
         }
 
-        public static ScheduledTaskLastRunResponse GetLastScheduleTaksSuccessfulRunDetails(string scheduleTaskName)
+        public static ScheduledTaskLastRunResponse GetLastScheduleTaksSuccessfulRunDetails(ScheduledTaskName scheduledTaskName)
         {
             ScheduledTaskLastRunResponse response = null;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
             Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
-            string scheduledTaksKey = UtilsDal.GetScheduledTaksKeyByName(scheduleTaskName);
+            string scheduledTaksKey = UtilsDal.GetScheduledTaksKeyByName(scheduledTaskName);
             if (string.IsNullOrEmpty(scheduledTaksKey))
             {
                 response = new ScheduledTaskLastRunResponse() { Status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, "Failed UtilsDal.GetScheduledTaksKeyByName") };
@@ -794,17 +794,17 @@ namespace DAL
                     if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
                     {
                         response = new ScheduledTaskLastRunResponse() { Status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, "CouchBase KeyNotFound") };
-                        log.ErrorFormat("Error while trying to get last successful scheduled task run date, scheduleTaskName: {0}, key: {1}", scheduleTaskName, scheduledTaksKey);
+                        log.ErrorFormat("Error while trying to get last successful scheduled task run date, scheduleTaskName: {0}, key: {1}", scheduledTaksKey, scheduledTaksKey);
                         break;
                     }
                     else if (getResult == Couchbase.IO.ResponseStatus.Success)
                     {
-                        log.DebugFormat("ScheduledTaskLastRunResponse with scheduleTaskName: {0} and key {1} was found with value {2}", scheduleTaskName, scheduledTaksKey, response.ToString());
+                        log.DebugFormat("ScheduledTaskLastRunResponse with scheduleTaskName: {0} and key {1} was found with value {2}", scheduledTaksKey, scheduledTaksKey, response.ToString());
                         break;
                     }
                     else
                     {
-                        log.ErrorFormat("Retrieving ScheduledTaskLastRunResponse with scheduleTaskName: {0} and key {1} failed with status: {2}, retryAttempt: {3}, maxRetries: {4}", scheduleTaskName, scheduledTaksKey, getResult, numOfRetries, limitRetries);
+                        log.ErrorFormat("Retrieving ScheduledTaskLastRunResponse with scheduledTaskName: {0} and key {1} failed with status: {2}, retryAttempt: {3}, maxRetries: {4}", scheduledTaskName.ToString(), scheduledTaksKey, getResult, numOfRetries, limitRetries);
                         numOfRetries++;
                         System.Threading.Thread.Sleep(r.Next(50));
                     }
@@ -812,7 +812,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while trying to get last successful schedule task details, scheduleTaskName: {0}, ex: {1}", scheduleTaskName, ex);
+                log.ErrorFormat("Error while trying to get last successful schedule task details, scheduledTaskName: {0}, ex: {1}", scheduledTaskName.ToString(), ex);
             }
 
             if (response == null)
@@ -823,16 +823,16 @@ namespace DAL
             return response;
         }
 
-        public static bool UpdateScheduledTaskSuccessfulRun(string scheduleTaskName, DateTime lastSuccessfulRunDate, int impactedItems, double nextRunIntervalInSeconds)
+        public static bool UpdateScheduledTaskSuccessfulRun(ScheduledTaskName scheduledTaskName, DateTime lastSuccessfulRunDate, int impactedItems, double nextRunIntervalInSeconds)
         {
             bool result = false;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
-            string scheduledTaksKey = UtilsDal.GetScheduledTaksKeyByName(scheduleTaskName);
+            string scheduledTaksKey = UtilsDal.GetScheduledTaksKeyByName(scheduledTaskName);
             if (string.IsNullOrEmpty(scheduledTaksKey))
             {
-                log.ErrorFormat("Failed UtilsDal.GetScheduledTaksKeyByName for ScheduleTaskName: {0}", scheduleTaskName);
+                log.ErrorFormat("Failed UtilsDal.GetScheduledTaksKeyByName for scheduledTaskName: {0}", scheduledTaskName);
                 return false;
             }
             try
@@ -845,8 +845,8 @@ namespace DAL
                     if (!result)
                     {
                         numOfRetries++;
-                        log.ErrorFormat("Error while updating successful scheduled task run details. scheduleTaskName: {0}, number of tries: {1}/{2}. ScheduledTaskLastRunResponse: {3}",
-                                         scheduleTaskName, numOfRetries, limitRetries, scheduledTaskRunDetails.ToString());
+                        log.ErrorFormat("Error while updating successful scheduled task run details. scheduledTaskName: {0}, number of tries: {1}/{2}. ScheduledTaskLastRunResponse: {3}",
+                                         scheduledTaskName.ToString(), numOfRetries, limitRetries, scheduledTaskRunDetails.ToString());
 
                         System.Threading.Thread.Sleep(r.Next(50));
                     }
@@ -854,7 +854,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while updating successful scheduled task run details, ScheduleTaskName: {0}, ex: {1}", scheduleTaskName, ex);
+                log.ErrorFormat("Error while updating successful scheduled task run details, scheduledTaskName: {0}, ex: {1}", scheduledTaskName.ToString(), ex);
             }
 
             return result;

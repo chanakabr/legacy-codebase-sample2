@@ -53,11 +53,9 @@ namespace ConditionalAccess
         protected const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";
         protected const string BILLING_CONNECTION_STRING = "BILLING_CONNECTION";
         private const string ROUTING_KEY_RECORDINGS_CLEANUP = "PROCESS_RECORDINGS_CLEANUP";
-        private const int RECORDING_CLEANUP_EXECUTE_GAP_HOURS = 24;
-        private const string RECORDINGS_LIFETIME = "recordingsLifetime";
+        private const int RECORDING_CLEANUP_EXECUTE_GAP_HOURS = 24;        
         private const double HANDLE_RECORDINGS_LIFETIME_INTERVAL_SEC = 3600;
-        private const string RECORDINGS_LIFETIME_ROUTING_KEY = "PROCESS_RECORDINGS_LIFETIME";
-        private const string RECORDINGS_SCHEDULED_TASKS = "recordingsScheduledTasks";
+        private const string RECORDINGS_LIFETIME_ROUTING_KEY = "PROCESS_RECORDINGS_LIFETIME";        
         private const double HANDLE_RECORDINGS_SCHEDULED_TASKS_INTERVAL_SEC = 60;
         private const string RECORDING_TASKS_ROUTING_KEY = "PROCESS_RECORDING_SCHEDULED_TASKS";
         private const string ROUTING_KEY_MODIFIED_RECORDING = "PROCESS_MODIFIED_RECORDING\\{0}";
@@ -18313,7 +18311,7 @@ namespace ConditionalAccess
             try
             {
                 // try to get interval for next run take default
-                ScheduledTaskLastRunResponse expiredRecordingsLastRunResponse = GetLastScheduleTaksSuccessfulRun(RECORDINGS_LIFETIME);
+                ScheduledTaskLastRunResponse expiredRecordingsLastRunResponse = GetLastScheduleTaksSuccessfulRun(ScheduledTaskName.recordingsLifetime);
                 if (expiredRecordingsLastRunResponse.Status.Code == (int)eResponseStatus.OK && expiredRecordingsLastRunResponse.NextRunIntervalInSeconds > 0)
                 {
                     scheduledTaskIntervalSec = expiredRecordingsLastRunResponse.NextRunIntervalInSeconds;
@@ -18342,7 +18340,7 @@ namespace ConditionalAccess
                 {
                     result = true;
 
-                    if (!RecordingsDAL.UpdateScheduledTaskSuccessfulRun(RECORDINGS_LIFETIME, DateTime.UtcNow, totalRecordingsExpired, scheduledTaskIntervalSec))
+                    if (!RecordingsDAL.UpdateScheduledTaskSuccessfulRun(ScheduledTaskName.recordingsLifetime, DateTime.UtcNow, totalRecordingsExpired, scheduledTaskIntervalSec))
                     {
                         log.Error("Failed updating expired recordings run details");
                     }
@@ -18379,12 +18377,12 @@ namespace ConditionalAccess
             return result;
         }
 
-        public ScheduledTaskLastRunResponse GetLastScheduleTaksSuccessfulRun(string scheduleTaskName)
+        public ScheduledTaskLastRunResponse GetLastScheduleTaksSuccessfulRun(ScheduledTaskName scheduledTaskName)
         {
-            ScheduledTaskLastRunResponse response = RecordingsDAL.GetLastScheduleTaksSuccessfulRunDetails(scheduleTaskName);
+            ScheduledTaskLastRunResponse response = RecordingsDAL.GetLastScheduleTaksSuccessfulRunDetails(scheduledTaskName);
             if (response.Status.Code != (int)eResponseStatus.OK)
             {
-                log.ErrorFormat("Error while trying to get last scheduled task successful run details, scheduleTaskName: {0}, status code: {1}, status message: {2}", scheduleTaskName, response.Status.Code, response.Status.Message);
+                log.ErrorFormat("Error while trying to get last scheduled task successful run details, scheduledTaskName: {0}, status code: {1}, status message: {2}", scheduledTaskName, response.Status.Code, response.Status.Message);
             }
 
             return response;
@@ -18596,7 +18594,7 @@ namespace ConditionalAccess
             try
             {
                 // try to get interval for next run take default
-                ScheduledTaskLastRunResponse recordingScheduledTasksLastRunResponse = GetLastScheduleTaksSuccessfulRun(RECORDINGS_SCHEDULED_TASKS);
+                ScheduledTaskLastRunResponse recordingScheduledTasksLastRunResponse = GetLastScheduleTaksSuccessfulRun(ScheduledTaskName.recordingsScheduledTasks);
                 if (recordingScheduledTasksLastRunResponse.Status.Code == (int)eResponseStatus.OK && recordingScheduledTasksLastRunResponse.NextRunIntervalInSeconds > 0)
                 {
                     scheduledTaskIntervalSec = recordingScheduledTasksLastRunResponse.NextRunIntervalInSeconds;
@@ -18633,7 +18631,7 @@ namespace ConditionalAccess
                         }
                     }
 
-                    if (!RecordingsDAL.UpdateScheduledTaskSuccessfulRun(RECORDINGS_SCHEDULED_TASKS, DateTime.UtcNow, expiredRecordingsToSchedule.Count, scheduledTaskIntervalSec))
+                    if (!RecordingsDAL.UpdateScheduledTaskSuccessfulRun(ScheduledTaskName.recordingsScheduledTasks, DateTime.UtcNow, expiredRecordingsToSchedule.Count, scheduledTaskIntervalSec))
                     {
                         log.Error("Failed updating recording scheduled tasks run details");
                     }
