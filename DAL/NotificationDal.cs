@@ -855,7 +855,7 @@ namespace DAL
             return 0;
         }
 
-        public static int Insert_MessageAnnouncement(int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone, int updaterId, long announcement_id = 0, string messageReference = null, string resultMsgId = null)
+        public static DataRow Insert_MessageAnnouncement(int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone, int updaterId, long announcement_id = 0, string messageReference = null, string resultMsgId = null)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("InsertMessageAnnouncement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -872,11 +872,19 @@ namespace DAL
             spInsert.AddParameter("@message_reference", messageReference);
             if (announcement_id != 0)
                 spInsert.AddParameter("@announcement_id", announcement_id);
-            int newTransactionID = spInsert.ExecuteReturnValue<int>();
-            return newTransactionID;
+
+            DataSet ds = spInsert.ExecuteDataSet();
+            if (ds == null || ds.Tables == null || ds.Tables.Count == 0)
+                return null;
+
+            DataTable dt = ds.Tables[0];
+            if (dt == null || dt.Rows == null || dt.Rows.Count == 0)
+                return null;
+
+            return dt.Rows[0];
         }
 
-        public static void Update_MessageAnnouncement(int id, int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone, int updaterId, string resultMsgId = null)
+        public static DataRow Update_MessageAnnouncement(int id, int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone, int updaterId, string resultMsgId = null)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("UpdateMessageAnnouncement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -889,7 +897,16 @@ namespace DAL
             spInsert.AddParameter("@timezone", timezone);
             spInsert.AddParameter("@updater_id", updaterId);
             spInsert.AddParameter("@result_message_id", resultMsgId);
-            spInsert.ExecuteDataSet();
+
+            DataSet ds = spInsert.ExecuteDataSet();
+            if (ds == null || ds.Tables == null || ds.Tables.Count == 0)
+                return null;
+
+            DataTable dt = ds.Tables[0];
+            if (dt == null || dt.Rows == null || dt.Rows.Count == 0)
+                return null;
+
+            return dt.Rows[0];
         }
 
         public static void Update_MessageAnnouncementStatus(int id, int groupId, bool enabled)

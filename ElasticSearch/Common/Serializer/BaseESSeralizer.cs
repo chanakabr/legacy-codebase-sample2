@@ -551,18 +551,18 @@ namespace ElasticSearch.Common
             }
         }
 
-        public virtual string CreateEpgMapping(List<string> lMetasNames, List<string> lTags)
+        public virtual string CreateEpgMapping(List<string> lMetasNames, List<string> lTags, string mappingName)
         {
-            return CreateEpgMapping(lMetasNames, lTags, string.Empty, string.Empty);
+            return CreateEpgMapping(lMetasNames, lTags, string.Empty, string.Empty, mappingName);
         }
 
         public virtual string CreateEpgMapping(List<string> lMetasNames, List<string> lTags, string indexAnalyzer, string searchAnalyzer,
-            string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null)
+                                                string mappingName, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null)
         {
             if (lMetasNames == null || lTags == null)
                 return string.Empty;
 
-            ESMappingObj mappingObj = new ESMappingObj("epg");
+            ESMappingObj mappingObj = new ESMappingObj(mappingName);
 
             ESRouting routing = new ESRouting()
             {

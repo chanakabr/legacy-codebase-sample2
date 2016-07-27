@@ -521,6 +521,38 @@ namespace Users
             return res;
         }
 
+        internal static HomeNetwork Update_HomeNetworkWithoutDeactivationDate(long lDomainID, string sNetworkID, int nGroupID, string sName,
+            string sDesc, bool bIsActive)
+        {
+            DataRow row = DomainDal.Update_HomeNetworkWithoutDeactivationDate(lDomainID, sNetworkID, nGroupID, sName, sDesc, bIsActive);
+            HomeNetwork homeNetwork = new HomeNetwork()
+            {
+                UID = ODBCWrapper.Utils.GetSafeStr(row["NETWORK_ID"]),
+                Name = ODBCWrapper.Utils.GetSafeStr(row["NAME"]),
+                Description = ODBCWrapper.Utils.GetSafeStr(row["DESCRIPTION"]),
+                IsActive = ODBCWrapper.Utils.GetIntSafeVal(row["IS_ACTIVE"]) != 0,
+                CreateDate = ODBCWrapper.Utils.GetDateSafeVal(row["CREATE_DATE"])
+            };
+
+            return homeNetwork;
+        }
+
+        internal static HomeNetwork Update_HomeNetworkWithDeactivationDate(long lDomainID, string sNetworkID, int nGroupID, string sName,
+            string sDesc, bool bTrueForDeactivationFalseForDeletion)
+        {
+            DataRow row = DomainDal.Update_HomeNetworkWithDeactivationDate(lDomainID, sNetworkID, nGroupID, sName, sDesc, bTrueForDeactivationFalseForDeletion);
+            HomeNetwork homeNetwork = new HomeNetwork()
+            {
+                UID = ODBCWrapper.Utils.GetSafeStr(row["NETWORK_ID"]),
+                Name = ODBCWrapper.Utils.GetSafeStr(row["NAME"]),
+                Description = ODBCWrapper.Utils.GetSafeStr(row["DESCRIPTION"]),
+                IsActive = ODBCWrapper.Utils.GetIntSafeVal(row["IS_ACTIVE"]) != 0,
+                CreateDate = ODBCWrapper.Utils.GetDateSafeVal(row["CREATE_DATE"])
+            };
+
+            return homeNetwork;
+        }
+
 
         static public bool IsGroupIDContainedInConfig(long lGroupID, string sKey, char cSeperator)
         {

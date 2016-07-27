@@ -710,4 +710,10 @@ namespace ApiObjects
         NameAsc = 0,
         NameDesc = 1
     }
+
+    public enum ScheduledTaskName
+    {
+        recordingsLifetime = 0,
+        recordingsScheduledTasks = 1
+    }
 }

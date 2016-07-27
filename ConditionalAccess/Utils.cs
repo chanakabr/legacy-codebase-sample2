@@ -4565,7 +4565,7 @@ namespace ConditionalAccess
                             result.Add(DomainRecordingStatus.DeletedBySystem);
                         }
                         break;
-                     */                   
+                     */
                     case TstvRecordingStatus.Deleted:
                     case TstvRecordingStatus.SeriesDelete:
                     default:
