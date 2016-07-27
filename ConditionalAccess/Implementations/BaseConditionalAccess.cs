@@ -17159,20 +17159,23 @@ namespace ConditionalAccess
             return recording;
         }
 
-        public Recording CancelOrDeleteRecord(string userId, long domainId, long domainRecordingId, TstvRecordingStatus tstvRecordingStatus)
+        public Recording CancelOrDeleteRecord(string userId, long domainId, long domainRecordingId, TstvRecordingStatus tstvRecordingStatus, bool shouldValidateUserAndDomain = true)
         {
             Recording recording = new Recording();
             try
             {
                 bool res = false;
-                ConditionalAccess.TvinciDomains.Domain domain;
-                ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userId, ref domainId, out domain);
-
-                if (validationStatus.Code != (int)eResponseStatus.OK)
+                if (shouldValidateUserAndDomain)
                 {
-                    log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}", domainId, userId);
-                    recording.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
-                    return recording;
+                    ConditionalAccess.TvinciDomains.Domain domain;
+                    ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userId, ref domainId, out domain);
+
+                    if (validationStatus.Code != (int)eResponseStatus.OK)
+                    {
+                        log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}", domainId, userId);
+                        recording.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
+                        return recording;
+                    }
                 }
                 // user is OK - see if user sign to recordID
                 recording = Utils.ValidateRecordID(m_nGroupID, domainId, domainRecordingId);
@@ -18940,7 +18943,7 @@ namespace ConditionalAccess
                 List<EpgCB> epgs = epgBLTvinci.GetEpgs(epgIds);
                 if (epgs != null && epgs.Count > 0)
                 {
-                    // chaeck if epg related to series and season
+                    // check if epg related to series and season
                     bool result = Utils.GetEpgRelatedToSeriesRecording(m_nGroupID, epgs, seriesRecording);
 
                     // convert status Cancel/Delete ==> SeriesCancel/SeriesDelete
@@ -18949,13 +18952,23 @@ namespace ConditionalAccess
                     {
                         log.ErrorFormat("fail to perform cancel or delete domainSeriesRecordingId = {1}, tstvRecordingStatus = {2}", domainSeriesRecordingId, tstvRecordingStatus.ToString());
                         return;
-                    }
-                    //call cancelOrDelete
-                    Parallel.ForEach(epgs, (currentEpg) =>
+                    }                    
+
+                    // set max amount of concurrent tasks
+                    int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
+                    if (maxDegreeOfParallelism == 0)
                     {
+                        maxDegreeOfParallelism = 5;
+                    }
+                    ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
+                    ContextData contextData = new ContextData();
+                    Parallel.ForEach(epgs, options, (currentEpg) =>
+                    {
+                        contextData.Load();
+                        //call cancelOrDelete
                         if (epgRecordingMapping.ContainsKey((long)currentEpg.EpgID))
                         {
-                            CancelOrDeleteRecord(userId, domainId, epgRecordingMapping[(long)currentEpg.EpgID], seriesStatus.Value);
+                            CancelOrDeleteRecord(userId, domainId, epgRecordingMapping[(long)currentEpg.EpgID], seriesStatus.Value, false);
                         }
                     });
                 }
@@ -18995,7 +19008,7 @@ namespace ConditionalAccess
                             if (domainRecordingID > 0)
                             {   
                                 // cancel / delete record 
-                                Recording recording = CancelOrDeleteRecord(userId, domainId, domainRecordingID, tstvRecordingStatus);
+                                Recording recording = CancelOrDeleteRecord(userId, domainId, domainRecordingID, tstvRecordingStatus, false);
                                 if (recording == null || (recording != null && recording.Status.Code != (int)eResponseStatus.OK))
                                 {
                                     seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error,  string.Format("fail to cancel or delete epgid = {0}", epgId));
