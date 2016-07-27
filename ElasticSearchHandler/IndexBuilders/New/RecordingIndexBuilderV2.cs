@@ -12,7 +12,7 @@ using ElasticSearch.Common;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
-    public class RecordingIndexBuilderV2 : EpgIndexBuilderV1
+    public class RecordingIndexBuilderV2 : EpgIndexBuilderV2
     {
         #region Data Members
 
@@ -49,7 +49,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
             // Get information about relevant recordings
             epgToRecordingMapping = DAL.RecordingsDAL.GetEpgToRecordingsMapByRecordingStatuses(this.groupId, statuses);
-            List<string> epgIds = epgToRecordingMapping.Select(x => x.ToString()).ToList();
+            List<string> epgIds = epgToRecordingMapping.Keys.Select(x => x.ToString()).ToList();
 
             EpgBL.TvinciEpgBL epgBL = new TvinciEpgBL(this.groupId);
 
@@ -97,6 +97,11 @@ namespace ElasticSearchHandler.IndexBuilders
         protected override string GetIndexType(LanguageObj language)
         {
             return (language.IsDefault) ? RECORDING : string.Concat(RECORDING, "_", language.Code);
+        }
+
+        protected override string GetIndexType()
+        {
+            return RECORDING;
         }
 
         #endregion

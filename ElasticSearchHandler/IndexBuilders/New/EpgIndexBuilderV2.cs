@@ -123,10 +123,12 @@ namespace ElasticSearchHandler.IndexBuilders
                     log.Error(string.Format("could not find analyzer for language ({0}) for mapping. whitespace analyzer will be used instead", language.Code));
                 }
 
+                string baseType = this.GetIndexType();
+
                 string sMapping = serializer.CreateEpgMapping(group.m_oEpgGroupSettings.m_lMetasName, group.m_oEpgGroupSettings.m_lTagsName, indexAnalyzer, searchAnalyzer,
-                    autocompleteIndexAnalyzer, autocompleteSearchAnalyzer);
-                string sType = GetIndexType(language);
-                bool bMappingRes = api.InsertMapping(newIndexName, sType, sMapping.ToString());
+                    baseType, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer);
+                string specificType = GetIndexType(language);
+                bool bMappingRes = api.InsertMapping(newIndexName, specificType, sMapping.ToString());
 
                 if (language.IsDefault && !bMappingRes)
                     success = false;
@@ -242,6 +244,11 @@ namespace ElasticSearchHandler.IndexBuilders
                     log.Error(string.Format("Caught exception while indexing channels. Ex={0};Stack={1}", ex.Message, ex.StackTrace));
                 }
             }
+        }
+
+        protected virtual string GetIndexType()
+        {
+            return EPG;
         }
 
         protected virtual string GetIndexType(ApiObjects.LanguageObj language)
