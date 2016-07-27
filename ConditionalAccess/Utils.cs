@@ -5084,8 +5084,8 @@ namespace ConditionalAccess
                 long epgChannelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_CHANNEL_ID");
                 DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
                 DateTime updateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE");
-                DateTime viewableUntilDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "VIEWABLE_UNTIL_DATE");
-                DateTime? protectedUntilDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "PROTECTED_UNTIL_DATE");
+                long viewableUntilEpoch = ODBCWrapper.Utils.GetLongSafeVal(dr, "VIEWABLE_UNTIL_EPOCH", 0);
+                long protectedUntilDate = ODBCWrapper.Utils.GetLongSafeVal(dr, "PROTECTED_UNTIL_DATE", 0);
                 RecordingInternalStatus recordingInternalStatus = (RecordingInternalStatus)ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_STATUS");
                 DomainRecordingStatus domainRecordingStatus = (DomainRecordingStatus)ODBCWrapper.Utils.GetIntSafeVal(dr, "DOMAIN_RECORDING_STATUS");
                 TstvRecordingStatus? recordingStatus = ConvertToTstvRecordingStatus(domainRecordingStatus);
@@ -5138,22 +5138,22 @@ namespace ConditionalAccess
                 // if recording status is Recorded then set ViewableUntilDate
                 if (recording.RecordingStatus == TstvRecordingStatus.Recorded)
                 {
-                    recording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(viewableUntilDate);
+                    recording.ViewableUntilDate = viewableUntilEpoch;
 
                     // if recording is/was protected then set ProtectedUntilDate
-                    if (protectedUntilDate.HasValue)
+                    if (protectedUntilDate > 0)
                     {
-                        recording.ProtectedUntilDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(protectedUntilDate.Value);
+                        recording.ProtectedUntilDate = protectedUntilDate;
                         // update viewableUntilDate incase protectedUntilDate is bigger than viewableUntilDate
-                        if (recording.ProtectedUntilDate.Value > recording.ViewableUntilDate)
+                        if (recording.ProtectedUntilDate.Value > recording.ViewableUntilDate.Value)
                         {
-                            recording.ViewableUntilDate = recording.ProtectedUntilDate.Value;
+                            recording.ViewableUntilDate = recording.ProtectedUntilDate;
                         }
                     }
 
                     long currentUtcEpoch = TVinciShared.DateUtils.UnixTimeStampNow();
                     // modify recordings status to Deleted if it's currently not viewable
-                    if (recording.ViewableUntilDate < currentUtcEpoch)
+                    if (recording.ViewableUntilDate.Value < currentUtcEpoch)
                     {
                         /***** Currently the LifeTimePeriodExpired status is only for backend inner needs and we are not exposing it on the REST to the client *****
                         recording.RecordingStatus = TstvRecordingStatus.LifeTimePeriodExpired;*/
