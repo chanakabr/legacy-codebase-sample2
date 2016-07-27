@@ -168,7 +168,7 @@ namespace Users
             {
                 // we can remove it if the home network either satisfies the frequency constraint or the request
                 // is to remove a de-activated home network
-                if (DomainDal.Update_HomeNetworkWithDeactivationDate(lDomainID, existingNetwork.UID, m_nGroupID, existingNetwork.Name, existingNetwork.Description, false))
+                if (DomainDal.Update_HomeNetworkWithDeactivationDate(lDomainID, existingNetwork.UID, m_nGroupID, existingNetwork.Name, existingNetwork.Description, false) != null)
                 {
                     res = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, ApiObjects.Response.eResponseStatus.OK.ToString());
                 }
@@ -190,13 +190,15 @@ namespace Users
             return res;
         }
 
-        protected override ApiObjects.Response.Status UpdateDomainHomeNetworkInner(long lDomainID, int numOfAllowedNetworks, int numOfActiveNetworks,
+        protected override HomeNetwork UpdateDomainHomeNetworkInner(long lDomainID, int numOfAllowedNetworks, int numOfActiveNetworks,
             int frequency, HomeNetwork candidate, HomeNetwork existingNetwork, DateTime dtLastDeactivationDate, ref ApiObjects.Response.Status res)
         {
+            HomeNetwork homeNetwork = null;
             if (candidate.IsActive == existingNetwork.IsActive)
             {
                 // no changes of network activeness. just update in DB name and desc
-                if (DomainDal.Update_HomeNetworkWithoutDeactivationDate(lDomainID, candidate.UID, m_nGroupID, candidate.Name, candidate.Description, candidate.IsActive))
+                homeNetwork = Utils.Update_HomeNetworkWithoutDeactivationDate(lDomainID, candidate.UID, m_nGroupID, candidate.Name, candidate.Description, candidate.IsActive);
+                if (homeNetwork != null)
                 {
                     res = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, ApiObjects.Response.eResponseStatus.OK.ToString());
                 }
@@ -216,7 +218,8 @@ namespace Users
                     if (IsSatisfiesQuantityConstraint(numOfAllowedNetworks, numOfActiveNetworks))
                     {
                         // we can activate the home network. update data in db.
-                        if (DomainDal.Update_HomeNetworkWithoutDeactivationDate(lDomainID, candidate.UID, m_nGroupID, candidate.Name, candidate.Description, candidate.IsActive))
+                        homeNetwork = Utils.Update_HomeNetworkWithoutDeactivationDate(lDomainID, candidate.UID, m_nGroupID, candidate.Name, candidate.Description, candidate.IsActive);
+                        if (homeNetwork != null)
                         {
                             res = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, ApiObjects.Response.eResponseStatus.OK.ToString());
                         }
@@ -241,7 +244,8 @@ namespace Users
                     if (IsSatisfiesFrequencyConstraint(dtLastDeactivationDate, frequency))
                     {
                         // satsfies the frequency constraint. update data in db.
-                        if (DomainDal.Update_HomeNetworkWithDeactivationDate(lDomainID, candidate.UID, m_nGroupID, candidate.Name, candidate.Description, true))
+                        homeNetwork = Utils.Update_HomeNetworkWithDeactivationDate(lDomainID, candidate.UID, m_nGroupID, candidate.Name, candidate.Description, true);
+                        if (homeNetwork != null)
                         {
                             res = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, ApiObjects.Response.eResponseStatus.OK.ToString());
                         }
@@ -261,7 +265,7 @@ namespace Users
                 }
             }
 
-            return res;
+            return homeNetwork;
         }
 
 

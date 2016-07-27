@@ -1656,7 +1656,7 @@ namespace DAL
             return res;
         }
 
-        public static bool Update_HomeNetworkWithoutDeactivationDate(long lDomainID, string sNetworkID, int nGroupID, string sName,
+        public static DataRow Update_HomeNetworkWithoutDeactivationDate(long lDomainID, string sNetworkID, int nGroupID, string sName,
             string sDesc, bool bIsActive)
         {
             StoredProcedure sp = new StoredProcedure("Update_HomeNetworkWithoutDeactivationDate");
@@ -1669,10 +1669,18 @@ namespace DAL
             sp.AddParameter("@UpdateDate", DateTime.UtcNow);
             sp.AddParameter("@IsActive", bIsActive);
 
-            return sp.ExecuteReturnValue<bool>();
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds == null || ds.Tables == null || ds.Tables.Count == 0)
+                return null;
+
+            DataTable dt = ds.Tables[0];
+            if (dt == null || dt.Rows == null || dt.Rows.Count == 0)
+                return null;
+
+            return dt.Rows[0];
         }
 
-        public static bool Update_HomeNetworkWithDeactivationDate(long lDomainID, string sNetworkID, int nGroupID, string sName,
+        public static DataRow Update_HomeNetworkWithDeactivationDate(long lDomainID, string sNetworkID, int nGroupID, string sName,
             string sDesc, bool bTrueForDeactivationFalseForDeletion)
         {
             StoredProcedure sp = new StoredProcedure("Update_HomeNetworkWithDeactivationDate");
@@ -1685,7 +1693,15 @@ namespace DAL
             sp.AddParameter("@UpdateDate", DateTime.UtcNow);
             sp.AddParameter("@IsDelete", !bTrueForDeactivationFalseForDeletion);
 
-            return sp.ExecuteReturnValue<bool>();
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds == null || ds.Tables == null || ds.Tables.Count == 0)
+                return null;
+
+            DataTable dt = ds.Tables[0];
+            if (dt == null || dt.Rows == null || dt.Rows.Count == 0)
+                return null;
+
+            return dt.Rows[0];
         }
 
         public static DataTable Get_DomainHomeNetworks(long lDomainID, int nGroupID)

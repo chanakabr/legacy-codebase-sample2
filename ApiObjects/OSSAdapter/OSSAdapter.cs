@@ -10,6 +10,7 @@ namespace ApiObjects
         public string ExternalIdentifier { get; set; }        
         public string SharedSecret { get; set; }
 
+        public bool SkipSettings { get; set; }
         public List<OSSAdapterSettings> Settings { get; set; }
 
         public OSSAdapter()

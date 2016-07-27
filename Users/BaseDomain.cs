@@ -619,8 +619,13 @@ namespace Users
             return res;
         }
 
-        public virtual ApiObjects.Response.Status UpdateDomainHomeNetwork(long domainID, string networkID, string networkName, string networkDesc, bool isActive)
+        public virtual HomeNetworkResponse UpdateDomainHomeNetwork(long domainID, string networkID, string networkName, string networkDesc, bool isActive)
         {
+            HomeNetworkResponse response = new HomeNetworkResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
             ApiObjects.Response.Status res = null;
             HomeNetwork candidate = null;
             HomeNetwork existingNetwork = null;
@@ -631,17 +636,19 @@ namespace Users
             if (!UpdateRemoveHomeNetworkCommon(domainID, networkID, networkName, networkDesc, isActive, out res,
                 ref candidate, ref existingNetwork, ref numOfAllowedNetworks, ref numOfActiveNetworks, ref frequency, ref dtLastDeactivationDate))
             {
-                return res;
+                response.Status = res;
+                return response;
             }
-            res = UpdateDomainHomeNetworkInner(domainID, numOfAllowedNetworks, numOfActiveNetworks, frequency,
+            response.HomeNetwork = UpdateDomainHomeNetworkInner(domainID, numOfAllowedNetworks, numOfActiveNetworks, frequency,
                 candidate, existingNetwork, dtLastDeactivationDate, ref res);
+            response.Status = res;
 
             if (res != null && res.Code == (int)eResponseStatus.OK)
             {
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 oDomainCache.RemoveDomain((int)domainID);
             }
-            return res;
+            return response;
         }
 
         public virtual ApiObjects.Response.Status RemoveDomainHomeNetwork(long lDomainID, string sNetworkID)
@@ -867,7 +874,7 @@ namespace Users
             int numOfActiveNetworks, int frequency, HomeNetwork candidate,
             HomeNetwork existingNetwork, DateTime dtLastDeactivationDate, ref ApiObjects.Response.Status res);
 
-        protected abstract ApiObjects.Response.Status UpdateDomainHomeNetworkInner(long lDomainID, int numOfAllowedNetworks, int numOfActiveNetworks,
+        protected abstract HomeNetwork UpdateDomainHomeNetworkInner(long lDomainID, int numOfAllowedNetworks, int numOfActiveNetworks,
             int frequency, HomeNetwork candidate, HomeNetwork existingNetwork, DateTime dtLastDeactivationDate, ref ApiObjects.Response.Status res);
 
         /*
