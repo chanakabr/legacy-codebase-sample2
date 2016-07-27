@@ -78,10 +78,18 @@ namespace ApiObjects
             get;
             set;
         }
-        
+
         [JsonProperty()]
         [DataMember]
         public List<RecommendationEngineSettings> Settings
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty()]
+        [DataMember]
+        public bool SkipSettings
         {
             get;
             set;

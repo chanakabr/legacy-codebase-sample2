@@ -22,6 +22,7 @@ namespace ApiObjects.Billing
         [XmlIgnore]
         public int Selected { get; set; }
 
+        public bool SkipSettings { get; set; }
         public List<PaymentGatewaySettings> Settings { get; set; }
         public List<PaymentMethod> PaymentMethods { get; set; }
 
