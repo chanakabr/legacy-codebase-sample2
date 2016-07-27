@@ -5329,6 +5329,7 @@ namespace ConditionalAccess
                 long? viewableUntilDate = ODBCWrapper.Utils.GetLongSafeVal(dr, "VIEWABLE_UNTIL_EPOCH", 0);
                 string externalRecordingId = ODBCWrapper.Utils.GetSafeStr(dr, "EXTERNAL_RECORDING_ID");
                 string crid = ODBCWrapper.Utils.GetSafeStr(dr, "CRID");
+                int getStatusRetries = ODBCWrapper.Utils.GetIntSafeVal(dr, "GET_STATUS_RETRIES", 0);
 
                 if (recordingInternalStatus < 0)
                 {
@@ -5355,7 +5356,8 @@ namespace ConditionalAccess
                     UpdateDate = updateDate,
                     RecordingStatus = recordingStatus.Value,
                     ExternalRecordingId = externalRecordingId,
-                    Crid = crid
+                    Crid = crid,
+                    GetStatusRetries = getStatusRetries
                 };
 
                 // if recording status is Recorded then set ViewableUntilDate
