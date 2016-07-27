@@ -12207,7 +12207,7 @@ namespace ConditionalAccess
                     if (adapterResponse.Adapter != null && !string.IsNullOrEmpty(adapterResponse.Adapter.AdapterUrl))
                     {
                         // get device type
-                        string deviceType = Utils.GetDeviceTypeByUDID(m_nGroupID, sDeviceName);
+                        int deviceType = Utils.GetDeviceBrandTypeIdByUDID(m_nGroupID, sDeviceName);
 
                         // if the adapter is default - append the adapter's base url to the file urls
                         if (isDefaultAdapter)
@@ -12217,11 +12217,11 @@ namespace ConditionalAccess
                         }
 
                         // main url
-                        var link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGuid, fileMainUrl, deviceType, nMediaID, nMediaFileID, sUserIP);
+                        var link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGuid, fileMainUrl, deviceType.ToString(), nMediaID, nMediaFileID, sUserIP);
                         res.mainUrl = link != null ? link.Url : string.Empty;
 
                         // alt url
-                        link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGuid, fileAltUrl, deviceType, nMediaID, nMediaFileID, sUserIP);
+                        link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGuid, fileAltUrl, deviceType.ToString(), nMediaID, nMediaFileID, sUserIP);
                         res.altUrl = link != null ? link.Url : string.Empty;
                     }
                     else if (!string.IsNullOrEmpty(CdnStrID))
@@ -19306,5 +19306,155 @@ namespace ConditionalAccess
             return result;
         }
 
+        public LicensedLinkResponse GetRecordingLicensedLink(string userId, int recordingId, DateTime startTime, string udid, string userIp)
+        {
+            LicensedLinkResponse response = new LicensedLinkResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            // validate user
+            ConditionalAccess.TvinciDomains.Domain domain;
+            long domainId = 0;
+            ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userId, ref domainId, out domain);
+
+            if (validationStatus.Code != (int)eResponseStatus.OK)
+            {
+                log.DebugFormat("User or domain not valid, groupId = {0}, userId: {1}, domainId = {2}", m_nGroupID, userId, domainId);
+                response.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
+                return response;
+            }
+
+            // validate recording
+            Recording recording = Utils.GetRecordingById(recordingId);
+            if (recording == null)
+            {
+                log.ErrorFormat("Recording does not exist. groupId = {0}, userId = {1}, domainId = {2}, recordingId = {3}", m_nGroupID, userId, domainId, recordingId);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingNotFound, eResponseStatus.RecordingNotFound.ToString());
+                return response;
+            }
+            if (recording.RecordingStatus != TstvRecordingStatus.Recorded)
+            {
+                log.ErrorFormat("Recording status is not valid for playback. groupId = {0}, userId = {1}, domainId = {2}, recordingId = {3}, recordingStatus = {4}", m_nGroupID, userId, domainId, recordingId, recording.RecordingStatus);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotValid, eResponseStatus.RecordingStatusNotValid.ToString());
+                return response;
+            }
+
+            // get TSTV settings
+            var tstvSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+
+            // get the epg
+            List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, new List<long>() { recording.EpgId });
+            if (epgs == null || epgs.Count == 0)
+            {
+                log.ErrorFormat("Failed to get EPG for the recording. groupId = {0}, userId = {1}, domainId = {2}, recordingId = {3}, epgId = {4}",
+                    m_nGroupID, userId, domainId, recordingId, recording.EpgId);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramDoesntExist, eResponseStatus.ProgramDoesntExist.ToString());
+                return response;
+            }
+
+            EPGChannelProgrammeObject epg = epgs[0];
+ 
+            // get epg channel - TODO: get a real channel
+            EPGChannelObject channel = null;
+
+            // validate recording channel exists or the settings allow it to not exist
+            // TODO: check what we do with no value on the setting
+            if (channel == null && (!tstvSettings.IsRecordingPlaybackNonExistingChannelEnabled.HasValue || !tstvSettings.IsRecordingPlaybackNonExistingChannelEnabled.Value))
+            {
+                log.ErrorFormat("EPG channel does not exist and TSTV settings do not allow playback in this case. groupId = {0}, userId = {1}, domainId = {2}, recordingId = {3}, channelId = {4}",
+                    m_nGroupID, userId, domainId, recordingId, recording.ChannelId);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel, eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel.ToString());
+                return response;
+            }
+
+            // get fileIds for epg 
+            Dictionary<int, List<long>> fileIdsToEpgsMap = ConditionalAccessDAL.GetFileIdsToEpgIdsMap(m_nGroupID, new List<long>() { recording.EpgId });
+            if (fileIdsToEpgsMap == null || fileIdsToEpgsMap.Count == 0)
+            {
+                log.DebugFormat("No files were found for the requested EPG. groupId = {0}, userId = {1}, domainId = {2}, recordingId = {3}, epgId = {4}",
+                    m_nGroupID, userId, domainId, recordingId, recording.EpgId);
+                return response;
+            }
+
+            // validate entitlements if needed - TODO: add channel settings validations
+            if (!tstvSettings.IsRecordingPlaybackNonEntitledChannelEnabled.HasValue || !tstvSettings.IsRecordingPlaybackNonEntitledChannelEnabled.Value)
+            {
+                MediaFileItemPricesContainer[] prices = GetItemsPrices(fileIdsToEpgsMap.Keys.ToArray(), userId, true, string.Empty, string.Empty, udid);
+                if (prices == null || prices.Length == 0)
+                {
+                    log.DebugFormat("No prices were found for the requested file IDs. groupId = {0}, userId = {1}, domainId = {2}, recordingId = {3}, epgId = {4}",
+                    m_nGroupID, userId, domainId, recordingId, recording.EpgId);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingPlaybackNotAllowedForNotEntitledEpgChannel, eResponseStatus.RecordingPlaybackNotAllowedForNotEntitledEpgChannel.ToString());
+                    return response;
+                }
+
+                bool isEntitled = false;
+                foreach (MediaFileItemPricesContainer price in prices)
+                {
+                    if (IsFreeItem(price) || IsItemPurchased(price))
+                    {
+                        isEntitled = true;
+                        break;
+                    }
+                }
+                if (!isEntitled)
+                {
+                    log.DebugFormat("User is not entitled for the EPG and TSTV settings do not allow playback. groupId = {0}, userId = {1}, domainId = {2}, recordingId = {3}, epgId = {4}",
+                    m_nGroupID, userId, domainId, recordingId, recording.EpgId);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingPlaybackNotAllowedForNotEntitledEpgChannel, eResponseStatus.RecordingPlaybackNotAllowedForNotEntitledEpgChannel.ToString());
+                    return response;
+                }
+            }
+
+            // if we got here we everything is ok with the entitlements and settings - so get the link
+
+            // TODO: talk to Ira about the is dynamic setting of the cdvr adapter!!!!!
+
+            // get device brand ID 
+            int deviceBrandId = Utils.GetDeviceBrandTypeIdByUDID(m_nGroupID, udid);
+            if (deviceBrandId == 0)
+            {
+                log.ErrorFormat("Device brand ID was not found for given UDID. groupId = {0}, userId = {1}, domainId = {2}, recordingId = {3}, udid = {4}",
+                    m_nGroupID, userId, domainId, recordingId, udid);
+                return response;
+            }
+
+            // get the link for the recording with the given udid brand
+            RecordingLink recordingLink = RecordingsDAL.GetRecordingLinkByBrand(m_nGroupID, recording.ExternalRecordingId, deviceBrandId);
+            if (recordingLink == null || string.IsNullOrEmpty(recordingLink.Url))
+            {
+                log.ErrorFormat("Recording link was not found for devicrBrandId = {0}. groupId = {1}, userId = {2}, domainId = {3}, recordingId = {4}, udid = {5}",
+                    deviceBrandId, m_nGroupID, userId, domainId, recordingId, udid);
+                return response;
+            }
+
+            // get adapter
+            bool isDefaultAdapter = false;
+            var adapterResponse = Utils.GetRelevantCDN(m_nGroupID, 0, TvinciAPI.eAssetTypes.NPVR, ref isDefaultAdapter);
+
+            // if adapter response is not null and is adapter (has an adapter url) - call the adapter
+            if (adapterResponse.Adapter == null || string.IsNullOrEmpty(adapterResponse.Adapter.AdapterUrl))
+            {
+                log.ErrorFormat("failed to get CDN adapter for recordings for groupId = {0}. userId = {1}, domainId = {2}, recordingId = {3}", m_nGroupID, userId, domainId, recordingId);
+                return response;
+            }
+    
+            // main url
+            var link = CDNAdapterController.GetInstance().GetRecordingLink(m_nGroupID, adapterResponse.Adapter.ID, userId, recordingLink.Url, deviceBrandId.ToString(), recordingId.ToString(), userIp);
+
+            if (link == null || string.IsNullOrEmpty(link.Url))
+            {
+                log.ErrorFormat("failed to get link response from CDN adapter. adapterId = {0}, groupId = {1}. userId = {2}, domainId = {3}, recordingId = {4}", adapterResponse.Adapter.ID, m_nGroupID, userId, domainId, recordingId);
+                return response;                
+            }
+
+            response.mainUrl = link.Url;
+            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            
+            // alt url TODO: ?????
+
+            return response;
+        }
     }
 }

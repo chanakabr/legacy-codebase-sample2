@@ -20,12 +20,7 @@ namespace ApiObjects.TimeShiftedTv
     public class RecordingLink
     {
         public string DeviceType { get; set; }
-        public int DeviceTypeBrand
-        {
-            get;
-            set;
-        }
-
+        public int DeviceTypeBrand { get; set; }
         public string Url { get; set; }
     }
 }

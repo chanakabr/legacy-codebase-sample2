@@ -4779,9 +4779,9 @@ namespace ConditionalAccess
             return response;
         }
 
-        internal static string GetDeviceTypeByUDID(int groupId, string udid)
+        internal static int GetDeviceBrandTypeIdByUDID(int groupId, string udid)
         {
-            string deviceType = string.Empty;
+            int deviceType = 0;
             try
             {
                 TvinciDomains.module domains = new TvinciDomains.module();
@@ -4795,13 +4795,13 @@ namespace ConditionalAccess
                 if (string.IsNullOrEmpty(domains.Url) || string.IsNullOrEmpty(sWSUserName) || string.IsNullOrEmpty(sWSPass))
                 {
                     log.ErrorFormat("GetDeviceTyprByUDID: missing WS Domains credentials or url. groupId = {0}", groupId);
-                    return null;
+                    return deviceType;
                 }
 
                 var device = domains.GetDeviceInfo(sWSUserName, sWSPass, udid, true);
                 if (device != null && device.m_oDevice != null)
                 {
-                    deviceType = device.m_oDevice.m_deviceBrandID.ToString();
+                    deviceType = device.m_oDevice.m_deviceBrandID;
                 }
             }
             catch (Exception ex)

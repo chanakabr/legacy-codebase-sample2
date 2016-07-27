@@ -644,7 +644,7 @@ namespace ConditionalAccess
                 if (adapterResponse.Adapter != null && !string.IsNullOrEmpty(adapterResponse.Adapter.AdapterUrl))
                 {
                     // get device type
-                    string deviceType = Utils.GetDeviceTypeByUDID(m_nGroupID, sDEVICE_NAME);
+                    int deviceType = Utils.GetDeviceBrandTypeIdByUDID(m_nGroupID, sDEVICE_NAME);
 
                     int actionType = Utils.MapActionTypeForAdapter(eformat);
 
@@ -655,7 +655,7 @@ namespace ConditionalAccess
                     }
 
                     // main url
-                    var link = CDNAdapterController.GetInstance().GetEpgLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGUID, sBasicLink, deviceType, nProgramId, mediaId, nMediaFileID,
+                    var link = CDNAdapterController.GetInstance().GetEpgLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGUID, sBasicLink, deviceType.ToString(), nProgramId, mediaId, nMediaFileID,
                         TVinciShared.DateUtils.DateTimeToUnixTimestamp(scheduling.StartDate), actionType, sUserIP);
 
                     if (link != null)

@@ -692,6 +692,28 @@ namespace DAL
             return spCountRecordingsByExternalRecordingId.ExecuteReturnValue<int>();           
         }
 
+        public static RecordingLink GetRecordingLinkByBrand(int groupId, string externalRecordingId, int brandId)
+        {
+            RecordingLink recordingLink = null;
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetRecordingLinksByBrand");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@recordingId", externalRecordingId);            
+            sp.AddParameter("@brandId", brandId);
+
+            DataTable dt = sp.Execute();
+            if (dt != null && dt.Rows != null)
+            {
+                recordingLink = new RecordingLink()
+                {
+                    DeviceTypeBrand = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "BRAND_ID", 0),
+                    Url = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "URL")
+                };
+            }
+            return recordingLink;
+        }
+
         #region Couchbase
 
         public static bool UpdateSuccessfulRecordingsCleanup(DateTime lastSuccessfulCleanUpDate, int deletedRecordingOnLastCleanup, int domainRecordingsUpdatedOnLastCleanup, int intervalInMinutes)
