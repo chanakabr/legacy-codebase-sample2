@@ -1,42 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/GroupsCacheManager" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/GroupsCacheManager" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Implementations" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Implementations" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd12" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" />
   <xs:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd7" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" />
-  <xs:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd6" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
-  <xs:complexType name="Channel">
-    <xs:sequence>
-      <xs:element minOccurs="0" name="filterQuery" nillable="true" type="xs:string" />
-      <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="filterTree" nillable="true" type="q1:BooleanPhraseNode" />
-      <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="m_OrderObject" nillable="true" type="q2:OrderObj" />
-      <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="m_eCutWith" type="q3:CutWith" />
-      <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="m_eOrderBy" type="q4:OrderBy" />
-      <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="m_eOrderDir" type="q5:OrderDir" />
-      <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="m_lChannelTags" nillable="true" type="q6:ArrayOfSearchValue" />
-      <xs:element minOccurs="0" name="m_lManualMedias" nillable="true" type="tns:ArrayOfManualMedia" />
-      <xs:element minOccurs="0" name="m_nChannelID" type="xs:int" />
-      <xs:element minOccurs="0" name="m_nChannelTypeID" type="xs:int" />
-      <xs:element minOccurs="0" name="m_nGroupID" type="xs:int" />
-      <xs:element minOccurs="0" name="m_nIsActive" type="xs:int" />
-      <xs:element xmlns:q7="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_nMediaType" nillable="true" type="q7:ArrayOfint" />
-      <xs:element minOccurs="0" name="m_nParentGroupID" type="xs:int" />
-      <xs:element minOccurs="0" name="m_nStatus" type="xs:int" />
-      <xs:element xmlns:q8="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_oMedias" nillable="true" type="q8:ArrayOfint" />
-      <xs:element minOccurs="0" name="m_sDescription" nillable="true" type="xs:string" />
-      <xs:element xmlns:q9="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_sMedias" nillable="true" type="q9:ArrayOfstring" />
-      <xs:element minOccurs="0" name="m_sName" nillable="true" type="xs:string" />
-    </xs:sequence>
+  <xs:complexType name="RealTimeViewsItem">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q1="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" base="q1:BaseCrowdsourceItem">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="EpgStartTime" type="xs:long" />
+          <xs:element minOccurs="0" name="ProgramId" type="xs:long" />
+          <xs:element minOccurs="0" name="ProgramImage" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="ProgramName" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="TypeDescription" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="Views" type="xs:int" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
   </xs:complexType>
-  <xs:element name="Channel" nillable="true" type="tns:Channel" />
-  <xs:complexType name="ArrayOfManualMedia">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="ManualMedia" nillable="true" type="tns:ManualMedia" />
-    </xs:sequence>
+  <xs:element name="RealTimeViewsItem" nillable="true" type="tns:RealTimeViewsItem" />
+  <xs:complexType name="OrcaItem">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q2="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" base="q2:BaseCrowdsourceItem">
+        <xs:sequence />
+      </xs:extension>
+    </xs:complexContent>
   </xs:complexType>
-  <xs:element name="ArrayOfManualMedia" nillable="true" type="tns:ArrayOfManualMedia" />
-  <xs:complexType name="ManualMedia">
-    <xs:sequence>
-      <xs:element minOccurs="0" name="m_nOrderNum" type="xs:int" />
-      <xs:element minOccurs="0" name="m_sMediaId" nillable="true" type="xs:string" />
-    </xs:sequence>
+  <xs:element name="OrcaItem" nillable="true" type="tns:OrcaItem" />
+  <xs:complexType name="SlidingWindowItem">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q3="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" base="q3:BaseCrowdsourceItem">
+        <xs:sequence>
+          <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="Action" type="q4:OrderBy" />
+          <xs:element minOccurs="0" name="ActionDescription" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="ActionVal" type="xs:double" />
+          <xs:element minOccurs="0" name="Period" type="xs:int" />
+          <xs:element minOccurs="0" name="PeriodDescription" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="TypeDescription" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
   </xs:complexType>
-  <xs:element name="ManualMedia" nillable="true" type="tns:ManualMedia" />
+  <xs:element name="SlidingWindowItem" nillable="true" type="tns:SlidingWindowItem" />
 </xs:schema>

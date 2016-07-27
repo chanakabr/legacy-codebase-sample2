@@ -1169,7 +1169,7 @@
             <param name="userAssetsListItem">A list item to add</param>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Controllers.UserAssetsListItemController.Get(WebAPI.Models.Users.KalturaUserAssetsListItem)">
+        <member name="M:WebAPI.Controllers.UserAssetsListItemController.Get(System.String,WebAPI.Models.Users.KalturaUserAssetsListType,WebAPI.Models.Users.KalturaUserAssetsListItemType)">
             <summary>
             Get an item from user’s private asset list
             </summary>
@@ -1178,7 +1178,25 @@
             Item was not found in list = 2032</remarks>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Controllers.UserAssetsListItemController.Delete(WebAPI.Models.Users.KalturaUserAssetsListItem)">
+        <member name="M:WebAPI.Controllers.UserAssetsListItemController.GetOldStandard(WebAPI.Models.Users.KalturaUserAssetsListItem)">
+            <summary>
+            Get an item from user’s private asset list
+            </summary>
+            <param name="userAssetsListItem">A list item to get</param>
+            <remarks>Possible status codes: 
+            Item was not found in list = 2032</remarks>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.UserAssetsListItemController.Delete(System.String,WebAPI.Models.Users.KalturaUserAssetsListType)">
+            <summary>
+            Deletes an item from user’s private asset list
+            </summary>
+            <param name="userAssetsListItem">A list item to delete</param>
+            <remarks>Possible status codes: 
+            Item was not found in list = 2032</remarks>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.UserAssetsListItemController.DeleteOldStandard(WebAPI.Models.Users.KalturaUserAssetsListItem)">
             <summary>
             Deletes an item from user’s private asset list
             </summary>
@@ -4160,6 +4178,11 @@
             Comma separated list of asset types to search within.
             Possible values: 0 – EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).
             If omitted – all types should be included.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetHistoryFilter.AssetIdIn">
+            <summary>
+            Comma separated list of asset identifiers.
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetHistoryFilter.StatusEqual">

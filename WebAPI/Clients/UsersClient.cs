@@ -921,6 +921,47 @@ namespace WebAPI.Clients
             return listItem;
         }
 
+        internal bool DeleteItemFromUsersList(int groupId, string userId, string assetId, KalturaUserAssetsListType listType)
+        {
+            Status response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                Item item = new Item()
+                {
+                    ItemType = ItemType.Media,
+                    ItemId = int.Parse(assetId),
+                    UserId = userId,
+                    ListType = UsersMappings.ConvertUserAssetsListType(listType)
+                };
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Users.DeleteItemFromUsersList(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, item);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while ActivateAccount. Username: {0}, Password: {1}, exception: {2}", group.UsersCredentials.Username, group.UsersCredentials.Password, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        [Obsolete]
         internal bool DeleteItemFromUsersList(int groupId, string userId, KalturaUserAssetsListItem userAssetsListItem)
         {
             Status response = null;
@@ -955,6 +996,54 @@ namespace WebAPI.Clients
             return true;
         }
 
+        internal KalturaUserAssetsListItem GetItemFromUsersList(int groupId, string userId, string assetId, KalturaUserAssetsListType listType, KalturaUserAssetsListItemType itemType)
+        {
+            KalturaUserAssetsListItem listItem = null;
+            UsersListItemResponse response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                Item item = new Item() { 
+                    ItemType = UsersMappings.ConvertUserAssetsListItemType(itemType),
+                    ItemId = int.Parse(assetId),
+                    UserId = userId,
+                    ListType = UsersMappings.ConvertUserAssetsListType(listType)
+                };
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Users.GetItemFromUsersList(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, item);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while ActivateAccount. Username: {0}, Password: {1}, exception: {2}", group.UsersCredentials.Username, group.UsersCredentials.Password, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Item == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            listItem = Mapper.Map<KalturaUserAssetsListItem>(response.Item);
+
+            return listItem;
+        }
+
+        [Obsolete]
         internal KalturaUserAssetsListItem GetItemFromUsersList(int groupId, string userId, KalturaUserAssetsListItem userAssetsListItem)
         {
             KalturaUserAssetsListItem listItem = null;
