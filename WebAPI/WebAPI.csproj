@@ -642,6 +642,8 @@
     <Content Include="testmeDoc\actions\transactionhistory.list.html" />
     <Content Include="testmeDoc\actions\userassetrule.list.html" />
     <Content Include="testmeDoc\actions\userassetslistitem.add.html" />
+    <Content Include="testmeDoc\actions\userassetslistitem.delete.html" />
+    <Content Include="testmeDoc\actions\userassetslistitem.get.html" />
     <Content Include="testmeDoc\actions\userloginpin.add.html" />
     <Content Include="testmeDoc\actions\userloginpin.delete.html" />
     <Content Include="testmeDoc\actions\userloginpin.deleteAll.html" />
@@ -1833,6 +1835,8 @@
     <Content Include="testme\json\userloginpin-deleteAll-action-info.json" />
     <Content Include="testme\json\userloginpin-update-action-info.json" />
     <Content Include="summary.kinf" />
+    <Content Include="testme\json\userassetslistitem-delete-action-info.json" />
+    <Content Include="testme\json\userassetslistitem-get-action-info.json" />
     <None Include="Web References\Api\api.disco" />
     <Content Include="Web References\Billing\AdyenBillingDetail.datasource">
       <DependentUpon>Reference.map</DependentUpon>
