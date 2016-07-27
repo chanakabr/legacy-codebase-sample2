@@ -16,6 +16,7 @@ using WebAPI.Models.Users;
 using WebAPI.Utils;
 using System.Net;
 using System.ServiceModel;
+using WebAPI.Domains;
 
 namespace WebAPI.Clients
 {
@@ -927,9 +928,9 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal bool UpdateDomainHomeNetwork(int groupId, long domainId, string externalId, string name, string description, bool isActive)
+        internal KalturaHomeNetwork UpdateDomainHomeNetwork(int groupId, long domainId, string externalId, string name, string description, bool isActive)
         {
-            WebAPI.Domains.Status response = null;
+            HomeNetworkResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -937,7 +938,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.UpdateDomainHomeNetwork(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId, externalId, name, description, isActive);
+                    response = Domains.SetDomainHomeNetwork(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId, externalId, name, description, isActive);
                 }
             }
             catch (Exception ex)
@@ -951,12 +952,13 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.Code != (int)StatusCode.OK)
+            if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Code, response.Message);
+                throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            return true;
+            KalturaHomeNetwork result = Mapper.Map<KalturaHomeNetwork>(response.HomeNetwork);
+            return result;
         }
 
         internal bool RemoveDomainHomeNetwork(int groupId, long domainId, string externalId)

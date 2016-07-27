@@ -87,6 +87,8 @@ namespace WebAPI.Domains {
         
         private System.Threading.SendOrPostCallback UpdateDomainHomeNetworkOperationCompleted;
         
+        private System.Threading.SendOrPostCallback SetDomainHomeNetworkOperationCompleted;
+        
         private System.Threading.SendOrPostCallback RemoveDomainHomeNetworkOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetDomainHomeNetworksOperationCompleted;
@@ -245,6 +247,9 @@ namespace WebAPI.Domains {
         
         /// <remarks/>
         public event UpdateDomainHomeNetworkCompletedEventHandler UpdateDomainHomeNetworkCompleted;
+        
+        /// <remarks/>
+        public event SetDomainHomeNetworkCompletedEventHandler SetDomainHomeNetworkCompleted;
         
         /// <remarks/>
         public event RemoveDomainHomeNetworkCompletedEventHandler RemoveDomainHomeNetworkCompleted;
@@ -1337,6 +1342,47 @@ namespace WebAPI.Domains {
             if ((this.UpdateDomainHomeNetworkCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.UpdateDomainHomeNetworkCompleted(this, new UpdateDomainHomeNetworkCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/SetDomainHomeNetwork", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public HomeNetworkResponse SetDomainHomeNetwork(string sWSUsername, string sWSPassword, long lDomainID, string sNetworkID, string sNetworkName, string sNetworkDesc, bool bIsActive) {
+            object[] results = this.Invoke("SetDomainHomeNetwork", new object[] {
+                        sWSUsername,
+                        sWSPassword,
+                        lDomainID,
+                        sNetworkID,
+                        sNetworkName,
+                        sNetworkDesc,
+                        bIsActive});
+            return ((HomeNetworkResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SetDomainHomeNetworkAsync(string sWSUsername, string sWSPassword, long lDomainID, string sNetworkID, string sNetworkName, string sNetworkDesc, bool bIsActive) {
+            this.SetDomainHomeNetworkAsync(sWSUsername, sWSPassword, lDomainID, sNetworkID, sNetworkName, sNetworkDesc, bIsActive, null);
+        }
+        
+        /// <remarks/>
+        public void SetDomainHomeNetworkAsync(string sWSUsername, string sWSPassword, long lDomainID, string sNetworkID, string sNetworkName, string sNetworkDesc, bool bIsActive, object userState) {
+            if ((this.SetDomainHomeNetworkOperationCompleted == null)) {
+                this.SetDomainHomeNetworkOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetDomainHomeNetworkOperationCompleted);
+            }
+            this.InvokeAsync("SetDomainHomeNetwork", new object[] {
+                        sWSUsername,
+                        sWSPassword,
+                        lDomainID,
+                        sNetworkID,
+                        sNetworkName,
+                        sNetworkDesc,
+                        bIsActive}, this.SetDomainHomeNetworkOperationCompleted, userState);
+        }
+        
+        private void OnSetDomainHomeNetworkOperationCompleted(object arg) {
+            if ((this.SetDomainHomeNetworkCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SetDomainHomeNetworkCompleted(this, new SetDomainHomeNetworkCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -2596,141 +2642,6 @@ namespace WebAPI.Domains {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
-    public partial class HomeNetworkResponse {
-        
-        private Status statusField;
-        
-        private HomeNetwork homeNetworkField;
-        
-        /// <remarks/>
-        public Status Status {
-            get {
-                return this.statusField;
-            }
-            set {
-                this.statusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public HomeNetwork HomeNetwork {
-            get {
-                return this.homeNetworkField;
-            }
-            set {
-                this.homeNetworkField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
-    public partial class Status {
-        
-        private int codeField;
-        
-        private string messageField;
-        
-        /// <remarks/>
-        public int Code {
-            get {
-                return this.codeField;
-            }
-            set {
-                this.codeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Message {
-            get {
-                return this.messageField;
-            }
-            set {
-                this.messageField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
-    public partial class HomeNetwork {
-        
-        private string nameField;
-        
-        private string uIDField;
-        
-        private string descriptionField;
-        
-        private System.DateTime createDateField;
-        
-        private bool isActiveField;
-        
-        /// <remarks/>
-        public string Name {
-            get {
-                return this.nameField;
-            }
-            set {
-                this.nameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string UID {
-            get {
-                return this.uIDField;
-            }
-            set {
-                this.uIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Description {
-            get {
-                return this.descriptionField;
-            }
-            set {
-                this.descriptionField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime CreateDate {
-            get {
-                return this.createDateField;
-            }
-            set {
-                this.createDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool IsActive {
-            get {
-                return this.isActiveField;
-            }
-            set {
-                this.isActiveField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
     public partial class DeviceRegistrationStatusResponse {
         
         private DeviceRegistrationStatus deviceRegistrationStatusField;
@@ -2775,6 +2686,39 @@ namespace WebAPI.Domains {
         
         /// <remarks/>
         RegisteredToAnotherDomain,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
+    public partial class Status {
+        
+        private int codeField;
+        
+        private string messageField;
+        
+        /// <remarks/>
+        public int Code {
+            get {
+                return this.codeField;
+            }
+            set {
+                this.codeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Message {
+            get {
+                return this.messageField;
+            }
+            set {
+                this.messageField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -3230,6 +3174,108 @@ namespace WebAPI.Domains {
             }
             set {
                 this.homeNetworksField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
+    public partial class HomeNetwork {
+        
+        private string nameField;
+        
+        private string uIDField;
+        
+        private string descriptionField;
+        
+        private System.DateTime createDateField;
+        
+        private bool isActiveField;
+        
+        /// <remarks/>
+        public string Name {
+            get {
+                return this.nameField;
+            }
+            set {
+                this.nameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string UID {
+            get {
+                return this.uIDField;
+            }
+            set {
+                this.uIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Description {
+            get {
+                return this.descriptionField;
+            }
+            set {
+                this.descriptionField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime CreateDate {
+            get {
+                return this.createDateField;
+            }
+            set {
+                this.createDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool IsActive {
+            get {
+                return this.isActiveField;
+            }
+            set {
+                this.isActiveField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
+    public partial class HomeNetworkResponse {
+        
+        private Status statusField;
+        
+        private HomeNetwork homeNetworkField;
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public HomeNetwork HomeNetwork {
+            get {
+                return this.homeNetworkField;
+            }
+            set {
+                this.homeNetworkField = value;
             }
         }
     }
@@ -4289,6 +4335,32 @@ namespace WebAPI.Domains {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    public delegate void SetDomainHomeNetworkCompletedEventHandler(object sender, SetDomainHomeNetworkCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SetDomainHomeNetworkCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SetDomainHomeNetworkCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public HomeNetworkResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((HomeNetworkResponse)(this.results[0]));
             }
         }
     }

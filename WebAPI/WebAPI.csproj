@@ -382,20 +382,14 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-    <None Include="Service References\Notifications\NotificationService.wsdl" />
-    <None Include="Service References\Notifications\NotificationService.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Service References\Notifications\NotificationService1.wsdl" />
-    <None Include="Service References\Notifications\NotificationService1.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Service References\Notifications\NotificationService10.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\Notifications\NotificationService11.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\Notifications\NotificationService12.wsdl" />
     <None Include="Service References\Notifications\NotificationService12.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -420,39 +414,45 @@
     <None Include="Service References\Notifications\NotificationService19.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\Notifications\NotificationService2.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Service References\Notifications\NotificationService20.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\Notifications\NotificationService3.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService4.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService5.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService6.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService7.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService8.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Service References\Notifications\NotificationService9.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService910.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService911.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService912.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService913.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService914.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService915.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService916.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService917.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService918.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\Notifications\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-    <None Include="Service References\Notifications\NotificationService.disco" />
     <None Include="Service References\Notifications\NotificationService1.disco" />
+    <None Include="Service References\Notifications\NotificationService12.disco" />
     <Content Include="Swagger.ashx" />
     <Content Include="testmeDoc\actions\announcement.delete.html" />
     <Content Include="testmeDoc\actions\announcement.list.html" />
@@ -509,17 +509,32 @@
     <Content Include="testmeDoc\actions\householddevice.generatePin.html" />
     <Content Include="testmeDoc\actions\householddevice.get.html" />
     <Content Include="testmeDoc\actions\householdlimitations.get.html" />
+    <Content Include="testmeDoc\actions\householdpaymentgateway.delete.html" />
+    <Content Include="testmeDoc\actions\householdpaymentgateway.getChargeID.html" />
+    <Content Include="testmeDoc\actions\householdpaymentgateway.list.html" />
+    <Content Include="testmeDoc\actions\householdpaymentgateway.set.html" />
+    <Content Include="testmeDoc\actions\householdpaymentgateway.setChargeID.html" />
+    <Content Include="testmeDoc\actions\householdpaymentmethod.forceRemove.html" />
+    <Content Include="testmeDoc\actions\householdpaymentmethod.list.html" />
+    <Content Include="testmeDoc\actions\householdpaymentmethod.remove.html" />
+    <Content Include="testmeDoc\actions\householdpaymentmethod.setAsDefault.html" />
     <Content Include="testmeDoc\actions\householdpremiumservice.list.html" />
     <Content Include="testmeDoc\actions\householdquota.get.html" />
     <Content Include="testmeDoc\actions\householduser.add.html" />
     <Content Include="testmeDoc\actions\householduser.delete.html" />
     <Content Include="testmeDoc\actions\inboxmessage.get.html" />
     <Content Include="testmeDoc\actions\inboxmessage.list.html" />
+    <Content Include="testmeDoc\actions\inboxmessage.updateStatus.html" />
     <Content Include="testmeDoc\actions\licensedurl.get.html" />
     <Content Include="testmeDoc\actions\notification.register.html" />
+    <Content Include="testmeDoc\actions\notificationspartnersettings.get.html" />
+    <Content Include="testmeDoc\actions\notificationspartnersettings.update.html" />
+    <Content Include="testmeDoc\actions\notificationssettings.get.html" />
+    <Content Include="testmeDoc\actions\notificationssettings.update.html" />
     <Content Include="testmeDoc\actions\ossadapterprofile.add.html" />
     <Content Include="testmeDoc\actions\ossadapterprofile.delete.html" />
     <Content Include="testmeDoc\actions\ossadapterprofile.generateSharedSecret.html" />
+    <Content Include="testmeDoc\actions\ossadapterprofile.update.html" />
     <Content Include="testmeDoc\actions\ottcategory.get.html" />
     <Content Include="testmeDoc\actions\ottuser.activate.html" />
     <Content Include="testmeDoc\actions\ottuser.addRole.html" />
@@ -547,7 +562,10 @@
     <Content Include="testmeDoc\actions\paymentgatewayprofile.getConfiguration.html" />
     <Content Include="testmeDoc\actions\paymentgatewayprofile.list.html" />
     <Content Include="testmeDoc\actions\paymentgatewayprofile.update.html" />
+    <Content Include="testmeDoc\actions\paymentmethodprofile.add.html" />
+    <Content Include="testmeDoc\actions\paymentmethodprofile.delete.html" />
     <Content Include="testmeDoc\actions\paymentmethodprofile.list.html" />
+    <Content Include="testmeDoc\actions\paymentmethodprofile.update.html" />
     <Content Include="testmeDoc\actions\personalfeed.list.html" />
     <Content Include="testmeDoc\actions\pin.get.html" />
     <Content Include="testmeDoc\actions\pin.update.html" />
@@ -560,11 +578,11 @@
     <Content Include="testmeDoc\actions\recommendationprofile.delete.html" />
     <Content Include="testmeDoc\actions\recommendationprofile.generateSharedSecret.html" />
     <Content Include="testmeDoc\actions\recommendationprofile.list.html" />
+    <Content Include="testmeDoc\actions\recommendationprofile.update.html" />
     <Content Include="testmeDoc\actions\recording.add.html" />
     <Content Include="testmeDoc\actions\recording.cancel.html" />
     <Content Include="testmeDoc\actions\recording.delete.html" />
     <Content Include="testmeDoc\actions\recording.get.html" />
-    <Content Include="testmeDoc\actions\recording.getContext.html" />
     <Content Include="testmeDoc\actions\recording.list.html" />
     <Content Include="testmeDoc\actions\recording.protect.html" />
     <Content Include="testmeDoc\actions\registrysettings.list.html" />
@@ -584,6 +602,8 @@
     <Content Include="testmeDoc\actions\system.getTime.html" />
     <Content Include="testmeDoc\actions\system.getVersion.html" />
     <Content Include="testmeDoc\actions\system.ping.html" />
+    <Content Include="testmeDoc\actions\timeshiftedtvpartnersettings.get.html" />
+    <Content Include="testmeDoc\actions\timeshiftedtvpartnersettings.update.html" />
     <Content Include="testmeDoc\actions\topic.delete.html" />
     <Content Include="testmeDoc\actions\topic.get.html" />
     <Content Include="testmeDoc\actions\topic.list.html" />
@@ -638,7 +658,6 @@
     <Content Include="testmeDoc\enums\KalturaProductPriceOrderBy.html" />
     <Content Include="testmeDoc\enums\KalturaPurchaseSettingsType.html" />
     <Content Include="testmeDoc\enums\KalturaPurchaseStatus.html" />
-    <Content Include="testmeDoc\enums\KalturaRecordingContextOrderBy.html" />
     <Content Include="testmeDoc\enums\KalturaRecordingOrderBy.html" />
     <Content Include="testmeDoc\enums\KalturaRecordingStatus.html" />
     <Content Include="testmeDoc\enums\KalturaRecordingType.html" />
@@ -706,8 +725,6 @@
     <Content Include="testmeDoc\objects\KalturaCountry.html" />
     <Content Include="testmeDoc\objects\KalturaCoupon.html" />
     <Content Include="testmeDoc\objects\KalturaCouponsGroup.html" />
-    <Content Include="testmeDoc\objects\KalturaDevice.html" />
-    <Content Include="testmeDoc\objects\KalturaDeviceFamily.html" />
     <Content Include="testmeDoc\objects\KalturaDeviceFamilyBase.html" />
     <Content Include="testmeDoc\objects\KalturaDevicePin.html" />
     <Content Include="testmeDoc\objects\KalturaDiscountModule.html" />
@@ -729,14 +746,16 @@
     <Content Include="testmeDoc\objects\KalturaFilter.html" />
     <Content Include="testmeDoc\objects\KalturaFilterPager.html" />
     <Content Include="testmeDoc\objects\KalturaFollowDataBase.html" />
-    <Content Include="testmeDoc\objects\KalturaFollowDataTvSeries.html" />
     <Content Include="testmeDoc\objects\KalturaGroupPermission.html" />
     <Content Include="testmeDoc\objects\KalturaHomeNetwork.html" />
     <Content Include="testmeDoc\objects\KalturaHomeNetworkListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaHousehold.html" />
     <Content Include="testmeDoc\objects\KalturaHouseholdDeviceFamilyLimitations.html" />
     <Content Include="testmeDoc\objects\KalturaHouseholdLimitations.html" />
+    <Content Include="testmeDoc\objects\KalturaHouseholdPaymentGateway.html" />
+    <Content Include="testmeDoc\objects\KalturaHouseholdPaymentGatewayListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaHouseholdPaymentMethod.html" />
+    <Content Include="testmeDoc\objects\KalturaHouseholdPaymentMethodListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaHouseholdPremiumService.html" />
     <Content Include="testmeDoc\objects\KalturaHouseholdPremiumServiceListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaHouseholdQuota.html" />
@@ -749,7 +768,6 @@
     <Content Include="testmeDoc\objects\KalturaItemPriceListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaKeyValue.html" />
     <Content Include="testmeDoc\objects\KalturaLicensedUrl.html" />
-    <Content Include="testmeDoc\objects\KalturaListFollowDataTvSeriesResponse.html" />
     <Content Include="testmeDoc\objects\KalturaListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaLoginResponse.html" />
     <Content Include="testmeDoc\objects\KalturaLoginSession.html" />
@@ -757,6 +775,9 @@
     <Content Include="testmeDoc\objects\KalturaMediaAsset.html" />
     <Content Include="testmeDoc\objects\KalturaMediaFile.html" />
     <Content Include="testmeDoc\objects\KalturaMediaImage.html" />
+    <Content Include="testmeDoc\objects\KalturaNotificationSettings.html" />
+    <Content Include="testmeDoc\objects\KalturaNotificationsPartnerSettings.html" />
+    <Content Include="testmeDoc\objects\KalturaNotificationsSettings.html" />
     <Content Include="testmeDoc\objects\KalturaOSSAdapterBaseProfile.html" />
     <Content Include="testmeDoc\objects\KalturaOSSAdapterProfile.html" />
     <Content Include="testmeDoc\objects\KalturaOTTCategory.html" />
@@ -802,7 +823,6 @@
     <Content Include="testmeDoc\objects\KalturaRecommendationProfileListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaRecording.html" />
     <Content Include="testmeDoc\objects\KalturaRecordingContext.html" />
-    <Content Include="testmeDoc\objects\KalturaRecordingContextFilter.html" />
     <Content Include="testmeDoc\objects\KalturaRecordingContextListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaRecordingFilter.html" />
     <Content Include="testmeDoc\objects\KalturaRecordingListResponse.html" />
@@ -823,6 +843,7 @@
     <Content Include="testmeDoc\objects\KalturaSubscriptionFilter.html" />
     <Content Include="testmeDoc\objects\KalturaSubscriptionListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaSubscriptionPrice.html" />
+    <Content Include="testmeDoc\objects\KalturaTimeShiftedTvPartnerSettings.html" />
     <Content Include="testmeDoc\objects\KalturaTopic.html" />
     <Content Include="testmeDoc\objects\KalturaTopicFilter.html" />
     <Content Include="testmeDoc\objects\KalturaTopicListResponse.html" />
@@ -862,12 +883,16 @@
     <Content Include="testmeDoc\services\household.html" />
     <Content Include="testmeDoc\services\householddevice.html" />
     <Content Include="testmeDoc\services\householdlimitations.html" />
+    <Content Include="testmeDoc\services\householdpaymentgateway.html" />
+    <Content Include="testmeDoc\services\householdpaymentmethod.html" />
     <Content Include="testmeDoc\services\householdpremiumservice.html" />
     <Content Include="testmeDoc\services\householdquota.html" />
     <Content Include="testmeDoc\services\householduser.html" />
     <Content Include="testmeDoc\services\inboxmessage.html" />
     <Content Include="testmeDoc\services\licensedurl.html" />
     <Content Include="testmeDoc\services\notification.html" />
+    <Content Include="testmeDoc\services\notificationspartnersettings.html" />
+    <Content Include="testmeDoc\services\notificationssettings.html" />
     <Content Include="testmeDoc\services\ossadapterprofile.html" />
     <Content Include="testmeDoc\services\ottcategory.html" />
     <Content Include="testmeDoc\services\ottuser.html" />
@@ -887,6 +912,7 @@
     <Content Include="testmeDoc\services\social.html" />
     <Content Include="testmeDoc\services\subscription.html" />
     <Content Include="testmeDoc\services\system.html" />
+    <Content Include="testmeDoc\services\timeshiftedtvpartnersettings.html" />
     <Content Include="testmeDoc\services\topic.html" />
     <Content Include="testmeDoc\services\transaction.html" />
     <Content Include="testmeDoc\services\transactionhistory.html" />
@@ -1394,8 +1420,6 @@
     <Content Include="testme\json\KalturaCountry-subclasses.json" />
     <Content Include="testme\json\KalturaCoupon-subclasses.json" />
     <Content Include="testme\json\KalturaCouponsGroup-subclasses.json" />
-    <Content Include="testme\json\KalturaDevice-subclasses.json" />
-    <Content Include="testme\json\KalturaDeviceFamily-subclasses.json" />
     <Content Include="testme\json\KalturaDeviceFamilyBase-subclasses.json" />
     <Content Include="testme\json\KalturaDiscountModule-subclasses.json" />
     <Content Include="testme\json\KalturaDoubleValue-subclasses.json" />
@@ -1414,7 +1438,6 @@
     <Content Include="testme\json\KalturaFilter-subclasses.json" />
     <Content Include="testme\json\KalturaFilterPager-subclasses.json" />
     <Content Include="testme\json\KalturaFollowDataBase-subclasses.json" />
-    <Content Include="testme\json\KalturaFollowDataTvSeries-subclasses.json" />
     <Content Include="testme\json\KalturaHomeNetwork-subclasses.json" />
     <Content Include="testme\json\KalturaHousehold-subclasses.json" />
     <Content Include="testme\json\KalturaHouseholdDeviceFamilyLimitations-subclasses.json" />
@@ -1428,7 +1451,6 @@
     <Content Include="testme\json\KalturaItemPrice-subclasses.json" />
     <Content Include="testme\json\KalturaItemPriceListResponse-subclasses.json" />
     <Content Include="testme\json\KalturaKeyValue-subclasses.json" />
-    <Content Include="testme\json\KalturaListFollowDataTvSeriesResponse-subclasses.json" />
     <Content Include="testme\json\KalturaListResponse-subclasses.json" />
     <Content Include="testme\json\KalturaLoginResponse-subclasses.json" />
     <Content Include="testme\json\KalturaLoginSession-subclasses.json" />
@@ -1467,7 +1489,6 @@
     <Content Include="testme\json\KalturaRecommendationProfile-subclasses.json" />
     <Content Include="testme\json\KalturaRecording-subclasses.json" />
     <Content Include="testme\json\KalturaRecordingContext-subclasses.json" />
-    <Content Include="testme\json\KalturaRecordingContextFilter-subclasses.json" />
     <Content Include="testme\json\KalturaRecordingContextListResponse-subclasses.json" />
     <Content Include="testme\json\KalturaRecordingFilter-subclasses.json" />
     <Content Include="testme\json\KalturaRecordingListResponse-subclasses.json" />
@@ -1536,7 +1557,6 @@
     <Content Include="testme\json\recording-cancel-action-info.json" />
     <Content Include="testme\json\recording-delete-action-info.json" />
     <Content Include="testme\json\recording-get-action-info.json" />
-    <Content Include="testme\json\recording-getContext-action-info.json" />
     <Content Include="testme\json\recording-list-action-info.json" />
     <Content Include="testme\json\recording-protect-action-info.json" />
     <Content Include="testme\json\session-actions.json" />
@@ -1672,6 +1692,33 @@
     <Content Include="testme\json\system-ping-action-info.json" />
     <Content Include="testme\json\topic-list-action-info.json" />
     <Content Include="testme\json\topic-updateStatus-action-info.json" />
+    <Content Include="Service References\Notifications\WebAPI.Notifications.FollowResponse1.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\Notifications\WebAPI.Notifications.MessageAnnouncementResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="testme\json\timeshiftedtvpartnersettings-actions.json" />
+    <Content Include="testme\json\timeshiftedtvpartnersettings-get-action-info.json" />
+    <Content Include="testme\json\timeshiftedtvpartnersettings-update-action-info.json" />
+    <Content Include="testme\json\paymentmethodprofile-delete-action-info.json" />
+    <Content Include="testme\json\paymentmethodprofile-update-action-info.json" />
+    <Content Include="testme\json\recommendationprofile-update-action-info.json" />
+    <Content Include="testme\json\paymentmethodprofile-add-action-info.json" />
+    <Content Include="testme\json\notificationspartnersettings-actions.json" />
+    <Content Include="testme\json\notificationspartnersettings-get-action-info.json" />
+    <Content Include="testme\json\notificationspartnersettings-update-action-info.json" />
+    <Content Include="testme\json\notificationssettings-actions.json" />
+    <Content Include="testme\json\notificationssettings-get-action-info.json" />
+    <Content Include="testme\json\notificationssettings-update-action-info.json" />
+    <Content Include="testme\json\ossadapterprofile-update-action-info.json" />
+    <Content Include="testme\json\KalturaTimeShiftedTvPartnerSettings-subclasses.json" />
+    <Content Include="testme\json\KalturaNotificationSettings-subclasses.json" />
+    <Content Include="testme\json\KalturaNotificationsPartnerSettings-subclasses.json" />
+    <Content Include="testme\json\KalturaNotificationsSettings-subclasses.json" />
+    <Content Include="testme\json\KalturaHouseholdPaymentGateway-subclasses.json" />
+    <Content Include="testme\json\KalturaHouseholdPaymentGatewayListResponse-subclasses.json" />
+    <Content Include="testme\json\KalturaHouseholdPaymentMethodListResponse-subclasses.json" />
     <None Include="Web References\Api\api.disco" />
     <Content Include="Web References\Billing\AdyenBillingDetail.datasource">
       <DependentUpon>Reference.map</DependentUpon>

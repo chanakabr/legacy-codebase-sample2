@@ -1,1 +1,1 @@
-[{"action":"register","name":"register","label":"register"}]
+[{"action":"getLastCleanupDate","name":"getLastCleanupDate","label":"getLastCleanupDate"},{"action":"initiateCleanup","name":"initiateCleanup","label":"initiateCleanup"},{"action":"register","name":"register","label":"register"},{"action":"setDevicePushToken","name":"setDevicePushToken","label":"setDevicePushToken"}]

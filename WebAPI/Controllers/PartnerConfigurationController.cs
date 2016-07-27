@@ -8,6 +8,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models;
 using WebAPI.Models.Partner;
 using WebAPI.Utils;
@@ -29,6 +30,8 @@ namespace WebAPI.Controllers
         /// </param>        
         [Route("update"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemaValidationType.ACTION_RETURN_TYPE)]
         public bool Update(KalturaPartnerConfiguration configuration)
         {
             bool response = false;

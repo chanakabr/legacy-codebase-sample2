@@ -3858,6 +3858,7 @@
               <s:element minOccurs="0" maxOccurs="1" name="AdapterUrl" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="ExternalIdentifier" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="SharedSecret" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="SkipSettings" type="s:boolean" />
               <s:element minOccurs="0" maxOccurs="1" name="Settings" type="tns:ArrayOfOSSAdapterSettings" />
             </s:sequence>
           </s:extension>
@@ -4134,6 +4135,7 @@
           <s:element minOccurs="0" maxOccurs="1" name="ExternalIdentifier" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="SharedSecret" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="Settings" type="tns:ArrayOfRecommendationEngineSettings" />
+          <s:element minOccurs="1" maxOccurs="1" name="SkipSettings" type="s:boolean" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ArrayOfRecommendationEngineSettings">

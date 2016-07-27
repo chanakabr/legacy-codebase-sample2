@@ -1,0 +1,1 @@
+{"actionParams":[{"type":"string","isSimpleType":true,"isComplexType":false,"isFile":false,"isEnum":false,"isStringEnum":false,"isArray":false,"isAbstract":false,"description":"The network to update","name":"externalId","isOptional":false}],"description":"Delete household\u2019s existing home network"}

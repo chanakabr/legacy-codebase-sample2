@@ -14,6 +14,7 @@ namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/cDVRAdapterProfile/action")]
     [OldStandardAction("listOldStandard", "list")]
+    [OldStandardAction("updateOldStandard", "update")]
     public class CDVRAdapterProfileController : ApiController
     {
         /// <summary>
@@ -136,10 +137,42 @@ namespace WebAPI.Controllers
         /// Possible status codes:   
         /// Adapter name is required = 5005, Adapter identifier is required = 10001, Adapter URL is required = 5013, External identifier required = 6016, Adapter does not exist = 10000
         /// </remarks>
+        /// <param name="adapterId">C-DVR adapter identifier</param>       
         /// <param name="adapter">C-DVR adapter Object</param>       
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        public KalturaCDVRAdapterProfile Update(KalturaCDVRAdapterProfile adapter)
+        public KalturaCDVRAdapterProfile Update(int adapterId, KalturaCDVRAdapterProfile adapter)
+        {
+            KalturaCDVRAdapterProfile response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            adapter.Id = adapterId;
+
+            try
+            {
+                // call client
+                response = ClientsManager.ConditionalAccessClient().SetCDVRAdapter(groupId, adapter);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Update C-DVR adapter details
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:   
+        /// Adapter name is required = 5005, Adapter identifier is required = 10001, Adapter URL is required = 5013, External identifier required = 6016, Adapter does not exist = 10000
+        /// </remarks>
+        /// <param name="adapter">C-DVR adapter Object</param>       
+        [Route("updateOldStandard"), HttpPost]
+        [ApiAuthorize]
+        [Obsolete]
+        public KalturaCDVRAdapterProfile UpdateOldStandard(KalturaCDVRAdapterProfile adapter)
         {
             KalturaCDVRAdapterProfile response = null;
 

@@ -17,7 +17,10 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/announcement/action")]
+    [OldStandardAction("addOldStandard", "add")]
+    [OldStandardAction("updateOldStandard", "update")]
     [OldStandardAction("listOldStandard", "list")]
+    [OldStandardAction("enableSystemAnnouncements", "createAnnouncement")]
     public class AnnouncementController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -33,10 +36,8 @@ namespace WebAPI.Controllers
         /// AnnouncementInvalidTimezone = 8008, FeatureDisabled = 8009</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public bool Add(KalturaAnnouncement announcement)
+        public KalturaAnnouncement Add(KalturaAnnouncement announcement)
         {
-            bool response = false;
-
             try
             {
                 // validate announcement is not empty
@@ -55,7 +56,7 @@ namespace WebAPI.Controllers
                 }
 
                 int groupId = KS.GetFromRequest().GroupId;
-                response = ClientsManager.NotificationClient().AddAnnouncement(groupId, announcement);
+                return ClientsManager.NotificationClient().AddAnnouncement(groupId, announcement);
             }
 
             catch (ClientException ex)
@@ -63,7 +64,94 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return response;
+            return null;
+        }
+
+        /// <summary>
+        /// Add a new future scheduled system announcement push notification
+        /// </summary>
+        /// <param name="announcement">The announcement to be added.
+        /// timezone parameter should be taken from the 'name of timezone' from: https://msdn.microsoft.com/en-us/library/ms912391(v=winembedded.11).aspx
+        /// Recipients values: All, LoggedIn, Guests</param>
+        /// <returns></returns>
+        /// <remarks>Possible status codes: AnnouncementMessageTooLong = 8010, AnnouncementMessageIsEmpty = 8004
+        /// AnnouncementInvalidTimezone = 8008, FeatureDisabled = 8009</remarks>
+        [Route("addOldStandard"), HttpPost]
+        [ApiAuthorize]
+        [Obsolete]
+        public bool AddOldStandard(KalturaAnnouncement announcement)
+        {
+            try
+            {
+                // validate announcement is not empty
+                if (announcement == null)
+                {
+                    log.Error("announcement object is empty");
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "announcement object is empty");
+                }
+
+                // validate announcement start date
+                if (announcement.getStartTime() > 0 &&
+                    announcement.StartTime < Utils.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow))
+                {
+                    log.ErrorFormat("start time have passed. given time: {0}", Utils.Utils.UnixTimeStampToDateTime((long)announcement.StartTime));
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "start time have passed");
+                }
+
+                int groupId = KS.GetFromRequest().GroupId;
+                ClientsManager.NotificationClient().AddAnnouncement(groupId, announcement);
+            }
+
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Update an existing future system announcement push notification. Announcement can only be updated only before sending
+        /// </summary>
+        /// <param name="announcementId">The announcement identifier</param>
+        /// <param name="announcement">The announcement to update.
+        /// timezone parameter should be taken from the 'name of timezone' from: https://msdn.microsoft.com/en-us/library/ms912391(v=winembedded.11).aspx
+        /// Recipients values: All, LoggedIn, Guests</param>
+        /// <returns></returns>
+        /// <remarks>Possible status codes: AnnouncementMessageTooLong = 8010, AnnouncementMessageIsEmpty = 8004, AnnouncementNotFound = 8006,
+        /// AnnouncementUpdateNotAllowed = 8007, AnnouncementInvalidTimezone = 8008, FeatureDisabled = 8009</remarks>
+        [Route("update"), HttpPost]
+        [ApiAuthorize]
+        public KalturaAnnouncement Update(int announcementId, KalturaAnnouncement announcement)
+        {
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+
+                // validate announcement is not empty
+                if (announcement == null)
+                {
+                    log.Error("announcement object is empty");
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "announcement object is empty");
+                }
+
+                // validate announcement start date
+                if (announcement.getStartTime() > 0 &&
+                    announcement.StartTime < Utils.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow))
+                {
+                    log.ErrorFormat("start time have passed. given time: {0}", Utils.Utils.UnixTimeStampToDateTime((long)announcement.StartTime));
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "start time have passed");
+                }
+
+                return ClientsManager.NotificationClient().UpdateAnnouncement(groupId, announcementId, announcement);
+            }
+
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -75,12 +163,11 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         /// <remarks>Possible status codes: AnnouncementMessageTooLong = 8010, AnnouncementMessageIsEmpty = 8004, AnnouncementNotFound = 8006,
         /// AnnouncementUpdateNotAllowed = 8007, AnnouncementInvalidTimezone = 8008, FeatureDisabled = 8009</remarks>
-        [Route("update"), HttpPost]
+        [Route("updateOldStandard"), HttpPost]
         [ApiAuthorize]
-        public bool Update(KalturaAnnouncement announcement)
+        [Obsolete]
+        public bool UpdateOldStandard(KalturaAnnouncement announcement)
         {
-            bool response = false;
-
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
@@ -100,7 +187,7 @@ namespace WebAPI.Controllers
                     throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "start time have passed");
                 }
 
-                response = ClientsManager.NotificationClient().UpdateAnnouncement(groupId, announcement);
+                ClientsManager.NotificationClient().UpdateAnnouncement(groupId, announcement.Id.Value, announcement);
             }
 
             catch (ClientException ex)
@@ -108,7 +195,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return response;
+            return true;
         }
 
         /// <summary>
@@ -166,13 +253,14 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// create system announcement 
+        /// Enable system announcements
         /// </summary>       
         /// <returns></returns>
         /// <remarks>Possible status codes: FeatureDisabled = 8009, FailCreateAnnouncement = 8011</remarks>
-        [Route("createAnnouncement"), HttpPost]
+        [Route("enableSystemAnnouncements"), HttpPost]
         [ApiAuthorize]
-        public bool CreateAnnouncement()
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        public bool EnableSystemAnnouncements()
         {
             bool response = false;
             try

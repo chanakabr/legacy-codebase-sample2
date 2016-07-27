@@ -740,6 +740,32 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="SetDomainHomeNetwork">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUsername" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="lDomainID" type="s:long" />
+            <s:element minOccurs="0" maxOccurs="1" name="sNetworkID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sNetworkName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sNetworkDesc" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="bIsActive" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetDomainHomeNetworkResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SetDomainHomeNetworkResult" type="tns:HomeNetworkResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="HomeNetworkResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="HomeNetwork" type="tns:HomeNetwork" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="RemoveDomainHomeNetwork">
         <s:complexType>
           <s:sequence>
@@ -1112,12 +1138,6 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:complexType name="HomeNetworkResponse">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
-          <s:element minOccurs="0" maxOccurs="1" name="HomeNetwork" type="tns:HomeNetwork" />
-        </s:sequence>
-      </s:complexType>
       <s:element name="DomainStatusResponse" nillable="true" type="tns:DomainStatusResponse" />
       <s:element name="DomainResponseStatus" type="tns:DomainResponseStatus" />
       <s:element name="DomainResponseObject" nillable="true" type="tns:DomainResponseObject" />
@@ -1132,12 +1152,12 @@
       <s:element name="DeviceResponseObject" nillable="true" type="tns:DeviceResponseObject" />
       <s:element name="boolean" type="s:boolean" />
       <s:element name="NetworkResponseObject" nillable="true" type="tns:NetworkResponseObject" />
+      <s:element name="HomeNetworkResponse" nillable="true" type="tns:HomeNetworkResponse" />
       <s:element name="HomeNetworksResponse" nillable="true" type="tns:HomeNetworksResponse" />
       <s:element name="ValidationResponseObject" nillable="true" type="tns:ValidationResponseObject" />
       <s:element name="ChangeDLMObj" nillable="true" type="tns:ChangeDLMObj" />
       <s:element name="DLMResponse" nillable="true" type="tns:DLMResponse" />
       <s:element name="DeviceRegistrationStatusResponse" nillable="true" type="tns:DeviceRegistrationStatusResponse" />
-      <s:element name="HomeNetworkResponse" nillable="true" type="tns:HomeNetworkResponse" />
     </s:schema>
   </wsdl:types>
   <wsdl:message name="AddDomainSoapIn">
@@ -1313,6 +1333,12 @@
   </wsdl:message>
   <wsdl:message name="UpdateDomainHomeNetworkSoapOut">
     <wsdl:part name="parameters" element="tns:UpdateDomainHomeNetworkResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetDomainHomeNetworkSoapIn">
+    <wsdl:part name="parameters" element="tns:SetDomainHomeNetwork" />
+  </wsdl:message>
+  <wsdl:message name="SetDomainHomeNetworkSoapOut">
+    <wsdl:part name="parameters" element="tns:SetDomainHomeNetworkResponse" />
   </wsdl:message>
   <wsdl:message name="RemoveDomainHomeNetworkSoapIn">
     <wsdl:part name="parameters" element="tns:RemoveDomainHomeNetwork" />
@@ -1691,6 +1717,18 @@
   <wsdl:message name="UpdateDomainHomeNetworkHttpPostOut">
     <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
+  <wsdl:message name="SetDomainHomeNetworkHttpPostIn">
+    <wsdl:part name="sWSUsername" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="lDomainID" type="s:string" />
+    <wsdl:part name="sNetworkID" type="s:string" />
+    <wsdl:part name="sNetworkName" type="s:string" />
+    <wsdl:part name="sNetworkDesc" type="s:string" />
+    <wsdl:part name="bIsActive" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetDomainHomeNetworkHttpPostOut">
+    <wsdl:part name="Body" element="tns:HomeNetworkResponse" />
+  </wsdl:message>
   <wsdl:message name="RemoveDomainHomeNetworkHttpPostIn">
     <wsdl:part name="sWSUsername" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -1968,6 +2006,10 @@
       <wsdl:input message="tns:UpdateDomainHomeNetworkSoapIn" />
       <wsdl:output message="tns:UpdateDomainHomeNetworkSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="SetDomainHomeNetwork">
+      <wsdl:input message="tns:SetDomainHomeNetworkSoapIn" />
+      <wsdl:output message="tns:SetDomainHomeNetworkSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="RemoveDomainHomeNetwork">
       <wsdl:input message="tns:RemoveDomainHomeNetworkSoapIn" />
       <wsdl:output message="tns:RemoveDomainHomeNetworkSoapOut" />
@@ -2153,6 +2195,10 @@
     <wsdl:operation name="UpdateDomainHomeNetwork">
       <wsdl:input message="tns:UpdateDomainHomeNetworkHttpPostIn" />
       <wsdl:output message="tns:UpdateDomainHomeNetworkHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetDomainHomeNetwork">
+      <wsdl:input message="tns:SetDomainHomeNetworkHttpPostIn" />
+      <wsdl:output message="tns:SetDomainHomeNetworkHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="RemoveDomainHomeNetwork">
       <wsdl:input message="tns:RemoveDomainHomeNetworkHttpPostIn" />
@@ -2479,6 +2525,15 @@
     </wsdl:operation>
     <wsdl:operation name="UpdateDomainHomeNetwork">
       <soap:operation soapAction="http://domains.tvinci.com/UpdateDomainHomeNetwork" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetDomainHomeNetwork">
+      <soap:operation soapAction="http://domains.tvinci.com/SetDomainHomeNetwork" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2903,6 +2958,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="SetDomainHomeNetwork">
+      <soap12:operation soapAction="http://domains.tvinci.com/SetDomainHomeNetwork" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="RemoveDomainHomeNetwork">
       <soap12:operation soapAction="http://domains.tvinci.com/RemoveDomainHomeNetwork" style="document" />
       <wsdl:input>
@@ -3313,6 +3377,15 @@
     </wsdl:operation>
     <wsdl:operation name="UpdateDomainHomeNetwork">
       <http:operation location="/UpdateDomainHomeNetwork" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetDomainHomeNetwork">
+      <http:operation location="/SetDomainHomeNetwork" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
