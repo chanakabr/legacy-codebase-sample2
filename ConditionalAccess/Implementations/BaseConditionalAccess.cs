@@ -19366,12 +19366,21 @@ namespace ConditionalAccess
 
             EPGChannelProgrammeObject epg = epgs[0];
  
-            // get epg channel - TODO: get a real channel
-            EPGChannelObject channel = null;
+            // get epg channel  
+            // TODO: make sure it's right
+            int linearMediaId = 0;
+            if (string.IsNullOrEmpty(epg.media_id) || !int.TryParse(epg.media_id, out linearMediaId))
+            {
+                log.ErrorFormat("Failed to get linear media id for epg channel. groupId = {0}, userId = {1}, domainId = {2}, recordingId = {3}, epgId = {4}",
+                    m_nGroupID, userId, domainId, recordingId, recording.EpgId);
+                return response;
+            }
+
+            ConditionalAccess.WS_Catalog.MediaObj epgChannelLinearMedia = Utils.GetMediaById(m_nGroupID, linearMediaId);
 
             // validate recording channel exists or the settings allow it to not exist
             // TODO: check what we do with no value on the setting
-            if (channel == null && (!tstvSettings.IsRecordingPlaybackNonExistingChannelEnabled.HasValue || !tstvSettings.IsRecordingPlaybackNonExistingChannelEnabled.Value))
+            if (epgChannelLinearMedia == null && (!tstvSettings.IsRecordingPlaybackNonExistingChannelEnabled.HasValue || !tstvSettings.IsRecordingPlaybackNonExistingChannelEnabled.Value))
             {
                 log.ErrorFormat("EPG channel does not exist and TSTV settings do not allow playback in this case. groupId = {0}, userId = {1}, domainId = {2}, recordingId = {3}, channelId = {4}",
                     m_nGroupID, userId, domainId, recordingId, recording.ChannelId);
@@ -19388,8 +19397,10 @@ namespace ConditionalAccess
                 return response;
             }
 
-            // validate entitlements if needed - TODO: add channel settings validations
-            if (!tstvSettings.IsRecordingPlaybackNonEntitledChannelEnabled.HasValue || !tstvSettings.IsRecordingPlaybackNonEntitledChannelEnabled.Value)
+            // validate entitlements if needed 
+            // TODO: make sure whats the right order
+            if (!tstvSettings.IsRecordingPlaybackNonEntitledChannelEnabled.HasValue || !tstvSettings.IsRecordingPlaybackNonEntitledChannelEnabled.Value ||
+                !epgChannelLinearMedia.EnableRecordingPlaybackNonEntitledChannel)
             {
                 MediaFileItemPricesContainer[] prices = GetItemsPrices(fileIdsToEpgsMap.Keys.ToArray(), userId, true, string.Empty, string.Empty, udid);
                 if (prices == null || prices.Length == 0)

@@ -5886,6 +5886,55 @@ namespace ConditionalAccess
 
             return result;
         }
+
+        internal static MediaObj GetMediaById(int groupID, int mediaId)
+        {
+            MediaObj media = null;
+            WS_Catalog.IserviceClient client = null;
+
+            try
+            {
+                WS_Catalog.MediasProtocolRequest request = new WS_Catalog.MediasProtocolRequest();
+                request.m_nGroupID = groupID;
+                request.m_nPageIndex = 0;
+                request.m_nPageSize = 0;
+                request.m_lMediasIds = new int[] { mediaId };
+                request.m_oFilter = new WS_Catalog.Filter()
+                {
+                    m_bOnlyActiveMedia = true
+                };
+                FillCatalogSignature(request);
+                client = new WS_Catalog.IserviceClient();
+                string sCatalogUrl = GetWSURL("WS_Catalog");
+                if (string.IsNullOrEmpty(sCatalogUrl))
+                {
+                    log.Error("Catalog Url is null or empty");
+                    return media;
+                }
+
+                client.Endpoint.Address = new System.ServiceModel.EndpointAddress(sCatalogUrl);
+                WS_Catalog.MediaResponse response = client.GetMediasByIDs(request) as WS_Catalog.MediaResponse;
+                if (response != null && response.m_lObj != null && response.m_lObj.Length > 0)
+                {
+                    media = response.m_lObj[0] as MediaObj;
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error("Failed GetMediasByIDs to Catalog", ex);
+            }
+
+            finally
+            {
+                if (client != null)
+                {
+                    client.Close();
+                }
+            }
+
+            return media;
+        }
     }
 }
 
