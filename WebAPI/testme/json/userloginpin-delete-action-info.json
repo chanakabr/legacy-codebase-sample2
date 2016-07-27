@@ -1,0 +1,1 @@
+{"actionParams":[{"type":"string","isSimpleType":true,"isComplexType":false,"isFile":false,"isEnum":false,"isStringEnum":false,"isArray":false,"isAbstract":false,"description":"Login pin code to expire","name":"pinCode","isOptional":false}],"description":"Immediately expire all active login-PINs for a user"}

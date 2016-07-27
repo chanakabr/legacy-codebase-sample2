@@ -355,16 +355,18 @@ namespace WebAPI.Controllers
         #endregion
 
         /// <summary>
-        /// Reset a household’s business limitations -device change frequency or the user add/remove frequency
+        /// Reset a household’s time limitation for removing user or device
         /// </summary>
         /// <remarks>
         /// Possible status codes: 
         /// </remarks>        
-        /// <param name="household_frequency_type">Possible values: devices – reset the device change frequency. 
+        /// <param name="frequencyType">Possible values: devices – reset the device change frequency. 
         /// users – reset the user add/remove frequency</param>        
         [Route("resetFrequency"), HttpPost]
         [ApiAuthorize]
-        public KalturaHousehold ResetFrequency(KalturaHouseholdFrequencyType household_frequency_type)
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [OldStandard("frequencyType", "household_frequency_type")]
+        public KalturaHousehold ResetFrequency(KalturaHouseholdFrequencyType frequencyType)
         {
             KalturaHousehold household = null;
 
@@ -373,7 +375,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                household = ClientsManager.DomainsClient().ResetFrequency(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), household_frequency_type);
+                household = ClientsManager.DomainsClient().ResetFrequency(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), frequencyType);
             }
             catch (ClientException ex)
             {
@@ -389,6 +391,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("update"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
         public KalturaHousehold Update(KalturaHousehold household)
         {
             int groupId = KS.GetFromRequest().GroupId;

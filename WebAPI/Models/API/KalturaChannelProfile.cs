@@ -17,6 +17,7 @@ namespace WebAPI.Models.API
     [OldStandard("isActive", "is_active")]
     [OldStandard("filterExpression", "filter_expression")]
     [OldStandard("assetTypes", "asset_types")]
+    [Obsolete]
     public class KalturaChannelProfile : KalturaOTTObject
     {
         /// <summary>

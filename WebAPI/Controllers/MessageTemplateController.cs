@@ -1,7 +1,9 @@
-﻿using System.Web.Http;
+﻿using System;
+using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Utils;
@@ -21,6 +23,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("set"), HttpPost]
         [ApiAuthorize]
+        [Obsolete]
         public KalturaMessageTemplate Set(KalturaMessageTemplate message_template)
         {
             KalturaMessageTemplate response = null;
@@ -51,16 +54,61 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
+        /// Set the account’s push notifications and inbox messages templates
+        /// </summary>
+        /// <param name="assetType">The asset type to update its template</param>  
+        /// <param name="template">The actual message with placeholders to be presented to the user</param>       
+        /// <returns></returns>
+        /// <remarks>
+        /// Possible status codes: message place holders invalid = 8014, url placeholders invalid = 8017
+        /// </remarks>
+        [Route("update"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
+        public KalturaMessageTemplate Update(KalturaOTTAssetType assetType, KalturaMessageTemplate template)
+        {
+            KalturaMessageTemplate response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                template.AssetType = assetType;
+
+                if (string.IsNullOrEmpty(template.Message))
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "message is empty");
+                }
+
+                if (string.IsNullOrEmpty(template.DateFormat))
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "date_format is empty");
+                }
+
+                // call client
+                response = ClientsManager.NotificationClient().SetMessageTemplate(groupId, template);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
         /// Retrieve a message template used in push notifications and inbox
         /// </summary>
-        /// <param name="asset_Type">possible values: Asset type – Series</param>
+        /// <param name="assetType">possible values: Asset type – Series</param>
         /// <returns></returns>     
         /// <remarks>
         /// Possible status codes: message template not found = 8016
         /// </remarks>
         [Route("get"), HttpPost]
         [ApiAuthorize]
-        public KalturaMessageTemplate Get(KalturaOTTAssetType asset_Type)
+        [OldStandard("assetType", "asset_Type")]
+        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
+        public KalturaMessageTemplate Get(KalturaOTTAssetType assetType)
         {
             KalturaMessageTemplate response = null;
 
@@ -69,7 +117,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.NotificationClient().GetMessageTemplate(groupId, asset_Type);
+                response = ClientsManager.NotificationClient().GetMessageTemplate(groupId, assetType);
             }
             catch (ClientException ex)
             {

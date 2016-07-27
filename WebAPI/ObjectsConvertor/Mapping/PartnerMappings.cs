@@ -16,15 +16,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
         {
             Mapper.CreateMap<WebAPI.Models.Partner.KalturaBillingPartnerConfig, PartnerConfiguration >()
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertPartnerConfigurationType(src.Type)))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertPartnerConfigurationType(src.getType())))
                 ;
         }
 
-        private static PartnerConfigurationType ConvertPartnerConfigurationType(KalturaPartnerConfigurationHolder partnerConfigurationHolder)
+        private static PartnerConfigurationType ConvertPartnerConfigurationType(KalturaPartnerConfigurationType type)
         {
             PartnerConfigurationType result;
 
-            switch (partnerConfigurationHolder.type)
+            switch (type)
             {
                 case KalturaPartnerConfigurationType.DefaultPaymentGateway:
                     result = PartnerConfigurationType.DefaultPaymentGateway;

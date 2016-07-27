@@ -209,7 +209,7 @@ namespace WebAPI.Clients
             return success;
         }
 
-        internal bool AddAnnouncement(int groupId, Models.Notifications.KalturaAnnouncement announcement)
+        internal KalturaAnnouncement AddAnnouncement(int groupId, Models.Notifications.KalturaAnnouncement announcement)
         {
             AddMessageAnnouncementResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
@@ -279,12 +279,13 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            return true;
+            KalturaAnnouncement result = Mapper.Map<KalturaAnnouncement>(response.Announcement);
+            return result;
         }
 
-        internal bool UpdateAnnouncement(int groupId, Models.Notifications.KalturaAnnouncement announcement)
+        internal KalturaAnnouncement UpdateAnnouncement(int groupId, int announcementId, Models.Notifications.KalturaAnnouncement announcement)
         {
-            Status response = null;
+            MessageAnnouncementResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
             eAnnouncementRecipientsType recipients = eAnnouncementRecipientsType.Other;
@@ -337,7 +338,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.UpdateMessageAnnouncement(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, messageAnnouncement);
+                    response = Notification.UpdateMessageAnnouncement(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, announcementId, messageAnnouncement);
                 }
             }
             catch (Exception ex)
@@ -346,13 +347,14 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response.Code != (int)StatusCode.OK)
+            if (response.Status.Code != (int)StatusCode.OK)
             {
                 // Bad response received from WS
-                throw new ClientException(response.Code, response.Message);
+                throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            return true;
+            KalturaAnnouncement result = Mapper.Map<KalturaAnnouncement>(response.Announcement);
+            return result;
         }
 
         internal bool UpdateAnnouncementStatus(int groupId, long id, bool status)

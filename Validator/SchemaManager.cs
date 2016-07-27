@@ -383,9 +383,8 @@ namespace Validator.Managers.Schema
                 Type valueType = attribute.GetGenericArguments()[0];
                 if (!valueType.IsSubclassOf(typeof(KalturaOTTObject)))
                 {
-                    logError("Warning", declaringClass, string.Format("{0} list must contain KalturaOTTObject objects (or something that extends it)", description));
-                    if (strict)
-                        valid = false;
+                    logError("Error", declaringClass, string.Format("{0} list must contain KalturaOTTObject objects (or something that extends it)", description));
+                    valid = false;
                 }
             }
             else if (attribute.IsGenericType && attribute.GetGenericTypeDefinition() != typeof(Nullable<>))
@@ -461,9 +460,8 @@ namespace Validator.Managers.Schema
             {
                 if (!hasValidationException(action, SchemaValidationType.ACTION_RETURN_TYPE) && action.ReturnType.Name.ToLower() != expectedObjectType.ToLower())
                 {
-                    logError("Warning", controller, string.Format("Action {0}.{1} ({2}) returned type is {3}, expected {4}", serviceId, actionId, controller.Name, action.ReturnType.Name, expectedObjectType));
-                    if (strict)
-                        valid = false;
+                    logError("Error", controller, string.Format("Action {0}.{1} ({2}) returned type is {3}, expected {4}", serviceId, actionId, controller.Name, action.ReturnType.Name, expectedObjectType));
+                    valid = false;
                 }
             }
 
@@ -531,9 +529,8 @@ namespace Validator.Managers.Schema
                 {
                     if (parameters.Length != 2)
                     {
-                        logError("Warning", controller, string.Format("Action {0}.{1} ({2}) two arguments, id and object are expected", serviceId, actionId, controller.Name));
-                        if (strict)
-                            valid = false;
+                        logError("Error", controller, string.Format("Action {0}.{1} ({2}) two arguments, id and object are expected", serviceId, actionId, controller.Name));
+                        valid = false;
                     }
                     else
                     {

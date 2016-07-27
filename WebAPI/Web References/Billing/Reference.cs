@@ -3551,6 +3551,8 @@ namespace WebAPI.Billing {
         
         private string sharedSecretField;
         
+        private bool skipSettingsField;
+        
         private PaymentGatewaySettings[] settingsField;
         
         private PaymentMethod[] paymentMethodsField;
@@ -3662,6 +3664,16 @@ namespace WebAPI.Billing {
             }
             set {
                 this.sharedSecretField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool SkipSettings {
+            get {
+                return this.skipSettingsField;
+            }
+            set {
+                this.skipSettingsField = value;
             }
         }
         

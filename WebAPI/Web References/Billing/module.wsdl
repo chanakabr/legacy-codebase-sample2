@@ -501,6 +501,7 @@
               <s:element minOccurs="1" maxOccurs="1" name="RenewalIntervalMinutes" type="s:int" />
               <s:element minOccurs="1" maxOccurs="1" name="RenewalStartMinutes" type="s:int" />
               <s:element minOccurs="0" maxOccurs="1" name="SharedSecret" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="SkipSettings" type="s:boolean" />
               <s:element minOccurs="0" maxOccurs="1" name="Settings" type="tns:ArrayOfPaymentGatewaySettings" />
               <s:element minOccurs="0" maxOccurs="1" name="PaymentMethods" type="tns:ArrayOfPaymentMethod" />
             </s:sequence>

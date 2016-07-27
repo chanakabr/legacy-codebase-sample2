@@ -106,6 +106,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+               .ForMember(dest => dest.SkipSettings, opt => opt.MapFrom(src => src.Settings == null))
                .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertOSSAdapterSettings(src.Settings)))
                .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
 
@@ -139,6 +140,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+               .ForMember(dest => dest.SkipSettings, opt => opt.MapFrom(src => src.Settings == null))
                .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertRecommendationEngineSettings(src.Settings)))
                .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
 
@@ -569,9 +571,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         internal static Dictionary<string, KalturaStringValue> ConvertRecommendationEngineSettings(RecommendationEngineSettings[] settings)
         {
+            if (settings == null)
+                return null;
+
             Dictionary<string, KalturaStringValue> result = null;
 
-            if (settings != null && settings.Count() > 0)
+            if (settings.Count() > 0)
             {
                 result = new Dictionary<string, KalturaStringValue>();
                 foreach (var data in settings)
@@ -587,9 +592,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         internal static RecommendationEngineSettings[] ConvertRecommendationEngineSettings(SerializableDictionary<string, KalturaStringValue> settings)
         {
+            if (settings == null)
+                return null;
+
             List<Api.RecommendationEngineSettings> result = null;
 
-            if (settings != null && settings.Count > 0)
+            if (settings.Count > 0)
             {
                 result = new List<RecommendationEngineSettings>();
                 Api.RecommendationEngineSettings pc;

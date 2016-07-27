@@ -15,6 +15,7 @@ namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/externalChannelProfile/action")]
     [OldStandardAction("listOldStandard", "list")]
+    [OldStandardAction("updateOldStandard", "update")]
     public class ExternalChannelProfileController : ApiController
     {
         /// <summary>
@@ -139,10 +140,43 @@ namespace WebAPI.Controllers
         /// external channel not exist = 4011, external channel identifier required = 4013, inactive external channel enrichment = 4016,
         /// name required = 5005, external identifier required = 6016, external identifier must be unique = 6040  
         /// </remarks>
-        /// <param name="external_channel">External channel Object</param>       
+        /// <param name="externalChannelId">External channel identifier</param>       
+        /// <param name="externalChannel">External channel Object</param>       
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        public KalturaExternalChannelProfile Update(KalturaExternalChannelProfile external_channel)
+        public KalturaExternalChannelProfile Update(int externalChannelId, KalturaExternalChannelProfile externalChannel)
+        {
+            KalturaExternalChannelProfile response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            externalChannel.Id = externalChannelId;
+
+            try
+            {
+                // call client
+                response = ClientsManager.ApiClient().SetExternalChannel(groupId, externalChannel);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Update External channel details
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:   
+        /// external channel not exist = 4011, external channel identifier required = 4013, inactive external channel enrichment = 4016,
+        /// name required = 5005, external identifier required = 6016, external identifier must be unique = 6040  
+        /// </remarks>
+        /// <param name="external_channel">External channel Object</param>       
+        [Route("updateOldStandard"), HttpPost]
+        [ApiAuthorize]
+        [Obsolete]
+        public KalturaExternalChannelProfile UpdateOldStandard(KalturaExternalChannelProfile external_channel)
         {
             KalturaExternalChannelProfile response = null;
 

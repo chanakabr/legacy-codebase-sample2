@@ -54,6 +54,7 @@ namespace WebAPI.Models.Domains
     /// <summary>
     /// Device family details
     /// </summary>
+    [Obsolete]
     public class KalturaDeviceFamily : KalturaDeviceFamilyBase
     {
         /// <summary>

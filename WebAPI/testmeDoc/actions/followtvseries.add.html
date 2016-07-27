@@ -10,15 +10,14 @@
 		<h2>Kaltura API</h2>
 		<table class="action">
 			<tr>
-				<th colspan="5" class="service_action_title">recording.getContext</th>
+				<th colspan="5" class="service_action_title">followtvseries.add</th>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Description:</td>
 			</tr>
 			<tr>
-				<td class="description" colspan="5">Return recording information and status for collection of program for a user.
-            Specify per programs if it can be recorded or not.
-            If program record request was already issued – return recording status</td>
+				<td class="description" colspan="5">Add a user&#39;s tv series follow.
+            Possible status codes: UserAlreadyFollowing = 8013, NotFound = 500007, InvalidAssetId = 4024</td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Input Params</td>
@@ -31,9 +30,9 @@
 				<th class="subtitle">Default Value</th>
 			</tr>
 			<tr>
-				<td>filter</td>
-				<td><a href="../objects/KalturaRecordingContextFilter.html">KalturaRecordingContextFilter</a></td>
-				<td>Filter parameters for filtering out the result</td>
+				<td>followTvSeries</td>
+				<td><a href="../objects/KalturaFollowTvSeries.html">KalturaFollowTvSeries</a></td>
+				<td></td>
 				<td>V</td>
 				<td></td>
 			</tr>
@@ -41,21 +40,25 @@
 				<td colspan="5" class="title">Output Type</td>
 			</tr>
 			<tr>
-				<td colspan="5"><a href="../objects/KalturaRecordingContextListResponse.html">KalturaRecordingContextListResponse</a></td>
+				<td colspan="5"><a href="../objects/KalturaFollowTvSeries.html">KalturaFollowTvSeries</a></td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Example HTTP Hit</td>
 			</tr>
 			<tr>
-				<td colspan="5">http://www.kaltura.com/api_v3/service/recording/action/getContext<br />
+				<td colspan="5">http://www.kaltura.com/api_v3/service/followtvseries/action/add<br />
 				<strong>JSON object:</strong>
 				<pre>
 				<div class="post_fields">
 {
-	filter: {
-		objectType: "KalturaRecordingContextFilter",
-		orderBy: value,
-		assetIdIn: "value"
+	followTvSeries: {
+		objectType: "KalturaFollowTvSeries",
+		announcementId: value,
+		status: value,
+		title: "value",
+		timestamp: value,
+		followPhrase: "value",
+		assetId: value
 	}
 }
 				</pre></td>
