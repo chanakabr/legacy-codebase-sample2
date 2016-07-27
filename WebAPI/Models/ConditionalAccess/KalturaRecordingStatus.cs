@@ -17,6 +17,8 @@ namespace WebAPI.Models.ConditionalAccess
         RECORDED = 2,
         CANCELED = 3,
         FAILED = 4,
-        DELETED = 5        
+        DELETED = 5,
+        SERIES_CANCLED = 6,
+        SERIES_DELETED = 7
     } 
 }
