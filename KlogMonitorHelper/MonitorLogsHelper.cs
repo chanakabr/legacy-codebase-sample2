@@ -232,6 +232,8 @@ namespace KlogMonitorHelper
             {
                 if (request.Headers != null &&
                 request.Headers[KLogMonitor.Constants.REQUEST_ID_KEY] == null &&
+                OperationContext.Current != null &&
+                OperationContext.Current.IncomingMessageProperties != null &&
                 OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
                 {
                     request.Headers.Add(KLogMonitor.Constants.REQUEST_ID_KEY, OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY].ToString());
@@ -241,6 +243,8 @@ namespace KlogMonitorHelper
             {
                 if (request.Headers != null &&
                 request.Headers[KLogMonitor.Constants.REQUEST_ID_KEY] == null &&
+                HttpContext.Current != null &&
+                HttpContext.Current.Items != null &&
                 HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
                 {
                     request.Headers.Add(KLogMonitor.Constants.REQUEST_ID_KEY, HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY].ToString());
