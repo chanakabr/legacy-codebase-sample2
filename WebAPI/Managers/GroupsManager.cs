@@ -135,7 +135,7 @@ namespace WebAPI.ClientManagers
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE) { Database = CB_SECTION_NAME, QueryType = KLogEnums.eDBQueryType.SELECT })
                 {
-                    CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME, true);
+                    CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
                     group = cbManager.Get<Group>(string.Format(groupKeyFormat, groupId), true);
                 }
 
