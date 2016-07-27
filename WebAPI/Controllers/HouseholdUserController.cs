@@ -130,6 +130,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("addByOperator"), HttpPost]
         [ApiAuthorize]
+        [Obsolete]
         public bool AddByOperator(string user_id_to_add, int household_id, bool is_master = false)
         {
             int groupId = KS.GetFromRequest().GroupId;

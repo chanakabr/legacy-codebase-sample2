@@ -56,16 +56,6 @@ namespace WebAPI.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/ws_Users/module.asmx")]
-        public string WebAPI_Users_UsersService {
-            get {
-                return ((string)(this["WebAPI_Users_UsersService"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
         [global::System.Configuration.DefaultSettingValueAttribute("http://webservices/cas_v4_0/module.asmx")]
         public string WebAPI_ConditionalAccess_module {
             get {
@@ -86,10 +76,20 @@ namespace WebAPI.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://webservices/api_v4_0/api.asmx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/ws_api/api.asmx")]
         public string WebAPI_Api_API {
             get {
                 return ((string)(this["WebAPI_Api_API"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://webservices/users_v4_0/module.asmx")]
+        public string WebAPI_Users_UsersService {
+            get {
+                return ((string)(this["WebAPI_Users_UsersService"]));
             }
         }
     }

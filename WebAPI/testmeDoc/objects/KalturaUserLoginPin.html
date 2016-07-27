@@ -29,7 +29,7 @@
 		<h2>Kaltura API</h2>
 		<table class="action" width="80%">
 			<tr>
-				<th class="service_action_title">KalturaDevice</th>
+				<th class="service_action_title">KalturaUserLoginPin</th>
 			</tr>
 			<tr>
 				<td class="title">Properties</td>
@@ -70,7 +70,7 @@
 					<table style="">
 						<tbody>
 							<tr>
-								<td class="inheritedFrom"><b>KalturaDevice</b></td>
+								<td class="inheritedFrom"><b>KalturaUserLoginPin</b></td>
 							</tr>
 						</tbody>
 					</table>
@@ -84,46 +84,25 @@
 								<th class="subtitle">Description</th>
 							</tr>
 							<tr >
-								<td>udid</td>
+								<td>pinCode</td>
 								<td>string</td>
 								<td>V</td>
 								<td></td>
-								<td>Device UDID</td>
+								<td>Generated login pin code</td>
 							</tr>
 							<tr class="odd">
-								<td>name</td>
-								<td>string</td>
-								<td>V</td>
-								<td></td>
-								<td>Device name</td>
-							</tr>
-							<tr >
-								<td>brand</td>
-								<td>string</td>
-								<td>V</td>
-								<td></td>
-								<td>Device brand name</td>
-							</tr>
-							<tr class="odd">
-								<td>brandId</td>
-								<td>int</td>
-								<td>V</td>
-								<td></td>
-								<td>Device brand identifier</td>
-							</tr>
-							<tr >
-								<td>activatedOn</td>
+								<td>expirationTime</td>
 								<td>bigint</td>
 								<td>V</td>
 								<td></td>
-								<td>Device activation date (epoch)</td>
+								<td>Login pin expiration time (epoch)</td>
 							</tr>
-							<tr class="odd">
-								<td>state</td>
-								<td><a href="../enums/KalturaDeviceState.html">KalturaDeviceState</a></td>
+							<tr >
+								<td>userId</td>
+								<td>string</td>
 								<td>V</td>
 								<td></td>
-								<td>Device state</td>
+								<td>User Identifier</td>
 							</tr>
 						</tbody>
 					</table>

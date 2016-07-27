@@ -11,6 +11,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Catalog
 {
     [OldStandard("fileIds", "file_ids")]
+    [Obsolete]
     public class KalturaPersonalAssetRequest : KalturaOTTObject
     {
         /// <summary>

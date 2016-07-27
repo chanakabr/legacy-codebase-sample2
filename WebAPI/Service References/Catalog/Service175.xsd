@@ -106,23 +106,6 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="AdProvider" nillable="true" type="tns:AdProvider" />
-  <xs:complexType name="ArrayOfPicture">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="Picture" nillable="true" type="tns:Picture" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="ArrayOfPicture" nillable="true" type="tns:ArrayOfPicture" />
-  <xs:complexType name="Picture">
-    <xs:sequence>
-      <xs:element minOccurs="0" name="id" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="isDefault" type="xs:boolean" />
-      <xs:element minOccurs="0" name="m_sSize" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="m_sURL" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="ratio" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="version" type="xs:int" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="Picture" nillable="true" type="tns:Picture" />
   <xs:complexType name="ArrayOfBranding">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="unbounded" name="Branding" nillable="true" type="tns:Branding" />
@@ -166,6 +149,23 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="TagMeta" nillable="true" type="tns:TagMeta" />
+  <xs:complexType name="ArrayOfPicture">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Picture" nillable="true" type="tns:Picture" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfPicture" nillable="true" type="tns:ArrayOfPicture" />
+  <xs:complexType name="Picture">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="id" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="isDefault" type="xs:boolean" />
+      <xs:element minOccurs="0" name="m_sSize" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sURL" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ratio" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="version" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Picture" nillable="true" type="tns:Picture" />
   <xs:complexType name="ArrayOfTags">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="unbounded" name="Tags" nillable="true" type="tns:Tags" />
@@ -186,19 +186,6 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="MediaType" nillable="true" type="tns:MediaType" />
-  <xs:complexType name="ArrayOfProgramObj">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="ProgramObj" nillable="true" type="tns:ProgramObj" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="ArrayOfProgramObj" nillable="true" type="tns:ArrayOfProgramObj" />
-  <xs:simpleType name="eUserType">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="HOUSEHOLD" />
-      <xs:enumeration value="PERSONAL" />
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:element name="eUserType" nillable="true" type="tns:eUserType" />
   <xs:simpleType name="StatusComment">
     <xs:restriction base="xs:string">
       <xs:enumeration value="SUCCESS">
@@ -245,6 +232,19 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="BundleTriple" nillable="true" type="tns:BundleTriple" />
+  <xs:complexType name="ArrayOfProgramObj">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="ProgramObj" nillable="true" type="tns:ProgramObj" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfProgramObj" nillable="true" type="tns:ArrayOfProgramObj" />
+  <xs:simpleType name="eUserType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="HOUSEHOLD" />
+      <xs:enumeration value="PERSONAL" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="eUserType" nillable="true" type="tns:eUserType" />
   <xs:complexType name="ArrayOfBundleKeyValue">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="unbounded" name="BundleKeyValue" nillable="true" type="tns:BundleKeyValue" />

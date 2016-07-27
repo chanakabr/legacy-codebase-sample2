@@ -145,8 +145,25 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "seriesRecordingEnabled")]
         [JsonProperty("seriesRecordingEnabled")]
-        [XmlElement(ElementName = "seriesRecordingEnabled ", IsNullable = true)]
+        [XmlElement(ElementName = "seriesRecordingEnabled", IsNullable = true)]
         public bool? SeriesRecordingEnabled { get; set; }
+
+         /// <summary>
+        ///  Is recording playback for non-entitled channel enables 
+        /// </summary>
+        [DataMember(Name = "nonEntitledChannelPlaybackEnabled")]
+        [JsonProperty("nonEntitledChannelPlaybackEnabled")]
+        [XmlElement(ElementName = "nonEntitledChannelPlaybackEnabled", IsNullable = false)]
+        public bool? NonEntitledChannelPlaybackEnabled { get; set; }
+
+        /// <summary>
+        ///  Is recording playback for non-existing channel enables 
+        /// </summary>
+        [DataMember(Name = "nonExistingChannelPlaybackEnabled")]
+        [JsonProperty("nonExistingChannelPlaybackEnabled")]
+        [XmlElement(ElementName = "nonExistingChannelPlaybackEnabled", IsNullable = false)]
+        public bool? NonExistingChannelPlaybackEnabled { get; set; }
+        
 
     }
 }

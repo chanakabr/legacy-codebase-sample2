@@ -16,6 +16,7 @@ namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/homeNetwork/action")]
     [OldStandardAction("listOldStandard", "list")]
+    [OldStandardAction("updateOldStandard", "update")]
     public class HomeNetworkController : ApiController
     {
         /// <summary>
@@ -107,7 +108,8 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Update and existing home network for a household
         /// </summary>
-        /// <param name="home_network">Home network to update</param>
+        /// <param name="externalId">Home network identifier</param>
+        /// <param name="homeNetwork">Home network to update</param>
         /// <remarks>
         /// Possible status codes:
         /// Home network does not exist = 1033, External identifier is required = 6016
@@ -115,29 +117,56 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        public bool Update(KalturaHomeNetwork home_network)
+        public KalturaHomeNetwork Update(string externalId, KalturaHomeNetwork homeNetwork)
         {
-            bool response = false;
-
             int groupId = KS.GetFromRequest().GroupId;
             long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
             try
             {
-                response = ClientsManager.DomainsClient().UpdateDomainHomeNetwork(groupId, householdId, home_network.ExternalId, home_network.Name, home_network.Description, home_network.getIsActive());
+                return ClientsManager.DomainsClient().UpdateDomainHomeNetwork(groupId, householdId, externalId, homeNetwork.Name, homeNetwork.Description, homeNetwork.getIsActive());
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return response;
+            return null;
+        }
+
+        /// <summary>
+        /// Update and existing home network for a household
+        /// </summary>
+        /// <param name="home_network">Home network to update</param>
+        /// <remarks>
+        /// Possible status codes:
+        /// Home network does not exist = 1033, External identifier is required = 6016
+        /// </remarks>
+        /// <returns></returns>
+        [Route("updateOldStandard"), HttpPost]
+        [ApiAuthorize]
+        [Obsolete]
+        public bool UpdateOldStandard(KalturaHomeNetwork home_network)
+        {
+            int groupId = KS.GetFromRequest().GroupId;
+            long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+            try
+            {
+                ClientsManager.DomainsClient().UpdateDomainHomeNetwork(groupId, householdId, home_network.ExternalId, home_network.Name, home_network.Description, home_network.getIsActive());
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return true;
         }
 
         /// <summary>
         /// Delete household’s existing home network 
         /// </summary>
-        /// <param name="external_id">The network to update</param>
+        /// <param name="externalId">The network to update</param>
         /// <remarks>
         /// Possible status codes:
         /// Home network does not exist = 1033, Home network frequency limitation = 1034, External identifier is required = 6016
@@ -145,7 +174,8 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        public bool Delete(string external_id)
+        [OldStandard("externalId", "external_id")]
+        public bool Delete(string externalId)
         {
             bool response = false;
 
@@ -154,7 +184,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.DomainsClient().RemoveDomainHomeNetwork(groupId, householdId, external_id);
+                response = ClientsManager.DomainsClient().RemoveDomainHomeNetwork(groupId, householdId, externalId);
             }
             catch (ClientException ex)
             {

@@ -15,6 +15,7 @@ namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/householdDevice/action")]
     [OldStandardAction("addOldStandard", "add")]
+    [OldStandardAction("updateOldStandard", "update")]
     public class HouseholdDeviceController : ApiController
     {
         /// <summary>
