@@ -6,6 +6,8 @@ namespace ApiObjects.Notification
     public class RegistryResponse
     {
         public Status Status { get; set; }
-        public List<RegistryParameter> Items { get; set; }
+        public long AnnouncementId { get; set; }
+        public string Key { get; set; }
+        public string Url { get; set; }
     }
 }
