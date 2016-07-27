@@ -1336,7 +1336,6 @@ namespace WebAPI.Clients
         internal KalturaRegistryResponse Register(int groupId, KalturaNotificationType type, string id, string hash, string ip)
         {
             RegistryResponse response = null;
-            List<KalturaRegistryParameter> result = null;
             KalturaRegistryResponse ret = null;
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -1377,11 +1376,8 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            if (response.Items != null && response.Items.Count > 0)
-            {
-                result = Mapper.Map<List<KalturaRegistryParameter>>(response.Items);
-                ret = new KalturaRegistryResponse() { RegistryParameters = result, TotalCount = result.Count };
-            }
+            if (response.AnnouncementId != 0)
+                ret = Mapper.Map<KalturaRegistryResponse>(response);
             else
                 ret = new KalturaRegistryResponse();
 

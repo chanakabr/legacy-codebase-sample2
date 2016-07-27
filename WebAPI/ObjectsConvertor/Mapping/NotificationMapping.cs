@@ -195,11 +195,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  ;
 
             //RegistryParameter to KalturaPushWebParameters
-            Mapper.CreateMap<RegistryParameter, KalturaRegistryParameter>()
+            Mapper.CreateMap<RegistryResponse, KalturaRegistryResponse>()
                  .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
                  .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.Key))
-                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
-                 ;
+                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url));
         }
 
 

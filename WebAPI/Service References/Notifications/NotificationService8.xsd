@@ -265,6 +265,7 @@
       <xs:sequence>
         <xs:element minOccurs="0" name="sWSUserName" nillable="true" type="xs:string" />
         <xs:element minOccurs="0" name="sWSPassword" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="announcementId" type="xs:int" />
         <xs:element xmlns:q20="http://schemas.datacontract.org/2004/07/NotificationObj" minOccurs="0" name="announcement" nillable="true" type="q20:MessageAnnouncement" />
       </xs:sequence>
     </xs:complexType>
@@ -272,7 +273,7 @@
   <xs:element name="UpdateMessageAnnouncementResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q21="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="UpdateMessageAnnouncementResult" nillable="true" type="q21:Status" />
+        <xs:element xmlns:q21="http://schemas.datacontract.org/2004/07/NotificationObj" minOccurs="0" name="UpdateMessageAnnouncementResult" nillable="true" type="q21:MessageAnnouncementResponse" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -441,7 +442,7 @@
   <xs:element name="FollowResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q36="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="FollowResult" nillable="true" type="q36:Status" />
+        <xs:element xmlns:q36="http://schemas.datacontract.org/2004/07/NotificationObj" minOccurs="0" name="FollowResult" nillable="true" type="q36:FollowResponse" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
