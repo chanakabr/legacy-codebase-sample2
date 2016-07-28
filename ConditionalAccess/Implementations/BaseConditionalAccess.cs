@@ -17561,6 +17561,12 @@ namespace ConditionalAccess
                     return response;
                 }
 
+                // add cancelSeries if cancel is on the list (we don't have cancelSeries on REST)
+                if (recordingStatuses.Contains(TstvRecordingStatus.Canceled) && !recordingStatuses.Contains(TstvRecordingStatus.SeriesCancel))
+                {
+                    recordingStatuses.Add(TstvRecordingStatus.SeriesCancel);
+                }
+
                 Dictionary<long, Recording> DomainRecordingIdToRecordingMap = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, domainID, recordingStatuses);
 
                 if (DomainRecordingIdToRecordingMap != null && DomainRecordingIdToRecordingMap.Count > 0)
