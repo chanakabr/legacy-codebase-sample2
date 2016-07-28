@@ -18482,10 +18482,9 @@ namespace ConditionalAccess
                 List<string> excludedCrids = null;
                 if (householdRecordings != null && householdRecordings.Count > 0)
                 {
-                    // leave crid that was canceld/delete as part of a series 
-                    List<RecordingType> recordingTypes = new List<RecordingType>(){RecordingType.Season, RecordingType.Series};
-                    List<TstvRecordingStatus> recordingStatuses = new List<TstvRecordingStatus>() {TstvRecordingStatus.Canceled, TstvRecordingStatus.Deleted };
-                    excludedCrids = householdRecordings.Values.Where(w => !(recordingTypes.Contains(w.Type) && recordingStatuses.Contains(w.RecordingStatus))).Select(r => r.Crid).ToList();
+                    // leave crid that was canceld
+                    List<RecordingType> recordingTypes = new List<RecordingType>(){RecordingType.Season, RecordingType.Series};                    
+                    excludedCrids = householdRecordings.Values.Where(w => !(recordingTypes.Contains(w.Type) && w.RecordingStatus == TstvRecordingStatus.Canceled)).Select(r => r.Crid).ToList();
                     excludedCrids = householdRecordings.Values.Select(r => r.Crid).ToList();
                 }
 
