@@ -144,7 +144,7 @@ namespace WebAPI.Controllers
             {
                 // call client
                 response = ClientsManager.CatalogClient().WatchHistory(groupId, userId.ToString(), udid,
-                    language, pager.getPageIndex(), pager.PageSize, filter.StatusEqual.Value, filter.getDaysLessThanOrEqual(), filter.getTypeIn(), filter.with.Select(x => x.type).ToList());
+                    language, pager.getPageIndex(), pager.PageSize, filter.StatusEqual.Value, filter.getDaysLessThanOrEqual(), filter.getTypeIn(), filter.getAssetIdIn(), filter.with.Select(x => x.type).ToList());
             }
             catch (ClientException ex)
             {
@@ -161,6 +161,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("clean"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
         public bool Clean(KalturaAssetsFilter filter = null)
         {
             var ks = KS.GetFromRequest();
