@@ -79,20 +79,11 @@ namespace EpgIngest
             Dictionary<string, string> sRatios = EpgDal.Get_PicsEpgRatios();
             ratios = sRatios.ToDictionary(x => int.Parse(x.Key), x => x.Value);
 
-            ws_api.API api = new ws_api.API();
-            string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
-
-            if (sWSURL != "")
-                api.Url = sWSURL;
-            string userName = "";
-            string pass = "";
-            TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "GetTimeShiftedTvPartnerSettings", "api", "1.1.1.1", ref userName, ref pass);
-
-            EpgIngest.ws_api.TimeShiftedTvPartnerSettingsResponse tstvResponse = api.GetTimeShiftedTvPartnerSettings(userName, pass);
-            if (tstvResponse != null && tstvResponse.Status.Code == (int)eResponseStatus.OK && tstvResponse.Settings != null)
-            {
-                isTstvSettings = true;
-            }
+            DataRow dr = DAL.ApiDAL.GetTimeShiftedTvPartnerSettings(m_Channels.parentgroupid);
+             if (dr != null)
+             {
+                 isTstvSettings = true;
+             }
             return true;
         }
 

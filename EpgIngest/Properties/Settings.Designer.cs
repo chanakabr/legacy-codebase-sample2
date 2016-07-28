@@ -22,15 +22,5 @@ namespace EpgIngest.Properties {
                 return defaultInstance;
             }
         }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/ws_api/api.asmx")]
-        public string EpgIngest_ws_api_API {
-            get {
-                return ((string)(this["EpgIngest_ws_api_API"]));
-            }
-        }
     }
 }
