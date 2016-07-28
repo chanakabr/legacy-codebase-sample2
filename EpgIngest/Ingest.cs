@@ -238,8 +238,7 @@ namespace EpgIngest
                     {
                         log.ErrorFormat("crid is empty for external id {0}: ", prog.external_id);
                         ingestAssetStatus.Status.Code = (int)IngestWarnings.EPGSProgramMissingCrid;
-                        ingestAssetStatus.Status.Message = EPGS_PROGRAM_MISSING_CRID;
-                        continue;
+                        ingestAssetStatus.Status.Message = EPGS_PROGRAM_MISSING_CRID;                      
                     }
 
                     if (!Utils.ParseEPGStrToDate(prog.start, ref dProgStartDate) || !Utils.ParseEPGStrToDate(prog.stop, ref dProgEndDate))
