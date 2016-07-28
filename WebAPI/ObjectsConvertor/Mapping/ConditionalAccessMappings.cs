@@ -336,9 +336,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
             KalturaRecordingStatus result;
             switch (recordingStatus)
             {
+                case WebAPI.ConditionalAccess.TstvRecordingStatus.SeriesCancel:
                 case WebAPI.ConditionalAccess.TstvRecordingStatus.Canceled:
                     result = KalturaRecordingStatus.CANCELED;
                     break;
+                case WebAPI.ConditionalAccess.TstvRecordingStatus.SeriesDelete:
                 case WebAPI.ConditionalAccess.TstvRecordingStatus.Deleted:
                     result = KalturaRecordingStatus.DELETED;
                     break;
