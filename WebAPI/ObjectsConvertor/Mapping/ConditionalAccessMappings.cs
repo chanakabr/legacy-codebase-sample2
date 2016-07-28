@@ -325,12 +325,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case KalturaRecordingStatus.SCHEDULED:
                     result = WebAPI.ConditionalAccess.TstvRecordingStatus.Scheduled;
                     break;
-                case KalturaRecordingStatus.SERIES_CANCLED:
-                    result = WebAPI.ConditionalAccess.TstvRecordingStatus.SeriesCancel;
-                    break;
-                case KalturaRecordingStatus.SERIES_DELETED:
-                    result = WebAPI.ConditionalAccess.TstvRecordingStatus.SeriesDelete;
-                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown recordingStatus type");
             }

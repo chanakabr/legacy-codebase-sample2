@@ -1365,8 +1365,7 @@ namespace WebAPI.Clients
 
             if (recordingStatuses == null || recordingStatuses.Count == 0)
             {
-                recordingStatuses = new List<KalturaRecordingStatus>() { KalturaRecordingStatus.SCHEDULED, KalturaRecordingStatus.RECORDING, KalturaRecordingStatus.RECORDED, KalturaRecordingStatus.CANCELED,
-                                                                            KalturaRecordingStatus.FAILED, KalturaRecordingStatus.SERIES_CANCLED, KalturaRecordingStatus.SERIES_DELETED };
+                recordingStatuses = new List<KalturaRecordingStatus>() { KalturaRecordingStatus.SCHEDULED, KalturaRecordingStatus.RECORDING, KalturaRecordingStatus.RECORDED, KalturaRecordingStatus.CANCELED, KalturaRecordingStatus.FAILED };
             }
 
             List<WebAPI.ConditionalAccess.TstvRecordingStatus> convertedRecordingStatuses = recordingStatuses.Select(x => ConditionalAccessMappings.ConvertKalturaRecordingStatus(x)).ToList();
