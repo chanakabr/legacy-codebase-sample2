@@ -19351,9 +19351,6 @@ namespace ConditionalAccess
                 return response;
             }
 
-            // get TSTV settings
-            var tstvSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
-
             // get the epg
             List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, new List<long>() { recording.EpgId });
             if (epgs == null || epgs.Count == 0)
@@ -19367,20 +19364,20 @@ namespace ConditionalAccess
             EPGChannelProgrammeObject epg = epgs[0];
  
             // get epg channel  
-            // TODO: make sure it's right
-            int linearMediaId = 0;
-            if (string.IsNullOrEmpty(epg.media_id) || !int.TryParse(epg.media_id, out linearMediaId))
+            // TODO: make sure it's right !!!!
+            int linearMediaId = ConditionalAccessDAL.GetLinearMediaIdByEpgChannelId(m_nGroupID, epg.EPG_CHANNEL_ID);
+            ConditionalAccess.WS_Catalog.MediaObj epgChannelLinearMedia = null;
+            if (linearMediaId != 0)
             {
-                log.ErrorFormat("Failed to get linear media id for epg channel. groupId = {0}, userId = {1}, domainId = {2}, recordingId = {3}, epgId = {4}",
-                    m_nGroupID, userId, domainId, recordingId, recording.EpgId);
-                return response;
+                epgChannelLinearMedia = Utils.GetMediaById(m_nGroupID, linearMediaId);
             }
 
-            ConditionalAccess.WS_Catalog.MediaObj epgChannelLinearMedia = Utils.GetMediaById(m_nGroupID, linearMediaId);
+            // get TSTV settings
+            var tstvSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
 
             // validate recording channel exists or the settings allow it to not exist
             // TODO: check what we do with no value on the setting
-            if (epgChannelLinearMedia == null && (!tstvSettings.IsRecordingPlaybackNonExistingChannelEnabled.HasValue || !tstvSettings.IsRecordingPlaybackNonExistingChannelEnabled.Value))
+            if ((linearMediaId == 0 || epgChannelLinearMedia == null) && (!tstvSettings.IsRecordingPlaybackNonExistingChannelEnabled.HasValue || !tstvSettings.IsRecordingPlaybackNonExistingChannelEnabled.Value))
             {
                 log.ErrorFormat("EPG channel does not exist and TSTV settings do not allow playback in this case. groupId = {0}, userId = {1}, domainId = {2}, recordingId = {3}, channelId = {4}",
                     m_nGroupID, userId, domainId, recordingId, recording.ChannelId);
@@ -19388,20 +19385,19 @@ namespace ConditionalAccess
                 return response;
             }
 
-            // get fileIds for epg 
-            Dictionary<int, List<long>> fileIdsToEpgsMap = ConditionalAccessDAL.GetFileIdsToEpgIdsMap(m_nGroupID, new List<long>() { recording.EpgId });
-            if (fileIdsToEpgsMap == null || fileIdsToEpgsMap.Count == 0)
-            {
-                log.DebugFormat("No files were found for the requested EPG. groupId = {0}, userId = {1}, domainId = {2}, recordingId = {3}, epgId = {4}",
-                    m_nGroupID, userId, domainId, recordingId, recording.EpgId);
-                return response;
-            }
-
             // validate entitlements if needed 
             // TODO: make sure whats the right order
-            if (!tstvSettings.IsRecordingPlaybackNonEntitledChannelEnabled.HasValue || !tstvSettings.IsRecordingPlaybackNonEntitledChannelEnabled.Value ||
+            if (epgChannelLinearMedia != null && !tstvSettings.IsRecordingPlaybackNonEntitledChannelEnabled.HasValue || !tstvSettings.IsRecordingPlaybackNonEntitledChannelEnabled.Value ||
                 !epgChannelLinearMedia.EnableRecordingPlaybackNonEntitledChannel)
             {
+                // get fileIds for epg 
+                Dictionary<int, List<long>> fileIdsToEpgsMap = ConditionalAccessDAL.GetFileIdsToEpgIdsMap(m_nGroupID, new List<long>() { recording.EpgId });
+                if (fileIdsToEpgsMap == null || fileIdsToEpgsMap.Count == 0)
+                {
+                    log.DebugFormat("No files were found for the requested EPG. groupId = {0}, userId = {1}, domainId = {2}, recordingId = {3}, epgId = {4}",
+                        m_nGroupID, userId, domainId, recordingId, recording.EpgId);
+                    return response;
+                }
                 MediaFileItemPricesContainer[] prices = GetItemsPrices(fileIdsToEpgsMap.Keys.ToArray(), userId, true, string.Empty, string.Empty, udid);
                 if (prices == null || prices.Length == 0)
                 {
@@ -19428,7 +19424,6 @@ namespace ConditionalAccess
                     return response;
                 }
             }
-
             // if we got here we everything is ok with the entitlements and settings - so get the link
 
             // TODO: talk to Ira about the is dynamic setting of the cdvr adapter!!!!!
