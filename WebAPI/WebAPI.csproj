@@ -382,7 +382,14 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+    <Content Include="Service References\Notifications\NotificationService.wsdl" />
+    <None Include="Service References\Notifications\NotificationService.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\Notifications\NotificationService1.wsdl" />
+    <None Include="Service References\Notifications\NotificationService1.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\Notifications\NotificationService10.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -414,7 +421,28 @@
     <None Include="Service References\Notifications\NotificationService19.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\Notifications\NotificationService2.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\Notifications\NotificationService20.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService4.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService5.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService6.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService7.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService8.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\Notifications\NotificationService9.xsd">
@@ -453,6 +481,7 @@
     </None>
     <None Include="Service References\Notifications\NotificationService1.disco" />
     <None Include="Service References\Notifications\NotificationService12.disco" />
+    <Content Include="Service References\Notifications\NotificationService.disco" />
     <Content Include="Swagger.ashx" />
     <Content Include="testmeDoc\actions\announcement.add.html" />
     <Content Include="testmeDoc\actions\announcement.delete.html" />
@@ -642,6 +671,8 @@
     <Content Include="testmeDoc\actions\transactionhistory.list.html" />
     <Content Include="testmeDoc\actions\userassetrule.list.html" />
     <Content Include="testmeDoc\actions\userassetslistitem.add.html" />
+    <Content Include="testmeDoc\actions\userassetslistitem.delete.html" />
+    <Content Include="testmeDoc\actions\userassetslistitem.get.html" />
     <Content Include="testmeDoc\actions\userloginpin.add.html" />
     <Content Include="testmeDoc\actions\userloginpin.delete.html" />
     <Content Include="testmeDoc\actions\userloginpin.deleteAll.html" />
@@ -1346,45 +1377,6 @@
     <Content Include="Web References\Api\AdminAccountUserResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.NotificationPartnerSettingsResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.NotificationSettingsResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.Status.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.AddMessageAnnouncementResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.GetAllMessageAnnouncementsResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.GetUserFollowsResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.MessageTemplateResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.IdsResponse1.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.IdListResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.InboxMessageResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.AnnouncementsResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.NotificationCleanupResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.RegistryResponse1.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
     <Content Include="testme\client-libs.php" />
     <Content Include="testme\json\announcement-actions.json" />
     <Content Include="testme\json\announcement-delete-action-info.json" />
@@ -1746,12 +1738,6 @@
     <Content Include="testme\json\system-ping-action-info.json" />
     <Content Include="testme\json\topic-list-action-info.json" />
     <Content Include="testme\json\topic-updateStatus-action-info.json" />
-    <Content Include="Service References\Notifications\WebAPI.Notifications.FollowResponse1.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.MessageAnnouncementResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
     <Content Include="testme\json\timeshiftedtvpartnersettings-actions.json" />
     <Content Include="testme\json\timeshiftedtvpartnersettings-get-action-info.json" />
     <Content Include="testme\json\timeshiftedtvpartnersettings-update-action-info.json" />
@@ -1833,6 +1819,56 @@
     <Content Include="testme\json\userloginpin-deleteAll-action-info.json" />
     <Content Include="testme\json\userloginpin-update-action-info.json" />
     <Content Include="summary.kinf" />
+    <Content Include="Service References\Notifications\WebAPI.Notifications.AddMessageAnnouncementResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\Notifications\WebAPI.Notifications.AnnouncementsResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\Notifications\WebAPI.Notifications.FollowResponse1.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\Notifications\WebAPI.Notifications.GetAllMessageAnnouncementsResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\Notifications\WebAPI.Notifications.GetUserFollowsResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\Notifications\WebAPI.Notifications.IdListResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\Notifications\WebAPI.Notifications.IdsResponse1.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\Notifications\WebAPI.Notifications.InboxMessageResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\Notifications\WebAPI.Notifications.MessageAnnouncementResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\Notifications\WebAPI.Notifications.MessageTemplateResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\Notifications\WebAPI.Notifications.NotificationCleanupResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\Notifications\WebAPI.Notifications.NotificationMessage.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\Notifications\WebAPI.Notifications.NotificationPartnerSettingsResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\Notifications\WebAPI.Notifications.NotificationSettingsResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\Notifications\WebAPI.Notifications.RegistryResponse1.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\Notifications\WebAPI.Notifications.Status.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="testme\json\userassetslistitem-delete-action-info.json" />
+    <Content Include="testme\json\userassetslistitem-get-action-info.json" />
     <None Include="Web References\Api\api.disco" />
     <Content Include="Web References\Billing\AdyenBillingDetail.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -2337,9 +2373,6 @@
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.NotificationMessage.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
     <Content Include="Web References\Pricing\Subscription.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -2634,7 +2667,6 @@
     <Compile Include="Models\Notification\KalturaPartnerNotificationSettings.cs" />
     <Compile Include="Models\Notification\KalturaPersonalFollowFeed.cs" />
     <Compile Include="Models\Notification\KalturaPersonalFollowFeedResponse.cs" />
-    <Compile Include="Models\Notification\KalturaRegistryParameter.cs" />
     <Compile Include="Models\Notification\KalturaRegistryResponse.cs" />
     <Compile Include="Models\Notification\KalturaTopic.cs">
       <SubType>Code</SubType>

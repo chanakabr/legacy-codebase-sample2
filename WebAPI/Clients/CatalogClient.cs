@@ -398,7 +398,7 @@ namespace WebAPI.Clients
         }
 
         [Obsolete]
-        public KalturaWatchHistoryAssetWrapper WatchHistory(int groupId, string siteGuid, string udid, string language, int pageIndex, int? pageSize, KalturaWatchStatus watchStatus, int days, List<int> assetTypes, List<KalturaCatalogWith> withList)
+        public KalturaWatchHistoryAssetWrapper WatchHistory(int groupId, string siteGuid, string udid, string language, int pageIndex, int? pageSize, KalturaWatchStatus watchStatus, int days, List<int> assetTypes, List<string> assetIds, List<KalturaCatalogWith> withList)
         {
             KalturaWatchHistoryAssetWrapper finalResults = new KalturaWatchHistoryAssetWrapper();
 
@@ -423,6 +423,7 @@ namespace WebAPI.Clients
                 m_nPageIndex = pageIndex,
                 m_nPageSize = pageSize.Value,
                 AssetTypes = assetTypes,
+                AssetIds = assetIds,
                 FilterStatus = CatalogMappings.ConvertKalturaWatchStatus(watchStatus),
                 NumOfDays = days,
                 OrderDir = OrderDir.DESC

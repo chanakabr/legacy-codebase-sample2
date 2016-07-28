@@ -130,23 +130,11 @@
   <xs:element name="NotificationCleanupResponse" nillable="true" type="tns:NotificationCleanupResponse" />
   <xs:complexType name="RegistryResponse">
     <xs:sequence>
-      <xs:element minOccurs="0" name="Items" nillable="true" type="tns:ArrayOfRegistryParameter" />
-      <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="Status" nillable="true" type="q11:Status" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="RegistryResponse" nillable="true" type="tns:RegistryResponse" />
-  <xs:complexType name="ArrayOfRegistryParameter">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="RegistryParameter" nillable="true" type="tns:RegistryParameter" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="ArrayOfRegistryParameter" nillable="true" type="tns:ArrayOfRegistryParameter" />
-  <xs:complexType name="RegistryParameter">
-    <xs:sequence>
       <xs:element minOccurs="0" name="AnnouncementId" type="xs:long" />
       <xs:element minOccurs="0" name="Key" nillable="true" type="xs:string" />
+      <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="Status" nillable="true" type="q11:Status" />
       <xs:element minOccurs="0" name="Url" nillable="true" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
-  <xs:element name="RegistryParameter" nillable="true" type="tns:RegistryParameter" />
+  <xs:element name="RegistryResponse" nillable="true" type="tns:RegistryResponse" />
 </xs:schema>

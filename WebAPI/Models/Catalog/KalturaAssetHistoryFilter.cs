@@ -48,6 +48,14 @@ namespace WebAPI.Models.Catalog
         public string TypeIn { get; set; }
 
         /// <summary>
+        /// Comma separated list of asset identifiers.
+        /// </summary>
+        [DataMember(Name = "assetIdIn")]
+        [JsonProperty(PropertyName = "assetIdIn")]
+        [XmlElement(ElementName = "assetIdIn", IsNullable = true)]
+        public string AssetIdIn { get; set; }
+
+        /// <summary>
         /// Which type of recently watched media to include in the result – those that finished watching, those that are in progress or both.
         /// If omitted or specified filter = all – return all types.
         /// Allowed values: progress – return medias that are in-progress, done – return medias that finished watching.
@@ -106,6 +114,14 @@ namespace WebAPI.Models.Catalog
             }
 
             return values;
+        }
+
+        internal List<string> getAssetIdIn()
+        {
+            if (AssetIdIn == null)
+                return null;
+
+            return AssetIdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
         }
     }
 }

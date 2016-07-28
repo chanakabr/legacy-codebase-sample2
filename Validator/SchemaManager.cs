@@ -500,9 +500,8 @@ namespace Validator.Managers.Schema
                         var idParam = parameters[0];
                         if (!idParam.ParameterType.IsPrimitive && idParam.ParameterType != typeof(string))
                         {
-                            logError("Warning", controller, string.Format("Action {0}.{1} ({2}) id argument type is {3}, primitive is expected", serviceId, actionId, controller.Name, idParam.ParameterType.Name));
-                            if (strict)
-                                valid = false;
+                            logError("Error", controller, string.Format("Action {0}.{1} ({2}) id argument type is {3}, primitive is expected", serviceId, actionId, controller.Name, idParam.ParameterType.Name));
+                            valid = false;
                         }
                     }
                 }

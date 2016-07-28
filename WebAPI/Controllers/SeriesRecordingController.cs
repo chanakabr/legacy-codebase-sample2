@@ -156,6 +156,12 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
 
+                // validate recording type
+                if (recording.Type == KalturaRecordingType.SINGLE)
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "type of recording can not be \"SINGLE\"");
+                }
+
                 // call client
                 response = ClientsManager.ConditionalAccessClient().RecordSeasonOrSeries(groupId, userId, recording.EpgId, recording.Type);
             }

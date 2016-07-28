@@ -194,12 +194,22 @@
   </xs:complexType>
   <xs:element name="MessageAnnouncement" nillable="true" type="tns:MessageAnnouncement" />
   <xs:complexType name="AddMessageAnnouncementResponse">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:MessageAnnouncementResponse">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="Id" type="xs:int" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="AddMessageAnnouncementResponse" nillable="true" type="tns:AddMessageAnnouncementResponse" />
+  <xs:complexType name="MessageAnnouncementResponse">
     <xs:sequence>
-      <xs:element minOccurs="0" name="Id" type="xs:int" />
+      <xs:element minOccurs="0" name="Announcement" nillable="true" type="tns:MessageAnnouncement" />
       <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="Status" nillable="true" type="q6:Status" />
     </xs:sequence>
   </xs:complexType>
-  <xs:element name="AddMessageAnnouncementResponse" nillable="true" type="tns:AddMessageAnnouncementResponse" />
+  <xs:element name="MessageAnnouncementResponse" nillable="true" type="tns:MessageAnnouncementResponse" />
   <xs:complexType name="GetAllMessageAnnouncementsResponse">
     <xs:sequence>
       <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="Status" nillable="true" type="q7:Status" />
@@ -250,4 +260,11 @@
     </xs:complexContent>
   </xs:complexType>
   <xs:element name="FollowDataTvSeries" nillable="true" type="tns:FollowDataTvSeries" />
+  <xs:complexType name="FollowResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Follow" nillable="true" type="tns:FollowDataBase" />
+      <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="Status" nillable="true" type="q9:Status" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="FollowResponse" nillable="true" type="tns:FollowResponse" />
 </xs:schema>
