@@ -17094,7 +17094,7 @@ namespace ConditionalAccess
             {
                 long domainID = 0;
 
-                recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID, recordingType == RecordingType.Single, true);
+                recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID, recordingType, true);
                 if (recordingResponse.Status.Code != (int)eResponseStatus.OK || recordingResponse.TotalItems == 0)
                 {
                     log.DebugFormat("RecordingResponse status not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
@@ -17260,11 +17260,12 @@ namespace ConditionalAccess
             return recording;
         }
 
-        public RecordingResponse QueryRecords(string userID, List<long> epgIDs, ref long domainID, bool isSingleRecording, bool shouldCheckCatchup)
+        public RecordingResponse QueryRecords(string userID, List<long> epgIDs, ref long domainID, RecordingType recordingType, bool shouldCheckCatchup)
         {
             RecordingResponse response = new RecordingResponse();
             try
             {
+                bool isSingleRecording = recordingType == RecordingType.Single;
                 ConditionalAccess.TvinciDomains.Domain domain;
                 ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userID, ref domainID, out domain);
 
@@ -19190,7 +19191,7 @@ namespace ConditionalAccess
             {
                 long domainID = 0;
 
-                recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID, false, false);
+                recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID, recordingType, false);
                 if (recordingResponse.Status.Code != (int)eResponseStatus.OK || recordingResponse.TotalItems == 0)
                 {
                     log.DebugFormat("RecordingResponse status not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, seriesRecording.ToString());
