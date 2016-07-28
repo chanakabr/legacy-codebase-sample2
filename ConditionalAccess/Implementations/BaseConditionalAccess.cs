@@ -53,7 +53,7 @@ namespace ConditionalAccess
         protected const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";
         protected const string BILLING_CONNECTION_STRING = "BILLING_CONNECTION";
         private const string ROUTING_KEY_RECORDINGS_CLEANUP = "PROCESS_RECORDINGS_CLEANUP";
-        private const int RECORDING_CLEANUP_EXECUTE_GAP_HOURS = 24;        
+        private const double RECORDING_CLEANUP_INTERVAL_SEC = 86400;        
         private const double HANDLE_RECORDINGS_LIFETIME_INTERVAL_SEC = 3600;
         private const string RECORDINGS_LIFETIME_ROUTING_KEY = "PROCESS_RECORDINGS_LIFETIME";        
         private const double HANDLE_RECORDINGS_SCHEDULED_TASKS_INTERVAL_SEC = 60;
@@ -18168,17 +18168,18 @@ namespace ConditionalAccess
         public bool CleanupRecordings()
         {
             bool result = false;
-            int recordingCleanupIntervalMin = 0;
+            double recordingCleanupIntervalSec = 0;
             bool shouldInsertToQueue = false;
 
             try
             {
                 // try to get interval for next cleanup or take default
-                RecordingCleanupResponse lastRecordingCleanupResponse = GetLastSuccessfulRecordingsCleanup();
-                if (lastRecordingCleanupResponse.Status.Code == (int)eResponseStatus.OK && lastRecordingCleanupResponse.IntervalInMinutes > 0)
+                object scheduleTask = UtilsDal.GetLastScheduleTaksSuccessfulRun(ScheduledTaskType.recordingsCleanup);
+                RecordingCleanupResponse lastRecordingCleanupResponse = scheduleTask != null ? (RecordingCleanupResponse)scheduleTask : null;
+                if (lastRecordingCleanupResponse != null && lastRecordingCleanupResponse.Status.Code == (int)eResponseStatus.OK && lastRecordingCleanupResponse.NextRunIntervalInSeconds > 0)
                 {
-                    recordingCleanupIntervalMin = lastRecordingCleanupResponse.IntervalInMinutes;
-                    if (lastRecordingCleanupResponse.LastSuccessfulCleanUpDate.AddMinutes(recordingCleanupIntervalMin) < DateTime.UtcNow)
+                    recordingCleanupIntervalSec = lastRecordingCleanupResponse.NextRunIntervalInSeconds;
+                    if (lastRecordingCleanupResponse.LastSuccessfulRunDate.AddSeconds(recordingCleanupIntervalSec) < DateTime.UtcNow)
                     {
                         shouldInsertToQueue = true;
                     }
@@ -18190,7 +18191,7 @@ namespace ConditionalAccess
                 else
                 {
                     shouldInsertToQueue = true;
-                    recordingCleanupIntervalMin = RECORDING_CLEANUP_EXECUTE_GAP_HOURS * 60;
+                    recordingCleanupIntervalSec = RECORDING_CLEANUP_INTERVAL_SEC;
                 }
 
                 // get current utc epoch
@@ -18254,8 +18255,8 @@ namespace ConditionalAccess
                 if (totalRecordingsDeleted == totalRecordingsToCleanup)
                 {
                     result = true;
-
-                    if (!RecordingsDAL.UpdateSuccessfulRecordingsCleanup(DateTime.UtcNow, totalRecordingsDeleted, totalDomainRecordingsUpdated, recordingCleanupIntervalMin))
+                    object scheduledTaskToUpdate = new RecordingCleanupResponse(DateTime.UtcNow, totalRecordingsDeleted, totalDomainRecordingsUpdated, recordingCleanupIntervalSec, ScheduledTaskType.recordingsCleanup);
+                    if (!UtilsDal.UpdateScheduledTaskSuccessfulRun(ScheduledTaskType.recordingsCleanup, scheduledTaskToUpdate))
                     {
                         log.Error("Failed updating recordings cleanup date");
                     }
@@ -18286,12 +18287,12 @@ namespace ConditionalAccess
             {
                 if (shouldInsertToQueue)
                 {
-                    if (recordingCleanupIntervalMin == 0)
+                    if (recordingCleanupIntervalSec == 0)
                     {
-                        recordingCleanupIntervalMin = RECORDING_CLEANUP_EXECUTE_GAP_HOURS * 60;
+                        recordingCleanupIntervalSec = RECORDING_CLEANUP_INTERVAL_SEC;
                     }
 
-                    DateTime nextExecutionDate = DateTime.UtcNow.AddMinutes(recordingCleanupIntervalMin);
+                    DateTime nextExecutionDate = DateTime.UtcNow.AddSeconds(recordingCleanupIntervalSec);
                     SetupTasksQueue queue = new SetupTasksQueue();
                     CelerySetupTaskData data = new CelerySetupTaskData(0, eSetupTask.RecordingsCleanup, new Dictionary<string, object>()) { ETA = nextExecutionDate };
                     result = queue.Enqueue(data, ROUTING_KEY_RECORDINGS_CLEANUP);
@@ -18299,17 +18300,6 @@ namespace ConditionalAccess
             }
 
             return result;
-        }
-
-        public RecordingCleanupResponse GetLastSuccessfulRecordingsCleanup()
-        {
-            RecordingCleanupResponse response = RecordingsDAL.GetLastSuccessfulRecordingsCleanupDetails();
-            if (response.Status.Code != (int)eResponseStatus.OK)
-            {
-                log.ErrorFormat("Error while trying to get last successful recordings cleanup details, status code: {0}, status message: {1}", response.Status.Code, response.Status.Message);
-            }
-
-            return response;
         }
 
         public bool HandleRecordingsLifetime()
@@ -18321,8 +18311,9 @@ namespace ConditionalAccess
             try
             {
                 // try to get interval for next run take default
-                ScheduledTaskLastRunResponse expiredRecordingsLastRunResponse = GetLastScheduleTaksSuccessfulRun(ScheduledTaskName.recordingsLifetime);
-                if (expiredRecordingsLastRunResponse.Status.Code == (int)eResponseStatus.OK && expiredRecordingsLastRunResponse.NextRunIntervalInSeconds > 0)
+                object scheduleTask = UtilsDal.GetLastScheduleTaksSuccessfulRun(ScheduledTaskType.recordingsLifetime);                
+                ScheduledTaskLastRunResponse expiredRecordingsLastRunResponse = scheduleTask != null ? (ScheduledTaskLastRunResponse)scheduleTask : null;
+                if (expiredRecordingsLastRunResponse != null && expiredRecordingsLastRunResponse.Status.Code == (int)eResponseStatus.OK && expiredRecordingsLastRunResponse.NextRunIntervalInSeconds > 0)
                 {
                     scheduledTaskIntervalSec = expiredRecordingsLastRunResponse.NextRunIntervalInSeconds;
                     if (expiredRecordingsLastRunResponse.LastSuccessfulRunDate.AddSeconds(scheduledTaskIntervalSec) < DateTime.UtcNow)
@@ -18349,8 +18340,8 @@ namespace ConditionalAccess
                 if (totalRecordingsExpired > -1)
                 {
                     result = true;
-
-                    if (!RecordingsDAL.UpdateScheduledTaskSuccessfulRun(ScheduledTaskName.recordingsLifetime, DateTime.UtcNow, totalRecordingsExpired, scheduledTaskIntervalSec))
+                    object scheduledTaskToUpdate = new ScheduledTaskLastRunResponse(DateTime.UtcNow, totalRecordingsExpired, scheduledTaskIntervalSec, ScheduledTaskType.recordingsLifetime);
+                    if (!UtilsDal.UpdateScheduledTaskSuccessfulRun(ScheduledTaskType.recordingsLifetime, scheduledTaskToUpdate))
                     {
                         log.Error("Failed updating expired recordings run details");
                     }
@@ -18385,17 +18376,6 @@ namespace ConditionalAccess
             }
 
             return result;
-        }
-
-        public ScheduledTaskLastRunResponse GetLastScheduleTaksSuccessfulRun(ScheduledTaskName scheduledTaskName)
-        {
-            ScheduledTaskLastRunResponse response = RecordingsDAL.GetLastScheduleTaksSuccessfulRunDetails(scheduledTaskName);
-            if (response.Status.Code != (int)eResponseStatus.OK)
-            {
-                log.ErrorFormat("Error while trying to get last scheduled task successful run details, scheduledTaskName: {0}, status code: {1}, status message: {2}", scheduledTaskName, response.Status.Code, response.Status.Message);
-            }
-
-            return response;
         }
 
         public bool CompleteDomainSeriesRecordings(long domainId, long domainSeriesRecordingId = 0)
@@ -18607,8 +18587,9 @@ namespace ConditionalAccess
             try
             {
                 // try to get interval for next run take default
-                ScheduledTaskLastRunResponse recordingScheduledTasksLastRunResponse = GetLastScheduleTaksSuccessfulRun(ScheduledTaskName.recordingsScheduledTasks);
-                if (recordingScheduledTasksLastRunResponse.Status.Code == (int)eResponseStatus.OK && recordingScheduledTasksLastRunResponse.NextRunIntervalInSeconds > 0)
+                object scheduleTask = UtilsDal.GetLastScheduleTaksSuccessfulRun(ScheduledTaskType.recordingsScheduledTasks);
+                ScheduledTaskLastRunResponse recordingScheduledTasksLastRunResponse = scheduleTask != null ? (ScheduledTaskLastRunResponse)scheduleTask : null;
+                if (recordingScheduledTasksLastRunResponse != null && recordingScheduledTasksLastRunResponse.Status.Code == (int)eResponseStatus.OK && recordingScheduledTasksLastRunResponse.NextRunIntervalInSeconds > 0)
                 {
                     scheduledTaskIntervalSec = recordingScheduledTasksLastRunResponse.NextRunIntervalInSeconds;
                     if (recordingScheduledTasksLastRunResponse.LastSuccessfulRunDate.AddSeconds(scheduledTaskIntervalSec) < DateTime.UtcNow)
@@ -18644,7 +18625,8 @@ namespace ConditionalAccess
                         }
                     }
 
-                    if (!RecordingsDAL.UpdateScheduledTaskSuccessfulRun(ScheduledTaskName.recordingsScheduledTasks, DateTime.UtcNow, expiredRecordingsToSchedule.Count, scheduledTaskIntervalSec))
+                    object scheduledTaskToUpdate = new ScheduledTaskLastRunResponse(DateTime.UtcNow, expiredRecordingsToSchedule.Count, scheduledTaskIntervalSec, ScheduledTaskType.recordingsScheduledTasks);
+                    if (!UtilsDal.UpdateScheduledTaskSuccessfulRun(ScheduledTaskType.recordingsScheduledTasks, scheduledTaskToUpdate))
                     {
                         log.Error("Failed updating recording scheduled tasks run details");
                     }

@@ -1,4 +1,7 @@
-﻿using KLogMonitor;
+﻿using ApiObjects;
+using ApiObjects.ScheduledTasks;
+using ApiObjects.TimeShiftedTv;
+using KLogMonitor;
 using ODBCWrapper;
 using System;
 using System.Collections.Generic;
@@ -15,7 +18,7 @@ namespace DAL
     {
         private const string SP_GET_OPERATOR_GROUP_ID = "sp_GetGroupIDByOperatorID";
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
+        private const int RETRY_LIMIT = 5;
 
         private static void HandleException(Exception ex)
         {
@@ -694,21 +697,19 @@ namespace DAL
             return string.Format("g{0}_u{1}_mf{2}_d{3}_p{4}", groupID, siteGuid, MediaFileID, UDID, platform);
         }
 
-        public static string GetRecordingsCleanupKey()
-        {
-            return "recordings_cleanup";
-        }
-
-        public static string GetScheduledTaksKeyByName(ApiObjects.ScheduledTaskName scheduledTaskName)
+        public static string GetScheduledTaksKeyByType(ApiObjects.ScheduledTaskType scheduledTaskType)
         {
             string key = string.Empty;
-            switch (scheduledTaskName)
+            switch (scheduledTaskType)
             {
-                case ApiObjects.ScheduledTaskName.recordingsLifetime:
+                case ApiObjects.ScheduledTaskType.recordingsLifetime:
                     key = "recordings_lifetime";
                     break;
-                case ApiObjects.ScheduledTaskName.recordingsScheduledTasks:
+                case ApiObjects.ScheduledTaskType.recordingsScheduledTasks:
                     key = "recordings_scheduledTasks";
+                    break;
+                case ApiObjects.ScheduledTaskType.recordingsCleanup:
+                    key = "recordings_cleanup";
                     break;
                 default:
                     break;
@@ -731,5 +732,117 @@ namespace DAL
         {
             return string.Format("{0}_series{1}_seasson{2}_channel{3}", groupId, seriesId, seasonNumber, channelId);
         }
+
+        private static object GetLastScheduleTaksSuccessfulRunDetails(ScheduledTaskType scheduledTaskType)
+        {
+            object response = null;
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
+            int limitRetries = RETRY_LIMIT;
+            Random r = new Random();
+            Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
+            string scheduledTaksKey = UtilsDal.GetScheduledTaksKeyByType(scheduledTaskType);
+            if (string.IsNullOrEmpty(scheduledTaksKey))
+            {
+                log.ErrorFormat("Failed UtilsDal.GetScheduledTaksKeyByName for scheduledTaskName: {0}", scheduledTaskType.ToString());
+                return response;
+            }
+            try
+            {
+                int numOfRetries = 0;
+                while (numOfRetries < limitRetries)
+                {
+                    response = cbClient.Get<object>(scheduledTaksKey, out getResult);
+                    if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
+                    {
+                        log.ErrorFormat("Error while trying to get last successful scheduled task run date, KeyNotFound. scheduleTaskName: {0}, key: {1}", scheduledTaksKey, scheduledTaksKey);
+                        break;
+                    }
+                    else if (getResult == Couchbase.IO.ResponseStatus.Success)
+                    {
+                        log.DebugFormat("ScheduledTaskLastRunResponse with scheduleTaskName: {0} and key {1} was found", scheduledTaksKey, scheduledTaksKey);
+                        break;
+                    }
+                    else
+                    {
+                        log.ErrorFormat("Retrieving ScheduledTaskLastRunResponse with scheduledTaskName: {0} and key {1} failed with status: {2}, retryAttempt: {3}, maxRetries: {4}", scheduledTaskType.ToString(), scheduledTaksKey, getResult, numOfRetries, limitRetries);
+                        numOfRetries++;
+                        System.Threading.Thread.Sleep(r.Next(50));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to get last successful schedule task details, scheduledTaskName: {0}, ex: {1}", scheduledTaskType.ToString(), ex);
+            }
+
+            return response;
+        }
+
+        public static bool UpdateScheduledTaskSuccessfulRun(ScheduledTaskType scheduledTaskType, object scheduledTaskToUpdate)
+        {
+            bool result = false;
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
+            int limitRetries = RETRY_LIMIT;
+            Random r = new Random();
+            string scheduledTaksKey = UtilsDal.GetScheduledTaksKeyByType(scheduledTaskType);
+            if (string.IsNullOrEmpty(scheduledTaksKey))
+            {
+                log.ErrorFormat("Failed UtilsDal.GetScheduledTaksKeyByName for scheduledTaskName: {0}", scheduledTaskType);
+                return false;
+            }
+            try
+            {
+                int numOfRetries = 0;
+                while (!result && numOfRetries < limitRetries)
+                {
+                    result = cbClient.Set(scheduledTaksKey, scheduledTaskToUpdate);
+                    if (!result)
+                    {
+                        numOfRetries++;
+                        log.ErrorFormat("Error while updating successful scheduled task run details. scheduledTaskName: {0}, number of tries: {1}/{2}",
+                                         scheduledTaskType.ToString(), numOfRetries, limitRetries);
+
+                        System.Threading.Thread.Sleep(r.Next(50));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while updating successful scheduled task run details, scheduledTaskName: {0}, ex: {1}", scheduledTaskType.ToString(), ex);
+            }
+
+            return result;
+        }
+
+        public static object GetLastScheduleTaksSuccessfulRun(ScheduledTaskType scheduledTaskType)
+        {
+            object response = UtilsDal.GetLastScheduleTaksSuccessfulRunDetails(scheduledTaskType);
+            if (response != null)
+            {
+                ScheduledTaskLastRunResponse scheduledTaskLastRunResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<ScheduledTaskLastRunResponse>(response.ToString());
+                if (scheduledTaskLastRunResponse.Status.Code != (int)ApiObjects.Response.eResponseStatus.OK)
+                {
+                    log.ErrorFormat("Error while trying to get last scheduled task successful run details, scheduledTaskName: {0}, status code: {1}, status message: {2}",
+                        scheduledTaskType, scheduledTaskLastRunResponse.Status.Code, scheduledTaskLastRunResponse.Status.Message);
+                }
+                else
+                {
+                    switch (scheduledTaskLastRunResponse.ScheduledTaskType)
+                    {
+                        case ScheduledTaskType.recordingsLifetime:
+                        case ScheduledTaskType.recordingsScheduledTasks:
+                            return scheduledTaskLastRunResponse;
+                        case ScheduledTaskType.recordingsCleanup:
+                            RecordingCleanupResponse cleanupResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<RecordingCleanupResponse>(response.ToString());
+                            return cleanupResponse;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            return null;
+        }
+
     }
 }
