@@ -4779,9 +4779,10 @@ namespace ConditionalAccess
             return response;
         }
 
-        internal static int GetDeviceBrandTypeIdByUDID(int groupId, string udid)
+        internal static int GetDeviceBrandTypeIdByUDID(int groupId, string udid, out int deviceDomainId)
         {
             int deviceType = 0;
+            deviceDomainId = 0;
             try
             {
                 TvinciDomains.module domains = new TvinciDomains.module();
@@ -4802,6 +4803,7 @@ namespace ConditionalAccess
                 if (device != null && device.m_oDevice != null)
                 {
                     deviceType = device.m_oDevice.m_deviceBrandID;
+                    deviceDomainId = device.m_oDevice.m_domainID;
                 }
             }
             catch (Exception ex)

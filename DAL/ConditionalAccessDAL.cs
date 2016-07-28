@@ -2568,27 +2568,6 @@ namespace DAL
 
             return model;
         }
-
-
-        public static int GetLinearMediaIdByEpgChannelId(int groupId, string epgChannelId)
-        {
-            int mediaId = 0;
-
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetLinearMediaIdByEpgChannelId");
-                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-                sp.AddParameter("@groupId", groupId);
-                sp.AddParameter("@epgChannelId", epgChannelId);
-
-                mediaId = sp.ExecuteReturnValue<int>();
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
-
-            return mediaId;
-        }
+              
     }
 }

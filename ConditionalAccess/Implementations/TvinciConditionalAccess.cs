@@ -644,7 +644,8 @@ namespace ConditionalAccess
                 if (adapterResponse.Adapter != null && !string.IsNullOrEmpty(adapterResponse.Adapter.AdapterUrl))
                 {
                     // get device type
-                    int deviceType = Utils.GetDeviceBrandTypeIdByUDID(m_nGroupID, sDEVICE_NAME);
+                    int deviceDomainId;
+                    int deviceType = Utils.GetDeviceBrandTypeIdByUDID(m_nGroupID, sDEVICE_NAME, out deviceDomainId);
 
                     int actionType = Utils.MapActionTypeForAdapter(eformat);
 
