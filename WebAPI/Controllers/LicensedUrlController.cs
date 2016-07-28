@@ -15,6 +15,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/licensedUrl/action")]
+    [OldStandardAction("getOldStandard", "get")]
     public class LicensedUrlController : ApiController
     {
         /// <summary>
@@ -28,7 +29,7 @@ namespace WebAPI.Controllers
         /// <param name="streamType">The stream type to get the URL for - relevant only for asset_type = 'epg'</param>
         /// <remarks>Possible status codes: Device not in household = 1003, Invalid base URL = 3004, Media concurrency limitation = 4000, Concurrency limitation = 4001, 
         /// Device type not allowed = 1002, Household suspended = 1009, User suspended = 2001, Service not allowed = 3003, Not entitled = 3032</remarks>
-        [Route("get"), HttpPost]
+        [Route("getOldStandard"), HttpPost]
         [ApiAuthorize]
         [OldStandard("assetType", "asset_type")]
         [OldStandard("contentId", "content_id")]
@@ -37,7 +38,8 @@ namespace WebAPI.Controllers
         [OldStandard("startDate", "start_date")]
         [OldStandard("streamType", "stream_type")]
         [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
-        public KalturaLicensedUrl Get(KalturaAssetType assetType, int contentId, string baseUrl, string assetId = null, long? startDate = null, KalturaStreamType? streamType = null)
+        [Obsolete]
+        public KalturaLicensedUrl GetOldStandard(KalturaAssetType assetType, int contentId, string baseUrl, string assetId = null, long? startDate = null, KalturaStreamType? streamType = null)
         {
             KalturaLicensedUrl response = null;
             
@@ -97,6 +99,63 @@ namespace WebAPI.Controllers
                     default:
                         throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Not implemented");
                 }
+            }
+
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        [Route("get"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
+        public KalturaLicensedUrl Get(KalturaLicensedUrlBaseRequest request)
+        {
+            KalturaLicensedUrl response = null;
+
+            KS ks = KS.GetFromRequest();
+            int groupId = ks.GroupId;
+            string userId = ks.UserId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
+
+            try
+            {
+                if (request is KalturaLicensedUrlMediaRequest)
+                {
+                    KalturaLicensedUrlMediaRequest mediaRequest = request as KalturaLicensedUrlMediaRequest;
+                    mediaRequest.Validate();
+                    response = ClientsManager.ConditionalAccessClient().GetLicensedLinks(groupId, userId, udid, mediaRequest.ContentId, mediaRequest.BaseUrl);
+                }
+                else if (request is KalturaLicensedUrlEpgRequest) 
+                {
+                    KalturaLicensedUrlEpgRequest epgRequest = request as KalturaLicensedUrlEpgRequest;
+                    epgRequest.Validate();
+                            
+                    int epgId = 0;
+                    if (!int.TryParse(epgRequest.AssetId, out epgId))
+                    {
+                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "assetId must be a number");
+                    }
+                    response = ClientsManager.ConditionalAccessClient().GetEPGLicensedLink(groupId, userId, udid, epgId, epgRequest.ContentId, epgRequest.BaseUrl, epgRequest.StartDate, epgRequest.StreamType);
+                }
+                else if (request is KalturaLicensedUrlRecordingRequest) 
+                {
+                    KalturaLicensedUrlRecordingRequest recordingRequest = request as KalturaLicensedUrlRecordingRequest;
+                    int recordingId;
+                    if (!int.TryParse(recordingRequest.AssetId, out recordingId))
+                    {
+                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id must be numeric for recording");
+                    }
+                    response = ClientsManager.ConditionalAccessClient().GetRecordingLicensedLink(groupId, userId, udid, recordingId, recordingRequest.StartDate);
+                }
+                else
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Not implemented");
+                }
+                
             }
 
             catch (ClientException ex)

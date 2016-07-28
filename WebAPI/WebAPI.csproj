@@ -2532,6 +2532,10 @@
     <Compile Include="Models\Catalog\KalturaAssetFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAsset.cs" />
     <Compile Include="Models\Catalog\KalturaAssetOrderBy.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaLicensedUrlMediaRequest.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaLicensedUrlEpgRequest.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaLicensedUrlRecordingRequest.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaLicensedUrlBaseRequest.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaAssetFileContext.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaSeriesRecording.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaSeriesRecordingFilter.cs" />
