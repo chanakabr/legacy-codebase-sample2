@@ -6971,7 +6971,7 @@ namespace Catalog
             return status;
         }
 
-        public static List<WatchHistory> GetUserWatchHistory(int groupId, string siteGuid, List<int> assetTypes, List<int> excludedAssetTypes, eWatchStatus filterStatus, int numOfDays, ApiObjects.SearchObjects.OrderDir orderDir, int pageIndex, int pageSize, int finishedPercent, out int totalItems)
+        public static List<WatchHistory> GetUserWatchHistory(int groupId, string siteGuid, List<int> assetTypes, List<string> assetIds, List<int> excludedAssetTypes, eWatchStatus filterStatus, int numOfDays, ApiObjects.SearchObjects.OrderDir orderDir, int pageIndex, int pageSize, int finishedPercent, out int totalItems)
         {
             List<WatchHistory> usersWatchHistory = new List<WatchHistory>();
             var cbManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.MEDIAMARK);
@@ -7118,6 +7118,10 @@ namespace Catalog
                     // filter asset types
                     if (assetTypes != null && assetTypes.Count > 0)
                         unFilteredresult = unFilteredresult.Where(x => assetTypes.Contains(x.AssetTypeId)).ToList();
+
+                    // filter asset ids
+                    if (assetIds != null && assetIds.Count > 0)
+                        unFilteredresult = unFilteredresult.Where(x => assetIds.Contains(x.AssetId)).ToList();
 
                     // filter excluded asset types
                     if (excludedAssetTypes != null && excludedAssetTypes.Count > 0)

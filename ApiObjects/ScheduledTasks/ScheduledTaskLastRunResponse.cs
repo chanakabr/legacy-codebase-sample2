@@ -13,15 +13,17 @@ namespace ApiObjects.ScheduledTasks
         public DateTime LastSuccessfulRunDate { get; set; }
         public int ImpactedItems { get; set; }        
         public double NextRunIntervalInSeconds { get; set; }
+        public ScheduledTaskType ScheduledTaskType { get; set; }
 
         public ScheduledTaskLastRunResponse() { }
 
-        public ScheduledTaskLastRunResponse(DateTime lastSuccessfulRunDate, int impactedItems, double nextRunIntervalInSeconds)
+        public ScheduledTaskLastRunResponse(DateTime lastSuccessfulRunDate, int impactedItems, double nextRunIntervalInSeconds, ScheduledTaskType scheduledTaskType)
         {
             this.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             this.LastSuccessfulRunDate = lastSuccessfulRunDate;
             this.ImpactedItems = impactedItems;            
             this.NextRunIntervalInSeconds = nextRunIntervalInSeconds;
+            this.ScheduledTaskType = scheduledTaskType;
         }
 
         public override string ToString()
@@ -30,7 +32,8 @@ namespace ApiObjects.ScheduledTasks
             sb.Append(string.Format("Status Code: {0}, Status Message: {1} ", Status.Code, Status.Message));
             sb.Append(string.Format("LastSuccessfulRunDate: {0}, ", LastSuccessfulRunDate.ToString()));
             sb.Append(string.Format("ImpactedItems: {0}, ", ImpactedItems));
-            sb.Append(string.Format("NextRunIntervalInSeconds: {0}", NextRunIntervalInSeconds));
+            sb.Append(string.Format("NextRunIntervalInSeconds: {0} ", NextRunIntervalInSeconds));
+            sb.Append(string.Format("ScheduledTaskType: {0}", ScheduledTaskType.ToString()));
 
             return sb.ToString();
         }

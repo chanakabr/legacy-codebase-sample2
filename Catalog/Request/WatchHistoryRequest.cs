@@ -32,6 +32,9 @@ namespace Catalog.Request
         public List<int> AssetTypes { get; set; }
 
         [DataMember]
+        public List<string> AssetIds { get; set; }
+
+        [DataMember]
         public int NumOfDays { get; set; }        
 
         public BaseResponse GetResponse(BaseRequest baseRequest)
@@ -69,7 +72,7 @@ namespace Catalog.Request
 
                 // get results
                 int totalItems = 0;
-                List<WatchHistory> res = Catalog.GetUserWatchHistory(m_nGroupID, m_sSiteGuid, AssetTypes, new List<int>() { (int)eAssetTypes.NPVR, (int)eAssetTypes.EPG }, FilterStatus, NumOfDays,
+                List<WatchHistory> res = Catalog.GetUserWatchHistory(m_nGroupID, m_sSiteGuid, AssetTypes, AssetIds, new List<int>() { (int)eAssetTypes.NPVR, (int)eAssetTypes.EPG }, FilterStatus, NumOfDays,
                     OrderDir, m_nPageIndex, m_nPageSize, finishedPercentThreshold, out totalItems);
 
                 // convert to client response
