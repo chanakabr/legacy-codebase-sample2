@@ -15,6 +15,7 @@ namespace ApiObjects.Catalog
         ErrorExportChannel,
         MediaIdNotExist,
         EPGSchedIdNotExist,
-        EPGSProgramDatesError
+        EPGSProgramDatesError,
+        EPGSProgramMissingCrid
     }
 }

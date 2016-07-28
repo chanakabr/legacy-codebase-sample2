@@ -16,6 +16,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using Tvinci.Core.DAL;
 using TvinciImporter;
+using TVinciShared;
 
 namespace EpgIngest
 {
@@ -24,7 +25,9 @@ namespace EpgIngest
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private const string EPGS_PROGRAM_DATES_ERROR = "Error at EPG Program Start/End Dates";
+        private const string EPGS_PROGRAM_MISSING_CRID = "Error at EPG Program crid is empty";
         private const string FAILED_DOWNLOAD_PIC = "Failed download pic";
+
 
 
         #region Member
@@ -35,6 +38,7 @@ namespace EpgIngest
         Dictionary<int, string> ratios;
         string update_epg_package;
         int nCountPackage;
+        bool isTstvSettings = false;
 
         #endregion
 
@@ -75,6 +79,20 @@ namespace EpgIngest
             Dictionary<string, string> sRatios = EpgDal.Get_PicsEpgRatios();
             ratios = sRatios.ToDictionary(x => int.Parse(x.Key), x => x.Value);
 
+            ws_api.API api = new ws_api.API();
+            string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+
+            if (sWSURL != "")
+                api.Url = sWSURL;
+            string userName = "";
+            string pass = "";
+            TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "GetTimeShiftedTvPartnerSettings", "api", "1.1.1.1", ref userName, ref pass);
+
+            EpgIngest.ws_api.TimeShiftedTvPartnerSettingsResponse tstvResponse = api.GetTimeShiftedTvPartnerSettings(userName, pass);
+            if (tstvResponse != null && tstvResponse.Status.Code == (int)eResponseStatus.OK && tstvResponse.Settings != null)
+            {
+                isTstvSettings = true;
+            }
             return true;
         }
 
@@ -216,6 +234,13 @@ namespace EpgIngest
 
                     nPicID = 0;
                     string sPicUrl = string.Empty;
+                    if (isTstvSettings && string.IsNullOrEmpty(prog.crid))
+                    {
+                        log.ErrorFormat("crid is empty for external id {0}: ", prog.external_id);
+                        ingestAssetStatus.Status.Code = (int)IngestWarnings.EPGSProgramMissingCrid;
+                        ingestAssetStatus.Status.Message = EPGS_PROGRAM_MISSING_CRID;
+                        continue;
+                    }
 
                     if (!Utils.ParseEPGStrToDate(prog.start, ref dProgStartDate) || !Utils.ParseEPGStrToDate(prog.stop, ref dProgEndDate))
                     {
