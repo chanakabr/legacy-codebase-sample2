@@ -18175,7 +18175,7 @@ namespace ConditionalAccess
             {
                 // try to get interval for next cleanup or take default
                 object scheduleTask = UtilsDal.GetLastScheduleTaksSuccessfulRun(ScheduledTaskType.recordingsCleanup);
-                RecordingCleanupResponse lastRecordingCleanupResponse = scheduleTask != null ? (RecordingCleanupResponse)scheduleTask : null;
+                ScheduledTaskLastRunResponse lastRecordingCleanupResponse = scheduleTask != null ? (ScheduledTaskLastRunResponse)scheduleTask : null;
                 if (lastRecordingCleanupResponse != null && lastRecordingCleanupResponse.Status.Code == (int)eResponseStatus.OK && lastRecordingCleanupResponse.NextRunIntervalInSeconds > 0)
                 {
                     recordingCleanupIntervalSec = lastRecordingCleanupResponse.NextRunIntervalInSeconds;
@@ -18197,7 +18197,7 @@ namespace ConditionalAccess
                 // get current utc epoch
                 long utcNowEpoch = TVinciShared.DateUtils.UnixTimeStampNow();
                 // get first batch
-                int totalRecordingsToCleanup = 0, totalRecordingsDeleted = 0, totalDomainRecordingsUpdated = 0;
+                int totalRecordingsToCleanup = 0, totalRecordingsDeleted = 0;
                 Dictionary<int, int> groupIdToAdapterIdMap = new Dictionary<int, int>();
                 Dictionary<long, KeyValuePair<int, Recording>> recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup(utcNowEpoch);
                 HashSet<long> recordingsThatFailedDeletion = new HashSet<long>();
@@ -18205,7 +18205,7 @@ namespace ConditionalAccess
                 {
                     totalRecordingsToCleanup += recordingsForDeletion.Count;
                     List<long> deletedRecordingIds = new List<long>();
-                    int adapterId = 0, updatedDomainRecordingsRowCount = 0;
+                    int adapterId = 0;
                     foreach (KeyValuePair<int, Recording> pair in recordingsForDeletion.Values)
                     {
                         if (!groupIdToAdapterIdMap.ContainsKey(pair.Key))
@@ -18231,21 +18231,6 @@ namespace ConditionalAccess
                     }
 
                     totalRecordingsDeleted += deletedRecordingIds.Count;
-                    // update domain recordings
-                    if (deletedRecordingIds.Count > 0)
-                    {
-                        updatedDomainRecordingsRowCount = RecordingsDAL.UpdateDomainRecordingsAfterCleanup(deletedRecordingIds);
-
-                        if (updatedDomainRecordingsRowCount > 0)
-                        {
-                            totalDomainRecordingsUpdated += updatedDomainRecordingsRowCount;
-                            log.DebugFormat("updated {0} rows on domain recordings after cleanup", updatedDomainRecordingsRowCount);
-                        }
-                        else
-                        {
-                            log.Error("Failed updating domain recordings after cleanup");
-                        }
-                    }
 
                     recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup(utcNowEpoch);
                     recordingsForDeletion = recordingsForDeletion.Where(x => !recordingsThatFailedDeletion.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
@@ -18255,7 +18240,7 @@ namespace ConditionalAccess
                 if (totalRecordingsDeleted == totalRecordingsToCleanup)
                 {
                     result = true;
-                    object scheduledTaskToUpdate = new RecordingCleanupResponse(DateTime.UtcNow, totalRecordingsDeleted, totalDomainRecordingsUpdated, recordingCleanupIntervalSec, ScheduledTaskType.recordingsCleanup);
+                    object scheduledTaskToUpdate = new ScheduledTaskLastRunResponse(DateTime.UtcNow, totalRecordingsDeleted, recordingCleanupIntervalSec, ScheduledTaskType.recordingsCleanup);
                     if (!UtilsDal.UpdateScheduledTaskSuccessfulRun(ScheduledTaskType.recordingsCleanup, scheduledTaskToUpdate))
                     {
                         log.Error("Failed updating recordings cleanup date");
@@ -18267,7 +18252,7 @@ namespace ConditionalAccess
 
                     if (totalRecordingsDeleted > 0)
                     {
-                        log.DebugFormat("Successfully cleaned up {0} recordings and updated {1} rows on domain recordings", totalRecordingsDeleted, totalDomainRecordingsUpdated);
+                        log.DebugFormat("Successfully cleaned up {0} recordings and updated {1} rows on domain recordings", totalRecordingsDeleted);
                     }
                     else
                     {

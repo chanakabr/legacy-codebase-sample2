@@ -733,6 +733,7 @@ namespace DAL
             return string.Format("{0}_series{1}_seasson{2}_channel{3}", groupId, seriesId, seasonNumber, channelId);
         }
 
+        // return object incase someone will want to extend ScheduledTaskLastRunResponse
         private static object GetLastScheduleTaksSuccessfulRunDetails(ScheduledTaskType scheduledTaskType)
         {
             object response = null;
@@ -778,6 +779,7 @@ namespace DAL
             return response;
         }
 
+        // get object incase someone will want to extend ScheduledTaskLastRunResponse
         public static bool UpdateScheduledTaskSuccessfulRun(ScheduledTaskType scheduledTaskType, object scheduledTaskToUpdate)
         {
             bool result = false;
@@ -814,6 +816,7 @@ namespace DAL
             return result;
         }
 
+        // return object incase someone will want to extend ScheduledTaskLastRunResponse
         public static object GetLastScheduleTaksSuccessfulRun(ScheduledTaskType scheduledTaskType)
         {
             object response = UtilsDal.GetLastScheduleTaksSuccessfulRunDetails(scheduledTaskType);
@@ -831,10 +834,8 @@ namespace DAL
                     {
                         case ScheduledTaskType.recordingsLifetime:
                         case ScheduledTaskType.recordingsScheduledTasks:
-                            return scheduledTaskLastRunResponse;
                         case ScheduledTaskType.recordingsCleanup:
-                            RecordingCleanupResponse cleanupResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<RecordingCleanupResponse>(response.ToString());
-                            return cleanupResponse;
+                            return scheduledTaskLastRunResponse;
                         default:
                             break;
                     }
