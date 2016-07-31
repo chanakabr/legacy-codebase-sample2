@@ -4906,6 +4906,38 @@ namespace Catalog
             return result;
         }
 
+        public static bool SendRebaseIndexMessage(int groupId, eObjectType type, DateTime date)
+        {
+            bool result = false;
+
+            try
+            {
+                GroupManager groupManager = new GroupManager();
+
+                CatalogCache catalogCache = CatalogCache.Instance();
+                int parentGroupId = catalogCache.GetParentGroup(groupId);
+
+                Group group = groupManager.GetGroup(parentGroupId);
+
+                if (group != null)
+                {
+                    ApiObjects.CeleryIndexingData data = new CeleryIndexingData(group.m_nParentGroupID, null, type,
+                        eAction.Rebase, date);
+
+                    var queue = new CatalogQueue();
+
+                    result = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", group.m_nParentGroupID, type.ToString()));
+                }
+            }
+            catch (Exception ex)
+            {
+                result = false;
+                log.ErrorFormat("Failed sending message to queue on rebasing index: group id = {0}, ex = {1}", groupId, ex);
+            }
+
+            return result;
+        }
+
         #region External Channel Request
 
         internal static Status GetExternalChannelAssets(ExternalChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResultsList, out string requestId)

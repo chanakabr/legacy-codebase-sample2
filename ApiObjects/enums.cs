@@ -122,7 +122,9 @@ namespace ApiObjects
         [EnumMember]
         Delete = 3,
         [EnumMember]
-        Rebuild = 4
+        Rebuild = 4,
+        [EnumMember]
+        Rebase = 5
     }
 
     [Serializable]
