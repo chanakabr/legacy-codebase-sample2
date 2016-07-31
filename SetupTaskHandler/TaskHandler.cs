@@ -151,7 +151,8 @@ namespace SetupTaskHandler
                         #endregion
                     }
                     case ApiObjects.eSetupTask.InsertExpiredRecordingsTasks:
-
+                    {
+                        #region Recording Lifetime
                         string casUrl = TVinciShared.WS_Utils.GetTcmConfigValue("WS_CAS");
                         using (SetupTaskHandler.WS_ConditionalAccess.module cas = new SetupTaskHandler.WS_ConditionalAccess.module())
                         {
@@ -173,6 +174,34 @@ namespace SetupTaskHandler
                             }
                         }
                         break;
+                        #endregion
+                    }
+                    case ApiObjects.eSetupTask.RecordingScheduledTasks:
+                    {
+                        #region Recordings Scheduled Tasks
+                        string casUrl = TVinciShared.WS_Utils.GetTcmConfigValue("WS_CAS");
+                        using (SetupTaskHandler.WS_ConditionalAccess.module cas = new SetupTaskHandler.WS_ConditionalAccess.module())
+                        {
+                            if (!string.IsNullOrEmpty(casUrl))
+                            {
+                                cas.Url = casUrl;
+                            }
+
+                            cas.Timeout = 600000;
+                            success = cas.HandleRecordingsScheduledTasks();
+
+                            if (!success)
+                            {
+                                log.Error("HandleRecordingsScheduledTasks failed");
+                            }
+                            else
+                            {
+                                log.Debug("HandleRecordingsScheduledTasks finished successfully");
+                            }
+                        }
+                        break;
+                        #endregion
+                    }
                     default:
                         break;
                 }
