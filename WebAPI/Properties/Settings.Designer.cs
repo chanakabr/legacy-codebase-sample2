@@ -56,7 +56,7 @@ namespace WebAPI.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://webservices/cas_v4_0/module.asmx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/WS_ConditionalAccess/module.asmx")]
         public string WebAPI_ConditionalAccess_module {
             get {
                 return ((string)(this["WebAPI_ConditionalAccess_module"]));
@@ -76,7 +76,7 @@ namespace WebAPI.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/ws_api/api.asmx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://webservices/api_v4_0/api.asmx")]
         public string WebAPI_Api_API {
             get {
                 return ((string)(this["WebAPI_Api_API"]));

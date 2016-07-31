@@ -19,5 +19,13 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("startDate")]
         [XmlElement(ElementName = "startDate")]
         public long StartDate { get; set; }
+
+        /// <summary>
+        /// The file type for the URL
+        /// </summary>
+        [DataMember(Name = "fileType")]
+        [JsonProperty("fileType")]
+        [XmlElement(ElementName = "fileType")]
+        public string FileType { get; set; }
     }
 }

@@ -78,24 +78,8 @@ namespace WebAPI.Controllers
                         }
                         break;
                     case KalturaAssetType.recording:
-                        {
-                            if (!startDate.HasValue)
-                            {
-                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "start_date cannot be null for recording");
-                            }
-                            if (string.IsNullOrEmpty(assetId))
-                            {
-                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id cannot be empty for recording");
-                            }
-                            int recordingId;
-                            if (!int.TryParse(assetId, out recordingId))
-                            {
-                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id must be numeric for recording");
-                            }
-                            response = ClientsManager.ConditionalAccessClient().GetRecordingLicensedLink(groupId, userId, udid, recordingId, startDate.Value);
-                        }
-                        break;
                         throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Not implemented");
+                        break;
                     default:
                         throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Not implemented");
                 }
@@ -147,9 +131,13 @@ namespace WebAPI.Controllers
                     int recordingId;
                     if (!int.TryParse(recordingRequest.AssetId, out recordingId))
                     {
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id must be numeric for recording");
+                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "assetId must be numeric for recording");
                     }
-                    response = ClientsManager.ConditionalAccessClient().GetRecordingLicensedLink(groupId, userId, udid, recordingId, recordingRequest.StartDate);
+                    if (string.IsNullOrEmpty(recordingRequest.FileType))
+                    {
+                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "fileType cannot be empty");
+                    }
+                    response = ClientsManager.ConditionalAccessClient().GetRecordingLicensedLink(groupId, userId, udid, recordingId, recordingRequest.StartDate, recordingRequest.FileType);
                 }
                 else
                 {

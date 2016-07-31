@@ -1032,7 +1032,7 @@ namespace WebAPI.Clients
             return urls;
         }
 
-        internal KalturaLicensedUrl GetRecordingLicensedLink(int groupId, string userId, string udid, int recordingId, long startDate)
+        internal KalturaLicensedUrl GetRecordingLicensedLink(int groupId, string userId, string udid, int recordingId, long startDate, string fileType)
         {
             WebAPI.ConditionalAccess.LicensedLinkResponse response = null;
             KalturaLicensedUrl urls = null;
@@ -1048,7 +1048,7 @@ namespace WebAPI.Clients
                 {
                     // fire request
                     response = ConditionalAccess.GetRecordingLicensedLink(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password,
-                        userId, recordingId, startTime,udid, Utils.Utils.GetClientIP());
+                        userId, recordingId, startTime, udid, Utils.Utils.GetClientIP(), fileType);
                 }
             }
             catch (Exception ex)
