@@ -79,11 +79,14 @@
     <Compile Include="IndexBuilders\Old\ChannelIndexBuilderV1.cs" />
     <Compile Include="Infra\AbstractIndexBuilder.cs" />
     <Compile Include="IndexBuilders\Old\EpgIndexBuilderV1.cs" />
+    <Compile Include="Infra\AbstractIndexRebaser.cs" />
     <Compile Include="Infra\IIndexBuilder.cs" />
     <Compile Include="Infra\IndexBuilderFactory.cs" />
     <Compile Include="IndexBuilders\Old\MediaIndexBuilderV1.cs" />
     <Compile Include="IndexBuilders\Old\RecordingIndexBuilderV1.cs" />
+    <Compile Include="Infra\RebaseFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Rebasers\MediaRebaser.cs" />
     <Compile Include="TaskHandler.cs" />
     <Compile Include="Updaters\Dual\DualEpgChannelUpdater.cs" />
     <Compile Include="Updaters\Dual\DualChannelUpdater.cs" />

@@ -58,6 +58,28 @@ namespace ElasticSearchHandler
                     #endregion
                 }
                 // Otherwise it is an update type of request (new document, changed document, deleted document)
+                else if (request.Action == ApiObjects.eAction.Rebase)
+                {
+                    #region Rebase
+                    var rebaser = RebaseFactory.CreateRebaser(request.GroupID, request.Type);
+
+                    if (rebaser != null)
+                    {
+                        bool result = rebaser.Rebase();
+
+                        if (result)
+                        {
+                            res = "success";
+                        }
+                        else
+                        {
+                            throw new Exception(
+                                string.Format("Performing {0} action on asset of type {1} did not finish successfully.",
+                                request.Action.ToString(), request.Type.ToString()));
+                        }
+                    }
+                    #endregion
+                }
                 else
                 {
                     #region Update
