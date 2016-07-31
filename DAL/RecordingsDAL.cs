@@ -388,8 +388,7 @@ namespace DAL
         {
             Dictionary<long, KeyValuePair<int, Recording>> recordingsForCleanup = new Dictionary<long, KeyValuePair<int, Recording>>();
             ODBCWrapper.StoredProcedure spGetRecordginsForCleanup = new ODBCWrapper.StoredProcedure("GetRecordingsForCleanup");
-            spGetRecordginsForCleanup.SetConnectionKey(RECORDING_CONNECTION);
-            spGetRecordginsForCleanup.AddParameter("@UtcNowEpoch", utcNowEpoch);
+            spGetRecordginsForCleanup.SetConnectionKey(RECORDING_CONNECTION);            
 
             DataTable dt = spGetRecordginsForCleanup.Execute();
             if (dt != null && dt.Rows != null)

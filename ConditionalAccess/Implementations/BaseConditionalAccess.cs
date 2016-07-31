@@ -17774,14 +17774,14 @@ namespace ConditionalAccess
                 {
                     Recording recording = ConditionalAccess.Utils.GetRecordingByEpgId(m_nGroupID, id);
 
-                    var currentStatus = RecordingsManager.Instance.CancelOrDeleteRecording(m_nGroupID, recording, TstvRecordingStatus.Canceled);
+                    var currentStatus = RecordingsManager.Instance.CancelOrDeleteRecording(m_nGroupID, recording, action == eAction.Delete ? TstvRecordingStatus.Deleted : TstvRecordingStatus.Canceled);
 
                     // If something went wrong, use the first status that failed
                     if (status == null)
                     {
                         if (currentStatus == null)
                         {
-                            status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Cancel recording did not return a status object");
+                            status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "RecordingsManager.Instance.CancelOrDeleteRecording did not return a status object");
                         }
                         else if (currentStatus.Code != (int)eResponseStatus.OK)
                         {
