@@ -18781,6 +18781,7 @@ namespace ConditionalAccess
                 long epgChannelId;
                 string crid = string.Empty;
                 List<long> epgsInThePastToRecord = new List<long>();
+                HashSet<string> userRecordingCrids = new HashSet<string>();
                 foreach (ConditionalAccess.WS_Catalog.ExtendedSearchResult epg in epgsToRecord)
                 {
                     if (!long.TryParse(epg.AssetId, out epgId))
@@ -18811,9 +18812,10 @@ namespace ConditionalAccess
                         eRecordingTask task = eRecordingTask.DistributeRecording;
                         RecordingsManager.EnqueueMessage(m_nGroupID, globalRecording.EpgId, globalRecording.Id, epgPaddedStartDate, distributeTime, task);
                     }
-                    else
+                    else if (!userRecordingCrids.Contains(globalRecording.Crid))
                     {
                         Recording userRecording = Record(userId, globalRecording.EpgId, seasonNumber == 0 ? RecordingType.Series : RecordingType.Season);
+                        userRecordingCrids.Add(globalRecording.Crid);
                         if (userRecording != null && userRecording.Status != null && userRecording.Status.Code == (int)eResponseStatus.OK && userRecording.Id > 0)
                         {
                             log.DebugFormat("successfully distributed recording for domainId = {0}, epgId = {1}, new recordingId = {2}", domainId, epgId, userRecording.Id);
