@@ -12088,20 +12088,21 @@ namespace ConditionalAccess
         {
             int fileMainStreamingCoID = 0;
             int mediaId = 0;
+            string fileType = string.Empty;
             return GetLicensedLinks(sSiteGuid, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCode, sLanguageCode, sDeviceName, sCouponCode, eObjectType.Media,
-                ref fileMainStreamingCoID, ref mediaId);
+                ref fileMainStreamingCoID, ref mediaId, ref fileType);
         }
 
         public virtual LicensedLinkResponse GetLicensedLinks(string sSiteGuid, Int32 nMediaFileID, string sBasicLink, string sUserIP,
-           string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode, ref int fileMainStreamingCoID)
+           string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode, ref int fileMainStreamingCoID, ref string fileType)
         {
             int mediaId = 0;
             return GetLicensedLinks(sSiteGuid, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCode, sLanguageCode, sDeviceName, sCouponCode, eObjectType.Media,
-                ref fileMainStreamingCoID, ref mediaId);
+                ref fileMainStreamingCoID, ref mediaId, ref fileType);
         }
 
         public virtual LicensedLinkResponse GetLicensedLinks(string sSiteGuid, Int32 nMediaFileID, string sBasicLink, string sUserIP,
-            string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode, eObjectType eLinkType, ref int fileMainStreamingCoID, ref int mediaId)
+            string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode, eObjectType eLinkType, ref int fileMainStreamingCoID, ref int mediaId, ref string fileType)
         {
             LicensedLinkResponse res = new LicensedLinkResponse();
 
@@ -12109,10 +12110,9 @@ namespace ConditionalAccess
             {
                 int[] mediaFiles = new int[1] { nMediaFileID };
                 int streamingCoID = 0;
-
                 if (IsAlterBasicLink(sBasicLink, nMediaFileID))
                 {
-                    sBasicLink = Utils.GetBasicLink(m_nGroupID, mediaFiles, nMediaFileID, sBasicLink, out streamingCoID);
+                    sBasicLink = Utils.GetBasicLink(m_nGroupID, mediaFiles, nMediaFileID, sBasicLink, out streamingCoID, out fileType);
                 }
 
                 // validate parameters
@@ -12204,9 +12204,6 @@ namespace ConditionalAccess
                     // if adapter response is not null and is adapter (has an adapter url) - call the adapter
                     if (adapterResponse.Adapter != null && !string.IsNullOrEmpty(adapterResponse.Adapter.AdapterUrl))
                     {
-                        // get device type
-                        int deviceDomainId;
-                        int deviceType = Utils.GetDeviceBrandTypeIdByUDID(m_nGroupID, sDeviceName, out deviceDomainId);
 
                         // if the adapter is default - append the adapter's base url to the file urls
                         if (isDefaultAdapter)
@@ -12216,11 +12213,11 @@ namespace ConditionalAccess
                         }
 
                         // main url
-                        var link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGuid, fileMainUrl, deviceType.ToString(), nMediaID, nMediaFileID, sUserIP);
+                        var link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGuid, fileMainUrl, fileType, nMediaID, nMediaFileID, sUserIP);
                         res.mainUrl = link != null ? link.Url : string.Empty;
 
                         // alt url
-                        link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGuid, fileAltUrl, deviceType.ToString(), nMediaID, nMediaFileID, sUserIP);
+                        link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGuid, fileAltUrl, fileType, nMediaID, nMediaFileID, sUserIP);
                         res.altUrl = link != null ? link.Url : string.Empty;
                     }
                     else if (!string.IsNullOrEmpty(CdnStrID))
@@ -19310,7 +19307,7 @@ namespace ConditionalAccess
             return result;
         }
 
-        public LicensedLinkResponse GetRecordingLicensedLink(string userId, int recordingId, DateTime startTime, string udid, string userIp)
+        public LicensedLinkResponse GetRecordingLicensedLink(string userId, int recordingId, DateTime startTime, string udid, string userIp, string fileType)
         {
             LicensedLinkResponse response = new LicensedLinkResponse()
             {
@@ -19330,22 +19327,14 @@ namespace ConditionalAccess
             }
 
             // get device brand ID - and make sure the device is in the domain
-            int deviceDomainId = 0;
-            int deviceBrandId = Utils.GetDeviceBrandTypeIdByUDID(m_nGroupID, udid, out deviceDomainId);
-            if (deviceDomainId != domainId)
+            if (!Utils.IsDeviceInDomain(domain, udid))
             {
                 log.ErrorFormat("Device not in the user's domain. groupId = {0}, userId = {1}, domainId = {2}, recordingId = {3}, udid = {4}",
                     m_nGroupID, userId, domainId, recordingId, udid);
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotInDomain, "Device not in the user's domain");
                 return response;
             }
-            if (deviceBrandId == 0)
-            {
-                log.ErrorFormat("Device brand ID was not found for given UDID. groupId = {0}, userId = {1}, domainId = {2}, recordingId = {3}, udid = {4}",
-                    m_nGroupID, userId, domainId, recordingId, udid);
-                return response;
-            }
-
+            
             // validate recording
             Recording recording = Utils.GetRecordingById(recordingId);
             if (recording == null)
@@ -19374,7 +19363,6 @@ namespace ConditionalAccess
             EPGChannelProgrammeObject epg = epgs[0];
  
             // get epg channel  
-            //TODO: talk to Liat about groups tree
             int linearMediaId = ApiDAL.GetLinearMediaIdByEpgChannelId(m_nGroupID, epg.EPG_CHANNEL_ID);
             ConditionalAccess.WS_Catalog.MediaObj epgChannelLinearMedia = null;
             if (linearMediaId != 0)
@@ -19449,18 +19437,18 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                recordingLink = recordResult.Links.Where(rl => rl.DeviceTypeBrand == deviceBrandId).FirstOrDefault();
+                recordingLink = recordResult.Links.Where(rl => rl.FileType == fileType).FirstOrDefault();
             }
             else
             {
                 // get the link for the recording with the given udid brand
-                recordingLink = RecordingsDAL.GetRecordingLinkByBrand(m_nGroupID, recording.ExternalRecordingId, deviceBrandId);
+                recordingLink = RecordingsDAL.GetRecordingLinkByFileType(m_nGroupID, recording.ExternalRecordingId, fileType);
             }
 
             if (recordingLink == null || string.IsNullOrEmpty(recordingLink.Url))
             {
-                log.ErrorFormat("Recording link was not found for devicrBrandId = {0}. groupId = {1}, userId = {2}, domainId = {3}, recordingId = {4}, udid = {5}",
-                    deviceBrandId, m_nGroupID, userId, domainId, recordingId, udid);
+                log.ErrorFormat("Recording link was not found for fileType = {0}. groupId = {1}, userId = {2}, domainId = {3}, recordingId = {4}, udid = {5}",
+                    fileType, m_nGroupID, userId, domainId, recordingId, udid);
                 return response;
             }
 
@@ -19475,7 +19463,7 @@ namespace ConditionalAccess
             }
 
             // main url
-            var link = CDNAdapterController.GetInstance().GetRecordingLink(m_nGroupID, adapterResponse.Adapter.ID, userId, recordingLink.Url, deviceBrandId.ToString(), recordingId.ToString(), userIp);
+            var link = CDNAdapterController.GetInstance().GetRecordingLink(m_nGroupID, adapterResponse.Adapter.ID, userId, recordingLink.Url, fileType, recordingId.ToString(), userIp);
 
             if (link == null || string.IsNullOrEmpty(link.Url))
             {

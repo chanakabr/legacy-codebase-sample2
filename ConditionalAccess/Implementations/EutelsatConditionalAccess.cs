@@ -957,8 +957,9 @@ namespace ConditionalAccess
 
                 int fileMainStreamingCoID = 0; // CDN Straming id
                 int mediaId = 0;
+                string fileType = string.Empty;
                 oLicensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode, eObjectType.EPG, 
-                    ref fileMainStreamingCoID, ref mediaId);
+                    ref fileMainStreamingCoID, ref mediaId, ref fileType);
                 //GetLicensedLink return empty link no need to continue
                 if (oLicensedLinkResponse == null || string.IsNullOrEmpty(oLicensedLinkResponse.mainUrl))
                 {

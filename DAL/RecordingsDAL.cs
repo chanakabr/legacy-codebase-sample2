@@ -260,13 +260,13 @@ namespace DAL
 
             DataTable linksTable = new DataTable("recordingLinks");
 
-            linksTable.Columns.Add("BRAND_ID", typeof(int));
+            linksTable.Columns.Add("FILE_TYPE", typeof(int));
             linksTable.Columns.Add("URL", typeof(string));
 
             foreach (RecordingLink item in links)
             {
                 DataRow row = linksTable.NewRow();
-                row["BRAND_ID"] = item.DeviceTypeBrand;
+                row["FILE_TYPE"] = item.FileType;
                 row["URL"] = item.Url;
                 linksTable.Rows.Add(row);
             }
@@ -691,22 +691,22 @@ namespace DAL
             return spCountRecordingsByExternalRecordingId.ExecuteReturnValue<int>();           
         }
 
-        public static RecordingLink GetRecordingLinkByBrand(int groupId, string externalRecordingId, int brandId)
+        public static RecordingLink GetRecordingLinkByFileType(int groupId, string externalRecordingId, string fileType)
         {
             RecordingLink recordingLink = null;
 
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetRecordingLinksByBrand");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetRecordingLinksByFileType");
             sp.SetConnectionKey(RECORDING_CONNECTION);
             sp.AddParameter("@groupId", groupId);
-            sp.AddParameter("@recordingId", externalRecordingId);            
-            sp.AddParameter("@brandId", brandId);
+            sp.AddParameter("@recordingId", externalRecordingId);
+            sp.AddParameter("@fileType", fileType);
 
             DataTable dt = sp.Execute();
             if (dt != null && dt.Rows != null)
             {
                 recordingLink = new RecordingLink()
                 {
-                    DeviceTypeBrand = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "BRAND_ID", 0),
+                    FileType = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "FILE_TYPE"),
                     Url = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "URL")
                 };
             }

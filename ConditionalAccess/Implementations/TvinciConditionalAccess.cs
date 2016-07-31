@@ -565,8 +565,9 @@ namespace ConditionalAccess
                 int nProgramId = Int32.Parse(sProgramId);
                 int fileMainStreamingCoID = 0; // CDN Streaming id
                 int mediaId = 0;
+                string fileType = string.Empty;
                 LicensedLinkResponse oLicensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode, 
-                    eObjectType.EPG, ref fileMainStreamingCoID, ref mediaId);
+                    eObjectType.EPG, ref fileMainStreamingCoID, ref mediaId, ref fileType);
                 
                 //GetLicensedLink return empty link no need to continue
                 if (oLicensedLinkResponse == null || oLicensedLinkResponse.Status == null || oLicensedLinkResponse.Status.Code != (int)eResponseStatus.OK)
@@ -643,10 +644,6 @@ namespace ConditionalAccess
                 // if adapter response is not null and is adapter (has an adapter url) - call the adapter
                 if (adapterResponse.Adapter != null && !string.IsNullOrEmpty(adapterResponse.Adapter.AdapterUrl))
                 {
-                    // get device type
-                    int deviceDomainId;
-                    int deviceType = Utils.GetDeviceBrandTypeIdByUDID(m_nGroupID, sDEVICE_NAME, out deviceDomainId);
-
                     int actionType = Utils.MapActionTypeForAdapter(eformat);
 
                     // if the adapter is default - append the adapter's base url to the file urls
@@ -656,7 +653,7 @@ namespace ConditionalAccess
                     }
 
                     // main url
-                    var link = CDNAdapterController.GetInstance().GetEpgLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGUID, sBasicLink, deviceType.ToString(), nProgramId, mediaId, nMediaFileID,
+                    var link = CDNAdapterController.GetInstance().GetEpgLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGUID, sBasicLink, fileType, nProgramId, mediaId, nMediaFileID,
                         TVinciShared.DateUtils.DateTimeToUnixTimestamp(scheduling.StartDate), actionType, sUserIP);
 
                     if (link != null)
