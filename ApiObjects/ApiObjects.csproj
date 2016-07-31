@@ -374,7 +374,6 @@
     <Compile Include="TimeShiftedTv\QuotaManagementModel.cs" />
     <Compile Include="TimeShiftedTv\Recording.cs" />
     <Compile Include="TimeShiftedTv\RecordingCB.cs" />
-    <Compile Include="TimeShiftedTv\RecordingCleanupResponse.cs" />
     <Compile Include="TimeShiftedTv\RecordingResponse.cs" />
     <Compile Include="TimeShiftedTv\RecordResult.cs" />
     <Compile Include="TimeShiftedTv\SeriesRecording.cs" />

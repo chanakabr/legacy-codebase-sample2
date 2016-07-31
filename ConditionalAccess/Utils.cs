@@ -5148,14 +5148,14 @@ namespace ConditionalAccess
                     if (id > 0 && !expiredRecordings.ContainsKey(id))
                     {
                         long recordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID", 0);
-                        int groupId = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_ID", 0);
-                        DateTime scheduledExpirationDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "scheduled_expiration_date");
+                        int groupId = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_ID", 0);                        
                         long scheduledExpirationEpoch = ODBCWrapper.Utils.GetLongSafeVal(dr, "scheduled_expiration_epoch", 0);
                         HandleDomainQuataByRecordingTask expiredRecording = new HandleDomainQuataByRecordingTask()
                         {
                             Id = id,
                             RecordingId = recordingId,
-                            ScheduledExpirationEpoch = scheduledExpirationEpoch
+                            ScheduledExpirationEpoch = scheduledExpirationEpoch,
+                            GroupId = groupId
                         };
                         expiredRecordings.Add(id, expiredRecording);
                     }
