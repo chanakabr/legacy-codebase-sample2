@@ -18179,7 +18179,7 @@ namespace ConditionalAccess
                 if (lastRecordingCleanupResponse != null && lastRecordingCleanupResponse.Status.Code == (int)eResponseStatus.OK && lastRecordingCleanupResponse.NextRunIntervalInSeconds > 0)
                 {
                     recordingCleanupIntervalSec = lastRecordingCleanupResponse.NextRunIntervalInSeconds;
-                    if (lastRecordingCleanupResponse.LastSuccessfulRunDate.AddSeconds(recordingCleanupIntervalSec) < DateTime.UtcNow)
+                    if (lastRecordingCleanupResponse.LastRunDate.AddSeconds(recordingCleanupIntervalSec) < DateTime.UtcNow)
                     {
                         shouldInsertToQueue = true;
                     }
@@ -18301,7 +18301,7 @@ namespace ConditionalAccess
                 if (expiredRecordingsLastRunResponse != null && expiredRecordingsLastRunResponse.Status.Code == (int)eResponseStatus.OK && expiredRecordingsLastRunResponse.NextRunIntervalInSeconds > 0)
                 {
                     scheduledTaskIntervalSec = expiredRecordingsLastRunResponse.NextRunIntervalInSeconds;
-                    if (expiredRecordingsLastRunResponse.LastSuccessfulRunDate.AddSeconds(scheduledTaskIntervalSec) < DateTime.UtcNow)
+                    if (expiredRecordingsLastRunResponse.LastRunDate.AddSeconds(scheduledTaskIntervalSec) < DateTime.UtcNow)
                     {
                         shouldInsertToQueue = true;
                     }
@@ -18577,7 +18577,7 @@ namespace ConditionalAccess
                 if (recordingScheduledTasksLastRunResponse != null && recordingScheduledTasksLastRunResponse.Status.Code == (int)eResponseStatus.OK && recordingScheduledTasksLastRunResponse.NextRunIntervalInSeconds > 0)
                 {
                     scheduledTaskIntervalSec = recordingScheduledTasksLastRunResponse.NextRunIntervalInSeconds;
-                    if (recordingScheduledTasksLastRunResponse.LastSuccessfulRunDate.AddSeconds(scheduledTaskIntervalSec) < DateTime.UtcNow)
+                    if (recordingScheduledTasksLastRunResponse.LastRunDate.AddSeconds(scheduledTaskIntervalSec) < DateTime.UtcNow)
                     {
                         shouldInsertToQueue = true;
                     }
