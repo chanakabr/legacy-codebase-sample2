@@ -79,7 +79,6 @@ namespace WebAPI.Controllers
                         break;
                     case KalturaAssetType.recording:
                         throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Not implemented");
-                        break;
                     default:
                         throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Not implemented");
                 }
@@ -117,27 +116,14 @@ namespace WebAPI.Controllers
                 {
                     KalturaLicensedUrlEpgRequest epgRequest = request as KalturaLicensedUrlEpgRequest;
                     epgRequest.Validate();
-                            
-                    int epgId = 0;
-                    if (!int.TryParse(epgRequest.AssetId, out epgId))
-                    {
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "assetId must be a number");
-                    }
-                    response = ClientsManager.ConditionalAccessClient().GetEPGLicensedLink(groupId, userId, udid, epgId, epgRequest.ContentId, epgRequest.BaseUrl, epgRequest.StartDate, epgRequest.StreamType);
+
+                    response = ClientsManager.ConditionalAccessClient().GetEPGLicensedLink(groupId, userId, udid, epgRequest.getEpgId(), epgRequest.ContentId, epgRequest.BaseUrl, epgRequest.StartDate, epgRequest.StreamType);
                 }
                 else if (request is KalturaLicensedUrlRecordingRequest) 
                 {
                     KalturaLicensedUrlRecordingRequest recordingRequest = request as KalturaLicensedUrlRecordingRequest;
-                    int recordingId;
-                    if (!int.TryParse(recordingRequest.AssetId, out recordingId))
-                    {
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "assetId must be numeric for recording");
-                    }
-                    if (string.IsNullOrEmpty(recordingRequest.FileType))
-                    {
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "fileType cannot be empty");
-                    }
-                    response = ClientsManager.ConditionalAccessClient().GetRecordingLicensedLink(groupId, userId, udid, recordingId, recordingRequest.StartDate, recordingRequest.FileType);
+
+                    response = ClientsManager.ConditionalAccessClient().GetRecordingLicensedLink(groupId, userId, udid, recordingRequest.GetRecordingId(), recordingRequest.StartDate, recordingRequest.FileType);
                 }
                 else
                 {

@@ -14,7 +14,7 @@ namespace WebAPI.Models.ConditionalAccess
     public class KalturaLicensedUrlMediaRequest : KalturaLicensedUrlBaseRequest
     {
         /// <summary>
-        /// Identifier of the content to get the link for(file identifier)
+        /// Identifier of the content to get the link for (file identifier)
         /// </summary>
         [DataMember(Name = "contentId")]
         [JsonProperty("contentId")]
@@ -29,8 +29,9 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlElement(ElementName = "baseUrl")]
         public string BaseUrl { get; set; }
 
-        internal virtual void Validate()
+        internal override void Validate()
         {
+            base.Validate();
             if (ContentId == 0)
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "contentId cannot be empty");

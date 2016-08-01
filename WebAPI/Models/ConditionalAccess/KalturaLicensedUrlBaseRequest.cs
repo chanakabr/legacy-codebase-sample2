@@ -7,6 +7,7 @@ using System.Xml.Serialization;
 using Newtonsoft.Json;
 using WebAPI.Models.General;
 using WebAPI.Managers.Schema;
+using WebAPI.Exceptions;
 
 namespace WebAPI.Models.ConditionalAccess
 {
@@ -19,5 +20,13 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("assetId")]
         [XmlElement(ElementName = "assetId")]
         public string AssetId { get; set; }
+
+        internal virtual void Validate()
+        {
+            if (string.IsNullOrEmpty(AssetId))
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "assetId cannot be empty");
+            }
+        }
     }
 }

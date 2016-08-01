@@ -28,5 +28,33 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("startDate")]
         [XmlElement(ElementName = "startDate")]
         public long StartDate { get; set; }
+
+        private int epgId { get; set; }
+
+        public int getEpgId()
+        {
+            if (epgId == 0)
+            {
+                int parsed = 0;
+                if (!int.TryParse(AssetId, out parsed))
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "assetId must be a number");
+                }
+                epgId = parsed;
+            }
+            return epgId;
+        }
+
+        internal override void Validate()
+        {
+            base.Validate();
+
+            int parsed = 0;
+            if (!int.TryParse(AssetId, out parsed))
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "assetId must be a number");
+            }
+            epgId = parsed;
+        }
     }
 }
