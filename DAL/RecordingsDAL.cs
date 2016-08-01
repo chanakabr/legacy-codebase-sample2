@@ -260,13 +260,13 @@ namespace DAL
 
             DataTable linksTable = new DataTable("recordingLinks");
 
-            linksTable.Columns.Add("BRAND_ID", typeof(int));
+            linksTable.Columns.Add("FILE_TYPE", typeof(int));
             linksTable.Columns.Add("URL", typeof(string));
 
             foreach (RecordingLink item in links)
             {
                 DataRow row = linksTable.NewRow();
-                row["BRAND_ID"] = item.DeviceTypeBrand;
+                row["FILE_TYPE"] = item.FileType;
                 row["URL"] = item.Url;
                 linksTable.Rows.Add(row);
             }
@@ -328,13 +328,14 @@ namespace DAL
             return spCancelDomainRecording.ExecuteReturnValue<bool>();
         }
 
-        public static DataTable GetExistingRecordingsByRecordingID(int groupID, long recordID)
+        public static DataTable GetExistingDomainRecordingsByRecordingID(int groupID, long recordID, RecordingType type)
         {
-            ODBCWrapper.StoredProcedure spGetExistingRecordingsByRecordingID = new ODBCWrapper.StoredProcedure("GetExistingRecordingsByRecordingID");
-            spGetExistingRecordingsByRecordingID.SetConnectionKey(RECORDING_CONNECTION);
-            spGetExistingRecordingsByRecordingID.AddParameter("@GroupID", groupID);
-            spGetExistingRecordingsByRecordingID.AddParameter("@RecordID", recordID);
-            DataTable dt = spGetExistingRecordingsByRecordingID.Execute();
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetExistingDomainRecordingsByRecordingID");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@RecordID", recordID);
+            sp.AddParameter("@Type", (int)type);
+            DataTable dt = sp.Execute();
 
             return dt;
 
@@ -690,6 +691,28 @@ namespace DAL
             return spCountRecordingsByExternalRecordingId.ExecuteReturnValue<int>();           
         }
 
+        public static RecordingLink GetRecordingLinkByFileType(int groupId, string externalRecordingId, string fileType)
+        {
+            RecordingLink recordingLink = null;
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetRecordingLinksByFileType");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@recordingId", externalRecordingId);
+            sp.AddParameter("@fileType", fileType);
+
+            DataTable dt = sp.Execute();
+            if (dt != null && dt.Rows != null)
+            {
+                recordingLink = new RecordingLink()
+                {
+                    FileType = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "FILE_TYPE"),
+                    Url = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "URL")
+                };
+            }
+            return recordingLink;
+        }
+
         #region Couchbase
 
         public static RecordingCB GetRecordingByProgramId_CB(long programId)
@@ -1008,5 +1031,19 @@ namespace DAL
 
         #endregion
 
+        public static DataTable GetDomainsRecordingsByRecordingStatusesAndChannel(List<long> domains, int groupId, long channelId, List<int> statuses, int recordingType, DateTime epgStartDate)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetDomainsRecordingsByRecordingStatusesAndChannel");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
+            sp.AddParameter("@GroupID", groupId);
+            sp.AddParameter("@ChannelID", channelId);
+            sp.AddParameter("@Type", recordingType);
+            sp.AddParameter("@StartDate", epgStartDate);
+            sp.AddIDListParameter<long>("@DomainIDs", domains, "ID");
+            sp.AddIDListParameter<int>("@RecordingStatuses", statuses, "ID");
+            
+            DataTable dt = sp.Execute();
+            return dt;
+        }
     }
 }

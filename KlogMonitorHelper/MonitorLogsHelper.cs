@@ -73,6 +73,8 @@ namespace KlogMonitorHelper
 
                 try
                 {
+                    HttpContext.Current.Items[Constants.ACTION] = "null";
+
                     XmlDocument doc = new XmlDocument();
                     doc.LoadXml(requestString);
 
@@ -80,8 +82,6 @@ namespace KlogMonitorHelper
                     XmlNodeList tempXmlNodeList = doc.GetElementsByTagName("soap:Body");
                     if (tempXmlNodeList.Count > 0)
                         HttpContext.Current.Items[Constants.ACTION] = tempXmlNodeList[0].ChildNodes[0].Name;
-                    else
-                        HttpContext.Current.Items[Constants.ACTION] = "null";
 
                     // get group ID
                     XmlNodeList xmlUserName = doc.GetElementsByTagName("sWSUserName");
@@ -101,6 +101,12 @@ namespace KlogMonitorHelper
                         string username = nameValueCollection["sWSUserName"];
                         string password = nameValueCollection["sWSPassword"];
                         HttpContext.Current.Items[Constants.GROUP_ID] = GetGroupID(module, username, password);
+
+                        if (HttpContext.Current.Request.UrlReferrer != null &&
+                            string.IsNullOrEmpty(HttpContext.Current.Request.UrlReferrer.Query))
+                        {
+                            HttpContext.Current.Items[Constants.ACTION] = HttpContext.Current.Request.UrlReferrer.Query.Substring(HttpContext.Current.Request.UrlReferrer.Query.LastIndexOf("=") + 1);
+                        }
                     }
                     catch (Exception)
                     {

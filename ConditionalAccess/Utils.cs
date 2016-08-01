@@ -2365,10 +2365,11 @@ namespace ConditionalAccess
             }
         }
 
-        internal static string GetBasicLink(int nGroupID, int[] nMediaFileIDs, int nMediaFileID, string sBasicLink, out int nStreamingCompanyID)
+        internal static string GetBasicLink(int nGroupID, int[] nMediaFileIDs, int nMediaFileID, string sBasicLink, out int nStreamingCompanyID, out string fileType)
         {
             TvinciAPI.MeidaMaper[] mapper = GetMediaMapper(nGroupID, nMediaFileIDs);
             nStreamingCompanyID = 0;
+            fileType = string.Empty;
             int mediaID = 0;
             if (mapper != null && mapper.Length > 0)
             {
@@ -2380,7 +2381,7 @@ namespace ConditionalAccess
                 string sBaseURL = string.Empty;
                 string sStreamID = string.Empty;
 
-                ConditionalAccessDAL.Get_BasicLinkData(nMediaFileID, ref sBaseURL, ref sStreamID, ref nStreamingCompanyID);
+                ConditionalAccessDAL.Get_BasicLinkData(nMediaFileID, ref sBaseURL, ref sStreamID, ref nStreamingCompanyID, ref fileType);
 
                 sBasicLink = string.Format("{0}{1}", sBaseURL, sStreamID);
                 if (sStreamID.Length > 0)
@@ -4779,39 +4780,6 @@ namespace ConditionalAccess
             return response;
         }
 
-        internal static string GetDeviceTypeByUDID(int groupId, string udid)
-        {
-            string deviceType = string.Empty;
-            try
-            {
-                TvinciDomains.module domains = new TvinciDomains.module();
-                string sWSUserName = string.Empty;
-                string sWSPass = string.Empty;
-
-                domains.Url = Utils.GetWSURL("domains_ws");
-
-                Utils.GetWSCredentials(groupId, eWSModules.DOMAINS, ref sWSUserName, ref sWSPass);
-
-                if (string.IsNullOrEmpty(domains.Url) || string.IsNullOrEmpty(sWSUserName) || string.IsNullOrEmpty(sWSPass))
-                {
-                    log.ErrorFormat("GetDeviceTyprByUDID: missing WS Domains credentials or url. groupId = {0}", groupId);
-                    return null;
-                }
-
-                var device = domains.GetDeviceInfo(sWSUserName, sWSPass, udid, true);
-                if (device != null && device.m_oDevice != null)
-                {
-                    deviceType = device.m_oDevice.m_deviceBrandID.ToString();
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("GetDeviceTyprByUDID: failed calling WS API. groupId = {0}", groupId, ex);
-            }
-
-            return deviceType;
-        }
-
         internal static TvinciAPI.CDNAdapterResponse GetRelevantCDN(int groupId, int fileStreamingCompanyId, ConditionalAccess.TvinciAPI.eAssetTypes assetType, ref bool isDefaultAdapter)
         {
             TvinciAPI.CDNAdapterResponse adapterResponse = null;
@@ -5887,6 +5855,71 @@ namespace ConditionalAccess
             }
 
             return result;
+        }
+
+        internal static MediaObj GetMediaById(int groupID, int mediaId)
+        {
+            MediaObj media = null;
+            WS_Catalog.IserviceClient client = null;
+
+            try
+            {
+                WS_Catalog.MediasProtocolRequest request = new WS_Catalog.MediasProtocolRequest();
+                request.m_nGroupID = groupID;
+                request.m_nPageIndex = 0;
+                request.m_nPageSize = 0;
+                request.m_lMediasIds = new int[] { mediaId };
+                request.m_oFilter = new WS_Catalog.Filter()
+                {
+                    m_bOnlyActiveMedia = true
+                };
+                FillCatalogSignature(request);
+                client = new WS_Catalog.IserviceClient();
+                string sCatalogUrl = GetWSURL("WS_Catalog");
+                if (string.IsNullOrEmpty(sCatalogUrl))
+                {
+                    log.Error("Catalog Url is null or empty");
+                    return media;
+                }
+
+                client.Endpoint.Address = new System.ServiceModel.EndpointAddress(sCatalogUrl);
+                WS_Catalog.MediaResponse response = client.GetMediasByIDs(request) as WS_Catalog.MediaResponse;
+                if (response != null && response.m_lObj != null && response.m_lObj.Length > 0)
+                {
+                    media = response.m_lObj[0] as MediaObj;
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error("Failed GetMediasByIDs to Catalog", ex);
+            }
+
+            finally
+            {
+                if (client != null)
+                {
+                    client.Close();
+                }
+            }
+
+            return media;
+        }
+
+        internal static bool IsDeviceInDomain(Domain domain, string udid)
+        {
+            if (domain != null && domain.m_deviceFamilies != null && domain.m_deviceFamilies.Length > 0)
+            {
+                foreach (var deviceFamily in domain.m_deviceFamilies)
+                {
+                    if (deviceFamily.DeviceInstances != null && deviceFamily.DeviceInstances.Length > 0 && deviceFamily.DeviceInstances.Where(d => d.m_deviceUDID == udid).FirstOrDefault() != null)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
     }
 }
