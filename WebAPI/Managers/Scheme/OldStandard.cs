@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Web;
 using WebAPI.Filters;
 
-namespace WebAPI.Managers.Schema
+namespace WebAPI.Managers.Scheme
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
     public class OldStandardAttribute : Attribute

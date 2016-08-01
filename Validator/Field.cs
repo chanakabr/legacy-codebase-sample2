@@ -15,7 +15,7 @@ using System.Web.Http.Description;
 using System.Web;
 using System.Xml.Serialization;
 
-namespace Validator.Managers.Schema
+namespace Validator.Managers.Scheme
 {
     internal class Field
     {

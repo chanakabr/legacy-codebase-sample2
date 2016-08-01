@@ -4,7 +4,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Utils;
@@ -24,7 +24,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("setDevicePushToken"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public bool SetDevicePushToken(string pushToken)
         {
             bool response = false;
@@ -58,7 +58,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("initiateCleanup"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public bool InitiateCleanup()
         {
             bool response = false;
@@ -87,7 +87,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("getLastCleanupDate"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public long GetLastCleanupDate()
         {
             long response = 0;
@@ -117,7 +117,7 @@ namespace WebAPI.Controllers
         /// <param name="type">"announcement" - TV-Series topic, "system" - login topic</param>     
         [Route("register"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaRegistryResponse Register(string identifier, KalturaNotificationType type)
         {
             KalturaRegistryResponse response = null;

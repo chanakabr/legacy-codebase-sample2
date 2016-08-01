@@ -2508,10 +2508,11 @@
     <Compile Include="Managers\Models\AppToken.cs" />
     <Compile Include="Managers\Models\KSUtils.cs" />
     <Compile Include="Managers\RolesManager.cs" />
-    <Compile Include="Managers\Schema\OnlyNewStandard.cs" />
-    <Compile Include="Managers\Schema\OldStandard.cs" />
-    <Compile Include="Managers\Schema\ValidationException.cs" />
-    <Compile Include="Managers\Schema\SchemaValidationType.cs" />
+    <Compile Include="Managers\Scheme\SchemeProperty.cs" />
+    <Compile Include="Managers\Scheme\OnlyNewStandard.cs" />
+    <Compile Include="Managers\Scheme\OldStandard.cs" />
+    <Compile Include="Managers\Scheme\ValidationException.cs" />
+    <Compile Include="Managers\Scheme\SchemeValidationType.cs" />
     <Compile Include="Models\API\KalturaPin.cs" />
     <Compile Include="Models\API\KalturaPurchaseSettings.cs" />
     <Compile Include="Models\API\KalturaUserAssetRuleFilter.cs" />
@@ -2614,6 +2615,7 @@
     <Compile Include="Models\Domains\KalturaHouseholdFrequencyType.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdLimitations.cs" />
     <Compile Include="Models\Domains\KalturaDevicePin.cs" />
+    <Compile Include="Models\General\KalturaApiParameterPermissionItem.cs" />
     <Compile Include="Models\General\KalturaFilter.cs" />
     <Compile Include="Models\General\KalturaOTTAssetType.cs" />
     <Compile Include="Models\General\KalturaApiActionPermissionItem.cs" />

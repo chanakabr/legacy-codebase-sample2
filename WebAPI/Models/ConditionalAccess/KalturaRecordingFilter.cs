@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 
@@ -32,7 +32,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "filterExpression")]
         [JsonProperty("filterExpression")]
         [XmlElement(ElementName = "filterExpression", IsNullable = true)]
-        [ValidationException(SchemaValidationType.FILTER_SUFFIX)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public string FilterExpression { get; set; }
 
         public override KalturaRecordingOrderBy GetDefaultOrderByValue()

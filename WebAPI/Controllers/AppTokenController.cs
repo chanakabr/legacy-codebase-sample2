@@ -6,7 +6,7 @@ using System.Web.Http;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
@@ -113,7 +113,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <returns></returns>
         [Route("startSession"), HttpPost]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         [ApiAuthorize]
         public KalturaSessionInfo StartSession(string id, string tokenHash, string userId = null, KalturaSessionType? type = null, int? expiry = null, string udid = null)
         {

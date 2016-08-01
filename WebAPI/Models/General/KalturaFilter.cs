@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.General
 {
@@ -16,7 +16,7 @@ namespace WebAPI.Models.General
     /// <summary>
     /// Base filter
     /// </summary>
-    public abstract class KalturaFilter<T> : KalturaOTTObject, IKalturaFilter
+    public abstract class KalturaFilter<T> : KalturaOTTObject, IKalturaFilter where T : struct, IComparable, IFormattable, IConvertible
     {
         public abstract T GetDefaultOrderByValue();
 
@@ -31,7 +31,7 @@ namespace WebAPI.Models.General
         [DataMember(Name = "orderBy")]
         [JsonProperty("orderBy")]
         [XmlElement(ElementName = "orderBy", IsNullable = true)]
-        [ValidationException(SchemaValidationType.FILTER_SUFFIX)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public T OrderBy { get; set; }
     }
 }

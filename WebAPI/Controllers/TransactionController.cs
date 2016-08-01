@@ -6,7 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Utils;
 
@@ -32,7 +32,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("purchase"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaTransaction Purchase(KalturaPurchase purchase)
         {
             KalturaTransaction response = new KalturaTransaction();
@@ -136,7 +136,7 @@ namespace WebAPI.Controllers
         ///,         </remarks>
         [Route("updateStatus"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public void UpdateStatus(string paymentGatewayId, string externalTransactionId, string signature, KalturaTransactionStatus status)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -198,7 +198,7 @@ namespace WebAPI.Controllers
         ///    </remarks>
         [Route("validateReceipt"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaTransaction ValidateReceipt(KalturaExternalReceipt externalReceipt)
         {
             KalturaTransaction response = null;
@@ -275,7 +275,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [OldStandard("assetId", "asset_id")]
         [OldStandard("transactionType", "transaction_type")]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public bool SetWaiver(int assetId, KalturaTransactionType transactionType)
         {
             bool response = false;
@@ -321,7 +321,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("getPurchaseSessionId"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public long getPurchaseSessionId(KalturaPurchaseSession purchaseSession)
         {
             long response = 0;
