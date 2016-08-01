@@ -46,6 +46,8 @@ namespace ElasticSearchHandler
             groupManager.RemoveGroup(groupId);
             Group group = groupManager.GetGroup(groupId);
 
+            var languages = group.GetLangauges();
+
             // Without the group we cannot advance at all - there must be an error in CB or something
             if (group == null)
             {
@@ -99,11 +101,13 @@ namespace ElasticSearchHandler
 
                     int lastMediaId = groupMedias[lastIndex].Key;
 
-                    var groupMedia = groupMedias[firstIndex];
+                    List<ESBulkRequestObj<int>> bulkRequests = new List<ESBulkRequestObj<int>>();
 
                     // For each language
-                    foreach (int languageId in groupMedia.Value.Keys)
+                    foreach (var language in languages)
                     {
+                        int languageId = language.ID;
+
                         // Create a search range from the first ID to the last ID
                         ESRange range = new ESRange(true)
                         {
@@ -136,7 +140,8 @@ namespace ElasticSearchHandler
                             int assetId = currentAsset.asset_id;
                             DateTime updateDateES = currentAsset.update_date;
 
-                            // If it is not contained in list of IDs from DB - this means this media is deleted and should be deleted from ES as well
+                            // If it is not contained in list of IDs from DB - 
+                            // this means this media is deleted and should be deleted from ES as well
                             if (!allIdsFromDB.Contains(assetId))
                             {
                                 assetsToDelete.Add(assetId);
@@ -144,21 +149,24 @@ namespace ElasticSearchHandler
                             else
                             {
                                 // Otherwise - remove it from this list, so eventually it will contain only the assets that are in DB but not in ES
+                                // assets that will eventually remain in this list are assets that exist in DB and not in ES
                                 allIdsFromDB.Remove(assetId);
 
-                                string updateDateDBString = groupMediasDictionary[assetId][languageId].m_sUpdateDate;
-
-                                DateTime updateDateDB = DateTime.ParseExact(updateDateDBString, "yyyyMMddHHmmss", null);
-
-                                // Compare the dates - if the DB was updated after the ES was updated, this means we need to update ES
-                                if (updateDateDB > updateDateES)
+                                if (groupMediasDictionary.ContainsKey(assetId) &&
+                                    groupMediasDictionary[assetId].ContainsKey(languageId))
                                 {
-                                    assetsToUpdate.Add(assetId);
+                                    string updateDateDBString = groupMediasDictionary[assetId][languageId].m_sUpdateDate;
+
+                                    DateTime updateDateDB = DateTime.ParseExact(updateDateDBString, "yyyyMMddHHmmss", null);
+
+                                    // Compare the dates - if the DB was updated after the ES was updated, this means we need to update ES
+                                    if (updateDateDB > updateDateES)
+                                    {
+                                        assetsToUpdate.Add(assetId);
+                                    }
                                 }
                             }
                         }
-
-                        List<ESBulkRequestObj<int>> bulkRequests = new List<ESBulkRequestObj<int>>();
 
                         // create a request for each deleted asset
                         foreach (var currentAsset in assetsToDelete)
@@ -176,46 +184,56 @@ namespace ElasticSearchHandler
                         }
 
                         // create a request for each updated asset
-                        foreach (var currentAsset in assetsToUpdate)
+                        foreach (var assetId in assetsToUpdate)
                         {
-                            var media = groupMediasDictionary[currentAsset][languageId];
-                            string serializedMedia = serializer.SerializeMediaObject(media);
-
-                            ESBulkRequestObj<int> currentRequest = new ESBulkRequestObj<int>()
+                            if (groupMediasDictionary.ContainsKey(assetId) &&
+                                groupMediasDictionary[assetId].ContainsKey(languageId))
                             {
-                                docID = currentAsset,
-                                document = serializedMedia,
-                                index = indexName,
-                                Operation = eOperation.update,
-                                type = documentType
-                            };
+                                var media = groupMediasDictionary[assetId][languageId];
+                                string serializedMedia = serializer.SerializeMediaObject(media);
 
-                            bulkRequests.Add(currentRequest);
+                                ESBulkRequestObj<int> currentRequest = new ESBulkRequestObj<int>()
+                                {
+                                    docID = assetId,
+                                    document = serializedMedia,
+                                    index = indexName,
+                                    Operation = eOperation.update,
+                                    type = documentType
+                                };
+
+                                bulkRequests.Add(currentRequest);
+                            }
                         }
 
                         // create a request for each new asset
+                        // assets that were left in this list are assets that exist in DB and not in ES
                         foreach (var assetId in allIdsFromDB)
                         {
-                            var media = groupMediasDictionary[assetId][languageId];
-                            string serializedMedia = serializer.SerializeMediaObject(media);
-
-                            ESBulkRequestObj<int> currentRequest = new ESBulkRequestObj<int>()
+                            if (groupMediasDictionary.ContainsKey(assetId) &&
+                                groupMediasDictionary[assetId].ContainsKey(languageId))
                             {
-                                docID = assetId,
-                                document = serializedMedia,
-                                index = indexName,
-                                Operation = eOperation.index,
-                                type = documentType
-                            };
+                                var media = groupMediasDictionary[assetId][languageId];
+                                string serializedMedia = serializer.SerializeMediaObject(media);
 
-                            bulkRequests.Add(currentRequest);
+                                ESBulkRequestObj<int> currentRequest = new ESBulkRequestObj<int>()
+                                {
+                                    docID = assetId,
+                                    document = serializedMedia,
+                                    index = indexName,
+                                    Operation = eOperation.index,
+                                    type = documentType
+                                };
+
+                                bulkRequests.Add(currentRequest);
+                            }
                         }
 
-                        // Perform bulk requests if there are any
-                        if (bulkRequests.Count > 0)
-                        {
-                            var bulkResults = api.CreateBulkRequest<int>(bulkRequests);
-                        }
+                    }
+
+                    // Perform bulk requests if there are any
+                    if (bulkRequests.Count > 0)
+                    {
+                        var bulkResults = api.CreateBulkRequest<int>(bulkRequests);
                     }
 
                     // move on to the new index
