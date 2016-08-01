@@ -6,7 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Domains;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
@@ -27,7 +27,7 @@ namespace WebAPI.Controllers
         /// Household does not exist = 1006, Household user failed = 1007</remarks>        
         [Route("get"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         public KalturaHousehold Get()
         {
             var ks = KS.GetFromRequest();
@@ -364,7 +364,7 @@ namespace WebAPI.Controllers
         /// users – reset the user add/remove frequency</param>        
         [Route("resetFrequency"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         [OldStandard("frequencyType", "household_frequency_type")]
         public KalturaHousehold ResetFrequency(KalturaHouseholdFrequencyType frequencyType)
         {
@@ -391,7 +391,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         public KalturaHousehold Update(KalturaHousehold household)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -518,7 +518,7 @@ namespace WebAPI.Controllers
         ///</remarks>
         [Route("suspend"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public bool Suspend()
         {
             var ks = KS.GetFromRequest();
@@ -547,7 +547,7 @@ namespace WebAPI.Controllers
         ///</remarks>
         [Route("resume"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public bool Resume()
         {
             var ks = KS.GetFromRequest();

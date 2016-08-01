@@ -65,8 +65,8 @@
     <Compile Include="Field.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Schema.cs" />
-    <Compile Include="SchemaManager.cs" />
+    <Compile Include="Scheme.cs" />
+    <Compile Include="SchemeManager.cs" />
     <Compile Include="TopologicalSorter.cs" />
   </ItemGroup>
   <ItemGroup>

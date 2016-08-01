@@ -16,9 +16,9 @@ using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Utils;
 
-namespace Validator.Managers.Schema
+namespace Validator.Managers.Scheme
 {
-    internal class Schema
+    internal class Scheme
     {
         private Stream stream;
         private Assembly assembly;
@@ -31,7 +31,7 @@ namespace Validator.Managers.Schema
         private Dictionary<string, Type> loadedTypes = new Dictionary<string, Type>();
         private IEnumerable<Type> controllers;
 
-        public Schema(bool loadAll)
+        public Scheme(bool loadAll)
         {
             this.assembly = Assembly.Load("WebAPI");
             this.validatorAssembly = Assembly.GetExecutingAssembly();
@@ -40,12 +40,12 @@ namespace Validator.Managers.Schema
             Load(loadAll);
         }
 
-        public Schema() : this(false)
+        public Scheme() : this(false)
         {
 
         }
 
-        public Schema(Stream stream) : this()
+        public Scheme(Stream stream) : this()
         {
             this.stream = stream;
 
@@ -69,7 +69,7 @@ namespace Validator.Managers.Schema
                 if (apiExplorerSettings != null && apiExplorerSettings.IgnoreApi)
                     continue;
 
-                if (!loadAll && !SchemaManager.Validate(controller, false))
+                if (!loadAll && !SchemeManager.Validate(controller, false))
                     continue;
 
                 var methods = controller.GetMethods();
@@ -83,7 +83,7 @@ namespace Validator.Managers.Schema
                     if (explorerAttr.Count() > 0 && explorerAttr.First().IgnoreApi)
                         continue;
 
-                    if (!loadAll && !SchemaManager.Validate(method, false))
+                    if (!loadAll && !SchemeManager.Validate(method, false))
                         continue;
 
                     foreach (var param in method.GetParameters())
@@ -131,7 +131,7 @@ namespace Validator.Managers.Schema
         {
             if (type.IsEnum && !enums.Contains(type))
             {
-                if (loadAll || SchemaManager.Validate(type, false))
+                if (loadAll || SchemeManager.Validate(type, false))
                     enums.Add(type);
                 return;
             }
@@ -151,7 +151,7 @@ namespace Validator.Managers.Schema
             if (type.IsGenericType && typeName.StartsWith("KalturaFilter"))
                 typeName = "KalturaFilter";
 
-            if (type.IsSubclassOf(typeof(KalturaOTTObject)) && !loadedTypes.ContainsKey(typeName) && (loadAll || SchemaManager.Validate(type, false)))
+            if (type.IsSubclassOf(typeof(KalturaOTTObject)) && !loadedTypes.ContainsKey(typeName) && (loadAll || SchemeManager.Validate(type, false)))
             {
                 LoadType(type.BaseType, loadAll);
 
@@ -250,7 +250,7 @@ namespace Validator.Managers.Schema
 
             foreach (Type type in enums.OrderBy(myType => myType.Name))
             {
-                if (!SchemaManager.Validate(type, false))
+                if (!SchemeManager.Validate(type, false))
                     valid = false;
             }
 
@@ -260,7 +260,7 @@ namespace Validator.Managers.Schema
                 if (type == typeof(KalturaOTTObject))
                     continue;
 
-                if (!SchemaManager.Validate(type, false))
+                if (!SchemeManager.Validate(type, false))
                     valid = false;
             }
 
@@ -271,7 +271,7 @@ namespace Validator.Managers.Schema
                 if (controllerAttr != null && controllerAttr.IgnoreApi)
                     continue;
 
-                if (!SchemaManager.Validate(controller, false))
+                if (!SchemeManager.Validate(controller, false))
                     valid = false;
             }
 
@@ -289,7 +289,7 @@ namespace Validator.Managers.Schema
             writer.WriteStartElement("enums");
             foreach (Type type in enums.OrderBy(myType => myType.Name))
             {
-                if (!SchemaManager.Validate(type, true))
+                if (!SchemeManager.Validate(type, true))
                     continue;
 
                 writeEnum(type);
@@ -327,7 +327,7 @@ namespace Validator.Managers.Schema
             writer.WriteStartElement("classes");
             foreach (Type type in types)
             {
-                if (!SchemaManager.Validate(type, true))
+                if (!SchemeManager.Validate(type, true))
                     continue;
 
                 writeType(type);
@@ -339,7 +339,7 @@ namespace Validator.Managers.Schema
             writer.WriteStartElement("services");
             foreach (Type controller in controllers.OrderBy(controller => controller.Name))
             {
-                if (!SchemaManager.Validate(controller, true))
+                if (!SchemeManager.Validate(controller, true))
                     continue;
 
                 writeService(controller);
@@ -431,7 +431,7 @@ namespace Validator.Managers.Schema
 
         private void writeService(Type controller)
         {
-            var serviceId = SchemaManager.getServiceId(controller);
+            var serviceId = SchemeManager.getServiceId(controller);
 
             writer.WriteStartElement("service");
             writer.WriteAttributeString("name", serviceId);
@@ -448,7 +448,7 @@ namespace Validator.Managers.Schema
                 if (explorerAttr.Count() > 0 && explorerAttr.First().IgnoreApi)
                     continue;
 
-                if (!SchemaManager.Validate(method, true))
+                if (!SchemeManager.Validate(method, true))
                     continue;
 
                 writeAction(method);
@@ -461,7 +461,7 @@ namespace Validator.Managers.Schema
         {
             RouteAttribute route = action.GetCustomAttribute<RouteAttribute>(false);
             Type controller = action.ReflectedType;
-            string serviceId = SchemaManager.getServiceId(controller);
+            string serviceId = SchemeManager.getServiceId(controller);
             string actionId = route.Template;
 
             // string routePrefix = assembly.GetType("WebAPI.Controllers.ServiceController").GetCustomAttribute<RoutePrefixAttribute>().Prefix;

@@ -10,7 +10,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
@@ -38,7 +38,7 @@ namespace WebAPI.Controllers
         /// <param name="udid">The caller device's UDID</param>
         /// <returns>KalturaLoginResponse</returns>
         [Route("anonymousLogin"), HttpPost]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaLoginSession AnonymousLogin(int partnerId, string udid = null)
         {
             return AuthorizationManager.GenerateSession("0", partnerId, false, false, udid);
@@ -57,7 +57,7 @@ namespace WebAPI.Controllers
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWIthNoHousehold = 2024, User does not exist = 2000
         /// </remarks>
         [Route("loginWithPin"), HttpPost]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaLoginResponse LoginWithPin(int partnerId, string pin, string udid = null, string secret = null)
         {
             KalturaOTTUser response = null;
@@ -93,7 +93,7 @@ namespace WebAPI.Controllers
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
         /// </remarks>
         [Route("login"), HttpPost]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         [OldStandard("extraParams", "extra_params")]
         public KalturaLoginResponse Login(int partnerId, string username = null, string password = null, SerializableDictionary<string, KalturaStringValue> extraParams = null,
             string udid = null)
@@ -131,7 +131,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("refreshSession"), HttpPost]
         [ApiAuthorize(true)]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         [OldStandard("refreshToken", "refresh_token")]
         public KalturaLoginSession RefreshSession(string refreshToken, string udid = null)
         {
@@ -206,7 +206,7 @@ namespace WebAPI.Controllers
         /// Wrong username or password = 1011, User exists = 2014
         /// </remarks>
         [Route("register"), HttpPost]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaOTTUser Register(int partnerId, KalturaOTTUser user, string password)
         {
             KalturaOTTUser response = null;
@@ -243,7 +243,7 @@ namespace WebAPI.Controllers
         /// <param name="username">user name</param>
         /// <remarks></remarks>
         [Route("resetPassword"), HttpPost]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public bool resetPassword(int partnerId, string username)
         {
             bool response = false;
@@ -278,7 +278,7 @@ namespace WebAPI.Controllers
         /// <param name="password">New password</param>
         /// <remarks>Possible status codes: User does not exist = 2000</remarks>
         [Route("setInitialPassword"), HttpPost]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaOTTUser setInitialPassword(int partnerId, string token, string password)
         {
             KalturaOTTUser response = null;
@@ -383,7 +383,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Wrong username or password = 1011, User does not exist = 2000, Inside lock time = 2015, User already logged in = 2017</remarks>
         [Route("updateLoginData"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         [OldStandard("oldPassword", "old_password")]
         [OldStandard("newPassword", "new_password")]
         public bool UpdateLoginData(string username, string oldPassword, string newPassword)
@@ -421,7 +421,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>        
         [Route("get"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         public KalturaOTTUser Get()
         {
             List<KalturaOTTUser> response = null;
@@ -489,7 +489,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         public KalturaOTTUser Update(KalturaOTTUser user)
         {
             KalturaOTTUser response = null;
@@ -525,7 +525,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("addRole"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         [OldStandard("roleId", "role_id")]
         public bool AddRole(long roleId)
         {
@@ -556,7 +556,7 @@ namespace WebAPI.Controllers
         /// </remarks>        
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         public bool Delete()
         {
             bool response = false;
@@ -583,7 +583,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("logout"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public bool Logout()
         {
             bool response = false;
@@ -615,7 +615,7 @@ namespace WebAPI.Controllers
         /// <param name="username">Username of the user to activate</param>
         /// <returns></returns>
         [Route("activate"), HttpPost]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         [OldStandard("activationToken", "activation_token")]
         public Models.Users.KalturaOTTUser Activate(int partnerId, string username, string activationToken)
         {
@@ -640,7 +640,7 @@ namespace WebAPI.Controllers
         /// <param name="username">Username of the user to activate</param>
         /// <returns></returns>
         [Route("resendActivationToken"), HttpPost]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public bool ResendActivationToken(int partnerId, string username)
         {
             bool response = false;
@@ -663,7 +663,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("getEncryptedUserId"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaStringValue GetEncryptedUserId()
         {
             KalturaStringValue response = null;

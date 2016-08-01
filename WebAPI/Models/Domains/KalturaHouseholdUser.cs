@@ -5,7 +5,8 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
-using WebAPI.Managers.Schema;
+using WebAPI.Filters;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
 
@@ -16,6 +17,15 @@ namespace WebAPI.Models.Domains
     /// </summary>
     public class KalturaHouseholdUser : KalturaOTTObject
     {
+        /// <summary>
+        /// The identifier of the household
+        /// </summary>
+        [DataMember(Name = "householdId")]
+        [JsonProperty("householdId")]
+        [XmlElement(ElementName = "householdId")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
+        public int? HouseholdId { get; set; }
+
         /// <summary>
         /// The identifier of the user
         /// </summary>

@@ -9,7 +9,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
 
@@ -27,7 +27,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("getCountry"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaCountry GetCountry(string ip = null)
         {
             KalturaCountry response = null;
@@ -57,7 +57,7 @@ namespace WebAPI.Controllers
         /// </summary>
         [Route("ping"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public bool Ping()
         {
             return true;
@@ -67,7 +67,7 @@ namespace WebAPI.Controllers
         /// Returns current server timestamp
         /// </summary>
         [Route("getTime"), HttpPost]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         [ApiAuthorize]
         public long GetTime()
         {
@@ -80,7 +80,7 @@ namespace WebAPI.Controllers
         /// </summary>
         [Route("getVersion"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public string GetVersion()
         {
             Assembly assembly = Assembly.GetExecutingAssembly();

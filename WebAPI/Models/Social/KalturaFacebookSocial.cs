@@ -6,7 +6,7 @@ using System.Web;
 using Newtonsoft.Json;
 using WebAPI.Models.General;
 using System.Xml.Serialization;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Social
 {

@@ -222,7 +222,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<ApiActionPermissionItem, KalturaApiActionPermissionItem>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.Service))
                .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action));
+
+            Mapper.CreateMap<ApiParameterPermissionItem, KalturaApiParameterPermissionItem>()
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .ForMember(dest => dest.Object, opt => opt.MapFrom(src => src.Object))
+               .ForMember(dest => dest.Parameter, opt => opt.MapFrom(src => src.Parameter))
+               .ForMember(dest => dest.Action, opt => opt.MapFrom(src => ConvertApiParameterPermissionItemAction(src.Action)));
 
             Mapper.CreateMap<Permission, KalturaPermission>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -375,6 +383,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
         }
 
+        private static KalturaApiParameterPermissionItemAction ConvertApiParameterPermissionItemAction(string action)
+        {
+            return (KalturaApiParameterPermissionItemAction)Enum.Parse(typeof(KalturaApiParameterPermissionItemAction), action);
+        }
+
         private static List<KalturaPermissionItem> ConvertPermissionItems(PermissionItem[] permissionItems)
         {
             List<KalturaPermissionItem> result = null;
@@ -390,6 +403,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     if (permissionItem is ApiActionPermissionItem)
                     {
                         item = AutoMapper.Mapper.Map<KalturaApiActionPermissionItem>((ApiActionPermissionItem)permissionItem);
+                    }
+                    else if (permissionItem is ApiParameterPermissionItem)
+                    {
+                        item = AutoMapper.Mapper.Map<KalturaApiParameterPermissionItem>((ApiParameterPermissionItem)permissionItem);
                     }
                     else
                     {

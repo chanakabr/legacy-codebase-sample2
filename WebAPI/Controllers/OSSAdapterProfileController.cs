@@ -6,7 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Models.Billing;
 using WebAPI.Utils;
@@ -176,7 +176,7 @@ namespace WebAPI.Controllers
         [Route("generateSharedSecret"), HttpPost]
         [ApiAuthorize]
         [OldStandard("ossAdapterId", "oss_adapter_id")]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaOSSAdapterProfile GenerateSharedSecret(int ossAdapterId)
         {
             KalturaOSSAdapterProfile response = null;

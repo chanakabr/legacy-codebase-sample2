@@ -7,7 +7,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Models.General;
 using WebAPI.Utils;
@@ -31,7 +31,7 @@ namespace WebAPI.Controllers
         /// <returns>The purchase settings that apply for the user</returns>
         [Route("get"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         public KalturaPurchaseSettings Get(KalturaEntityReferenceBy by)
         {
             KalturaPurchaseSettings purchaseResponse = null;
@@ -118,7 +118,7 @@ namespace WebAPI.Controllers
         /// <returns>Success / Fail</returns>
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         public KalturaPurchaseSettings Update(KalturaEntityReferenceBy entityReference, KalturaPurchaseSettings settings)
         {
             KalturaPurchaseSettings response = null;

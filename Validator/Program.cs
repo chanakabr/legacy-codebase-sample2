@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using Validator.Managers.Schema;
+using Validator.Managers.Scheme;
 
 namespace Validator
 {
@@ -13,7 +13,7 @@ namespace Validator
     {
         static void Main(string[] args)
         {
-            bool valid = SchemaManager.Validate();
+            bool valid = SchemeManager.Validate();
             Console.Read();
 
             if (valid)

@@ -2826,7 +2826,35 @@
             and the value is a dictionary representing all the role IDs containing the permission item of the service action pair, and the users group list that is relevant for the action, 
             the second's dictionary key is the role ID and the value is a ';' separated list of users allowed in a group permission</returns>
         </member>
-        <member name="M:WebAPI.Managers.RolesManager.IsActionPermitedForRoles(System.Int32,System.String,System.String,System.Collections.Generic.List{System.Int64},System.String@)">
+        <member name="M:WebAPI.Managers.RolesManager.ValidateActionPermitted(System.String,System.String,System.Boolean)">
+            <summary>
+            Checks if an action from a service is allowed
+            </summary>
+            <param name="service">Service name</param>
+            <param name="action">Action name</param>
+        </member>
+        <member name="M:WebAPI.Managers.RolesManager.ValidatePropertyPermitted(System.String,System.String,WebAPI.Filters.RequestType,System.Boolean)">
+            <summary>
+            Checks if a property of an object is allowed
+            </summary>
+            <param name="service">Type name</param>
+            <param name="action">Property name</param>
+            <param name="action">Required action</param>
+            <returns>True if the property is permitted, false otherwise</returns>
+        </member>
+        <member name="M:WebAPI.Managers.RolesManager.IsPropertyPermittedForRoles(System.Int32,System.String,System.String,System.String,System.Collections.Generic.List{System.Int64},System.String@)">
+            <summary>
+            Checks if a property of an object is allowed
+            </summary>
+            <param name="groupId">Group ID</param>
+            <param name="type">Type name</param>
+            <param name="property">Property name</param>
+            <param name="action">Required action</param>
+            <param name="roleIds">Role IDs</param>
+            <param name="usersGroup">list of users separated by ';'</param>
+            <returns>True if the property is permitted, false otherwise</returns>
+        </member>
+        <member name="M:WebAPI.Managers.RolesManager.IsActionPermittedForRoles(System.Int32,System.String,System.String,System.Collections.Generic.List{System.Int64},System.String@)">
             <summary>
             Checks if an action from a service is allowed for a user role under the group's role schema
             </summary>
@@ -4748,6 +4776,11 @@
             Household details
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdUser.HouseholdId">
+            <summary>
+            The identifier of the household
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Domains.KalturaHouseholdUser.UserId">
             <summary>
             The identifier of the user
@@ -4828,11 +4861,6 @@
             Device pin
             </summary>
         </member>
-        <member name="T:WebAPI.Models.General.KalturaOTTAssetType">
-            <summary>
-            OTT Asset Type
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.API.KalturaPermissionItem.Id">
             <summary>
             Permission item identifier
@@ -4841,6 +4869,26 @@
         <member name="P:WebAPI.Models.API.KalturaPermissionItem.Name">
             <summary>
             Permission item name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaApiParameterPermissionItem.Object">
+            <summary>
+            API object name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaApiParameterPermissionItem.Parameter">
+            <summary>
+            API parameter name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaApiParameterPermissionItem.Action">
+            <summary>
+            API action type
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaOTTAssetType">
+            <summary>
+            OTT Asset Type
             </summary>
         </member>
         <member name="P:WebAPI.Models.General.KalturaApiActionPermissionItem.Service">
@@ -5423,29 +5471,24 @@
             Follow data list
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaRegistryParameter.AnnouncementId">
-            <summary>
-            Announcement Id
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaRegistryParameter.Key">
-            <summary>
-            Key
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notification.KalturaRegistryParameter.Url">
-            <summary>
-            URL
-            </summary>
-        </member>
         <member name="T:WebAPI.Models.Notification.KalturaRegistryResponse">
             <summary>
             
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaRegistryResponse.RegistryParameters">
+        <member name="P:WebAPI.Models.Notification.KalturaRegistryResponse.AnnouncementId">
             <summary>
-            push web parameters
+            Announcement Id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaRegistryResponse.Key">
+            <summary>
+            Key
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaRegistryResponse.Url">
+            <summary>
+            URL
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaTopic.Id">
@@ -17526,6 +17569,18 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.ApiActionPermissionItem.Action">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.ApiParameterPermissionItem">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ApiParameterPermissionItem.Object">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ApiParameterPermissionItem.Parameter">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ApiParameterPermissionItem.Action">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.GroupPermission">
