@@ -18880,7 +18880,7 @@ namespace ConditionalAccess
                     }
                     else
                     {
-                        log.DebugFormat("SeasonNumber that was sent diffrent from each other , DomainID: {0}, UserID: {1}, seriesRecording.SeasonNumber = {2}, seasonNumber = {3}", domainId, userId, seriesRecording.SeasonNumber, seasonNumber);
+                        log.ErrorFormat("SeasonNumber that was sent diffrent from each other , DomainID: {0}, UserID: {1}, seriesRecording.SeasonNumber = {2}, seasonNumber = {3}", domainId, userId, seriesRecording.SeasonNumber, seasonNumber);
                         seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.SeasonNumberNotMatch, eResponseStatus.SeasonNumberNotMatch.ToString());
                         return seriesRecording;
                     }
