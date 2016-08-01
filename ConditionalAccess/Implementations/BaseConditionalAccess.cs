@@ -53,7 +53,7 @@ namespace ConditionalAccess
         protected const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";
         protected const string BILLING_CONNECTION_STRING = "BILLING_CONNECTION";
         private const string ROUTING_KEY_RECORDINGS_CLEANUP = "PROCESS_RECORDINGS_CLEANUP";
-        private const int RECORDING_CLEANUP_EXECUTE_GAP_HOURS = 24;        
+        private const double RECORDING_CLEANUP_INTERVAL_SEC = 86400;        
         private const double HANDLE_RECORDINGS_LIFETIME_INTERVAL_SEC = 3600;
         private const string RECORDINGS_LIFETIME_ROUTING_KEY = "PROCESS_RECORDINGS_LIFETIME";        
         private const double HANDLE_RECORDINGS_SCHEDULED_TASKS_INTERVAL_SEC = 60;
@@ -17094,7 +17094,7 @@ namespace ConditionalAccess
             {
                 long domainID = 0;
 
-                recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID, recordingType == RecordingType.Single, true);
+                recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID, recordingType, true);
                 if (recordingResponse.Status.Code != (int)eResponseStatus.OK || recordingResponse.TotalItems == 0)
                 {
                     log.DebugFormat("RecordingResponse status not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
@@ -17260,11 +17260,12 @@ namespace ConditionalAccess
             return recording;
         }
 
-        public RecordingResponse QueryRecords(string userID, List<long> epgIDs, ref long domainID, bool isSingleRecording, bool shouldCheckCatchup)
+        public RecordingResponse QueryRecords(string userID, List<long> epgIDs, ref long domainID, RecordingType recordingType, bool shouldCheckCatchup)
         {
             RecordingResponse response = new RecordingResponse();
             try
             {
+                bool isSingleRecording = recordingType == RecordingType.Single;
                 ConditionalAccess.TvinciDomains.Domain domain;
                 ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userID, ref domainID, out domain);
 
@@ -17561,6 +17562,12 @@ namespace ConditionalAccess
                     return response;
                 }
 
+                // add cancelSeries if cancel is on the list (we don't have cancelSeries on REST)
+                if (recordingStatuses.Contains(TstvRecordingStatus.Canceled) && !recordingStatuses.Contains(TstvRecordingStatus.SeriesCancel))
+                {
+                    recordingStatuses.Add(TstvRecordingStatus.SeriesCancel);
+                }
+
                 Dictionary<long, Recording> DomainRecordingIdToRecordingMap = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, domainID, recordingStatuses);
 
                 if (DomainRecordingIdToRecordingMap != null && DomainRecordingIdToRecordingMap.Count > 0)
@@ -17767,14 +17774,14 @@ namespace ConditionalAccess
                 {
                     Recording recording = ConditionalAccess.Utils.GetRecordingByEpgId(m_nGroupID, id);
 
-                    var currentStatus = RecordingsManager.Instance.CancelOrDeleteRecording(m_nGroupID, recording, TstvRecordingStatus.Canceled);
+                    var currentStatus = RecordingsManager.Instance.CancelOrDeleteRecording(m_nGroupID, recording, action == eAction.Delete ? TstvRecordingStatus.Deleted : TstvRecordingStatus.Canceled);
 
                     // If something went wrong, use the first status that failed
                     if (status == null)
                     {
                         if (currentStatus == null)
                         {
-                            status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Cancel recording did not return a status object");
+                            status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "RecordingsManager.Instance.CancelOrDeleteRecording did not return a status object");
                         }
                         else if (currentStatus.Code != (int)eResponseStatus.OK)
                         {
@@ -18161,17 +18168,18 @@ namespace ConditionalAccess
         public bool CleanupRecordings()
         {
             bool result = false;
-            int recordingCleanupIntervalMin = 0;
+            double recordingCleanupIntervalSec = 0;
             bool shouldInsertToQueue = false;
 
             try
             {
                 // try to get interval for next cleanup or take default
-                RecordingCleanupResponse lastRecordingCleanupResponse = GetLastSuccessfulRecordingsCleanup();
-                if (lastRecordingCleanupResponse.Status.Code == (int)eResponseStatus.OK && lastRecordingCleanupResponse.IntervalInMinutes > 0)
+                object scheduleTask = UtilsDal.GetLastScheduleTaksSuccessfulRun(ScheduledTaskType.recordingsCleanup);
+                ScheduledTaskLastRunResponse lastRecordingCleanupResponse = scheduleTask != null ? (ScheduledTaskLastRunResponse)scheduleTask : null;
+                if (lastRecordingCleanupResponse != null && lastRecordingCleanupResponse.Status.Code == (int)eResponseStatus.OK && lastRecordingCleanupResponse.NextRunIntervalInSeconds > 0)
                 {
-                    recordingCleanupIntervalMin = lastRecordingCleanupResponse.IntervalInMinutes;
-                    if (lastRecordingCleanupResponse.LastSuccessfulCleanUpDate.AddMinutes(recordingCleanupIntervalMin) < DateTime.UtcNow)
+                    recordingCleanupIntervalSec = lastRecordingCleanupResponse.NextRunIntervalInSeconds;
+                    if (lastRecordingCleanupResponse.LastRunDate.AddSeconds(recordingCleanupIntervalSec) < DateTime.UtcNow)
                     {
                         shouldInsertToQueue = true;
                     }
@@ -18183,13 +18191,13 @@ namespace ConditionalAccess
                 else
                 {
                     shouldInsertToQueue = true;
-                    recordingCleanupIntervalMin = RECORDING_CLEANUP_EXECUTE_GAP_HOURS * 60;
+                    recordingCleanupIntervalSec = RECORDING_CLEANUP_INTERVAL_SEC;
                 }
 
                 // get current utc epoch
                 long utcNowEpoch = TVinciShared.DateUtils.UnixTimeStampNow();
                 // get first batch
-                int totalRecordingsToCleanup = 0, totalRecordingsDeleted = 0, totalDomainRecordingsUpdated = 0;
+                int totalRecordingsToCleanup = 0, totalRecordingsDeleted = 0;
                 Dictionary<int, int> groupIdToAdapterIdMap = new Dictionary<int, int>();
                 Dictionary<long, KeyValuePair<int, Recording>> recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup(utcNowEpoch);
                 HashSet<long> recordingsThatFailedDeletion = new HashSet<long>();
@@ -18197,7 +18205,7 @@ namespace ConditionalAccess
                 {
                     totalRecordingsToCleanup += recordingsForDeletion.Count;
                     List<long> deletedRecordingIds = new List<long>();
-                    int adapterId = 0, updatedDomainRecordingsRowCount = 0;
+                    int adapterId = 0;
                     foreach (KeyValuePair<int, Recording> pair in recordingsForDeletion.Values)
                     {
                         if (!groupIdToAdapterIdMap.ContainsKey(pair.Key))
@@ -18223,21 +18231,6 @@ namespace ConditionalAccess
                     }
 
                     totalRecordingsDeleted += deletedRecordingIds.Count;
-                    // update domain recordings
-                    if (deletedRecordingIds.Count > 0)
-                    {
-                        updatedDomainRecordingsRowCount = RecordingsDAL.UpdateDomainRecordingsAfterCleanup(deletedRecordingIds);
-
-                        if (updatedDomainRecordingsRowCount > 0)
-                        {
-                            totalDomainRecordingsUpdated += updatedDomainRecordingsRowCount;
-                            log.DebugFormat("updated {0} rows on domain recordings after cleanup", updatedDomainRecordingsRowCount);
-                        }
-                        else
-                        {
-                            log.Error("Failed updating domain recordings after cleanup");
-                        }
-                    }
 
                     recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup(utcNowEpoch);
                     recordingsForDeletion = recordingsForDeletion.Where(x => !recordingsThatFailedDeletion.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
@@ -18247,8 +18240,8 @@ namespace ConditionalAccess
                 if (totalRecordingsDeleted == totalRecordingsToCleanup)
                 {
                     result = true;
-
-                    if (!RecordingsDAL.UpdateSuccessfulRecordingsCleanup(DateTime.UtcNow, totalRecordingsDeleted, totalDomainRecordingsUpdated, recordingCleanupIntervalMin))
+                    object scheduledTaskToUpdate = new ScheduledTaskLastRunResponse(DateTime.UtcNow, totalRecordingsDeleted, recordingCleanupIntervalSec, ScheduledTaskType.recordingsCleanup);
+                    if (!UtilsDal.UpdateScheduledTaskSuccessfulRun(ScheduledTaskType.recordingsCleanup, scheduledTaskToUpdate))
                     {
                         log.Error("Failed updating recordings cleanup date");
                     }
@@ -18259,7 +18252,7 @@ namespace ConditionalAccess
 
                     if (totalRecordingsDeleted > 0)
                     {
-                        log.DebugFormat("Successfully cleaned up {0} recordings and updated {1} rows on domain recordings", totalRecordingsDeleted, totalDomainRecordingsUpdated);
+                        log.DebugFormat("Successfully cleaned up {0} recordings and updated {1} rows on domain recordings", totalRecordingsDeleted);
                     }
                     else
                     {
@@ -18279,12 +18272,12 @@ namespace ConditionalAccess
             {
                 if (shouldInsertToQueue)
                 {
-                    if (recordingCleanupIntervalMin == 0)
+                    if (recordingCleanupIntervalSec == 0)
                     {
-                        recordingCleanupIntervalMin = RECORDING_CLEANUP_EXECUTE_GAP_HOURS * 60;
+                        recordingCleanupIntervalSec = RECORDING_CLEANUP_INTERVAL_SEC;
                     }
 
-                    DateTime nextExecutionDate = DateTime.UtcNow.AddMinutes(recordingCleanupIntervalMin);
+                    DateTime nextExecutionDate = DateTime.UtcNow.AddSeconds(recordingCleanupIntervalSec);
                     SetupTasksQueue queue = new SetupTasksQueue();
                     CelerySetupTaskData data = new CelerySetupTaskData(0, eSetupTask.RecordingsCleanup, new Dictionary<string, object>()) { ETA = nextExecutionDate };
                     result = queue.Enqueue(data, ROUTING_KEY_RECORDINGS_CLEANUP);
@@ -18292,17 +18285,6 @@ namespace ConditionalAccess
             }
 
             return result;
-        }
-
-        public RecordingCleanupResponse GetLastSuccessfulRecordingsCleanup()
-        {
-            RecordingCleanupResponse response = RecordingsDAL.GetLastSuccessfulRecordingsCleanupDetails();
-            if (response.Status.Code != (int)eResponseStatus.OK)
-            {
-                log.ErrorFormat("Error while trying to get last successful recordings cleanup details, status code: {0}, status message: {1}", response.Status.Code, response.Status.Message);
-            }
-
-            return response;
         }
 
         public bool HandleRecordingsLifetime()
@@ -18314,11 +18296,12 @@ namespace ConditionalAccess
             try
             {
                 // try to get interval for next run take default
-                ScheduledTaskLastRunResponse expiredRecordingsLastRunResponse = GetLastScheduleTaksSuccessfulRun(ScheduledTaskName.recordingsLifetime);
-                if (expiredRecordingsLastRunResponse.Status.Code == (int)eResponseStatus.OK && expiredRecordingsLastRunResponse.NextRunIntervalInSeconds > 0)
+                object scheduleTask = UtilsDal.GetLastScheduleTaksSuccessfulRun(ScheduledTaskType.recordingsLifetime);                
+                ScheduledTaskLastRunResponse expiredRecordingsLastRunResponse = scheduleTask != null ? (ScheduledTaskLastRunResponse)scheduleTask : null;
+                if (expiredRecordingsLastRunResponse != null && expiredRecordingsLastRunResponse.Status.Code == (int)eResponseStatus.OK && expiredRecordingsLastRunResponse.NextRunIntervalInSeconds > 0)
                 {
                     scheduledTaskIntervalSec = expiredRecordingsLastRunResponse.NextRunIntervalInSeconds;
-                    if (expiredRecordingsLastRunResponse.LastSuccessfulRunDate.AddSeconds(scheduledTaskIntervalSec) < DateTime.UtcNow)
+                    if (expiredRecordingsLastRunResponse.LastRunDate.AddSeconds(scheduledTaskIntervalSec) < DateTime.UtcNow)
                     {
                         shouldInsertToQueue = true;
                     }
@@ -18342,8 +18325,8 @@ namespace ConditionalAccess
                 if (totalRecordingsExpired > -1)
                 {
                     result = true;
-
-                    if (!RecordingsDAL.UpdateScheduledTaskSuccessfulRun(ScheduledTaskName.recordingsLifetime, DateTime.UtcNow, totalRecordingsExpired, scheduledTaskIntervalSec))
+                    object scheduledTaskToUpdate = new ScheduledTaskLastRunResponse(DateTime.UtcNow, totalRecordingsExpired, scheduledTaskIntervalSec, ScheduledTaskType.recordingsLifetime);
+                    if (!UtilsDal.UpdateScheduledTaskSuccessfulRun(ScheduledTaskType.recordingsLifetime, scheduledTaskToUpdate))
                     {
                         log.Error("Failed updating expired recordings run details");
                     }
@@ -18378,17 +18361,6 @@ namespace ConditionalAccess
             }
 
             return result;
-        }
-
-        public ScheduledTaskLastRunResponse GetLastScheduleTaksSuccessfulRun(ScheduledTaskName scheduledTaskName)
-        {
-            ScheduledTaskLastRunResponse response = RecordingsDAL.GetLastScheduleTaksSuccessfulRunDetails(scheduledTaskName);
-            if (response.Status.Code != (int)eResponseStatus.OK)
-            {
-                log.ErrorFormat("Error while trying to get last scheduled task successful run details, scheduledTaskName: {0}, status code: {1}, status message: {2}", scheduledTaskName, response.Status.Code, response.Status.Message);
-            }
-
-            return response;
         }
 
         public bool CompleteDomainSeriesRecordings(long domainId, long domainSeriesRecordingId = 0)
@@ -18475,10 +18447,9 @@ namespace ConditionalAccess
                 List<string> excludedCrids = null;
                 if (householdRecordings != null && householdRecordings.Count > 0)
                 {
-                    // leave crid that was canceld/delete as part of a series 
-                    List<RecordingType> recordingTypes = new List<RecordingType>(){RecordingType.Season, RecordingType.Series};
-                    List<TstvRecordingStatus> recordingStatuses = new List<TstvRecordingStatus>() {TstvRecordingStatus.Canceled, TstvRecordingStatus.Deleted };
-                    excludedCrids = householdRecordings.Values.Where(w => !(recordingTypes.Contains(w.Type) && recordingStatuses.Contains(w.RecordingStatus))).Select(r => r.Crid).ToList();
+                    //// leave crid that was canceld
+                    //List<RecordingType> recordingTypes = new List<RecordingType>(){RecordingType.Season, RecordingType.Series};                    
+                    //excludedCrids = householdRecordings.Values.Where(w => !(recordingTypes.Contains(w.Type) && w.RecordingStatus == TstvRecordingStatus.Canceled)).Select(r => r.Crid).ToList();
                     excludedCrids = householdRecordings.Values.Select(r => r.Crid).ToList();
                 }
 
@@ -18601,11 +18572,12 @@ namespace ConditionalAccess
             try
             {
                 // try to get interval for next run take default
-                ScheduledTaskLastRunResponse recordingScheduledTasksLastRunResponse = GetLastScheduleTaksSuccessfulRun(ScheduledTaskName.recordingsScheduledTasks);
-                if (recordingScheduledTasksLastRunResponse.Status.Code == (int)eResponseStatus.OK && recordingScheduledTasksLastRunResponse.NextRunIntervalInSeconds > 0)
+                object scheduleTask = UtilsDal.GetLastScheduleTaksSuccessfulRun(ScheduledTaskType.recordingsScheduledTasks);
+                ScheduledTaskLastRunResponse recordingScheduledTasksLastRunResponse = scheduleTask != null ? (ScheduledTaskLastRunResponse)scheduleTask : null;
+                if (recordingScheduledTasksLastRunResponse != null && recordingScheduledTasksLastRunResponse.Status.Code == (int)eResponseStatus.OK && recordingScheduledTasksLastRunResponse.NextRunIntervalInSeconds > 0)
                 {
                     scheduledTaskIntervalSec = recordingScheduledTasksLastRunResponse.NextRunIntervalInSeconds;
-                    if (recordingScheduledTasksLastRunResponse.LastSuccessfulRunDate.AddSeconds(scheduledTaskIntervalSec) < DateTime.UtcNow)
+                    if (recordingScheduledTasksLastRunResponse.LastRunDate.AddSeconds(scheduledTaskIntervalSec) < DateTime.UtcNow)
                     {
                         shouldInsertToQueue = true;
                     }
@@ -18638,7 +18610,8 @@ namespace ConditionalAccess
                         }
                     }
 
-                    if (!RecordingsDAL.UpdateScheduledTaskSuccessfulRun(ScheduledTaskName.recordingsScheduledTasks, DateTime.UtcNow, expiredRecordingsToSchedule.Count, scheduledTaskIntervalSec))
+                    object scheduledTaskToUpdate = new ScheduledTaskLastRunResponse(DateTime.UtcNow, expiredRecordingsToSchedule.Count, scheduledTaskIntervalSec, ScheduledTaskType.recordingsScheduledTasks);
+                    if (!UtilsDal.UpdateScheduledTaskSuccessfulRun(ScheduledTaskType.recordingsScheduledTasks, scheduledTaskToUpdate))
                     {
                         log.Error("Failed updating recording scheduled tasks run details");
                     }
@@ -18808,6 +18781,7 @@ namespace ConditionalAccess
                 long epgChannelId;
                 string crid = string.Empty;
                 List<long> epgsInThePastToRecord = new List<long>();
+                HashSet<string> userRecordingCrids = new HashSet<string>();
                 foreach (ConditionalAccess.WS_Catalog.ExtendedSearchResult epg in epgsToRecord)
                 {
                     if (!long.TryParse(epg.AssetId, out epgId))
@@ -18838,9 +18812,10 @@ namespace ConditionalAccess
                         eRecordingTask task = eRecordingTask.DistributeRecording;
                         RecordingsManager.EnqueueMessage(m_nGroupID, globalRecording.EpgId, globalRecording.Id, epgPaddedStartDate, distributeTime, task);
                     }
-                    else
+                    else if (!userRecordingCrids.Contains(globalRecording.Crid))
                     {
                         Recording userRecording = Record(userId, globalRecording.EpgId, seasonNumber == 0 ? RecordingType.Series : RecordingType.Season);
+                        userRecordingCrids.Add(globalRecording.Crid);
                         if (userRecording != null && userRecording.Status != null && userRecording.Status.Code == (int)eResponseStatus.OK && userRecording.Id > 0)
                         {
                             log.DebugFormat("successfully distributed recording for domainId = {0}, epgId = {1}, new recordingId = {2}", domainId, epgId, userRecording.Id);
@@ -19184,7 +19159,7 @@ namespace ConditionalAccess
             {
                 long domainID = 0;
 
-                recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID, false, false);
+                recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID, recordingType, false);
                 if (recordingResponse.Status.Code != (int)eResponseStatus.OK || recordingResponse.TotalItems == 0)
                 {
                     log.DebugFormat("RecordingResponse status not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, seriesRecording.ToString());

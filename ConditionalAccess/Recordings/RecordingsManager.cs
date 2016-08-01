@@ -171,7 +171,8 @@ namespace Recordings
                     else
                     {
                         recording = new Recording(existingRecordingWithMinStartDate) { EpgStartDate = startDate, EpgEndDate = endDate, EpgId = programId, RecordingStatus = TstvRecordingStatus.Scheduled };
-                        recording = ConditionalAccess.Utils.InsertRecording(recording, groupId, RecordingInternalStatus.OK);
+                        recording = ConditionalAccess.Utils.InsertRecording(recording, groupId, RecordingInternalStatus.OK);                        
+                        UpdateIndex(groupId, recording.Id, eAction.Update);
                     }                                        
                 }
             }
@@ -241,7 +242,7 @@ namespace Recordings
             if (groupId > 0 && slimRecording != null && slimRecording.Id > 0 && slimRecording.EpgId > 0 && !string.IsNullOrEmpty(slimRecording.ExternalRecordingId))
             {
                 UpdateIndex(groupId, slimRecording.Id, eAction.Delete);
-                UpdateCouchbase(groupId, slimRecording.Id, slimRecording.Id, false);
+                UpdateCouchbase(groupId, slimRecording.EpgId, slimRecording.Id, false);
 
 
                 bool shouldCallAdapter = RecordingsDAL.CountRecordingsByExternalRecordingId(groupId, slimRecording.ExternalRecordingId) == 1 ? true : false;
