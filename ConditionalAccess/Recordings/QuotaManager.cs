@@ -115,7 +115,7 @@ namespace Recordings
             {
                 Status = status,
                 TotalQuota = totalSeconds,
-                AvailableQuota = secondsLeft
+                AvailableQuota = secondsLeft < 0 ? 0 : secondsLeft
             };
 
             return response;
@@ -150,15 +150,11 @@ namespace Recordings
         {
             bool result = false;
             int domainQuota = GetDomainQuota(groupId, domainId);
-            if (domainQuota >= quotaToDecrease)
+            if (domainQuota >= quotaToDecrease || shouldForseDecrease)
             {
                 result = RecordingsDAL.DecreaseDomainQuota(domainId, quotaToDecrease, domainQuota);
             }
-            else if (shouldForseDecrease)
-            {
-                result = RecordingsDAL.DecreaseDomainQuota(domainId, domainQuota, domainQuota);
-            }
-
+            
             return result;
         }
 

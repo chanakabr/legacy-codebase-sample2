@@ -932,6 +932,60 @@ namespace CouchbaseManager
             return result;
         }
 
+        public T GetWithVersion<T>(string key, out ulong version, out Couchbase.IO.ResponseStatus status, bool asJson = false)
+        {
+            version = 0;
+            T result = default(T);
+            status = Couchbase.IO.ResponseStatus.None;
+
+            if (asJson)
+                return GetJsonAsTWithVersion<T>(key, out version, out status);
+
+            try
+            {
+                var bucket = ClusterHelper.GetBucket(bucketName);
+
+                IOperationResult<T> getResult;
+
+                string action = string.Format("Action: Get bucket: {0} key: {1}", bucketName, key);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                {
+                    getResult = bucket.Get<T>(key);
+                }
+
+                if (getResult != null)
+                {
+                    if (getResult.Exception != null)
+                        throw getResult.Exception;
+
+                    status = getResult.Status;
+
+                    if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
+                    {
+                        result = getResult.Value;
+                        version = getResult.Cas;
+                    }
+                    else
+                    {
+                        HandleStatusCode(getResult, key);
+
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                        {
+                            result = bucket.Get<T>(key).Value;
+                        }
+
+                        version = getResult.Cas;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CouchBaseCache - Failed GetWithVersion with key = {0}, ex = {1}", key, ex);
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -1291,6 +1345,19 @@ namespace CouchbaseManager
         {
             T result = default(T);
             var json = GetWithVersion<string>(key, out version);
+
+            if (!string.IsNullOrEmpty(json))
+                result = JsonToObject<T>(json);
+
+            return result;
+        }
+
+        public T GetJsonAsTWithVersion<T>(string key, out ulong version, out Couchbase.IO.ResponseStatus status)
+        {
+            status = Couchbase.IO.ResponseStatus.None;
+
+            T result = default(T);
+            var json = GetWithVersion<string>(key, out version, out status);
 
             if (!string.IsNullOrEmpty(json))
                 result = JsonToObject<T>(json);

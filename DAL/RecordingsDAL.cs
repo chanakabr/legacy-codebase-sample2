@@ -828,9 +828,10 @@ namespace DAL
                 while (!result && numOfRetries < limitRetries)
                 {
                     ulong version;
-                    int currentQuota = -1;
-                    currentQuota = cbClient.GetWithVersion<int>(domainQuotaKey, out version);
-                    if (version != 0 && currentQuota > -1)
+                    int currentQuota;
+                    Couchbase.IO.ResponseStatus status;
+                    currentQuota = cbClient.GetWithVersion<int>(domainQuotaKey, out version, out status);
+                    if (status == Couchbase.IO.ResponseStatus.Success)
                     {
                         int updatedQuota = currentQuota + quotaToIncrease;
                         result = cbClient.SetWithVersion<int>(domainQuotaKey, updatedQuota, version);
@@ -874,18 +875,19 @@ namespace DAL
                 while (!result && numOfRetries < limitRetries)
                 {
                     ulong version;
-                    int currentQuota = -1;
+                    int currentQuota;
                     int updatedQuota;
-                    currentQuota = cbClient.GetWithVersion<int>(domainQuotaKey, out version);
-                    if (version != 0 && currentQuota > -1)
+                    Couchbase.IO.ResponseStatus status;
+                    currentQuota = cbClient.GetWithVersion<int>(domainQuotaKey, out version, out status);
+                    if (status != Couchbase.IO.ResponseStatus.Success)
                     {
                         updatedQuota = currentQuota - quotaToDecrease;
                         result = cbClient.SetWithVersion<int>(domainQuotaKey, updatedQuota, version);
                     }
-                    else if (version == 0)
+                    else if (status != Couchbase.IO.ResponseStatus.KeyNotFound)
                     {
                         updatedQuota = domainQuota - quotaToDecrease;
-                        result = cbClient.SetWithVersion<int>(domainQuotaKey, updatedQuota, version);
+                        result = cbClient.SetWithVersion<int>(domainQuotaKey, updatedQuota, 0);
                     }
 
                     if (!result)
