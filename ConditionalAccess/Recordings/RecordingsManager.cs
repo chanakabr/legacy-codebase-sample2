@@ -149,7 +149,7 @@ namespace Recordings
                 {
                     recording = recordingsEpgMap[programId];
                 }
-                else // same crid diffrent programid
+                else
                 {
                     Recording existingRecordingWithMinStartDate = recordingsEpgMap.OrderBy(x => x.Value.EpgStartDate).ToList().First().Value;
                     if (startDate < existingRecordingWithMinStartDate.EpgStartDate && existingRecordingWithMinStartDate.EpgEndDate > DateTime.UtcNow)
@@ -170,20 +170,15 @@ namespace Recordings
                     }
                     else
                     {
-                        recording = new Recording(existingRecordingWithMinStartDate) 
-                        { 
-                            EpgStartDate = startDate, 
-                            EpgEndDate = endDate, 
-                            EpgId = programId, 
-                            RecordingStatus = TstvRecordingStatus.Scheduled 
-                        };
-                        recording = ConditionalAccess.Utils.InsertRecording(recording, groupId, RecordingInternalStatus.OK);
-
+                        recording = new Recording(existingRecordingWithMinStartDate) { EpgStartDate = startDate, EpgEndDate = endDate, EpgId = programId, RecordingStatus = TstvRecordingStatus.Scheduled };
+                        recording = ConditionalAccess.Utils.InsertRecording(recording, groupId, RecordingInternalStatus.OK);                        
+                        UpdateIndex(groupId, recording.Id, eAction.Update);
+                        
                         // Schedule a message to check status 1 minute after recording of program is supposed to be over
                         DateTime checkTime = endDate.AddMinutes(1);
                         eRecordingTask task = eRecordingTask.GetStatusAfterProgramEnded;
-                        EnqueueMessage(groupId, programId, recording.Id, startDate, checkTime, task); 
-                    }
+                        EnqueueMessage(groupId, programId, recording.Id, startDate, checkTime, task);
+                    }                                        
                 }
             }
 
@@ -252,7 +247,7 @@ namespace Recordings
             if (groupId > 0 && slimRecording != null && slimRecording.Id > 0 && slimRecording.EpgId > 0 && !string.IsNullOrEmpty(slimRecording.ExternalRecordingId))
             {
                 UpdateIndex(groupId, slimRecording.Id, eAction.Delete);
-                UpdateCouchbase(groupId, slimRecording.Id, slimRecording.Id, false);
+                UpdateCouchbase(groupId, slimRecording.EpgId, slimRecording.Id, false);
 
 
                 bool shouldCallAdapter = RecordingsDAL.CountRecordingsByExternalRecordingId(groupId, slimRecording.ExternalRecordingId) == 1 ? true : false;
