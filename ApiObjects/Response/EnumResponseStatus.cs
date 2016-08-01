@@ -121,6 +121,9 @@ namespace ApiObjects.Response
         AlreadyRecordedAsSeriesOrSeason = 3047,
         SeriesRecordingNotFound = 3048,
         EpgIdNotPartOfSeries = 3049,
+        RecordingPlaybackNotAllowedForNonExistingEpgChannel = 3050,
+        RecordingPlaybackNotAllowedForNotEntitledEpgChannel = 3051,
+
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,

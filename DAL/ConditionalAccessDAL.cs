@@ -1521,7 +1521,7 @@ namespace DAL
             return nStreamingCoID;
         }
 
-        public static bool Get_BasicLinkData(long mediaFileID, ref string baseUrl, ref string streamingCode, ref int streamingCompanyID)
+        public static bool Get_BasicLinkData(long mediaFileID, ref string baseUrl, ref string streamingCode, ref int streamingCompanyID, ref string fileType)
         {
             bool res = false;
             StoredProcedure sp = new StoredProcedure("Get_BasicLinkData");
@@ -1539,6 +1539,7 @@ namespace DAL
                     baseUrl = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["VIDEO_BASE_URL"]);
                     streamingCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["STREAMING_CODE"]);
                     streamingCompanyID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["STREAMING_SUPLIER_ID"]);
+                    fileType = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["DESCRIPTION"]);
                 }
             }
 
@@ -2568,6 +2569,6 @@ namespace DAL
 
             return model;
         }
-
+              
     }
 }
