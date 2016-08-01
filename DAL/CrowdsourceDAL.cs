@@ -11,8 +11,8 @@ namespace DAL
 {
     public static class CrowdsourceDAL
     {
-        private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.CROWDSOURCE);
-        
+        private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.CROWDSOURCE, false, true);
+
         public static int GetLastItemId(int groupId, eCrowdsourceType type, int assetId)
         {
             try

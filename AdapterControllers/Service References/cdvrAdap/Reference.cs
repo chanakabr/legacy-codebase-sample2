@@ -331,7 +331,10 @@ namespace AdapterControllers.cdvrAdap {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string DeviceTypeField;
+        private string FileTypeField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int FileTypeIdField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string UrlField;
@@ -347,14 +350,27 @@ namespace AdapterControllers.cdvrAdap {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string DeviceType {
+        public string FileType {
             get {
-                return this.DeviceTypeField;
+                return this.FileTypeField;
             }
             set {
-                if ((object.ReferenceEquals(this.DeviceTypeField, value) != true)) {
-                    this.DeviceTypeField = value;
-                    this.RaisePropertyChanged("DeviceType");
+                if ((object.ReferenceEquals(this.FileTypeField, value) != true)) {
+                    this.FileTypeField = value;
+                    this.RaisePropertyChanged("FileType");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int FileTypeId {
+            get {
+                return this.FileTypeIdField;
+            }
+            set {
+                if ((this.FileTypeIdField.Equals(value) != true)) {
+                    this.FileTypeIdField = value;
+                    this.RaisePropertyChanged("FileTypeId");
                 }
             }
         }

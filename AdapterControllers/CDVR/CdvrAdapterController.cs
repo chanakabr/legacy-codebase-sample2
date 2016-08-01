@@ -787,7 +787,7 @@ namespace AdapterControllers.CDVR
                 links = adapterResponse.Recording.Links.Select(result =>
                         new ApiObjects.TimeShiftedTv.RecordingLink()
                         {
-                            DeviceType = result.DeviceType,
+                            FileType = result.FileType,
                             Url = result.Url
                         }).ToList();
             }

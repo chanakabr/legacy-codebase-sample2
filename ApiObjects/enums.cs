@@ -711,9 +711,10 @@ namespace ApiObjects
         NameDesc = 1
     }
 
-    public enum ScheduledTaskName
+    public enum ScheduledTaskType
     {
         recordingsLifetime = 0,
-        recordingsScheduledTasks = 1
+        recordingsScheduledTasks = 1,
+        recordingsCleanup = 2
     }
 }

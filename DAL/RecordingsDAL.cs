@@ -1,5 +1,4 @@
 ﻿using ApiObjects;
-using ApiObjects.ScheduledTasks;
 using ApiObjects.TimeShiftedTv;
 using KLogMonitor;
 using ODBCWrapper;
@@ -261,13 +260,13 @@ namespace DAL
 
             DataTable linksTable = new DataTable("recordingLinks");
 
-            linksTable.Columns.Add("BRAND_ID", typeof(int));
+            linksTable.Columns.Add("FILE_TYPE", typeof(int));
             linksTable.Columns.Add("URL", typeof(string));
 
             foreach (RecordingLink item in links)
             {
                 DataRow row = linksTable.NewRow();
-                row["BRAND_ID"] = item.DeviceTypeBrand;
+                row["FILE_TYPE"] = item.FileType;
                 row["URL"] = item.Url;
                 linksTable.Rows.Add(row);
             }
@@ -389,8 +388,7 @@ namespace DAL
         {
             Dictionary<long, KeyValuePair<int, Recording>> recordingsForCleanup = new Dictionary<long, KeyValuePair<int, Recording>>();
             ODBCWrapper.StoredProcedure spGetRecordginsForCleanup = new ODBCWrapper.StoredProcedure("GetRecordingsForCleanup");
-            spGetRecordginsForCleanup.SetConnectionKey(RECORDING_CONNECTION);
-            spGetRecordginsForCleanup.AddParameter("@UtcNowEpoch", utcNowEpoch);
+            spGetRecordginsForCleanup.SetConnectionKey(RECORDING_CONNECTION);            
 
             DataTable dt = spGetRecordginsForCleanup.Execute();
             if (dt != null && dt.Rows != null)
@@ -692,173 +690,29 @@ namespace DAL
             return spCountRecordingsByExternalRecordingId.ExecuteReturnValue<int>();           
         }
 
+        public static RecordingLink GetRecordingLinkByFileType(int groupId, string externalRecordingId, string fileType)
+        {
+            RecordingLink recordingLink = null;
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetRecordingLinksByFileType");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@recordingId", externalRecordingId);
+            sp.AddParameter("@fileType", fileType);
+
+            DataTable dt = sp.Execute();
+            if (dt != null && dt.Rows != null)
+            {
+                recordingLink = new RecordingLink()
+                {
+                    FileType = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "FILE_TYPE"),
+                    Url = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "URL")
+                };
+            }
+            return recordingLink;
+        }
+
         #region Couchbase
-
-        public static bool UpdateSuccessfulRecordingsCleanup(DateTime lastSuccessfulCleanUpDate, int deletedRecordingOnLastCleanup, int domainRecordingsUpdatedOnLastCleanup, int intervalInMinutes)
-        {
-            bool result = false;
-            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
-            int limitRetries = RETRY_LIMIT;
-            Random r = new Random();
-            string recordingsCleanupKey = UtilsDal.GetRecordingsCleanupKey();
-            try
-            {
-                int numOfRetries = 0;
-                RecordingCleanupResponse recordingCleanupDetails = new RecordingCleanupResponse(lastSuccessfulCleanUpDate, deletedRecordingOnLastCleanup, domainRecordingsUpdatedOnLastCleanup, intervalInMinutes);
-                while (!result && numOfRetries < limitRetries)
-                {
-                    result = cbClient.Set(recordingsCleanupKey, recordingCleanupDetails);
-                    if (!result)
-                    {
-                        numOfRetries++;
-                        log.ErrorFormat("Error while updating successful recordings cleanup date. number of tries: {0}/{1}. RecordingCleanupResponse: {2}",
-                                         numOfRetries, limitRetries, recordingCleanupDetails.ToString());
-
-                        System.Threading.Thread.Sleep(r.Next(50));
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while updating successful recordings cleanup date: {0}, ex: {1}", lastSuccessfulCleanUpDate, ex);
-            }
-
-            return result;
-        }
-
-        public static RecordingCleanupResponse GetLastSuccessfulRecordingsCleanupDetails()
-        {
-            RecordingCleanupResponse response = null;
-            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
-            int limitRetries = RETRY_LIMIT;
-            Random r = new Random();
-            Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
-            string recordingsCleanupKey = UtilsDal.GetRecordingsCleanupKey();
-            try
-            {
-                int numOfRetries = 0;
-                while (numOfRetries < limitRetries)
-                {
-                    response = cbClient.Get<RecordingCleanupResponse>(recordingsCleanupKey, out getResult);
-                    if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
-                    {
-                        response = new RecordingCleanupResponse() { Status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, "CouchBase KeyNotFound") };
-                        log.ErrorFormat("Error while trying to get last successful recordings cleanup date, key: {0}", recordingsCleanupKey);
-                        break;
-                    }
-                    else if (getResult == Couchbase.IO.ResponseStatus.Success)
-                    {
-                        log.DebugFormat("RecordingCleanupResponse with key {0} was found with value {1}", recordingsCleanupKey, response.ToString());
-                        break;
-                    }
-                    else
-                    {
-                        log.ErrorFormat("Retrieving RecordingCleanupResponse with key {0} failed with status: {1}, retryAttempt: {1}, maxRetries: {2}", recordingsCleanupKey, getResult, numOfRetries, limitRetries);
-                        numOfRetries++;
-                        System.Threading.Thread.Sleep(r.Next(50));
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while trying to get last successful recordings cleanup date, ex: {0}", ex);
-            }
-
-            if (response == null)
-            {
-                response = new RecordingCleanupResponse() { Status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, "Failed Getting RecordingCleanupResponse from CB") };
-            }
-
-            return response;
-        }
-
-        public static ScheduledTaskLastRunResponse GetLastScheduleTaksSuccessfulRunDetails(ScheduledTaskName scheduledTaskName)
-        {
-            ScheduledTaskLastRunResponse response = null;
-            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
-            int limitRetries = RETRY_LIMIT;
-            Random r = new Random();
-            Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
-            string scheduledTaksKey = UtilsDal.GetScheduledTaksKeyByName(scheduledTaskName);
-            if (string.IsNullOrEmpty(scheduledTaksKey))
-            {
-                response = new ScheduledTaskLastRunResponse() { Status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, "Failed UtilsDal.GetScheduledTaksKeyByName") };
-                return response;
-            }
-            try
-            {
-                int numOfRetries = 0;
-                while (numOfRetries < limitRetries)
-                {
-                    response = cbClient.Get<ScheduledTaskLastRunResponse>(scheduledTaksKey, out getResult);
-                    if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
-                    {
-                        response = new ScheduledTaskLastRunResponse() { Status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, "CouchBase KeyNotFound") };
-                        log.ErrorFormat("Error while trying to get last successful scheduled task run date, scheduleTaskName: {0}, key: {1}", scheduledTaksKey, scheduledTaksKey);
-                        break;
-                    }
-                    else if (getResult == Couchbase.IO.ResponseStatus.Success)
-                    {
-                        log.DebugFormat("ScheduledTaskLastRunResponse with scheduleTaskName: {0} and key {1} was found with value {2}", scheduledTaksKey, scheduledTaksKey, response.ToString());
-                        break;
-                    }
-                    else
-                    {
-                        log.ErrorFormat("Retrieving ScheduledTaskLastRunResponse with scheduledTaskName: {0} and key {1} failed with status: {2}, retryAttempt: {3}, maxRetries: {4}", scheduledTaskName.ToString(), scheduledTaksKey, getResult, numOfRetries, limitRetries);
-                        numOfRetries++;
-                        System.Threading.Thread.Sleep(r.Next(50));
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while trying to get last successful schedule task details, scheduledTaskName: {0}, ex: {1}", scheduledTaskName.ToString(), ex);
-            }
-
-            if (response == null)
-            {
-                response = new ScheduledTaskLastRunResponse() { Status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, "Failed Getting ScheduledTaskLastRunResponse from CB") };
-            }
-
-            return response;
-        }
-
-        public static bool UpdateScheduledTaskSuccessfulRun(ScheduledTaskName scheduledTaskName, DateTime lastSuccessfulRunDate, int impactedItems, double nextRunIntervalInSeconds)
-        {
-            bool result = false;
-            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
-            int limitRetries = RETRY_LIMIT;
-            Random r = new Random();
-            string scheduledTaksKey = UtilsDal.GetScheduledTaksKeyByName(scheduledTaskName);
-            if (string.IsNullOrEmpty(scheduledTaksKey))
-            {
-                log.ErrorFormat("Failed UtilsDal.GetScheduledTaksKeyByName for scheduledTaskName: {0}", scheduledTaskName);
-                return false;
-            }
-            try
-            {
-                int numOfRetries = 0;
-                ScheduledTaskLastRunResponse scheduledTaskRunDetails = new ScheduledTaskLastRunResponse(lastSuccessfulRunDate, impactedItems, nextRunIntervalInSeconds);
-                while (!result && numOfRetries < limitRetries)
-                {
-                    result = cbClient.Set(scheduledTaksKey, scheduledTaskRunDetails);
-                    if (!result)
-                    {
-                        numOfRetries++;
-                        log.ErrorFormat("Error while updating successful scheduled task run details. scheduledTaskName: {0}, number of tries: {1}/{2}. ScheduledTaskLastRunResponse: {3}",
-                                         scheduledTaskName.ToString(), numOfRetries, limitRetries, scheduledTaskRunDetails.ToString());
-
-                        System.Threading.Thread.Sleep(r.Next(50));
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while updating successful scheduled task run details, scheduledTaskName: {0}, ex: {1}", scheduledTaskName.ToString(), ex);
-            }
-
-            return result;
-        }
 
         public static RecordingCB GetRecordingByProgramId_CB(long programId)
         {

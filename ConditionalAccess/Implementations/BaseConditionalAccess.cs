@@ -53,7 +53,7 @@ namespace ConditionalAccess
         protected const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";
         protected const string BILLING_CONNECTION_STRING = "BILLING_CONNECTION";
         private const string ROUTING_KEY_RECORDINGS_CLEANUP = "PROCESS_RECORDINGS_CLEANUP";
-        private const int RECORDING_CLEANUP_EXECUTE_GAP_HOURS = 24;        
+        private const double RECORDING_CLEANUP_INTERVAL_SEC = 86400;        
         private const double HANDLE_RECORDINGS_LIFETIME_INTERVAL_SEC = 3600;
         private const string RECORDINGS_LIFETIME_ROUTING_KEY = "PROCESS_RECORDINGS_LIFETIME";        
         private const double HANDLE_RECORDINGS_SCHEDULED_TASKS_INTERVAL_SEC = 60;
@@ -12088,20 +12088,21 @@ namespace ConditionalAccess
         {
             int fileMainStreamingCoID = 0;
             int mediaId = 0;
+            string fileType = string.Empty;
             return GetLicensedLinks(sSiteGuid, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCode, sLanguageCode, sDeviceName, sCouponCode, eObjectType.Media,
-                ref fileMainStreamingCoID, ref mediaId);
+                ref fileMainStreamingCoID, ref mediaId, ref fileType);
         }
 
         public virtual LicensedLinkResponse GetLicensedLinks(string sSiteGuid, Int32 nMediaFileID, string sBasicLink, string sUserIP,
-           string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode, ref int fileMainStreamingCoID)
+           string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode, ref int fileMainStreamingCoID, ref string fileType)
         {
             int mediaId = 0;
             return GetLicensedLinks(sSiteGuid, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCode, sLanguageCode, sDeviceName, sCouponCode, eObjectType.Media,
-                ref fileMainStreamingCoID, ref mediaId);
+                ref fileMainStreamingCoID, ref mediaId, ref fileType);
         }
 
         public virtual LicensedLinkResponse GetLicensedLinks(string sSiteGuid, Int32 nMediaFileID, string sBasicLink, string sUserIP,
-            string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode, eObjectType eLinkType, ref int fileMainStreamingCoID, ref int mediaId)
+            string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode, eObjectType eLinkType, ref int fileMainStreamingCoID, ref int mediaId, ref string fileType)
         {
             LicensedLinkResponse res = new LicensedLinkResponse();
 
@@ -12109,10 +12110,9 @@ namespace ConditionalAccess
             {
                 int[] mediaFiles = new int[1] { nMediaFileID };
                 int streamingCoID = 0;
-
                 if (IsAlterBasicLink(sBasicLink, nMediaFileID))
                 {
-                    sBasicLink = Utils.GetBasicLink(m_nGroupID, mediaFiles, nMediaFileID, sBasicLink, out streamingCoID);
+                    sBasicLink = Utils.GetBasicLink(m_nGroupID, mediaFiles, nMediaFileID, sBasicLink, out streamingCoID, out fileType);
                 }
 
                 // validate parameters
@@ -12204,8 +12204,6 @@ namespace ConditionalAccess
                     // if adapter response is not null and is adapter (has an adapter url) - call the adapter
                     if (adapterResponse.Adapter != null && !string.IsNullOrEmpty(adapterResponse.Adapter.AdapterUrl))
                     {
-                        // get device type
-                        string deviceType = Utils.GetDeviceTypeByUDID(m_nGroupID, sDeviceName);
 
                         // if the adapter is default - append the adapter's base url to the file urls
                         if (isDefaultAdapter)
@@ -12215,11 +12213,11 @@ namespace ConditionalAccess
                         }
 
                         // main url
-                        var link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGuid, fileMainUrl, deviceType, nMediaID, nMediaFileID, sUserIP);
+                        var link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGuid, fileMainUrl, fileType, nMediaID, nMediaFileID, sUserIP);
                         res.mainUrl = link != null ? link.Url : string.Empty;
 
                         // alt url
-                        link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGuid, fileAltUrl, deviceType, nMediaID, nMediaFileID, sUserIP);
+                        link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGuid, fileAltUrl, fileType, nMediaID, nMediaFileID, sUserIP);
                         res.altUrl = link != null ? link.Url : string.Empty;
                     }
                     else if (!string.IsNullOrEmpty(CdnStrID))
@@ -17094,7 +17092,7 @@ namespace ConditionalAccess
             {
                 long domainID = 0;
 
-                recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID, recordingType == RecordingType.Single, true);
+                recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID, recordingType, true);
                 if (recordingResponse.Status.Code != (int)eResponseStatus.OK || recordingResponse.TotalItems == 0)
                 {
                     log.DebugFormat("RecordingResponse status not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
@@ -17260,11 +17258,12 @@ namespace ConditionalAccess
             return recording;
         }
 
-        public RecordingResponse QueryRecords(string userID, List<long> epgIDs, ref long domainID, bool isSingleRecording, bool shouldCheckCatchup)
+        public RecordingResponse QueryRecords(string userID, List<long> epgIDs, ref long domainID, RecordingType recordingType, bool shouldCheckCatchup)
         {
             RecordingResponse response = new RecordingResponse();
             try
             {
+                bool isSingleRecording = recordingType == RecordingType.Single;
                 ConditionalAccess.TvinciDomains.Domain domain;
                 ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userID, ref domainID, out domain);
 
@@ -17561,6 +17560,12 @@ namespace ConditionalAccess
                     return response;
                 }
 
+                // add cancelSeries if cancel is on the list (we don't have cancelSeries on REST)
+                if (recordingStatuses.Contains(TstvRecordingStatus.Canceled) && !recordingStatuses.Contains(TstvRecordingStatus.SeriesCancel))
+                {
+                    recordingStatuses.Add(TstvRecordingStatus.SeriesCancel);
+                }
+
                 Dictionary<long, Recording> DomainRecordingIdToRecordingMap = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, domainID, recordingStatuses);
 
                 if (DomainRecordingIdToRecordingMap != null && DomainRecordingIdToRecordingMap.Count > 0)
@@ -17767,14 +17772,14 @@ namespace ConditionalAccess
                 {
                     Recording recording = ConditionalAccess.Utils.GetRecordingByEpgId(m_nGroupID, id);
 
-                    var currentStatus = RecordingsManager.Instance.CancelOrDeleteRecording(m_nGroupID, recording, TstvRecordingStatus.Canceled);
+                    var currentStatus = RecordingsManager.Instance.CancelOrDeleteRecording(m_nGroupID, recording, action == eAction.Delete ? TstvRecordingStatus.Deleted : TstvRecordingStatus.Canceled);
 
                     // If something went wrong, use the first status that failed
                     if (status == null)
                     {
                         if (currentStatus == null)
                         {
-                            status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Cancel recording did not return a status object");
+                            status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "RecordingsManager.Instance.CancelOrDeleteRecording did not return a status object");
                         }
                         else if (currentStatus.Code != (int)eResponseStatus.OK)
                         {
@@ -18161,17 +18166,18 @@ namespace ConditionalAccess
         public bool CleanupRecordings()
         {
             bool result = false;
-            int recordingCleanupIntervalMin = 0;
+            double recordingCleanupIntervalSec = 0;
             bool shouldInsertToQueue = false;
 
             try
             {
                 // try to get interval for next cleanup or take default
-                RecordingCleanupResponse lastRecordingCleanupResponse = GetLastSuccessfulRecordingsCleanup();
-                if (lastRecordingCleanupResponse.Status.Code == (int)eResponseStatus.OK && lastRecordingCleanupResponse.IntervalInMinutes > 0)
+                object scheduleTask = UtilsDal.GetLastScheduleTaksSuccessfulRun(ScheduledTaskType.recordingsCleanup);
+                ScheduledTaskLastRunResponse lastRecordingCleanupResponse = scheduleTask != null ? (ScheduledTaskLastRunResponse)scheduleTask : null;
+                if (lastRecordingCleanupResponse != null && lastRecordingCleanupResponse.Status.Code == (int)eResponseStatus.OK && lastRecordingCleanupResponse.NextRunIntervalInSeconds > 0)
                 {
-                    recordingCleanupIntervalMin = lastRecordingCleanupResponse.IntervalInMinutes;
-                    if (lastRecordingCleanupResponse.LastSuccessfulCleanUpDate.AddMinutes(recordingCleanupIntervalMin) < DateTime.UtcNow)
+                    recordingCleanupIntervalSec = lastRecordingCleanupResponse.NextRunIntervalInSeconds;
+                    if (lastRecordingCleanupResponse.LastRunDate.AddSeconds(recordingCleanupIntervalSec) < DateTime.UtcNow)
                     {
                         shouldInsertToQueue = true;
                     }
@@ -18183,13 +18189,13 @@ namespace ConditionalAccess
                 else
                 {
                     shouldInsertToQueue = true;
-                    recordingCleanupIntervalMin = RECORDING_CLEANUP_EXECUTE_GAP_HOURS * 60;
+                    recordingCleanupIntervalSec = RECORDING_CLEANUP_INTERVAL_SEC;
                 }
 
                 // get current utc epoch
                 long utcNowEpoch = TVinciShared.DateUtils.UnixTimeStampNow();
                 // get first batch
-                int totalRecordingsToCleanup = 0, totalRecordingsDeleted = 0, totalDomainRecordingsUpdated = 0;
+                int totalRecordingsToCleanup = 0, totalRecordingsDeleted = 0;
                 Dictionary<int, int> groupIdToAdapterIdMap = new Dictionary<int, int>();
                 Dictionary<long, KeyValuePair<int, Recording>> recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup(utcNowEpoch);
                 HashSet<long> recordingsThatFailedDeletion = new HashSet<long>();
@@ -18197,7 +18203,7 @@ namespace ConditionalAccess
                 {
                     totalRecordingsToCleanup += recordingsForDeletion.Count;
                     List<long> deletedRecordingIds = new List<long>();
-                    int adapterId = 0, updatedDomainRecordingsRowCount = 0;
+                    int adapterId = 0;
                     foreach (KeyValuePair<int, Recording> pair in recordingsForDeletion.Values)
                     {
                         if (!groupIdToAdapterIdMap.ContainsKey(pair.Key))
@@ -18223,21 +18229,6 @@ namespace ConditionalAccess
                     }
 
                     totalRecordingsDeleted += deletedRecordingIds.Count;
-                    // update domain recordings
-                    if (deletedRecordingIds.Count > 0)
-                    {
-                        updatedDomainRecordingsRowCount = RecordingsDAL.UpdateDomainRecordingsAfterCleanup(deletedRecordingIds);
-
-                        if (updatedDomainRecordingsRowCount > 0)
-                        {
-                            totalDomainRecordingsUpdated += updatedDomainRecordingsRowCount;
-                            log.DebugFormat("updated {0} rows on domain recordings after cleanup", updatedDomainRecordingsRowCount);
-                        }
-                        else
-                        {
-                            log.Error("Failed updating domain recordings after cleanup");
-                        }
-                    }
 
                     recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup(utcNowEpoch);
                     recordingsForDeletion = recordingsForDeletion.Where(x => !recordingsThatFailedDeletion.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
@@ -18247,8 +18238,8 @@ namespace ConditionalAccess
                 if (totalRecordingsDeleted == totalRecordingsToCleanup)
                 {
                     result = true;
-
-                    if (!RecordingsDAL.UpdateSuccessfulRecordingsCleanup(DateTime.UtcNow, totalRecordingsDeleted, totalDomainRecordingsUpdated, recordingCleanupIntervalMin))
+                    object scheduledTaskToUpdate = new ScheduledTaskLastRunResponse(DateTime.UtcNow, totalRecordingsDeleted, recordingCleanupIntervalSec, ScheduledTaskType.recordingsCleanup);
+                    if (!UtilsDal.UpdateScheduledTaskSuccessfulRun(ScheduledTaskType.recordingsCleanup, scheduledTaskToUpdate))
                     {
                         log.Error("Failed updating recordings cleanup date");
                     }
@@ -18259,7 +18250,7 @@ namespace ConditionalAccess
 
                     if (totalRecordingsDeleted > 0)
                     {
-                        log.DebugFormat("Successfully cleaned up {0} recordings and updated {1} rows on domain recordings", totalRecordingsDeleted, totalDomainRecordingsUpdated);
+                        log.DebugFormat("Successfully cleaned up {0} recordings and updated {1} rows on domain recordings", totalRecordingsDeleted);
                     }
                     else
                     {
@@ -18279,12 +18270,12 @@ namespace ConditionalAccess
             {
                 if (shouldInsertToQueue)
                 {
-                    if (recordingCleanupIntervalMin == 0)
+                    if (recordingCleanupIntervalSec == 0)
                     {
-                        recordingCleanupIntervalMin = RECORDING_CLEANUP_EXECUTE_GAP_HOURS * 60;
+                        recordingCleanupIntervalSec = RECORDING_CLEANUP_INTERVAL_SEC;
                     }
 
-                    DateTime nextExecutionDate = DateTime.UtcNow.AddMinutes(recordingCleanupIntervalMin);
+                    DateTime nextExecutionDate = DateTime.UtcNow.AddSeconds(recordingCleanupIntervalSec);
                     SetupTasksQueue queue = new SetupTasksQueue();
                     CelerySetupTaskData data = new CelerySetupTaskData(0, eSetupTask.RecordingsCleanup, new Dictionary<string, object>()) { ETA = nextExecutionDate };
                     result = queue.Enqueue(data, ROUTING_KEY_RECORDINGS_CLEANUP);
@@ -18292,17 +18283,6 @@ namespace ConditionalAccess
             }
 
             return result;
-        }
-
-        public RecordingCleanupResponse GetLastSuccessfulRecordingsCleanup()
-        {
-            RecordingCleanupResponse response = RecordingsDAL.GetLastSuccessfulRecordingsCleanupDetails();
-            if (response.Status.Code != (int)eResponseStatus.OK)
-            {
-                log.ErrorFormat("Error while trying to get last successful recordings cleanup details, status code: {0}, status message: {1}", response.Status.Code, response.Status.Message);
-            }
-
-            return response;
         }
 
         public bool HandleRecordingsLifetime()
@@ -18314,11 +18294,12 @@ namespace ConditionalAccess
             try
             {
                 // try to get interval for next run take default
-                ScheduledTaskLastRunResponse expiredRecordingsLastRunResponse = GetLastScheduleTaksSuccessfulRun(ScheduledTaskName.recordingsLifetime);
-                if (expiredRecordingsLastRunResponse.Status.Code == (int)eResponseStatus.OK && expiredRecordingsLastRunResponse.NextRunIntervalInSeconds > 0)
+                object scheduleTask = UtilsDal.GetLastScheduleTaksSuccessfulRun(ScheduledTaskType.recordingsLifetime);                
+                ScheduledTaskLastRunResponse expiredRecordingsLastRunResponse = scheduleTask != null ? (ScheduledTaskLastRunResponse)scheduleTask : null;
+                if (expiredRecordingsLastRunResponse != null && expiredRecordingsLastRunResponse.Status.Code == (int)eResponseStatus.OK && expiredRecordingsLastRunResponse.NextRunIntervalInSeconds > 0)
                 {
                     scheduledTaskIntervalSec = expiredRecordingsLastRunResponse.NextRunIntervalInSeconds;
-                    if (expiredRecordingsLastRunResponse.LastSuccessfulRunDate.AddSeconds(scheduledTaskIntervalSec) < DateTime.UtcNow)
+                    if (expiredRecordingsLastRunResponse.LastRunDate.AddSeconds(scheduledTaskIntervalSec) < DateTime.UtcNow)
                     {
                         shouldInsertToQueue = true;
                     }
@@ -18342,8 +18323,8 @@ namespace ConditionalAccess
                 if (totalRecordingsExpired > -1)
                 {
                     result = true;
-
-                    if (!RecordingsDAL.UpdateScheduledTaskSuccessfulRun(ScheduledTaskName.recordingsLifetime, DateTime.UtcNow, totalRecordingsExpired, scheduledTaskIntervalSec))
+                    object scheduledTaskToUpdate = new ScheduledTaskLastRunResponse(DateTime.UtcNow, totalRecordingsExpired, scheduledTaskIntervalSec, ScheduledTaskType.recordingsLifetime);
+                    if (!UtilsDal.UpdateScheduledTaskSuccessfulRun(ScheduledTaskType.recordingsLifetime, scheduledTaskToUpdate))
                     {
                         log.Error("Failed updating expired recordings run details");
                     }
@@ -18378,17 +18359,6 @@ namespace ConditionalAccess
             }
 
             return result;
-        }
-
-        public ScheduledTaskLastRunResponse GetLastScheduleTaksSuccessfulRun(ScheduledTaskName scheduledTaskName)
-        {
-            ScheduledTaskLastRunResponse response = RecordingsDAL.GetLastScheduleTaksSuccessfulRunDetails(scheduledTaskName);
-            if (response.Status.Code != (int)eResponseStatus.OK)
-            {
-                log.ErrorFormat("Error while trying to get last scheduled task successful run details, scheduledTaskName: {0}, status code: {1}, status message: {2}", scheduledTaskName, response.Status.Code, response.Status.Message);
-            }
-
-            return response;
         }
 
         public bool CompleteDomainSeriesRecordings(long domainId, long domainSeriesRecordingId = 0)
@@ -18475,6 +18445,9 @@ namespace ConditionalAccess
                 List<string> excludedCrids = null;
                 if (householdRecordings != null && householdRecordings.Count > 0)
                 {
+                    //// leave crid that was canceld
+                    //List<RecordingType> recordingTypes = new List<RecordingType>(){RecordingType.Season, RecordingType.Series};                    
+                    //excludedCrids = householdRecordings.Values.Where(w => !(recordingTypes.Contains(w.Type) && w.RecordingStatus == TstvRecordingStatus.Canceled)).Select(r => r.Crid).ToList();
                     excludedCrids = householdRecordings.Values.Select(r => r.Crid).ToList();
                 }
 
@@ -18597,11 +18570,12 @@ namespace ConditionalAccess
             try
             {
                 // try to get interval for next run take default
-                ScheduledTaskLastRunResponse recordingScheduledTasksLastRunResponse = GetLastScheduleTaksSuccessfulRun(ScheduledTaskName.recordingsScheduledTasks);
-                if (recordingScheduledTasksLastRunResponse.Status.Code == (int)eResponseStatus.OK && recordingScheduledTasksLastRunResponse.NextRunIntervalInSeconds > 0)
+                object scheduleTask = UtilsDal.GetLastScheduleTaksSuccessfulRun(ScheduledTaskType.recordingsScheduledTasks);
+                ScheduledTaskLastRunResponse recordingScheduledTasksLastRunResponse = scheduleTask != null ? (ScheduledTaskLastRunResponse)scheduleTask : null;
+                if (recordingScheduledTasksLastRunResponse != null && recordingScheduledTasksLastRunResponse.Status.Code == (int)eResponseStatus.OK && recordingScheduledTasksLastRunResponse.NextRunIntervalInSeconds > 0)
                 {
                     scheduledTaskIntervalSec = recordingScheduledTasksLastRunResponse.NextRunIntervalInSeconds;
-                    if (recordingScheduledTasksLastRunResponse.LastSuccessfulRunDate.AddSeconds(scheduledTaskIntervalSec) < DateTime.UtcNow)
+                    if (recordingScheduledTasksLastRunResponse.LastRunDate.AddSeconds(scheduledTaskIntervalSec) < DateTime.UtcNow)
                     {
                         shouldInsertToQueue = true;
                     }
@@ -18634,7 +18608,8 @@ namespace ConditionalAccess
                         }
                     }
 
-                    if (!RecordingsDAL.UpdateScheduledTaskSuccessfulRun(ScheduledTaskName.recordingsScheduledTasks, DateTime.UtcNow, expiredRecordingsToSchedule.Count, scheduledTaskIntervalSec))
+                    object scheduledTaskToUpdate = new ScheduledTaskLastRunResponse(DateTime.UtcNow, expiredRecordingsToSchedule.Count, scheduledTaskIntervalSec, ScheduledTaskType.recordingsScheduledTasks);
+                    if (!UtilsDal.UpdateScheduledTaskSuccessfulRun(ScheduledTaskType.recordingsScheduledTasks, scheduledTaskToUpdate))
                     {
                         log.Error("Failed updating recording scheduled tasks run details");
                     }
@@ -18804,6 +18779,7 @@ namespace ConditionalAccess
                 long epgChannelId;
                 string crid = string.Empty;
                 List<long> epgsInThePastToRecord = new List<long>();
+                HashSet<string> userRecordingCrids = new HashSet<string>();
                 foreach (ConditionalAccess.WS_Catalog.ExtendedSearchResult epg in epgsToRecord)
                 {
                     if (!long.TryParse(epg.AssetId, out epgId))
@@ -18834,9 +18810,10 @@ namespace ConditionalAccess
                         eRecordingTask task = eRecordingTask.DistributeRecording;
                         RecordingsManager.EnqueueMessage(m_nGroupID, globalRecording.EpgId, globalRecording.Id, epgPaddedStartDate, distributeTime, task);
                     }
-                    else
+                    else if (!userRecordingCrids.Contains(globalRecording.Crid))
                     {
                         Recording userRecording = Record(userId, globalRecording.EpgId, seasonNumber == 0 ? RecordingType.Series : RecordingType.Season);
+                        userRecordingCrids.Add(globalRecording.Crid);
                         if (userRecording != null && userRecording.Status != null && userRecording.Status.Code == (int)eResponseStatus.OK && userRecording.Id > 0)
                         {
                             log.DebugFormat("successfully distributed recording for domainId = {0}, epgId = {1}, new recordingId = {2}", domainId, epgId, userRecording.Id);
@@ -19180,7 +19157,7 @@ namespace ConditionalAccess
             {
                 long domainID = 0;
 
-                recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID, false, false);
+                recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID, recordingType, false);
                 if (recordingResponse.Status.Code != (int)eResponseStatus.OK || recordingResponse.TotalItems == 0)
                 {
                     log.DebugFormat("RecordingResponse status not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, seriesRecording.ToString());
@@ -19317,5 +19294,174 @@ namespace ConditionalAccess
             return result;
         }
 
+        public LicensedLinkResponse GetRecordingLicensedLink(string userId, int recordingId, DateTime startTime, string udid, string userIp, string fileType)
+        {
+            LicensedLinkResponse response = new LicensedLinkResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            // validate user
+            ConditionalAccess.TvinciDomains.Domain domain;
+            long domainId = 0;
+            ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userId, ref domainId, out domain);
+
+            if (validationStatus.Code != (int)eResponseStatus.OK)
+            {
+                log.DebugFormat("User or domain not valid, groupId = {0}, userId: {1}, domainId = {2}", m_nGroupID, userId, domainId);
+                response.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
+                return response;
+            }
+
+            // get device brand ID - and make sure the device is in the domain
+            if (!Utils.IsDeviceInDomain(domain, udid))
+            {
+                log.ErrorFormat("Device not in the user's domain. groupId = {0}, userId = {1}, domainId = {2}, recordingId = {3}, udid = {4}",
+                    m_nGroupID, userId, domainId, recordingId, udid);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotInDomain, "Device not in the user's domain");
+                return response;
+            }
+            
+            // validate recording
+            Recording recording = Utils.GetRecordingById(recordingId);
+            if (recording == null)
+            {
+                log.ErrorFormat("Recording does not exist. groupId = {0}, userId = {1}, domainId = {2}, recordingId = {3}", m_nGroupID, userId, domainId, recordingId);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingNotFound, "Recording was not found");
+                return response;
+            }
+            if (recording.RecordingStatus != TstvRecordingStatus.Recorded)
+            {
+                log.ErrorFormat("Recording status is not valid for playback. groupId = {0}, userId = {1}, domainId = {2}, recordingId = {3}, recordingStatus = {4}", m_nGroupID, userId, domainId, recordingId, recording.RecordingStatus);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotValid, "Recording status is not valid");
+                return response;
+            }
+
+            // get the epg
+            List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, new List<long>() { recording.EpgId });
+            if (epgs == null || epgs.Count == 0)
+            {
+                log.ErrorFormat("Failed to get EPG for the recording. groupId = {0}, userId = {1}, domainId = {2}, recordingId = {3}, epgId = {4}",
+                    m_nGroupID, userId, domainId, recordingId, recording.EpgId);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramDoesntExist, "Program does not exist");
+                return response;
+            }
+
+            EPGChannelProgrammeObject epg = epgs[0];
+ 
+            // get epg channel  
+            int linearMediaId = ApiDAL.GetLinearMediaIdByEpgChannelId(m_nGroupID, epg.EPG_CHANNEL_ID);
+            ConditionalAccess.WS_Catalog.MediaObj epgChannelLinearMedia = null;
+            if (linearMediaId != 0)
+            {
+                epgChannelLinearMedia = Utils.GetMediaById(m_nGroupID, linearMediaId);
+            }
+
+            // get TSTV settings
+            var tstvSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+
+            // validate recording channel exists or the settings allow it to not exist
+            if ((linearMediaId == 0 || epgChannelLinearMedia == null) && 
+                (!tstvSettings.IsRecordingPlaybackNonExistingChannelEnabled.HasValue || !tstvSettings.IsRecordingPlaybackNonExistingChannelEnabled.Value))
+            {
+                log.ErrorFormat("EPG channel does not exist and TSTV settings do not allow playback in this case. groupId = {0}, userId = {1}, domainId = {2}, recordingId = {3}, channelId = {4}",
+                    m_nGroupID, userId, domainId, recordingId, recording.ChannelId);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel, "Recording playback is not allowed for non existing EPG channel");
+                return response;
+            }
+
+            // validate entitlements if needed 
+            if ((epgChannelLinearMedia != null && !epgChannelLinearMedia.EnableRecordingPlaybackNonEntitledChannel))
+            {
+                // get fileIds for epg 
+                Dictionary<int, List<long>> fileIdsToEpgsMap = ConditionalAccessDAL.GetFileIdsToEpgIdsMap(m_nGroupID, new List<long>() { recording.EpgId });
+                if (fileIdsToEpgsMap == null || fileIdsToEpgsMap.Count == 0)
+                {
+                    log.ErrorFormat("No files were found for the requested EPG. groupId = {0}, userId = {1}, domainId = {2}, recordingId = {3}, epgId = {4}",
+                        m_nGroupID, userId, domainId, recordingId, recording.EpgId);
+                    return response;
+                }
+                MediaFileItemPricesContainer[] prices = GetItemsPrices(fileIdsToEpgsMap.Keys.ToArray(), userId, true, string.Empty, string.Empty, udid);
+                if (prices == null || prices.Length == 0)
+                {
+                    log.ErrorFormat("No prices were found for the requested file IDs. groupId = {0}, userId = {1}, domainId = {2}, recordingId = {3}, epgId = {4}",
+                    m_nGroupID, userId, domainId, recordingId, recording.EpgId);
+                    return response;
+                }
+
+                bool isEntitled = false;
+                foreach (MediaFileItemPricesContainer price in prices)
+                {
+                    if (IsFreeItem(price) || IsItemPurchased(price))
+                    {
+                        isEntitled = true;
+                        break;
+                    }
+                }
+                if (!isEntitled)
+                {
+                    log.DebugFormat("User is not entitled for the EPG and TSTV settings do not allow playback. groupId = {0}, userId = {1}, domainId = {2}, recordingId = {3}, epgId = {4}",
+                    m_nGroupID, userId, domainId, recordingId, recording.EpgId);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingPlaybackNotAllowedForNotEntitledEpgChannel, "Recording playback is not allowed for not entitled EPG channel");
+                    return response;
+                }
+            }
+            // if we got here we everything is ok with the entitlements and settings - so get the link
+
+            // TODO: cache?
+            int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(m_nGroupID);
+            CDVRAdapter cdvrAdapter = ConditionalAccessDAL.GetCDVRAdapter(m_nGroupID, adapterId);
+            RecordingLink recordingLink = null;
+            if (cdvrAdapter != null && cdvrAdapter.DynamicLinksSupport)
+            {
+                // get the link from the CDVR adapter
+                RecordResult recordResult = CdvrAdapterController.GetInstance().GetRecordingLinks(m_nGroupID, recording.ExternalRecordingId, cdvrAdapter.ID);
+                
+                if (recordResult == null || recordResult.Links == null ||  recordResult.Links.Count == 0)
+                {
+                    log.ErrorFormat("Failed to get recording links dynamicly from CDVR adapter. adapterId = {0}, groupId = {1}, userId = {2}, domainId = {3}, recordingId = {4}, externalRecordingId = {5}",
+                        cdvrAdapter.ID, m_nGroupID, userId, domainId, recordingId, recording.ExternalRecordingId);
+                    return response;
+                }
+
+                recordingLink = recordResult.Links.Where(rl => rl.FileType == fileType).FirstOrDefault();
+            }
+            else
+            {
+                // get the link for the recording with the given udid brand
+                recordingLink = RecordingsDAL.GetRecordingLinkByFileType(m_nGroupID, recording.ExternalRecordingId, fileType);
+            }
+
+            if (recordingLink == null || string.IsNullOrEmpty(recordingLink.Url))
+            {
+                log.ErrorFormat("Recording link was not found for fileType = {0}. groupId = {1}, userId = {2}, domainId = {3}, recordingId = {4}, udid = {5}",
+                    fileType, m_nGroupID, userId, domainId, recordingId, udid);
+                return response;
+            }
+
+            // get adapter
+            bool isDefaultAdapter = false;
+            var adapterResponse = Utils.GetRelevantCDN(m_nGroupID, 0, TvinciAPI.eAssetTypes.NPVR, ref isDefaultAdapter);
+
+            if (adapterResponse == null || adapterResponse.Adapter == null || adapterResponse.Status.Code != (int)eResponseStatus.OK || string.IsNullOrEmpty(adapterResponse.Adapter.AdapterUrl))
+            {
+                log.ErrorFormat("failed to get CDN adapter for recordings for groupId = {0}. userId = {1}, domainId = {2}, recordingId = {3}", m_nGroupID, userId, domainId, recordingId);
+                return response;
+            }
+
+            // main url
+            var link = CDNAdapterController.GetInstance().GetRecordingLink(m_nGroupID, adapterResponse.Adapter.ID, userId, recordingLink.Url, fileType, recordingId.ToString(), userIp);
+
+            if (link == null || string.IsNullOrEmpty(link.Url))
+            {
+                log.ErrorFormat("failed to get link response from CDN adapter. adapterId = {0}, groupId = {1}. userId = {2}, domainId = {3}, recordingId = {4}", adapterResponse.Adapter.ID, m_nGroupID, userId, domainId, recordingId);
+                return response;                
+            }
+
+            response.mainUrl = link.Url;
+            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            
+            return response;
+        }
     }
 }

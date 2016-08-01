@@ -3034,7 +3034,12 @@ namespace DAL
                             };
                             break;
                         case ePermissionItemType.Parameter:
-                            permissionItem = new PermissionItem();
+                            permissionItem = new ApiParameterPermissionItem()
+                            {
+                                Object = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "OBJECT"),
+                                Parameter = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "PARAMETER"),
+                                Action = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "ACTION"),
+                            };
                             break;
                         default:
                             permissionItem = null;
@@ -3827,6 +3832,27 @@ namespace DAL
             }
 
             return epgIds;
+        }
+
+        public static int GetLinearMediaIdByEpgChannelId(int groupId, string epgChannelId)
+        {
+            int mediaId = 0;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetLinearMediaIdByEpgChannelId");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@epgChannelId", epgChannelId);
+
+                mediaId = sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return mediaId;
         }
     }
 }

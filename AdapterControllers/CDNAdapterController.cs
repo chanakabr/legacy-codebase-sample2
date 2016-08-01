@@ -128,7 +128,7 @@ namespace AdapterControllers
             return result;
         }
 
-        public LinkResult GetVodLink(int groupId, int adapterId, string userId, string url, string deviceType, int assetId, int contentId, string ip)
+        public LinkResult GetVodLink(int groupId, int adapterId, string userId, string url, string fileType, int assetId, int contentId, string ip)
         {
             LinkResult linkResult = null;
 
@@ -151,11 +151,11 @@ namespace AdapterControllers
             long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
             string signature =
-                string.Concat(adapterId, userId, url, deviceType, assetId, contentId, ip, unixTimestamp);
+                string.Concat(adapterId, userId, url, fileType, assetId, contentId, ip, unixTimestamp);
 
             try
             {
-                LinkResponse adapterResponse = CallGetVodLink(adapterClient, adapter.SharedSecret, adapterId, userId, url, deviceType, assetId, contentId, ip, unixTimestamp, signature);
+                LinkResponse adapterResponse = CallGetVodLink(adapterClient, adapter.SharedSecret, adapterId, userId, url, fileType, assetId, contentId, ip, unixTimestamp, signature);
 
                 if (adapterResponse != null && adapterResponse.Status != null &&
                     adapterResponse.Status.Code == STATUS_NO_CONFIGURATION_FOUND)
@@ -174,7 +174,7 @@ namespace AdapterControllers
                     configurationSynchronizer.DoAction(key, parameters);
 
                     // call adapter again after setting the configuration
-                    adapterResponse = CallGetVodLink(adapterClient, adapter.SharedSecret, adapterId, userId, url, deviceType, assetId, contentId, ip, unixTimestamp, signature);
+                    adapterResponse = CallGetVodLink(adapterClient, adapter.SharedSecret, adapterId, userId, url, fileType, assetId, contentId, ip, unixTimestamp, signature);
 
                 }
 
@@ -190,7 +190,7 @@ namespace AdapterControllers
             return linkResult;
         }
 
-        public LinkResult GetRecordingLink(int groupId, int adapterId, string userId, string url, string deviceType, string recordingId, string ip)
+        public LinkResult GetRecordingLink(int groupId, int adapterId, string userId, string url, string fileType, string recordingId, string ip)
         {
             LinkResult linkResult = null;
 
@@ -212,11 +212,11 @@ namespace AdapterControllers
             //set unixTimestamp
             long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
-            string signature = string.Concat(adapterId, userId, url, deviceType, recordingId, ip, unixTimestamp);
+            string signature = string.Concat(adapterId, userId, url, fileType, recordingId, ip, unixTimestamp);
 
             try
             {
-                LinkResponse adapterResponse = CallGetRecordingLink(adapterClient, adapter.SharedSecret, adapterId, userId, url, deviceType, recordingId, ip, unixTimestamp, signature);
+                LinkResponse adapterResponse = CallGetRecordingLink(adapterClient, adapter.SharedSecret, adapterId, userId, url, fileType, recordingId, ip, unixTimestamp, signature);
 
                 if (adapterResponse != null && adapterResponse.Status != null &&
                     adapterResponse.Status.Code == STATUS_NO_CONFIGURATION_FOUND)
@@ -235,7 +235,7 @@ namespace AdapterControllers
                     configurationSynchronizer.DoAction(key, parameters);
 
                     // call adapter again after setting the configuration
-                    adapterResponse = CallGetRecordingLink(adapterClient, adapter.SharedSecret, adapterId, userId, url, deviceType, recordingId, ip, unixTimestamp, signature);
+                    adapterResponse = CallGetRecordingLink(adapterClient, adapter.SharedSecret, adapterId, userId, url, fileType, recordingId, ip, unixTimestamp, signature);
                 }
 
                 linkResult = ParseLinkResponse(adapterResponse);
@@ -250,7 +250,7 @@ namespace AdapterControllers
             return linkResult;
         }
 
-        public LinkResult GetEpgLink(int groupId, int adapterId, string userId, string url, string deviceType, int programId, int assetId, int contentId, long startTimeSeconds, 
+        public LinkResult GetEpgLink(int groupId, int adapterId, string userId, string url, string fileType, int programId, int assetId, int contentId, long startTimeSeconds, 
             int actionType, string ip)
         {
             LinkResult linkResult = null;
@@ -274,11 +274,11 @@ namespace AdapterControllers
             long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
             string signature =
-                string.Concat(adapterId, userId, url, deviceType, programId, assetId, contentId, ip, unixTimestamp);
+                string.Concat(adapterId, userId, url, fileType, programId, assetId, contentId, ip, unixTimestamp);
 
             try
             {
-                LinkResponse adapterResponse = CallGetEpgLink(adapterClient, adapter.SharedSecret, adapterId, userId, url, deviceType, programId, assetId, contentId, startTimeSeconds, 
+                LinkResponse adapterResponse = CallGetEpgLink(adapterClient, adapter.SharedSecret, adapterId, userId, url, fileType, programId, assetId, contentId, startTimeSeconds, 
                     actionType, ip, unixTimestamp, signature);
 
                 if (adapterResponse != null && adapterResponse.Status != null &&
@@ -298,7 +298,7 @@ namespace AdapterControllers
                     configurationSynchronizer.DoAction(key, parameters);
 
                     // call adapter again after setting the configuration
-                    adapterResponse = CallGetEpgLink(adapterClient, adapter.SharedSecret, adapterId, userId, url, deviceType, programId, assetId, contentId, startTimeSeconds, actionType, 
+                    adapterResponse = CallGetEpgLink(adapterClient, adapter.SharedSecret, adapterId, userId, url, fileType, programId, assetId, contentId, startTimeSeconds, actionType, 
                     ip, unixTimestamp, signature);
                 }
 
@@ -314,19 +314,19 @@ namespace AdapterControllers
             return linkResult;
         }
 
-        private LinkResponse CallGetEpgLink(ServiceClient adapterClient, string secret, int adapterId, string userId, string url, string deviceType, int programId, int assetId, int contentId,
+        private LinkResponse CallGetEpgLink(ServiceClient adapterClient, string secret, int adapterId, string userId, string url, string fileType, int programId, int assetId, int contentId,
             long startTimeSeconds, int actionType, string ip, long unixTimestamp, string signature)
         {
             LinkResponse adapterResponse = null;
 
-            string inputParameters = string.Format("adapterId = {0}, userId = {1}, url = {2}, deviceType = {3}, programId = {4}, assetId = {5}, contentId = {6}, startTimeSeconds = {7}, actionType = {8}, ip = {9}",
-                adapterId, userId, url, deviceType, programId, assetId, contentId, startTimeSeconds, actionType, ip);
+            string inputParameters = string.Format("adapterId = {0}, userId = {1}, url = {2}, fileType = {3}, programId = {4}, assetId = {5}, contentId = {6}, startTimeSeconds = {7}, actionType = {8}, ip = {9}",
+                adapterId, userId, url, fileType, programId, assetId, contentId, startTimeSeconds, actionType, ip);
             log.DebugFormat("Sending request to CDN adapter. {0}", inputParameters);
 
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
             {
                 //call adapter
-                adapterResponse = adapterClient.GetEpgLink(adapterId, userId, url, deviceType, programId, assetId, contentId, startTimeSeconds, actionType, ip, unixTimestamp,
+                adapterResponse = adapterClient.GetEpgLink(adapterId, userId, url, fileType, programId, assetId, contentId, startTimeSeconds, actionType, ip, unixTimestamp,
                     System.Convert.ToBase64String(EncryptUtils.AesEncrypt(secret, EncryptUtils.HashSHA1(signature))));
             }
 
@@ -360,18 +360,18 @@ namespace AdapterControllers
         }
 
         private LinkResponse CallGetRecordingLink(CdnAdapter.ServiceClient adapterClient, string secret,
-            int adapterId, string userId, string url, string deviceType, string recordingId, string ip, long unixTimestamp, string signature)
+            int adapterId, string userId, string url, string fileType, string recordingId, string ip, long unixTimestamp, string signature)
         {
             LinkResponse adapterResponse = null;
 
-            string inputParameters = string.Format("adapterId = {0}, userId = {1}, url = {2}, deviceType = {3}, recordingId = {4}, ip = {5}", 
-                adapterId, userId, url, deviceType, recordingId, ip);
+            string inputParameters = string.Format("adapterId = {0}, userId = {1}, url = {2}, fileType = {3}, recordingId = {4}, ip = {5}", 
+                adapterId, userId, url, fileType, recordingId, ip);
             log.DebugFormat("Sending request to CDN adapter. {0}", inputParameters);
 
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
             {
                 //call adapter
-                adapterResponse = adapterClient.GetRecordingLink(adapterId, userId, url, deviceType, recordingId, ip, unixTimestamp,
+                adapterResponse = adapterClient.GetRecordingLink(adapterId, userId, url, fileType, recordingId, ip, unixTimestamp,
                     System.Convert.ToBase64String(EncryptUtils.AesEncrypt(secret, EncryptUtils.HashSHA1(signature))));
             }
 
@@ -380,19 +380,19 @@ namespace AdapterControllers
             return adapterResponse;
         }
 
-        private LinkResponse CallGetVodLink(CdnAdapter.ServiceClient adapterClient, string secret, 
-            int adapterId, string userId, string url, string deviceType, int assetId, int contentId, string ip, long unixTimestamp, string signature)
+        private LinkResponse CallGetVodLink(CdnAdapter.ServiceClient adapterClient, string secret,
+            int adapterId, string userId, string url, string fileType, int assetId, int contentId, string ip, long unixTimestamp, string signature)
         {
             LinkResponse adapterResponse = null;
 
-            string inputParameters = string.Format("adapterId = {0}, userId = {1}, url = {2}, deviceType = {3}, assetId = {4}, contentId = {5}, ip = {6}", 
-                adapterId, userId, url, deviceType, assetId, contentId, ip);
+            string inputParameters = string.Format("adapterId = {0}, userId = {1}, url = {2}, fileType = {3}, assetId = {4}, contentId = {5}, ip = {6}",
+                adapterId, userId, url, fileType, assetId, contentId, ip);
             log.DebugFormat("Sending request to CDN adapter. {0}", inputParameters);
 
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
             {
                 //call adapter
-                adapterResponse = adapterClient.GetVodLink(adapterId, userId, url, deviceType, assetId, contentId, ip, unixTimestamp,
+                adapterResponse = adapterClient.GetVodLink(adapterId, userId, url, fileType, assetId, contentId, ip, unixTimestamp,
                     System.Convert.ToBase64String(EncryptUtils.AesEncrypt(secret, EncryptUtils.HashSHA1(signature))));
             }
 
