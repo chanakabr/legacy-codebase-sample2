@@ -6,7 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
@@ -36,7 +36,7 @@ namespace WebAPI.Controllers
         [OldStandard("assetId", "asset_id")]
         [OldStandard("startDate", "start_date")]
         [OldStandard("streamType", "stream_type")]
-        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         public KalturaLicensedUrl Get(KalturaAssetType assetType, int contentId, string baseUrl, string assetId = null, long? startDate = null, KalturaStreamType? streamType = null)
         {
             KalturaLicensedUrl response = null;

@@ -6,7 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Utils;
 
@@ -23,7 +23,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: CDN partner settings not found = 5025</remarks>   
         [Route("get"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         public KalturaCDNPartnerSettings Get()
         {
             KalturaCDNPartnerSettings response = null;
@@ -48,7 +48,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: CDN partner settings not found = 5025</remarks>   
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         public KalturaCDNPartnerSettings Update(KalturaCDNPartnerSettings settings)
         {
             KalturaCDNPartnerSettings response = null;

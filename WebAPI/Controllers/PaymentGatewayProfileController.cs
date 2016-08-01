@@ -6,7 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Billing;
 using WebAPI.Models.General;
 using WebAPI.Utils;
@@ -239,7 +239,7 @@ namespace WebAPI.Controllers
         [Route("generateSharedSecret"), HttpPost]
         [ApiAuthorize]
         [OldStandard("paymentGatewayId", "payment_gateway_id")]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaPaymentGatewayProfile GenerateSharedSecret(int paymentGatewayId)
         {
             KalturaPaymentGatewayProfile response = null;
@@ -272,7 +272,7 @@ namespace WebAPI.Controllers
         [Route("getConfiguration"), HttpPost]
         [ApiAuthorize]
         [OldStandard("extraParameters", "extra_parameters")]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public Models.Billing.KalturaPaymentGatewayConfiguration GetConfiguration(string alias, string intent, List<KalturaKeyValue> extraParameters)
         {
             Models.Billing.KalturaPaymentGatewayConfiguration response = null;

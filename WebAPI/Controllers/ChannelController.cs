@@ -7,7 +7,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Utils;

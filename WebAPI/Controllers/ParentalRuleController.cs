@@ -7,7 +7,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
@@ -128,7 +128,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [OldStandard("entityReference", "by")]
         [OldStandard("ruleId", "rule_id")]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public bool Enable(long ruleId, KalturaEntityReferenceBy entityReference)
         {
             bool success = false;
@@ -171,7 +171,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [OldStandard("entityReference", "by")]
         [OldStandard("ruleId", "rule_id")]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public bool Disable(long ruleId, KalturaEntityReferenceBy entityReference)
         {
             bool success = false;
@@ -214,7 +214,7 @@ namespace WebAPI.Controllers
         [Route("disableDefault"), HttpPost]
         [ApiAuthorize]
         [OldStandard("entityReference", "by")]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public bool DisableDefault(KalturaEntityReferenceBy entityReference)
         {
             bool success = false;

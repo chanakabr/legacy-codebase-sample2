@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
@@ -36,7 +36,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "isLowest")]
         [JsonProperty("isLowest")]
         [XmlElement(ElementName = "isLowest")]
-        [ValidationException(SchemaValidationType.FILTER_SUFFIX)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public bool? isLowest { get; set; }
 
         /// <summary>

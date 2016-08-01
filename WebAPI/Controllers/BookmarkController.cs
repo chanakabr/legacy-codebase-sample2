@@ -7,7 +7,7 @@ using WebAPI.Catalog;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.Domains;
 using WebAPI.Models.General;
@@ -105,7 +105,7 @@ namespace WebAPI.Controllers
         /// ProgramDoesntExist = 4022, ActionNotRecognized = 4023, InvalidAssetId = 4024,</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize(true)]
-        [ValidationException(SchemaValidationType.ACTION_RETURN_TYPE)]
+        [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
         public bool Add(KalturaBookmark bookmark)
         {
             if (bookmark.PlayerData == null)

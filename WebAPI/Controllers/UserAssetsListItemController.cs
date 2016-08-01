@@ -6,7 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
 
@@ -62,7 +62,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("get"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         public KalturaUserAssetsListItem Get(string assetId, KalturaUserAssetsListType listType, KalturaUserAssetsListItemType itemType)
         {
             KalturaUserAssetsListItem response = null;
@@ -125,7 +125,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         public bool Delete(string assetId, KalturaUserAssetsListType listType)
         {
             bool response = false;

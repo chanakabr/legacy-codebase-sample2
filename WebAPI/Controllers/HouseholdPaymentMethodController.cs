@@ -7,7 +7,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Billing;
 using WebAPI.Utils;
 
@@ -61,7 +61,7 @@ namespace WebAPI.Controllers
         /// <param name="paymentMethodId">Payment method Identifier</param> 
         [Route("setAsDefault"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public bool SetAsDefault(int paymentGatewayId, int paymentMethodId)
         {
             bool response = false;
@@ -104,7 +104,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("remove"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public bool Remove(int paymentGatewayId, int paymentMethodId)
         {
             bool response = false;
@@ -147,7 +147,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("forceRemove"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public bool ForceRemove(int paymentGatewayId, int paymentMethodId)
         {
             bool response = false;
@@ -192,7 +192,7 @@ namespace WebAPI.Controllers
         [Route("setExternalId"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public bool SetExternalId(string paymentGatewayId, string paymentMethodName, string paymentDetails, string paymentMethodExternalId)
         {
             bool response = false;

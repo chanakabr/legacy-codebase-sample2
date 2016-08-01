@@ -3,7 +3,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Utils;
@@ -64,7 +64,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         public KalturaMessageTemplate Update(KalturaOTTAssetType assetType, KalturaMessageTemplate template)
         {
             KalturaMessageTemplate response = null;
@@ -107,7 +107,7 @@ namespace WebAPI.Controllers
         [Route("get"), HttpPost]
         [ApiAuthorize]
         [OldStandard("assetType", "asset_Type")]
-        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         public KalturaMessageTemplate Get(KalturaOTTAssetType assetType)
         {
             KalturaMessageTemplate response = null;

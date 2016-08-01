@@ -14,7 +14,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
@@ -211,7 +211,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("get"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         public KalturaAsset Get(string id, KalturaAssetReferenceType assetReferenceType)
         {
             KalturaAsset response = null;

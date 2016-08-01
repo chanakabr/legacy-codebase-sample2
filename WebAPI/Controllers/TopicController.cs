@@ -3,7 +3,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Utils;
@@ -152,7 +152,7 @@ namespace WebAPI.Controllers
         /// <param name="automaticIssueNotification"></param>        
         [Route("updateStatus"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public bool UpdateStatus(int id, KalturaTopicAutomaticIssueNotification automaticIssueNotification)
         {
             bool response = false;

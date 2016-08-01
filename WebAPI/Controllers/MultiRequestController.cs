@@ -47,6 +47,9 @@ namespace WebAPI.Controllers
             tokens.RemoveAt(0);
             object result;
 
+            if (parameter == null)
+                throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidMultirequestToken, "Invalid multirequest token");
+
             if (parameter.GetType().IsArray)
             {
                 int index;
@@ -106,7 +109,7 @@ namespace WebAPI.Controllers
                 Match match = Regex.Match((string)parameter, @"^(\d):result(:.+)?$", RegexOptions.IgnoreCase);
                 if (match.Success)
                 {
-                    int index = int.Parse(match.Groups[1].Value);
+                    int index = int.Parse(match.Groups[1].Value) - 1;
                     if (match.Groups[2].Success)
                     {
                         List<string> tokens = new List<string>(match.Groups[2].Value.Split(':'));
@@ -185,7 +188,7 @@ namespace WebAPI.Controllers
                         {
                             parameters = (Dictionary<string, object>) translateMultirequestTokens(parameters, responses);
                         }
-                        RequestParser.setRequestContext(parameters);
+                        RequestParser.setRequestContext(parameters, request[i].Service, request[i].Action);
                         MethodInfo methodInfo = RequestParser.createMethodInvoker(request[i].Service, request[i].Action, asm);
                         List<Object> methodParams = RequestParser.buildActionArguments(methodInfo, parameters);
                         object controllerInstance = Activator.CreateInstance(controller, null);

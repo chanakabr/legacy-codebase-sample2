@@ -8,7 +8,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Social;
 using WebAPI.Models.Users;
 using WebAPI.Social;
@@ -33,7 +33,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001</remarks>
         [Route("getByToken"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaSocial GetByToken(int partnerId, string token, KalturaSocialNetwork type)
         {
             KalturaSocialResponse response = new KalturaSocialResponse();
@@ -105,7 +105,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("get"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         public KalturaSocial Get(KalturaSocialNetwork type)
         {
             KalturaSocial response = null;
@@ -145,7 +145,7 @@ namespace WebAPI.Controllers
         /// User does not exist = 2000
         /// </remarks>
         [Route("login"), HttpPost]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaLoginResponse Login(int partnerId, string token, KalturaSocialNetwork type, string udid = null)
         {
             KalturaOTTUser response = null;
@@ -189,7 +189,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
         [Route("register"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaSocial Register(int partnerId, string token, KalturaSocialNetwork type)
         {
             string ip = Utils.Utils.GetClientIP();
@@ -296,7 +296,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
         [Route("merge"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaSocial Merge(string token, KalturaSocialNetwork type)
         {
             if (string.IsNullOrEmpty(token))
@@ -372,7 +372,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
         [Route("unmerge"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaSocial Unmerge(KalturaSocialNetwork type)
         {
             string userId = KS.GetFromRequest().UserId;
@@ -443,7 +443,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("getConfiguration"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaSocialConfig GetConfiguration(int partnerId, KalturaSocialNetwork type)
         {
             KalturaSocialConfig response = null;            
