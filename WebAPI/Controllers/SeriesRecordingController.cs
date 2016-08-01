@@ -22,13 +22,14 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">Series Recording identifier</param>
         /// <param name="epgId">epg program identifier</param>
+        /// <param name="seasonNumber">season Number</param>
         /// <returns></returns>
         /// <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-        /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048 </remarks>
+        /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048, SeasonNumberNotMatch = 3052 </remarks>
         [Route("cancel"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public KalturaSeriesRecording Cancel(long id, long epgId)
+        public KalturaSeriesRecording Cancel(long id, long epgId, long seasonNumber)
         {
             KalturaSeriesRecording response = null;
 
@@ -37,8 +38,12 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
                 long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
-                // call client                
-                response = ClientsManager.ConditionalAccessClient().CancelSeriesRecord(groupId, userId, domainId, id, epgId);
+                // call client    
+                if (epgId > 0 && seasonNumber > 0)
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "epgId or seasonNumber can be grater than zero");
+                }
+                response = ClientsManager.ConditionalAccessClient().CancelSeriesRecord(groupId, userId, domainId, id, epgId, seasonNumber);
             }
             catch (ClientException ex)
             {
