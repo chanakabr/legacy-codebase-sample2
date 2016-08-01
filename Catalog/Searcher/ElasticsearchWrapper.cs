@@ -896,7 +896,8 @@ namespace Catalog
             return documents;
         }
 
-        private List<ElasticSearchApi.ESAssetDocument> DecodeAssetSearchJsonObject(string sObj, ref int totalItems, List<string> extraReturnFields = null)
+        public static List<ElasticSearchApi.ESAssetDocument> DecodeAssetSearchJsonObject(string sObj, ref int totalItems, 
+            List<string> extraReturnFields = null, string prefix = "fields")
         {
             List<ElasticSearchApi.ESAssetDocument> documents = null;
             try
@@ -911,7 +912,6 @@ namespace Catalog
                     {
                         documents = new List<ElasticSearchApi.ESAssetDocument>();
 
-                        string prefix = "fields";
                         foreach (var item in jsonObj.SelectToken("hits.hits"))
                         {
                             var newDocument = DecodeSingleAssetJsonObject(item, prefix, extraReturnFields);

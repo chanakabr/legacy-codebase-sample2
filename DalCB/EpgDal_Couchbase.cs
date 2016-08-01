@@ -268,6 +268,10 @@ namespace DalCB
                                             }
                                         }
                                     }
+                                    else if (currentValue is EpgCB)
+                                    {
+                                        resultEpgs.Add(currentValue as EpgCB);
+                                    }
                                 }
                             }
                         }

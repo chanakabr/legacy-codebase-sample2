@@ -227,9 +227,15 @@ namespace EpgIngest
                     string sPicUrl = string.Empty;
                     if (isTstvSettings && string.IsNullOrEmpty(prog.crid))
                     {
-                        log.ErrorFormat("crid is empty for external id {0}: ", prog.external_id);
-                        ingestAssetStatus.Status.Code = (int)IngestWarnings.EPGSProgramMissingCrid;
-                        ingestAssetStatus.Status.Message = EPGS_PROGRAM_MISSING_CRID;                      
+                        log.ErrorFormat("crid is empty for external id {0}: ", prog.external_id);                        
+                        ingestAssetStatus = new IngestAssetStatus()
+                        {
+                            Warnings = new List<Status>(),
+                            Status = new Status() { Code = (int)IngestWarnings.EPGSProgramMissingCrid, Message = EPGS_PROGRAM_MISSING_CRID },
+                            InternalAssetId = kalturaChannelID,
+                            ExternalAssetId = prog.external_id
+                        };
+                        ingestResponse.AssetsStatus.Add(ingestAssetStatus);
                     }
 
                     if (!Utils.ParseEPGStrToDate(prog.start, ref dProgStartDate) || !Utils.ParseEPGStrToDate(prog.stop, ref dProgEndDate))
