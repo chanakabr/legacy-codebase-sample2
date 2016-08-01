@@ -260,7 +260,7 @@ namespace DAL
 
             DataTable linksTable = new DataTable("recordingLinks");
 
-            linksTable.Columns.Add("FILE_TYPE", typeof(int));
+            linksTable.Columns.Add("FILE_TYPE", typeof(string));
             linksTable.Columns.Add("URL", typeof(string));
 
             foreach (RecordingLink item in links)
