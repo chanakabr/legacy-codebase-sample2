@@ -19294,5 +19294,104 @@ namespace ConditionalAccess
             return result;
         }
 
+
+        public Recording GetRecordingStatus(int groupID, long recordingId)
+        {
+            Recording recording = new Recording()
+                {
+                    Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+                };
+            try
+            {
+                recording = Recordings.RecordingsManager.Instance.GetRecordingStatus(groupID, recordingId);
+                //Recordings entitlements modifications
+                //
+                if (recording.RecordingStatus == TstvRecordingStatus.Recorded)
+                {
+                    Dictionary<string, long> userDomainDictionary = new Dictionary<string, long>();// fill with users with no Entitlement
+                    
+                    // look for all users asked for this recordingId as SINGLE recording 
+                    DataTable dt = RecordingsDAL.GetExistingDomainRecordingsByRecordingID(groupID, recordingId, RecordingType.Single);
+                    if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                    {
+                        long epgId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "epg_id");
+                        //Check user Entiteled for the channel 
+                        //Updated definitions for future/scheduled single recordings on channel entitlements revoke – to allow lazy removal
+                        List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, new List<long>() { epgId });
+                        if (epgs == null)
+                        {
+                            log.DebugFormat("Failed Getting EPGs from Catalog, recordingId: {0}, epgId: {1}", recordingId, epgId);
+                            epgs = new List<EPGChannelProgrammeObject>();
+                        }
+                        else
+                        {
+                            RecordingResponse response;
+                            var userDomainlist = dt.AsEnumerable().Select(r => new
+                                                        {
+                                                            UserId = r.Field<string>("user_id"),
+                                                            DomainId = r.Field<long>("domain_id")
+                                                        }).ToList();
+
+                            Dictionary<long, bool> validEpgsForRecording = new Dictionary<long, bool>();
+                            validEpgsForRecording.Add(recording.EpgId, false);
+
+                            foreach (var userDomain in userDomainlist)
+                            {
+                                response = new RecordingResponse();
+                                // validate epgs entitlement and add to response
+                                ValidateEpgForRecording(userDomain.UserId, userDomain.DomainId, ref response, epgs, validEpgsForRecording);
+                                if (response.Recordings.FirstOrDefault().Status.Code == (int)eResponseStatus.NotEntitled)
+                                {
+                                    if (!userDomainDictionary.ContainsKey(userDomain.UserId))
+                                    {
+                                        userDomainDictionary.Add(userDomain.UserId, userDomain.DomainId);
+                                    }
+                                }
+                            }
+                            // get all other recording in status SCHEDULED for the non entitled users
+                            if (userDomainDictionary != null && userDomainDictionary.Count > 0) // some domains not entitled to channel
+                            {
+                                List<int> statuses = new List<int>() { (int)RecordingStatus.Scheduled };
+                                DataTable dtNotEntitled = RecordingsDAL.GetDomainsRecordingsByRecordingStatusesAndChannel(userDomainDictionary.Values.ToList(), groupID, recording.ChannelId, statuses, (int)RecordingType.Single, recording.EpgStartDate);
+                                if (dtNotEntitled != null && dtNotEntitled.Rows != null && dtNotEntitled.Rows.Count > 0)
+                                {
+                                    //cancel all of those + the record with the epgid we got before 
+                                    // set max amount of concurrent tasks
+                                    int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
+                                    if (maxDegreeOfParallelism == 0)
+                                    {
+                                        maxDegreeOfParallelism = 5;
+                                    }
+                                    ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
+                                    ContextData contextData = new ContextData();
+                                    Parallel.ForEach(dtNotEntitled.AsEnumerable(), options, (drow) =>
+                                    {
+                                        contextData.Load();
+                                        //call cancelOrDelete                  
+                                        string userId = ODBCWrapper.Utils.GetSafeStr(drow, "user_id");
+                                        long domainId = ODBCWrapper.Utils.GetLongSafeVal(drow, "domain_id");
+                                        long domainRecordingId = ODBCWrapper.Utils.GetLongSafeVal(drow, "id");
+                                        // cancel all of these recordes 
+                                        CancelOrDeleteRecord(userId, domainId, domainRecordingId, TstvRecordingStatus.Canceled, false);
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("Exception at GetRecordingStatus. ");
+                sb.Append(String.Concat("groupID: ", groupID));
+                sb.Append(String.Concat(", recordingId: ", recordingId));
+                sb.Append(String.Concat(", Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
+
+                log.Error(sb.ToString(), ex);
+            }
+            return recording;
+        }
     }
 }

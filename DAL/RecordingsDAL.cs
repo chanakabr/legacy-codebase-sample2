@@ -328,13 +328,14 @@ namespace DAL
             return spCancelDomainRecording.ExecuteReturnValue<bool>();
         }
 
-        public static DataTable GetExistingRecordingsByRecordingID(int groupID, long recordID)
+        public static DataTable GetExistingDomainRecordingsByRecordingID(int groupID, long recordID, RecordingType type)
         {
-            ODBCWrapper.StoredProcedure spGetExistingRecordingsByRecordingID = new ODBCWrapper.StoredProcedure("GetExistingRecordingsByRecordingID");
-            spGetExistingRecordingsByRecordingID.SetConnectionKey(RECORDING_CONNECTION);
-            spGetExistingRecordingsByRecordingID.AddParameter("@GroupID", groupID);
-            spGetExistingRecordingsByRecordingID.AddParameter("@RecordID", recordID);
-            DataTable dt = spGetExistingRecordingsByRecordingID.Execute();
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetExistingDomainRecordingsByRecordingID");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@RecordID", recordID);
+            sp.AddParameter("@Type", (int)type);
+            DataTable dt = sp.Execute();
 
             return dt;
 
@@ -1009,5 +1010,19 @@ namespace DAL
 
         #endregion
 
+        public static DataTable GetDomainsRecordingsByRecordingStatusesAndChannel(List<long> domains, int groupId, long channelId, List<int> statuses, int recordingType, DateTime epgStartDate)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetDomainsRecordingsByRecordingStatusesAndChannel");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
+            sp.AddParameter("@GroupID", groupId);
+            sp.AddParameter("@ChannelID", channelId);
+            sp.AddParameter("@Type", recordingType);
+            sp.AddParameter("@StartDate", epgStartDate);
+            sp.AddIDListParameter<long>("@DomainIDs", domains, "ID");
+            sp.AddIDListParameter<int>("@RecordingStatuses", statuses, "ID");
+            
+            DataTable dt = sp.Execute();
+            return dt;
+        }
     }
 }

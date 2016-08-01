@@ -149,7 +149,7 @@ namespace Recordings
                 {
                     recording = recordingsEpgMap[programId];
                 }
-                else
+                else // same crid diffrent programid
                 {
                     Recording existingRecordingWithMinStartDate = recordingsEpgMap.OrderBy(x => x.Value.EpgStartDate).ToList().First().Value;
                     if (startDate < existingRecordingWithMinStartDate.EpgStartDate && existingRecordingWithMinStartDate.EpgEndDate > DateTime.UtcNow)
@@ -170,9 +170,20 @@ namespace Recordings
                     }
                     else
                     {
-                        recording = new Recording(existingRecordingWithMinStartDate) { EpgStartDate = startDate, EpgEndDate = endDate, EpgId = programId, RecordingStatus = TstvRecordingStatus.Scheduled };
+                        recording = new Recording(existingRecordingWithMinStartDate) 
+                        { 
+                            EpgStartDate = startDate, 
+                            EpgEndDate = endDate, 
+                            EpgId = programId, 
+                            RecordingStatus = TstvRecordingStatus.Scheduled 
+                        };
                         recording = ConditionalAccess.Utils.InsertRecording(recording, groupId, RecordingInternalStatus.OK);
-                    }                                        
+
+                        // Schedule a message to check status 1 minute after recording of program is supposed to be over
+                        DateTime checkTime = endDate.AddMinutes(1);
+                        eRecordingTask task = eRecordingTask.GetStatusAfterProgramEnded;
+                        EnqueueMessage(groupId, programId, recording.Id, startDate, checkTime, task); 
+                    }
                 }
             }
 
