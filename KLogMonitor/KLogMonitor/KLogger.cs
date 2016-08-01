@@ -195,16 +195,16 @@ namespace KLogMonitor
         private string formatMessage(string msg, DateTime creationDate)
         {
             return string.Format("class:{0} topic:{1} method:{2} server:{3} ip:{4} reqid:{5} partner:{6} action:{7} uid:{8} msg:{9}",
-                ClassName != null ? ClassName : string.Empty,  // 0
-                Topic != null ? Topic : string.Empty,          // 1
-                MethodName != null ? MethodName : string.Empty,// 2
-                Server != null ? Server : string.Empty,        // 3
-                IPAddress != null ? IPAddress : string.Empty,  // 4
-                UniqueID != null ? UniqueID : string.Empty,    // 5
-                PartnerID != null ? PartnerID : string.Empty,  // 6
-                Action != null ? Action : string.Empty,        // 7
-                UserID != null ? UserID : "0",                 // 8
-                msg != null ? msg : string.Empty);             // 9
+                ClassName != null ? ClassName : "null",  // 0
+                Topic != null ? Topic : "null",          // 1
+                MethodName != null ? MethodName : "null",// 2
+                Server != null ? Server : "null",        // 3
+                IPAddress != null ? IPAddress : "null",  // 4
+                UniqueID != null ? UniqueID : "null",    // 5
+                PartnerID != null ? PartnerID : "null",  // 6
+                Action != null ? Action : "null",        // 7
+                UserID != null ? UserID : "0",           // 8
+                msg != null ? msg : "null");             // 9
         }
 
         private void sendLog(LogEvent logEvent)
