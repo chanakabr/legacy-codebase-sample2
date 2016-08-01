@@ -105,7 +105,7 @@ namespace KlogMonitorHelper
                         if (HttpContext.Current.Request.UrlReferrer != null &&
                             string.IsNullOrEmpty(HttpContext.Current.Request.UrlReferrer.Query))
                         {
-                            HttpContext.Current.Items[Constants.ACTION] = HttpContext.Current.Request.UrlReferrer.Query.Substring(HttpContext.Current.Request.UrlReferrer.Query.LastIndexOf("=") + 1)
+                            HttpContext.Current.Items[Constants.ACTION] = HttpContext.Current.Request.UrlReferrer.Query.Substring(HttpContext.Current.Request.UrlReferrer.Query.LastIndexOf("=") + 1);
                         }
                     }
                     catch (Exception)
