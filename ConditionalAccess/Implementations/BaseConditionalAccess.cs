@@ -18845,7 +18845,7 @@ namespace ConditionalAccess
 
         }
 
-        public SeriesRecording CancelOrDeleteSeriesRecord(string userId, long domainId, long domainSeriesRecordingId, long epgId, TstvRecordingStatus tstvRecordingStatus)
+        public SeriesRecording CancelOrDeleteSeriesRecord(string userId, long domainId, long domainSeriesRecordingId, long epgId, long seasonNumber, TstvRecordingStatus tstvRecordingStatus)
         {
             SeriesRecording seriesRecording = new SeriesRecording();
             try
@@ -18870,11 +18870,21 @@ namespace ConditionalAccess
                 {
                     CancelOrDeleteEpg(userId, domainId, seriesRecording, tstvRecordingStatus, epgId);
                     seriesRecording.Id = domainSeriesRecordingId;
-                }
-                else // cancel / delete all epgs related to series
+                }               
+                else // cancel / delete all epgs related to series or to season number
                 {
-                    CancelOrDeleteSeries(userId, domainId, seriesRecording, tstvRecordingStatus, domainSeriesRecordingId);
-                    seriesRecording.Id = domainSeriesRecordingId;
+                    if (seriesRecording.SeasonNumber == 0 || seasonNumber == 0 || (seriesRecording.SeasonNumber == seasonNumber) )
+                    {
+                        CancelOrDeleteSeries(userId, domainId, seriesRecording, tstvRecordingStatus, domainSeriesRecordingId, seasonNumber);
+                        seriesRecording.Id = domainSeriesRecordingId;
+                    }
+                    else
+                    {
+                        log.DebugFormat("SeasonNumber that was sent diffrent from each other , DomainID: {0}, UserID: {1}, seriesRecording.SeasonNumber = {2}, seasonNumber = {3}", domainId, userId, seriesRecording.SeasonNumber, seasonNumber);
+                        seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.SeasonNumberNotMatch, eResponseStatus.SeasonNumberNotMatch.ToString());
+                        return seriesRecording;
+                    }
+
                 }
             }
             catch (Exception ex)
@@ -18890,8 +18900,8 @@ namespace ConditionalAccess
             }
             return seriesRecording;
         }
-
-        private void CancelOrDeleteSeries(string userId, long domainId, SeriesRecording seriesRecording, TstvRecordingStatus tstvRecordingStatus, long domainSeriesRecordingId)
+        
+        private void CancelOrDeleteSeries(string userId, long domainId, SeriesRecording seriesRecording, TstvRecordingStatus tstvRecordingStatus, long domainSeriesRecordingId, long seasonNumber)
         {
             // get all domain recording - filter those related to series_id + season_number
             List<TstvRecordingStatus> RecordingStatus;
@@ -18921,7 +18931,7 @@ namespace ConditionalAccess
                 if (epgs != null && epgs.Count > 0)
                 {
                     // check if epg related to series and season
-                    bool result = Utils.GetEpgRelatedToSeriesRecording(m_nGroupID, epgs, seriesRecording);
+                    bool result = Utils.GetEpgRelatedToSeriesRecording(m_nGroupID, epgs, seriesRecording, seasonNumber);
 
                     // convert status Cancel/Delete ==> SeriesCancel/SeriesDelete
                     TstvRecordingStatus? seriesStatus = Utils.ConvertToSeriesStatus(tstvRecordingStatus);
@@ -18951,7 +18961,20 @@ namespace ConditionalAccess
                 }
             }
             // mark the row in status = 2
-            if (RecordingsDAL.CancelSeriesRecording(domainSeriesRecordingId))
+            if (seasonNumber > 0) // need to insert new "record" series+ season to domain series recordings
+            {
+                if (RecordingsDAL.InsertOrUpdateDomainSeries(m_nGroupID, domainId, userId, seriesRecording, seasonNumber, 3))
+                {
+                    seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    log.DebugFormat("Series recording {0} has been updated to status {1}", seriesRecording.Id, tstvRecordingStatus.ToString());
+                }
+                else
+                {
+                    seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to perform cancel or delete");
+                    log.ErrorFormat("Series recording {0} has been updated for season {1} to status {2}", seriesRecording.Id, seasonNumber, tstvRecordingStatus.ToString());
+                }
+            }
+            else if (RecordingsDAL.CancelSeriesRecording(domainSeriesRecordingId))
             {
                 seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 log.DebugFormat("Series recording {0} has been updated to status {1}", seriesRecording.Id, tstvRecordingStatus.ToString());

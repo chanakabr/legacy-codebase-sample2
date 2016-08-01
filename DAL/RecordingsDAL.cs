@@ -1045,5 +1045,30 @@ namespace DAL
             DataTable dt = sp.Execute();
             return dt;
         }
+
+        public static bool InsertOrUpdateDomainSeries(int groupId, long domainId, string userId, SeriesRecording seriesRecording, long seasonNumber, int status)
+        {
+            bool result = false;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertOrUpdateDomainSeries");
+                sp.SetConnectionKey(RECORDING_CONNECTION);
+                sp.AddParameter("@GroupID", groupId);
+                sp.AddParameter("@EpgId", seriesRecording.EpgId);
+                sp.AddParameter("@EpgChannelId", seriesRecording.EpgChannelId);                                
+                sp.AddParameter("@SeasonNumber", seasonNumber);
+                sp.AddParameter("@Status", status);
+                sp.AddParameter("@UserID" , userId);
+                sp.AddParameter("@DomainID" , domainId);
+                sp.AddParameter("@SeriesID", seriesRecording.SeriesId);
+                sp.AddParameter("@EpisodeNumber", 0);
+                result = sp.ExecuteReturnValue<bool>();
+            }
+            catch (Exception)
+            {
+                result = false;
+            }
+            return result;
+        }
     }
 }
