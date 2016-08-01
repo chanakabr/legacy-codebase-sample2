@@ -6,7 +6,7 @@ using System.Web;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 using WebAPI.Models.General;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.ConditionalAccess
 {

@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Validator.Managers.Schema;
+using Validator.Managers.Scheme;
 
 namespace Generator
 {
@@ -13,7 +13,7 @@ namespace Generator
         static void Main(string[] args)
         {
             Stream stream = new FileStream("KalturaClient.xml", FileMode.Create, FileAccess.Write);
-            SchemaManager.Generate(stream);
+            SchemeManager.Generate(stream);
         }
     }
 }

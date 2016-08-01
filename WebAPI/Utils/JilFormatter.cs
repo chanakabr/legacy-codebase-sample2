@@ -15,7 +15,7 @@ using WebAPI.Models;
 using WebAPI.Models.General;
 using WebAPI.Managers.Models;
 using KLogMonitor;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using System.Dynamic;
 using Newtonsoft.Json;
 using WebAPI.App_Start;

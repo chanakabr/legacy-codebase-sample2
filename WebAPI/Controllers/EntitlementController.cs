@@ -4,7 +4,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 using WebAPI.Utils;
@@ -26,7 +26,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [OldStandard("assetId", "asset_id")]
         [OldStandard("transactionType", "transaction_type")]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public bool Cancel(int assetId, KalturaTransactionType transactionType)
         {
             bool response = false;
@@ -75,7 +75,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [OldStandard("assetId", "asset_id")]
         [OldStandard("transactionType", "transaction_type")]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public bool ForceCancel(int assetId, KalturaTransactionType transactionType)
         {
             bool response = false;
@@ -122,7 +122,7 @@ namespace WebAPI.Controllers
         [Route("cancelRenewal"), HttpPost]
         [ApiAuthorize]
         [OldStandard("subscriptionId", "subscription_id")]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public void CancelRenewal(string subscriptionId)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -310,7 +310,7 @@ namespace WebAPI.Controllers
         [OldStandard("productId", "product_id")]
         [OldStandard("productType", "product_type")]
         [OldStandard("contentId", "content_id")]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public bool Grant(int productId, KalturaTransactionType productType, bool history, int contentId = 0)
         {
             bool response = false;
@@ -359,7 +359,7 @@ namespace WebAPI.Controllers
         [OldStandard("extraParams", "extra_params")]
         [OldStandard("encryptedCvv", "encrypted_cvv")]
         [OldStandard("fileId", "file_id")]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaBillingResponse Buy(string itemId, bool isSubscription, double price, string currency, string couponCode, string extraParams,
             string encryptedCvv, int fileId = 0, string udid = null)
         {
@@ -400,7 +400,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("externalReconcile"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public bool ExternalReconcile()
         {
             bool response = false;

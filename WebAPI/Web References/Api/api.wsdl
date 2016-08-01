@@ -199,6 +199,17 @@
           <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
         </s:sequence>
       </s:complexType>
+      <s:complexType name="ApiParameterPermissionItem">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PermissionItem">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="Object" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="Parameter" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="Action" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="ApiActionPermissionItem">
         <s:complexContent mixed="false">
           <s:extension base="tns:PermissionItem">

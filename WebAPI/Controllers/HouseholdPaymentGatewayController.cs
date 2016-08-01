@@ -7,7 +7,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Billing;
 using WebAPI.Utils;
 
@@ -61,7 +61,7 @@ namespace WebAPI.Controllers
         /// <param name="chargeId">The billing user account identifier for this household at the given payment gateway</param>        
         [Route("setChargeID"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public bool SetChargeID(string paymentGatewayExternalId, string chargeId)
         {
             bool response = false;
@@ -94,7 +94,7 @@ namespace WebAPI.Controllers
         /// <param name="paymentGatewayExternalId">External identifier for the payment gateway  </param>        
         [Route("getChargeID"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public string GetChargeID(string paymentGatewayExternalId)
         {
             string chargeId = string.Empty;
@@ -128,7 +128,7 @@ namespace WebAPI.Controllers
         /// <param name="paymentGatewayId">Payment Gateway Identifier</param> 
         [Route("set"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public bool Enable(int paymentGatewayId)
         {
             bool response = false;
@@ -164,7 +164,7 @@ namespace WebAPI.Controllers
         /// <param name="paymentGatewayId">Payment Gateway Identifier</param>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        [ValidationException( SchemaValidationType.ACTION_NAME)]
+        [ValidationException( SchemeValidationType.ACTION_NAME)]
         public bool Disable(int paymentGatewayId)
         {
             bool response = false;

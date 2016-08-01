@@ -6,7 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Domains;
 using WebAPI.Utils;
 
@@ -74,10 +74,26 @@ namespace WebAPI.Controllers
             try
             {
                 // get domain id       
-                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                int householdId;
+                string masterId = "";
+
+                if (!householdUser.HouseholdId.HasValue)
+                {
+                    householdId = (int) HouseholdUtils.GetHouseholdIDByKS(groupId);
+                    masterId = KS.GetFromRequest().UserId;
+                }
+                else
+                {
+                    householdId = householdUser.HouseholdId.Value;
+                    KalturaHousehold household = ClientsManager.DomainsClient().GetDomainInfo(groupId, householdId);
+
+                    // check if the user performing the action is domain master
+                    if (household.MasterUsers.FirstOrDefault() != null)
+                        masterId = household.MasterUsers.FirstOrDefault().Id;
+                }
 
                 // call client
-                ClientsManager.DomainsClient().AddUserToDomain(groupId, (int)domainId, householdUser.UserId, KS.GetFromRequest().UserId, householdUser.getIsMaster());
+                ClientsManager.DomainsClient().AddUserToDomain(groupId, (int)householdId, householdUser.UserId, masterId, householdUser.getIsMaster());
                 householdUser.IsMaster = householdUser.getIsMaster();
             }
             catch (ClientException ex)

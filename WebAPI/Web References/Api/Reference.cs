@@ -362,7 +362,7 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         public API() {
-            this.Url = "http://localhost/ws_api/api.asmx";
+            this.Url = global::WebAPI.Properties.Settings.Default.WebAPI_Api_API;
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;
@@ -15369,6 +15369,7 @@ namespace WebAPI.Api {
     
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ApiActionPermissionItem))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ApiParameterPermissionItem))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -15420,6 +15421,51 @@ namespace WebAPI.Api {
             }
             set {
                 this.serviceField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Action {
+            get {
+                return this.actionField;
+            }
+            set {
+                this.actionField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class ApiParameterPermissionItem : PermissionItem {
+        
+        private string objectField;
+        
+        private string parameterField;
+        
+        private string actionField;
+        
+        /// <remarks/>
+        public string Object {
+            get {
+                return this.objectField;
+            }
+            set {
+                this.objectField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Parameter {
+            get {
+                return this.parameterField;
+            }
+            set {
+                this.parameterField = value;
             }
         }
         

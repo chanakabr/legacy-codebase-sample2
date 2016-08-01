@@ -7,7 +7,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Models.General;
 using WebAPI.Utils;
@@ -30,7 +30,7 @@ namespace WebAPI.Controllers
         /// <returns>The PIN that applies for the user</returns>
         [Route("get"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         public KalturaPin Get(KalturaEntityReferenceBy by, KalturaPinType type, int? ruleId = null)
         {
             KalturaPin pinResponse = null;
@@ -91,7 +91,7 @@ namespace WebAPI.Controllers
         /// <returns>The PIN</returns>
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         public KalturaPin Update(KalturaEntityReferenceBy by, KalturaPinType type, KalturaPin pin, int? ruleId = null)
         {
             KalturaPin response = null;
@@ -268,7 +268,7 @@ namespace WebAPI.Controllers
         /// <returns>Success / fail</returns>
         [Route("validate"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public bool Validate(string pin, KalturaPinType type, int? ruleId = null)
         {
             bool success = false;

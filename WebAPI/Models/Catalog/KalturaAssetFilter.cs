@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
@@ -28,7 +28,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "kSql")]
         [JsonProperty("kSql")]
         [XmlElement(ElementName = "kSql", IsNullable = true)]
-        [ValidationException(SchemaValidationType.FILTER_SUFFIX)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public string KSql { get; set; }
 
         /// <summary>

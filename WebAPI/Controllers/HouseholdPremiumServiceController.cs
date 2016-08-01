@@ -7,7 +7,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Domains;
 using WebAPI.Utils;

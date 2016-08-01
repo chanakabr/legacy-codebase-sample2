@@ -7,7 +7,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.ConditionalAccess;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 using WebAPI.ObjectsConvertor.Mapping;
@@ -27,7 +27,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_RETURN_TYPE)]
+        [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
         public KalturaBillingTransactionListResponse List(KalturaTransactionHistoryFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaBillingTransactionListResponse response = new KalturaBillingTransactionListResponse();

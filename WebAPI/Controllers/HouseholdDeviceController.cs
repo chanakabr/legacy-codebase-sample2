@@ -6,7 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Domains;
 using WebAPI.Utils;
 
@@ -53,7 +53,7 @@ namespace WebAPI.Controllers
         [Route("addByPin"), HttpPost]
         [ApiAuthorize]
         [OldStandard("deviceName", "device_name")]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaHouseholdDevice AddByPin(string deviceName, string pin)
         {
             KalturaHouseholdDevice device = null;
@@ -137,8 +137,8 @@ namespace WebAPI.Controllers
         /// Device does not exist = 1019, Device not in domain = 1003, Device exists in other domain = 1016</remarks>
         [Route("get"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
-        [ValidationException(SchemaValidationType.ACTION_RETURN_TYPE)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
         public KalturaHouseholdDevice Get()
         {
             KalturaHouseholdDevice device = null;
@@ -203,7 +203,7 @@ namespace WebAPI.Controllers
         [Route("generatePin"), HttpPost]
         [ApiAuthorize]
         [OldStandard("brandId", "brand_id")]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaDevicePin GeneratePin(string udid, int brandId)
         {
             KalturaDevicePin devicePin = null;

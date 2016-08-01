@@ -15,7 +15,7 @@ using WebAPI.Utils;
 using WebAPI.Managers.Models;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Controllers
 {

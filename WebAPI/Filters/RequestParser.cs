@@ -21,7 +21,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Managers;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using System.Runtime.Serialization;
 using WebAPI.Models.Billing;
 using WebAPI.Models.MultiRequest;
@@ -33,6 +33,15 @@ namespace WebAPI.Filters
     public class RequestParserException : ApiException
     {
         public RequestParserException(int code, string msg) : base(code, msg) { }
+    }
+
+    public enum RequestType
+    {
+        READ = 1,
+        INSERT = 2,
+        UPDATE = 4,
+        WRITE = 6,
+        ALL = 7
     }
 
     public class RequestParser : ActionFilterAttribute
@@ -83,6 +92,7 @@ namespace WebAPI.Filters
         public const string REQUEST_SERVICE = "requestService";
         public const string REQUEST_ACTION = "requestAction";
         public const string REQUEST_TIME = "requestTime";
+        public const string REQUEST_TYPE = "requestType";
 
         public static object GetRequestPayload()
         {
@@ -133,7 +143,7 @@ namespace WebAPI.Filters
             return methodInfo;
         }
 
-        public static void setRequestContext(Dictionary<string, object> requestParams, bool globalScope = true)
+        public static void setRequestContext(Dictionary<string, object> requestParams, string service, string action, bool globalScope = true)
         {
             // ks
             KS.ClearOnRequest();
@@ -205,6 +215,31 @@ namespace WebAPI.Filters
             {
                 HttpContext.Current.Items.Add(REQUEST_LANGUAGE, HttpContext.Current.Items[REQUEST_GLOBAL_LANGUAGE]);
             }
+
+            if (HttpContext.Current.Items[REQUEST_TYPE] != null)
+                HttpContext.Current.Items.Remove(REQUEST_TYPE);
+
+            if (action != null)
+            {
+                switch (action)
+                {
+                    case "add":
+                        HttpContext.Current.Items[REQUEST_TYPE] = RequestType.INSERT;
+                        break;
+
+                    case "update":
+                        HttpContext.Current.Items[REQUEST_TYPE] = RequestType.UPDATE;
+                        break;
+
+                    case "get":
+                    case "list":
+                        HttpContext.Current.Items[REQUEST_TYPE] = RequestType.READ;
+                        break;
+
+                    default:
+                        break;
+                }
+            }
         }
 
         public async Task<NameValueCollection> ParseFormData(HttpActionContext actionContext)
@@ -270,8 +305,10 @@ namespace WebAPI.Filters
                 else if (formData != null)
                 {
                     currentAction = formData.Get("action");
-                    if (currentAction != null)
-                        HttpContext.Current.Items[REQUEST_ACTION] = currentAction;
+                }
+                if (currentAction != null)
+                {
+                    HttpContext.Current.Items[REQUEST_ACTION] = currentAction;
                 }
             }
             else if (actionContext.Request.Method == HttpMethod.Get)
@@ -317,7 +354,7 @@ namespace WebAPI.Filters
                             }
 
                             Dictionary<string, object> requestParams = reqParams.ToObject<Dictionary<string, object>>();
-                            setRequestContext(requestParams);
+                            setRequestContext(requestParams, currentController, currentAction);
 
                             methodInfo = createMethodInvoker(currentController, currentAction, asm);
                             List<Object> methodParams = buildActionArguments(methodInfo, requestParams);
@@ -355,7 +392,7 @@ namespace WebAPI.Filters
                         //Running on the expected method parameters
                         var groupedParams = groupParams(formData);
 
-                        setRequestContext(groupedParams);
+                        setRequestContext(groupedParams, currentController, currentAction);
                         methodInfo = createMethodInvoker(currentController, currentAction, asm);
 
                         List<Object> methodParams = buildActionArguments(methodInfo, groupedParams);
@@ -396,7 +433,7 @@ namespace WebAPI.Filters
                     //Running on the expected method parameters
                     var groupedParams = groupParams(tokens);
 
-                    setRequestContext(groupedParams);
+                    setRequestContext(groupedParams, currentController, currentAction);
                     methodInfo = createMethodInvoker(currentController, currentAction, asm);
 
                     List<Object> methodParams = buildActionArguments(methodInfo, groupedParams);
@@ -425,9 +462,12 @@ namespace WebAPI.Filters
             Dictionary<string, object> currentRequestParams;
             
             int requestIndex = 0;
-            while (requestParams.ContainsKey(requestIndex.ToString()))
+            foreach (string index in requestParams.Keys)
             {
-                var requestItem = requestParams[requestIndex.ToString()];
+                if (!int.TryParse(index, out requestIndex))
+                    continue;
+
+                var requestItem = requestParams[index];
                 if (requestItem.GetType() == typeof(JObject) || requestItem.GetType().IsSubclassOf(typeof(JObject)))
                 {
                     currentRequestParams = ((JObject)requestItem).ToObject<Dictionary<string, object>>();
@@ -616,6 +656,11 @@ namespace WebAPI.Filters
                         methodParams.Add(param);
                     }
                 }
+                catch (ApiException ex)
+                {
+                    log.Error("Invalid parameter", ex);
+                    throw ex;
+                }
                 catch (Exception ex)
                 {
                     log.Error("Invalid parameter format", ex);
@@ -703,6 +748,10 @@ namespace WebAPI.Filters
                 {
                     continue;
                 }
+
+                SchemePropertyAttribute schemaProperty = property.GetCustomAttribute<SchemePropertyAttribute>();
+                if (schemaProperty != null)
+                    schemaProperty.Validate(type.Name, parameterName, parameters[parameterName]);
 
                 if (property.PropertyType.IsPrimitive || property.PropertyType == typeof(string))
                 {

@@ -9,7 +9,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Schema;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
@@ -169,7 +169,7 @@ namespace WebAPI.Controllers
         /// <param name="userIdToSwitch">The identifier of the user to change</param>
         [Route("switchUser"), HttpPost]
         [ApiAuthorize]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaLoginSession SwitchUser(string userIdToSwitch)
         {
             int groupId = KS.GetFromRequest().GroupId;
