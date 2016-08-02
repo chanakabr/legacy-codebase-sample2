@@ -12,6 +12,7 @@ namespace ElasticSearch.Searcher
 
         public int Size = -1;
         public int From = -1;
+        public List<string> Fields = null;
 
         public ESQuery(IESTerm query)
         {
@@ -32,6 +33,21 @@ namespace ElasticSearch.Searcher
             if (From > -1)
             {
                 builder.AppendFormat(", \"from\": {0}", From.ToString());
+            }
+
+            if (this.Fields != null && this.Fields.Count > 0)
+            {
+                builder.Append(", \"fields\": [");
+
+                foreach (var field in this.Fields)
+                {
+                    builder.AppendFormat("\"{0}\",", field);
+                }
+
+                // remove last ","
+                builder.Remove(builder.Length - 1, 1);
+
+                builder.Append("]");
             }
 
             builder.Append("}");
