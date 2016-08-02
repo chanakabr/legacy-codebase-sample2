@@ -18379,19 +18379,19 @@ namespace ConditionalAccess
                 }
 
                 List<DomainSeriesRecording> series = null;
-                DataTable serieDt = null;
+                DataSet serieDs = null;
                 if (domainSeriesRecordingId > 0)
                 {
                     // get the domain series recording
-                    serieDt = RecordingsDAL.GetDomainSeriesRecordingsById(m_nGroupID, domainId, domainSeriesRecordingId);
-                    series = Utils.GetDomainSeriesRecordingFromDataTable(serieDt);
+                    serieDs = RecordingsDAL.GetDomainSeriesRecordingsById(m_nGroupID, domainId, domainSeriesRecordingId);
                 }
                 else
                 {
                     // get household followed series / seasons - if not following anything - nothing to do
-                    serieDt = RecordingsDAL.GetDomainSeriesRecordings(m_nGroupID, domainId);
-                    series = Utils.GetDomainSeriesRecordingFromDataTable(serieDt);
+                    serieDs = RecordingsDAL.GetDomainSeriesRecordings(m_nGroupID, domainId);
                 }
+
+                series = Utils.GetDomainSeriesRecordingFromDataTable(serieDs);
 
                 if (series == null || series.Count == 0)
                 {
@@ -18840,11 +18840,17 @@ namespace ConditionalAccess
 
         }
 
-        public SeriesRecording CancelOrDeleteSeriesRecord(string userId, long domainId, long domainSeriesRecordingId, long epgId, TstvRecordingStatus tstvRecordingStatus)
+        public SeriesRecording CancelOrDeleteSeriesRecord(string userId, long domainId, long domainSeriesRecordingId, long epgId, long seasonNumber, TstvRecordingStatus tstvRecordingStatus)
         {
             SeriesRecording seriesRecording = new SeriesRecording();
             try
-            {               
+            {
+                if (epgId > 0 && seasonNumber > 0)
+                {
+                    log.ErrorFormat("can't get epgid and season number, DomainID: {0}, UserID: {1}, domainSeriesRecordingId: {2}", domainId, userId, domainSeriesRecordingId);
+                    seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    return seriesRecording;
+                }
                 ConditionalAccess.TvinciDomains.Domain domain;
                 ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userId, ref domainId, out domain);
 
@@ -18865,11 +18871,21 @@ namespace ConditionalAccess
                 {
                     CancelOrDeleteEpg(userId, domainId, seriesRecording, tstvRecordingStatus, epgId);
                     seriesRecording.Id = domainSeriesRecordingId;
-                }
-                else // cancel / delete all epgs related to series
+                }               
+                else // cancel / delete all epgs related to series or to season number
                 {
-                    CancelOrDeleteSeries(userId, domainId, seriesRecording, tstvRecordingStatus, domainSeriesRecordingId);
-                    seriesRecording.Id = domainSeriesRecordingId;
+                    if (seriesRecording.SeasonNumber == 0 || seasonNumber == 0 || (seriesRecording.SeasonNumber == seasonNumber) )
+                    {
+                        CancelOrDeleteSeries(userId, domainId, seriesRecording, tstvRecordingStatus, domainSeriesRecordingId, seasonNumber);
+                        seriesRecording.Id = domainSeriesRecordingId;
+                    }
+                    else
+                    {
+                        log.ErrorFormat("SeasonNumber that was sent diffrent from each other , DomainID: {0}, UserID: {1}, seriesRecording.SeasonNumber = {2}, seasonNumber = {3}", domainId, userId, seriesRecording.SeasonNumber, seasonNumber);
+                        seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.SeasonNumberNotMatch, eResponseStatus.SeasonNumberNotMatch.ToString());
+                        return seriesRecording;
+                    }
+
                 }
             }
             catch (Exception ex)
@@ -18885,8 +18901,8 @@ namespace ConditionalAccess
             }
             return seriesRecording;
         }
-
-        private void CancelOrDeleteSeries(string userId, long domainId, SeriesRecording seriesRecording, TstvRecordingStatus tstvRecordingStatus, long domainSeriesRecordingId)
+        
+        private void CancelOrDeleteSeries(string userId, long domainId, SeriesRecording seriesRecording, TstvRecordingStatus tstvRecordingStatus, long domainSeriesRecordingId, long seasonNumber)
         {
             // get all domain recording - filter those related to series_id + season_number
             List<TstvRecordingStatus> RecordingStatus;
@@ -18916,7 +18932,7 @@ namespace ConditionalAccess
                 if (epgs != null && epgs.Count > 0)
                 {
                     // check if epg related to series and season
-                    bool result = Utils.GetEpgRelatedToSeriesRecording(m_nGroupID, epgs, seriesRecording);
+                    bool result = Utils.GetEpgRelatedToSeriesRecording(m_nGroupID, epgs, seriesRecording, seasonNumber);
 
                     // convert status Cancel/Delete ==> SeriesCancel/SeriesDelete
                     TstvRecordingStatus? seriesStatus = Utils.ConvertToSeriesStatus(tstvRecordingStatus);
@@ -18946,7 +18962,20 @@ namespace ConditionalAccess
                 }
             }
             // mark the row in status = 2
-            if (RecordingsDAL.CancelSeriesRecording(domainSeriesRecordingId))
+            if (seasonNumber > 0) // need to insert new "record" series+ season to domain series recordings
+            {
+                if (RecordingsDAL.InsertOrUpdateDomainSeriesExclude(m_nGroupID, domainId, userId, domainSeriesRecordingId, seasonNumber))
+                {
+                    seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    log.DebugFormat("Series recording {0} has been updated to status {1}", seriesRecording.Id, tstvRecordingStatus.ToString());
+                }
+                else
+                {
+                    seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to perform cancel or delete");
+                    log.ErrorFormat("Series recording {0} has been updated for season {1} to status {2}", seriesRecording.Id, seasonNumber, tstvRecordingStatus.ToString());
+                }
+            }
+            else if (RecordingsDAL.CancelSeriesRecording(domainSeriesRecordingId))
             {
                 seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 log.DebugFormat("Series recording {0} has been updated to status {1}", seriesRecording.Id, tstvRecordingStatus.ToString());
@@ -19051,8 +19080,8 @@ namespace ConditionalAccess
                 }
 
                 // user is OK - get all domain series recording
-                DataTable dt = RecordingsDAL.GetDomainSeriesRecordings(m_nGroupID, domainId);
-                List<SeriesRecording> SeriesRecordings = BuildSeriesRecording(dt, orderBy);
+                DataSet ds = RecordingsDAL.GetDomainSeriesRecordings(m_nGroupID, domainId);
+                List<SeriesRecording> SeriesRecordings = BuildSeriesRecording(ds, orderBy);
                 if (SeriesRecordings == null || SeriesRecordings.Count == 0)
                 {
                     response = new SeriesResponse()
@@ -19088,18 +19117,14 @@ namespace ConditionalAccess
             return response;
         }
 
-        private List<SeriesRecording> BuildSeriesRecording(DataTable dt, ApiObjects.TimeShiftedTv.SeriesRecordingOrderObj orderByObj)
+        private List<SeriesRecording> BuildSeriesRecording(DataSet ds, ApiObjects.TimeShiftedTv.SeriesRecordingOrderObj orderByObj)
         {
             List<SeriesRecording> response = new List<SeriesRecording>();
             try
             {
-                if (dt != null && dt.Rows != null)
+                response = Utils.BuildSeriesRecordingDetails(ds);
+                if (response != null && response.Count > 0)
                 {
-                    foreach (DataRow dr in dt.Rows)
-                    {
-                        response.Add(Utils.BuildSeriesRecordingDetails(dr));
-                    }
-
                     switch (orderByObj.OrderBy)
                     {
                         case ApiObjects.TimeShiftedTv.SeriesOrderBy.START_DATE:
@@ -19133,8 +19158,6 @@ namespace ConditionalAccess
                             }
                             break;
                     }
-
-
                 }
             }
             catch (Exception ex)

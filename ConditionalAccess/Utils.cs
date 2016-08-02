@@ -4977,15 +4977,11 @@ namespace ConditionalAccess
 
             try
             {
-                DataTable dt = RecordingsDAL.GetDomainSeriesRecordingsById(groupId, domainId, domainSeriesRecordingId);
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                DataSet ds = RecordingsDAL.GetDomainSeriesRecordingsById(groupId, domainId, domainSeriesRecordingId);
+                var seriesRecordings = BuildSeriesRecordingDetails(ds);
+                if (seriesRecordings != null && seriesRecordings.Count > 0)
                 {
-                    DataRow dr = dt.Rows[0];
-                    long domainRecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
-                    if (domainRecordingID > 0)
-                    {
-                        seriesRecording = BuildSeriesRecordingDetails(dr);
-                    }
+                    seriesRecording = seriesRecordings[0];
                 }
                 if (seriesRecording == null)
                 {
@@ -5039,6 +5035,50 @@ namespace ConditionalAccess
                 Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
             };
 
+        }
+
+        public static List<SeriesRecording> BuildSeriesRecordingDetails(DataSet ds)
+        {
+            Dictionary<long, SeriesRecording> result = new Dictionary<long, SeriesRecording>(); 
+            SeriesRecording seriesRecording = null;
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count >= 2)
+            {
+                if (ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+                {
+                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    {
+                        seriesRecording = new SeriesRecording()
+                        {
+                            EpgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID"),
+                            EpgChannelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_CHANNEL_ID"),
+                            Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID"),
+                            SeasonNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "SEASON_NUMBER"),
+                            SeriesId = ODBCWrapper.Utils.GetSafeStr(dr, "SERIES_ID"),
+                            CreateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE"),
+                            UpdateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE"),
+                            ExcludedSeasons = new List<int>(),
+                            Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
+                        };
+                        seriesRecording.Type = seriesRecording.SeasonNumber > 0 ? RecordingType.Season : RecordingType.Series;
+                        result.Add(seriesRecording.Id, seriesRecording);
+                    }
+                }
+                if (ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
+                {
+                    long seriesRecordingId = 0;
+                    foreach (DataRow dr in ds.Tables[1].Rows)
+                    {
+                        seriesRecordingId = ODBCWrapper.Utils.GetIntSafeVal(dr, "DOMAIN_SERIES_ID");
+                        if (result.ContainsKey(seriesRecordingId))
+                        {
+                            result[seriesRecordingId].ExcludedSeasons.Add(ODBCWrapper.Utils.GetIntSafeVal(dr, "SEASON_NUMBER"));
+                        }
+                    }
+                }
+            }
+
+            return result.Values.ToList();
         }
 
         internal static Recording BuildDomainRecordingFromDataRow(DataRow dr)
@@ -5504,11 +5544,22 @@ namespace ConditionalAccess
 
             // build the filter query for the search
             StringBuilder ksql = new StringBuilder("(and (or ");
+            StringBuilder seasonsToExclude = null;
+            string season = null;
             foreach (var serie in series)
             {
-                string season = (serie.SeasonNumber > 0 && !string.IsNullOrEmpty(seasonNumber)) ? string.Format("{0} = '{1}' ", seasonNumber, serie.SeasonNumber) : string.Empty;
+                season = (serie.SeasonNumber > 0 && !string.IsNullOrEmpty(seasonNumber)) ? string.Format("{0} = '{1}' ", seasonNumber, serie.SeasonNumber) : string.Empty;
+                if (serie.ExcludedSeasons != null && serie.ExcludedSeasons.Count > 0)
+                {
+                    seasonsToExclude = new StringBuilder();
+                    foreach (int seasonNumberToExclude in serie.ExcludedSeasons)
+                    {
+                        seasonsToExclude.AppendFormat("{0} != '{1}' ", seasonNumber, seasonNumberToExclude); 
+                    }
+                }
 
-                ksql.AppendFormat("(and {0} = '{1}' epg_channel_id = '{2}' {3})", seriesId, serie.SeriesId, serie.EpgChannelId, season);
+                ksql.AppendFormat("(and {0} = '{1}' epg_channel_id = '{2}' {3} {4})", seriesId, serie.SeriesId, serie.EpgChannelId, season, seasonsToExclude.ToString());
+
             }
 
             switch (SearchSeriesRecordingsTimeOption)
@@ -5627,7 +5678,7 @@ namespace ConditionalAccess
             return true;
         }
 
-        internal static bool GetEpgRelatedToSeriesRecording(int groupId, List<EpgCB> epgs, SeriesRecording seriesRecording)
+        internal static bool GetEpgRelatedToSeriesRecording(int groupId, List<EpgCB> epgs, SeriesRecording seriesRecording, long seasonNumber = 0)
         {
             bool result = false;
             List<EpgCB> epgMatch = new List<EpgCB>();
@@ -5654,8 +5705,10 @@ namespace ConditionalAccess
                 epgMatch = epgs.Where(x => x.Tags.Any(y => y.Key == series_alias.Name && y.Value.Contains(seriesRecording.SeriesId))).ToList();
             }
 
-            if (seriesRecording.SeasonNumber > 0)
+
+            if (seriesRecording.SeasonNumber > 0 || seasonNumber > 0)
             {
+                long seasonNumberEqual = seriesRecording.SeasonNumber > 0 ? seriesRecording.SeasonNumber : seasonNumber;
                 ApiObjects.Epg.FieldTypeEntity season_alias = metaTagsMappings.Where(m => m.Alias.ToLower() == SEASON_ALIAS).FirstOrDefault();
                 if (season_alias == null)
                 {
@@ -5665,11 +5718,11 @@ namespace ConditionalAccess
 
                 if (season_alias.FieldType == FieldTypes.Meta)
                 {
-                    epgMatch = epgMatch.Where(x => x.Metas.Any(y => y.Key == season_alias.Name && y.Value.Contains(seriesRecording.SeasonNumber.ToString()))).ToList();
+                    epgMatch = epgMatch.Where(x => x.Metas.Any(y => y.Key == season_alias.Name && y.Value.Contains(seasonNumberEqual.ToString()))).ToList();
                 }
                 else if (season_alias.FieldType == FieldTypes.Tag)
                 {
-                    epgMatch = epgMatch.Where(x => x.Tags.Any(y => y.Key == season_alias.Name && y.Value.Contains(seriesRecording.SeasonNumber.ToString()))).ToList();
+                    epgMatch = epgMatch.Where(x => x.Tags.Any(y => y.Key == season_alias.Name && y.Value.Contains(seasonNumberEqual.ToString()))).ToList();
                 }
             }
 
@@ -5855,26 +5908,43 @@ namespace ConditionalAccess
             return recordings;
         }
 
-        internal static List<DomainSeriesRecording> GetDomainSeriesRecordingFromDataTable(DataTable serieDataTable)
+        internal static List<DomainSeriesRecording> GetDomainSeriesRecordingFromDataTable(DataSet serieDataSet)
         {
-            List<DomainSeriesRecording> result = new List<DomainSeriesRecording>();
-            if (serieDataTable != null && serieDataTable.Rows != null)
+            Dictionary<long, DomainSeriesRecording> result = new Dictionary<long, DomainSeriesRecording>();
+
+            if (serieDataSet != null && serieDataSet.Tables != null && serieDataSet.Tables.Count >= 2)
             {
-                foreach (DataRow dr in serieDataTable.Rows)
+                if (serieDataSet.Tables[0] != null && serieDataSet.Tables[0].Rows != null && serieDataSet.Tables[0].Rows.Count > 0)
                 {
-                    result.Add(new DomainSeriesRecording()
+                    foreach (DataRow dr in serieDataSet.Tables[0].Rows)
                     {
-                        EpgId = ODBCWrapper.Utils.GetLongSafeVal(serieDataTable.Rows[0], "EPG_ID", 0),
-                        SeasonNumber = ODBCWrapper.Utils.GetIntSafeVal(serieDataTable.Rows[0], "SEASON_NUMBER", 0),
-                        SeriesId = ODBCWrapper.Utils.GetSafeStr(serieDataTable.Rows[0], "SERIES_ID"),
-                        UserId = ODBCWrapper.Utils.GetSafeStr(serieDataTable.Rows[0], "USER_ID"),
-                        EpgChannelId = ODBCWrapper.Utils.GetLongSafeVal(serieDataTable.Rows[0], "EPG_CHANNEL_ID", 0),
+
+                        result.Add(ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0), new DomainSeriesRecording()
+                        {
+                            EpgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID", 0),
+                            SeasonNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "SEASON_NUMBER", 0),
+                            SeriesId = ODBCWrapper.Utils.GetSafeStr(dr, "SERIES_ID"),
+                            UserId = ODBCWrapper.Utils.GetSafeStr(dr, "USER_ID"),
+                            EpgChannelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_CHANNEL_ID", 0),
+                            ExcludedSeasons = new List<int>()
+                        });
                     }
-                );
-                }               
+                }
+                if (serieDataSet.Tables[1] != null && serieDataSet.Tables[1].Rows != null && serieDataSet.Tables[1].Rows.Count > 0)
+                {
+                    long domainSeriesId = 0;
+                    foreach (DataRow dr in serieDataSet.Tables[1].Rows)
+                    {
+                        domainSeriesId = ODBCWrapper.Utils.GetIntSafeVal(dr, "DOMAIN_SERIES_ID", 0);
+                        if (result.ContainsKey(domainSeriesId))
+                        {
+                            result[domainSeriesId].ExcludedSeasons.Add(ODBCWrapper.Utils.GetIntSafeVal(dr, "SEASON_NUMBER", 0));
+                        }
+                    }
+                }
             }
 
-            return result;
+            return result.Values.ToList();
         }
 
         internal static MediaObj GetMediaById(int groupID, int mediaId)

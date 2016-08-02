@@ -583,15 +583,15 @@ namespace DAL
             return updatedRowsCount > 0;            
         }
 
-        public static DataTable GetDomainSeriesRecordings(int groupId, long domainId)
+        public static DataSet GetDomainSeriesRecordings(int groupId, long domainId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_DomainSeries");
             sp.SetConnectionKey(RECORDING_CONNECTION);
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@domainId", domainId);
 
-            DataTable dt = sp.Execute();
-            return dt;
+            DataSet ds = sp.ExecuteDataSet();
+            return ds;
         }
 
         public static Dictionary<long, long> GetEpgToRecordingsMap(int groupId, List<long> recordingIds)
@@ -646,17 +646,17 @@ namespace DAL
             return epgsToRecordingsMap;
         }
 
-        public static DataTable GetDomainSeriesRecordingsById(int groupId, long domainId, long domainSeriesRecordingId)
+        public static DataSet GetDomainSeriesRecordingsById(int groupId, long domainId, long domainSeriesRecordingId)
         {
-            DataTable dt = null;
+            DataSet ds = null;
             ODBCWrapper.StoredProcedure spGetDomainRecordingsByIds = new ODBCWrapper.StoredProcedure("GetDomainSeriesRecordingsById");
             spGetDomainRecordingsByIds.SetConnectionKey(RECORDING_CONNECTION);
             spGetDomainRecordingsByIds.AddParameter("@GroupID", groupId);
             spGetDomainRecordingsByIds.AddParameter("@DomainID", domainId);
             spGetDomainRecordingsByIds.AddParameter("@DomainRecordingId", domainSeriesRecordingId);
-            dt = spGetDomainRecordingsByIds.Execute();
+            ds = spGetDomainRecordingsByIds.ExecuteDataSet();
 
-            return dt;
+            return ds;
         }
 
         public static bool CancelSeriesRecording(long Id)
@@ -881,12 +881,12 @@ namespace DAL
                     int updatedQuota;
                     Couchbase.IO.ResponseStatus status;
                     currentQuota = cbClient.GetWithVersion<int>(domainQuotaKey, out version, out status);
-                    if (status != Couchbase.IO.ResponseStatus.Success)
+                    if (status == Couchbase.IO.ResponseStatus.Success)
                     {
                         updatedQuota = currentQuota - quotaToDecrease;
                         result = cbClient.SetWithVersion<int>(domainQuotaKey, updatedQuota, version);
                     }
-                    else if (status != Couchbase.IO.ResponseStatus.KeyNotFound)
+                    else if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
                     {
                         updatedQuota = domainQuota - quotaToDecrease;
                         result = cbClient.SetWithVersion<int>(domainQuotaKey, updatedQuota, 0);
@@ -1047,6 +1047,27 @@ namespace DAL
             
             DataTable dt = sp.Execute();
             return dt;
+        }
+
+        public static bool InsertOrUpdateDomainSeriesExclude(int groupId, long domainId, string userId, long domainSeriesRecordingId, long seasonNumber, int status = 1)
+        {
+            bool result = false;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertOrUpdateDomainSeriesExclude");
+                
+                sp.SetConnectionKey(RECORDING_CONNECTION);
+                sp.AddParameter("@DomainSeriesRecordingID", domainSeriesRecordingId);               
+                sp.AddParameter("@SeasonNumber", seasonNumber);
+                sp.AddParameter("@Status", status);
+
+                result = sp.ExecuteReturnValue<bool>();
+            }
+            catch (Exception)
+            {
+                result = false;
+            }
+            return result;
         }
     }
 }

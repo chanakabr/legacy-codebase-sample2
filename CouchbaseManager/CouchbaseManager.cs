@@ -914,13 +914,6 @@ namespace CouchbaseManager
                     else
                     {
                         HandleStatusCode(getResult, key);
-
-                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
-                        {
-                            result = bucket.Get<T>(key).Value;
-                        }
-
-                        version = getResult.Cas;
                     }
                 }
             }
@@ -968,13 +961,6 @@ namespace CouchbaseManager
                     else
                     {
                         HandleStatusCode(getResult, key);
-
-                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
-                        {
-                            result = bucket.Get<T>(key).Value;
-                        }
-
-                        version = getResult.Cas;
                     }
                 }
             }
