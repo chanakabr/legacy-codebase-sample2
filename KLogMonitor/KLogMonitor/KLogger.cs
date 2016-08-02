@@ -33,7 +33,6 @@ namespace KLogMonitor
         private string Server { get; set; }
         public string IPAddress { get; set; }
         public string MethodName { get; set; }
-        public int Line { get; set; }
         public string Topic { get; set; }
 
         private List<LogEvent> logs;
@@ -87,7 +86,6 @@ namespace KLogMonitor
 
                 StackFrame callingFrame = stackFrames[2];
                 this.MethodName = callingFrame.GetMethod().Name;
-                this.Line = callingFrame.GetFileLineNumber();
 
                 if (args != null && ex != null)
                     throw new Exception("Args and Exception cannot co exist");
@@ -180,35 +178,33 @@ namespace KLogMonitor
 
         //private string formatMessage(string msg, DateTime creationDate)
         //{
-        //    return string.Format("{0} - class: {1}, line: {2}, method: {3}, server:{4} ip:{5} reqid:{6} partner:{7} action:{8} client:{9} uid:{10} msg:{11}",
+        //    return string.Format("{0} - class: {1}, method: {2}, server:{3} ip:{4} reqid:{5} partner:{6} action:{7} client:{8} uid:{9} msg:{10}",
         //        creationDate,                                  // 0
         //        ClassName != null ? ClassName : string.Empty,  // 1
-        //        Line,                                          // 2
-        //        MethodName != null ? MethodName : string.Empty,// 3
-        //        Server != null ? Server : string.Empty,        // 4
-        //        IPAddress != null ? IPAddress : string.Empty,  // 5
-        //        UniqueID != null ? UniqueID : string.Empty,    // 6
-        //        PartnerID != null ? PartnerID : string.Empty,  // 7
-        //        Action != null ? Action : string.Empty,        // 8
-        //        ClientTag != null ? ClientTag : string.Empty,  // 9
-        //        UserID != null ? UserID : "0",                 // 10
-        //        msg != null ? msg : string.Empty);             // 11
+        //        MethodName != null ? MethodName : string.Empty,// 2
+        //        Server != null ? Server : string.Empty,        // 3
+        //        IPAddress != null ? IPAddress : string.Empty,  // 4
+        //        UniqueID != null ? UniqueID : string.Empty,    // 5
+        //        PartnerID != null ? PartnerID : string.Empty,  // 6
+        //        Action != null ? Action : string.Empty,        // 7
+        //        ClientTag != null ? ClientTag : string.Empty,  // 8
+        //        UserID != null ? UserID : "0",                 // 9
+        //        msg != null ? msg : string.Empty);             // 10
         //}
 
         private string formatMessage(string msg, DateTime creationDate)
         {
-            return string.Format("class: {0} line: {1} topic: {10} method: {2} server:{3} ip:{4} reqid:{5} partner:{6} action:{7} uid:{8} msg:{9}",
-                ClassName != null ? ClassName : string.Empty,  // 0
-                Line,                                          // 1
-                MethodName != null ? MethodName : string.Empty,// 2
-                Server != null ? Server : string.Empty,        // 3
-                IPAddress != null ? IPAddress : string.Empty,  // 4
-                UniqueID != null ? UniqueID : string.Empty,    // 5
-                PartnerID != null ? PartnerID : string.Empty,  // 6
-                Action != null ? Action : string.Empty,        // 7
-                UserID != null ? UserID : "0",                 // 8
-                msg != null ? msg : string.Empty,              // 9
-                Topic != null ? Topic : string.Empty);         // 10 
+            return string.Format("class:{0} topic:{1} method:{2} server:{3} ip:{4} reqid:{5} partner:{6} action:{7} uid:{8} msg:{9}",
+                ClassName != null ? ClassName : "null",  // 0
+                Topic != null ? Topic : "null",          // 1
+                MethodName != null ? MethodName : "null",// 2
+                Server != null ? Server : "null",        // 3
+                IPAddress != null ? IPAddress : "null",  // 4
+                UniqueID != null ? UniqueID : "null",    // 5
+                PartnerID != null ? PartnerID : "null",  // 6
+                Action != null ? Action : "null",        // 7
+                UserID != null ? UserID : "0",           // 8
+                msg != null ? msg : "null");             // 9
         }
 
         private void sendLog(LogEvent logEvent)
