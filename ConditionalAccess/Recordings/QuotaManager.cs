@@ -144,13 +144,13 @@ namespace Recordings
         /// <param name="groupId"></param>
         /// <param name="domainId"></param>
         /// <param name="quotaToDecrease"></param>
-        /// <param name="shouldForseDecrease">If true - decrease the quota to 0 if not enough quota</param>
+        /// <param name="shouldForceDecrease">If true - decrease the quota to 0 if not enough quota</param>
         /// <returns></returns>
-        public bool DecreaseDomainQuota(int groupId, long domainId, int quotaToDecrease, bool shouldForseDecrease = false)
+        public bool DecreaseDomainQuota(int groupId, long domainId, int quotaToDecrease, bool shouldForceDecrease = false)
         {
             bool result = false;
             int domainQuota = GetDomainQuota(groupId, domainId);
-            if (domainQuota >= quotaToDecrease || shouldForseDecrease)
+            if (domainQuota >= quotaToDecrease || shouldForceDecrease)
             {
                 result = RecordingsDAL.DecreaseDomainQuota(domainId, quotaToDecrease, domainQuota);
             }
