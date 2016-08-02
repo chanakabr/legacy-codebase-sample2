@@ -582,15 +582,15 @@ namespace DAL
             return updatedRowsCount > 0;            
         }
 
-        public static DataTable GetDomainSeriesRecordings(int groupId, long domainId)
+        public static DataSet GetDomainSeriesRecordings(int groupId, long domainId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_DomainSeries");
             sp.SetConnectionKey(RECORDING_CONNECTION);
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@domainId", domainId);
 
-            DataTable dt = sp.Execute();
-            return dt;
+            DataSet ds = sp.ExecuteDataSet();
+            return ds;
         }
 
         public static Dictionary<long, long> GetEpgToRecordingsMap(int groupId, List<long> recordingIds)
@@ -645,17 +645,17 @@ namespace DAL
             return epgsToRecordingsMap;
         }
 
-        public static DataTable GetDomainSeriesRecordingsById(int groupId, long domainId, long domainSeriesRecordingId)
+        public static DataSet GetDomainSeriesRecordingsById(int groupId, long domainId, long domainSeriesRecordingId)
         {
-            DataTable dt = null;
+            DataSet ds = null;
             ODBCWrapper.StoredProcedure spGetDomainRecordingsByIds = new ODBCWrapper.StoredProcedure("GetDomainSeriesRecordingsById");
             spGetDomainRecordingsByIds.SetConnectionKey(RECORDING_CONNECTION);
             spGetDomainRecordingsByIds.AddParameter("@GroupID", groupId);
             spGetDomainRecordingsByIds.AddParameter("@DomainID", domainId);
             spGetDomainRecordingsByIds.AddParameter("@DomainRecordingId", domainSeriesRecordingId);
-            dt = spGetDomainRecordingsByIds.Execute();
+            ds = spGetDomainRecordingsByIds.ExecuteDataSet();
 
-            return dt;
+            return ds;
         }
 
         public static bool CancelSeriesRecording(long Id)

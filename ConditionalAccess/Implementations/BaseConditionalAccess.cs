@@ -18385,19 +18385,19 @@ namespace ConditionalAccess
                 }
 
                 List<DomainSeriesRecording> series = null;
-                DataTable serieDt = null;
+                DataSet serieDs = null;
                 if (domainSeriesRecordingId > 0)
                 {
                     // get the domain series recording
-                    serieDt = RecordingsDAL.GetDomainSeriesRecordingsById(m_nGroupID, domainId, domainSeriesRecordingId);
-                    series = Utils.GetDomainSeriesRecordingFromDataTable(serieDt);
+                    serieDs = RecordingsDAL.GetDomainSeriesRecordingsById(m_nGroupID, domainId, domainSeriesRecordingId);
                 }
                 else
                 {
                     // get household followed series / seasons - if not following anything - nothing to do
-                    serieDt = RecordingsDAL.GetDomainSeriesRecordings(m_nGroupID, domainId);
-                    series = Utils.GetDomainSeriesRecordingFromDataTable(serieDt);
+                    serieDs = RecordingsDAL.GetDomainSeriesRecordings(m_nGroupID, domainId);
                 }
+
+                series = Utils.GetDomainSeriesRecordingFromDataTable(serieDs);
 
                 if (series == null || series.Count == 0)
                 {
@@ -19056,8 +19056,8 @@ namespace ConditionalAccess
                 }
 
                 // user is OK - get all domain series recording
-                DataTable dt = RecordingsDAL.GetDomainSeriesRecordings(m_nGroupID, domainId);
-                List<SeriesRecording> SeriesRecordings = BuildSeriesRecording(dt, orderBy);
+                DataSet ds = RecordingsDAL.GetDomainSeriesRecordings(m_nGroupID, domainId);
+                List<SeriesRecording> SeriesRecordings = BuildSeriesRecording(ds, orderBy);
                 if (SeriesRecordings == null || SeriesRecordings.Count == 0)
                 {
                     response = new SeriesResponse()
@@ -19093,18 +19093,14 @@ namespace ConditionalAccess
             return response;
         }
 
-        private List<SeriesRecording> BuildSeriesRecording(DataTable dt, ApiObjects.TimeShiftedTv.SeriesRecordingOrderObj orderByObj)
+        private List<SeriesRecording> BuildSeriesRecording(DataSet ds, ApiObjects.TimeShiftedTv.SeriesRecordingOrderObj orderByObj)
         {
             List<SeriesRecording> response = new List<SeriesRecording>();
             try
             {
-                if (dt != null && dt.Rows != null)
+                response = Utils.BuildSeriesRecordingDetails(ds);
+                if (response != null && response.Count > 0)
                 {
-                    foreach (DataRow dr in dt.Rows)
-                    {
-                        response.Add(Utils.BuildSeriesRecordingDetails(dr));
-                    }
-
                     switch (orderByObj.OrderBy)
                     {
                         case ApiObjects.TimeShiftedTv.SeriesOrderBy.START_DATE:
@@ -19138,8 +19134,6 @@ namespace ConditionalAccess
                             }
                             break;
                     }
-
-
                 }
             }
             catch (Exception ex)
