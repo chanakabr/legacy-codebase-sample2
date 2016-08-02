@@ -536,15 +536,34 @@
             <param name="filter">Request filter</param>
             <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.SeriesRecordingController.Cancel(System.Int64,System.Int64)">
+        <member name="M:WebAPI.Controllers.SeriesRecordingController.Cancel(System.Int64)">
             <summary>        
             Cancel a previously requested series recording. Cancel series recording can be called for recording in status Scheduled or Recording Only 
+            </summary>
+            <param name="id">Series Recording identifier</param>       
+            <returns></returns>
+            <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+            UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048 </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.SeriesRecordingController.CancelByEpgId(System.Int64,System.Int64)">
+            <summary>        
+            Cancel EPG recording that was recorded as part of series
             </summary>
             <param name="id">Series Recording identifier</param>
             <param name="epgId">epg program identifier</param>
             <returns></returns>
             <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-            UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048 </remarks>
+            UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048, EpgIdNotPartOfSeries = 3049 </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.SeriesRecordingController.CancelBySeasonNumber(System.Int64,System.Int64)">
+            <summary>        
+            Cancel Season recording epgs that was recorded as part of series
+            </summary>
+            <param name="id">Series Recording identifier</param>
+            <param name="seasonNumber">Season Number</param>
+            <returns></returns>
+            <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+            UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048, SeasonNumberNotMatch = 3052  </remarks>
         </member>
         <member name="M:WebAPI.Controllers.SeriesRecordingController.Delete(System.Int64)">
             <summary>        
@@ -563,7 +582,17 @@
             <param name="epgId">epg program identifier</param>
             <returns></returns>
             <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-            UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048 </remarks>
+            UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048, EpgIdNotPartOfSeries = 3049 </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.SeriesRecordingController.DeleteBySeasonNumber(System.Int64,System.Int64)">
+            <summary>        
+            Delete Season recording epgs that was recorded as part of series
+            </summary>
+            <param name="id">Series Recording identifier</param>
+            <param name="seasonNumber">Season Number</param>
+            <returns></returns>
+            <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+            UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048, SeasonNumberNotMatch = 3052  </remarks>
         </member>
         <member name="M:WebAPI.Controllers.SeriesRecordingController.List(WebAPI.Models.ConditionalAccess.KalturaSeriesRecordingFilter)">
             <summary>
@@ -11218,22 +11247,22 @@
         <member name="M:WebAPI.ConditionalAccess.module.DeleteRecordAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.CancelSeriesRecord(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64)">
+        <member name="M:WebAPI.ConditionalAccess.module.CancelSeriesRecord(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.Int64)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.CancelSeriesRecordAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64)">
+        <member name="M:WebAPI.ConditionalAccess.module.CancelSeriesRecordAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.Int64)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.CancelSeriesRecordAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.Object)">
+        <member name="M:WebAPI.ConditionalAccess.module.CancelSeriesRecordAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.Int64,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.DeleteSeriesRecord(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64)">
+        <member name="M:WebAPI.ConditionalAccess.module.DeleteSeriesRecord(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.Int64)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.DeleteSeriesRecordAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64)">
+        <member name="M:WebAPI.ConditionalAccess.module.DeleteSeriesRecordAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.Int64)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.DeleteSeriesRecordAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.Object)">
+        <member name="M:WebAPI.ConditionalAccess.module.DeleteSeriesRecordAsync(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.Int64,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.ConditionalAccess.module.RecordRetry(System.String,System.String,System.Int64)">
@@ -11335,15 +11364,6 @@
         <member name="M:WebAPI.ConditionalAccess.module.CleanupRecordingsAsync(System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.GetLastSuccessfulRecordingsCleanup">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.ConditionalAccess.module.GetLastSuccessfulRecordingsCleanupAsync">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.ConditionalAccess.module.GetLastSuccessfulRecordingsCleanupAsync(System.Object)">
-            <remarks/>
-        </member>
         <member name="M:WebAPI.ConditionalAccess.module.HandleRecordingsLifetime">
             <remarks/>
         </member>
@@ -11351,15 +11371,6 @@
             <remarks/>
         </member>
         <member name="M:WebAPI.ConditionalAccess.module.HandleRecordingsLifetimeAsync(System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.ConditionalAccess.module.GetLastScheduleTaksSuccessfulRun(System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.ConditionalAccess.module.GetLastScheduleTaksSuccessfulRunAsync(System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.ConditionalAccess.module.GetLastScheduleTaksSuccessfulRunAsync(System.String,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.ConditionalAccess.module.HandleRecordingsScheduledTasks">
@@ -11371,22 +11382,22 @@
         <member name="M:WebAPI.ConditionalAccess.module.HandleRecordingsScheduledTasksAsync(System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.HandleExpiredRecording(WebAPI.ConditionalAccess.ExpiredRecordingScheduledTask)">
+        <member name="M:WebAPI.ConditionalAccess.module.HandleDomainQuotaByRecording(WebAPI.ConditionalAccess.HandleDomainQuataByRecordingTask)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.HandleExpiredRecordingAsync(WebAPI.ConditionalAccess.ExpiredRecordingScheduledTask)">
+        <member name="M:WebAPI.ConditionalAccess.module.HandleDomainQuotaByRecordingAsync(WebAPI.ConditionalAccess.HandleDomainQuataByRecordingTask)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.HandleExpiredRecordingAsync(WebAPI.ConditionalAccess.ExpiredRecordingScheduledTask,System.Object)">
+        <member name="M:WebAPI.ConditionalAccess.module.HandleDomainQuotaByRecordingAsync(WebAPI.ConditionalAccess.HandleDomainQuataByRecordingTask,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.HandleFirstFollowerRecording(System.String,System.String,System.Int64,System.String,System.String,System.Int32)">
+        <member name="M:WebAPI.ConditionalAccess.module.HandleFirstFollowerRecording(System.String,System.String,System.String,System.Int64,System.String,System.String,System.Int32)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.HandleFirstFollowerRecordingAsync(System.String,System.String,System.Int64,System.String,System.String,System.Int32)">
+        <member name="M:WebAPI.ConditionalAccess.module.HandleFirstFollowerRecordingAsync(System.String,System.String,System.String,System.Int64,System.String,System.String,System.Int32)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.HandleFirstFollowerRecordingAsync(System.String,System.String,System.Int64,System.String,System.String,System.Int32,System.Object)">
+        <member name="M:WebAPI.ConditionalAccess.module.HandleFirstFollowerRecordingAsync(System.String,System.String,System.String,System.Int64,System.String,System.String,System.Int32,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.ConditionalAccess.module.GetFollowSeries(System.String,System.String,System.String,System.Int64,WebAPI.ConditionalAccess.SeriesRecordingOrderObj)">
@@ -11414,6 +11425,24 @@
             <remarks/>
         </member>
         <member name="M:WebAPI.ConditionalAccess.module.DistributeRecordingAsync(System.String,System.String,System.Int64,System.Int64,System.DateTime,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.CompleteDomainSeriesRecordings(System.String,System.String,System.Int64)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.CompleteDomainSeriesRecordingsAsync(System.String,System.String,System.Int64)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.CompleteDomainSeriesRecordingsAsync(System.String,System.String,System.Int64,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GetRecordingLicensedLink(System.String,System.String,System.String,System.Int32,System.DateTime,System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GetRecordingLicensedLinkAsync(System.String,System.String,System.String,System.Int32,System.DateTime,System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GetRecordingLicensedLinkAsync(System.String,System.String,System.String,System.Int32,System.DateTime,System.String,System.String,System.String,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.ConditionalAccess.module.CancelAsync(System.Object)">
@@ -11776,19 +11805,13 @@
         <member name="E:WebAPI.ConditionalAccess.module.CleanupRecordingsCompleted">
             <remarks/>
         </member>
-        <member name="E:WebAPI.ConditionalAccess.module.GetLastSuccessfulRecordingsCleanupCompleted">
-            <remarks/>
-        </member>
         <member name="E:WebAPI.ConditionalAccess.module.HandleRecordingsLifetimeCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.ConditionalAccess.module.GetLastScheduleTaksSuccessfulRunCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.ConditionalAccess.module.HandleRecordingsScheduledTasksCompleted">
             <remarks/>
         </member>
-        <member name="E:WebAPI.ConditionalAccess.module.HandleExpiredRecordingCompleted">
+        <member name="E:WebAPI.ConditionalAccess.module.HandleDomainQuotaByRecordingCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.ConditionalAccess.module.HandleFirstFollowerRecordingCompleted">
@@ -11801,6 +11824,12 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.ConditionalAccess.module.DistributeRecordingCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.ConditionalAccess.module.CompleteDomainSeriesRecordingsCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.ConditionalAccess.module.GetRecordingLicensedLinkCompleted">
             <remarks/>
         </member>
         <member name="T:WebAPI.Domains.module">
@@ -20421,55 +20450,22 @@
         <member name="F:WebAPI.ConditionalAccess.OrderDir.NONE">
             <remarks/>
         </member>
-        <member name="T:WebAPI.ConditionalAccess.ExpiredRecordingScheduledTask">
+        <member name="T:WebAPI.ConditionalAccess.HandleDomainQuataByRecordingTask">
             <remarks/>
         </member>
-        <member name="P:WebAPI.ConditionalAccess.ExpiredRecordingScheduledTask.ScheduledExpirationDate">
+        <member name="P:WebAPI.ConditionalAccess.HandleDomainQuataByRecordingTask.ScheduledExpirationEpoch">
             <remarks/>
         </member>
-        <member name="P:WebAPI.ConditionalAccess.ExpiredRecordingScheduledTask.ScheduledExpirationEpoch">
+        <member name="P:WebAPI.ConditionalAccess.HandleDomainQuataByRecordingTask.Id">
             <remarks/>
         </member>
-        <member name="P:WebAPI.ConditionalAccess.ExpiredRecordingScheduledTask.Id">
+        <member name="P:WebAPI.ConditionalAccess.HandleDomainQuataByRecordingTask.RecordingId">
             <remarks/>
         </member>
-        <member name="P:WebAPI.ConditionalAccess.ExpiredRecordingScheduledTask.RecordingId">
+        <member name="P:WebAPI.ConditionalAccess.HandleDomainQuataByRecordingTask.GroupId">
             <remarks/>
         </member>
-        <member name="P:WebAPI.ConditionalAccess.ExpiredRecordingScheduledTask.GroupId">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.ScheduledTaskLastRunResponse">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.ScheduledTaskLastRunResponse.Status">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.ScheduledTaskLastRunResponse.LastSuccessfulRunDate">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.ScheduledTaskLastRunResponse.ImpactedItems">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.ScheduledTaskLastRunResponse.NextRunIntervalInSeconds">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.RecordingCleanupResponse">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.RecordingCleanupResponse.Status">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.RecordingCleanupResponse.LastSuccessfulCleanUpDate">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.RecordingCleanupResponse.DeletedRecordingOnLastCleanup">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.RecordingCleanupResponse.DomainRecordingsUpdatedOnLastCleanup">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.RecordingCleanupResponse.IntervalInMinutes">
+        <member name="P:WebAPI.ConditionalAccess.HandleDomainQuataByRecordingTask.OldRecordingDuration">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.DomainQuotaResponse">
@@ -22188,6 +22184,9 @@
         <member name="F:WebAPI.ConditionalAccess.eAction.Rebuild">
             <remarks/>
         </member>
+        <member name="F:WebAPI.ConditionalAccess.eAction.Rebase">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.ConditionalAccess.GetUserPermittedItemsCompletedEventHandler">
             <remarks/>
         </member>
@@ -23262,15 +23261,6 @@
         <member name="P:WebAPI.ConditionalAccess.CleanupRecordingsCompletedEventArgs.Result">
             <remarks/>
         </member>
-        <member name="T:WebAPI.ConditionalAccess.GetLastSuccessfulRecordingsCleanupCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.GetLastSuccessfulRecordingsCleanupCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.GetLastSuccessfulRecordingsCleanupCompletedEventArgs.Result">
-            <remarks/>
-        </member>
         <member name="T:WebAPI.ConditionalAccess.HandleRecordingsLifetimeCompletedEventHandler">
             <remarks/>
         </member>
@@ -23278,15 +23268,6 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.HandleRecordingsLifetimeCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.GetLastScheduleTaksSuccessfulRunCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.GetLastScheduleTaksSuccessfulRunCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.GetLastScheduleTaksSuccessfulRunCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.HandleRecordingsScheduledTasksCompletedEventHandler">
@@ -23298,13 +23279,13 @@
         <member name="P:WebAPI.ConditionalAccess.HandleRecordingsScheduledTasksCompletedEventArgs.Result">
             <remarks/>
         </member>
-        <member name="T:WebAPI.ConditionalAccess.HandleExpiredRecordingCompletedEventHandler">
+        <member name="T:WebAPI.ConditionalAccess.HandleDomainQuotaByRecordingCompletedEventHandler">
             <remarks/>
         </member>
-        <member name="T:WebAPI.ConditionalAccess.HandleExpiredRecordingCompletedEventArgs">
+        <member name="T:WebAPI.ConditionalAccess.HandleDomainQuotaByRecordingCompletedEventArgs">
             <remarks/>
         </member>
-        <member name="P:WebAPI.ConditionalAccess.HandleExpiredRecordingCompletedEventArgs.Result">
+        <member name="P:WebAPI.ConditionalAccess.HandleDomainQuotaByRecordingCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.HandleFirstFollowerRecordingCompletedEventHandler">
@@ -23341,6 +23322,24 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.DistributeRecordingCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.CompleteDomainSeriesRecordingsCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.CompleteDomainSeriesRecordingsCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.CompleteDomainSeriesRecordingsCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.GetRecordingLicensedLinkCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.GetRecordingLicensedLinkCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.GetRecordingLicensedLinkCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Domains.DomainStatusResponse">

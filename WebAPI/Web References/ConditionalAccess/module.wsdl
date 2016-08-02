@@ -3037,6 +3037,7 @@
             <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:long" />
             <s:element minOccurs="1" maxOccurs="1" name="recordingId" type="s:long" />
             <s:element minOccurs="1" maxOccurs="1" name="epgId" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="seasonNumber" type="s:long" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -3078,6 +3079,7 @@
             <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:long" />
             <s:element minOccurs="1" maxOccurs="1" name="recordingId" type="s:long" />
             <s:element minOccurs="1" maxOccurs="1" name="epgId" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="seasonNumber" type="s:long" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -3248,6 +3250,7 @@
           <s:enumeration value="Update" />
           <s:enumeration value="Delete" />
           <s:enumeration value="Rebuild" />
+          <s:enumeration value="Rebase" />
         </s:restriction>
       </s:simpleType>
       <s:element name="UpdateRecordingResponse">
@@ -3343,25 +3346,6 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="GetLastSuccessfulRecordingsCleanup">
-        <s:complexType />
-      </s:element>
-      <s:element name="GetLastSuccessfulRecordingsCleanupResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetLastSuccessfulRecordingsCleanupResult" type="tns:RecordingCleanupResponse" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:complexType name="RecordingCleanupResponse">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
-          <s:element minOccurs="1" maxOccurs="1" name="LastSuccessfulCleanUpDate" type="s:dateTime" />
-          <s:element minOccurs="1" maxOccurs="1" name="DeletedRecordingOnLastCleanup" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="DomainRecordingsUpdatedOnLastCleanup" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="IntervalInMinutes" type="s:int" />
-        </s:sequence>
-      </s:complexType>
       <s:element name="HandleRecordingsLifetime">
         <s:complexType />
       </s:element>
@@ -3372,28 +3356,6 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="GetLastScheduleTaksSuccessfulRun">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="scheduleTaskName" type="s:string" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="GetLastScheduleTaksSuccessfulRunResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetLastScheduleTaksSuccessfulRunResult" type="tns:ScheduledTaskLastRunResponse" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:complexType name="ScheduledTaskLastRunResponse">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
-          <s:element minOccurs="1" maxOccurs="1" name="LastSuccessfulRunDate" type="s:dateTime" />
-          <s:element minOccurs="1" maxOccurs="1" name="ImpactedItems" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="NextRunIntervalInSeconds" type="s:double" />
-        </s:sequence>
-      </s:complexType>
       <s:element name="HandleRecordingsScheduledTasks">
         <s:complexType />
       </s:element>
@@ -3404,26 +3366,26 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="HandleExpiredRecording">
+      <s:element name="HandleDomainQuotaByRecording">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="expiredRecording" type="tns:ExpiredRecordingScheduledTask" />
+            <s:element minOccurs="0" maxOccurs="1" name="expiredRecording" type="tns:HandleDomainQuataByRecordingTask" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:complexType name="ExpiredRecordingScheduledTask">
+      <s:complexType name="HandleDomainQuataByRecordingTask">
         <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="ScheduledExpirationDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="ScheduledExpirationEpoch" type="s:long" />
           <s:element minOccurs="1" maxOccurs="1" name="Id" type="s:long" />
           <s:element minOccurs="1" maxOccurs="1" name="RecordingId" type="s:long" />
           <s:element minOccurs="1" maxOccurs="1" name="GroupId" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="OldRecordingDuration" type="s:int" />
         </s:sequence>
       </s:complexType>
-      <s:element name="HandleExpiredRecordingResponse">
+      <s:element name="HandleDomainQuotaByRecordingResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="1" maxOccurs="1" name="HandleExpiredRecordingResult" type="s:boolean" />
+            <s:element minOccurs="1" maxOccurs="1" name="HandleDomainQuotaByRecordingResult" type="s:boolean" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -3432,10 +3394,11 @@
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:long" />
             <s:element minOccurs="0" maxOccurs="1" name="channelId" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="seriesId" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="seassonNumber" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="seasonNumber" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -3525,6 +3488,43 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="CompleteDomainSeriesRecordings">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CompleteDomainSeriesRecordingsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="CompleteDomainSeriesRecordingsResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetRecordingLicensedLink">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="recordingId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="startTime" type="s:dateTime" />
+            <s:element minOccurs="0" maxOccurs="1" name="udid" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userIp" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="fileType" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetRecordingLicensedLinkResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetRecordingLicensedLinkResult" type="tns:LicensedLinkResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="ArrayOfPermittedMediaContainer" nillable="true" type="tns:ArrayOfPermittedMediaContainer" />
       <s:element name="PermittedMediaContainerResponse" nillable="true" type="tns:PermittedMediaContainerResponse" />
       <s:element name="UserCAStatus" type="tns:UserCAStatus" />
@@ -3564,8 +3564,6 @@
       <s:element name="SeriesRecording" nillable="true" type="tns:SeriesRecording" />
       <s:element name="RecordingResponse" nillable="true" type="tns:RecordingResponse" />
       <s:element name="DomainQuotaResponse" nillable="true" type="tns:DomainQuotaResponse" />
-      <s:element name="RecordingCleanupResponse" nillable="true" type="tns:RecordingCleanupResponse" />
-      <s:element name="ScheduledTaskLastRunResponse" nillable="true" type="tns:ScheduledTaskLastRunResponse" />
     </s:schema>
     <s:schema elementFormDefault="qualified" targetNamespace="http://pricing.tvinci.com/">
       <s:complexType name="Price">
@@ -4561,23 +4559,11 @@
   <wsdl:message name="CleanupRecordingsSoapOut">
     <wsdl:part name="parameters" element="tns:CleanupRecordingsResponse" />
   </wsdl:message>
-  <wsdl:message name="GetLastSuccessfulRecordingsCleanupSoapIn">
-    <wsdl:part name="parameters" element="tns:GetLastSuccessfulRecordingsCleanup" />
-  </wsdl:message>
-  <wsdl:message name="GetLastSuccessfulRecordingsCleanupSoapOut">
-    <wsdl:part name="parameters" element="tns:GetLastSuccessfulRecordingsCleanupResponse" />
-  </wsdl:message>
   <wsdl:message name="HandleRecordingsLifetimeSoapIn">
     <wsdl:part name="parameters" element="tns:HandleRecordingsLifetime" />
   </wsdl:message>
   <wsdl:message name="HandleRecordingsLifetimeSoapOut">
     <wsdl:part name="parameters" element="tns:HandleRecordingsLifetimeResponse" />
-  </wsdl:message>
-  <wsdl:message name="GetLastScheduleTaksSuccessfulRunSoapIn">
-    <wsdl:part name="parameters" element="tns:GetLastScheduleTaksSuccessfulRun" />
-  </wsdl:message>
-  <wsdl:message name="GetLastScheduleTaksSuccessfulRunSoapOut">
-    <wsdl:part name="parameters" element="tns:GetLastScheduleTaksSuccessfulRunResponse" />
   </wsdl:message>
   <wsdl:message name="HandleRecordingsScheduledTasksSoapIn">
     <wsdl:part name="parameters" element="tns:HandleRecordingsScheduledTasks" />
@@ -4585,11 +4571,11 @@
   <wsdl:message name="HandleRecordingsScheduledTasksSoapOut">
     <wsdl:part name="parameters" element="tns:HandleRecordingsScheduledTasksResponse" />
   </wsdl:message>
-  <wsdl:message name="HandleExpiredRecordingSoapIn">
-    <wsdl:part name="parameters" element="tns:HandleExpiredRecording" />
+  <wsdl:message name="HandleDomainQuotaByRecordingSoapIn">
+    <wsdl:part name="parameters" element="tns:HandleDomainQuotaByRecording" />
   </wsdl:message>
-  <wsdl:message name="HandleExpiredRecordingSoapOut">
-    <wsdl:part name="parameters" element="tns:HandleExpiredRecordingResponse" />
+  <wsdl:message name="HandleDomainQuotaByRecordingSoapOut">
+    <wsdl:part name="parameters" element="tns:HandleDomainQuotaByRecordingResponse" />
   </wsdl:message>
   <wsdl:message name="HandleFirstFollowerRecordingSoapIn">
     <wsdl:part name="parameters" element="tns:HandleFirstFollowerRecording" />
@@ -4614,6 +4600,18 @@
   </wsdl:message>
   <wsdl:message name="DistributeRecordingSoapOut">
     <wsdl:part name="parameters" element="tns:DistributeRecordingResponse" />
+  </wsdl:message>
+  <wsdl:message name="CompleteDomainSeriesRecordingsSoapIn">
+    <wsdl:part name="parameters" element="tns:CompleteDomainSeriesRecordings" />
+  </wsdl:message>
+  <wsdl:message name="CompleteDomainSeriesRecordingsSoapOut">
+    <wsdl:part name="parameters" element="tns:CompleteDomainSeriesRecordingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingLicensedLinkSoapIn">
+    <wsdl:part name="parameters" element="tns:GetRecordingLicensedLink" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingLicensedLinkSoapOut">
+    <wsdl:part name="parameters" element="tns:GetRecordingLicensedLinkResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -5888,6 +5886,7 @@
     <wsdl:part name="domainId" type="s:string" />
     <wsdl:part name="recordingId" type="s:string" />
     <wsdl:part name="epgId" type="s:string" />
+    <wsdl:part name="seasonNumber" type="s:string" />
   </wsdl:message>
   <wsdl:message name="CancelSeriesRecordHttpPostOut">
     <wsdl:part name="Body" element="tns:SeriesRecording" />
@@ -5899,6 +5898,7 @@
     <wsdl:part name="domainId" type="s:string" />
     <wsdl:part name="recordingId" type="s:string" />
     <wsdl:part name="epgId" type="s:string" />
+    <wsdl:part name="seasonNumber" type="s:string" />
   </wsdl:message>
   <wsdl:message name="DeleteSeriesRecordHttpPostOut">
     <wsdl:part name="Body" element="tns:SeriesRecording" />
@@ -5987,19 +5987,9 @@
   <wsdl:message name="CleanupRecordingsHttpPostOut">
     <wsdl:part name="Body" element="tns:boolean" />
   </wsdl:message>
-  <wsdl:message name="GetLastSuccessfulRecordingsCleanupHttpPostIn" />
-  <wsdl:message name="GetLastSuccessfulRecordingsCleanupHttpPostOut">
-    <wsdl:part name="Body" element="tns:RecordingCleanupResponse" />
-  </wsdl:message>
   <wsdl:message name="HandleRecordingsLifetimeHttpPostIn" />
   <wsdl:message name="HandleRecordingsLifetimeHttpPostOut">
     <wsdl:part name="Body" element="tns:boolean" />
-  </wsdl:message>
-  <wsdl:message name="GetLastScheduleTaksSuccessfulRunHttpPostIn">
-    <wsdl:part name="scheduleTaskName" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetLastScheduleTaksSuccessfulRunHttpPostOut">
-    <wsdl:part name="Body" element="tns:ScheduledTaskLastRunResponse" />
   </wsdl:message>
   <wsdl:message name="HandleRecordingsScheduledTasksHttpPostIn" />
   <wsdl:message name="HandleRecordingsScheduledTasksHttpPostOut">
@@ -6008,10 +5998,11 @@
   <wsdl:message name="HandleFirstFollowerRecordingHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
     <wsdl:part name="domainId" type="s:string" />
     <wsdl:part name="channelId" type="s:string" />
     <wsdl:part name="seriesId" type="s:string" />
-    <wsdl:part name="seassonNumber" type="s:string" />
+    <wsdl:part name="seasonNumber" type="s:string" />
   </wsdl:message>
   <wsdl:message name="HandleFirstFollowerRecordingHttpPostOut">
     <wsdl:part name="Body" element="tns:boolean" />
@@ -6035,6 +6026,27 @@
   </wsdl:message>
   <wsdl:message name="DistributeRecordingHttpPostOut">
     <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="CompleteDomainSeriesRecordingsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CompleteDomainSeriesRecordingsHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingLicensedLinkHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+    <wsdl:part name="recordingId" type="s:string" />
+    <wsdl:part name="startTime" type="s:string" />
+    <wsdl:part name="udid" type="s:string" />
+    <wsdl:part name="userIp" type="s:string" />
+    <wsdl:part name="fileType" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingLicensedLinkHttpPostOut">
+    <wsdl:part name="Body" element="tns:LicensedLinkResponse" />
   </wsdl:message>
   <wsdl:portType name="moduleSoap">
     <wsdl:operation name="GetUserPermittedItems">
@@ -6513,25 +6525,17 @@
       <wsdl:input message="tns:CleanupRecordingsSoapIn" />
       <wsdl:output message="tns:CleanupRecordingsSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="GetLastSuccessfulRecordingsCleanup">
-      <wsdl:input message="tns:GetLastSuccessfulRecordingsCleanupSoapIn" />
-      <wsdl:output message="tns:GetLastSuccessfulRecordingsCleanupSoapOut" />
-    </wsdl:operation>
     <wsdl:operation name="HandleRecordingsLifetime">
       <wsdl:input message="tns:HandleRecordingsLifetimeSoapIn" />
       <wsdl:output message="tns:HandleRecordingsLifetimeSoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetLastScheduleTaksSuccessfulRun">
-      <wsdl:input message="tns:GetLastScheduleTaksSuccessfulRunSoapIn" />
-      <wsdl:output message="tns:GetLastScheduleTaksSuccessfulRunSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="HandleRecordingsScheduledTasks">
       <wsdl:input message="tns:HandleRecordingsScheduledTasksSoapIn" />
       <wsdl:output message="tns:HandleRecordingsScheduledTasksSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="HandleExpiredRecording">
-      <wsdl:input message="tns:HandleExpiredRecordingSoapIn" />
-      <wsdl:output message="tns:HandleExpiredRecordingSoapOut" />
+    <wsdl:operation name="HandleDomainQuotaByRecording">
+      <wsdl:input message="tns:HandleDomainQuotaByRecordingSoapIn" />
+      <wsdl:output message="tns:HandleDomainQuotaByRecordingSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="HandleFirstFollowerRecording">
       <wsdl:input message="tns:HandleFirstFollowerRecordingSoapIn" />
@@ -6548,6 +6552,14 @@
     <wsdl:operation name="DistributeRecording">
       <wsdl:input message="tns:DistributeRecordingSoapIn" />
       <wsdl:output message="tns:DistributeRecordingSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CompleteDomainSeriesRecordings">
+      <wsdl:input message="tns:CompleteDomainSeriesRecordingsSoapIn" />
+      <wsdl:output message="tns:CompleteDomainSeriesRecordingsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRecordingLicensedLink">
+      <wsdl:input message="tns:GetRecordingLicensedLinkSoapIn" />
+      <wsdl:output message="tns:GetRecordingLicensedLinkSoapOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="moduleHttpPost">
@@ -6987,17 +6999,9 @@
       <wsdl:input message="tns:CleanupRecordingsHttpPostIn" />
       <wsdl:output message="tns:CleanupRecordingsHttpPostOut" />
     </wsdl:operation>
-    <wsdl:operation name="GetLastSuccessfulRecordingsCleanup">
-      <wsdl:input message="tns:GetLastSuccessfulRecordingsCleanupHttpPostIn" />
-      <wsdl:output message="tns:GetLastSuccessfulRecordingsCleanupHttpPostOut" />
-    </wsdl:operation>
     <wsdl:operation name="HandleRecordingsLifetime">
       <wsdl:input message="tns:HandleRecordingsLifetimeHttpPostIn" />
       <wsdl:output message="tns:HandleRecordingsLifetimeHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetLastScheduleTaksSuccessfulRun">
-      <wsdl:input message="tns:GetLastScheduleTaksSuccessfulRunHttpPostIn" />
-      <wsdl:output message="tns:GetLastScheduleTaksSuccessfulRunHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="HandleRecordingsScheduledTasks">
       <wsdl:input message="tns:HandleRecordingsScheduledTasksHttpPostIn" />
@@ -7014,6 +7018,14 @@
     <wsdl:operation name="DistributeRecording">
       <wsdl:input message="tns:DistributeRecordingHttpPostIn" />
       <wsdl:output message="tns:DistributeRecordingHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CompleteDomainSeriesRecordings">
+      <wsdl:input message="tns:CompleteDomainSeriesRecordingsHttpPostIn" />
+      <wsdl:output message="tns:CompleteDomainSeriesRecordingsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRecordingLicensedLink">
+      <wsdl:input message="tns:GetRecordingLicensedLinkHttpPostIn" />
+      <wsdl:output message="tns:GetRecordingLicensedLinkHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="moduleSoap" type="tns:moduleSoap">
@@ -8089,26 +8101,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetLastSuccessfulRecordingsCleanup">
-      <soap:operation soapAction="http://ca.tvinci.com/GetLastSuccessfulRecordingsCleanup" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
     <wsdl:operation name="HandleRecordingsLifetime">
       <soap:operation soapAction="http://ca.tvinci.com/HandleRecordingsLifetime" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetLastScheduleTaksSuccessfulRun">
-      <soap:operation soapAction="http://ca.tvinci.com/GetLastScheduleTaksSuccessfulRun" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -8125,8 +8119,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="HandleExpiredRecording">
-      <soap:operation soapAction="http://ca.tvinci.com/HandleExpiredRecording" style="document" />
+    <wsdl:operation name="HandleDomainQuotaByRecording">
+      <soap:operation soapAction="http://ca.tvinci.com/HandleDomainQuotaByRecording" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -8163,6 +8157,24 @@
     </wsdl:operation>
     <wsdl:operation name="DistributeRecording">
       <soap:operation soapAction="http://ca.tvinci.com/DistributeRecording" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CompleteDomainSeriesRecordings">
+      <soap:operation soapAction="http://ca.tvinci.com/CompleteDomainSeriesRecordings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRecordingLicensedLink">
+      <soap:operation soapAction="http://ca.tvinci.com/GetRecordingLicensedLink" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -9244,26 +9256,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetLastSuccessfulRecordingsCleanup">
-      <soap12:operation soapAction="http://ca.tvinci.com/GetLastSuccessfulRecordingsCleanup" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
     <wsdl:operation name="HandleRecordingsLifetime">
       <soap12:operation soapAction="http://ca.tvinci.com/HandleRecordingsLifetime" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetLastScheduleTaksSuccessfulRun">
-      <soap12:operation soapAction="http://ca.tvinci.com/GetLastScheduleTaksSuccessfulRun" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -9280,8 +9274,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="HandleExpiredRecording">
-      <soap12:operation soapAction="http://ca.tvinci.com/HandleExpiredRecording" style="document" />
+    <wsdl:operation name="HandleDomainQuotaByRecording">
+      <soap12:operation soapAction="http://ca.tvinci.com/HandleDomainQuotaByRecording" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -9318,6 +9312,24 @@
     </wsdl:operation>
     <wsdl:operation name="DistributeRecording">
       <soap12:operation soapAction="http://ca.tvinci.com/DistributeRecording" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CompleteDomainSeriesRecordings">
+      <soap12:operation soapAction="http://ca.tvinci.com/CompleteDomainSeriesRecordings" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRecordingLicensedLink">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetRecordingLicensedLink" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -10309,26 +10321,8 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetLastSuccessfulRecordingsCleanup">
-      <http:operation location="/GetLastSuccessfulRecordingsCleanup" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
     <wsdl:operation name="HandleRecordingsLifetime">
       <http:operation location="/HandleRecordingsLifetime" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetLastScheduleTaksSuccessfulRun">
-      <http:operation location="/GetLastScheduleTaksSuccessfulRun" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -10365,6 +10359,24 @@
     </wsdl:operation>
     <wsdl:operation name="DistributeRecording">
       <http:operation location="/DistributeRecording" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CompleteDomainSeriesRecordings">
+      <http:operation location="/CompleteDomainSeriesRecordings" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRecordingLicensedLink">
+      <http:operation location="/GetRecordingLicensedLink" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
