@@ -71,14 +71,5 @@ namespace ElasticSearchHandler
             get;
             set;
         }
-
-        [JsonProperty("date")]
-        [JsonConverter(typeof(BaseTimeConverter))]
-        public DateTime? Date
-        {
-            get;
-            set;
-        }
-        
     }
 }
