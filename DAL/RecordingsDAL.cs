@@ -880,12 +880,12 @@ namespace DAL
                     int updatedQuota;
                     Couchbase.IO.ResponseStatus status;
                     currentQuota = cbClient.GetWithVersion<int>(domainQuotaKey, out version, out status);
-                    if (status != Couchbase.IO.ResponseStatus.Success)
+                    if (status == Couchbase.IO.ResponseStatus.Success)
                     {
                         updatedQuota = currentQuota - quotaToDecrease;
                         result = cbClient.SetWithVersion<int>(domainQuotaKey, updatedQuota, version);
                     }
-                    else if (status != Couchbase.IO.ResponseStatus.KeyNotFound)
+                    else if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
                     {
                         updatedQuota = domainQuota - quotaToDecrease;
                         result = cbClient.SetWithVersion<int>(domainQuotaKey, updatedQuota, 0);
