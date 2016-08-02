@@ -1645,7 +1645,7 @@ namespace WebAPI.Clients
             return recording;
         }
 
-        internal KalturaSeriesRecording CancelSeriesRecord(int groupId, string userId, long domainId, long id, long epgId)
+        internal KalturaSeriesRecording CancelSeriesRecord(int groupId, string userId, long domainId, long id, long epgId = 0, long seasonNumber = 0)
         {
             KalturaSeriesRecording seriesRecording = null;
             SeriesRecording response = null;
@@ -1658,7 +1658,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = ConditionalAccess.CancelSeriesRecord(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, domainId, id, epgId);
+                    response = ConditionalAccess.CancelSeriesRecord(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, domainId, id, epgId, seasonNumber);
                 }
             }
             catch (Exception ex)
@@ -1685,7 +1685,7 @@ namespace WebAPI.Clients
             return seriesRecording;
         }
 
-        internal KalturaSeriesRecording DeleteSeriesRecord(int groupId, string userId, long domainId, long id, long epgId = 0)
+        internal KalturaSeriesRecording DeleteSeriesRecord(int groupId, string userId, long domainId, long id, long epgId = 0, long seasonNumber = 0)
         {
             KalturaSeriesRecording seriesRecording = null;
             SeriesRecording response = null;
@@ -1698,7 +1698,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = ConditionalAccess.DeleteSeriesRecord(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, domainId, id, epgId);
+                    response = ConditionalAccess.DeleteSeriesRecord(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, domainId, id, epgId, seasonNumber);
                 }
             }
             catch (Exception ex)
