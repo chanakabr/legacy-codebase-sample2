@@ -554,18 +554,19 @@ namespace DAL
             return rowsFound > 0;
         }
 
-        public static bool IsFollowingSeries(int groupId, long domainID, string seriesId, int seasonNumber)
+        public static long GetDomainSeriesId(int groupId, long domainID, string seriesId, int seasonNumber)
         {
-            ODBCWrapper.StoredProcedure spIsFollowingSeries = new ODBCWrapper.StoredProcedure("IsFollowingSeries");            
+            long domainSeriesId = 0;
+            ODBCWrapper.StoredProcedure spIsFollowingSeries = new ODBCWrapper.StoredProcedure("GetDomainSeriesId");            
             spIsFollowingSeries.SetConnectionKey(RECORDING_CONNECTION);
             spIsFollowingSeries.AddParameter("@GroupID", groupId);            
             spIsFollowingSeries.AddParameter("@DomainId", domainID);
             spIsFollowingSeries.AddParameter("@SeriesId", seriesId);
             spIsFollowingSeries.AddParameter("@SeasonNumber", seasonNumber);
 
-            int rowsFound = spIsFollowingSeries.ExecuteReturnValue<int>();
+            domainSeriesId = spIsFollowingSeries.ExecuteReturnValue<int>();
 
-            return rowsFound == 1;
+            return domainSeriesId;
         }
 
         public static bool UpdateRecordingsExternalId(int groupId, string externalRecordingId, string crid)

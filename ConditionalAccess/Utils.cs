@@ -33,8 +33,7 @@ namespace ConditionalAccess
         private const string EPISODE_NUMBER = "episodeNumber";
         private const string SERIES_ALIAS = "series_id";
         private const string SEASON_ALIAS = "season_number";
-        private const string EPISODE_ALIAS = "episode_number";
-        public const string ROUTING_KEY_SERIES_RECORDING_TASK = "PROCESS_SERIES_RECORDING_TASK\\{0}";
+        private const string EPISODE_ALIAS = "episode_number";        
 
         internal const double DEFAULT_MIN_PRICE_FOR_PREVIEW_MODULE = 0.2;
         public const int DEFAULT_MPP_RENEW_FAIL_COUNT = 10; // to be group specific override this value in the 
@@ -5341,7 +5340,8 @@ namespace ConditionalAccess
             return recording;
         }
 
-        internal static SeriesRecording FollowSeasonOrSeries(int groupId, string userId, long domainID, long epgId, RecordingType recordingType, ref bool isSeriesFollowed)
+        internal static SeriesRecording FollowSeasonOrSeries(int groupId, string userId, long domainID, long epgId, RecordingType recordingType, ref bool isSeriesFollowed,
+                                                            ref List<long> futureSeriesRecordingIds, ref ApiObjects.QueueObjects.SeriesRecordingTaskData SeriesRecordingTask)
         {
             SeriesRecording seriesRecording = new SeriesRecording();
             List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(groupId, new List<long>() { epgId });
@@ -5385,17 +5385,26 @@ namespace ConditionalAccess
                 seriesRecording = BuildSeriesRecordingDetails(dt.Rows[0]);
             }
 
+            // check if the user has future single episodes of the series/season and return them so we will cancel them and they will be recorded as part of series/season
+            DomainSeriesRecording domainSeriesRecording = new DomainSeriesRecording() { EpgChannelId = channelId, EpgId = epgId, SeasonNumber = seasonNumber, SeriesId = seriesId, UserId = userId };
+            List<WS_Catalog.ExtendedSearchResult> futureRecordingsOfSeasonOrSeries = Utils.SearchSeriesRecordings(groupId, new List<string>(), new List<DomainSeriesRecording>()
+                                                                                                            { domainSeriesRecording }, SearchSeriesRecordingsTimeOptions.future);
+            if (futureRecordingsOfSeasonOrSeries != null)
+            {                
+                foreach (WS_Catalog.ExtendedSearchResult futureRecordingSearchResult in futureRecordingsOfSeasonOrSeries)
+                {
+                    long recordingId;
+                    if (long.TryParse(futureRecordingSearchResult.AssetId, out recordingId))
+                    {
+                        futureSeriesRecordingIds.Add(recordingId);
+                    }
+                }
+            }
+
             // if first user
             if (!isSeriesFollowed)
             {
-                if (!RecordingsDAL.InsertFirstFollowerLock(groupId, seriesId, seasonNumber, epg.EPG_CHANNEL_ID, true))
-                {
-                    log.ErrorFormat("Failed InsertFirstFollowerLock, groupId: {0}, seriesId: {1}, seasonNumber: {2}, channelId: {3}", groupId, seriesId, seasonNumber, epg.EPG_CHANNEL_ID);
-                }
-
-                QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
-                ApiObjects.QueueObjects.SeriesRecordingTaskData data = new ApiObjects.QueueObjects.SeriesRecordingTaskData(groupId, userId, domainID, epg.EPG_CHANNEL_ID, seriesId, seasonNumber, eSeriesRecordingTask.FirstFollower);
-                queue.Enqueue(data, string.Format(ROUTING_KEY_SERIES_RECORDING_TASK, groupId));
+                SeriesRecordingTask = new ApiObjects.QueueObjects.SeriesRecordingTaskData(groupId, userId, domainID, epg.EPG_CHANNEL_ID, seriesId, seasonNumber, eSeriesRecordingTask.FirstFollower);                
             }
 
             return seriesRecording;
@@ -5477,7 +5486,7 @@ namespace ConditionalAccess
             return true;
         }
 
-        internal static List<ExtendedSearchResult> SearchPastSeriesRecordings(int groupID, List<string> excludedCrids, List<DomainSeriesRecording> series)
+        internal static List<ExtendedSearchResult> SearchSeriesRecordings(int groupID, List<string> excludedCrids, List<DomainSeriesRecording> series, SearchSeriesRecordingsTimeOptions SearchSeriesRecordingsTimeOption)
         {
             WS_Catalog.IserviceClient client = null;
             List<ExtendedSearchResult> recordings = null;
@@ -5502,7 +5511,18 @@ namespace ConditionalAccess
                 ksql.AppendFormat("(and {0} = '{1}' epg_channel_id = '{2}' {3})", seriesId, serie.SeriesId, serie.EpgChannelId, season);
             }
 
-            ksql.AppendFormat(") start_date < '0')");
+            switch (SearchSeriesRecordingsTimeOption)
+            {
+                case SearchSeriesRecordingsTimeOptions.past:
+                    ksql.AppendFormat(") start_date < '0')");
+                    break;
+                case SearchSeriesRecordingsTimeOptions.future:
+                    ksql.AppendFormat(") start_date > '0')");
+                    break;
+                case SearchSeriesRecordingsTimeOptions.all:                    
+                default:
+                    break;
+            }            
 
 
             // get program ids
@@ -5920,6 +5940,12 @@ namespace ConditionalAccess
             }
 
             return false;
+        }        
+
+        internal static bool IsFollowingSeries(int groupId, long domainID, string seriesId, int seasonNumber)
+        {
+            long domainSeriesId = RecordingsDAL.GetDomainSeriesId(groupId, domainID, seriesId, seasonNumber);
+            return domainSeriesId > 0;
         }
     }
 }

@@ -719,4 +719,11 @@ namespace ApiObjects
         recordingsScheduledTasks = 1,
         recordingsCleanup = 2
     }
+
+    public enum SearchSeriesRecordingsTimeOptions
+    {
+        past = 0,
+        future = 1,
+        all = 2
+    }
 }

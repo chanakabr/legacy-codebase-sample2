@@ -12,9 +12,9 @@ namespace ApiObjects.QueueObjects
 
         private string UserId;
         private long DomainId;
-        private string ChannelId;
-        private string SeriesId;
-        private int SeasonNumber;
+        public string ChannelId { get; set; }
+        public string SeriesId { get; set; }
+        public int SeasonNumber { get; set; }
         private eSeriesRecordingTask SeriesRecordingTaskType;
 
         public SeriesRecordingTaskData(int groupId, string userId, long domainId, string channelId, string seriesId, int seasonNumber, eSeriesRecordingTask seriesRecordingTaskType) :
