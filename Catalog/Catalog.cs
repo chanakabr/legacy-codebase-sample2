@@ -2514,7 +2514,7 @@ namespace Catalog
                 if (group != null)
                 {
                     ApiObjects.CeleryIndexingData data = new CeleryIndexingData(group.m_nParentGroupID,
-                        ids, updatedObjectType, action, DateTime.Now);
+                        ids, updatedObjectType, action, DateTime.UtcNow);
 
                     var queue = new CatalogQueue();
 
@@ -2542,13 +2542,12 @@ namespace Catalog
                 CatalogCache catalogCache = CatalogCache.Instance();
                 int parentGroupID = catalogCache.GetParentGroup(groupId);
 
-
                 Group group = groupManager.GetGroup(parentGroupID);
 
                 if (group != null)
                 {
                     ApiObjects.CeleryIndexingData data = new CeleryIndexingData(group.m_nParentGroupID,
-                        ids, objectType, action, DateTime.Now);
+                        ids, objectType, action, DateTime.UtcNow);
 
                     var queue = new CatalogQueue();
 

@@ -37,6 +37,7 @@ namespace GroupsCacheManager
 
             GetGroupEpgTagsAndMetas(ref newGroup);
             SetGroupMetas(ref newGroup);
+
             if (newGroup != null)
             {
                 GetGroupsTagsTypes(ref newGroup);
@@ -50,10 +51,10 @@ namespace GroupsCacheManager
                 newGroup.GetMediaTypes();
 
                 SetMediaFileTypes(newGroup);
-            }
 
-            //get all PermittedWatchRules by groupID
-            SetPermittedWatchRules(ref newGroup);
+                //get all PermittedWatchRules by groupID
+                SetPermittedWatchRules(ref newGroup);
+            }
 
             return newGroup;
         }
@@ -737,6 +738,11 @@ namespace GroupsCacheManager
             }
             else
             {
+                if (group != null)
+                {
+                    log.ErrorFormat("Didn't get any metas from GetMappedMetasByGroupId for group {0}", group.m_nParentGroupID);
+                }
+
                 group = null;
             }
         }
