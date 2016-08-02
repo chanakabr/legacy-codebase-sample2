@@ -1,6 +1,7 @@
 ﻿using ApiObjects.SearchObjects;
 using ElasticSearch.Common;
 using ElasticSearch.Searcher;
+using ElasticSearchHandler.Updaters;
 using GroupsCacheManager;
 using KLogMonitor;
 using System;
@@ -17,10 +18,12 @@ namespace ElasticSearchHandler
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string MEDIA = "media";
 
+        private MediaUpdaterV2 updater = null;
+
         public MediaRebaser(int groupId)
             : base(groupId)
         {
-
+            updater = new MediaUpdaterV2(groupId);
         }
 
         public override bool Rebase()
@@ -41,6 +44,7 @@ namespace ElasticSearchHandler
             {
                 maxResults = 100000;
             }
+            var minimumTimeSpan = new TimeSpan(0, 0, 1);
 
             GroupManager groupManager = new GroupManager();
             groupManager.RemoveGroup(groupId);
@@ -58,8 +62,10 @@ namespace ElasticSearchHandler
             string indexName = ElasticSearchTaskUtils.GetMediaGroupAliasStr(groupId);
 
             // Get ALL media in group
-            Dictionary<int, Dictionary<int, Media>> groupMediasDictionary = ElasticsearchTasksCommon.Utils.GetGroupMediasTotal(groupId, 0);
+            //Dictionary<int, Dictionary<int, Media>> groupMediasDictionary = ElasticsearchTasksCommon.Utils.GetGroupMediasTotal(groupId, 0);
+            var groupMediasDictionary = ElasticsearchTasksCommon.Utils.GetRebaseMediaInformation(groupId);
 
+            // Order all media by their ID
             var groupMedias = groupMediasDictionary.OrderBy(asset => asset.Key).ToList();
 
             if (groupMedias != null)
@@ -87,8 +93,6 @@ namespace ElasticSearchHandler
                         lastIndex = firstIndex + sizeOfBulk;
                     }
 
-                    int firstMediaId = groupMedias[firstIndex].Key;
-
                     HashSet<int> allIdsFromDB = new HashSet<int>();
 
                     // Create a list with all the IDs that were found in Database
@@ -99,9 +103,9 @@ namespace ElasticSearchHandler
                         allIdsFromDB.Add(currentId);
                     }
 
-                    int lastMediaId = groupMedias[lastIndex].Key;
-
                     List<ESBulkRequestObj<int>> bulkRequests = new List<ESBulkRequestObj<int>>();
+                    HashSet<int> assetsToDelete = new HashSet<int>();
+                    HashSet<int> assetsToUpdate = new HashSet<int>();
 
                     // For each language
                     foreach (var language in languages)
@@ -114,31 +118,44 @@ namespace ElasticSearchHandler
                             Key = "media_id"
                         };
 
+                        int firstMediaId = groupMedias[firstIndex].Key;
+                        int lastMediaId = groupMedias[lastIndex].Key;
+
                         range.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, firstMediaId.ToString()));
                         range.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, lastMediaId.ToString()));
 
+                        // TODO: only specific fields: ID + Update Date + Is Active
                         ESQuery query = new ESQuery(range)
                         {
-                            Size = maxResults
+                            Size = maxResults,
+                            Fields = new List<string>()
+                            {
+                                "media_id",
+                                "update_date",
+                                "is_active"
+                            }
                         };
 
                         string queryString = query.ToString();
                         string documentType = ElasticSearchTaskUtils.GetTanslationType(MEDIA, group.GetLanguage(languageId));
 
-                        // Perform search: id > first_id AND id < last_id                            
+                        // Perform search: id ≥ first_id AND id ≤ last_id
                         string searchResultString = api.Search(indexName, documentType, ref queryString);
 
                         // Parse results to workable list
                         int totalItems = 0;
-                        var searchResults = Catalog.ElasticsearchWrapper.DecodeAssetSearchJsonObject(searchResultString, ref totalItems, null, "_source");
+                        List<string> extraField = new List<string>() { "is_active" };
 
-                        List<int> assetsToDelete = new List<int>();
-                        List<int> assetsToUpdate = new List<int>();
+                        List<ElasticSearchApi.ESAssetDocument> searchResults =
+                            Catalog.ElasticsearchWrapper.DecodeAssetSearchJsonObject(searchResultString, ref totalItems, extraField);
 
                         foreach (var currentAsset in searchResults)
                         {
                             int assetId = currentAsset.asset_id;
                             DateTime updateDateES = currentAsset.update_date;
+                            string isESActiveString;
+                            currentAsset.extraReturnFields.TryGetValue("is_active", out isESActiveString);
+                            bool isESActive = isESActiveString == "1";
 
                             // If it is not contained in list of IDs from DB - 
                             // this means this media is deleted and should be deleted from ES as well
@@ -152,15 +169,15 @@ namespace ElasticSearchHandler
                                 // assets that will eventually remain in this list are assets that exist in DB and not in ES
                                 allIdsFromDB.Remove(assetId);
 
-                                if (groupMediasDictionary.ContainsKey(assetId) &&
-                                    groupMediasDictionary[assetId].ContainsKey(languageId))
+                                if (groupMediasDictionary.ContainsKey(assetId))
                                 {
-                                    string updateDateDBString = groupMediasDictionary[assetId][languageId].m_sUpdateDate;
-
-                                    DateTime updateDateDB = DateTime.ParseExact(updateDateDBString, "yyyyMMddHHmmss", null);
+                                    DateTime updateDateDB = groupMediasDictionary[assetId].Value;
+                                    bool isDBActive = groupMediasDictionary[assetId].Key;
 
                                     // Compare the dates - if the DB was updated after the ES was updated, this means we need to update ES
-                                    if (updateDateDB > updateDateES)
+                                    if ((updateDateDB.Subtract(updateDateES) > minimumTimeSpan) ||
+                                        // or is the is_active is different between them
+                                        (isESActive != isDBActive))
                                     {
                                         assetsToUpdate.Add(assetId);
                                     }
@@ -183,57 +200,26 @@ namespace ElasticSearchHandler
                             bulkRequests.Add(currentRequest);
                         }
 
-                        // create a request for each updated asset
-                        foreach (var assetId in assetsToUpdate)
-                        {
-                            if (groupMediasDictionary.ContainsKey(assetId) &&
-                                groupMediasDictionary[assetId].ContainsKey(languageId))
-                            {
-                                var media = groupMediasDictionary[assetId][languageId];
-                                string serializedMedia = serializer.SerializeMediaObject(media);
-
-                                ESBulkRequestObj<int> currentRequest = new ESBulkRequestObj<int>()
-                                {
-                                    docID = assetId,
-                                    document = serializedMedia,
-                                    index = indexName,
-                                    Operation = eOperation.update,
-                                    type = documentType
-                                };
-
-                                bulkRequests.Add(currentRequest);
-                            }
-                        }
-
                         // create a request for each new asset
                         // assets that were left in this list are assets that exist in DB and not in ES
                         foreach (var assetId in allIdsFromDB)
                         {
-                            if (groupMediasDictionary.ContainsKey(assetId) &&
-                                groupMediasDictionary[assetId].ContainsKey(languageId))
-                            {
-                                var media = groupMediasDictionary[assetId][languageId];
-                                string serializedMedia = serializer.SerializeMediaObject(media);
-
-                                ESBulkRequestObj<int> currentRequest = new ESBulkRequestObj<int>()
-                                {
-                                    docID = assetId,
-                                    document = serializedMedia,
-                                    index = indexName,
-                                    Operation = eOperation.index,
-                                    type = documentType
-                                };
-
-                                bulkRequests.Add(currentRequest);
-                            }
+                            assetsToUpdate.Add(assetId);
                         }
-
                     }
 
                     // Perform bulk requests if there are any
                     if (bulkRequests.Count > 0)
                     {
                         var bulkResults = api.CreateBulkRequest<int>(bulkRequests);
+                    }
+
+                    // Call media updater for the media that needs an update
+                    if (assetsToUpdate.Count > 0)
+                    {
+                        updater.Action = ApiObjects.eAction.Update;
+                        updater.IDs = assetsToUpdate.ToList();
+                        updater.Start();
                     }
 
                     // move on to the new index

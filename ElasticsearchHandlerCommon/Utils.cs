@@ -1206,5 +1206,32 @@ namespace ElasticsearchTasksCommon
             return dMediaTrans;
         }
 
+        public static Dictionary<int, KeyValuePair<bool, DateTime>> GetRebaseMediaInformation(int groupId)
+        {
+            Dictionary<int, KeyValuePair<bool, DateTime>> result = new Dictionary<int, KeyValuePair<bool, DateTime>>();
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_GroupMedias_Rebase");
+            storedProcedure.AddParameter("@GroupID", groupId);
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0)
+            {
+                var table = dataSet.Tables[0];
+                
+                foreach (DataRow row in table.Rows)
+                {
+                    int id = ODBCWrapper.Utils.ExtractInteger(row, "ID");
+                    bool isActive = ODBCWrapper.Utils.ExtractBoolean(row, "IS_ACTIVE");
+                    DateTime updateDate = ODBCWrapper.Utils.ExtractDateTime(row, "UPDATE_DATE");
+
+                    result.Add(id,
+                        new KeyValuePair<bool, DateTime>(isActive, updateDate));
+                }
+            }
+
+            return result;
+        }
     }
 }
