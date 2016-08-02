@@ -144,7 +144,7 @@ namespace ODBCWrapper
                     command.Connection = con;
 
                     SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = m_bIsWritable.ToString() })
                     {
                         m_myReader = command.ExecuteReader();
                     }
@@ -165,10 +165,10 @@ namespace ODBCWrapper
             {
                 p.AddParameter(((Parameter)sOraStr).m_sParName,
                     ((Parameter)sOraStr).m_sType,
-                    ((Parameter)sOraStr).m_sParVal);                
+                    ((Parameter)sOraStr).m_sParVal);
             }
             else
-                p.m_sOraStr.Append(" ").Append(sOraStr);            
+                p.m_sOraStr.Append(" ").Append(sOraStr);
 
             return p;
         }

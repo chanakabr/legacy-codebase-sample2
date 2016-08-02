@@ -15,7 +15,7 @@ namespace ODBCWrapper
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static List<string> db_Slaves = (!string.IsNullOrEmpty(TCMClient.Settings.Instance.GetValue<string>("DB_Slaves_IPs"))) ? TCMClient.Settings.Instance.GetValue<string>("DB_Slaves_List").Split(':').ToList<string>() : null;
-        
+        public static bool m_bIsWritable;
 
         public Connection()
         {
@@ -36,6 +36,8 @@ namespace ODBCWrapper
         {
             string sRet = "";
             string applicationIntent = (bIsWritable) ? "ReadWrite" : "ReadOnly";
+            m_bIsWritable = bIsWritable;
+
 
             if (Utils.GetTcmConfigValue(sKey) != string.Empty)
             {
@@ -59,7 +61,7 @@ namespace ODBCWrapper
                 if (!sRet.EndsWith(";")) sRet += ";";
                 if (!sRet.ToLower().Contains("multisubnetfailover")) sRet += "MultiSubNetFailover=Yes;";
                 if (!sRet.ToLower().Contains("applicationintent")) sRet += "ApplicationIntent=" + applicationIntent + ";";
-                
+
                 // route ReadOnly to slaves
                 if (db_Slaves != null && db_Slaves.Count > 0 && !bIsWritable)
                 {
@@ -87,7 +89,7 @@ namespace ODBCWrapper
                                     command.Connection = con;
 
                                     SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
+                                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = bIsWritable.ToString() })
                                     {
                                         int res = command.ExecuteNonQuery();
                                     }
@@ -324,7 +326,7 @@ namespace ODBCWrapper
                         command.Connection = con;
 
                         SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                        using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
+                        using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = m_bIsWritable.ToString() })
                         {
                             int res = command.ExecuteNonQuery();
                         }
