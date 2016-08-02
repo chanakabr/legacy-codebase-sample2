@@ -130,36 +130,7 @@ namespace WebAPI.Controllers
             }
             return response;
         }
-
-        /// <summary>        
-        /// Delete EPG recording that was recorded as part of series
-        /// </summary>
-        /// <param name="id">Series Recording identifier</param>
-        /// <param name="epgId">epg program identifier</param>
-        /// <returns></returns>
-        /// <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-        /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048, EpgIdNotPartOfSeries = 3049 </remarks>
-        [Route("deleteByEpgId"), HttpPost]
-        [ApiAuthorize]
-        [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public KalturaSeriesRecording DeleteByEpgId(long id, long epgId)
-        {
-            KalturaSeriesRecording response = null;
-            try
-            {
-                int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;
-                long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
-                // call client                
-                response = ClientsManager.ConditionalAccessClient().DeleteSeriesRecord(groupId, userId, domainId, id, epgId);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-            return response;
-        }
-
+              
         /// <summary>        
         /// Delete Season recording epgs that was recorded as part of series
         /// </summary>
@@ -171,7 +142,7 @@ namespace WebAPI.Controllers
         [Route("deleteBySeasonNumber"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public KalturaSeriesRecording DeleteBySeasonNumber(long id, long seasonNumber)
+        public KalturaSeriesRecording DeleteBySeasonNumber(long id, int seasonNumber)
         {
             KalturaSeriesRecording response = null;
             try
