@@ -44,7 +44,10 @@ namespace ElasticSearchHandler
             {
                 maxResults = 100000;
             }
-            var minimumTimeSpan = new TimeSpan(0, 0, 1);
+
+            // Minimum time span to consider that there was a real change 
+            // (because ES update date has no milliseconds)
+            var minimumTimeSpan = new TimeSpan(0, 0, 2);
 
             GroupManager groupManager = new GroupManager();
             groupManager.RemoveGroup(groupId);
