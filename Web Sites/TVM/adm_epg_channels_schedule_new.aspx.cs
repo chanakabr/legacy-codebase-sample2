@@ -361,10 +361,16 @@ public partial class adm_epg_channels_schedule_new : System.Web.UI.Page
         dr_LIVE_TRICK_PLAY.SetValue(epg.EnableTrickPlay.ToString());
         theRecord.AddRecord(dr_LIVE_TRICK_PLAY);
 
+        bool isTstvSettings = false;
+        System.Data.DataRow dr = DAL.ApiDAL.GetTimeShiftedTvPartnerSettings(nParentGroupID);
+        if (dr != null)
+        {
+            isTstvSettings = true;
+        }
 
         //Recordings (EPG) Data model
         DataRecordLongTextField dr_CRID = new DataRecordLongTextField("ltr", true, 60, 10);
-        dr_CRID.Initialize("CRID", "adm_table_header_nbg", "FormInput", "CRID", epg.Crid ,true);        
+        dr_CRID.Initialize("CRID", "adm_table_header_nbg", "FormInput", "CRID", epg.Crid, isTstvSettings);        
         theRecord.AddRecord(dr_CRID);       
 
         AddMetasFields(ref theRecord, epg);
