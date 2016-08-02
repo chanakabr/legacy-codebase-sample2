@@ -18,8 +18,6 @@ namespace ElasticSearchHandler
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string MEDIA = "media";
 
-        private MediaUpdaterV2 updater = null;
-
         public MediaRebaser(int groupId)
             : base(groupId)
         {
@@ -29,25 +27,6 @@ namespace ElasticSearchHandler
         public override bool Rebase()
         {
             bool result = false;
-
-            int sizeOfBulk = TVinciShared.WS_Utils.GetTcmIntValue("ES_BULK_SIZE");
-            int maxResults = TVinciShared.WS_Utils.GetTcmIntValue("MAX_RESULTS");
-
-            // Default for size of bulk should be 50, if not stated otherwise in TCM
-            if (sizeOfBulk == 0)
-            {
-                sizeOfBulk = 50;
-            }
-
-            // Default size of max results should be 100,000
-            if (maxResults == 0)
-            {
-                maxResults = 100000;
-            }
-
-            // Minimum time span to consider that there was a real change 
-            // (because ES update date has no milliseconds)
-            var minimumTimeSpan = new TimeSpan(0, 0, 2);
 
             GroupManager groupManager = new GroupManager();
             groupManager.RemoveGroup(groupId);
@@ -115,42 +94,12 @@ namespace ElasticSearchHandler
                     {
                         int languageId = language.ID;
 
-                        // Create a search range from the first ID to the last ID
-                        ESRange range = new ESRange(true)
-                        {
-                            Key = "media_id"
-                        };
-
                         int firstMediaId = groupMedias[firstIndex].Key;
                         int lastMediaId = groupMedias[lastIndex].Key;
-
-                        range.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, firstMediaId.ToString()));
-                        range.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, lastMediaId.ToString()));
-
-                        // TODO: only specific fields: ID + Update Date + Is Active
-                        ESQuery query = new ESQuery(range)
-                        {
-                            Size = maxResults,
-                            Fields = new List<string>()
-                            {
-                                "media_id",
-                                "update_date",
-                                "is_active"
-                            }
-                        };
-
-                        string queryString = query.ToString();
                         string documentType = ElasticSearchTaskUtils.GetTanslationType(MEDIA, group.GetLanguage(languageId));
 
-                        // Perform search: id ≥ first_id AND id ≤ last_id
-                        string searchResultString = api.Search(indexName, documentType, ref queryString);
-
-                        // Parse results to workable list
-                        int totalItems = 0;
-                        List<string> extraField = new List<string>() { "is_active" };
-
                         List<ElasticSearchApi.ESAssetDocument> searchResults =
-                            Catalog.ElasticsearchWrapper.DecodeAssetSearchJsonObject(searchResultString, ref totalItems, extraField);
+                            GetRangedDocuments(indexName, firstMediaId.ToString(), lastMediaId.ToString(), "media_id", documentType);
 
                         foreach (var currentAsset in searchResults)
                         {
@@ -211,19 +160,7 @@ namespace ElasticSearchHandler
                         }
                     }
 
-                    // Perform bulk requests if there are any
-                    if (bulkRequests.Count > 0)
-                    {
-                        var bulkResults = api.CreateBulkRequest<int>(bulkRequests);
-                    }
-
-                    // Call media updater for the media that needs an update
-                    if (assetsToUpdate.Count > 0)
-                    {
-                        updater.Action = ApiObjects.eAction.Update;
-                        updater.IDs = assetsToUpdate.ToList();
-                        updater.Start();
-                    }
+                    IssueUpdatesAndDeletes<int>(bulkRequests, assetsToUpdate.ToList());
 
                     // move on to the new index
                     firstIndex = lastIndex;

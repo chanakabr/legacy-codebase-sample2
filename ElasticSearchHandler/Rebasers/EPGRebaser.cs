@@ -19,9 +19,7 @@ namespace ElasticSearchHandler
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string EPG = "EPG";
-
-        private EpgUpdaterV2 updater = null;
-
+        
         public EPGRebaser(int groupId)
             : base(groupId)
         {
@@ -31,25 +29,6 @@ namespace ElasticSearchHandler
         public override bool Rebase()
         {
             bool result = false;
-
-            int sizeOfBulk = TVinciShared.WS_Utils.GetTcmIntValue("ES_BULK_SIZE");
-            int maxResults = TVinciShared.WS_Utils.GetTcmIntValue("MAX_RESULTS");
-
-            // Default for size of bulk should be 50, if not stated otherwise in TCM
-            if (sizeOfBulk == 0)
-            {
-                sizeOfBulk = 50;
-            }
-
-            // Default size of max results should be 100,000
-            if (maxResults == 0)
-            {
-                maxResults = 100000;
-            }
-
-            // Minimum time span to consider that there was a real change 
-            // (because ES update date has no milliseconds)
-            var minimumTimeSpan = new TimeSpan(0, 0, 2);
 
             GroupManager groupManager = new GroupManager();
             groupManager.RemoveGroup(groupId);
@@ -124,34 +103,10 @@ namespace ElasticSearchHandler
 
                         ulong firstEpgId = groupEpgs[firstIndex].EpgID;
                         ulong lastEpgId = groupEpgs[lastIndex].EpgID;
-
-                        range.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, firstEpgId.ToString()));
-                        range.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, lastEpgId.ToString()));
-
-                        // TODO: only specific fields: ID + Update Date + Is Active
-                        ESQuery query = new ESQuery(range)
-                        {
-                            Size = maxResults,
-                            Fields = new List<string>()
-                            {
-                                "epg_id",
-                                "update_date",
-                                "is_active"
-                            }
-                        };
-
-                        string queryString = query.ToString();
                         string documentType = ElasticSearchTaskUtils.GetTanslationType(EPG, group.GetLanguage(languageId));
 
-                        // Perform search: id ≥ first_id AND id ≤ last_id
-                        string searchResultString = api.Search(indexName, documentType, ref queryString);
-
-                        // Parse results to workable list
-                        int totalItems = 0;
-                        List<string> extraField = new List<string>() { "is_active" };
-
                         List<ElasticSearchApi.ESAssetDocument> searchResults =
-                            Catalog.ElasticsearchWrapper.DecodeAssetSearchJsonObject(searchResultString, ref totalItems, extraField);
+                            GetRangedDocuments(indexName, firstEpgId.ToString(), lastEpgId.ToString(), "epg_id", documentType);
 
                         foreach (var currentAsset in searchResults)
                         {
@@ -212,19 +167,9 @@ namespace ElasticSearchHandler
                         }
                     }
 
-                    // Perform bulk requests if there are any
-                    if (bulkRequests.Count > 0)
-                    {
-                        var bulkResults = api.CreateBulkRequest<ulong>(bulkRequests);
-                    }
+                    var assetsToUpdateList = assetsToUpdate.Select(i => (int)i).ToList();
 
-                    // Call media updater for the media that needs an update
-                    if (assetsToUpdate.Count > 0)
-                    {
-                        updater.Action = ApiObjects.eAction.Update;
-                        updater.IDs = assetsToUpdate.Select(i => (int)i).ToList();
-                        updater.Start();
-                    }
+                    IssueUpdatesAndDeletes(bulkRequests, assetsToUpdateList);
 
                     // move on to the new index
                     firstIndex = lastIndex;
