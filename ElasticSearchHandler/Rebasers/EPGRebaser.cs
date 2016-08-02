@@ -1,7 +1,9 @@
-﻿using ApiObjects.SearchObjects;
+﻿using ApiObjects;
+using ApiObjects.SearchObjects;
 using ElasticSearch.Common;
 using ElasticSearch.Searcher;
 using ElasticSearchHandler.Updaters;
+using EpgBL;
 using GroupsCacheManager;
 using KLogMonitor;
 using System;
@@ -13,17 +15,17 @@ using System.Threading.Tasks;
 
 namespace ElasticSearchHandler
 {
-    public class MediaRebaser : AbstractIndexRebaser
+    public class EPGRebaser : AbstractIndexRebaser
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly string MEDIA = "media";
+        private static readonly string EPG = "EPG";
 
-        private MediaUpdaterV2 updater = null;
+        private EpgUpdaterV2 updater = null;
 
-        public MediaRebaser(int groupId)
+        public EPGRebaser(int groupId)
             : base(groupId)
         {
-            updater = new MediaUpdaterV2(groupId);
+            updater = new EpgUpdaterV2(groupId);
         }
 
         public override bool Rebase()
@@ -58,21 +60,20 @@ namespace ElasticSearchHandler
             // Without the group we cannot advance at all - there must be an error in CB or something
             if (group == null)
             {
-                log.ErrorFormat("Could not load group {0} in media index rebaser", groupId);
+                log.ErrorFormat("Could not load group {0} in epg index rebaser", groupId);
                 return false;
             }
 
-            string indexName = ElasticSearchTaskUtils.GetMediaGroupAliasStr(groupId);
+            string indexName = ElasticSearchTaskUtils.GetEpgGroupAliasStr(groupId);
 
-            // Get ALL media in group
-            //Dictionary<int, Dictionary<int, Media>> groupMediasDictionary = ElasticsearchTasksCommon.Utils.GetGroupMediasTotal(groupId, 0);
-            var groupMediasDictionary = ElasticsearchTasksCommon.Utils.GetRebaseMediaInformation(groupId);
+            TvinciEpgBL epgBL = new TvinciEpgBL(groupId);
+            var groupEpgs = epgBL.GetGroupEpgs(maxResults, 0, null, null);
 
-            // Order all media by their ID
-            var groupMedias = groupMediasDictionary.OrderBy(asset => asset.Key).ToList();
-
-            if (groupMedias != null)
+            if (groupEpgs != null)
             {
+                Dictionary<ulong, EpgCB> dictionary = groupEpgs.ToDictionary<EpgCB, ulong>(epg => epg.EpgID);
+                groupEpgs = groupEpgs.OrderBy(epg => epg.EpgID).ToList();
+
                 bool isDone = false;
                 int firstIndex = 0;
                 int lastIndex = 0;
@@ -81,10 +82,10 @@ namespace ElasticSearchHandler
                 while (!isDone)
                 {
                     // If we reached the limit - this is the last bulk
-                    if (firstIndex + sizeOfBulk > groupMedias.Count)
+                    if (firstIndex + sizeOfBulk > groupEpgs.Count)
                     {
                         // The current bulk will be until the end of the list/dictionary
-                        lastIndex = groupMedias.Count - 1;
+                        lastIndex = groupEpgs.Count - 1;
                         isDone = true;
 
                         // mark this rebase as successful
@@ -96,19 +97,19 @@ namespace ElasticSearchHandler
                         lastIndex = firstIndex + sizeOfBulk;
                     }
 
-                    HashSet<int> allIdsFromDB = new HashSet<int>();
+                    HashSet<ulong> allIdsFromDB = new HashSet<ulong>();
 
                     // Create a list with all the IDs that were found in Database
                     for (int i = firstIndex; i < lastIndex; i++)
                     {
-                        int currentId = groupMedias[i].Key;
+                        ulong currentId = groupEpgs[i].EpgID;
 
                         allIdsFromDB.Add(currentId);
                     }
 
-                    List<ESBulkRequestObj<int>> bulkRequests = new List<ESBulkRequestObj<int>>();
-                    HashSet<int> assetsToDelete = new HashSet<int>();
-                    HashSet<int> assetsToUpdate = new HashSet<int>();
+                    List<ESBulkRequestObj<ulong>> bulkRequests = new List<ESBulkRequestObj<ulong>>();
+                    HashSet<ulong> assetsToDelete = new HashSet<ulong>();
+                    HashSet<ulong> assetsToUpdate = new HashSet<ulong>();
 
                     // For each language
                     foreach (var language in languages)
@@ -118,14 +119,14 @@ namespace ElasticSearchHandler
                         // Create a search range from the first ID to the last ID
                         ESRange range = new ESRange(true)
                         {
-                            Key = "media_id"
+                            Key = "epg_id"
                         };
 
-                        int firstMediaId = groupMedias[firstIndex].Key;
-                        int lastMediaId = groupMedias[lastIndex].Key;
+                        ulong firstEpgId = groupEpgs[firstIndex].EpgID;
+                        ulong lastEpgId = groupEpgs[lastIndex].EpgID;
 
-                        range.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, firstMediaId.ToString()));
-                        range.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, lastMediaId.ToString()));
+                        range.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, firstEpgId.ToString()));
+                        range.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, lastEpgId.ToString()));
 
                         // TODO: only specific fields: ID + Update Date + Is Active
                         ESQuery query = new ESQuery(range)
@@ -133,14 +134,14 @@ namespace ElasticSearchHandler
                             Size = maxResults,
                             Fields = new List<string>()
                             {
-                                "media_id",
+                                "epg_id",
                                 "update_date",
                                 "is_active"
                             }
                         };
 
                         string queryString = query.ToString();
-                        string documentType = ElasticSearchTaskUtils.GetTanslationType(MEDIA, group.GetLanguage(languageId));
+                        string documentType = ElasticSearchTaskUtils.GetTanslationType(EPG, group.GetLanguage(languageId));
 
                         // Perform search: id ≥ first_id AND id ≤ last_id
                         string searchResultString = api.Search(indexName, documentType, ref queryString);
@@ -154,7 +155,7 @@ namespace ElasticSearchHandler
 
                         foreach (var currentAsset in searchResults)
                         {
-                            int assetId = currentAsset.asset_id;
+                            ulong assetId = (ulong)currentAsset.asset_id;
                             DateTime updateDateES = currentAsset.update_date;
                             string isESActiveString;
                             currentAsset.extraReturnFields.TryGetValue("is_active", out isESActiveString);
@@ -172,10 +173,10 @@ namespace ElasticSearchHandler
                                 // assets that will eventually remain in this list are assets that exist in DB and not in ES
                                 allIdsFromDB.Remove(assetId);
 
-                                if (groupMediasDictionary.ContainsKey(assetId))
+                                if (dictionary.ContainsKey(assetId))
                                 {
-                                    DateTime updateDateDB = groupMediasDictionary[assetId].Value;
-                                    bool isDBActive = groupMediasDictionary[assetId].Key;
+                                    DateTime updateDateDB = dictionary[assetId].UpdateDate;
+                                    bool isDBActive = dictionary[assetId].isActive;
 
                                     // Compare the dates - if the DB was updated after the ES was updated, this means we need to update ES
                                     if ((updateDateDB.Subtract(updateDateES) > minimumTimeSpan) ||
@@ -191,7 +192,7 @@ namespace ElasticSearchHandler
                         // create a request for each deleted asset
                         foreach (var currentAsset in assetsToDelete)
                         {
-                            ESBulkRequestObj<int> currentRequest = new ESBulkRequestObj<int>()
+                            ESBulkRequestObj<ulong> currentRequest = new ESBulkRequestObj<ulong>()
                             {
                                 docID = currentAsset,
                                 document = string.Empty,
@@ -214,14 +215,14 @@ namespace ElasticSearchHandler
                     // Perform bulk requests if there are any
                     if (bulkRequests.Count > 0)
                     {
-                        var bulkResults = api.CreateBulkRequest<int>(bulkRequests);
+                        var bulkResults = api.CreateBulkRequest<ulong>(bulkRequests);
                     }
 
                     // Call media updater for the media that needs an update
                     if (assetsToUpdate.Count > 0)
                     {
                         updater.Action = ApiObjects.eAction.Update;
-                        updater.IDs = assetsToUpdate.ToList();
+                        updater.IDs = assetsToUpdate.Select(i => (int)i).ToList();
                         updater.Start();
                     }
 
