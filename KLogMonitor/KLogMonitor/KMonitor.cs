@@ -281,7 +281,7 @@ namespace KLogMonitor
                 }
 
                 // check if data from context was updated
-                UpdateMonitorData();
+                //UpdateMonitorData();
 
                 logger.Monitor(this.ToString());
             }
