@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
@@ -74,5 +75,14 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("updateDate")]
         [XmlElement(ElementName = "updateDate")]
         public long UpdateDate { get; set; }
+
+        /// <summary>
+        /// List of the season numbers to exclude.
+        /// </summary>
+        [DataMember(Name = "excludedSeasons")]
+        [JsonProperty("excludedSeasons")]
+        [XmlElement(ElementName = "excludedSeasons")]
+        [SchemeProperty(ReadOnly=true)]
+        public List<KalturaIntegerValue> ExcludedSeasons { get; set; }
     }
 }
