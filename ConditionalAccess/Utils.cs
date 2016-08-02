@@ -5607,7 +5607,7 @@ namespace ConditionalAccess
             return true;
         }
 
-        internal static bool GetEpgRelatedToSeriesRecording(int groupId, List<EpgCB> epgs, SeriesRecording seriesRecording)
+        internal static bool GetEpgRelatedToSeriesRecording(int groupId, List<EpgCB> epgs, SeriesRecording seriesRecording, long seasonNumber = 0)
         {
             bool result = false;
             List<EpgCB> epgMatch = new List<EpgCB>();
@@ -5634,8 +5634,10 @@ namespace ConditionalAccess
                 epgMatch = epgs.Where(x => x.Tags.Any(y => y.Key == series_alias.Name && y.Value.Contains(seriesRecording.SeriesId))).ToList();
             }
 
-            if (seriesRecording.SeasonNumber > 0)
+
+            if (seriesRecording.SeasonNumber > 0 || seasonNumber > 0)
             {
+                long seasonNumberEqual = seriesRecording.SeasonNumber > 0 ? seriesRecording.SeasonNumber : seasonNumber;
                 ApiObjects.Epg.FieldTypeEntity season_alias = metaTagsMappings.Where(m => m.Alias.ToLower() == SEASON_ALIAS).FirstOrDefault();
                 if (season_alias == null)
                 {
@@ -5645,11 +5647,11 @@ namespace ConditionalAccess
 
                 if (season_alias.FieldType == FieldTypes.Meta)
                 {
-                    epgMatch = epgMatch.Where(x => x.Metas.Any(y => y.Key == season_alias.Name && y.Value.Contains(seriesRecording.SeasonNumber.ToString()))).ToList();
+                    epgMatch = epgMatch.Where(x => x.Metas.Any(y => y.Key == season_alias.Name && y.Value.Contains(seasonNumberEqual.ToString()))).ToList();
                 }
                 else if (season_alias.FieldType == FieldTypes.Tag)
                 {
-                    epgMatch = epgMatch.Where(x => x.Tags.Any(y => y.Key == season_alias.Name && y.Value.Contains(seriesRecording.SeasonNumber.ToString()))).ToList();
+                    epgMatch = epgMatch.Where(x => x.Tags.Any(y => y.Key == season_alias.Name && y.Value.Contains(seasonNumberEqual.ToString()))).ToList();
                 }
             }
 

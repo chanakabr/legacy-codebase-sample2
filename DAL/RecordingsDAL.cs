@@ -1047,5 +1047,26 @@ namespace DAL
             DataTable dt = sp.Execute();
             return dt;
         }
+
+        public static bool InsertOrUpdateDomainSeriesExclude(int groupId, long domainId, string userId, long domainSeriesRecordingId, long seasonNumber, int status = 1)
+        {
+            bool result = false;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertOrUpdateDomainSeriesExclude");
+                
+                sp.SetConnectionKey(RECORDING_CONNECTION);
+                sp.AddParameter("@DomainSeriesRecordingID", domainSeriesRecordingId);               
+                sp.AddParameter("@SeasonNumber", seasonNumber);
+                sp.AddParameter("@Status", status);
+
+                result = sp.ExecuteReturnValue<bool>();
+            }
+            catch (Exception)
+            {
+                result = false;
+            }
+            return result;
+        }
     }
 }
