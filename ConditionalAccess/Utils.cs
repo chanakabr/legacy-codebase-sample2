@@ -5533,8 +5533,6 @@ namespace ConditionalAccess
                 return recordings;
             }
 
-            //var a = series.GroupBy(s => s.SeriesId).ToList();
-
             // build the filter query for the search
             StringBuilder ksql = new StringBuilder("(and (or ");
             StringBuilder seasonsToExclude = null;
