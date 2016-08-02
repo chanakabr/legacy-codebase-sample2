@@ -5570,8 +5570,9 @@ namespace ConditionalAccess
                 case SearchSeriesRecordingsTimeOptions.future:
                     ksql.AppendFormat(") start_date > '0')");
                     break;
-                case SearchSeriesRecordingsTimeOptions.all:                    
+                case SearchSeriesRecordingsTimeOptions.all:                  
                 default:
+                    ksql.AppendFormat("))");
                     break;
             }            
 

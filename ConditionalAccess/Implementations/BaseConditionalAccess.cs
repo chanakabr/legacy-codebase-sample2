@@ -19185,7 +19185,7 @@ namespace ConditionalAccess
                     seriesRecording.Status = recordingResponse.Status;
                     return seriesRecording;
                 }
-                // successfuly followed season or series and we have found future recordings, if the domain has programs of this season or series scheduled, they need to be canceled
+                // successfully followed season or series and we have found future recordings, if the domain has programs of this season or series scheduled, they need to be canceled
                 else if (futureSeriesRecordingIds.Count > 0)
                 {
                     Dictionary<long, Recording> domainFutureSingleRecordings = Utils.GetFutureDomainRecordingsByRecordingIDs(m_nGroupID, domainID, futureSeriesRecordingIds, RecordingType.Single);
