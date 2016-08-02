@@ -19205,6 +19205,31 @@ namespace ConditionalAccess
                     seriesRecording.Status = recordingResponse.Status;
                     return seriesRecording;
                 }
+                // successfuly followed season or series and we have found future recordings, if the domain has programs of this season or series scheduled, they need to be canceled
+                else if (futureSeriesRecordingIds.Count > 0)
+                {
+                    Dictionary<long, Recording> domainFutureSingleRecordings = Utils.GetFutureDomainRecordingsByRecordingIDs(m_nGroupID, domainID, futureSeriesRecordingIds, RecordingType.Single);
+                    if (domainFutureSingleRecordings != null)
+                    {
+                        // set max amount of concurrent tasks
+                        int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
+                        if (maxDegreeOfParallelism == 0)
+                        {
+                            maxDegreeOfParallelism = 5;
+                        }
+                        ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
+                        ContextData contextData = new ContextData();
+                        Parallel.ForEach(domainFutureSingleRecordings.AsEnumerable(), options, (pair) =>
+                        {                            
+                            contextData.Load();
+                            //call cancelOrDelete
+                            if (pair.Value.RecordingStatus == TstvRecordingStatus.Scheduled)
+                            {
+                                CancelOrDeleteRecord(userID, domainID, pair.Key, TstvRecordingStatus.Canceled, false);
+                            }
+                        });
+                    }
+                }
 
                 // if series is already followed then complete the series recordings for the domain
                 if (isSeriesFollowed)

@@ -1069,5 +1069,19 @@ namespace DAL
             }
             return result;
         }
+
+        public static DataTable GetFutureDomainRecordingsByRecordingIDs(int groupID, long domainID, List<long> recordingIds, RecordingType recordingType)
+        {
+            DataTable dt = null;
+            ODBCWrapper.StoredProcedure spGetFutureDomainRecordingsByRecordingIDs = new ODBCWrapper.StoredProcedure("GetFutureDomainRecordingsByRecordingIDs");
+            spGetFutureDomainRecordingsByRecordingIDs.SetConnectionKey(RECORDING_CONNECTION);
+            spGetFutureDomainRecordingsByRecordingIDs.AddParameter("@GroupID", groupID);
+            spGetFutureDomainRecordingsByRecordingIDs.AddParameter("@DomainID", domainID);
+            spGetFutureDomainRecordingsByRecordingIDs.AddParameter("@RecordingType", (int)recordingType);
+            spGetFutureDomainRecordingsByRecordingIDs.AddIDListParameter<long>("@@RecordingIDs", recordingIds, "ID");
+            dt = spGetFutureDomainRecordingsByRecordingIDs.Execute();
+
+            return dt;
+        }
     }
 }

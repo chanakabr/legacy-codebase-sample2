@@ -6017,6 +6017,31 @@ namespace ConditionalAccess
             long domainSeriesId = RecordingsDAL.GetDomainSeriesId(groupId, domainID, seriesId, seasonNumber);
             return domainSeriesId > 0;
         }
+
+        internal static Dictionary<long, Recording> GetFutureDomainRecordingsByRecordingIDs(int groupID, long domainID, List<long> recordingIds, RecordingType recordingType)
+        {
+            Dictionary<long, Recording> DomainRecordingIdToRecordingMap = null;
+            DataTable dt = RecordingsDAL.GetFutureDomainRecordingsByRecordingIDs(groupID, domainID, recordingIds, recordingType);
+            if (dt != null && dt.Rows != null)
+            {
+                DomainRecordingIdToRecordingMap = new Dictionary<long, Recording>();
+                foreach (DataRow dr in dt.Rows)
+                {
+                    long domainRecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+                    if (domainRecordingID > 0)
+                    {
+                        Recording domainRecording = BuildDomainRecordingFromDataRow(dr);
+                        // add domain recording if its valid and doesn't already exist in dictionary
+                        if (domainRecording != null && domainRecording.Status != null && domainRecording.Status.Code == (int)eResponseStatus.OK && !DomainRecordingIdToRecordingMap.ContainsKey(domainRecordingID))
+                        {
+                            DomainRecordingIdToRecordingMap.Add(domainRecordingID, domainRecording);
+                        }
+                    }
+                }
+            }
+
+            return DomainRecordingIdToRecordingMap;
+        }
     }
 }
 
