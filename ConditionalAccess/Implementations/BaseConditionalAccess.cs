@@ -18355,7 +18355,7 @@ namespace ConditionalAccess
             return result;
         }
 
-        public bool CompleteDomainSeriesRecordings(long domainId, long domainSeriesRecordingId = 0)
+        public bool CompleteDomainSeriesRecordings(long domainId)
         {
             bool response = true;
             try
@@ -18380,16 +18380,8 @@ namespace ConditionalAccess
 
                 List<DomainSeriesRecording> series = null;
                 DataSet serieDs = null;
-                if (domainSeriesRecordingId > 0)
-                {
-                    // get the domain series recording
-                    serieDs = RecordingsDAL.GetDomainSeriesRecordingsById(m_nGroupID, domainId, domainSeriesRecordingId);
-                }
-                else
-                {
-                    // get household followed series / seasons - if not following anything - nothing to do
-                    serieDs = RecordingsDAL.GetDomainSeriesRecordings(m_nGroupID, domainId);
-                }
+                // get household followed series / seasons - if not following anything - nothing to do
+                serieDs = RecordingsDAL.GetDomainSeriesRecordings(m_nGroupID, domainId);
 
                 series = Utils.GetDomainSeriesRecordingFromDataSet(serieDs);
 
@@ -18495,10 +18487,11 @@ namespace ConditionalAccess
                         }
 
                         RecordingType recordingType;
-                        userId = Utils.GetFollowingUserIdForSerie(m_nGroupID, series, potentialRecording, out recordingType);
+                        long domainSeriesRecordingId;
+                        userId = Utils.GetFollowingUserIdForSerie(m_nGroupID, series, potentialRecording, out recordingType, out domainSeriesRecordingId);
                         epgId = Utils.GetLongParamFromExtendedSearchResult(potentialRecording, "epg_id");
 
-                        if (epgId > 0 && !string.IsNullOrEmpty(userId))
+                        if (epgId > 0 && !string.IsNullOrEmpty(userId) && domainSeriesRecordingId > 0)
                         {
                             var recording = Record(userId, epgId, recordingType, domainSeriesRecordingId);
 
@@ -19171,9 +19164,8 @@ namespace ConditionalAccess
                     return seriesRecording;
                 }
                 bool isSeriesFollowed = false;
-                List<long> futureSeriesRecordingIds = new List<long>();
-                SeriesRecordingTaskData SeriesRecordingTask = null;
-                seriesRecording = Utils.FollowSeasonOrSeries(m_nGroupID, userID, domainID, epgID, recordingType, ref isSeriesFollowed, ref futureSeriesRecordingIds, ref SeriesRecordingTask);
+                List<long> futureSeriesRecordingIds = new List<long>();                
+                seriesRecording = Utils.FollowSeasonOrSeries(m_nGroupID, userID, domainID, epgID, recordingType, ref isSeriesFollowed, ref futureSeriesRecordingIds);
                 if (seriesRecording == null || seriesRecording.Status == null)
                 {
                     log.ErrorFormat("Failed Utils.FollowSeasonOrSeries, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, seriesRecording.ToString());
@@ -19214,22 +19206,22 @@ namespace ConditionalAccess
                 // if series is already followed then complete the series recordings for the domain
                 if (isSeriesFollowed)
                 {                    
-                    if (!CompleteDomainSeriesRecordings(domainID, seriesRecording.Id))
-                    {
-                        log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings for userId: {0}, domainId: {1}, epgId: {2}", userID, domainID, epgID);
-                        seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed CompleteHouseholdSeriesRecordings");
-                    }
+                    QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
+                    ApiObjects.QueueObjects.SeriesRecordingTaskData data = new ApiObjects.QueueObjects.SeriesRecordingTaskData(m_nGroupID, string.Empty, domainID, string.Empty, string.Empty, 0,
+                                                                                                                    eSeriesRecordingTask.CompleteRecordings) { ETA = DateTime.UtcNow.AddMinutes(1) };
+                    queue.Enqueue(data, string.Format(ROUTING_KEY_SERIES_RECORDING_TASK, m_nGroupID));                    
                 }
                 // if first user, SeriesRecordingTask should be filled on FollowSeasonOrSeries
-                else if (SeriesRecordingTask != null)
+                else
                 {
-                    if (!RecordingsDAL.InsertFirstFollowerLock(m_nGroupID, SeriesRecordingTask.SeriesId, SeriesRecordingTask.SeasonNumber, SeriesRecordingTask.ChannelId, true))
+                    if (!RecordingsDAL.InsertFirstFollowerLock(m_nGroupID, seriesRecording.SeriesId, seriesRecording.SeasonNumber, seriesRecording.EpgChannelId.ToString(), true))
                     {
                         log.ErrorFormat("Failed InsertFirstFollowerLock, groupId: {0}, seriesId: {1}, seasonNumber: {2}, channelId: {3}",
-                                        m_nGroupID, SeriesRecordingTask.SeriesId, SeriesRecordingTask.SeasonNumber, SeriesRecordingTask.ChannelId);
+                                        m_nGroupID, seriesRecording.SeriesId, seriesRecording.SeasonNumber, seriesRecording.EpgChannelId);
                     }
 
-                    QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();                        
+                    QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
+                    SeriesRecordingTaskData SeriesRecordingTask = new SeriesRecordingTaskData(m_nGroupID, userID, domainID, seriesRecording.EpgChannelId.ToString(), seriesRecording.SeriesId, seriesRecording.SeasonNumber, eSeriesRecordingTask.FirstFollower);
                     queue.Enqueue(SeriesRecordingTask, string.Format(ROUTING_KEY_SERIES_RECORDING_TASK, m_nGroupID));
                 }
 

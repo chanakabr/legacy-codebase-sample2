@@ -5380,8 +5380,7 @@ namespace ConditionalAccess
             return recording;
         }
 
-        internal static SeriesRecording FollowSeasonOrSeries(int groupId, string userId, long domainID, long epgId, RecordingType recordingType, ref bool isSeriesFollowed,
-                                                            ref List<long> futureSeriesRecordingIds, ref ApiObjects.QueueObjects.SeriesRecordingTaskData SeriesRecordingTask)
+        internal static SeriesRecording FollowSeasonOrSeries(int groupId, string userId, long domainID, long epgId, RecordingType recordingType, ref bool isSeriesFollowed, ref List<long> futureSeriesRecordingIds)
         {
             SeriesRecording seriesRecording = new SeriesRecording();
             List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(groupId, new List<long>() { epgId });
@@ -5426,7 +5425,7 @@ namespace ConditionalAccess
             }
 
             // check if the user has future single episodes of the series/season and return them so we will cancel them and they will be recorded as part of series/season
-            DomainSeriesRecording domainSeriesRecording = new DomainSeriesRecording() { EpgChannelId = channelId, EpgId = epgId, SeasonNumber = seasonNumber, SeriesId = seriesId, UserId = userId };
+            DomainSeriesRecording domainSeriesRecording = (DomainSeriesRecording)seriesRecording;
             List<WS_Catalog.ExtendedSearchResult> futureRecordingsOfSeasonOrSeries = Utils.SearchSeriesRecordings(groupId, new List<string>(), new List<DomainSeriesRecording>()
                                                                                                             { domainSeriesRecording }, SearchSeriesRecordingsTimeOptions.future);
             if (futureRecordingsOfSeasonOrSeries != null)
@@ -5439,12 +5438,6 @@ namespace ConditionalAccess
                         futureSeriesRecordingIds.Add(recordingId);
                     }
                 }
-            }
-
-            // if first user
-            if (!isSeriesFollowed)
-            {
-                SeriesRecordingTask = new ApiObjects.QueueObjects.SeriesRecordingTaskData(groupId, userId, domainID, epg.EPG_CHANNEL_ID, seriesId, seasonNumber, eSeriesRecordingTask.FirstFollower);                
             }
 
             return seriesRecording;
@@ -5731,9 +5724,11 @@ namespace ConditionalAccess
             return true;
         }
 
-        internal static string GetFollowingUserIdForSerie(int groupId, List<DomainSeriesRecording> series, WS_Catalog.ExtendedSearchResult potentialRecording, out RecordingType recordingType)
+        internal static string GetFollowingUserIdForSerie(int groupId, List<DomainSeriesRecording> series, WS_Catalog.ExtendedSearchResult potentialRecording,
+                                                            out RecordingType recordingType, out long domainSeriesRecordingId)
         {
             string userId = null;
+            domainSeriesRecordingId = 0;
             recordingType = RecordingType.Series;
 
             string seriesIdName;
@@ -5764,7 +5759,7 @@ namespace ConditionalAccess
                     if (serie.SeriesId == seriesId && (serie.SeasonNumber == 0 || serie.SeasonNumber == seasonNumber))
                     {
                         userId = serie.UserId;
-
+                        domainSeriesRecordingId = serie.Id;
                         if (serie.SeasonNumber == 0)
                             recordingType = RecordingType.Series;
                         else
@@ -5920,8 +5915,10 @@ namespace ConditionalAccess
                     foreach (DataRow dr in serieDataSet.Tables[0].Rows)
                     {
 
-                        result.Add(ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0), new DomainSeriesRecording()
+                        long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
+                        result.Add(id, new DomainSeriesRecording()
                         {
+                            Id = id,
                             EpgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID", 0),
                             SeasonNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "SEASON_NUMBER", 0),
                             SeriesId = ODBCWrapper.Utils.GetSafeStr(dr, "SERIES_ID"),

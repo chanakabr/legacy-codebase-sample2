@@ -9,9 +9,7 @@ namespace ApiObjects.TimeShiftedTv
 {
     public class SeriesRecording : DomainSeriesRecording
     {
-        public ApiObjects.Response.Status Status { get; set; }
-
-        public long Id { get; set; }
+        public ApiObjects.Response.Status Status { get; set; }        
         
         public DateTime CreateDate { get; set; }
 
