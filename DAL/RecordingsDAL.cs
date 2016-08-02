@@ -880,12 +880,12 @@ namespace DAL
                     int updatedQuota;
                     Couchbase.IO.ResponseStatus status;
                     currentQuota = cbClient.GetWithVersion<int>(domainQuotaKey, out version, out status);
-                    if (status != Couchbase.IO.ResponseStatus.Success)
+                    if (status == Couchbase.IO.ResponseStatus.Success)
                     {
                         updatedQuota = currentQuota - quotaToDecrease;
                         result = cbClient.SetWithVersion<int>(domainQuotaKey, updatedQuota, version);
                     }
-                    else if (status != Couchbase.IO.ResponseStatus.KeyNotFound)
+                    else if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
                     {
                         updatedQuota = domainQuota - quotaToDecrease;
                         result = cbClient.SetWithVersion<int>(domainQuotaKey, updatedQuota, 0);
@@ -1046,6 +1046,27 @@ namespace DAL
             
             DataTable dt = sp.Execute();
             return dt;
+        }
+
+        public static bool InsertOrUpdateDomainSeriesExclude(int groupId, long domainId, string userId, long domainSeriesRecordingId, long seasonNumber, int status = 1)
+        {
+            bool result = false;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertOrUpdateDomainSeriesExclude");
+                
+                sp.SetConnectionKey(RECORDING_CONNECTION);
+                sp.AddParameter("@DomainSeriesRecordingID", domainSeriesRecordingId);               
+                sp.AddParameter("@SeasonNumber", seasonNumber);
+                sp.AddParameter("@Status", status);
+
+                result = sp.ExecuteReturnValue<bool>();
+            }
+            catch (Exception)
+            {
+                result = false;
+            }
+            return result;
         }
     }
 }
