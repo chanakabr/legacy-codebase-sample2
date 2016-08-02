@@ -42,7 +42,8 @@ namespace ApiObjects
                 groupId, 
                 assetIds,
                 assetType.ToString(),
-                action.ToString())
+                action.ToString(),
+                date.Ticks)
         {
             // Basic member initialization
             this.GroupId = groupId;
@@ -50,10 +51,6 @@ namespace ApiObjects
             this.assetType = assetType;
             this.action = action;
             this.date = date;
-
-            string dateString = date.ToString("yyyyMMddHHmmss");
-            
-            this.args.Add(dateString);
         }
     }
 }
