@@ -17338,7 +17338,7 @@ namespace ConditionalAccess
                                 recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                                 response.Recordings.Add(recording);
                             }
-                            if (Utils.IsFollowingSeries(m_nGroupID, domainID, seriesId, seasonNumber))
+                            if (Utils.IsFollowingSeries(m_nGroupID, domainID, seriesId, recordingType == RecordingType.Series? 0 : seasonNumber))
                             {
                                 log.DebugFormat("domain already follows the series, can't record as single, DomainID: {0}, UserID: {1}, seriesID: {2}", domainID, userID, seriesId);
                                 recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.AlreadyRecordedAsSeriesOrSeason, eResponseStatus.AlreadyRecordedAsSeriesOrSeason.ToString());
@@ -18391,7 +18391,7 @@ namespace ConditionalAccess
                     serieDs = RecordingsDAL.GetDomainSeriesRecordings(m_nGroupID, domainId);
                 }
 
-                series = Utils.GetDomainSeriesRecordingFromDataTable(serieDs);
+                series = Utils.GetDomainSeriesRecordingFromDataSet(serieDs);
 
                 if (series == null || series.Count == 0)
                 {
@@ -18532,26 +18532,6 @@ namespace ConditionalAccess
                 log.ErrorFormat("Error in 'CompleteHouseholdSeriesRecordings' for domainId = {0}", domainId, ex);
             }
 
-            return response;
-        }
-
-        private List<DomainSeriesRecording> BuildDomainSeriesRecording(DataTable dt)
-        {
-            List<DomainSeriesRecording> response = new List<DomainSeriesRecording>();
-            if (dt != null && dt.Rows != null)
-            {
-                foreach (DataRow dr in dt.Rows)
-                {
-                    response.Add(new DomainSeriesRecording()
-                    {
-                        EpgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID", 0),
-                        SeasonNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "SEASON_NUMBER", 0),
-                        SeriesId = ODBCWrapper.Utils.GetSafeStr(dr, "SERIES_ID"),
-                        UserId = ODBCWrapper.Utils.GetSafeStr(dr, "USER_ID"),
-                        EpgChannelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_CHANNEL_ID", 0),
-                    });
-                }
-            }
             return response;
         }
 

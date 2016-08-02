@@ -5549,9 +5549,9 @@ namespace ConditionalAccess
             foreach (var serie in series)
             {
                 season = (serie.SeasonNumber > 0 && !string.IsNullOrEmpty(seasonNumber)) ? string.Format("{0} = '{1}' ", seasonNumber, serie.SeasonNumber) : string.Empty;
+                seasonsToExclude = new StringBuilder();
                 if (serie.ExcludedSeasons != null && serie.ExcludedSeasons.Count > 0)
-                {
-                    seasonsToExclude = new StringBuilder();
+                {                    
                     foreach (int seasonNumberToExclude in serie.ExcludedSeasons)
                     {
                         seasonsToExclude.AppendFormat("{0} != '{1}' ", seasonNumber, seasonNumberToExclude); 
@@ -5908,7 +5908,7 @@ namespace ConditionalAccess
             return recordings;
         }
 
-        internal static List<DomainSeriesRecording> GetDomainSeriesRecordingFromDataTable(DataSet serieDataSet)
+        internal static List<DomainSeriesRecording> GetDomainSeriesRecordingFromDataSet(DataSet serieDataSet)
         {
             Dictionary<long, DomainSeriesRecording> result = new Dictionary<long, DomainSeriesRecording>();
 
