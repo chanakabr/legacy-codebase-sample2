@@ -18849,7 +18849,13 @@ namespace ConditionalAccess
         {
             SeriesRecording seriesRecording = new SeriesRecording();
             try
-            {               
+            {
+                if (epgId > 0 && seasonNumber > 0)
+                {
+                    log.ErrorFormat("can't get epgid and season number, DomainID: {0}, UserID: {1}, domainSeriesRecordingId: {2}", domainId, userId, domainSeriesRecordingId);
+                    seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    return seriesRecording;
+                }
                 ConditionalAccess.TvinciDomains.Domain domain;
                 ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userId, ref domainId, out domain);
 
@@ -18963,7 +18969,7 @@ namespace ConditionalAccess
             // mark the row in status = 2
             if (seasonNumber > 0) // need to insert new "record" series+ season to domain series recordings
             {
-                if (RecordingsDAL.InsertOrUpdateDomainSeries(m_nGroupID, domainId, userId, seriesRecording, seasonNumber, 3))
+                if (RecordingsDAL.InsertOrUpdateDomainSeriesExclude(m_nGroupID, domainId, userId, domainSeriesRecordingId, seasonNumber))
                 {
                     seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     log.DebugFormat("Series recording {0} has been updated to status {1}", seriesRecording.Id, tstvRecordingStatus.ToString());

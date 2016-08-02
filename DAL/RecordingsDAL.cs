@@ -1046,22 +1046,18 @@ namespace DAL
             return dt;
         }
 
-        public static bool InsertOrUpdateDomainSeries(int groupId, long domainId, string userId, SeriesRecording seriesRecording, long seasonNumber, int status)
+        public static bool InsertOrUpdateDomainSeriesExclude(int groupId, long domainId, string userId, long domainSeriesRecordingId, long seasonNumber, int status = 1)
         {
             bool result = false;
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertOrUpdateDomainSeries");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertOrUpdateDomainSeriesExclude");
+                
                 sp.SetConnectionKey(RECORDING_CONNECTION);
-                sp.AddParameter("@GroupID", groupId);
-                sp.AddParameter("@EpgId", seriesRecording.EpgId);
-                sp.AddParameter("@EpgChannelId", seriesRecording.EpgChannelId);                                
+                sp.AddParameter("@DomainSeriesRecordingID", domainSeriesRecordingId);               
                 sp.AddParameter("@SeasonNumber", seasonNumber);
                 sp.AddParameter("@Status", status);
-                sp.AddParameter("@UserID" , userId);
-                sp.AddParameter("@DomainID" , domainId);
-                sp.AddParameter("@SeriesID", seriesRecording.SeriesId);
-                sp.AddParameter("@EpisodeNumber", 0);
+
                 result = sp.ExecuteReturnValue<bool>();
             }
             catch (Exception)
