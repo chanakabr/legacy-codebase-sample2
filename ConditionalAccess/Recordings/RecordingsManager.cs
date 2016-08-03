@@ -248,18 +248,39 @@ namespace Recordings
             {
                 UpdateIndex(groupId, slimRecording.Id, eAction.Delete);
                 UpdateCouchbase(groupId, slimRecording.EpgId, slimRecording.Id, false);
-
-                bool shouldCancel = false;
-                bool shouldCallDirectlyToAdapter = false;
                 List<Recording> recordingsWithTheSameCrid = ConditionalAccess.Utils.GetEpgToRecordingsMapByCridAndChannel(groupId, slimRecording.Crid, slimRecording.ChannelId).Values.ToList();
                 // last recording
                 if (recordingsWithTheSameCrid.Count == 1)
                 {
-                    shouldCallDirectlyToAdapter = true;
-                    //  recording in status scheduled/recording is canceled, otherwise we delete
-                    if (slimRecording.EpgEndDate < DateTime.UtcNow)
+                    if (adapterId == 0)
                     {
-                        shouldCancel = true;
+                        adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
+                    }
+
+                    RecordResult adapterResponse = null;
+                    var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
+
+                    try
+                    {
+                        //  recording in status scheduled/recording is canceled, otherwise we delete
+                        if (slimRecording.EpgEndDate < DateTime.UtcNow)
+                        {
+                            adapterResponse = adapterController.CancelRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
+                        }
+                        else
+                        {
+                            adapterResponse = adapterController.DeleteRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
+                        }
+                    }
+                    catch (KalturaException ex)
+                    {
+                        status = new Status((int)eResponseStatus.Error, string.Format("Code: {0} Message: {1}", (int)ex.Data["StatusCode"], ex.Message));
+                        return status;
+                    }
+                    catch (Exception ex)
+                    {
+                        status = new Status((int)eResponseStatus.Error, "Adapter controller exception: " + ex.Message);
+                        return status;
                     }
                 }
                 /***** WHEN ADAPTER_ID > 0 it means we came from CleanupRecordings and we dont care about min value ***** 
@@ -278,7 +299,7 @@ namespace Recordings
                             Recording secondRecording = orderedRecordings[i];
                             CallAdapterRecord(groupId, secondRecording.ChannelId, secondRecording.EpgStartDate, secondRecording.EpgEndDate, false, secondRecording);
                             if (secondRecording.Status != null && secondRecording.Status.Code == (int)eResponseStatus.OK)
-                            {                                
+                            {
                                 if (!RecordingsDAL.UpdateRecordingsExternalId(groupId, secondRecording.ExternalRecordingId, secondRecording.Crid))
                                 {
                                     log.ErrorFormat("Failed UpdateRecordingsExternalId, ExternalRecordingId: {0}, Crid: {1}", secondRecording.ExternalRecordingId, secondRecording.Crid);
@@ -287,6 +308,10 @@ namespace Recordings
                                 }
                                 // on success we break
                                 break;
+                            }
+                            else
+                            {
+                                failedRecordings.Add(secondRecording);
                             }
                         }
 
@@ -299,38 +324,6 @@ namespace Recordings
                                 log.ErrorFormat("Failed calling internalModifyRecording for recordingId: {0}, response status: {1}", recording.Id, status.Message);
                             }
                         }
-                    }
-                }
-
-                if (shouldCallDirectlyToAdapter)
-                {
-                    if (adapterId == 0)
-                    {
-                        adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
-                    }
-
-                    RecordResult adapterResponse = null;
-                    var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
-                    try
-                    {
-                        if (shouldCancel)
-                        {
-                            adapterResponse = adapterController.CancelRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
-                        }
-                        else
-                        {
-                            adapterResponse = adapterController.DeleteRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
-                        }
-                    }
-                    catch (KalturaException ex)
-                    {
-                        status = new Status((int)eResponseStatus.Error, string.Format("Code: {0} Message: {1}", (int)ex.Data["StatusCode"], ex.Message));
-                        return status;
-                    }
-                    catch (Exception ex)
-                    {
-                        status = new Status((int)eResponseStatus.Error, "Adapter controller exception: " + ex.Message);
-                        return status;
                     }
                 }
 
@@ -1244,13 +1237,6 @@ namespace Recordings
             if (!queueExpiredRecordingResult)
             {
                 log.ErrorFormat("Failed to queue ExpiredRecording task for CancelOrDeleteRecording, recordingId: {0}, groupId: {1}", recordingId, groupId);
-                return status;
-            }
-
-            // delete the recording from DB
-            if (RecordingsDAL.UpdateDomainRecordingsAfterCleanup(new List<long>() { recordingId }) == 0)
-            {
-                log.ErrorFormat("failed to update recording status deleted, recordingId = {0}", recordingId);
                 return status;
             }
 
