@@ -6061,7 +6061,7 @@ namespace ConditionalAccess
                 string seriesId = epgFieldMappings[Utils.SERIES_ID];
                 int seasonNumber = 0;
                 long channelId = 0;
-                if (epgFieldMappings.ContainsKey(Utils.SEASON_NUMBER) && !int.TryParse(epgFieldMappings[Utils.SEASON_NUMBER], out seasonNumber) && !long.TryParse(epg.EPG_CHANNEL_ID, out channelId))
+                if ((epgFieldMappings.ContainsKey(Utils.SEASON_NUMBER) && !int.TryParse(epgFieldMappings[Utils.SEASON_NUMBER], out seasonNumber)) || !long.TryParse(epg.EPG_CHANNEL_ID, out channelId))
                 {
                     log.ErrorFormat("failed parsing SEASON_NUMBER or EPG_CHANNEL_ID, groupId: {0}, epgId: {1}", groupId, epg.EPG_ID);
                     return response;
