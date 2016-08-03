@@ -17841,13 +17841,20 @@ namespace ConditionalAccess
                                         Dictionary<string, string> epgFieldMappings = null;
                                         if (Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, RecordingType.Series, out epgFieldMappings) && epgFieldMappings != null && epgFieldMappings.Count > 0)
                                         {
+                                            long channelId;
+                                            if (!long.TryParse(epg.EPG_CHANNEL_ID, out channelId))
+                                            {
+                                                log.ErrorFormat("failed parsing EPG_CHANNEL_ID, epgId = {0}, epgChannelId: {1}", epg.EPG_ID, epg.EPG_CHANNEL_ID);
+                                                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                                                return status;
+                                            }
                                             // check if followed by at least 1 domain
                                             string sereisId = epgFieldMappings[Utils.SERIES_ID];
                                             int seasonNum = epgFieldMappings.ContainsKey(Utils.SEASON_NUMBER) ? int.Parse(epgFieldMappings[Utils.SEASON_NUMBER]) : 0;
-                                            if (RecordingsDAL.IsSeriesFollowed(m_nGroupID, sereisId, seasonNum))
+                                            if (RecordingsDAL.IsSeriesFollowed(m_nGroupID, sereisId, seasonNum, channelId))
                                             {
                                                 // record
-                                                Recording serieRecording = RecordingsManager.Instance.Record(m_nGroupID, epg.EPG_ID, int.Parse(epg.EPG_CHANNEL_ID), startDate, endDate, epg.CRID);
+                                                Recording serieRecording = RecordingsManager.Instance.Record(m_nGroupID, epg.EPG_ID, channelId, startDate, endDate, epg.CRID);
                                                 if (serieRecording == null || serieRecording.Status == null || serieRecording.Status.Code != (int)eResponseStatus.OK || serieRecording.Id == 0)
                                                 {
                                                     log.ErrorFormat("failed to record epg as series on UpdateRecording, epgId = {0}", epg.EPG_ID);
@@ -18731,12 +18738,16 @@ namespace ConditionalAccess
                     paddingAfterProgramEnds = accountSettings.PaddingAfterProgramEnds.Value;
                 }
 
-                long epgId = 0;
-                long epgChannelId;
+                long epgId = 0;                
                 string crid = string.Empty;
                 List<long> epgsInThePastToRecord = new List<long>();
                 HashSet<string> userRecordingCrids = new HashSet<string>();
-                long domainSeriesRecordingId = RecordingsDAL.GetDomainSeriesId(m_nGroupID, domainId, seriesId, seasonNumber);
+                long epgChannelId = 0;
+                if (!long.TryParse(channelId, out epgChannelId))
+                {
+                    return result;
+                }
+                long domainSeriesRecordingId = RecordingsDAL.GetDomainSeriesId(m_nGroupID, domainId, seriesId, seasonNumber, epgChannelId);
                 foreach (ConditionalAccess.WS_Catalog.ExtendedSearchResult epg in epgsToRecord)
                 {
                     if (!long.TryParse(epg.AssetId, out epgId))
@@ -19166,9 +19177,10 @@ namespace ConditionalAccess
                     seriesRecording.Status = IsFollowingResponse;
                     return seriesRecording;
                 }
+
                 bool isSeriesFollowed = false;
-                List<long> futureSeriesRecordingIds = new List<long>();                
-                seriesRecording = Utils.FollowSeasonOrSeries(m_nGroupID, userID, domainID, epgID, recordingType, ref isSeriesFollowed, ref futureSeriesRecordingIds);
+                List<long> futureSeriesRecordingIds = new List<long>();
+                seriesRecording = Utils.FollowSeasonOrSeries(m_nGroupID, userID, domainID, epgID, recordingType, ref isSeriesFollowed, ref futureSeriesRecordingIds, epgs[0]);
                 if (seriesRecording == null || seriesRecording.Status == null)
                 {
                     log.ErrorFormat("Failed Utils.FollowSeasonOrSeries, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, seriesRecording.ToString());

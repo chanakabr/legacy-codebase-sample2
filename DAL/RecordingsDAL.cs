@@ -541,20 +541,21 @@ namespace DAL
             return dt;
         }
 
-        public static bool IsSeriesFollowed(int groupId, string seriesId, int seasonNumber)
+        public static bool IsSeriesFollowed(int groupId, string seriesId, int seasonNumber, long channelId)
         {
             ODBCWrapper.StoredProcedure spIsSeriesFollowed = new ODBCWrapper.StoredProcedure("IsSeriesFollowed");
             spIsSeriesFollowed.SetConnectionKey(RECORDING_CONNECTION);
             spIsSeriesFollowed.AddParameter("@GroupID", groupId);            
             spIsSeriesFollowed.AddParameter("@SeriesId", seriesId);
             spIsSeriesFollowed.AddParameter("@SeasonNumber", seasonNumber);
+            spIsSeriesFollowed.AddParameter("@ChannelId", channelId);
 
             int rowsFound = spIsSeriesFollowed.ExecuteReturnValue<int>();
 
             return rowsFound > 0;
         }
 
-        public static long GetDomainSeriesId(int groupId, long domainID, string seriesId, int seasonNumber)
+        public static long GetDomainSeriesId(int groupId, long domainID, string seriesId, int seasonNumber, long channelId)
         {
             long domainSeriesId = 0;
             ODBCWrapper.StoredProcedure spIsFollowingSeries = new ODBCWrapper.StoredProcedure("GetDomainSeriesId");            
@@ -563,6 +564,7 @@ namespace DAL
             spIsFollowingSeries.AddParameter("@DomainId", domainID);
             spIsFollowingSeries.AddParameter("@SeriesId", seriesId);
             spIsFollowingSeries.AddParameter("@SeasonNumber", seasonNumber);
+            spIsFollowingSeries.AddParameter("@ChannelId", channelId);
 
             domainSeriesId = spIsFollowingSeries.ExecuteReturnValue<int>();
 

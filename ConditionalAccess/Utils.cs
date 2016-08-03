@@ -5380,17 +5380,23 @@ namespace ConditionalAccess
             return recording;
         }
 
-        internal static SeriesRecording FollowSeasonOrSeries(int groupId, string userId, long domainID, long epgId, RecordingType recordingType, ref bool isSeriesFollowed, ref List<long> futureSeriesRecordingIds)
+        internal static SeriesRecording FollowSeasonOrSeries(int groupId, string userId, long domainID, long epgId, RecordingType recordingType, ref bool isSeriesFollowed, ref List<long> futureSeriesRecordingIds, EPGChannelProgrammeObject epg = null)
         {
             SeriesRecording seriesRecording = new SeriesRecording();
-            List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(groupId, new List<long>() { epgId });
-            if (epgs == null || epgs.Count != 1)
+            if (epg == null)
             {
-                log.DebugFormat("Failed Getting EPG from Catalog, DomainID: {0}, UserID: {1}, EpgId: {2}", domainID, userId, epgId);
-                return seriesRecording;
+                List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(groupId, new List<long>() { epgId });
+                if (epgs == null || epgs.Count != 1)
+                {
+                    log.DebugFormat("Failed Getting EPG from Catalog, DomainID: {0}, UserID: {1}, EpgId: {2}", domainID, userId, epgId);
+                    return seriesRecording;
+                }
+                else
+                {
+                    epg = epgs[0];
+                }
             }
-
-            EPGChannelProgrammeObject epg = epgs.First();
+            
             Dictionary<string, string> epgFieldMappings = null;
             if (!GetEpgFieldTypeEntitys(groupId, epg, recordingType, out epgFieldMappings) || epgFieldMappings == null || epgFieldMappings.Count == 0)
             {
@@ -5407,7 +5413,7 @@ namespace ConditionalAccess
                 return seriesRecording;
             }
 
-            // currently we don't care about episode number
+            // currently we don't care about episode number so no log + error if we can't parse it
             int.TryParse(epgFieldMappings[EPISODE_NUMBER], out episodeNumber);
             long channelId;
             if (!long.TryParse(epg.EPG_CHANNEL_ID, out channelId))
@@ -5416,7 +5422,7 @@ namespace ConditionalAccess
                 return seriesRecording;
             }
 
-            isSeriesFollowed = RecordingsDAL.IsSeriesFollowed(groupId, seriesId, seasonNumber);
+            isSeriesFollowed = RecordingsDAL.IsSeriesFollowed(groupId, seriesId, seasonNumber, channelId);
             // insert or update domain_series table
             DataTable dt = RecordingsDAL.FollowSeries(groupId, userId, domainID, epgId, channelId, seriesId, seasonNumber, episodeNumber);
             if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
@@ -6010,9 +6016,9 @@ namespace ConditionalAccess
             return false;
         }        
 
-        internal static bool IsFollowingSeries(int groupId, long domainID, string seriesId, int seasonNumber)
+        internal static bool IsFollowingSeries(int groupId, long domainID, string seriesId, int seasonNumber, long channelId)
         {
-            long domainSeriesId = RecordingsDAL.GetDomainSeriesId(groupId, domainID, seriesId, seasonNumber);
+            long domainSeriesId = RecordingsDAL.GetDomainSeriesId(groupId, domainID, seriesId, seasonNumber, channelId);
             return domainSeriesId > 0;
         }
 
@@ -6055,13 +6061,14 @@ namespace ConditionalAccess
             {
                 string seriesId = epgFieldMappings[Utils.SERIES_ID];
                 int seasonNumber = 0;
-                if (epgFieldMappings.ContainsKey(Utils.SEASON_NUMBER) && !int.TryParse(epgFieldMappings[Utils.SEASON_NUMBER], out seasonNumber))
+                long channelId = 0;
+                if (epgFieldMappings.ContainsKey(Utils.SEASON_NUMBER) && !int.TryParse(epgFieldMappings[Utils.SEASON_NUMBER], out seasonNumber) && !long.TryParse(epg.EPG_CHANNEL_ID, out channelId))
                 {
-                    log.ErrorFormat("failed parsing SEASON_NUMBER, groupId: {0}, epgId: {1}", groupId, epg.EPG_ID);
+                    log.ErrorFormat("failed parsing SEASON_NUMBER or EPG_CHANNEL_ID, groupId: {0}, epgId: {1}", groupId, epg.EPG_ID);
                     return response;
                 }
 
-                if (Utils.IsFollowingSeries(groupId, domainId, seriesId, recordingType == RecordingType.Series ? 0 : seasonNumber))
+                if (IsFollowingSeries(groupId, domainId, seriesId, recordingType == RecordingType.Series ? 0 : seasonNumber, channelId))
                 {
                     log.DebugFormat("domain already follows the series, can't record as single, DomainID: {0}, seriesID: {1}", domainId, seriesId);
                     response = new ApiObjects.Response.Status((int)eResponseStatus.AlreadyRecordedAsSeriesOrSeason, eResponseStatus.AlreadyRecordedAsSeriesOrSeason.ToString());
