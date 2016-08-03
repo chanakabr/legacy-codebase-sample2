@@ -288,6 +288,8 @@ namespace ApiObjects.Response
         // Ingest 11000-11999
         IllegalXml = 11000,
         MissingExternalIdentifier = 11001,
-        UnknownIngestType = 11002
+        UnknownIngestType = 11002,
+        EPGSProgramDatesError = 11003
+
     }
 }

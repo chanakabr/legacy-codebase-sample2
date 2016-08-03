@@ -227,21 +227,14 @@ namespace EpgIngest
                     string sPicUrl = string.Empty;
                     if (isTstvSettings && string.IsNullOrEmpty(prog.crid))
                     {
-                        log.ErrorFormat("crid is empty for external id {0}: ", prog.external_id);                        
-                        ingestAssetStatus = new IngestAssetStatus()
-                        {
-                            Warnings = new List<Status>(),
-                            Status = new Status() { Code = (int)IngestWarnings.EPGSProgramMissingCrid, Message = EPGS_PROGRAM_MISSING_CRID },
-                            InternalAssetId = kalturaChannelID,
-                            ExternalAssetId = prog.external_id
-                        };
-                        ingestResponse.AssetsStatus.Add(ingestAssetStatus);
+                        log.DebugFormat("crid is empty for external id {0}: ", prog.external_id);
+                        ingestAssetStatus.Warnings.Add(new Status((int)IngestWarnings.EPGSProgramMissingCrid, EPGS_PROGRAM_MISSING_CRID));
                     }
 
                     if (!Utils.ParseEPGStrToDate(prog.start, ref dProgStartDate) || !Utils.ParseEPGStrToDate(prog.stop, ref dProgEndDate))
                     {
                         log.Error("Program Dates Error - " + string.Format("start:{0}, end:{1}", prog.start, prog.stop));
-                        ingestAssetStatus.Status.Code = (int)IngestWarnings.EPGSProgramDatesError;
+                        ingestAssetStatus.Status.Code = (int)eResponseStatus.EPGSProgramDatesError;
                         ingestAssetStatus.Status.Message = EPGS_PROGRAM_DATES_ERROR;
                         continue;
                     }
@@ -376,7 +369,6 @@ namespace EpgIngest
                 }
             }
             #endregion
-
 
             //insert EPGs to DB in batches
             // find the epg that need to be updated                    
