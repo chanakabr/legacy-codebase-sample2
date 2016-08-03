@@ -9,6 +9,8 @@ using System.Text;
 using System.Net;
 using System.Web;
 using System.ServiceModel;
+using QueueWrapper;
+using ApiObjects;
 
 namespace SetupTaskHandler
 {
@@ -146,6 +148,33 @@ namespace SetupTaskHandler
                         var worker = new StatisticsMigrationTool(urlV1, urlV2);
                         success = worker.Migrate(request.GroupID, startDate);
 
+                        if (success)
+                        {
+                            var queue = new SetupTasksQueue();
+
+                            var dynamicData = new Dictionary<string, object>();
+
+                            if (startDate != null && startDate.HasValue)
+                            {
+                                dynamicData.Add("START_DATE", DateTime.UtcNow);
+                            }
+
+                            var queueObject = new CelerySetupTaskData(request.GroupID, eSetupTask.MigrateStatistics, dynamicData)
+                            {
+                                ETA = DateTime.UtcNow.AddMinutes(30)
+                            };
+
+                            try
+                            {
+                                queue.Enqueue(queueObject, "MIGRATE_STATISTICS");
+                            }
+                            catch (Exception ex)
+                            {
+                                log.Error("MigrateStatistics - " +
+                                        string.Format("Error in MigrateStatistics: group = {0} ex = {1}, ST = {2}", request.GroupID, ex.Message, ex.StackTrace),
+                                        ex);
+                            }
+                        }
                         break;
 
                         #endregion
