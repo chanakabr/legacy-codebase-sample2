@@ -415,18 +415,6 @@ namespace DAL
             return recordingsForCleanup;
         }
 
-        public static int UpdateDomainRecordingsAfterCleanup(List<long> recordingsIds)
-        {
-            int updatedRowsCount = 0;
-            ODBCWrapper.StoredProcedure spUpdateDomainRecordingsAfterCleanup = new ODBCWrapper.StoredProcedure("UpdateDomainRecordingsAfterCleanup");
-            spUpdateDomainRecordingsAfterCleanup.SetConnectionKey(RECORDING_CONNECTION);
-            spUpdateDomainRecordingsAfterCleanup.AddIDListParameter<long>("@RecordingIds", recordingsIds, "ID");
-
-            updatedRowsCount = spUpdateDomainRecordingsAfterCleanup.ExecuteReturnValue<int>();
-
-            return updatedRowsCount;
-        }
-
         public static int InsertExpiredRecordingsTasks(long unixTimeStampNow)
         {
             int impactedItems = -1;
@@ -448,12 +436,14 @@ namespace DAL
             return spGetExpiredRecordingsTasks.Execute();
         }
 
-        public static DataTable GetDomainsRecordingsByRecordingIdAndProtectDate(long recordingId, long unixTimeStampNow)
+        public static DataTable GetDomainsRecordingsByRecordingIdAndProtectDate(long recordingId, long unixTimeStampNow, int status, DomainRecordingStatus domainRecordingStatus)
         {
             ODBCWrapper.StoredProcedure spGetDomainsRecordingsByRecordingIdAndProtectDate = new ODBCWrapper.StoredProcedure("GetDomainsRecordingsByRecordingIdAndProtectDate");
             spGetDomainsRecordingsByRecordingIdAndProtectDate.SetConnectionKey(RECORDING_CONNECTION);
             spGetDomainsRecordingsByRecordingIdAndProtectDate.AddParameter("@RecordingId", recordingId);
             spGetDomainsRecordingsByRecordingIdAndProtectDate.AddParameter("@UtcNowEpoch", unixTimeStampNow);
+            spGetDomainsRecordingsByRecordingIdAndProtectDate.AddParameter("@Status", unixTimeStampNow);
+            spGetDomainsRecordingsByRecordingIdAndProtectDate.AddParameter("@DomainRecordingStatus", (int)domainRecordingStatus);
 
             return spGetDomainsRecordingsByRecordingIdAndProtectDate.Execute();
         }
@@ -494,22 +484,6 @@ namespace DAL
             spUpdateExpiredRecordingAfterScheduledTask.AddParameter("@Id", id);
 
             return spUpdateExpiredRecordingAfterScheduledTask.ExecuteReturnValue<bool>();
-        }
-
-        public static int GetRecordingDuration(long recordingId)
-        {
-            int recordingDuration = -1;
-            ODBCWrapper.StoredProcedure spGetRecordingDuration = new ODBCWrapper.StoredProcedure("GetRecordingDuration");
-            spGetRecordingDuration.SetConnectionKey(RECORDING_CONNECTION);
-            spGetRecordingDuration.AddParameter("@ID", recordingId);
-
-            DataTable dt = spGetRecordingDuration.Execute();
-            if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
-            {
-                recordingDuration = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "DURATION", 0);
-            }
-
-            return recordingDuration;
         }
 
         public static DataTable GetEpgToRecordingsMapByCridAndChannel(int groupId, string crid, long channelId)

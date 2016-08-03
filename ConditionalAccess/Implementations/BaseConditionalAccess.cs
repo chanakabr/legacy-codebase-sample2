@@ -18194,8 +18194,17 @@ namespace ConditionalAccess
                     totalRecordingsToCleanup += recordingsForDeletion.Count;
                     List<long> deletedRecordingIds = new List<long>();
                     int adapterId = 0;
-                    foreach (KeyValuePair<int, Recording> pair in recordingsForDeletion.Values)
+                    // set max amount of concurrent tasks
+                    int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
+                    if (maxDegreeOfParallelism == 0)
                     {
+                        maxDegreeOfParallelism = 5;
+                    }
+                    ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
+                    ContextData contextData = new ContextData();
+                    Parallel.ForEach(recordingsForDeletion.Values.AsEnumerable(), options, (pair) =>
+                    {
+                        contextData.Load();
                         if (!groupIdToAdapterIdMap.ContainsKey(pair.Key))
                         {
                             adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(pair.Key);
@@ -18216,7 +18225,7 @@ namespace ConditionalAccess
                             deletedRecordingIds.Add(pair.Value.Id);
                             log.DebugFormat("recordingID {0} has been successfully cleaned up for groupID {1}", pair.Value.Id, pair.Key);
                         }
-                    }
+                    });
 
                     totalRecordingsDeleted += deletedRecordingIds.Count;
 
@@ -18617,14 +18626,27 @@ namespace ConditionalAccess
             bool result = false;
             try
             {
-                int recordingDuration = RecordingsDAL.GetRecordingDuration(task.RecordingId);
-                if (recordingDuration <= 0)
+                Recording recording = Utils.GetRecordingById(task.RecordingId);
+                if (recording == null)
                 {
-                    log.ErrorFormat("Failed GetRecordingDuration for modifiedRecording: {0}, returned recordingDuration = {1}", task, recordingDuration);
+                    log.ErrorFormat("Failed fetching recording with ID: {0} on HandleDomainQuotaByRecording", task.RecordingId);
+                    return result;
+                }
+                DomainRecordingStatus? domainRecordingStatus = Utils.ConvertToDomainRecordingStatus(recording.RecordingStatus);
+                if (!domainRecordingStatus.HasValue)
+                {
+                    log.ErrorFormat("Failed ConvertToDomainRecordingStatus for recordingId: {0}, recordingStatus = {1}", recording.Id, recording.RecordingStatus.ToString());
                     return result;
                 }
 
-                DataTable modifiedDomainRecordings = RecordingsDAL.GetDomainsRecordingsByRecordingIdAndProtectDate(task.RecordingId, task.ScheduledExpirationEpoch);
+                int status = 1;
+                if (domainRecordingStatus.Value == DomainRecordingStatus.DeletedBySystem || domainRecordingStatus.Value == DomainRecordingStatus.Deleted)
+                {
+                    status = 2;
+                }
+
+                int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
+                DataTable modifiedDomainRecordings = RecordingsDAL.GetDomainsRecordingsByRecordingIdAndProtectDate(task.RecordingId, task.ScheduledExpirationEpoch, status, domainRecordingStatus.Value);
 
                 // set max amount of concurrent tasks
                 int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
@@ -18675,7 +18697,7 @@ namespace ConditionalAccess
                         }
                     });
 
-                    modifiedDomainRecordings = RecordingsDAL.GetDomainsRecordingsByRecordingIdAndProtectDate(task.RecordingId, task.ScheduledExpirationEpoch);
+                    modifiedDomainRecordings = RecordingsDAL.GetDomainsRecordingsByRecordingIdAndProtectDate(task.RecordingId, task.ScheduledExpirationEpoch, status, domainRecordingStatus.Value);
                 }
 
                 long minProtectionEpoch = RecordingsDAL.GetRecordingMinProtectedEpoch(task.RecordingId, task.ScheduledExpirationEpoch);
