@@ -216,6 +216,10 @@ namespace WebAPI.Utils
                                 InternalServerErrorException ex = new InternalServerErrorException();
                                 list.Add(WrappingHandler.prepareExceptionResponse(ex.Code, ex.Message));
                             }
+                            else
+                            {
+                                list.Add(item);
+                            }
                         }
                         statusWrapper.Result = list;
                     }
