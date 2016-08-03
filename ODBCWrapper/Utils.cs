@@ -844,12 +844,12 @@ namespace ODBCWrapper
             return GetTableSingleRowByValue(tableName, "ID", id, checkStatusAndIsActive, connectionKey, timeInCache);
         }
 
-        public static DataRow GetTableSingleRowByValue(string tableName, string columnName, object value, 
+        public static DataRow GetTableSingleRowByValue(string tableName, string columnName, object value,
             bool checkStatusAndIsActive = false, string connectionKey = "", int timeInCache = -1)
         {
             List<KeyValuePair<string, object>> values = new List<KeyValuePair<string, object>>();
 
-            values.Add(new KeyValuePair<string,object>(columnName, value));
+            values.Add(new KeyValuePair<string, object>(columnName, value));
 
             if (checkStatusAndIsActive)
             {
@@ -859,7 +859,7 @@ namespace ODBCWrapper
 
             return GetTableSingleRowByValues(tableName,
                 values,
-                connectionKey, 
+                connectionKey,
                 timeInCache);
         }
 
@@ -891,7 +891,7 @@ namespace ODBCWrapper
                     selectQuery += " AND ";
                 }
             }
-            
+
             if (selectQuery.Execute("query", true) != null)
             {
                 var table = selectQuery.Table("query");
@@ -912,7 +912,7 @@ namespace ODBCWrapper
         {
             DataRow result = null;
             if (columnsToFetch != null && columnsToFetch.Count > 0)
-            {                
+            {
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
 
                 if (timeInCache != -1)
@@ -924,7 +924,7 @@ namespace ODBCWrapper
                 {
                     selectQuery.SetConnectionKey(connectionKey);
                 }
-                selectQuery += string.Format("SELECT {0} FROM " + tableName + " WHERE ", string.Join(",", columnsToFetch));                
+                selectQuery += string.Format("SELECT {0} FROM " + tableName + " WHERE ", string.Join(",", columnsToFetch));
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM(paramName, "=", paramID);
 
                 if (selectQuery.Execute("query", true) != null)
@@ -992,8 +992,8 @@ namespace ODBCWrapper
                 return res;
             }
         }
-		
-		public static void CheckDBReadWrite(string sKey, object oValue, object executer, bool isWritable, ref bool useWriteable)
+
+        public static void CheckDBReadWrite(string sKey, object oValue, object executer, bool isWritable, ref bool useWriteable)
         {
             //Logger.Logger.Log("DBLock ", "m_bUseWritable is '" + useWriteable + "',For: " + executer, "ODBC_DBLock");
             //m_bIsWritable || m_bUseWritable

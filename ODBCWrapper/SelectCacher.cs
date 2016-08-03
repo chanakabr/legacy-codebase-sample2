@@ -26,7 +26,7 @@ namespace ODBCWrapper
         static protected string m_sLocker = "";
         static public Int32 GetCachedSec()
         {
-            if (Utils.GetTcmConfigValue("ODBC_CACH_SEC") != string.Empty) 
+            if (Utils.GetTcmConfigValue("ODBC_CACH_SEC") != string.Empty)
             {
                 return int.Parse(Utils.GetTcmConfigValue("ODBC_CACH_SEC"));
             }
@@ -62,8 +62,8 @@ namespace ODBCWrapper
         }
 
         /// 
-  /// Remove all the Cache Items from the Current Cache ...
-  /// 
+        /// Remove all the Cache Items from the Current Cache ...
+        /// 
 
         static public void ClearCache()
         {
@@ -73,10 +73,10 @@ namespace ODBCWrapper
             while (CacheEnum.MoveNext())
             {
                 string key = CacheEnum.Key.ToString();
-                HttpRuntime.Cache.Remove(key); 
+                HttpRuntime.Cache.Remove(key);
             }
         }
-        
+
         static public System.Data.DataTable GetCachedDataTable(string sCachStr, Int32 nCachSec)
         {
             try
@@ -85,7 +85,7 @@ namespace ODBCWrapper
                     return null;
                 if (HttpRuntime.Cache[sCachStr] != null)
                     return ((System.Data.DataTable)(CachingManager.CachingManager.GetCachedData(sCachStr))).Copy();
-                    //return ((System.Data.DataTable)(HttpRuntime.Cache[sCachStr])).Copy();
+                //return ((System.Data.DataTable)(HttpRuntime.Cache[sCachStr])).Copy();
                 else
                     return null;
             }
@@ -94,7 +94,7 @@ namespace ODBCWrapper
                 return null;
             }
         }
-        
+
         static public void SetCachedDataTable(string sCachStr, System.Data.DataTable dDataTable)
         {
             try
