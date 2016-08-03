@@ -17749,13 +17749,13 @@ namespace ConditionalAccess
             }
 
             // In case an EPG was deleted - recording should be canceled as well
-            if (action == eAction.Off || action == eAction.Delete)
+            if (action == eAction.Delete)
             {
                 foreach (var id in epgIds)
                 {
                     Recording recording = ConditionalAccess.Utils.GetRecordingByEpgId(m_nGroupID, id);
 
-                    var currentStatus = RecordingsManager.Instance.CancelOrDeleteRecording(m_nGroupID, recording, action == eAction.Delete ? TstvRecordingStatus.Deleted : TstvRecordingStatus.Canceled);
+                    var currentStatus = RecordingsManager.Instance.DeleteRecording(m_nGroupID, recording);
 
                     // If something went wrong, use the first status that failed
                     if (status == null)
@@ -18194,15 +18194,24 @@ namespace ConditionalAccess
                     totalRecordingsToCleanup += recordingsForDeletion.Count;
                     List<long> deletedRecordingIds = new List<long>();
                     int adapterId = 0;
-                    foreach (KeyValuePair<int, Recording> pair in recordingsForDeletion.Values)
+                    // set max amount of concurrent tasks
+                    int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
+                    if (maxDegreeOfParallelism == 0)
                     {
+                        maxDegreeOfParallelism = 5;
+                    }
+                    ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
+                    ContextData contextData = new ContextData();
+                    Parallel.ForEach(recordingsForDeletion.Values.AsEnumerable(), options, (pair) =>
+                    {
+                        contextData.Load();
                         if (!groupIdToAdapterIdMap.ContainsKey(pair.Key))
                         {
                             adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(pair.Key);
                             groupIdToAdapterIdMap.Add(pair.Key, adapterId);
                         }
 
-                        ApiObjects.Response.Status deleteStatus = RecordingsManager.Instance.CancelOrDeleteRecording(pair.Key, pair.Value, TstvRecordingStatus.Deleted, adapterId);
+                        ApiObjects.Response.Status deleteStatus = RecordingsManager.Instance.DeleteRecording(pair.Key, pair.Value, adapterId);
                         if (deleteStatus.Code != (int)eResponseStatus.OK)
                         {
                             if (!recordingsThatFailedDeletion.Contains(pair.Value.Id))
@@ -18216,7 +18225,7 @@ namespace ConditionalAccess
                             deletedRecordingIds.Add(pair.Value.Id);
                             log.DebugFormat("recordingID {0} has been successfully cleaned up for groupID {1}", pair.Value.Id, pair.Key);
                         }
-                    }
+                    });
 
                     totalRecordingsDeleted += deletedRecordingIds.Count;
 
@@ -18617,14 +18626,27 @@ namespace ConditionalAccess
             bool result = false;
             try
             {
-                int recordingDuration = RecordingsDAL.GetRecordingDuration(task.RecordingId);
-                if (recordingDuration <= 0)
+                Recording recording = Utils.GetRecordingById(task.RecordingId);
+                if (recording == null)
                 {
-                    log.ErrorFormat("Failed GetRecordingDuration for modifiedRecording: {0}, returned recordingDuration = {1}", task, recordingDuration);
+                    log.ErrorFormat("Failed fetching recording with ID: {0} on HandleDomainQuotaByRecording", task.RecordingId);
+                    return result;
+                }
+                DomainRecordingStatus? domainRecordingStatus = Utils.ConvertToDomainRecordingStatus(recording.RecordingStatus);
+                if (!domainRecordingStatus.HasValue)
+                {
+                    log.ErrorFormat("Failed ConvertToDomainRecordingStatus for recordingId: {0}, recordingStatus = {1}", recording.Id, recording.RecordingStatus.ToString());
                     return result;
                 }
 
-                DataTable modifiedDomainRecordings = RecordingsDAL.GetDomainsRecordingsByRecordingIdAndProtectDate(task.RecordingId, task.ScheduledExpirationEpoch);
+                int status = 1;
+                if (domainRecordingStatus.Value == DomainRecordingStatus.DeletedBySystem || domainRecordingStatus.Value == DomainRecordingStatus.Deleted)
+                {
+                    status = 2;
+                }
+
+                int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
+                DataTable modifiedDomainRecordings = RecordingsDAL.GetDomainsRecordingsByRecordingIdAndProtectDate(task.RecordingId, task.ScheduledExpirationEpoch, status, domainRecordingStatus.Value);
 
                 // set max amount of concurrent tasks
                 int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
@@ -18675,7 +18697,7 @@ namespace ConditionalAccess
                         }
                     });
 
-                    modifiedDomainRecordings = RecordingsDAL.GetDomainsRecordingsByRecordingIdAndProtectDate(task.RecordingId, task.ScheduledExpirationEpoch);
+                    modifiedDomainRecordings = RecordingsDAL.GetDomainsRecordingsByRecordingIdAndProtectDate(task.RecordingId, task.ScheduledExpirationEpoch, status, domainRecordingStatus.Value);
                 }
 
                 long minProtectionEpoch = RecordingsDAL.GetRecordingMinProtectedEpoch(task.RecordingId, task.ScheduledExpirationEpoch);
@@ -19416,8 +19438,10 @@ namespace ConditionalAccess
                                         string userId = ODBCWrapper.Utils.GetSafeStr(drow, "user_id");
                                         long domainId = ODBCWrapper.Utils.GetLongSafeVal(drow, "domain_id");
                                         long domainRecordingId = ODBCWrapper.Utils.GetLongSafeVal(drow, "id");
-                                        // cancel all of these recordes 
-                                        CancelOrDeleteRecord(userId, domainId, domainRecordingId, TstvRecordingStatus.Canceled, false);
+                                        long currentRecordingId = ODBCWrapper.Utils.GetLongSafeVal(drow, "recording_id");
+                                        TstvRecordingStatus currentTstv = currentRecordingId == recordingId ? TstvRecordingStatus.Deleted : TstvRecordingStatus.Canceled;
+                                        // cancel or delete all of these recordes 
+                                        CancelOrDeleteRecord(userId, domainId, domainRecordingId, currentTstv, false);
                                     });
                                 }
                             }

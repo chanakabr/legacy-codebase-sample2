@@ -392,7 +392,7 @@ namespace CouchbaseManager
 
                 IOperationResult insertResult = null;
 
-                string action = string.Format("Action: Insert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
+                string action = string.Format("Action: Insert; bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
                     if (!asJson)
@@ -453,7 +453,7 @@ namespace CouchbaseManager
                 IOperationResult insertResult = null;
                 expiration = FixExpirationTime(expiration);
 
-                string action = string.Format("Action: Insert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
+                string action = string.Format("Action: Insert; bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
                     if (!asJson)
@@ -514,7 +514,7 @@ namespace CouchbaseManager
                 IOperationResult insertResult = null;
                 expiration = FixExpirationTime(expiration);
 
-                string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
+                string action = string.Format("Action: Upsert; bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
                     if (!asJson)
@@ -575,7 +575,7 @@ namespace CouchbaseManager
                 IOperationResult insertResult = null;
                 expiration = FixExpirationTime(expiration);
 
-                string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
+                string action = string.Format("Action: Upsert; bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
                     if (!asJson)
@@ -629,7 +629,7 @@ namespace CouchbaseManager
                 IOperationResult insertResult = null;
                 expiration = FixExpirationTime(expiration);
 
-                string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
+                string action = string.Format("Action: Upsert; bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
                     if (cas > 0)
@@ -740,7 +740,7 @@ namespace CouchbaseManager
                 var bucket = ClusterHelper.GetBucket(bucketName);
                 IOperationResult<T> getResult = null;
 
-                string action = string.Format("Action: Get bucket: {0} key: {1}", bucketName, key);
+                string action = string.Format("Action: Get; bucket: {0}; key: {1}", bucketName, key);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
                     getResult = bucket.Get<T>(key);
@@ -775,7 +775,7 @@ namespace CouchbaseManager
                 var bucket = ClusterHelper.GetBucket(bucketName);
                 IOperationResult<T> getResult = null;
 
-                string action = string.Format("Action: Get bucket: {0} key: {1}", bucketName, key);
+                string action = string.Format("Action: Get; bucket: {0}; key: {1}", bucketName, key);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
                     getResult = bucket.Get<T>(key);
@@ -812,7 +812,7 @@ namespace CouchbaseManager
                 var bucket = ClusterHelper.GetBucket(bucketName);
                 IOperationResult<T> getResult = null;
 
-                string action = string.Format("Action: GetWithLock bucket: {0} key: {1}", bucketName, key);
+                string action = string.Format("Action: GetWithLock; bucket: {0}; key: {1}", bucketName, key);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
                     if (withLock)
@@ -859,9 +859,8 @@ namespace CouchbaseManager
             {
                 var bucket = ClusterHelper.GetBucket(bucketName);
 
-                string action = string.Format("Action: Exists bucket: {0} key: {1}", bucketName, key);
                 IOperationResult removeResult;
-                action = string.Format("Action: Remove bucket: {0} key: {1}", bucketName, key);
+                string action = string.Format("Action: Remove; bucket: {0}; key: {1}", bucketName, key);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
                     removeResult = bucket.Remove(key);
@@ -895,7 +894,7 @@ namespace CouchbaseManager
 
                 IOperationResult<T> getResult;
 
-                string action = string.Format("Action: Get bucket: {0} key: {1}", bucketName, key);
+                string action = string.Format("Action: Get; bucket: {0}; key: {1}", bucketName, key); 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
                     getResult = bucket.Get<T>(key);
@@ -940,7 +939,7 @@ namespace CouchbaseManager
 
                 IOperationResult<T> getResult;
 
-                string action = string.Format("Action: Get bucket: {0} key: {1}", bucketName, key);
+                string action = string.Format("Action: Get; bucket: {0}; key: {1}", bucketName, key); 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
                     getResult = bucket.Get<T>(key);
@@ -989,7 +988,7 @@ namespace CouchbaseManager
             IOperationResult setResult;
             expiration = FixExpirationTime(expiration);
 
-            string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
+            string action = string.Format("Action: Upsert; bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration); 
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
             {
                 if (!asJson)
@@ -1037,7 +1036,7 @@ namespace CouchbaseManager
             IOperationResult setResult;
             expiration = FixExpirationTime(expiration);
 
-            string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
+            string action = string.Format("Action: Upsert; bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration); 
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
             {
                 if (!asJson)
@@ -1099,7 +1098,7 @@ namespace CouchbaseManager
             IOperationResult setResult;
             expiration = FixExpirationTime(expiration);
 
-            string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
+            string action = string.Format("Action: Upsert; bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration); 
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
             {
                 if (!asJson)
@@ -1147,7 +1146,7 @@ namespace CouchbaseManager
             IOperationResult setResult;
             expiration = FixExpirationTime(expiration);
 
-            string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
+            string action = string.Format("Action: Upsert; bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration); 
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
             {
                 if (!asJson)
@@ -1249,7 +1248,7 @@ namespace CouchbaseManager
                 var bucket = ClusterHelper.GetBucket(bucketName);
                 IDictionary<string, IOperationResult<T>> getResult;
 
-                string action = string.Format("Action: Get bucket: {0} keys: {1}", bucketName, string.Join(",", keys.ToArray()));
+                string action = string.Format("Action: Get, bucket: {0}, keys: {1}", bucket.Name, string.Join(",", keys.ToArray()));
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
                     getResult = bucket.Get<T>(keys);
@@ -1533,7 +1532,7 @@ namespace CouchbaseManager
             var bucket = ClusterHelper.GetBucket(bucketName);
             IOperationResult<ulong> incrementResult = null;
 
-            string action = string.Format("Action: Increment bucket: {0} key: {1}", bucketName, key);
+            string action = string.Format("Action: Increment; bucket: {0}; key: {1}", bucketName, key); 
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
             {
                 incrementResult = bucket.Increment(key, delta);
