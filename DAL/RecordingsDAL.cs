@@ -694,7 +694,7 @@ namespace DAL
             return spCountRecordingsByExternalRecordingId.ExecuteReturnValue<int>();           
         }
 
-        public static RecordingLink GetRecordingLinkByFileType(int groupId, string externalRecordingId, string fileType)
+        public static RecordingLink GetRecordingLinkByFileType(int groupId, long externalRecordingId, string fileType)
         {
             RecordingLink recordingLink = null;
 
