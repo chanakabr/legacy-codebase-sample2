@@ -6040,6 +6040,41 @@ namespace ConditionalAccess
 
             return DomainRecordingIdToRecordingMap;
         }
+
+        internal static ApiObjects.Response.Status IsFollowingEpgAsSeriesOrSeason(int groupId, EPGChannelProgrammeObject epg, long domainId, RecordingType recordingType)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            Dictionary<string, string> epgFieldMappings = null;
+            if (!Utils.GetEpgFieldTypeEntitys(groupId, epg, RecordingType.Single, out epgFieldMappings) || epgFieldMappings == null || epgFieldMappings.Count == 0)
+            {
+                log.ErrorFormat("failed GetEpgFieldTypeEntitys, groupId: {0}, epgId: {1}", groupId, epg.EPG_ID);
+                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                return response;
+            }
+            else
+            {
+                string seriesId = epgFieldMappings[Utils.SERIES_ID];
+                int seasonNumber = 0;
+                if (epgFieldMappings.ContainsKey(Utils.SEASON_NUMBER) && !int.TryParse(epgFieldMappings[Utils.SEASON_NUMBER], out seasonNumber))
+                {
+                    log.ErrorFormat("failed parsing SEASON_NUMBER, groupId: {0}, epgId: {1}", groupId, epg.EPG_ID);
+                    return response;
+                }
+
+                if (Utils.IsFollowingSeries(groupId, domainId, seriesId, recordingType == RecordingType.Series ? 0 : seasonNumber))
+                {
+                    log.DebugFormat("domain already follows the series, can't record as single, DomainID: {0}, seriesID: {1}", domainId, seriesId);
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.AlreadyRecordedAsSeriesOrSeason, eResponseStatus.AlreadyRecordedAsSeriesOrSeason.ToString());
+                    return response;
+                }
+                else
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    return response;
+                }
+            }
+        }
+
     }
 }
 

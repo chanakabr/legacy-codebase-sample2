@@ -17321,33 +17321,22 @@ namespace ConditionalAccess
                     Recording recording = Utils.ValidateEpgForRecord(accountSettings, epg, shouldCheckCatchup);
                     if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK)
                     {
-                        Dictionary<string, string> epgFieldMappings = null;
-                        if (!Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, RecordingType.Single, out epgFieldMappings) || epgFieldMappings == null || epgFieldMappings.Count == 0)
+                        if (isSingleRecording)
                         {
-                            log.ErrorFormat("failed GetEpgFieldTypeEntitys, groupId: {0}, epgId: {1}, isSingleRecording: {2}", m_nGroupID, epg.EPG_ID, isSingleRecording);
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                            return response;
-                        }
-                        else
-                        {
-                            string seriesId = epgFieldMappings[Utils.SERIES_ID];
-                            int seasonNumber = 0;
-                            if (epgFieldMappings.ContainsKey(Utils.SEASON_NUMBER) && !int.TryParse(epgFieldMappings[Utils.SEASON_NUMBER], out seasonNumber))
+                            ApiObjects.Response.Status IsFollowingResponse = Utils.IsFollowingEpgAsSeriesOrSeason(m_nGroupID, epg, domainID, recordingType);
+                            if (IsFollowingResponse.Code != (int)eResponseStatus.OK)
                             {
-                                log.ErrorFormat("failed parsing SEASON_NUMBER, groupId: {0}, epgId: {1}, isSingleRecording: {2}", m_nGroupID, epg.EPG_ID, isSingleRecording);
-                                recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                                response.Recordings.Add(recording);
-                            }
-                            if (Utils.IsFollowingSeries(m_nGroupID, domainID, seriesId, recordingType == RecordingType.Series? 0 : seasonNumber))
-                            {
-                                log.DebugFormat("domain already follows the series, can't record as single, DomainID: {0}, UserID: {1}, seriesID: {2}", domainID, userID, seriesId);
-                                recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.AlreadyRecordedAsSeriesOrSeason, eResponseStatus.AlreadyRecordedAsSeriesOrSeason.ToString());
+                                recording.Status = IsFollowingResponse;
                                 response.Recordings.Add(recording);
                             }
                             else
                             {
                                 validEpgsForRecording.Add(recording.EpgId, false);
                             }
+                        }
+                        else
+                        {
+                            validEpgsForRecording.Add(recording.EpgId, false);
                         }
                     }
                     else
@@ -19147,20 +19136,34 @@ namespace ConditionalAccess
             try
             {
                 long domainID = 0;
-
                 recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID, recordingType, false);
                 if (recordingResponse.Status.Code != (int)eResponseStatus.OK || recordingResponse.TotalItems == 0)
                 {
                     log.DebugFormat("RecordingResponse status not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, seriesRecording.ToString());
                     seriesRecording.Status = recordingResponse.Status;
                     return seriesRecording;
-                }
+                }                
 
-                // TODO: check what to do if epg was already recorded as single
                 seriesRecording = new SeriesRecording(recordingResponse.Recordings[0]);
                 if (seriesRecording == null || seriesRecording.Status == null || seriesRecording.Status.Code != (int)eResponseStatus.OK)
                 {
                     log.DebugFormat("Recording status not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, seriesRecording.ToString());
+                    return seriesRecording;
+                }
+
+                // check if already following as season or series - QueryRecords checks it only for single recordings
+                List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, new List<long>() { epgID });
+                // no need to validate epg, it is already checked on QueryRecords
+                if (epgs == null || epgs.Count == 0)
+                {
+                    log.DebugFormat("Failed Getting EPGs from Catalog, DomainID: {0}, UserID: {1}, EpgID: {2}", domainID, userID, epgID);
+                    epgs = new List<EPGChannelProgrammeObject>();
+                }
+
+                ApiObjects.Response.Status IsFollowingResponse = Utils.IsFollowingEpgAsSeriesOrSeason(m_nGroupID, epgs[0], domainID, recordingType);
+                if (IsFollowingResponse.Code != (int)eResponseStatus.OK)
+                {                    
+                    seriesRecording.Status = IsFollowingResponse;
                     return seriesRecording;
                 }
                 bool isSeriesFollowed = false;
@@ -19170,6 +19173,7 @@ namespace ConditionalAccess
                 {
                     log.ErrorFormat("Failed Utils.FollowSeasonOrSeries, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, seriesRecording.ToString());
                     seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    return seriesRecording;
                 }
                 else if (seriesRecording.Status.Code != (int)eResponseStatus.OK)
                 {
