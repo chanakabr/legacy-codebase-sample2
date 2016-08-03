@@ -25,7 +25,7 @@ namespace EpgIngest
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private const string EPGS_PROGRAM_DATES_ERROR = "Error at EPG Program Start/End Dates";
-        private const string EPGS_PROGRAM_MISSING_CRID = "Error at EPG Program crid is empty";
+        private const string EPGS_PROGRAM_MISSING_CRID = "Warning at EPG Program crid is empty {0}";
         private const string FAILED_DOWNLOAD_PIC = "Failed download pic";
 
 
@@ -228,7 +228,7 @@ namespace EpgIngest
                     if (isTstvSettings && string.IsNullOrEmpty(prog.crid))
                     {
                         log.DebugFormat("crid is empty for external id {0}: ", prog.external_id);
-                        ingestAssetStatus.Warnings.Add(new Status((int)IngestWarnings.EPGSProgramMissingCrid, EPGS_PROGRAM_MISSING_CRID));
+                        ingestAssetStatus.Warnings.Add(new Status((int)IngestWarnings.EPGSProgramMissingCrid, string.Format(EPGS_PROGRAM_MISSING_CRID, prog.external_id)));
                     }
 
                     if (!Utils.ParseEPGStrToDate(prog.start, ref dProgStartDate) || !Utils.ParseEPGStrToDate(prog.stop, ref dProgEndDate))
