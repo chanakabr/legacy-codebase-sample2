@@ -209,7 +209,7 @@ namespace CouchbaseManager
             {
                 IViewResult<object> queryResult = null;
 
-                string action = string.Format("Action: Query ViewName: {0} bucket: {1}", viewName, bucket.Name);
+                string action = string.Format("Action: Query, ViewName: {0}, Bucket: {1}, RestURI: {2}", viewName, bucket.Name, query.RawUri().ToString());
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
                     queryResult = bucket.Query<object>(query);
@@ -234,7 +234,7 @@ namespace CouchbaseManager
                     var ids = queryResult.Rows.Select(row => row.Id).ToList();
                     IDictionary<string, IOperationResult<T>> getResults = null;
 
-                    action = string.Format("Action: Get bucket: {0} keys: {1}", bucket.Name, string.Join(",", ids.ToArray()));
+                    action = string.Format("Action: Get, bucket: {0}, keys: {1}", bucket.Name, string.Join(",", ids.ToArray()));
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                     {
                         getResults = bucket.Get<T>(ids);
@@ -265,7 +265,7 @@ namespace CouchbaseManager
             {
                 IViewResult<T> queryResult = null;
 
-                string action = string.Format("Action: Query ViewName: {0} bucket: {1}", viewName, bucket.Name);
+                string action = string.Format("Action: Query, ViewName: {0}, Bucket: {1}, RestURI: {2}", viewName, bucket.Name, query.RawUri().ToString());
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
                     queryResult = bucket.Query<T>(query);
@@ -301,7 +301,7 @@ namespace CouchbaseManager
             IViewQuery query = InitializeQuery(bucket);
             IViewResult<T1> queryResult = null;
 
-            string action = string.Format("Action: Query ViewName: {0} bucket: {1}", viewName, bucket.Name);
+            string action = string.Format("Action: Query, ViewName: {0}, Bucket: {1}, RestURI: {2}", viewName, bucket.Name, query.RawUri().ToString());
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
             {
                 queryResult = bucket.Query<T1>(query);
@@ -336,7 +336,7 @@ namespace CouchbaseManager
             IViewQuery query = InitializeQuery(bucket);
             IViewResult<object> queryResult = null;
 
-            string action = string.Format("Action: Query ViewName: {0} bucket: {1}", viewName, bucket.Name);
+            string action = string.Format("Action: Query, ViewName: {0}, Bucket: {1}, RestURI: {2}", viewName, bucket.Name, query.RawUri().ToString());
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
             {
                 queryResult = bucket.Query<object>(query);
@@ -374,7 +374,7 @@ namespace CouchbaseManager
             {
                 IViewResult<object> queryResult = null;
 
-                string action = string.Format("Action: Query ViewName: {0} bucket: {1}", viewName, bucket.Name);
+                string action = string.Format("Action: Query, ViewName: {0}, Bucket: {1}, RestURI: {2}", viewName, bucket.Name, query.RawUri().ToString());
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
                     queryResult = bucket.Query<object>(query);
@@ -405,7 +405,7 @@ namespace CouchbaseManager
 
                     IDictionary<string, IOperationResult<T>> getResults = null;
 
-                    action = string.Format("Action: Get bucket: {0} keys: {1}", bucket.Name, string.Join(",", idsAndKeys.ToArray()));
+                    action = string.Format("Action: Get, bucket: {0}, keys: {1}", bucket.Name, string.Join(",", idsAndKeys.Keys.ToArray()));
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                     {
                         getResults = bucket.Get<T>(idsAndKeys.Keys.ToList());
@@ -442,7 +442,7 @@ namespace CouchbaseManager
             {
                 IViewResult<T> queryResult = null;
 
-                string action = string.Format("Action: Query ViewName: {0} bucket: {1}", viewName, bucket.Name);
+                string action = string.Format("Action: Query, ViewName: {0}, Bucket: {1}, RestURI: {2}", viewName, bucket.Name, query.RawUri().ToString());
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
                     queryResult = bucket.Query<T>(query);
