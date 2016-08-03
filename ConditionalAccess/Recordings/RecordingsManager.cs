@@ -131,7 +131,7 @@ namespace Recordings
                 Dictionary<long, Recording> recordingsEpgMap = ConditionalAccess.Utils.GetEpgToRecordingsMapByCridAndChannel(groupId, crid, epgChannelID);
 
                 // remember and not forget
-                if (recordingsEpgMap == null || recordingsEpgMap.Count == 0)
+                if (recordingsEpgMap.Count == 0)
                 {
                     bool syncedAction = synchronizer.DoAction(syncKey, syncParmeters);
 
@@ -521,7 +521,7 @@ namespace Recordings
                     Recording existingRecordingWithMinStartDate;
                     
                     // get all the recordings with the same CRID if our recording is the earliest - cancel the existing recording and record the new
-                    if (recordingsEpgMap != null && recordingsEpgMap.Count > 0) 
+                    if (recordingsEpgMap.Count > 0) 
                     {
                         // the recording to update is the first program with this CRID and it is still the first - 
                         // OR the updated recording is the first and there are no others - update adapter
@@ -1004,7 +1004,7 @@ namespace Recordings
 
                 Dictionary<long, Recording> recordingsEpgMap = ConditionalAccess.Utils.GetEpgToRecordingsMapByCridAndChannel(groupId, currentRecording.Crid, currentRecording.ChannelId);
                 // if the recording crid has more than 1 recording and the min recording is the current, we need to call the adapter with the 2nd recording and switch external recording id
-                if (recordingsEpgMap != null && recordingsEpgMap.Count > 1)
+                if (recordingsEpgMap.Count > 1)
                 {
                     List<Recording> orderedRecordings = recordingsEpgMap.Values.OrderBy(x => x.EpgStartDate).ToList();
                     Recording firstRecordingWithMinStartDate = orderedRecordings[0];
@@ -1088,7 +1088,7 @@ namespace Recordings
 
                 Dictionary<long, Recording> recordingsEpgMap = ConditionalAccess.Utils.GetEpgToRecordingsMapByCridAndChannel(groupId, recording.Crid, recording.ChannelId);
                 // if the recording crid has more than 1 recording and the min recording is the current, we need to call the adapter with the 2nd recording and switch external recording id
-                if (recordingsEpgMap != null && recordingsEpgMap.Count > 1)
+                if (recordingsEpgMap.Count > 1)
                 {
                     List<Recording> orderedRecordings = recordingsEpgMap.Values.OrderBy(x => x.EpgStartDate).ToList();
                     Recording firstRecordingWithMinStartDate = orderedRecordings[0];
