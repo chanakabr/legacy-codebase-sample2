@@ -201,7 +201,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
         /// UserWithNoDomain = 2024, ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, ProgramCdvrNotEnabled = 3035,
-        /// AccountSeriesRecordingNotEnabled = 3046, InvalidAssetId = 4024</remarks>
+        /// AccountSeriesRecordingNotEnabled = 3046, AlreadyRecordedAsSeriesOrSeason = 3047, InvalidAssetId = 4024</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
         public KalturaSeriesRecording Add(KalturaSeriesRecording recording)
