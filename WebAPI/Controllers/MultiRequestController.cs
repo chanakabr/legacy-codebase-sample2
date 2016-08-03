@@ -110,6 +110,12 @@ namespace WebAPI.Controllers
                 if (match.Success)
                 {
                     int index = int.Parse(match.Groups[1].Value) - 1;
+                    if (index < 0)
+                        throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidMultirequestToken, "Invalid multirequest token - the response index is not zero based");
+
+                    if (index >= responses.Length)
+                        throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidMultirequestToken, "Invalid multirequest token - invalid response index");
+
                     if (match.Groups[2].Success)
                     {
                         List<string> tokens = new List<string>(match.Groups[2].Value.Split(':'));
