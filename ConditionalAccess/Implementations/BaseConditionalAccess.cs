@@ -19416,8 +19416,10 @@ namespace ConditionalAccess
                                         string userId = ODBCWrapper.Utils.GetSafeStr(drow, "user_id");
                                         long domainId = ODBCWrapper.Utils.GetLongSafeVal(drow, "domain_id");
                                         long domainRecordingId = ODBCWrapper.Utils.GetLongSafeVal(drow, "id");
-                                        // cancel all of these recordes 
-                                        CancelOrDeleteRecord(userId, domainId, domainRecordingId, TstvRecordingStatus.Canceled, false);
+                                        long currentRecordingId = ODBCWrapper.Utils.GetLongSafeVal(drow, "recording_id");
+                                        TstvRecordingStatus currentTstv = currentRecordingId == recordingId ? TstvRecordingStatus.Deleted : TstvRecordingStatus.Canceled;
+                                        // cancel or delete all of these recordes 
+                                        CancelOrDeleteRecord(userId, domainId, domainRecordingId, currentTstv, false);
                                     });
                                 }
                             }
