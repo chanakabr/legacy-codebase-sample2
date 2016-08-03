@@ -18640,9 +18640,11 @@ namespace ConditionalAccess
                 }
 
                 int status = 1;
-                if (domainRecordingStatus.Value == DomainRecordingStatus.DeletedBySystem || domainRecordingStatus.Value == DomainRecordingStatus.Deleted)
+                // Currently canceled can be only due to UpdateRecording which Deletes EPG
+                if (domainRecordingStatus.Value != DomainRecordingStatus.OK)
                 {
                     status = 2;
+                    domainRecordingStatus = DomainRecordingStatus.DeletedBySystem;
                 }
 
                 int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
