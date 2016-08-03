@@ -500,7 +500,14 @@ namespace DAL
             {
                 ODBCWrapper.StoredProcedure spGet_All_Users_PPV_modules = new ODBCWrapper.StoredProcedure("Get_UsersPermittedItems");
                 spGet_All_Users_PPV_modules.SetConnectionKey("CONNECTION_STRING");
-                spGet_All_Users_PPV_modules.AddIDListParameter<int>("@UserIDs", usersIds, "Id");
+                if (usersIds.Count > 0)
+                {
+                    spGet_All_Users_PPV_modules.AddIDListParameter<string>("@UserIDs", usersIds.Select(x => x.ToString()).ToList(), "Id");
+                }
+                else
+                {
+                    spGet_All_Users_PPV_modules.AddIDListParameter<string>("@UserIDs", new List<string>(), "Id");
+                }
                 spGet_All_Users_PPV_modules.AddParameter("@isExpired", isExpired);
                 spGet_All_Users_PPV_modules.AddParameter("@DomainID", domainID);
                 spGet_All_Users_PPV_modules.AddParameter("@OrderBy", orderBy);
