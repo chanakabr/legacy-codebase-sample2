@@ -18619,7 +18619,7 @@ namespace ConditionalAccess
         }
 
         /// <summary>
-        /// This method handles both Expired recordings and Failed recordings
+        /// This method handles Expired/Failed/Canceled/Deleted recordings
         /// </summary>
         public bool HandleDomainQuotaByRecording(HandleDomainQuataByRecordingTask task)
         {
