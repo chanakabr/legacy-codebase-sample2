@@ -402,10 +402,11 @@ namespace DAL
                     long recordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "id", 0);
                     long channelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_CHANNEL_ID");
                     string crid = ODBCWrapper.Utils.GetSafeStr(dr, "CRID");
+                    DateTime endDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
                     if (groupID > 0 && recordingId > 0 && epgId > 0 && !string.IsNullOrEmpty(externalRecordingID) && !recordingsForCleanup.ContainsKey(recordingId))
                     {
                         KeyValuePair<int, Recording> pair = new KeyValuePair<int, Recording>(groupID, new Recording() { Id = recordingId, ExternalRecordingId = externalRecordingID, EpgId = epgId,
-                                                                                                                        ChannelId = channelId, Crid = crid });
+                                                                                                                        ChannelId = channelId, Crid = crid, EpgEndDate = endDate });
                         recordingsForCleanup.Add(recordingId, pair);
                     }
                 }

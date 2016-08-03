@@ -25,7 +25,7 @@ namespace Recordings
         #region Consts
 
         private const string SCHEDULED_TASKS_ROUTING_KEY = "PROCESS_RECORDING_TASK\\{0}";
-        private const string ROUTING_KEY_EXPIRED_RECORDING = "PROCESS_EXPIRED_RECORDING\\{0}";
+        private const string ROUTING_KEY_MODIFIED_RECORDING = "PROCESS_MODIFIED_RECORDING\\{0}";
 
         private static readonly int MINUTES_ALLOWED_DIFFERENCE = 5;
         private static readonly int MINUTES_RETRY_INTERVAL;
@@ -240,7 +240,7 @@ namespace Recordings
             return recording;
         }
 
-        public Status CancelOrDeleteRecording(int groupId, Recording slimRecording, TstvRecordingStatus recordingStatus, int adapterId = 0)
+        public Status DeleteRecording(int groupId, Recording slimRecording, int adapterId = 0)
         {
             Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -249,79 +249,78 @@ namespace Recordings
                 UpdateIndex(groupId, slimRecording.Id, eAction.Delete);
                 UpdateCouchbase(groupId, slimRecording.EpgId, slimRecording.Id, false);
 
+                bool shouldCancel = false;
+                bool shouldCallDirectlyToAdapter = false;
+                List<Recording> recordingsWithTheSameCrid = ConditionalAccess.Utils.GetEpgToRecordingsMapByCridAndChannel(groupId, slimRecording.Crid, slimRecording.ChannelId).Values.ToList();
+                // last recording
+                if (recordingsWithTheSameCrid.Count == 1)
+                {
+                    shouldCallDirectlyToAdapter = true;
+                    //  recording in status scheduled/recording is canceled, otherwise we delete
+                    if (slimRecording.EpgEndDate < DateTime.UtcNow)
+                    {
+                        shouldCancel = true;
+                    }
+                }
+                /***** WHEN ADAPTER_ID > 0 it means we came from CleanupRecordings and we dont care about min value ***** 
+                more than one recording exist, we need to check if the current recording is the min*/
+                else if (adapterId == 0)
+                {
+                    // get all the recordings with the same CRID if our recording is the earliest - record the next before canceling deleting this one
+                    List<Recording> orderedRecordings = recordingsWithTheSameCrid.OrderBy(x => x.EpgStartDate).ToList();
+                    List<Recording> failedRecordings = new List<Recording>();
+                    Recording existingRecordingWithMinStartDate = orderedRecordings.First();
 
-                bool shouldCallAdapter = RecordingsDAL.CountRecordingsByExternalRecordingId(groupId, slimRecording.ExternalRecordingId) == 1 ? true : false;
-                RecordResult adapterResponse = null;
-                if (shouldCallAdapter)
+                    if (slimRecording.EpgId == existingRecordingWithMinStartDate.EpgId)
+                    {                        
+                        for (int i = 1; i < orderedRecordings.Count; i++)
+                        {
+                            Recording secondRecording = orderedRecordings[i];
+                            CallAdapterRecord(groupId, secondRecording.ChannelId, secondRecording.EpgStartDate, secondRecording.EpgEndDate, false, secondRecording);
+                            if (secondRecording.Status != null && secondRecording.Status.Code == (int)eResponseStatus.OK)
+                            {                                
+                                if (!RecordingsDAL.UpdateRecordingsExternalId(groupId, secondRecording.ExternalRecordingId, secondRecording.Crid))
+                                {
+                                    log.ErrorFormat("Failed UpdateRecordingsExternalId, ExternalRecordingId: {0}, Crid: {1}", secondRecording.ExternalRecordingId, secondRecording.Crid);
+                                    status = new Status((int)eResponseStatus.Error, "Failed updating recordings external IDs in database.");
+                                    return status;
+                                }
+                                // on success we break
+                                break;
+                            }
+                        }
+
+                        // for each failed recording we call internalExpireRecording
+                        foreach(Recording recording in failedRecordings)
+                        {
+                            status = internalModifyRecording(groupId, recording.Id, recording.EpgEndDate);
+                            if (status.Code != (int)eResponseStatus.OK)
+                            {
+                                log.ErrorFormat("Failed calling internalModifyRecording for recordingId: {0}, response status: {1}", recording.Id, status.Message);
+                            }
+                        }
+                    }
+                }
+
+                if (shouldCallDirectlyToAdapter)
                 {
                     if (adapterId == 0)
                     {
                         adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
                     }
 
+                    RecordResult adapterResponse = null;
                     var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
-
-                    // deal with CRIDs and stuff
-                    Dictionary<long, Recording> recordingsEpgMap = ConditionalAccess.Utils.GetEpgToRecordingsMapByCridAndChannel(groupId, slimRecording.Crid, slimRecording.ChannelId);
-                    Recording existingRecordingWithMinStartDate;
-
-                    // get all the recordings with the same CRID if our recording is the earliest - record the next before canceling deleting this one
-                    if (recordingsEpgMap != null && recordingsEpgMap.Count > 0)
-                    {
-                        var orderedRecordings = recordingsEpgMap.OrderBy(x => x.Value.EpgStartDate).ToList();
-                        existingRecordingWithMinStartDate = orderedRecordings.First().Value;
-
-                        if (slimRecording.EpgId == existingRecordingWithMinStartDate.EpgId && orderedRecordings.Count > 1)
-                        {
-                            Recording secondRecording = orderedRecordings[1].Value;
-                            CallAdapterRecord(groupId, secondRecording.ChannelId, secondRecording.EpgStartDate, secondRecording.EpgEndDate, false, secondRecording);
-                            if (secondRecording.Status == null || secondRecording.Status.Code != (int)eResponseStatus.OK)
-                            {
-                                status = secondRecording.Status;
-                                return status;
-                            }
-                            else if (!RecordingsDAL.UpdateRecordingsExternalId(groupId, secondRecording.ExternalRecordingId, secondRecording.Crid))
-                            {
-                                log.ErrorFormat("Failed UpdateRecordingsExternalId, ExternalRecordingId: {0}, Crid: {1}", secondRecording.ExternalRecordingId, secondRecording.Crid);
-                                status = new Status((int)eResponseStatus.Error, "Failed updating recordings external IDs in database.");
-                                return status;
-                            }
-                        }
-                    }
-                    // this is the only recording with the same CRID - update the quota of the domains
-                    else
-                    {
-                        // Update all domains that have this recording
-                        GenericCeleryQueue queue = new GenericCeleryQueue();
-                        DateTime utcNow = DateTime.UtcNow;
-                        ApiObjects.QueueObjects.RecordingModificationData data = new ApiObjects.QueueObjects.RecordingModificationData(groupId, 0, slimRecording.Id, 0) { ETA = utcNow };
-                        bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_EXPIRED_RECORDING, groupId));
-                        if (!queueExpiredRecordingResult)
-                        {
-                            log.ErrorFormat("Failed to queue ExpiredRecording task for CancelOrDeleteRecording, recordingId: {0}, groupId: {1}", slimRecording.Id, groupId);
-                        }
-                    }
-                    // delete the recording from DB
-                    if (RecordingsDAL.UpdateDomainRecordingsAfterCleanup(new List<long>() { slimRecording.Id }) == 0)
-                    {
-                        log.ErrorFormat("failed to update recording status deleted, recordingId = {0}", slimRecording.Id);
-                    }
-                    
-                    // Call Adapter to cancel or delete recording                    
                     try
                     {
-                        switch (recordingStatus)
+                        if (shouldCancel)
                         {
-                            case TstvRecordingStatus.Canceled:
-                                adapterResponse = adapterController.CancelRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
-                                break;
-                            case TstvRecordingStatus.Deleted:
-                                adapterResponse = adapterController.DeleteRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
-                                break;
-                            default:
-                                break;
+                            adapterResponse = adapterController.CancelRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
                         }
-
+                        else
+                        {
+                            adapterResponse = adapterController.DeleteRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
+                        }
                     }
                     catch (KalturaException ex)
                     {
@@ -330,57 +329,14 @@ namespace Recordings
                     }
                     catch (Exception ex)
                     {
-                        status = new Status((int)eResponseStatus.Error, "Adapter controller excpetion: " + ex.Message);
+                        status = new Status((int)eResponseStatus.Error, "Adapter controller exception: " + ex.Message);
                         return status;
                     }
                 }
 
-                if (shouldCallAdapter && adapterResponse == null)
-                {
-                    status = new Status((int)eResponseStatus.Error, "Adapter controller returned null response.");
-                }
-                //
-                // TODO: Validate adapter response
-                //
-                else if (shouldCallAdapter && adapterResponse.FailReason != 0)
-                {
-                    status = CreateFailStatus(adapterResponse);
-                }
-                else
-                {
-                    try
-                    {
-
-                        // Update recording information in to database
-                        bool updateResult = false;
-
-                        switch (recordingStatus)
-                        {
-                            case TstvRecordingStatus.Canceled:
-                            updateResult = RecordingsDAL.CancelRecording(slimRecording.Id);
-                            break;
-                            case TstvRecordingStatus.Deleted:
-                            updateResult = RecordingsDAL.DeleteRecording(slimRecording.Id);
-                            break;
-                            default:
-                            break;
-                        }
-
-                        if (!updateResult)
-                        {
-                            return new Status((int)eResponseStatus.Error, string.Format("Failed updating recording {0} to status {1}", slimRecording.Id, recordingStatus));
-                        }
-
-                        // We're OK
-                        status = new Status((int)eResponseStatus.OK);
-                    }
-                    catch (Exception ex)
-                    {
-                        log.ErrorFormat("Error while trying to CancelOrDeleteRecording, recordingID: {0}, recordingUpdatedStatus {1}", slimRecording.Id, recordingStatus);
-                        status = new Status((int)eResponseStatus.Error, "Failed inserting recording to database and queue.");
-                    }
-                }
+                status = internalModifyRecording(groupId, slimRecording.Id, slimRecording.EpgEndDate);
             }
+
             return status;
         }
 
@@ -706,7 +662,7 @@ namespace Recordings
                 //TODO: update domains quota
                 GenericCeleryQueue queue = new GenericCeleryQueue();
                 RecordingModificationData data = new RecordingModificationData(groupId, 0, recording.Id, 0) { ETA = DateTime.UtcNow };
-                bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_EXPIRED_RECORDING, groupId));
+                bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_MODIFIED_RECORDING, groupId));
                 if (!queueExpiredRecordingResult)
                 {
                     log.ErrorFormat("Failed to queue task in UpdateRecording, recording: {0}", recording.ToString());
@@ -1076,7 +1032,7 @@ namespace Recordings
                 GenericCeleryQueue queue = new GenericCeleryQueue();
                 DateTime utcNow = DateTime.UtcNow;
                 ApiObjects.QueueObjects.RecordingModificationData data = new ApiObjects.QueueObjects.RecordingModificationData(groupId, 0, currentRecording.Id, 0) { ETA = utcNow };
-                bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_EXPIRED_RECORDING, groupId));
+                bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_MODIFIED_RECORDING, groupId));
                 if (!queueExpiredRecordingResult)
                 {
                     log.ErrorFormat("Failed to queue ExpiredRecording task for RetryTaskAfterProgramEnded when recording FAILED, recordingId: {0}, groupId: {1}", currentRecording.Id, groupId);
@@ -1160,7 +1116,7 @@ namespace Recordings
                 GenericCeleryQueue queue = new GenericCeleryQueue();
                 DateTime utcNow = DateTime.UtcNow;
                 ApiObjects.QueueObjects.RecordingModificationData data = new ApiObjects.QueueObjects.RecordingModificationData(groupId, 0, recording.Id, 0) { ETA = utcNow };
-                bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_EXPIRED_RECORDING, groupId));
+                bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_MODIFIED_RECORDING, groupId));
                 if (!queueExpiredRecordingResult)
                 {
                     log.ErrorFormat("Failed to queue ExpiredRecording task for RetryTaskAfterProgramEnded when recording FAILED, recordingId: {0}, groupId: {1}", recording.Id, groupId);
@@ -1274,6 +1230,61 @@ namespace Recordings
                 log.DebugFormat("Call adapter record for recording {0} will retry", currentRecording.Id);
                 RetryTaskBeforeProgramStarted(groupId, currentRecording, eRecordingTask.Record);
             }
+        }
+
+        private static Status internalModifyRecording(int groupId, long recordingId, DateTime epgEndDate)
+        {
+            Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            // Update all domains that have this recording
+            GenericCeleryQueue queue = new GenericCeleryQueue();
+            DateTime utcNow = DateTime.UtcNow;
+            ApiObjects.QueueObjects.RecordingModificationData data = new ApiObjects.QueueObjects.RecordingModificationData(groupId, 0, recordingId, 0) { ETA = utcNow };
+            bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_MODIFIED_RECORDING, groupId));
+            if (!queueExpiredRecordingResult)
+            {
+                log.ErrorFormat("Failed to queue ExpiredRecording task for CancelOrDeleteRecording, recordingId: {0}, groupId: {1}", recordingId, groupId);
+                return status;
+            }
+
+            // delete the recording from DB
+            if (RecordingsDAL.UpdateDomainRecordingsAfterCleanup(new List<long>() { recordingId }) == 0)
+            {
+                log.ErrorFormat("failed to update recording status deleted, recordingId = {0}", recordingId);
+                return status;
+            }
+
+            try
+            {
+                // Update recording information in to database
+                bool updateResult = false;
+
+                if (epgEndDate < DateTime.UtcNow)
+                {                    
+                    updateResult = RecordingsDAL.CancelRecording(recordingId);
+                }
+                else
+                {
+                    updateResult = RecordingsDAL.DeleteRecording(recordingId);
+                }
+
+                // We're OK
+                if (updateResult)
+                {
+                    status = new Status((int)eResponseStatus.OK);
+                }
+                else
+                {
+                    return new Status((int)eResponseStatus.Error, "Failed CancelRecording or DeleteRecording for on DB");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error on internalExpireRecording, recordingID: {0}", recordingId), ex);
+                status = new Status((int)eResponseStatus.Error, "Exception on CancelRecording or DeleteRecording on DB");
+            }
+
+            return status;
         }
 
         #endregion

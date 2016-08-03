@@ -5301,11 +5301,10 @@ namespace ConditionalAccess
 
         internal static Dictionary<long, Recording> GetEpgToRecordingsMapByCridAndChannel(int groupId, string crid, long channelId)
         {
-            Dictionary<long, Recording> epgToRecordingMap = null;
+            Dictionary<long, Recording> epgToRecordingMap = new Dictionary<long, Recording>();
             DataTable dt = RecordingsDAL.GetEpgToRecordingsMapByCridAndChannel(groupId, crid, channelId);
             if (dt != null && dt.Rows != null)
             {
-                epgToRecordingMap = new Dictionary<long, Recording>();
                 foreach (DataRow dr in dt.Rows)
                 {
                     Recording recording = BuildRecordingFromDataRow(dr);

@@ -17749,13 +17749,13 @@ namespace ConditionalAccess
             }
 
             // In case an EPG was deleted - recording should be canceled as well
-            if (action == eAction.Off || action == eAction.Delete)
+            if (action == eAction.Delete)
             {
                 foreach (var id in epgIds)
                 {
                     Recording recording = ConditionalAccess.Utils.GetRecordingByEpgId(m_nGroupID, id);
 
-                    var currentStatus = RecordingsManager.Instance.CancelOrDeleteRecording(m_nGroupID, recording, action == eAction.Delete ? TstvRecordingStatus.Deleted : TstvRecordingStatus.Canceled);
+                    var currentStatus = RecordingsManager.Instance.DeleteRecording(m_nGroupID, recording);
 
                     // If something went wrong, use the first status that failed
                     if (status == null)
@@ -18202,7 +18202,7 @@ namespace ConditionalAccess
                             groupIdToAdapterIdMap.Add(pair.Key, adapterId);
                         }
 
-                        ApiObjects.Response.Status deleteStatus = RecordingsManager.Instance.CancelOrDeleteRecording(pair.Key, pair.Value, TstvRecordingStatus.Deleted, adapterId);
+                        ApiObjects.Response.Status deleteStatus = RecordingsManager.Instance.DeleteRecording(pair.Key, pair.Value, adapterId);
                         if (deleteStatus.Code != (int)eResponseStatus.OK)
                         {
                             if (!recordingsThatFailedDeletion.Contains(pair.Value.Id))
