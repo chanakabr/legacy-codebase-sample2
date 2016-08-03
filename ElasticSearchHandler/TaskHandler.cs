@@ -48,6 +48,7 @@ namespace ElasticSearchHandler
                     else if (rebuildResult)
                     {
                         res = "success";
+                        log.DebugFormat("Successfully rebuilding {0} index for group id {1} has failed.", request.Type.ToString(), request.GroupID);
                     }
                     else
                     {
@@ -70,6 +71,7 @@ namespace ElasticSearchHandler
                         if (result)
                         {
                             res = "success";
+                            log.DebugFormat("Successfully perform {0} action on asset of type {1}.", request.Action.ToString(), request.Type.ToString());
                         }
                         else
                         {
@@ -89,12 +91,14 @@ namespace ElasticSearchHandler
                     {
                         updater.Action = request.Action;
                         updater.IDs = request.DocumentIDs;
-                        
+
                         bool result = updater.Start();
 
                         if (result)
                         {
                             res = "success";
+                            log.DebugFormat("Successfully perform {0} action on asset of type {1} with id: [{2}].",
+                                request.Action.ToString(), request.Type.ToString(), string.Join(",", request.DocumentIDs));
                         }
                         else
                         {
@@ -102,17 +106,17 @@ namespace ElasticSearchHandler
                                 string.Format("Performing {0} action on asset of type {1} with id: [{2}] did not finish successfully.",
                                 request.Action.ToString(), request.Type.ToString(), string.Join(",", request.DocumentIDs)));
                         }
-                    } 
+                    }
                     #endregion
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed performing elastic search request. data = {0} message = {1}, stack trace= {2}, target site = {3}", 
+                log.Error(string.Format("Failed performing elastic search request. data = {0} message = {1}, stack trace= {2}, target site = {3}",
                     data, ex.Message, ex.StackTrace, ex.TargetSite), ex);
                 throw ex;
             }
-            
+
             return res;
         }
 
