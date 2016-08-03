@@ -219,7 +219,7 @@ namespace ODBCWrapper
             {
                 p.AddParameter(((Parameter)sOraStr).m_sParName,
                     ((Parameter)sOraStr).m_sType,
-                    ((Parameter)sOraStr).m_sParVal);                
+                    ((Parameter)sOraStr).m_sParVal);
                 sOraStr = null;
             }
             else
