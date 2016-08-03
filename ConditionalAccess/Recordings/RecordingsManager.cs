@@ -665,7 +665,7 @@ namespace Recordings
             return status;
         }
 
-        internal static ApiObjects.Response.Status UpdateFirstRecordingWithSameCrid(int groupId, string externalRecordingIdToCancel, Recording recordingToRecord, bool shouldUpdateNewExternalId = true)
+        internal static ApiObjects.Response.Status UpdateFirstRecordingWithSameCrid(int groupId, string externalRecordingIdToCancel, Recording recordingToRecord)
         {
             ApiObjects.Response.Status status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
@@ -678,7 +678,7 @@ namespace Recordings
                 status = recordingToRecord.Status;
                 return status;
             }
-            else if (shouldUpdateNewExternalId && !RecordingsDAL.UpdateRecordingsExternalId(groupId, recordingToRecord.ExternalRecordingId, recordingToRecord.Crid))
+            else if (!RecordingsDAL.UpdateRecordingsExternalId(groupId, recordingToRecord.ExternalRecordingId, recordingToRecord.Crid))
             {
                 log.ErrorFormat("Failed UpdateRecordingsExternalId, ExternalRecordingId: {0}, Crid: {1}", recordingToRecord.ExternalRecordingId, recordingToRecord.Crid);
                 status = new Status((int)eResponseStatus.Error, "Failed updating recordings external IDs in database.");
@@ -896,7 +896,7 @@ namespace Recordings
                     cd.Load();
                     Recording taskRecording = (Recording)((object[])taskArray)[0];
                     string externalRecordingId = (string)((object[])taskArray)[1];
-                    UpdateFirstRecordingWithSameCrid(groupId, externalRecordingId, taskRecording, false);
+                    UpdateFirstRecordingWithSameCrid(groupId, externalRecordingId, taskRecording);
                 },
                 ObjectsForTask);
             }
