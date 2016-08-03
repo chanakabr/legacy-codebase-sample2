@@ -487,7 +487,7 @@ namespace Recordings
                 // First of all - if EPG was updated, update the recording index, nevermind what was the change
                 UpdateIndex(groupId, recordingId, eAction.Update);
 
-                UpdateCouchbase(groupId, programId, recordingId, false);
+                UpdateCouchbase(groupId, programId, recordingId, true);
 
                 // If no change was made to program schedule - do nothing
                 if (recording.EpgStartDate == startDate &&
