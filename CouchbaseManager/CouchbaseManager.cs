@@ -30,7 +30,9 @@ namespace CouchbaseManager
         SCHEDULED_TASKS = 8,
         CROWDSOURCE = 9,
         DRM = 10,
-        RECORDINGS = 11
+        RECORDINGS = 11,
+        DOMAIN_MARKS = 12,
+        EPG_MARKS = 13
     }
 
     public class CouchbaseManager
