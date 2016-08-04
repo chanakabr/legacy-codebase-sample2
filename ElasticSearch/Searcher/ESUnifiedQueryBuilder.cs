@@ -705,20 +705,6 @@ namespace ElasticSearch.Searcher
                 }
 
                 #endregion
-
-                #region Excluded CRIDs
-
-                if (this.SearchDefinitions.excludedCrids != null && this.SearchDefinitions.excludedCrids.Count > 0)
-                {
-                        ESTerms idsTerm = new ESTerms(true)
-                        {
-                            Key = "crid",
-                            isNot = true
-                        };
-
-                        idsTerm.Value.AddRange(this.SearchDefinitions.excludedCrids);
-                }
-                #endregion 
             }
 
             // Recordings specific filters
@@ -741,6 +727,21 @@ namespace ElasticSearch.Searcher
                 {
                     recordingFilter.AddChild(recoedingsDatesFilter);
                 }
+
+                #region Excluded CRIDs
+
+                if (this.SearchDefinitions.excludedCrids != null && this.SearchDefinitions.excludedCrids.Count > 0)
+                {
+                    ESTerms idsTerm = new ESTerms(false)
+                    {
+                        Key = "crid",
+                        isNot = true,
+                    };
+
+                    idsTerm.Value.AddRange(this.SearchDefinitions.excludedCrids);
+                    recordingFilter.AddChild(idsTerm);
+                }
+                #endregion 
             }
 
             #region Phrase Tree
