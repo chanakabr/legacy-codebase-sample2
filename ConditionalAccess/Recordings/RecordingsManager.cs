@@ -1189,6 +1189,7 @@ namespace Recordings
                     {
                         currentRecording.RecordingStatus = TstvRecordingStatus.Scheduled;
                         currentRecording.RecordingStatus = RecordingsManager.GetTstvRecordingStatus(currentRecording.EpgStartDate, currentRecording.EpgEndDate, currentRecording.RecordingStatus);
+                        currentRecording.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
                         // Insert the new links of the recordings
                         if (adapterResponse.Links != null && adapterResponse.Links.Count > 0)
