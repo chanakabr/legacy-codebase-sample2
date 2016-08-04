@@ -532,5 +532,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
             return bookmarks;
         }
+
+        //KalturaAssetType to StatsType
+        public static StatsType ConvertAssetType(KalturaAssetType assetType)
+        {
+            StatsType result;
+            switch (assetType)
+            {
+                case KalturaAssetType.epg:
+                    result = StatsType.EPG;
+                    break;
+                case KalturaAssetType.media:
+                    result = StatsType.MEDIA;
+                    break;
+                case KalturaAssetType.recording:
+                    throw new ClientException((int)StatusCode.Error, "recording is not supported");
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown Asset Type");
+            }
+
+            return result;
+        }
     }
 }

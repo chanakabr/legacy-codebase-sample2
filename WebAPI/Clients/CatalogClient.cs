@@ -476,7 +476,7 @@ namespace WebAPI.Clients
             return finalResults;
         }
 
-        public List<KalturaAssetStatistics> GetAssetsStats(int groupID, string siteGuid, List<int> assetIds, StatsType assetType, long startTime = 0, long endTime = 0)
+        public List<KalturaAssetStatistics> GetAssetsStats(int groupID, string siteGuid, List<int> assetIds, KalturaAssetType assetType, long startTime = 0, long endTime = 0)
         {
             List<KalturaAssetStatistics> result = null;
             AssetStatsRequest request = new AssetStatsRequest()
@@ -489,7 +489,7 @@ namespace WebAPI.Clients
                 m_nAssetIDs = assetIds,
                 m_dStartDate = startTime != 0 ? SerializationUtils.ConvertFromUnixTimestamp(startTime) : DateTime.MinValue,
                 m_dEndDate = endTime != 0 ? SerializationUtils.ConvertFromUnixTimestamp(endTime) : DateTime.MaxValue,
-                m_type = Mapper.Map<WebAPI.Catalog.StatsType>(assetType)
+                m_type = CatalogMappings.ConvertAssetType(assetType)
             };
 
             AssetStatsResponse response = null;

@@ -2424,6 +2424,7 @@
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Controllers\AssetFileController.cs" />
+    <Compile Include="Controllers\AssetStatisticsController.cs" />
     <Compile Include="Controllers\CDNAdapterProfileController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
     <Compile Include="Controllers\CDNPartnerSettingsController.cs" />
@@ -2520,6 +2521,7 @@
     <Compile Include="Models\API\KalturaExportTaskOrderBy.cs" />
     <Compile Include="Models\API\KalturaParentalRuleOrderBy.cs" />
     <Compile Include="Models\API\KalturaUserAssetRuleOrderBy.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetStatisticsQuery.cs" />
     <Compile Include="Models\Catalog\KalturaBookmarkOrderBy.cs" />
     <Compile Include="Models\Catalog\KalturaBookmarkFilter.cs" />
     <Compile Include="Models\Catalog\KalturaBookmark.cs" />

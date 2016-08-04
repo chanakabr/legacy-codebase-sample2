@@ -24,7 +24,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "assetId")]
         [JsonProperty(PropertyName = "assetId")]
         [XmlElement(ElementName = "assetId")]
-        public int? AssetId { get; set; }
+        public int AssetId { get; set; }
 
         /// <summary>
         /// Total number of likes for this asset
@@ -32,7 +32,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "likes")]
         [JsonProperty(PropertyName = "likes")]
         [XmlElement(ElementName = "likes")]
-        public int? Likes { get; set; }
+        public int Likes { get; set; }
 
         /// <summary>
         /// Total number of views for this asset
@@ -40,7 +40,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "views")]
         [JsonProperty(PropertyName = "views")]
         [XmlElement(ElementName = "views")]
-        public int? Views { get; set; }
+        public int Views { get; set; }
 
         /// <summary>
         /// Number of people that rated the asset
@@ -48,7 +48,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "ratingCount")]
         [JsonProperty(PropertyName = "ratingCount")]
         [XmlElement(ElementName = "ratingCount")]
-        public int? RatingCount { get; set; }
+        public int RatingCount { get; set; }
 
         /// <summary>
         /// Average rating for the asset
@@ -56,7 +56,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "rating")]
         [JsonProperty(PropertyName = "rating")]
         [XmlElement(ElementName = "rating")]
-        public double? Rating { get; set; }
+        public double Rating { get; set; }
 
         /// <summary>
         /// Buzz score
@@ -65,5 +65,22 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "buzzScore")]
         [XmlElement(ElementName = "buzzScore", IsNullable = true)]
         public KalturaBuzzScore BuzzAvgScore { get; set; }
+    }
+
+    /// <summary>
+    /// List of assets statistics
+    /// </summary>
+    [DataContract(Name = "KalturaAssetStatisticsListResponse", Namespace = "")]
+    [XmlRoot("KalturaAssetStatisticsListResponse")]
+    public class KalturaAssetStatisticsListResponse : KalturaListResponse
+    {
+        /// <summary>
+        /// Assets
+        /// </summary>
+        [DataMember(Name = "objects")]
+        [JsonProperty("objects")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem(ElementName = "item")]
+        public List<KalturaAssetStatistics> AssetsStatistics { get; set; }
     }
 }
