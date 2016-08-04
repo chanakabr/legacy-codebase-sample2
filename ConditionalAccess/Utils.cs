@@ -5188,13 +5188,13 @@ namespace ConditionalAccess
                     {
                         long recordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID", 0);
                         int groupId = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_ID", 0);                        
-                        long scheduledExpirationEpoch = ODBCWrapper.Utils.GetLongSafeVal(dr, "scheduled_expiration_epoch", 0);
+                        long scheduledExpirationEpoch = ODBCWrapper.Utils.GetLongSafeVal(dr, "scheduled_expiration_epoch", 0);                        
                         HandleDomainQuataByRecordingTask expiredRecording = new HandleDomainQuataByRecordingTask()
                         {
                             Id = id,
                             RecordingId = recordingId,
                             ScheduledExpirationEpoch = scheduledExpirationEpoch,
-                            GroupId = groupId
+                            GroupId = groupId                            
                         };
                         expiredRecordings.Add(id, expiredRecording);
                     }
@@ -5884,10 +5884,10 @@ namespace ConditionalAccess
             return insertedRecording;
         }
 
-        internal static Recording GetRecordingById(long id)
+        internal static Recording GetRecordingById(long id, bool takeOnlyValidRecording = true)
         {
             Recording recording = null;
-            DataTable dt = RecordingsDAL.GetRecordingById(id);
+            DataTable dt = RecordingsDAL.GetRecordingById(id, takeOnlyValidRecording);
             if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
             {
                 recording = BuildRecordingFromDataRow(dt.Rows[0]);

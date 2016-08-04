@@ -941,8 +941,7 @@ namespace Recordings
 
                         recording = new RecordingCB(epg)
                         {
-                            RecordingId = (ulong)recordingId,
-                            IsRecorded = isRecorded
+                            RecordingId = (ulong)recordingId
                         };
                     }
                 }

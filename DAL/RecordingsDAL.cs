@@ -94,11 +94,12 @@ namespace DAL
             return dt;
         }
 
-        public static DataTable GetRecordingById(long id)
+        public static DataTable GetRecordingById(long id, bool takeOnlyValidRecording = true)
         {
             ODBCWrapper.StoredProcedure spGetRecordingById = new ODBCWrapper.StoredProcedure("GetRecordingById");
             spGetRecordingById.SetConnectionKey(RECORDING_CONNECTION);
             spGetRecordingById.AddParameter("@Id", id);
+            spGetRecordingById.AddParameter("@TakeOnlyValidRecording", takeOnlyValidRecording ? 1 : 0);
             DataTable dt = spGetRecordingById.Execute();
 
             return dt;
@@ -442,7 +443,7 @@ namespace DAL
             spGetDomainsRecordingsByRecordingIdAndProtectDate.SetConnectionKey(RECORDING_CONNECTION);
             spGetDomainsRecordingsByRecordingIdAndProtectDate.AddParameter("@RecordingId", recordingId);
             spGetDomainsRecordingsByRecordingIdAndProtectDate.AddParameter("@UtcNowEpoch", unixTimeStampNow);
-            spGetDomainsRecordingsByRecordingIdAndProtectDate.AddParameter("@Status", unixTimeStampNow);
+            spGetDomainsRecordingsByRecordingIdAndProtectDate.AddParameter("@Status", status);
             spGetDomainsRecordingsByRecordingIdAndProtectDate.AddParameter("@DomainRecordingStatus", (int)domainRecordingStatus);
 
             return spGetDomainsRecordingsByRecordingIdAndProtectDate.Execute();
@@ -541,7 +542,7 @@ namespace DAL
             spIsFollowingSeries.AddParameter("@SeasonNumber", seasonNumber);
             spIsFollowingSeries.AddParameter("@ChannelId", channelId);
 
-            domainSeriesId = spIsFollowingSeries.ExecuteReturnValue<int>();
+            domainSeriesId = spIsFollowingSeries.ExecuteReturnValue<long>();
 
             return domainSeriesId;
         }
