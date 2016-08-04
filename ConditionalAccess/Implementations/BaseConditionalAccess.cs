@@ -18527,7 +18527,7 @@ namespace ConditionalAccess
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error in 'CompleteHouseholdSeriesRecordings' for domainId = {0}", domainId, ex);
+                log.Error(string.Format("Error in 'CompleteHouseholdSeriesRecordings' for domainId = {0}", domainId), ex);
             }
 
             return response;
