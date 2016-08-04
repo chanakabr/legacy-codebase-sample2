@@ -29,46 +29,11 @@
 				<th class="subtitle">Default Value</th>
 			</tr>
 			<tr>
-				<td>assetType</td>
-				<td>1</td>
-				<td>Asset type</td>
+				<td>request</td>
+				<td><a href="../objects/KalturaLicensedUrlBaseRequest.html">KalturaLicensedUrlBaseRequest</a></td>
+				<td></td>
 				<td>V</td>
 				<td></td>
-			</tr>
-			<tr>
-				<td>contentId</td>
-				<td>int</td>
-				<td>Identifier of the content to get the link for(file identifier)</td>
-				<td>V</td>
-				<td></td>
-			</tr>
-			<tr>
-				<td>baseUrl</td>
-				<td>string</td>
-				<td>Base URL for the licensed URLs</td>
-				<td>V</td>
-				<td></td>
-			</tr>
-			<tr>
-				<td>assetId</td>
-				<td>string</td>
-				<td>Asset identifier - relevant only for asset_type = 'epg'</td>
-				<td></td>
-				<td>1</td>
-			</tr>
-			<tr>
-				<td>startDate</td>
-				<td>bigint</td>
-				<td>The start date of the stream (epoch) - relevant only for asset_type = 'epg'</td>
-				<td></td>
-				<td>1</td>
-			</tr>
-			<tr>
-				<td>streamType</td>
-				<td>1</td>
-				<td>The stream type to get the URL for - relevant only for asset_type = 'epg'</td>
-				<td></td>
-				<td>1</td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Output Type</td>
@@ -85,12 +50,10 @@
 				<pre>
 				<div class="post_fields">
 {
-	assetType: "value",
-	contentId: value,
-	baseUrl: "value",
-	assetId: "value",
-	startDate: value,
-	streamType: "value"
+	request: {
+		objectType: "KalturaLicensedUrlBaseRequest",
+		assetId: "value"
+	}
 }
 				</pre></td>
 			</tr>
