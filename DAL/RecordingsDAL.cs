@@ -437,7 +437,7 @@ namespace DAL
             return spGetExpiredRecordingsTasks.Execute();
         }
 
-        public static DataTable GetDomainsRecordingsByRecordingIdAndProtectDate(long recordingId, long unixTimeStampNow, int status, DomainRecordingStatus domainRecordingStatus)
+        public static DataTable GetDomainsRecordingsByRecordingIdAndProtectDate(long recordingId, long unixTimeStampNow, int status, DomainRecordingStatus domainRecordingStatus, long maxDomainRecordingId)
         {
             ODBCWrapper.StoredProcedure spGetDomainsRecordingsByRecordingIdAndProtectDate = new ODBCWrapper.StoredProcedure("GetDomainsRecordingsByRecordingIdAndProtectDate");
             spGetDomainsRecordingsByRecordingIdAndProtectDate.SetConnectionKey(RECORDING_CONNECTION);
@@ -445,6 +445,7 @@ namespace DAL
             spGetDomainsRecordingsByRecordingIdAndProtectDate.AddParameter("@UtcNowEpoch", unixTimeStampNow);
             spGetDomainsRecordingsByRecordingIdAndProtectDate.AddParameter("@Status", status);
             spGetDomainsRecordingsByRecordingIdAndProtectDate.AddParameter("@DomainRecordingStatus", (int)domainRecordingStatus);
+            spGetDomainsRecordingsByRecordingIdAndProtectDate.AddParameter("@MaxDomainRecordingId", maxDomainRecordingId);
 
             return spGetDomainsRecordingsByRecordingIdAndProtectDate.Execute();
         }

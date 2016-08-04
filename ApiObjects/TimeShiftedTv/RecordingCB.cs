@@ -14,6 +14,8 @@ namespace ApiObjects.TimeShiftedTv
         [JsonProperty("recording_id")]
         public ulong RecordingId;
 
+        public RecordingCB() : base() { }
+
         public RecordingCB(EpgCB baseEpg)
         {
             this.BasicData = baseEpg.BasicData;
