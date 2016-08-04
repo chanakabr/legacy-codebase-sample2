@@ -300,7 +300,7 @@ namespace Recordings
                             CallAdapterRecord(groupId, secondRecording.ChannelId, secondRecording.EpgStartDate, secondRecording.EpgEndDate, false, secondRecording);
                             if (secondRecording.Status != null && secondRecording.Status.Code == (int)eResponseStatus.OK)
                             {
-                                if (!RecordingsDAL.UpdateRecordingsExternalId(groupId, secondRecording.ExternalRecordingId, secondRecording.Crid))
+                                if (!RecordingsDAL.UpdateRecordingsExternalId(groupId, secondRecording.ExternalRecordingId, secondRecording.Crid, secondRecording.ChannelId))
                                 {
                                     log.ErrorFormat("Failed UpdateRecordingsExternalId, ExternalRecordingId: {0}, Crid: {1}", secondRecording.ExternalRecordingId, secondRecording.Crid);
                                     status = new Status((int)eResponseStatus.Error, "Failed updating recordings external IDs in database.");
@@ -678,7 +678,7 @@ namespace Recordings
                 status = recordingToRecord.Status;
                 return status;
             }
-            else if (!RecordingsDAL.UpdateRecordingsExternalId(groupId, recordingToRecord.ExternalRecordingId, recordingToRecord.Crid))
+            else if (!RecordingsDAL.UpdateRecordingsExternalId(groupId, recordingToRecord.ExternalRecordingId, recordingToRecord.Crid, recordingToRecord.ChannelId))
             {
                 log.ErrorFormat("Failed UpdateRecordingsExternalId, ExternalRecordingId: {0}, Crid: {1}", recordingToRecord.ExternalRecordingId, recordingToRecord.Crid);
                 status = new Status((int)eResponseStatus.Error, "Failed updating recordings external IDs in database.");
@@ -1009,7 +1009,7 @@ namespace Recordings
                             log.ErrorFormat("Failed recording secondRecordingWithMinStartDate on RetryTaskBeforeProgramStarted, firstRecordingWithMinStartDate: {0}, secondRecordingWithMinStartDate: {1}",
                                                 firstRecordingWithMinStartDate.ToString(), secondRecordingWithMinStartDate.ToString());
                         }
-                        else if (!RecordingsDAL.UpdateRecordingsExternalId(groupId, secondRecordingWithMinStartDate.ExternalRecordingId, secondRecordingWithMinStartDate.Crid))
+                        else if (!RecordingsDAL.UpdateRecordingsExternalId(groupId, secondRecordingWithMinStartDate.ExternalRecordingId, secondRecordingWithMinStartDate.Crid, secondRecordingWithMinStartDate.ChannelId))
                         {
                             log.ErrorFormat("Failed UpdateRecordingsExternalId, ExternalRecordingId: {0}, Crid: {1}, firstRecordingWithMinStartDate ID: {2}, secondRecordingWithMinStartDate ID: {3}",
                                             secondRecordingWithMinStartDate.ExternalRecordingId, secondRecordingWithMinStartDate.Crid, firstRecordingWithMinStartDate, secondRecordingWithMinStartDate);
@@ -1093,7 +1093,7 @@ namespace Recordings
                             log.ErrorFormat("Failed recording secondRecordingWithMinStartDate on RetryTaskBeforeProgramStarted, firstRecordingWithMinStartDate: {0}, secondRecordingWithMinStartDate: {1}",
                                                 firstRecordingWithMinStartDate.ToString(), secondRecordingWithMinStartDate.ToString());
                         }
-                        else if (!RecordingsDAL.UpdateRecordingsExternalId(groupId, secondRecordingWithMinStartDate.ExternalRecordingId, secondRecordingWithMinStartDate.Crid))
+                        else if (!RecordingsDAL.UpdateRecordingsExternalId(groupId, secondRecordingWithMinStartDate.ExternalRecordingId, secondRecordingWithMinStartDate.Crid, secondRecordingWithMinStartDate.ChannelId))
                         {
                             log.ErrorFormat("Failed UpdateRecordingsExternalId, ExternalRecordingId: {0}, Crid: {1}, firstRecordingWithMinStartDate ID: {2}, secondRecordingWithMinStartDate ID: {3}",
                                             secondRecordingWithMinStartDate.ExternalRecordingId, secondRecordingWithMinStartDate.Crid, firstRecordingWithMinStartDate, secondRecordingWithMinStartDate);

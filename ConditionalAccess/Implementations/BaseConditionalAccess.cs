@@ -17119,7 +17119,7 @@ namespace ConditionalAccess
                         if (QuotaManager.Instance.DecreaseDomainQuota(m_nGroupID, domainID, recordingDuration))
                         {
                             recording.Type = recordingType;
-                            if (!RecordingsDAL.UpdateOrInsertDomainRecording(m_nGroupID, long.Parse(userID), domainID, recording))
+                            if (!RecordingsDAL.UpdateOrInsertDomainRecording(m_nGroupID, long.Parse(userID), domainID, recording, domainSeriesRecordingId))
                             {
                                 // increase the quota back to the user
                                 if (!QuotaManager.Instance.IncreaseDomainQuota(domainID, recordingDuration))

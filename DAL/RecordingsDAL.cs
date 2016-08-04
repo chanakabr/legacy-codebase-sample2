@@ -198,7 +198,7 @@ namespace DAL
             return dt;
         }
 
-        public static bool UpdateOrInsertDomainRecording(int groupID, long userID, long domainID, Recording recording)
+        public static bool UpdateOrInsertDomainRecording(int groupID, long userID, long domainID, Recording recording, long domainSeriesRecordingId = 0)
         {
             DataTable dt = null;
             bool res = false;
@@ -212,6 +212,7 @@ namespace DAL
             spUpdateOrInsertDomainRecording.AddParameter("@RecordingID", recording.Id);
             spUpdateOrInsertDomainRecording.AddParameter("@EpgChannelId", recording.ChannelId);
             spUpdateOrInsertDomainRecording.AddParameter("@RecordingType", (int)recording.Type);
+            spUpdateOrInsertDomainRecording.AddParameter("@Status", recording.RecordingStatus == TstvRecordingStatus.Deleted ? 2 : 1);
             spUpdateOrInsertDomainRecording.AddParameter("@Status", recording.RecordingStatus == TstvRecordingStatus.Deleted ? 2 : 1);
             switch (recording.RecordingStatus)
             {
@@ -548,7 +549,7 @@ namespace DAL
             return domainSeriesId;
         }
 
-        public static bool UpdateRecordingsExternalId(int groupId, string externalRecordingId, string crid)
+        public static bool UpdateRecordingsExternalId(int groupId, string externalRecordingId, string crid, long channelId)
         {
             int updatedRowsCount = 0;
             ODBCWrapper.StoredProcedure spUpdateRecordingsExternalId = new ODBCWrapper.StoredProcedure("UpdateRecordingsExternalId");
@@ -556,6 +557,7 @@ namespace DAL
             spUpdateRecordingsExternalId.AddParameter("@GroupID", groupId);
             spUpdateRecordingsExternalId.AddParameter("@ExternalRecordingId", externalRecordingId);
             spUpdateRecordingsExternalId.AddParameter("@Crid", crid);
+            spUpdateRecordingsExternalId.AddParameter("@ChannelId", channelId);
 
             updatedRowsCount = spUpdateRecordingsExternalId.ExecuteReturnValue<int>();
 
