@@ -733,6 +733,8 @@ namespace DAL
             return string.Format("{0}_series{1}_seasson{2}_channel{3}", groupId, seriesId, seasonNumber, channelId);
         }
 
+        #region ScheduledTasks
+
         // return object incase someone will want to extend ScheduledTaskLastRunResponse
         private static object GetLastScheduleTaksSuccessfulRunDetails(ScheduledTaskType scheduledTaskType)
         {
@@ -797,7 +799,14 @@ namespace DAL
                 int numOfRetries = 0;
                 while (!result && numOfRetries < limitRetries)
                 {
-                    result = cbClient.Set(scheduledTaksKey, scheduledTaskToUpdate);
+                    ulong version;
+                    Couchbase.IO.ResponseStatus status;
+                    object currentScheduledTask = cbClient.GetWithVersion<object>(scheduledTaksKey, out version, out status);
+                    if (status == Couchbase.IO.ResponseStatus.Success || status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                    {
+                        result = cbClient.SetWithVersion<object>(scheduledTaksKey, scheduledTaskToUpdate, version);
+                    }
+                    
                     if (!result)
                     {
                         numOfRetries++;
@@ -844,6 +853,56 @@ namespace DAL
 
             return null;
         }
+
+        public static bool UpdateScheduledTaskNextRunIntervalInSeconds(ScheduledTaskType scheduledTaskType, double updatedNextRunIntervalInSeconds)
+        {
+            bool result = false;
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
+            int limitRetries = RETRY_LIMIT;
+            Random r = new Random();
+            string scheduledTaksKey = UtilsDal.GetScheduledTaksKeyByType(scheduledTaskType);
+            if (string.IsNullOrEmpty(scheduledTaksKey))
+            {
+                log.ErrorFormat("Failed UtilsDal.GetScheduledTaksKeyByName for scheduledTaskName: {0}", scheduledTaskType);
+                return false;
+            }
+            try
+            {
+                int numOfRetries = 0;
+                while (!result && numOfRetries < limitRetries)
+                {
+                    ulong version;
+                    Couchbase.IO.ResponseStatus status;
+                    ScheduledTaskLastRunResponse scheduledTask = cbClient.GetWithVersion<ScheduledTaskLastRunResponse>(scheduledTaksKey, out version, out status);
+                    if (status == Couchbase.IO.ResponseStatus.Success)
+                    {
+                        scheduledTask.NextRunIntervalInSeconds = updatedNextRunIntervalInSeconds;
+                        result = cbClient.SetWithVersion<ScheduledTaskLastRunResponse>(scheduledTaksKey, scheduledTask, version);
+                    }
+                    else if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                    {
+                        break;
+                    }
+
+                    if (!result)
+                    {
+                        numOfRetries++;
+                        log.ErrorFormat("Error while updating scheduled task next run interval. scheduledTaskName: {0}, number of tries: {1}/{2}",
+                                         scheduledTaskType.ToString(), numOfRetries, limitRetries);
+
+                        System.Threading.Thread.Sleep(r.Next(50));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while updating scheduled task next run interval, scheduledTaskName: {0}, ex: {1}", scheduledTaskType.ToString(), ex);
+            }
+
+            return result;
+        }
+
+        #endregion
 
     }
 }

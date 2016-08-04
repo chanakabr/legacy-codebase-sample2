@@ -17,9 +17,9 @@ namespace ApiObjects.ScheduledTasks
 
         public long ScheduledExpirationEpoch;
 
-        public int OldRecordingDuration { get; set; }
+        public int OldRecordingDuration { get; set; }        
 
-        public HandleDomainQuataByRecordingTask() {}
+        public HandleDomainQuataByRecordingTask() {}        
 
         public override string ToString()
         {

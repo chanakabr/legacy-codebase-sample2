@@ -18567,6 +18567,7 @@ namespace ConditionalAccess
                 // get first batch
                 Dictionary<long, HandleDomainQuataByRecordingTask> expiredRecordingsToSchedule = Utils.GetExpiredRecordingsTasks(utcNowEpoch);
                 // update successful run date
+                List<HandleDomainQuataByRecordingTask> alreadyDeletedOrCanceledRecordings = new List<HandleDomainQuataByRecordingTask>();
                 if (expiredRecordingsToSchedule != null)
                 {
                     foreach (HandleDomainQuataByRecordingTask expiredRecording in expiredRecordingsToSchedule.Values)
@@ -18626,94 +18627,108 @@ namespace ConditionalAccess
             bool result = false;
             try
             {
-                Recording recording = Utils.GetRecordingById(task.RecordingId);
+                Recording recording = Utils.GetRecordingById(task.RecordingId, false);
+                bool shouldGetDomainRecordings = true;
                 if (recording == null)
                 {
-                    log.ErrorFormat("Failed fetching recording with ID: {0} on HandleDomainQuotaByRecording", task.RecordingId);
-                    return result;
+                    log.DebugFormat("Failed fetching recording with ID: {0} on HandleDomainQuotaByRecording", task.RecordingId);
+                    return true;
                 }
+                // check if expired recording is still valid
+                if (task.Id > 0 && recording.RecordingStatus != TstvRecordingStatus.Recorded)
+                {
+                    log.DebugFormat("Recording has already been deleted/canceled/failed, taskId: {0}, recordingId:{1}", task.Id, task.RecordingId);
+                    shouldGetDomainRecordings = false;
+                    result = true;
+                }
+
+                // check to what status we need to update the domain recordings
                 DomainRecordingStatus? domainRecordingStatus = Utils.ConvertToDomainRecordingStatus(recording.RecordingStatus);
                 if (!domainRecordingStatus.HasValue)
                 {
-                    log.ErrorFormat("Failed ConvertToDomainRecordingStatus for recordingId: {0}, recordingStatus = {1}", recording.Id, recording.RecordingStatus.ToString());
-                    return result;
+                    log.DebugFormat("Failed ConvertToDomainRecordingStatus for recordingId: {0}, recordingStatus: {1}", recording.Id, recording.RecordingStatus.ToString());
+                    shouldGetDomainRecordings = false;                    
                 }
 
-                int status = 1;
-                // Currently canceled can be only due to UpdateRecording which Deletes EPG
-                if (domainRecordingStatus.Value != DomainRecordingStatus.OK)
+                if (shouldGetDomainRecordings)
                 {
-                    status = 2;
-                    domainRecordingStatus = DomainRecordingStatus.DeletedBySystem;
-                }
-
-                int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
-                DataTable modifiedDomainRecordings = RecordingsDAL.GetDomainsRecordingsByRecordingIdAndProtectDate(task.RecordingId, task.ScheduledExpirationEpoch, status, domainRecordingStatus.Value);
-
-                // set max amount of concurrent tasks
-                int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
-                if (maxDegreeOfParallelism == 0)
-                {
-                    maxDegreeOfParallelism = 5;
-                }
-
-                ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
-                while (modifiedDomainRecordings != null && modifiedDomainRecordings.Rows != null && modifiedDomainRecordings.Rows.Count > 0)
-                {
-                    ContextData contextData = new ContextData();
-                    Parallel.For(0, modifiedDomainRecordings.Rows.Count, options, i =>
+                    int status = 1;
+                    // Currently canceled can be only due to UpdateRecording which Deletes EPG
+                    if (domainRecordingStatus.Value != DomainRecordingStatus.OK)
                     {
-                        contextData.Load();
-                        DataRow dr = modifiedDomainRecordings.Rows[i];
-                        if (dr != null)
+                        status = 2;
+                        domainRecordingStatus = DomainRecordingStatus.DeletedBySystem;
+                    }
+
+                    int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
+                    DataTable modifiedDomainRecordings = RecordingsDAL.GetDomainsRecordingsByRecordingIdAndProtectDate(task.RecordingId, task.ScheduledExpirationEpoch, status, domainRecordingStatus.Value);
+
+                    // set max amount of concurrent tasks
+                    int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
+                    if (maxDegreeOfParallelism == 0)
+                    {
+                        maxDegreeOfParallelism = 5;
+                    }
+
+                    ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
+                    while (modifiedDomainRecordings != null && modifiedDomainRecordings.Rows != null && modifiedDomainRecordings.Rows.Count > 0)
+                    {
+                        ContextData contextData = new ContextData();
+                        Parallel.For(0, modifiedDomainRecordings.Rows.Count, options, i =>
                         {
-                            long domainId = ODBCWrapper.Utils.GetLongSafeVal(dr, "DOMAIN_ID", 0);
-                            bool quotaSuccessfullyUpdated = false;
+                            contextData.Load();
+                            DataRow dr = modifiedDomainRecordings.Rows[i];
+                            if (dr != null)
+                            {
+                                long domainId = ODBCWrapper.Utils.GetLongSafeVal(dr, "DOMAIN_ID", 0);
+                                bool quotaSuccessfullyUpdated = false;
 
-                            // if old recording duration was sent use the difference, otherwise use the recording length  
-                            int recordingDurationDif = task.OldRecordingDuration != 0 ? task.OldRecordingDuration - recordingDuration : recordingDuration;
-                            if (recordingDurationDif > 0)
-                            {
-                                quotaSuccessfullyUpdated = QuotaManager.Instance.IncreaseDomainQuota(domainId, recordingDurationDif);
-                            }
-                            else if (recordingDurationDif < 0)
-                            {
-                                quotaSuccessfullyUpdated = QuotaManager.Instance.DecreaseDomainQuota(task.GroupId, domainId, -recordingDurationDif, true);
-                            }
-
-                            if (quotaSuccessfullyUpdated)
-                            {
-                                if (!CompleteDomainSeriesRecordings(domainId))
+                                // if old recording duration was sent use the difference, otherwise use the recording length  
+                                int recordingDurationDif = task.OldRecordingDuration != 0 ? task.OldRecordingDuration - recordingDuration : recordingDuration;
+                                if (recordingDurationDif > 0)
                                 {
-                                    log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after modifiedRecordingId: {0}, for domainId: {1}", task.RecordingId, domainId);
+                                    quotaSuccessfullyUpdated = QuotaManager.Instance.IncreaseDomainQuota(domainId, recordingDurationDif);
+                                }
+                                else if (recordingDurationDif < 0)
+                                {
+                                    quotaSuccessfullyUpdated = QuotaManager.Instance.DecreaseDomainQuota(task.GroupId, domainId, -recordingDurationDif, true);
+                                }
+
+                                if (quotaSuccessfullyUpdated)
+                                {
+                                    if (!CompleteDomainSeriesRecordings(domainId))
+                                    {
+                                        log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after modifiedRecordingId: {0}, for domainId: {1}", task.RecordingId, domainId);
+                                    }
+                                }
+                                else
+                                {
+                                    log.ErrorFormat("Failed Updating domain {0} available quota", domainId);
                                 }
                             }
                             else
                             {
-                                log.ErrorFormat("Failed Updating domain {0} available quota", domainId);
+                                log.ErrorFormat("Data row is null for modifiedRecordingId[{0}]", i);
                             }
-                        }
-                        else
-                        {
-                            log.ErrorFormat("Data row is null for modifiedRecordingId[{0}]", i);
-                        }
-                    });
+                        });
 
-                    modifiedDomainRecordings = RecordingsDAL.GetDomainsRecordingsByRecordingIdAndProtectDate(task.RecordingId, task.ScheduledExpirationEpoch, status, domainRecordingStatus.Value);
-                }
-
-                long minProtectionEpoch = RecordingsDAL.GetRecordingMinProtectedEpoch(task.RecordingId, task.ScheduledExpirationEpoch);
-                // add recording schedule task for next min protected date
-                if (minProtectionEpoch > 0)
-                {
-                    if (!RecordingsDAL.InsertExpiredRecordingNextTask(task.RecordingId, task.GroupId, minProtectionEpoch, TVinciShared.DateUtils.UnixTimeStampToDateTime(minProtectionEpoch)))
-                    {
-                        log.ErrorFormat("failed InsertExpiredRecordingNextTask for recordingId: {0}, minProtectionDate {1}", task.RecordingId, minProtectionEpoch);
+                        modifiedDomainRecordings = RecordingsDAL.GetDomainsRecordingsByRecordingIdAndProtectDate(task.RecordingId, task.ScheduledExpirationEpoch, status, domainRecordingStatus.Value);
                     }
-                }
-                else
-                {
-                    log.DebugFormat("recordingId: {0} has no domain recording that protect it");
+
+                    long minProtectionEpoch = RecordingsDAL.GetRecordingMinProtectedEpoch(task.RecordingId, task.ScheduledExpirationEpoch);
+                    // add recording schedule task for next min protected date
+                    if (minProtectionEpoch > 0)
+                    {
+                        if (!RecordingsDAL.InsertExpiredRecordingNextTask(task.RecordingId, task.GroupId, minProtectionEpoch, TVinciShared.DateUtils.UnixTimeStampToDateTime(minProtectionEpoch)))
+                        {
+                            log.ErrorFormat("failed InsertExpiredRecordingNextTask for recordingId: {0}, minProtectionDate {1}", task.RecordingId, minProtectionEpoch);
+                        }
+                    }
+                    else
+                    {
+                        log.DebugFormat("recordingId: {0} has no domain recording that protect it");
+                    }
+
                 }
 
                 // incase expiredRecording.Id = 0 it means we are handling a FAILED recording and no need to update the table recording_scheduled_tasks 
@@ -18721,6 +18736,8 @@ namespace ConditionalAccess
                 {
                     log.ErrorFormat("failed UpdateExpiredRecordingScheduledTask for expiredRecording: {0}", task.ToString());
                 }
+
+                result = true;
             }
             catch (Exception ex)
             {
