@@ -6081,6 +6081,70 @@ namespace ConditionalAccess
             }
         }
 
+        internal static bool ShouldOrderByWithoutCatalg(ApiObjects.SearchObjects.OrderObj orderBy)
+        {
+            if (orderBy.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.CREATE_DATE
+                || orderBy.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.ID
+                || orderBy.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.START_DATE)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+
+        }
+
+        internal static List<Recording> OrderRecordingWithoutCatalog(List<Recording> recordings, ApiObjects.SearchObjects.OrderObj orderBy, int pageIndex, int pageSize, ref int totalResults)
+        {
+            List<Recording> orderedRecordings = new List<Recording>();
+            switch (orderBy.m_eOrderBy)
+	        {
+		        case ApiObjects.SearchObjects.OrderBy.ID:
+                    if (orderBy.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC)
+                    {
+                        orderedRecordings = recordings.OrderByDescending(x => x.Id).ToList();
+                    }
+                    else
+                    {
+                        orderedRecordings = recordings.OrderBy(x => x.Id).ToList();
+                    }
+                    break;
+                case ApiObjects.SearchObjects.OrderBy.START_DATE:
+                    if (orderBy.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC)
+                    {
+                        orderedRecordings = recordings.OrderByDescending(x => x.EpgStartDate).ToList();
+                    }
+                    else
+                    {
+                        orderedRecordings = recordings.OrderBy(x => x.EpgStartDate).ToList();
+                    }
+                    break;
+                case ApiObjects.SearchObjects.OrderBy.CREATE_DATE:
+                    if (orderBy.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC)
+                    {
+                        orderedRecordings = recordings.OrderByDescending(x => x.CreateDate).ToList();
+                    }
+                    else
+                    {
+                        orderedRecordings = recordings.OrderBy(x => x.CreateDate).ToList();
+                    }
+                    break;
+                default:
+                    log.DebugFormat("Invalid orderBy type: {0} on OrderRecordingWithoutCatalog", orderBy.m_eOrderBy.ToString()); 
+                    break;
+	        }
+            
+            totalResults = orderedRecordings.Count;            
+            int startIndexOnList = pageIndex * pageSize;
+            int endIndexOnList = startIndexOnList + pageSize;
+            int rangeToGetFromList = endIndexOnList > totalResults ? totalResults - startIndexOnList : pageSize;
+            orderedRecordings = orderedRecordings.GetRange(startIndexOnList, pageSize);
+            return orderedRecordings;
+        }
+
     }
 }
 
