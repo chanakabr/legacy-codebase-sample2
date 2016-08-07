@@ -17553,6 +17553,17 @@ namespace ConditionalAccess
 
                 if (DomainRecordingIdToRecordingMap != null && DomainRecordingIdToRecordingMap.Count > 0)
                 {
+                    Dictionary<long, Recording> recordingIdToDomainRecording = new Dictionary<long, Recording>();
+                    foreach (KeyValuePair<long, Recording> pair in DomainRecordingIdToRecordingMap)
+                    {
+                        if (!recordingIdToDomainRecording.ContainsKey(pair.Value.Id))
+                        {
+                            long recordingId = pair.Value.Id;
+                            pair.Value.Id = pair.Key;
+                            recordingIdToDomainRecording.Add(recordingId, pair.Value);
+                        }
+                    }
+
                     int totalResults = 0;
                     List<Recording> searchRecordings;
                     if (string.IsNullOrEmpty(filter) && Utils.ShouldOrderByWithoutCatalg(orderBy))
@@ -17561,17 +17572,6 @@ namespace ConditionalAccess
                     }
                     else
                     {
-                        Dictionary<long, Recording> recordingIdToDomainRecording = new Dictionary<long, Recording>();
-                        foreach (KeyValuePair<long, Recording> pair in DomainRecordingIdToRecordingMap)
-                        {
-                            if (!recordingIdToDomainRecording.ContainsKey(pair.Value.Id))
-                            {
-                                long recordingId = pair.Value.Id;
-                                pair.Value.Id = pair.Key;
-                                recordingIdToDomainRecording.Add(recordingId, pair.Value);
-                            }
-                        }
-
                         searchRecordings = Utils.SearchDomainRecordingIDsByFilter(m_nGroupID, userID, domainID, recordingIdToDomainRecording, filter, pageIndex, pageSize, orderBy, ref totalResults);
                     }
                     if (searchRecordings != null)
