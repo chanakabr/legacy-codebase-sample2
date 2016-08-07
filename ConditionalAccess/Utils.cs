@@ -6135,8 +6135,7 @@ namespace ConditionalAccess
             
             totalResults = orderedRecordings.Count;            
             int startIndexOnList = pageIndex * pageSize;
-            int endIndexOnList = startIndexOnList + pageSize;
-            int rangeToGetFromList = endIndexOnList > totalResults ? totalResults - startIndexOnList : pageSize;
+            int rangeToGetFromList = (startIndexOnList + pageSize) > totalResults ? (totalResults - startIndexOnList) : pageSize;
             orderedRecordings = orderedRecordings.GetRange(startIndexOnList, rangeToGetFromList);
             return orderedRecordings;
         }
