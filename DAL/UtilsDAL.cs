@@ -730,7 +730,7 @@ namespace DAL
 
         public static string GetFirstFollowerLockKey(int groupId, string seriesId, int seasonNumber, string channelId)
         {
-            return string.Format("{0}_series{1}_seasson{2}_channel{3}", groupId, seriesId, seasonNumber, channelId);
+            return string.Format("{0}_series{1}_season{2}_channel{3}", groupId, seriesId, seasonNumber, channelId);
         }
 
         #region ScheduledTasks
