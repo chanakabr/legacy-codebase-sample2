@@ -17553,19 +17553,27 @@ namespace ConditionalAccess
 
                 if (DomainRecordingIdToRecordingMap != null && DomainRecordingIdToRecordingMap.Count > 0)
                 {
-                    Dictionary<long, Recording> recordingIdToDomainRecording = new Dictionary<long, Recording>();
-                    foreach (KeyValuePair<long, Recording> pair in DomainRecordingIdToRecordingMap)
-                    {
-                        if (!recordingIdToDomainRecording.ContainsKey(pair.Value.Id))
-                        {
-                            long recordingId = pair.Value.Id;
-                            pair.Value.Id = pair.Key;
-                            recordingIdToDomainRecording.Add(recordingId, pair.Value);
-                        }
-                    }
-
                     int totalResults = 0;
-                    List<Recording> searchRecordings = Utils.SearchDomainRecordingIDsByFilter(m_nGroupID, userID, domainID, recordingIdToDomainRecording, filter, pageIndex, pageSize, orderBy, ref totalResults);
+                    List<Recording> searchRecordings;
+                    if (string.IsNullOrEmpty(filter) && Utils.ShouldOrderByWithoutCatalg(orderBy))
+                    {
+                        searchRecordings = Utils.OrderRecordingWithoutCatalog(DomainRecordingIdToRecordingMap.Values.ToList(), orderBy, pageIndex, pageSize, ref totalResults);                        
+                    }
+                    else
+                    {
+                        Dictionary<long, Recording> recordingIdToDomainRecording = new Dictionary<long, Recording>();
+                        foreach (KeyValuePair<long, Recording> pair in DomainRecordingIdToRecordingMap)
+                        {
+                            if (!recordingIdToDomainRecording.ContainsKey(pair.Value.Id))
+                            {
+                                long recordingId = pair.Value.Id;
+                                pair.Value.Id = pair.Key;
+                                recordingIdToDomainRecording.Add(recordingId, pair.Value);
+                            }
+                        }
+
+                        searchRecordings = Utils.SearchDomainRecordingIDsByFilter(m_nGroupID, userID, domainID, recordingIdToDomainRecording, filter, pageIndex, pageSize, orderBy, ref totalResults);
+                    }
                     if (searchRecordings != null)
                     {
                         response.Recordings = searchRecordings;
@@ -17573,13 +17581,9 @@ namespace ConditionalAccess
                     }
                     else
                     {
-                        log.DebugFormat("Failed SearchDomainRecordingIDsByFilter, recordingIDs is null, DomainID: {0}, UserID: {1}, pageIndex: {2}, pageSize: {3}, filter: {4}", domainID, userID, pageIndex, pageSize, filter);
+                        log.DebugFormat("searchRecordings is null, DomainID: {0}, UserID: {1}, pageIndex: {2}, pageSize: {3}, filter: {4}", domainID, userID, pageIndex, pageSize, filter);
                     }
 
-                }
-                else
-                {
-                    log.ErrorFormat("Failed GetDomainRecordingIDsByRecordingStatuses, recordingIDs is null, DomainID: {0}, UserID: {1}, pageIndex: {2}, pageSize: {3}, ", domainID, userID, pageIndex, pageSize);
                 }
 
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
