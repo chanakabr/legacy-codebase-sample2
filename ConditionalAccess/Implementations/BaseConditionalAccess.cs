@@ -18422,31 +18422,8 @@ namespace ConditionalAccess
                     }
                 }
 
-                List<ApiObjects.TstvRecordingStatus> recordingsStatusesToExclude = new List<ApiObjects.TstvRecordingStatus>() 
-                {
-                    ApiObjects.TstvRecordingStatus.LifeTimePeriodExpired,
-                    ApiObjects.TstvRecordingStatus.OK,
-                    ApiObjects.TstvRecordingStatus.Recorded,
-                    ApiObjects.TstvRecordingStatus.Recording,
-                    ApiObjects.TstvRecordingStatus.Scheduled,
-                    ApiObjects.TstvRecordingStatus.Canceled,
-                    ApiObjects.TstvRecordingStatus.Deleted, 
-                    ApiObjects.TstvRecordingStatus.SeriesDelete, 
-                    ApiObjects.TstvRecordingStatus.SeriesCancel, 
-                };               
-
-                // get household recordings - all statuses but 'Failed'/ SeriesCancel/SeriesDelete
-                Dictionary<long, Recording> householdRecordings = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, domainId, recordingsStatusesToExclude);
-
-                // build the excluded CRIDs list
-                List<string> excludedCrids = null;
-                if (householdRecordings != null && householdRecordings.Count > 0)
-                {
-                    //// leave crid that was canceld
-                    //List<RecordingType> recordingTypes = new List<RecordingType>(){RecordingType.Season, RecordingType.Series};                    
-                    //excludedCrids = householdRecordings.Values.Where(w => !(recordingTypes.Contains(w.Type) && w.RecordingStatus == TstvRecordingStatus.Canceled)).Select(r => r.Crid).ToList();
-                    excludedCrids = householdRecordings.Values.Select(r => r.Crid).ToList();
-                }
+                // get CRIDs of all household recordings that were recorded as part of the series - all statuses but 'Failed'/ SeriesCancel/SeriesDelete
+                List<string> excludedCrids = RecordingsDAL.GetDomainRecordingsCridsByDomainsSeriesIds(m_nGroupID, domainId, series.Select(s => s.Id).Distinct().ToList());
 
                 // get all the relevant (series + seasons + CRID not in the list of household recordings) existing recordings from ES
                 List<ConditionalAccess.WS_Catalog.ExtendedSearchResult> relevantRecordingsForRecord = null;

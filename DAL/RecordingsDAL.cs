@@ -1069,6 +1069,27 @@ namespace DAL
             return dt;
         }
 
-       
+        public static List<string> GetDomainRecordingsCridsByDomainsSeriesIds(int groupID, long domainID, List<long> domainSeriesIds)
+        {
+            List<string> crids = null;
+            DataTable dt = null;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetDomainRecordingsCridsByDomainsSeriesIds");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@DomainID", domainID);
+            sp.AddIDListParameter("@DomainsSeriesIds", domainSeriesIds, "ID");
+            dt = sp.Execute();
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                crids = new List<string>();
+                foreach (DataRow row in dt.Rows)
+                {
+                    crids.Add(ODBCWrapper.Utils.GetSafeStr(row, "CRID"));
+                }
+            }
+
+            return crids;
+        }
     }
 }
