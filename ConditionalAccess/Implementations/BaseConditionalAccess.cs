@@ -19439,13 +19439,24 @@ namespace ConditionalAccess
                             foreach (var userDomain in userDomainlist)
                             {
                                 response = new RecordingResponse();
-                                // validate epgs entitlement and add to response
-                                ValidateEpgForRecording(userDomain.UserId.ToString(), userDomain.DomainId, ref response, epgs, validEpgsForRecording);
-                                if (response.Recordings.FirstOrDefault().Status.Code == (int)eResponseStatus.NotEntitled)
+                                
+                                // domain not allowd to service
+                                if (!IsServiceAllowed(m_nGroupID, (int)userDomain.DomainId, eService.NPVR))
                                 {
                                     if (!userDomainDictionary.ContainsKey(userDomain.UserId.ToString()))
                                     {
                                         userDomainDictionary.Add(userDomain.UserId.ToString(), userDomain.DomainId);
+                                    }
+                                }
+                                else // validate epgs entitlement and add to response
+                                {
+                                    ValidateEpgForRecording(userDomain.UserId.ToString(), userDomain.DomainId, ref response, epgs, validEpgsForRecording);
+                                    if (response.Recordings.FirstOrDefault().Status.Code == (int)eResponseStatus.NotEntitled)
+                                    {
+                                        if (!userDomainDictionary.ContainsKey(userDomain.UserId.ToString()))
+                                        {
+                                            userDomainDictionary.Add(userDomain.UserId.ToString(), userDomain.DomainId);
+                                        }
                                     }
                                 }
                             }
