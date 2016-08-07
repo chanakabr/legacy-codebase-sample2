@@ -857,7 +857,7 @@ namespace DAL
                 {
                     ulong version;
                     int currentQuota;
-                    int updatedQuota;
+                    int updatedQuota = 0;
                     Couchbase.IO.ResponseStatus status;
                     currentQuota = cbClient.GetWithVersion<int>(domainQuotaKey, out version, out status);
                     if (status == Couchbase.IO.ResponseStatus.Success)
@@ -874,15 +874,21 @@ namespace DAL
                     if (!result)
                     {
                         numOfRetries++;
-                        log.ErrorFormat("Error while adding quota to domain. number of tries: {0}/{1}. domainId: {2}, currentQuota: {3}, quotaToDecrease: {4}", numOfRetries, limitRetries, domainId, currentQuota, quotaToDecrease);
+                        log.ErrorFormat("Error while decreasing quota to domain. number of tries: {0}/{1}. domainId: {2}, currentQuota: {3}, quotaToDecrease: {4}", numOfRetries, limitRetries, domainId, currentQuota, quotaToDecrease);
                         System.Threading.Thread.Sleep(r.Next(50));
+                    }
+                    else
+                    {
+                        log.DebugFormat("successfully updated domain quota to {0}. domainId = {1}", updatedQuota, domainId);
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while adding quota to domain, domainId: {0}, quotaToDecrease: {1}, ex: {2}", domainId, quotaToDecrease, ex);
+                log.ErrorFormat("Error while decreasing quota to domain, domainId: {0}, quotaToDecrease: {1}, ex: {2}", domainId, quotaToDecrease, ex);
             }
+
+            
 
             return result;
         }
@@ -1062,5 +1068,7 @@ namespace DAL
 
             return dt;
         }
+
+       
     }
 }
