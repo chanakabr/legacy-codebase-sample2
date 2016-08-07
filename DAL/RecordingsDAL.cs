@@ -1063,7 +1063,7 @@ namespace DAL
             spGetFutureDomainRecordingsByRecordingIDs.AddParameter("@GroupID", groupID);
             spGetFutureDomainRecordingsByRecordingIDs.AddParameter("@DomainID", domainID);
             spGetFutureDomainRecordingsByRecordingIDs.AddParameter("@RecordingType", (int)recordingType);
-            spGetFutureDomainRecordingsByRecordingIDs.AddIDListParameter<long>("@@RecordingIDs", recordingIds, "ID");
+            spGetFutureDomainRecordingsByRecordingIDs.AddIDListParameter<long>("@RecordingIDs", recordingIds, "ID");
             dt = spGetFutureDomainRecordingsByRecordingIDs.Execute();
 
             return dt;
