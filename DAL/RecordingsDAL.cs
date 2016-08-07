@@ -1077,7 +1077,7 @@ namespace DAL
             sp.SetConnectionKey(RECORDING_CONNECTION);
             sp.AddParameter("@GroupID", groupID);
             sp.AddParameter("@DomainID", domainID);
-            sp.AddIDListParameter("@DomainsSeriesIds", domainSeriesIds, "ID");
+            sp.AddIDListParameter<long>("@DomainsSeriesIds", domainSeriesIds, "ID");
             dt = sp.Execute();
 
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
