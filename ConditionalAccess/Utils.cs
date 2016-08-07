@@ -4720,22 +4720,18 @@ namespace ConditionalAccess
 
             try
             {
-                DataTable dt = RecordingsDAL.GetDomainExistingRecordingsByEpgIds(groupId, domainID, validEpgObjectForRecordingMap.Keys.ToList());
-                if (dt != null && dt.Rows != null)
+                Dictionary<long, Recording> domainIdToDomainRecordingMap = Utils.GetDomainRecordingIdToRecordingMapByEpgIds(groupId, domainID, validEpgObjectForRecordingMap.Keys.ToList());
+                if (domainIdToDomainRecordingMap != null)
                 {
-                    foreach (DataRow dr in dt.Rows)
+                    foreach (KeyValuePair<long, Recording> pair in domainIdToDomainRecordingMap)
                     {
-                        long domainRecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
-                        if (domainRecordingID > 0)
+                        Recording domainRecoridng = pair.Value;
+                        // add domain recording if it doesn't already exist in dictionary and wasn't canceled or deleted
+                        if (domainRecoridng != null && domainRecoridng.Status != null && domainRecoridng.Status.Code == (int)eResponseStatus.OK
+                            && domainRecoridng.RecordingStatus != TstvRecordingStatus.Canceled && domainRecoridng.RecordingStatus != TstvRecordingStatus.Deleted)
                         {
-                            Recording domainRecording = BuildDomainRecordingFromDataRow(dr);
-                            // add domain recording if it doesn't already exist in dictionary and wasn't canceled or deleted
-                            if (domainRecording != null && domainRecording.Status != null && domainRecording.Status.Code == (int)eResponseStatus.OK
-                                && domainRecording.RecordingStatus != TstvRecordingStatus.Canceled && domainRecording.RecordingStatus != TstvRecordingStatus.Deleted)
-                            {
-                                domainRecording.Id = domainRecordingID;
-                                responseDictionary[domainRecording.EpgId] = domainRecording;
-                            }
+                            domainRecoridng.Id = pair.Key;
+                            responseDictionary[domainRecoridng.EpgId] = domainRecoridng;
                         }
                     }
                 }
@@ -6141,8 +6137,28 @@ namespace ConditionalAccess
             int startIndexOnList = pageIndex * pageSize;
             int endIndexOnList = startIndexOnList + pageSize;
             int rangeToGetFromList = endIndexOnList > totalResults ? totalResults - startIndexOnList : pageSize;
-            orderedRecordings = orderedRecordings.GetRange(startIndexOnList, pageSize);
+            orderedRecordings = orderedRecordings.GetRange(startIndexOnList, rangeToGetFromList);
             return orderedRecordings;
+        }
+
+        internal static Dictionary<long, Recording> GetDomainRecordingIdToRecordingMapByEpgIds(int groupId, long domainId, List<long> epgIds)
+        {
+            Dictionary<long, Recording> domainIdToRecordingMap = new Dictionary<long, Recording>();
+            DataTable dt = RecordingsDAL.GetDomainExistingRecordingsByEpgIds(groupId, domainId, epgIds);
+            if (dt != null && dt.Rows != null)
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    long domainRecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+                    if (domainRecordingID > 0 && !domainIdToRecordingMap.ContainsKey(domainRecordingID))
+                    {
+                        Recording domainRecording = BuildDomainRecordingFromDataRow(dr);                            
+                        domainIdToRecordingMap.Add(domainRecordingID, domainRecording);                                                        
+                    }                    
+                }
+            }
+
+            return domainIdToRecordingMap;
         }
 
     }
