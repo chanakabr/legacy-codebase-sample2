@@ -3132,6 +3132,43 @@ namespace WebAPI.Clients
 
             return responseSettings;
         }
+
+        internal KalturaRegionListResponse GetRegions(int groupId, List<string> externalIds, KalturaRegionOrderBy orderBy)
+        {
+            List<KalturaRegion> regions = new List<KalturaRegion>();
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            RegionsResponse response = null;
+
+            RegionOrderBy wsOrderBy = ApiMappings.ConvertRegionOrderBy(orderBy);
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GetRegions(group.ApiCredentials.Username, group.ApiCredentials.Password, externalIds != null ? externalIds.ToArray() : null, wsOrderBy);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling conditional access service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            regions = AutoMapper.Mapper.Map<List<KalturaRegion>>(response.Regions);
+
+            return new KalturaRegionListResponse() { Regions = regions, TotalCount = regions != null ? regions.Count : 0 };
+        }
     }
 }
 

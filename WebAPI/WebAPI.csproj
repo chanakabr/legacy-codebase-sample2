@@ -2428,6 +2428,7 @@
     <Compile Include="Controllers\CDNAdapterProfileController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
     <Compile Include="Controllers\CDNPartnerSettingsController.cs" />
+    <Compile Include="Controllers\RegionController.cs" />
     <Compile Include="Controllers\HouseholdPaymentMethodController.cs" />
     <Compile Include="Controllers\HouseholdPaymentGatewayController.cs" />
     <Compile Include="Controllers\ProductPriceController.cs" />
@@ -2508,8 +2509,13 @@
     <Compile Include="Managers\Scheme\OldStandard.cs" />
     <Compile Include="Managers\Scheme\ValidationException.cs" />
     <Compile Include="Managers\Scheme\SchemeValidationType.cs" />
+    <Compile Include="Models\API\KalturaRegionOrderBy.cs" />
+    <Compile Include="Models\API\KalturaRegionFilter.cs" />
+    <Compile Include="Models\API\KalturaRegionListResponse.cs" />
+    <Compile Include="Models\API\KalturaLinearChannel.cs" />
     <Compile Include="Models\API\KalturaPin.cs" />
     <Compile Include="Models\API\KalturaPurchaseSettings.cs" />
+    <Compile Include="Models\API\KalturaRegion.cs" />
     <Compile Include="Models\API\KalturaUserAssetRuleFilter.cs" />
     <Compile Include="Models\API\KalturaUserAssetRuleListResponse.cs" />
     <Compile Include="Models\API\KalturaUserAssetRule.cs" />

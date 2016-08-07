@@ -381,6 +381,21 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.DefaultAdapter, opt => opt.MapFrom(src => src.DefaultAdapterId));
 
             #endregion
+
+            #region regions
+            Mapper.CreateMap<KeyValuePair, KalturaLinearChannel>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.key))
+              .ForMember(dest => dest.ChannelNumber, opt => opt.MapFrom(src => src.value));
+
+
+            Mapper.CreateMap<Region, KalturaRegion>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.id))
+              .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.externalId))
+              .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.isDefault))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.name))
+              .ForMember(dest => dest.LinearChannels, opt => opt.MapFrom(src => src.linearChannels));
+            
+            #endregion
         }
 
         private static KalturaApiParameterPermissionItemAction ConvertApiParameterPermissionItemAction(string action)
@@ -1187,6 +1202,25 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown user asset rule order by");
+            }
+
+            return result;
+        }
+
+        internal static RegionOrderBy ConvertRegionOrderBy(KalturaRegionOrderBy orderBy)
+        {
+            RegionOrderBy result;
+
+            switch (orderBy)
+            {
+                case KalturaRegionOrderBy.CREATE_DATE_ASC:
+                    result = RegionOrderBy.CreateDateAsc;
+                    break;
+                case KalturaRegionOrderBy.CREATE_DATE_DESC:
+                    result = RegionOrderBy.CreateDateDesc;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown region order by");
             }
 
             return result;
