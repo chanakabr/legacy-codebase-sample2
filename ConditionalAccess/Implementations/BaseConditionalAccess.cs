@@ -18430,7 +18430,9 @@ namespace ConditionalAccess
                     ApiObjects.TstvRecordingStatus.Recording,
                     ApiObjects.TstvRecordingStatus.Scheduled,
                     ApiObjects.TstvRecordingStatus.Canceled,
-                    ApiObjects.TstvRecordingStatus.Deleted
+                    ApiObjects.TstvRecordingStatus.Deleted, 
+                    ApiObjects.TstvRecordingStatus.SeriesDelete, 
+                    ApiObjects.TstvRecordingStatus.SeriesCancel, 
                 };               
 
                 // get household recordings - all statuses but 'Failed'/ SeriesCancel/SeriesDelete
