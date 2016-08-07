@@ -163,36 +163,63 @@ namespace WebAPI.Controllers
 
             if (filter == null)
             {
-                filter = new KalturaAssetFilter();
+                filter = new KalturaSearchAssetFilter();
             }
-            else
-            {
-                filter.Validate();
-            }
-
-            if (!string.IsNullOrEmpty(filter.KSql) && filter.KSql.Length > 1024)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "too long filter");
-            }
-
+           
             try
             {
-                // no related media id - search
-                if (string.IsNullOrEmpty(filter.RelatedMediaIdEqual))
+                // external channel 
+                if (filter is KalturaChannelExternalFilter)
                 {
-                    response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, filter.KSql, filter.OrderBy, filter.getTypeIn(), filter.getEpgChannelIdIn());
+                    KalturaChannelExternalFilter channelExternalFilter = new KalturaChannelExternalFilter((KalturaChannelExternalFilter)filter);
+                    channelExternalFilter.Validate();
+                    string deviceType = System.Web.HttpContext.Current.Request.UserAgent;
+                    response = ClientsManager.CatalogClient().GetExternalChannelAssets(groupId, channelExternalFilter.IdEqual.ToString(), userID, domainId, udid,
+                        language, pager.getPageIndex(), pager.PageSize, filter.OrderBy, deviceType, channelExternalFilter.UtcOffsetEqual, channelExternalFilter.FreeTextEqual);
+                }
+                //SearchAssets 
+                else if (filter is KalturaSearchAssetFilter)
+                {
+                    KalturaSearchAssetFilter regularAssetFilter = new KalturaSearchAssetFilter((KalturaSearchAssetFilter)filter);
+                    regularAssetFilter.Validate();
+                    response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, regularAssetFilter.KSql,
+                        regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn());
                 }
                 // related
-                else
+                else if (filter is KalturaRelatedFilter)
                 {
-                    int mediaId = 0;
-                    if (!int.TryParse(filter.RelatedMediaIdEqual, out mediaId))
-                    {
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "related media id must be numeric");
-                    }
+                    KalturaRelatedFilter relatedFilter = new KalturaRelatedFilter((KalturaRelatedFilter)filter);
+                    relatedFilter.Validate();
+                    response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, domainId, udid,
+                    language, pager.getPageIndex(), pager.PageSize, relatedFilter.getMediaId(), relatedFilter.KSql, relatedFilter.getTypeIn(), relatedFilter.OrderBy);
+                }
+                //Return list of assets that are related to a provided asset ID. Returned assets can be within multi asset types or be of same type as the provided asset. 
+                //Support on-demand, per asset enrichment. Related assets are provided from the external source (e.g. external recommendation engine). 
+                //Maximum number of returned assets – 20, using paging  
+                else if (filter is KalturaRelatedExternalFilter)
+                {
+                    KalturaRelatedExternalFilter relatedExternalFilter = new KalturaRelatedExternalFilter((KalturaRelatedExternalFilter)filter);
+                    response = ClientsManager.CatalogClient().GetRelatedMediaExternal(groupId, userID, domainId, udid,
+                        language, pager.getPageIndex(), pager.PageSize, relatedExternalFilter.IdEqual, relatedExternalFilter.getTypeIn(), relatedExternalFilter.UtcOffsetEqual,
+                        relatedExternalFilter.FreeTextEqual);
+                }
+                else if (filter is KalturaSearchExternalFilter)
+                {
+                    KalturaSearchExternalFilter searchExternalFilter = new KalturaSearchExternalFilter((KalturaSearchExternalFilter)filter);
+                    if (pager == null)
+                        pager = new KalturaFilterPager() { PageIndex = 0, PageSize = 5 };
 
-                    response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
-                    language, pager.getPageIndex(), pager.PageSize, mediaId, filter.KSql, filter.getTypeIn(), filter.OrderBy);
+                    response = ClientsManager.CatalogClient().GetSearchMediaExternal(groupId, userID, domainId, udid,
+                        language, pager.getPageIndex(), pager.PageSize, searchExternalFilter.QueryEqual, searchExternalFilter.getTypeIn(), searchExternalFilter.UtcOffsetEqual);
+                }
+                // channel
+                {
+                    KalturaChannelFilter channelFilter = new KalturaChannelFilter((KalturaChannelFilter)filter);
+                    if (pager == null)
+                        pager = new KalturaFilterPager();
+
+                    response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, domainId, udid, language,
+                        pager.getPageIndex(), pager.PageSize, channelFilter.IdEqual, channelFilter.OrderBy, channelFilter.QueryEqual);
                 }
             }
             catch (ClientException ex)
@@ -574,6 +601,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("relatedExternal"), HttpPost]
         [ApiAuthorize]
+        [Obsolete]
         public KalturaAssetInfoListResponse RelatedExternal(int asset_id, KalturaFilterPager pager = null, List<KalturaIntegerValue> filter_type_ids = null, int utc_offset = 0,
             List<KalturaCatalogWithHolder> with = null, string free_param = null)
         {
@@ -732,6 +760,7 @@ namespace WebAPI.Controllers
         /// RecommendationEngineNotExist = 4007, ExternalChannelNotExist = 4011</remarks>
         [Route("externalChannel"), HttpPost]
         [ApiAuthorize]
+        [Obsolete]
         public KalturaAssetInfoListResponse ExternalChannel(int id, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
             KalturaFilterPager pager = null, string utc_offset = null, string free_param = null)
         {
