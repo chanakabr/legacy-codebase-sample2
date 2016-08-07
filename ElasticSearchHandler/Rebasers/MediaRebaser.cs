@@ -26,6 +26,8 @@ namespace ElasticSearchHandler
 
         public override bool Rebase()
         {
+            log.DebugFormat("Started rebase index media for group {0}", this.groupId);
+
             bool result = false;
 
             GroupManager groupManager = new GroupManager();
@@ -50,8 +52,16 @@ namespace ElasticSearchHandler
             // Order all media by their ID
             var groupMedias = groupMediasDictionary.OrderBy(asset => asset.Key).ToList();
 
+            log.DebugFormat("Rebase index - Get_GroupMedias_Rebase return {0} media", groupMedias.Count);
+
+            int updatedDocuments = 0;
+            int deletedDocuments = 0;
+
             if (groupMedias != null)
             {
+                // Media that exist in ES but not in DB - with IDs outside of DB's range
+                DeleteEdgeDocuments(languages, indexName, groupMedias);
+                
                 bool isDone = false;
                 int firstIndex = 0;
                 int lastIndex = 0;
@@ -63,7 +73,7 @@ namespace ElasticSearchHandler
                     if (firstIndex + sizeOfBulk > groupMedias.Count)
                     {
                         // The current bulk will be until the end of the list/dictionary
-                        lastIndex = groupMedias.Count - 1;
+                        lastIndex = groupMedias.Count;
                         isDone = true;
 
                         // mark this rebase as successful
@@ -92,11 +102,9 @@ namespace ElasticSearchHandler
                     // For each language
                     foreach (var language in languages)
                     {
-                        int languageId = language.ID;
-
                         int firstMediaId = groupMedias[firstIndex].Key;
                         int lastMediaId = groupMedias[lastIndex].Key;
-                        string documentType = ElasticSearchTaskUtils.GetTanslationType(MEDIA, group.GetLanguage(languageId));
+                        string documentType = ElasticSearchTaskUtils.GetTanslationType(MEDIA, language);
 
                         List<ElasticSearchApi.ESAssetDocument> searchResults =
                             GetRangedDocuments(indexName, firstMediaId.ToString(), lastMediaId.ToString(), "media_id", documentType);
@@ -114,6 +122,7 @@ namespace ElasticSearchHandler
                             if (!allIdsFromDB.Contains(assetId))
                             {
                                 assetsToDelete.Add(assetId);
+                                deletedDocuments++;
                             }
                             else
                             {
@@ -132,6 +141,7 @@ namespace ElasticSearchHandler
                                         (isESActive != isDBActive))
                                     {
                                         assetsToUpdate.Add(assetId);
+                                        updatedDocuments++;
                                     }
                                 }
                             }
@@ -157,17 +167,81 @@ namespace ElasticSearchHandler
                         foreach (var assetId in allIdsFromDB)
                         {
                             assetsToUpdate.Add(assetId);
+                            updatedDocuments++;
                         }
                     }
 
                     IssueUpdatesAndDeletes<int>(bulkRequests, assetsToUpdate.ToList());
 
                     // move on to the new index
-                    firstIndex = lastIndex;
+                    firstIndex = lastIndex - 1;
                 }
             }
 
+            log.DebugFormat("Rebase media index of group {0} finished. Updated documents = {1}, deleted documents = {2}", groupId, updatedDocuments, deletedDocuments);
+
             return result;
+        }
+
+        private void DeleteEdgeDocuments(List<ApiObjects.LanguageObj> languages, string indexName, List<KeyValuePair<int, KeyValuePair<bool, DateTime>>> groupMedias)
+        {
+
+            int minimumId = 0;
+            int maximumId = int.MaxValue;
+
+            if (groupMedias.Count > 0)
+            {
+                minimumId = groupMedias[0].Key;
+                maximumId = groupMedias[groupMedias.Count - 1].Key;
+            }
+
+            try
+            {
+                // For each language
+                foreach (var language in languages)
+                {
+                    string documentType = ElasticSearchTaskUtils.GetTanslationType(MEDIA, language);
+
+                    // Create a search range smaller than the first ID or larger than the last ID
+                    ESRange range1 = new ESRange(true)
+                    {
+                        Key = "media_id"
+                    };
+
+                    ESRange range2 = new ESRange(true)
+                    {
+                        Key = "media_id"
+                    };
+
+                    range1.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LT, minimumId.ToString()));
+                    range2.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GT, maximumId.ToString()));
+
+                    BoolQuery boolQuery = new BoolQuery();
+
+                    boolQuery.AddChild(range1, CutWith.OR);
+                    boolQuery.AddChild(range2, CutWith.OR);
+
+                    ESQuery query = new ESQuery(boolQuery)
+                    {
+                        Size = maxResults,
+                        Fields = new List<string>()
+                            {
+                                "media_id",
+                                "update_date",
+                                "is_active"
+                            }
+                    };
+
+                    string queryString = query.ToString();
+
+                    // Perform delete by query : id ≤ first_id OR id  ≥ last_id
+                    bool deleteResult = api.DeleteDocsByQuery(indexName, documentType, ref queryString);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Rebase index for group {0}. Failed when deleting documents bigger than max ID or smaller than min ID", groupId);
+            }
         }
     }
 }

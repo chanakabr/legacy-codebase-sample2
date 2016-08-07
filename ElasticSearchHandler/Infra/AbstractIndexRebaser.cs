@@ -68,7 +68,6 @@ namespace ElasticSearchHandler
             range.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, firstId));
             range.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, lastId));
 
-            // TODO: only specific fields: ID + Update Date + Is Active
             ESQuery query = new ESQuery(range)
             {
                 Size = maxResults,
