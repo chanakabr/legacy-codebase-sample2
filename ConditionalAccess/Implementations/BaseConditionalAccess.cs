@@ -19384,10 +19384,27 @@ namespace ConditionalAccess
                     RecordingType recordingType = seasonNumber > 0 ? RecordingType.Season : RecordingType.Series;
                     if (domainId > 0 && userId > 0 && QuotaManager.Instance.GetDomainQuota(m_nGroupID, domainId) >= recordingDuration)
                     {
-                        Recording userRecording = Record(userId.ToString(), epgId, recordingType, domainSeriesRecordingId);
-                        if (userRecording != null && userRecording.Status != null && userRecording.Status.Code == (int)eResponseStatus.OK && userRecording.Id > 0)
+                        bool shouldIssueRecordForDomain = true;
+                        Dictionary<long, Recording> domainRecordings = Utils.GetDomainRecordingIdToRecordingMapByEpgIds(m_nGroupID, domainId, new List<long>() { epgId });
+                        if (domainRecordings != null)
                         {
-                            log.DebugFormat("successfully distributed recording for domainId = {0}, epgId = {1}, new recordingId = {2}", domainId, epgId, userRecording.Id);
+                            foreach (Recording currentRecording in domainRecordings.Values)
+                            {
+                                if (Utils.IsValidRecordingStatus(currentRecording.RecordingStatus) || currentRecording.RecordingStatus == TstvRecordingStatus.SeriesCancel || currentRecording.RecordingStatus == TstvRecordingStatus.SeriesDelete)
+                                {
+                                    shouldIssueRecordForDomain = false;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (shouldIssueRecordForDomain)
+                        {
+                            Recording userRecording = Record(userId.ToString(), epgId, recordingType, domainSeriesRecordingId);
+                            if (userRecording != null && userRecording.Status != null && userRecording.Status.Code == (int)eResponseStatus.OK && userRecording.Id > 0)
+                            {
+                                log.DebugFormat("successfully distributed recording for domainId = {0}, epgId = {1}, new recordingId = {2}", domainId, epgId, userRecording.Id);
+                            }
                         }
                     }
                 });
