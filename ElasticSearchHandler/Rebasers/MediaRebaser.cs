@@ -46,7 +46,6 @@ namespace ElasticSearchHandler
             string indexName = ElasticSearchTaskUtils.GetMediaGroupAliasStr(groupId);
 
             // Get ALL media in group
-            //Dictionary<int, Dictionary<int, Media>> groupMediasDictionary = ElasticsearchTasksCommon.Utils.GetGroupMediasTotal(groupId, 0);
             var groupMediasDictionary = ElasticsearchTasksCommon.Utils.GetRebaseMediaInformation(groupId);
 
             // Order all media by their ID
@@ -106,8 +105,9 @@ namespace ElasticSearchHandler
                         int lastMediaId = groupMedias[lastIndex].Key;
                         string documentType = ElasticSearchTaskUtils.GetTanslationType(MEDIA, language);
 
+                        bool isFirstRun = firstIndex == 0;
                         List<ElasticSearchApi.ESAssetDocument> searchResults =
-                            GetRangedDocuments(indexName, firstMediaId.ToString(), lastMediaId.ToString(), "media_id", documentType);
+                            GetRangedDocuments(indexName, firstMediaId.ToString(), lastMediaId.ToString(), "media_id", documentType, isFirstRun);
 
                         foreach (var currentAsset in searchResults)
                         {
@@ -183,9 +183,14 @@ namespace ElasticSearchHandler
             return result;
         }
 
+        /// <summary>
+        /// Deletes all documents in ES that their IDs are lower than the minimum ID in DB or higher than the maximum ID in DB
+        /// </summary>
+        /// <param name="languages"></param>
+        /// <param name="indexName"></param>
+        /// <param name="groupMedias"></param>
         private void DeleteEdgeDocuments(List<ApiObjects.LanguageObj> languages, string indexName, List<KeyValuePair<int, KeyValuePair<bool, DateTime>>> groupMedias)
         {
-
             int minimumId = 0;
             int maximumId = int.MaxValue;
 

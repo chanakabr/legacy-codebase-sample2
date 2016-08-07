@@ -37,10 +37,10 @@ namespace ElasticSearchHandler
             sizeOfBulk = TVinciShared.WS_Utils.GetTcmIntValue("ES_BULK_SIZE");
             maxResults = TVinciShared.WS_Utils.GetTcmIntValue("MAX_RESULTS");
 
-            // Default for size of bulk should be 50, if not stated otherwise in TCM
+            // Default for size of bulk should be 1000, if not stated otherwise in TCM
             if (sizeOfBulk == 0)
             {
-                sizeOfBulk = 50;
+                sizeOfBulk = 1000;
             }
 
             // Default size of max results should be 100,000
@@ -57,7 +57,8 @@ namespace ElasticSearchHandler
             return result;
         }
 
-        protected List<ElasticSearchApi.ESAssetDocument> GetRangedDocuments(string indexName, string firstId, string lastId, string idField, string documentType)
+        protected List<ElasticSearchApi.ESAssetDocument> GetRangedDocuments(string indexName, 
+            string firstId, string lastId, string idField, string documentType, bool isFirstRun)
         {
             // Create a search range from the first ID to the last ID
             ESRange range = new ESRange(true)
@@ -65,7 +66,14 @@ namespace ElasticSearchHandler
                 Key = idField
             };
 
-            range.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, firstId));
+            eRangeComp comparison =eRangeComp.GT;
+
+            if (isFirstRun)
+            {
+                comparison = eRangeComp.GTE;
+            }
+
+            range.Value.Add(new KeyValuePair<eRangeComp, string>(comparison, firstId));
             range.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, lastId));
 
             ESQuery query = new ESQuery(range)
@@ -90,6 +98,16 @@ namespace ElasticSearchHandler
 
             List<ElasticSearchApi.ESAssetDocument> searchResults =
                 Catalog.ElasticsearchWrapper.DecodeAssetSearchJsonObject(searchResultString, ref totalItems, extraField);
+
+            int count = 0;
+
+            if (searchResults != null)
+            {
+                count = searchResults.Count;
+            }
+
+            log.DebugFormat("Get ranged documents for index {0}, first ID = {1}, last ID = {2}, bulk size = {3}, search result count = {4}",
+                indexName, firstId, lastId, sizeOfBulk, count);
 
             return searchResults;
         }

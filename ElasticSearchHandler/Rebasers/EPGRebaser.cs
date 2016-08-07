@@ -28,6 +28,8 @@ namespace ElasticSearchHandler
 
         public override bool Rebase()
         {
+            log.DebugFormat("Started rebase index EPG for group {0}", this.groupId);
+
             bool result = false;
 
             GroupManager groupManager = new GroupManager();
@@ -48,6 +50,11 @@ namespace ElasticSearchHandler
             TvinciEpgBL epgBL = new TvinciEpgBL(groupId);
             var groupEpgs = epgBL.GetGroupEpgs(maxResults, 0, null, null);
 
+            log.DebugFormat("Rebase index - GetGroupEpgs return {0} epg", groupEpgs.Count);
+
+            int updatedDocuments = 0;
+            int deletedDocuments = 0;
+
             if (groupEpgs != null)
             {
                 Dictionary<ulong, EpgCB> dictionary = groupEpgs.ToDictionary<EpgCB, ulong>(epg => epg.EpgID);
@@ -64,7 +71,7 @@ namespace ElasticSearchHandler
                     if (firstIndex + sizeOfBulk > groupEpgs.Count)
                     {
                         // The current bulk will be until the end of the list/dictionary
-                        lastIndex = groupEpgs.Count - 1;
+                        lastIndex = groupEpgs.Count;
                         isDone = true;
 
                         // mark this rebase as successful
@@ -105,8 +112,9 @@ namespace ElasticSearchHandler
                         ulong lastEpgId = groupEpgs[lastIndex].EpgID;
                         string documentType = ElasticSearchTaskUtils.GetTanslationType(EPG, group.GetLanguage(languageId));
 
+                        bool isFirstRun = firstIndex == 0;
                         List<ElasticSearchApi.ESAssetDocument> searchResults =
-                            GetRangedDocuments(indexName, firstEpgId.ToString(), lastEpgId.ToString(), "epg_id", documentType);
+                            GetRangedDocuments(indexName, firstEpgId.ToString(), lastEpgId.ToString(), "epg_id", documentType, isFirstRun);
 
                         foreach (var currentAsset in searchResults)
                         {
@@ -121,6 +129,7 @@ namespace ElasticSearchHandler
                             if (!allIdsFromDB.Contains(assetId))
                             {
                                 assetsToDelete.Add(assetId);
+                                deletedDocuments++;
                             }
                             else
                             {
@@ -139,6 +148,7 @@ namespace ElasticSearchHandler
                                         (isESActive != isDBActive))
                                     {
                                         assetsToUpdate.Add(assetId);
+                                        updatedDocuments++;
                                     }
                                 }
                             }
@@ -164,6 +174,7 @@ namespace ElasticSearchHandler
                         foreach (var assetId in allIdsFromDB)
                         {
                             assetsToUpdate.Add(assetId);
+                            updatedDocuments++;
                         }
                     }
 
@@ -172,9 +183,11 @@ namespace ElasticSearchHandler
                     IssueUpdatesAndDeletes(bulkRequests, assetsToUpdateList);
 
                     // move on to the new index
-                    firstIndex = lastIndex;
+                    firstIndex = lastIndex - 1;
                 }
             }
+
+            log.DebugFormat("Rebase EPG index of group {0} finished. Updated documents = {1}, deleted documents = {2}", groupId, updatedDocuments, deletedDocuments);
 
             return result;
         }
