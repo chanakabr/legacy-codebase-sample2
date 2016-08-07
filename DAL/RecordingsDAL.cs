@@ -212,8 +212,10 @@ namespace DAL
             spUpdateOrInsertDomainRecording.AddParameter("@RecordingID", recording.Id);
             spUpdateOrInsertDomainRecording.AddParameter("@EpgChannelId", recording.ChannelId);
             spUpdateOrInsertDomainRecording.AddParameter("@RecordingType", (int)recording.Type);
-            spUpdateOrInsertDomainRecording.AddParameter("@Status", recording.RecordingStatus == TstvRecordingStatus.Deleted ? 2 : 1);
             spUpdateOrInsertDomainRecording.AddParameter("@DomainSeriesRecordingId", domainSeriesRecordingId);
+            List<TstvRecordingStatus> deleteStatus = new List<TstvRecordingStatus>() { TstvRecordingStatus.Deleted,TstvRecordingStatus.SeriesDelete };
+            spUpdateOrInsertDomainRecording.AddParameter("@Status", deleteStatus.Contains(recording.RecordingStatus) ? 2 : 1);            
+
             switch (recording.RecordingStatus)
             {
                 case TstvRecordingStatus.Canceled:
@@ -221,6 +223,12 @@ namespace DAL
                     break;
                 case TstvRecordingStatus.Deleted:
                     spUpdateOrInsertDomainRecording.AddParameter("@RecordingState",3);
+                    break;
+                case TstvRecordingStatus.SeriesCancel:
+                    spUpdateOrInsertDomainRecording.AddParameter("@RecordingState", 5);
+                    break;
+                case TstvRecordingStatus.SeriesDelete:
+                    spUpdateOrInsertDomainRecording.AddParameter("@RecordingState", 6);
                     break;
                 default:
                     spUpdateOrInsertDomainRecording.AddParameter("@RecordingState", 1);

@@ -18889,7 +18889,7 @@ namespace ConditionalAccess
                 }
                 if (epgId > 0) // cancel / delete specific epg that recorder as part of series
                 {
-                    CancelOrDeleteEpg(userId, domainId, seriesRecording, tstvRecordingStatus, epgId);
+                    CancelOrDeleteEpg(userId, domainId, seriesRecording, tstvRecordingStatus, epgId, domainSeriesRecordingId);
                     seriesRecording.Id = domainSeriesRecordingId;
                 }               
                 else // cancel / delete all epgs related to series or to season number
@@ -19007,7 +19007,7 @@ namespace ConditionalAccess
             }
         }
 
-        private void CancelOrDeleteEpg(string userId, long domainId, SeriesRecording seriesRecording, TstvRecordingStatus tstvRecordingStatus, long epgId)
+        private void CancelOrDeleteEpg(string userId, long domainId, SeriesRecording seriesRecording, TstvRecordingStatus tstvRecordingStatus, long epgId, long domainSeriesRecordingId)
         {
             try
             {
@@ -19019,6 +19019,14 @@ namespace ConditionalAccess
                 bool result = Utils.GetEpgRelatedToSeriesRecording(m_nGroupID, epgs, seriesRecording);
                 if (epgs != null && epgs.Count > 0) // epg related to series and season
                 {
+
+                    // convert status Cancel/Delete ==> SeriesCancel/SeriesDelete
+                    TstvRecordingStatus? seriesStatus = Utils.ConvertToSeriesStatus(tstvRecordingStatus);
+                    if (!seriesStatus.HasValue)
+                    {
+                        log.ErrorFormat("fail to perform cancel or delete domainSeriesRecordingId = {1}, tstvRecordingStatus = {2}", domainSeriesRecordingId, tstvRecordingStatus.ToString());
+                        return;
+                    }
                     // check if this epg already in DB 
                     DataTable dt = RecordingsDAL.GetDomainExistingRecordingsByEpgIds(m_nGroupID, domainId, new List<long>() { epgId });
                     if (dt != null && dt.Rows != null)                    
@@ -19029,7 +19037,8 @@ namespace ConditionalAccess
                             if (domainRecordingID > 0)
                             {   
                                 // cancel / delete record 
-                                Recording recording = CancelOrDeleteRecord(userId, domainId, domainRecordingID, tstvRecordingStatus, false);
+
+                                Recording recording = CancelOrDeleteRecord(userId, domainId, domainRecordingID, seriesStatus.Value, false);
                                 if (recording == null || (recording != null && recording.Status.Code != (int)eResponseStatus.OK))
                                 {
                                     seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error,  string.Format("fail to cancel or delete epgid = {0}", epgId));
@@ -19050,11 +19059,16 @@ namespace ConditionalAccess
                                     Id = 0,
                                     ChannelId = (long)epgs[0].ChannelID,
                                     EpgId = epgId,
-                                    RecordingStatus = tstvRecordingStatus == TstvRecordingStatus.Canceled ? TstvRecordingStatus.Canceled : TstvRecordingStatus.Deleted,
+                                    RecordingStatus = seriesStatus.Value,
                                     Type = seriesRecording.SeasonNumber > 0 ? RecordingType.Season : RecordingType.Series
                                 };
                         }
-                        bool res = RecordingsDAL.UpdateOrInsertDomainRecording(m_nGroupID, long.Parse(userId), domainId, recording);
+                        else
+                        {
+                            recording.Type = seriesRecording.SeasonNumber > 0 ? RecordingType.Season : RecordingType.Series;
+                            recording.RecordingStatus = seriesStatus.Value;
+                        }
+                        bool res = RecordingsDAL.UpdateOrInsertDomainRecording(m_nGroupID, long.Parse(userId), domainId, recording, domainSeriesRecordingId);
                         if (!res)
                         {
                             seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to cancel or delete epgid");
