@@ -32,10 +32,10 @@ namespace WebAPI.Utils
         {
             string ip = string.Empty;
             string retIp = HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
-            if (!string.IsNullOrEmpty(retIp))
+            string[] ipRange;
+            if (!string.IsNullOrEmpty(retIp) && (ipRange = retIp.Split(',')) != null && ipRange.Length > 0)
             {
-                string[] ipRange = retIp.Split(',');
-                ip = ipRange[ipRange.Length - 1];
+                ip = ipRange[0];
             }
             else
             {
@@ -43,7 +43,12 @@ namespace WebAPI.Utils
             }
 
             if (ip.Equals("127.0.0.1") || ip.Equals("::1") || ip.StartsWith("192.168.")) ip = "81.218.199.175";
-            //if (ip.Equals("81.218.199.175")) ip = "127.0.0.1";
+
+            if (ip.Contains(':'))
+            {
+                ip.Substring(0, ip.IndexOf(':'));
+            }
+
 
             return ip.Trim();
         }
