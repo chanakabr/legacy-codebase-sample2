@@ -15,6 +15,8 @@ namespace WebAPI.Utils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
+        private const string HOUSEHOLd_KEY = "household";
+
         public static long GetHouseholdIDByKS(int groupID)
         {
             var ks = KS.GetFromRequest();
@@ -27,18 +29,7 @@ namespace WebAPI.Utils
             if (userID == "0")
                 return 0;
 
-            KalturaHousehold domain = null;
-
-            try
-            {
-                domain = ClientsManager.DomainsClient().GetDomainByUser(groupID, userID);
-            }
-            catch (ClientException ex)
-            {
-                log.Error("GetHouseholdIDByKS: got ClientException for GetDomainByUser", ex);
-                domain = null;
-            }
-
+            KalturaHousehold domain = GetHouseholdFromRequest(groupID, userID);
             if (domain == null)
                 return 0;
 
@@ -57,18 +48,7 @@ namespace WebAPI.Utils
             if (userID == "0")
                 return null;
 
-            KalturaHousehold domain = null;
-
-            try
-            {
-                domain = ClientsManager.DomainsClient().GetDomainByUser(groupID, userID);
-            }
-            catch (ClientException ex)
-            {
-                log.Error("GetHouseholdIDByKS: got ClientException for GetDomainByUser", ex);
-                domain = null;
-            }
-
+            KalturaHousehold domain = GetHouseholdFromRequest(groupID, userID);
             if (domain == null)
                 return null;
 
@@ -87,6 +67,42 @@ namespace WebAPI.Utils
                 userIds.AddRange(domain.PendingUsers.Select(u => u.Id));
 
             return userIds;
+        }
+
+        public static KalturaHousehold GetHouseholdFromRequest(int groupID, string userID)
+        {
+            KalturaHousehold domain = null;
+
+            if (HttpContext.Current.Items.Contains(HOUSEHOLd_KEY))
+            {
+                domain = (KalturaHousehold)HttpContext.Current.Items[HOUSEHOLd_KEY];
+            }
+            else
+            {
+                try
+                {
+                    domain = ClientsManager.DomainsClient().GetDomainByUser(groupID, userID);
+                }
+                catch (ClientException ex)
+                {
+                    log.Error("GetHouseholdIDByKS: got ClientException for GetDomainByUser", ex);
+                    domain = null;
+                }
+            }
+
+            if (domain == null)
+                return null;
+
+            if (HttpContext.Current.Items.Contains(HOUSEHOLd_KEY))
+            {
+                HttpContext.Current.Items[HOUSEHOLd_KEY] = domain;
+            }
+            else
+            {
+                HttpContext.Current.Items.Add(HOUSEHOLd_KEY, domain);
+            }
+
+            return domain;
         }
     }
 }
