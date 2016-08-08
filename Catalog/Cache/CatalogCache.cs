@@ -250,7 +250,7 @@ namespace Catalog.Cache
             {
                 List<int> missingsKeys = null;
                 LinearChannelSettings linear = null;                
-                List<string> fullKeys = keys.Select(k => (string.Format("LinearChannelSettings_{0}_{1}", groupID, k))).ToList();
+                List<string> fullKeys = keys.Distinct().Select(k => (string.Format("LinearChannelSettings_{0}_{1}", groupID, k))).ToList();
                 Dictionary<string, object> values = GetValues(fullKeys);                
                 if (values != null && values.Count > 0)
                 {                    
@@ -295,7 +295,7 @@ namespace Catalog.Cache
 
                                 string channelID = ODBCWrapper.Utils.GetSafeStr(channel, "ID");
                                 string sKey = string.Format("LinearChannelSettings_{0}_{1}", groupID, channelID);
-                                if (linear != null)
+                                if (linear != null && !linearChannelSettings.ContainsKey(channelID))
                                 {
                                     linearChannelSettings.Add(channelID, linear);
                                     Set(sKey, linear);
