@@ -1,21 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using KLogMonitor;
+using System;
 using System.Configuration;
 using System.Linq;
-using System.Text;
+using System.Reflection;
 using System.Threading;
 using System.Web;
 using TVPApi;
 using TVPApiModule.Helper;
-using TVPApiModule.Objects;
 using TVPApiModule.Objects.Authorization;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.TvinciPlatform.Domains;
 using TVPPro.SiteManager.TvinciPlatform.Users;
-using KLogMonitor;
-using System.Reflection;
-using CouchbaseManager;
 
 namespace TVPApiModule.Manager
 {
@@ -44,7 +40,7 @@ namespace TVPApiModule.Manager
             {
                 string groupConfigsTtlSeconds = ConfigurationManager.AppSettings["Authorization.GroupConfigsTtlSeconds"];
 
-                cbManager = new CouchbaseManager.CouchbaseManager("authorization");
+                cbManager = new CouchbaseManager.CouchbaseManager("authorization", false, true);
                 _lock = new ReaderWriterLockSlim();
 
                 if (!long.TryParse(groupConfigsTtlSeconds, out _groupConfigsTtlSeconds))
