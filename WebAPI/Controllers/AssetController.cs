@@ -177,7 +177,7 @@ namespace WebAPI.Controllers
                     response = ClientsManager.CatalogClient().GetExternalChannelAssets(groupId, channelExternalFilter.IdEqual.ToString(), userID, domainId, udid,
                         language, pager.getPageIndex(), pager.PageSize, filter.OrderBy, deviceType, channelExternalFilter.UtcOffsetEqual, channelExternalFilter.FreeTextEqual);
                 }
-                //SearchAssets 
+                //SearchAssets - Unified search across – VOD: Movies, TV Series/episodes, EPG content.
                 else if (filter is KalturaSearchAssetFilter)
                 {
                     KalturaSearchAssetFilter regularAssetFilter = new KalturaSearchAssetFilter((KalturaSearchAssetFilter)filter);
@@ -185,7 +185,9 @@ namespace WebAPI.Controllers
                     response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, regularAssetFilter.KSql,
                         regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn());
                 }
-                // related
+                //Return list of media assets that are related to a provided asset ID (of type VOD). 
+                //Returned assets can be within multi VOD asset types or be of same type as the provided asset. 
+                //Response is ordered by relevancy. On-demand, per asset enrichment is supported. Maximum number of returned assets – 20, using paging
                 else if (filter is KalturaRelatedFilter)
                 {
                     KalturaRelatedFilter relatedFilter = new KalturaRelatedFilter((KalturaRelatedFilter)filter);
@@ -203,6 +205,8 @@ namespace WebAPI.Controllers
                         language, pager.getPageIndex(), pager.PageSize, relatedExternalFilter.IdEqual, relatedExternalFilter.getTypeIn(), relatedExternalFilter.UtcOffsetEqual,
                         relatedExternalFilter.FreeTextEqual);
                 }
+                // Search for assets via external service (e.g. external recommendation engine). 
+                //Search can return multi asset types. Support on-demand, per asset enrichment. Maximum number of returned assets – 100, using paging
                 else if (filter is KalturaSearchExternalFilter)
                 {
                     KalturaSearchExternalFilter searchExternalFilter = new KalturaSearchExternalFilter((KalturaSearchExternalFilter)filter);
@@ -212,7 +216,7 @@ namespace WebAPI.Controllers
                     response = ClientsManager.CatalogClient().GetSearchMediaExternal(groupId, userID, domainId, udid,
                         language, pager.getPageIndex(), pager.PageSize, searchExternalFilter.QueryEqual, searchExternalFilter.getTypeIn(), searchExternalFilter.UtcOffsetEqual);
                 }
-                // channel
+                // Returns assets that belong to a channel
                 {
                     KalturaChannelFilter channelFilter = new KalturaChannelFilter((KalturaChannelFilter)filter);
                     if (pager == null)
