@@ -81,10 +81,12 @@ namespace TVPPro.SiteManager.Services
             try
             {
                 did = UsersService.Instance.GetDomainID();
-                DomainResponseObject res = m_Module.ChangeDeviceDomainStatus(wsUserName, wsPassword, did, udid, false);
+                var res = m_Module.ChangeDeviceDomainStatus(wsUserName, wsPassword, did, udid, false);
 
-                if (res.m_oDomainResponseStatus == DomainResponseStatus.OK)
-                    domain = res.m_oDomain;
+                if (res != null && res.DomainResponse != null && res.DomainResponse.m_oDomainResponseStatus == DomainResponseStatus.OK)
+                {
+                    domain = res.DomainResponse.m_oDomain;
+                }
             }
             catch (Exception ex)
             {
@@ -102,8 +104,11 @@ namespace TVPPro.SiteManager.Services
             try
             {
                 did = UsersService.Instance.GetDomainID();
-                DomainResponseObject res = m_Module.ChangeDeviceDomainStatus(wsUserName, wsPassword, did, udid, true);
-                domain = res.m_oDomain;
+                var res = m_Module.ChangeDeviceDomainStatus(wsUserName, wsPassword, did, udid, true);
+                if (res != null && res.DomainResponse != null)
+                {
+                    domain = res.DomainResponse.m_oDomain;
+                }
             }
             catch (Exception ex)
             {

@@ -47,6 +47,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         private System.Threading.SendOrPostCallback AddDeviceToDomainOperationCompleted;
         
+        private System.Threading.SendOrPostCallback AddDeviceOperationCompleted;
+        
         private System.Threading.SendOrPostCallback RemoveDeviceFromDomainOperationCompleted;
         
         private System.Threading.SendOrPostCallback ChangeDeviceDomainStatusOperationCompleted;
@@ -85,6 +87,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         private System.Threading.SendOrPostCallback UpdateDomainHomeNetworkOperationCompleted;
         
+        private System.Threading.SendOrPostCallback SetDomainHomeNetworkOperationCompleted;
+        
         private System.Threading.SendOrPostCallback RemoveDomainHomeNetworkOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetDomainHomeNetworksOperationCompleted;
@@ -108,6 +112,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         private System.Threading.SendOrPostCallback GetDomainByUserOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetDeviceRegistrationStatusOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback SetDeviceOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetDeviceOperationCompleted;
         
         private System.Threading.SendOrPostCallback RemoveDomainByIdOperationCompleted;
         
@@ -181,6 +189,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         public event AddDeviceToDomainCompletedEventHandler AddDeviceToDomainCompleted;
         
         /// <remarks/>
+        public event AddDeviceCompletedEventHandler AddDeviceCompleted;
+        
+        /// <remarks/>
         public event RemoveDeviceFromDomainCompletedEventHandler RemoveDeviceFromDomainCompleted;
         
         /// <remarks/>
@@ -238,6 +249,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         public event UpdateDomainHomeNetworkCompletedEventHandler UpdateDomainHomeNetworkCompleted;
         
         /// <remarks/>
+        public event SetDomainHomeNetworkCompletedEventHandler SetDomainHomeNetworkCompleted;
+        
+        /// <remarks/>
         public event RemoveDomainHomeNetworkCompletedEventHandler RemoveDomainHomeNetworkCompleted;
         
         /// <remarks/>
@@ -272,6 +286,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         public event GetDeviceRegistrationStatusCompletedEventHandler GetDeviceRegistrationStatusCompleted;
+        
+        /// <remarks/>
+        public event SetDeviceCompletedEventHandler SetDeviceCompleted;
+        
+        /// <remarks/>
+        public event GetDeviceCompletedEventHandler GetDeviceCompleted;
         
         /// <remarks/>
         public event RemoveDomainByIdCompletedEventHandler RemoveDomainByIdCompleted;
@@ -610,6 +630,45 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/AddDevice", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public DeviceResponse AddDevice(string sWSUserName, string sWSPassword, int nDomainID, string udid, string deviceName, int deviceBrandID) {
+            object[] results = this.Invoke("AddDevice", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        nDomainID,
+                        udid,
+                        deviceName,
+                        deviceBrandID});
+            return ((DeviceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void AddDeviceAsync(string sWSUserName, string sWSPassword, int nDomainID, string udid, string deviceName, int deviceBrandID) {
+            this.AddDeviceAsync(sWSUserName, sWSPassword, nDomainID, udid, deviceName, deviceBrandID, null);
+        }
+        
+        /// <remarks/>
+        public void AddDeviceAsync(string sWSUserName, string sWSPassword, int nDomainID, string udid, string deviceName, int deviceBrandID, object userState) {
+            if ((this.AddDeviceOperationCompleted == null)) {
+                this.AddDeviceOperationCompleted = new System.Threading.SendOrPostCallback(this.OnAddDeviceOperationCompleted);
+            }
+            this.InvokeAsync("AddDevice", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        nDomainID,
+                        udid,
+                        deviceName,
+                        deviceBrandID}, this.AddDeviceOperationCompleted, userState);
+        }
+        
+        private void OnAddDeviceOperationCompleted(object arg) {
+            if ((this.AddDeviceCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.AddDeviceCompleted(this, new AddDeviceCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/RemoveDeviceFromDomain", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public DomainStatusResponse RemoveDeviceFromDomain(string sWSUserName, string sWSPassword, int nDomainID, string udid) {
             object[] results = this.Invoke("RemoveDeviceFromDomain", new object[] {
@@ -646,14 +705,14 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/ChangeDeviceDomainStatus", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public DomainResponseObject ChangeDeviceDomainStatus(string sWSUserName, string sWSPassword, int nDomainID, string deviceUDID, bool activate) {
+        public DomainStatusResponse ChangeDeviceDomainStatus(string sWSUserName, string sWSPassword, int nDomainID, string deviceUDID, bool activate) {
             object[] results = this.Invoke("ChangeDeviceDomainStatus", new object[] {
                         sWSUserName,
                         sWSPassword,
                         nDomainID,
                         deviceUDID,
                         activate});
-            return ((DomainResponseObject)(results[0]));
+            return ((DomainStatusResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -1287,6 +1346,47 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/SetDomainHomeNetwork", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public HomeNetworkResponse SetDomainHomeNetwork(string sWSUsername, string sWSPassword, long lDomainID, string sNetworkID, string sNetworkName, string sNetworkDesc, bool bIsActive) {
+            object[] results = this.Invoke("SetDomainHomeNetwork", new object[] {
+                        sWSUsername,
+                        sWSPassword,
+                        lDomainID,
+                        sNetworkID,
+                        sNetworkName,
+                        sNetworkDesc,
+                        bIsActive});
+            return ((HomeNetworkResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SetDomainHomeNetworkAsync(string sWSUsername, string sWSPassword, long lDomainID, string sNetworkID, string sNetworkName, string sNetworkDesc, bool bIsActive) {
+            this.SetDomainHomeNetworkAsync(sWSUsername, sWSPassword, lDomainID, sNetworkID, sNetworkName, sNetworkDesc, bIsActive, null);
+        }
+        
+        /// <remarks/>
+        public void SetDomainHomeNetworkAsync(string sWSUsername, string sWSPassword, long lDomainID, string sNetworkID, string sNetworkName, string sNetworkDesc, bool bIsActive, object userState) {
+            if ((this.SetDomainHomeNetworkOperationCompleted == null)) {
+                this.SetDomainHomeNetworkOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetDomainHomeNetworkOperationCompleted);
+            }
+            this.InvokeAsync("SetDomainHomeNetwork", new object[] {
+                        sWSUsername,
+                        sWSPassword,
+                        lDomainID,
+                        sNetworkID,
+                        sNetworkName,
+                        sNetworkDesc,
+                        bIsActive}, this.SetDomainHomeNetworkOperationCompleted, userState);
+        }
+        
+        private void OnSetDomainHomeNetworkOperationCompleted(object arg) {
+            if ((this.SetDomainHomeNetworkCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SetDomainHomeNetworkCompleted(this, new SetDomainHomeNetworkCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/RemoveDomainHomeNetwork", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public Status RemoveDomainHomeNetwork(string sWSUsername, string sWSPassword, long lDomainID, string sNetworkID) {
             object[] results = this.Invoke("RemoveDomainHomeNetwork", new object[] {
@@ -1715,6 +1815,76 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
             if ((this.GetDeviceRegistrationStatusCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.GetDeviceRegistrationStatusCompleted(this, new GetDeviceRegistrationStatusCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/SetDevice", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public DeviceResponse SetDevice(string sWSUserName, string sWSPassword, string sDeviceUDID, string sDeviceName) {
+            object[] results = this.Invoke("SetDevice", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sDeviceUDID,
+                        sDeviceName});
+            return ((DeviceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SetDeviceAsync(string sWSUserName, string sWSPassword, string sDeviceUDID, string sDeviceName) {
+            this.SetDeviceAsync(sWSUserName, sWSPassword, sDeviceUDID, sDeviceName, null);
+        }
+        
+        /// <remarks/>
+        public void SetDeviceAsync(string sWSUserName, string sWSPassword, string sDeviceUDID, string sDeviceName, object userState) {
+            if ((this.SetDeviceOperationCompleted == null)) {
+                this.SetDeviceOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetDeviceOperationCompleted);
+            }
+            this.InvokeAsync("SetDevice", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sDeviceUDID,
+                        sDeviceName}, this.SetDeviceOperationCompleted, userState);
+        }
+        
+        private void OnSetDeviceOperationCompleted(object arg) {
+            if ((this.SetDeviceCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SetDeviceCompleted(this, new SetDeviceCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/GetDevice", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public DeviceResponse GetDevice(string sWSUserName, string sWSPassword, string udid, int domainId) {
+            object[] results = this.Invoke("GetDevice", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        udid,
+                        domainId});
+            return ((DeviceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetDeviceAsync(string sWSUserName, string sWSPassword, string udid, int domainId) {
+            this.GetDeviceAsync(sWSUserName, sWSPassword, udid, domainId, null);
+        }
+        
+        /// <remarks/>
+        public void GetDeviceAsync(string sWSUserName, string sWSPassword, string udid, int domainId, object userState) {
+            if ((this.GetDeviceOperationCompleted == null)) {
+                this.GetDeviceOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetDeviceOperationCompleted);
+            }
+            this.InvokeAsync("GetDevice", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        udid,
+                        domainId}, this.GetDeviceOperationCompleted, userState);
+        }
+        
+        private void OnGetDeviceOperationCompleted(object arg) {
+            if ((this.GetDeviceCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetDeviceCompleted(this, new GetDeviceCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -2472,141 +2642,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
-    public partial class HomeNetworkResponse {
-        
-        private Status statusField;
-        
-        private HomeNetwork homeNetworkField;
-        
-        /// <remarks/>
-        public Status Status {
-            get {
-                return this.statusField;
-            }
-            set {
-                this.statusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public HomeNetwork HomeNetwork {
-            get {
-                return this.homeNetworkField;
-            }
-            set {
-                this.homeNetworkField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
-    public partial class Status {
-        
-        private int codeField;
-        
-        private string messageField;
-        
-        /// <remarks/>
-        public int Code {
-            get {
-                return this.codeField;
-            }
-            set {
-                this.codeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Message {
-            get {
-                return this.messageField;
-            }
-            set {
-                this.messageField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
-    public partial class HomeNetwork {
-        
-        private string nameField;
-        
-        private string uIDField;
-        
-        private string descriptionField;
-        
-        private System.DateTime createDateField;
-        
-        private bool isActiveField;
-        
-        /// <remarks/>
-        public string Name {
-            get {
-                return this.nameField;
-            }
-            set {
-                this.nameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string UID {
-            get {
-                return this.uIDField;
-            }
-            set {
-                this.uIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Description {
-            get {
-                return this.descriptionField;
-            }
-            set {
-                this.descriptionField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime CreateDate {
-            get {
-                return this.createDateField;
-            }
-            set {
-                this.createDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool IsActive {
-            get {
-                return this.isActiveField;
-            }
-            set {
-                this.isActiveField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
     public partial class DeviceRegistrationStatusResponse {
         
         private DeviceRegistrationStatus deviceRegistrationStatusField;
@@ -2651,6 +2686,39 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         RegisteredToAnotherDomain,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
+    public partial class Status {
+        
+        private int codeField;
+        
+        private string messageField;
+        
+        /// <remarks/>
+        public int Code {
+            get {
+                return this.codeField;
+            }
+            set {
+                this.codeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Message {
+            get {
+                return this.messageField;
+            }
+            set {
+                this.messageField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -3116,6 +3184,108 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
+    public partial class HomeNetwork {
+        
+        private string nameField;
+        
+        private string uIDField;
+        
+        private string descriptionField;
+        
+        private System.DateTime createDateField;
+        
+        private bool isActiveField;
+        
+        /// <remarks/>
+        public string Name {
+            get {
+                return this.nameField;
+            }
+            set {
+                this.nameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string UID {
+            get {
+                return this.uIDField;
+            }
+            set {
+                this.uIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Description {
+            get {
+                return this.descriptionField;
+            }
+            set {
+                this.descriptionField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime CreateDate {
+            get {
+                return this.createDateField;
+            }
+            set {
+                this.createDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool IsActive {
+            get {
+                return this.isActiveField;
+            }
+            set {
+                this.isActiveField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
+    public partial class HomeNetworkResponse {
+        
+        private Status statusField;
+        
+        private HomeNetwork homeNetworkField;
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public HomeNetwork HomeNetwork {
+            get {
+                return this.homeNetworkField;
+            }
+            set {
+                this.homeNetworkField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
     public partial class NetworkResponseObject {
         
         private bool bSuccessField;
@@ -3169,6 +3339,72 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         Error,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
+    public partial class DevicePinResponse {
+        
+        private string pinField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public string Pin {
+            get {
+                return this.pinField;
+            }
+            set {
+                this.pinField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
+    public partial class DomainResponse {
+        
+        private Domain domainField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public Domain Domain {
+            get {
+                return this.domainField;
+            }
+            set {
+                this.domainField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -3248,72 +3484,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
             }
             set {
                 this.deviceField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Status Status {
-            get {
-                return this.statusField;
-            }
-            set {
-                this.statusField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
-    public partial class DevicePinResponse {
-        
-        private string pinField;
-        
-        private Status statusField;
-        
-        /// <remarks/>
-        public string Pin {
-            get {
-                return this.pinField;
-            }
-            set {
-                this.pinField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Status Status {
-            get {
-                return this.statusField;
-            }
-            set {
-                this.statusField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
-    public partial class DomainResponse {
-        
-        private Domain domainField;
-        
-        private Status statusField;
-        
-        /// <remarks/>
-        public Domain Domain {
-            get {
-                return this.domainField;
-            }
-            set {
-                this.domainField = value;
             }
         }
         
@@ -3651,6 +3821,32 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void AddDeviceCompletedEventHandler(object sender, AddDeviceCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class AddDeviceCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal AddDeviceCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public DeviceResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((DeviceResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
     public delegate void RemoveDeviceFromDomainCompletedEventHandler(object sender, RemoveDeviceFromDomainCompletedEventArgs e);
     
     /// <remarks/>
@@ -3693,10 +3889,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         }
         
         /// <remarks/>
-        public DomainResponseObject Result {
+        public DomainStatusResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((DomainResponseObject)(this.results[0]));
+                return ((DomainStatusResponse)(this.results[0]));
             }
         }
     }
@@ -4145,6 +4341,32 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void SetDomainHomeNetworkCompletedEventHandler(object sender, SetDomainHomeNetworkCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SetDomainHomeNetworkCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SetDomainHomeNetworkCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public HomeNetworkResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((HomeNetworkResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
     public delegate void RemoveDomainHomeNetworkCompletedEventHandler(object sender, RemoveDomainHomeNetworkCompletedEventArgs e);
     
     /// <remarks/>
@@ -4451,6 +4673,58 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((DeviceRegistrationStatusResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void SetDeviceCompletedEventHandler(object sender, SetDeviceCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SetDeviceCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SetDeviceCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public DeviceResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((DeviceResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetDeviceCompletedEventHandler(object sender, GetDeviceCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetDeviceCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetDeviceCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public DeviceResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((DeviceResponse)(this.results[0]));
             }
         }
     }
