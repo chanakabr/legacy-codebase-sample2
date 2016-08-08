@@ -18423,12 +18423,12 @@ namespace ConditionalAccess
                 }
 
                 // get CRIDs of all household recordings that were recorded as part of the series - all statuses but 'Failed'/ SeriesCancel/SeriesDelete
-                List<string> excludedCrids = RecordingsDAL.GetDomainRecordingsCridsByDomainsSeriesIds(m_nGroupID, domainId, series.Select(s => s.Id).Distinct().ToList());
+                HashSet<string> excludedCrids = RecordingsDAL.GetDomainRecordingsCridsByDomainsSeriesIds(m_nGroupID, domainId, series.Select(s => s.Id).Distinct().ToList());
 
                 // get all the relevant (series + seasons + CRID not in the list of household recordings) existing recordings from ES
                 List<ConditionalAccess.WS_Catalog.ExtendedSearchResult> relevantRecordingsForRecord = null;
 
-                relevantRecordingsForRecord = Utils.SearchSeriesRecordings(m_nGroupID, excludedCrids, series, SearchSeriesRecordingsTimeOptions.past);
+                relevantRecordingsForRecord = Utils.SearchSeriesRecordings(m_nGroupID, excludedCrids.ToList(), series, SearchSeriesRecordingsTimeOptions.past);
 
                 if (relevantRecordingsForRecord == null)
                 {
@@ -18766,14 +18766,14 @@ namespace ConditionalAccess
 
                 long epgId = 0;                
                 string crid = string.Empty;
-                List<long> epgsInThePastToRecord = new List<long>();
-                HashSet<string> userRecordingCrids = new HashSet<string>();
+                List<long> epgsInThePastToRecord = new List<long>();                
                 long epgChannelId = 0;
                 if (!long.TryParse(channelId, out epgChannelId))
                 {
                     return result;
                 }
                 long domainSeriesRecordingId = RecordingsDAL.GetDomainSeriesId(m_nGroupID, domainId, seriesId, seasonNumber, epgChannelId);
+                HashSet<string> userRecordingCrids = RecordingsDAL.GetDomainRecordingsCridsByDomainsSeriesIds(m_nGroupID, domainId, new List<long>() { domainSeriesRecordingId });
                 foreach (ConditionalAccess.WS_Catalog.ExtendedSearchResult epg in epgsToRecord)
                 {
                     if (!long.TryParse(epg.AssetId, out epgId))

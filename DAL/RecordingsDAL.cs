@@ -1069,9 +1069,9 @@ namespace DAL
             return dt;
         }
 
-        public static List<string> GetDomainRecordingsCridsByDomainsSeriesIds(int groupID, long domainID, List<long> domainSeriesIds)
+        public static HashSet<string> GetDomainRecordingsCridsByDomainsSeriesIds(int groupID, long domainID, List<long> domainSeriesIds)
         {
-            List<string> crids = null;
+            HashSet<string> crids = new HashSet<string>();
             DataTable dt = null;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetDomainRecordingsCridsByDomainsSeriesIds");
             sp.SetConnectionKey(RECORDING_CONNECTION);
@@ -1081,11 +1081,14 @@ namespace DAL
             dt = sp.Execute();
 
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-            {
-                crids = new List<string>();
+            {                
                 foreach (DataRow row in dt.Rows)
                 {
-                    crids.Add(ODBCWrapper.Utils.GetSafeStr(row, "CRID"));
+                    string cridToAdd = ODBCWrapper.Utils.GetSafeStr(row, "CRID");
+                    if (!crids.Contains(cridToAdd))
+                    {
+                        crids.Add(cridToAdd);
+                    }
                 }
             }
 
