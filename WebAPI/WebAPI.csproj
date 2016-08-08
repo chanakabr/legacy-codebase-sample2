@@ -2525,7 +2525,7 @@
     <Compile Include="Models\API\KalturaRegionOrderBy.cs" />
     <Compile Include="Models\API\KalturaRegionFilter.cs" />
     <Compile Include="Models\API\KalturaRegionListResponse.cs" />
-    <Compile Include="Models\API\KalturaLinearChannel.cs" />
+    <Compile Include="Models\API\KalturaRegionalChannel.cs" />
     <Compile Include="Models\API\KalturaPin.cs" />
     <Compile Include="Models\API\KalturaPurchaseSettings.cs" />
     <Compile Include="Models\API\KalturaRegion.cs" />

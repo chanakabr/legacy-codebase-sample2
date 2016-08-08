@@ -9,15 +9,15 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
-    public class KalturaLinearChannel : KalturaOTTObject
+    public class KalturaRegionalChannel : KalturaOTTObject
     {
         /// <summary>
         /// The identifier of the linear media representing the channel
         /// </summary>
-        [DataMember(Name = "id")]
-        [JsonProperty("id")]
-        [XmlElement(ElementName = "id")]
-        public int Id { get; set; }
+        [DataMember(Name = "linearChannelId")]
+        [JsonProperty("linearChannelId")]
+        [XmlElement(ElementName = "linearChannelId")]
+        public int LinearChannelId { get; set; }
 
         /// <summary>
         /// The number of the channel

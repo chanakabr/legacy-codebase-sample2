@@ -383,8 +383,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
 
             #region regions
-            Mapper.CreateMap<KeyValuePair, KalturaLinearChannel>()
-              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.key))
+            Mapper.CreateMap<KeyValuePair, KalturaRegionalChannel>()
+              .ForMember(dest => dest.LinearChannelId, opt => opt.MapFrom(src => src.key))
               .ForMember(dest => dest.ChannelNumber, opt => opt.MapFrom(src => src.value));
 
 
@@ -393,7 +393,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.externalId))
               .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.isDefault))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.name))
-              .ForMember(dest => dest.LinearChannels, opt => opt.MapFrom(src => src.linearChannels));
+              .ForMember(dest => dest.RegionalChannels, opt => opt.MapFrom(src => src.linearChannels));
             
             #endregion
         }

@@ -49,6 +49,6 @@ namespace WebAPI.Models.API
         [DataMember(Name = "linearChannels")]
         [JsonProperty("linearChannels")]
         [XmlElement(ElementName = "linearChannels")]
-        public List<KalturaLinearChannel> LinearChannels { get; set; }
+        public List<KalturaRegionalChannel> RegionalChannels { get; set; }
     }
 }
