@@ -154,7 +154,11 @@ namespace Recordings
                     Recording existingRecordingWithMinStartDate = recordingsEpgMap.OrderBy(x => x.Value.EpgStartDate).ToList().First().Value;
                     if (startDate < existingRecordingWithMinStartDate.EpgStartDate && existingRecordingWithMinStartDate.EpgEndDate > DateTime.UtcNow)
                     {
-                        syncParmeters.Add("externalRecordingIdToCancel", existingRecordingWithMinStartDate.ExternalRecordingId);
+                        if (!string.IsNullOrEmpty(existingRecordingWithMinStartDate.ExternalRecordingId))
+                        {
+                            syncParmeters.Add("externalRecordingIdToCancel", existingRecordingWithMinStartDate.ExternalRecordingId);
+                        }
+
                         bool syncedAction = synchronizer.DoAction(syncKey, syncParmeters);
 
                         object recordingObject;
@@ -370,9 +374,7 @@ namespace Recordings
                             // Count current try to get status - first and foremost
                             currentRecording.GetStatusRetries++;
 
-                            ConditionalAccess.Utils.UpdateRecording(currentRecording, groupId, 1, 1, null);
-
-                            //UpdateRecording(groupId, currentRecording.EpgId, currentRecording.EpgStartDate, currentRecording.EpgEndDate);
+                            ConditionalAccess.Utils.UpdateRecording(currentRecording, groupId, 1, 1, null);                                           
 
                             DateTime nextCheck = DateTime.UtcNow.AddMinutes(MINUTES_RETRY_INTERVAL);
 
@@ -419,6 +421,7 @@ namespace Recordings
                                 if (adapterResponse.ActionSuccess && adapterResponse.FailReason == 0)
                                 {
                                     currentRecording.RecordingStatus = TstvRecordingStatus.Recorded;
+                                    RecordingsDAL.UpdateRecordingsExternalId(groupId, currentRecording.ExternalRecordingId, currentRecording.Crid, currentRecording.ChannelId);
                                 }
                                 else
                                 {
@@ -428,8 +431,7 @@ namespace Recordings
                                 }
 
                                 // Update recording after setting the new status
-                                ConditionalAccess.Utils.UpdateRecording(currentRecording, groupId, 1, 1, null);
-
+                                ConditionalAccess.Utils.UpdateRecording(currentRecording, groupId, 1, 1, null);                                
                                 UpdateIndex(groupId, recordingId, eAction.Update);
                             }
                         }
@@ -993,6 +995,11 @@ namespace Recordings
 
                 // Otherwise, we tried too much! Mark this recording as failed. Sorry mates!
                 currentRecording.RecordingStatus = TstvRecordingStatus.Failed;
+                if (!RecordingsDAL.UpdateRecordingsExternalId(groupId, string.Empty, currentRecording.Crid, currentRecording.ChannelId))
+                {
+                    log.ErrorFormat("Failed UpdateRecordingsExternalId, recordingId: {0}, ExternalRecordingId: {1}, Crid: {2}",
+                                       currentRecording.Id, currentRecording.ExternalRecordingId, currentRecording.Crid);
+                }
 
                 Dictionary<long, Recording> recordingsEpgMap = ConditionalAccess.Utils.GetEpgToRecordingsMapByCridAndChannel(groupId, currentRecording.Crid, currentRecording.ChannelId);
                 // if the recording crid has more than 1 recording and the min recording is the current, we need to call the adapter with the 2nd recording and switch external recording id
