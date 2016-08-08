@@ -1395,8 +1395,8 @@ namespace WebAPI.Clients
             OrderObj order = new OrderObj();
             if (orderBy == null)
             {
-                order.m_eOrderBy = OrderBy.NAME;
-                order.m_eOrderDir = OrderDir.ASC;
+                order.m_eOrderBy = OrderBy.START_DATE;
+                order.m_eOrderDir = OrderDir.DESC;
             }
             else
             {

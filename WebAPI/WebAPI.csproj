@@ -640,8 +640,10 @@
     <Content Include="testmeDoc\actions\registrysettings.list.html" />
     <Content Include="testmeDoc\actions\seriesrecording.add.html" />
     <Content Include="testmeDoc\actions\seriesrecording.cancel.html" />
+    <Content Include="testmeDoc\actions\seriesrecording.cancelByEpgId.html" />
+    <Content Include="testmeDoc\actions\seriesrecording.cancelBySeasonNumber.html" />
     <Content Include="testmeDoc\actions\seriesrecording.delete.html" />
-    <Content Include="testmeDoc\actions\seriesrecording.deleteByEpgId.html" />
+    <Content Include="testmeDoc\actions\seriesrecording.deleteBySeasonNumber.html" />
     <Content Include="testmeDoc\actions\seriesrecording.list.html" />
     <Content Include="testmeDoc\actions\session.get.html" />
     <Content Include="testmeDoc\actions\session.switchUser.html" />
@@ -683,6 +685,7 @@
     <Content Include="testmeDoc\enums\KalturaAnnouncementOrderBy.html" />
     <Content Include="testmeDoc\enums\KalturaAnnouncementRecipientsType.html" />
     <Content Include="testmeDoc\enums\KalturaAnnouncementStatus.html" />
+    <Content Include="testmeDoc\enums\KalturaApiParameterPermissionItemAction.html" />
     <Content Include="testmeDoc\enums\KalturaAppTokenHashType.html" />
     <Content Include="testmeDoc\enums\KalturaAppTokenStatus.html" />
     <Content Include="testmeDoc\enums\KalturaAssetHistoryOrderBy.html" />
@@ -764,6 +767,7 @@
     <Content Include="testmeDoc\objects\KalturaAnnouncementFilter.html" />
     <Content Include="testmeDoc\objects\KalturaAnnouncementListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaApiActionPermissionItem.html" />
+    <Content Include="testmeDoc\objects\KalturaApiParameterPermissionItem.html" />
     <Content Include="testmeDoc\objects\KalturaAppToken.html" />
     <Content Include="testmeDoc\objects\KalturaAsset.html" />
     <Content Include="testmeDoc\objects\KalturaAssetBookmark.html" />
@@ -843,6 +847,10 @@
     <Content Include="testmeDoc\objects\KalturaItemPriceListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaKeyValue.html" />
     <Content Include="testmeDoc\objects\KalturaLicensedUrl.html" />
+    <Content Include="testmeDoc\objects\KalturaLicensedUrlBaseRequest.html" />
+    <Content Include="testmeDoc\objects\KalturaLicensedUrlEpgRequest.html" />
+    <Content Include="testmeDoc\objects\KalturaLicensedUrlMediaRequest.html" />
+    <Content Include="testmeDoc\objects\KalturaLicensedUrlRecordingRequest.html" />
     <Content Include="testmeDoc\objects\KalturaListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaLoginResponse.html" />
     <Content Include="testmeDoc\objects\KalturaLoginSession.html" />
@@ -904,7 +912,6 @@
     <Content Include="testmeDoc\objects\KalturaRecordingContextListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaRecordingFilter.html" />
     <Content Include="testmeDoc\objects\KalturaRecordingListResponse.html" />
-    <Content Include="testmeDoc\objects\KalturaRegistryParameter.html" />
     <Content Include="testmeDoc\objects\KalturaRegistryResponse.html" />
     <Content Include="testmeDoc\objects\KalturaRegistrySettings.html" />
     <Content Include="testmeDoc\objects\KalturaRegistrySettingsListResponse.html" />
@@ -1538,7 +1545,6 @@
     <Content Include="testme\json\KalturaRecordingContextListResponse-subclasses.json" />
     <Content Include="testme\json\KalturaRecordingFilter-subclasses.json" />
     <Content Include="testme\json\KalturaRecordingListResponse-subclasses.json" />
-    <Content Include="testme\json\KalturaRegistryParameter-subclasses.json" />
     <Content Include="testme\json\KalturaRegistryResponse-subclasses.json" />
     <Content Include="testme\json\KalturaSlimAsset-subclasses.json" />
     <Content Include="testme\json\KalturaSlimAssetInfoWrapper-subclasses.json" />
@@ -1811,7 +1817,6 @@
     <Content Include="testme\json\partnerconfiguration-actions.json" />
     <Content Include="testme\json\partnerconfiguration-update-action-info.json" />
     <Content Include="testme\json\seriesrecording-add-action-info.json" />
-    <Content Include="testme\json\seriesrecording-deleteByEpgId-action-info.json" />
     <Content Include="testme\json\seriesrecording-list-action-info.json" />
     <Content Include="testme\json\userloginpin-actions.json" />
     <Content Include="testme\json\userloginpin-add-action-info.json" />
@@ -1869,6 +1874,14 @@
     </Content>
     <Content Include="testme\json\userassetslistitem-delete-action-info.json" />
     <Content Include="testme\json\userassetslistitem-get-action-info.json" />
+    <Content Include="testme\json\KalturaApiParameterPermissionItem-subclasses.json" />
+    <Content Include="testme\json\KalturaLicensedUrlBaseRequest-subclasses.json" />
+    <Content Include="testme\json\KalturaLicensedUrlEpgRequest-subclasses.json" />
+    <Content Include="testme\json\KalturaLicensedUrlMediaRequest-subclasses.json" />
+    <Content Include="testme\json\KalturaLicensedUrlRecordingRequest-subclasses.json" />
+    <Content Include="testme\json\seriesrecording-cancelByEpgId-action-info.json" />
+    <Content Include="testme\json\seriesrecording-cancelBySeasonNumber-action-info.json" />
+    <Content Include="testme\json\seriesrecording-deleteBySeasonNumber-action-info.json" />
     <None Include="Web References\Api\api.disco" />
     <Content Include="Web References\Billing\AdyenBillingDetail.datasource">
       <DependentUpon>Reference.map</DependentUpon>

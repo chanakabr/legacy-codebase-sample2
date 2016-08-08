@@ -10,13 +10,13 @@
 		<h2>Kaltura API</h2>
 		<table class="action">
 			<tr>
-				<th colspan="5" class="service_action_title">seriesrecording.deleteByEpgId</th>
+				<th colspan="5" class="service_action_title">seriesrecording.deleteBySeasonNumber</th>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Description:</td>
 			</tr>
 			<tr>
-				<td class="description" colspan="5">Delete EPG recording that was recorded as part of series</td>
+				<td class="description" colspan="5">Delete Season recording epgs that was recorded as part of series</td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Input Params</td>
@@ -36,9 +36,9 @@
 				<td></td>
 			</tr>
 			<tr>
-				<td>epgId</td>
-				<td>bigint</td>
-				<td>epg program identifier</td>
+				<td>seasonNumber</td>
+				<td>int</td>
+				<td>Season Number</td>
 				<td>V</td>
 				<td></td>
 			</tr>
@@ -52,13 +52,13 @@
 				<td colspan="5" class="title">Example HTTP Hit</td>
 			</tr>
 			<tr>
-				<td colspan="5">http://www.kaltura.com/api_v3/service/seriesrecording/action/deleteByEpgId<br />
+				<td colspan="5">http://www.kaltura.com/api_v3/service/seriesrecording/action/deleteBySeasonNumber<br />
 				<strong>JSON object:</strong>
 				<pre>
 				<div class="post_fields">
 {
 	id: value,
-	epgId: value
+	seasonNumber: value
 }
 				</pre></td>
 			</tr>
