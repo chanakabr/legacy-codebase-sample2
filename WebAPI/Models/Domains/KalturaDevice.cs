@@ -63,7 +63,16 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "state")]
         [JsonProperty("state")]
         [XmlElement(ElementName = "state", IsNullable = true)]
+        [Obsolete]
         public KalturaDeviceState State { get; set; }
+
+        /// <summary>
+        /// Device state
+        /// </summary>
+        [DataMember(Name = "status")]
+        [JsonProperty("status")]
+        [XmlElement(ElementName = "status", IsNullable = true)]
+        public KalturaDeviceStatus Status { get; set; }
 
         internal int getBrandId()
         {

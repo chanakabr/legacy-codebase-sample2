@@ -291,5 +291,43 @@ namespace WebAPI.Controllers
             }
             return true;
         }
+
+        /// <summary>
+        /// Update the name of the device by UDID
+        /// </summary>                
+        /// <param name="udid">Device UDID</param>
+        /// <param name="status">Device status</param>
+        /// <remarks>Possible status codes: 
+        /// Limitation period = 1014, Device not in domain = 1003, Exceeded limit = 1001 </remarks>
+        [Route("updateStatus"), HttpPost]
+        [ApiAuthorize]
+        public bool UpdateStatus(string udid, KalturaDeviceStatus status)
+        {
+            int groupId = KS.GetFromRequest().GroupId;
+            int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+            try
+            {
+                // check device registration status - return forbidden if device not in domain        
+                var deviceRegistrationStatus = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
+                if (deviceRegistrationStatus != KalturaDeviceRegistrationStatus.registered)
+                {
+                    throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.ServiceForbidden, "Service Forbidden");
+                }
+
+                if (status == KalturaDeviceStatus.PENDING)
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "status value 'PENDING' cannot be updated");
+                }
+
+                // call client
+                return ClientsManager.DomainsClient().ChangeDeviceDomainStatus(groupId, householdId, udid, status);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return false;
+        }
     }
 }

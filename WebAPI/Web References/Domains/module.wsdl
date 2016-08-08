@@ -408,7 +408,7 @@
       <s:element name="ChangeDeviceDomainStatusResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="ChangeDeviceDomainStatusResult" type="tns:DomainResponseObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="ChangeDeviceDomainStatusResult" type="tns:DomainStatusResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1557,7 +1557,7 @@
     <wsdl:part name="activate" type="s:string" />
   </wsdl:message>
   <wsdl:message name="ChangeDeviceDomainStatusHttpPostOut">
-    <wsdl:part name="Body" element="tns:DomainResponseObject" />
+    <wsdl:part name="Body" element="tns:DomainStatusResponse" />
   </wsdl:message>
   <wsdl:message name="GetDomainInfoHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />

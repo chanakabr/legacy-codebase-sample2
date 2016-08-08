@@ -5,11 +5,10 @@ using System.Web;
 
 namespace WebAPI.Models.Domains
 {
-    [Obsolete]
-    public enum KalturaDeviceState
+    public enum KalturaDeviceStatus
     {
-        pending,
-        activated,
-        not_activated,
+        PENDING,
+        ACTIVATED,
+        NOT_ACTIVATED,
     }
 }
