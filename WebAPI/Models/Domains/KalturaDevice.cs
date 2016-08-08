@@ -72,6 +72,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "status")]
         [JsonProperty("status")]
         [XmlElement(ElementName = "status", IsNullable = true)]
+        [SchemeProperty(InsertOnly = true)]
         public KalturaDeviceStatus Status { get; set; }
 
         internal int getBrandId()

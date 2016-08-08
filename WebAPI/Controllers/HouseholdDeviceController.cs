@@ -88,11 +88,23 @@ namespace WebAPI.Controllers
         public KalturaHouseholdDevice Add(KalturaHouseholdDevice device)
         {
             int groupId = KS.GetFromRequest().GroupId;
+            int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
 
             try
             {
-                // call client
-                device = ClientsManager.DomainsClient().AddDevice(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), device.Name, device.Udid, device.getBrandId());
+                switch (device.Status)
+                {
+                    case KalturaDeviceStatus.PENDING:
+                        device = ClientsManager.DomainsClient().SubmitAddDeviceToDomainRequest(groupId, householdId, device.Name, device.Udid, device.Name, device.getBrandId());
+                        break;
+                    case KalturaDeviceStatus.ACTIVATED:
+                        device = ClientsManager.DomainsClient().AddDevice(groupId, householdId, device.Name, device.Udid, device.getBrandId());
+                        break;
+                    case KalturaDeviceStatus.NOT_ACTIVATED:
+                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "'NOT_ACTIVATED' status is not allowed");
+                    default:
+                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "unknown status value");
+                }
             }
             catch (ClientException ex)
             {
