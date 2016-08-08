@@ -31,8 +31,9 @@ namespace CouchbaseManager
         CROWDSOURCE = 9,
         DRM = 10,
         RECORDINGS = 11,
-        DOMAIN_MARKS = 12,
-        EPG_MARKS = 13
+        DOMAIN_HITS = 12,
+        EPG_MARKS = 13,
+        MEDIA_HITS = 14
     }
 
     public class CouchbaseManager
