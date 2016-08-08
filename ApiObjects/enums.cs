@@ -726,4 +726,10 @@ namespace ApiObjects
         future = 1,
         all = 2
     }
+
+    public enum RegionOrderBy
+    {
+        CreateDateAsc = 0,
+        CreateDateDesc = 1
+    }
 }
