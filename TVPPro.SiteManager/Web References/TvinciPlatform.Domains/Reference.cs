@@ -1154,7 +1154,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/SubmitAddDeviceToDomainRequest", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public DomainResponseObject SubmitAddDeviceToDomainRequest(string sWSUserName, string sWSPassword, int nDomainID, int nUserID, string sDeviceUdid, string sDeviceName, int nBrandID) {
+        public DomainStatusResponse SubmitAddDeviceToDomainRequest(string sWSUserName, string sWSPassword, int nDomainID, int nUserID, string sDeviceUdid, string sDeviceName, int nBrandID) {
             object[] results = this.Invoke("SubmitAddDeviceToDomainRequest", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -1163,7 +1163,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
                         sDeviceUdid,
                         sDeviceName,
                         nBrandID});
-            return ((DomainResponseObject)(results[0]));
+            return ((DomainStatusResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -4227,10 +4227,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         }
         
         /// <remarks/>
-        public DomainResponseObject Result {
+        public DomainStatusResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((DomainResponseObject)(this.results[0]));
+                return ((DomainStatusResponse)(this.results[0]));
             }
         }
     }
