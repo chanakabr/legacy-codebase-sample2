@@ -13,6 +13,8 @@ using System.Web.UI.WebControls.WebParts;
 using System.Xml.Linq;
 using KLogMonitor;
 using TVinciShared;
+using ODBCWrapper;
+using System.Collections.Generic;
 
 public partial class adm_media_translate : System.Web.UI.Page
 {
@@ -226,6 +228,68 @@ public partial class adm_media_translate : System.Web.UI.Page
         selectQuery = null;
     }
 
+    protected void AddTagsFields(ref DBRecordWebEditor theRecord, int media_id, int lang_id)
+    {
+        List<string> tagsTypeTranslate = new List<string>();
+        string sGroups = PageUtils.GetParentsGroupsStr(LoginManager.GetLoginGroupID());
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery += "select * from media_tags_types where status=1 and TagFamilyID IS NULL and group_id " + sGroups;
+        selectQuery += "order by order_num";
+        if (selectQuery.Execute("query", true) != null)
+        {
+            DataTable dt = selectQuery.Table("query");
+                       
+            foreach (DataRow dr in dt.Rows)
+            {
+                string TagTypeName = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
+                tagsTypeTranslate.Add(TagTypeName);
+            }
+        }
+        selectQuery.Finish();
+        selectQuery = null;
+
+
+        string name = string.Empty;
+        string value = string.Empty;
+       
+       selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery += " SELECT mtt.id AS tag_type_id, mtt.NAME AS tag_type_name ,t.id AS tag_id ,tt.value as translateTagValue, t.value as tagValue ";
+        selectQuery += " FROM dbo.tags t WITH(NOLOCK) INNER JOIN dbo.media_tags_types mtt WITH(NOLOCK) ON mtt.id = t.TAG_TYPE_ID ";
+        selectQuery += " INNER JOIN dbo.media_tags mt WITH (NOLOCK) ON mt.tag_id = t.id ";
+        selectQuery += " LEFT JOIN dbo.tags_translate tt WITH(NOLOCK) ON tt.tag_id = t.id AND ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("tt.LANGUAGE_ID", "=", lang_id);
+        selectQuery += " WHERE t.STATUS = 1 AND mt.STATUS = 1 AND mtt.STATUS = 1 AND ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("mt.MEDIA_ID", "=", media_id);
+
+        if (selectQuery.Execute("query", true) != null)
+        {
+            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+            DataTable dt = selectQuery.Table("query");
+            
+            string tagType = string.Empty;
+            string tagValue = string.Empty;
+            List<string> tempvalues;           
+            foreach (string tags in tagsTypeTranslate)
+            {
+                DataRow[] tagValues = dt.Select("tag_type_name ='" + tags + "'");
+                tempvalues = new List<string>();
+                foreach (DataRow dr in tagValues)
+                {
+                    tagValue = ODBCWrapper.Utils.GetSafeStr(dr, "translateTagValue");
+                    tempvalues.Add(tagValue);                    
+                }
+               
+
+                DataRecordLongTextField dr_name = new DataRecordLongTextField("ltr", false, 60, 4);
+                dr_name.Initialize(tags, "adm_table_header_nbg", "FormInput", "", false);
+                dr_name.SetValue(string.Join("; ", tempvalues));
+                theRecord.AddRecord(dr_name);
+            }
+        }
+        selectQuery.Finish();
+        selectQuery = null;
+    }
+
     public string GetPageContent(string sOrderBy, string sPageNum)
     {
         if (Session["error_msg"] != null && Session["error_msg"].ToString() != "")
@@ -234,10 +298,14 @@ public partial class adm_media_translate : System.Web.UI.Page
             return Session["last_page_html"].ToString();
         }
         object t = null;
+        int media_id = 0;
+        int lang_id = 0;
         if (Session["media_id"] != null && Session["media_id"].ToString() != "" && int.Parse(Session["media_id"].ToString()) != 0)
         {
+            media_id = int.Parse(Session["media_id"].ToString());
             if (Session["lang_id"] != null && Session["lang_id"].ToString() != "" && int.Parse(Session["lang_id"].ToString()) != 0)
             {
+                lang_id = int.Parse(Session["lang_id"].ToString());
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery += "select id from media_translate where ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", int.Parse(Session["media_id"].ToString()));
@@ -265,6 +333,7 @@ public partial class adm_media_translate : System.Web.UI.Page
         theRecord.AddRecord(dr_description);
 
         AddStrFields(ref theRecord);
+        AddTagsFields(ref theRecord, media_id, lang_id);
 
         DataRecordLongTextField dr_remarks = new DataRecordLongTextField("ltr", true, 60, 4);
         dr_remarks.Initialize("Remarks", "adm_table_header_nbg", "FormInput", "EDITOR_REMARKS", false);
