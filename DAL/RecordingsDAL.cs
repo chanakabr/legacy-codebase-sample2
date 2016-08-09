@@ -557,15 +557,19 @@ namespace DAL
             return domainSeriesId;
         }
 
-        public static bool UpdateRecordingsExternalId(int groupId, string externalRecordingId, string crid, long channelId)
+        public static bool UpdateRecordingsExternalId(int groupId, string externalRecordingIdToUpdate, string crid, long channelId, string currentExternalId = null)
         {
             int updatedRowsCount = 0;
             ODBCWrapper.StoredProcedure spUpdateRecordingsExternalId = new ODBCWrapper.StoredProcedure("UpdateRecordingsExternalId");
             spUpdateRecordingsExternalId.SetConnectionKey(RECORDING_CONNECTION);
             spUpdateRecordingsExternalId.AddParameter("@GroupID", groupId);
-            spUpdateRecordingsExternalId.AddParameter("@ExternalRecordingId", externalRecordingId);
+            spUpdateRecordingsExternalId.AddParameter("@ExternalRecordingId", externalRecordingIdToUpdate);
             spUpdateRecordingsExternalId.AddParameter("@Crid", crid);
             spUpdateRecordingsExternalId.AddParameter("@ChannelId", channelId);
+            if (!string.IsNullOrEmpty(currentExternalId))
+            {
+                spUpdateRecordingsExternalId.AddParameter("@CurrentExternalId", currentExternalId);
+            }
 
             updatedRowsCount = spUpdateRecordingsExternalId.ExecuteReturnValue<int>();
 
@@ -1069,9 +1073,9 @@ namespace DAL
             return dt;
         }
 
-        public static List<string> GetDomainRecordingsCridsByDomainsSeriesIds(int groupID, long domainID, List<long> domainSeriesIds)
+        public static HashSet<string> GetDomainRecordingsCridsByDomainsSeriesIds(int groupID, long domainID, List<long> domainSeriesIds)
         {
-            List<string> crids = null;
+            HashSet<string> crids = new HashSet<string>();
             DataTable dt = null;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetDomainRecordingsCridsByDomainsSeriesIds");
             sp.SetConnectionKey(RECORDING_CONNECTION);
@@ -1081,11 +1085,14 @@ namespace DAL
             dt = sp.Execute();
 
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-            {
-                crids = new List<string>();
+            {                
                 foreach (DataRow row in dt.Rows)
                 {
-                    crids.Add(ODBCWrapper.Utils.GetSafeStr(row, "CRID"));
+                    string cridToAdd = ODBCWrapper.Utils.GetSafeStr(row, "CRID");
+                    if (!crids.Contains(cridToAdd))
+                    {
+                        crids.Add(cridToAdd);
+                    }
                 }
             }
 
