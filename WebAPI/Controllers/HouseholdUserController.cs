@@ -63,7 +63,8 @@ namespace WebAPI.Controllers
         /// </summary>                
         /// <param name="householdUser">User details to add</param>
         /// <remarks>Possible status codes: 
-        /// Household suspended = 1009, Invalid user = 1026, User Already In household = 1029
+        /// Household suspended = 1009, Invalid user = 1026, User Already In household = 1029, User not allowed = 1027, Household suspended = 1009, 
+        /// Action user is not master = 1021, No users in household = 1017, User exists in other households = 1018, User not allowed = 1027, Exceeded user limit = 1022, Request failed = 1025, 
         /// </remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]

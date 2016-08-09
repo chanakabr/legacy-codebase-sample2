@@ -82,7 +82,7 @@ namespace WebAPI.Controllers
         /// </summary>                
         /// <param name="device">Device</param>
         /// <remarks>Possible status codes: 
-        /// Domain does not exist = 1006, Domain suspended = 1009, Device exists in other domain = 1016 , Device already exists = 1015</remarks>
+        /// Household does not exist = 1006, Household suspended = 1009, Device exists in other household = 1016 , Device already exists = 1015, No users in household = 1017</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
         public KalturaHouseholdDevice Add(KalturaHouseholdDevice device)
@@ -115,7 +115,7 @@ namespace WebAPI.Controllers
         /// <param name="device_brand_id">Device brand identifier</param>
         /// <param name="udid">Device UDID</param>
         /// <remarks>Possible status codes: 
-        /// Domain does not exist = 1006, Domain suspended = 1009, Device exists in other domain = 1016 , Device already exists = 1015</remarks>
+        /// Household does not exist = 1006, Household suspended = 1009, Device exists in other household = 1016 , Device already exists = 1015</remarks>
         [Route("addOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
@@ -141,7 +141,7 @@ namespace WebAPI.Controllers
         /// Returns device registration status to the supplied household
         /// </summary>
         /// <returns></returns><remarks>Possible status codes: 
-        /// Device does not exist = 1019, Device not in domain = 1003, Device exists in other domain = 1016</remarks>
+        /// Device does not exist = 1019, Device not in household = 1003, Device exists in other household = 1016</remarks>
         [Route("get"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
@@ -305,7 +305,7 @@ namespace WebAPI.Controllers
         /// <param name="udid">Device UDID</param>
         /// <param name="status">Device status</param>
         /// <remarks>Possible status codes: 
-        /// Limitation period = 1014, Device not in domain = 1003, Exceeded limit = 1001 </remarks>
+        /// Limitation period = 1014, Device not in household = 1003, Exceeded limit = 1001 </remarks>
         [Route("updateStatus"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]

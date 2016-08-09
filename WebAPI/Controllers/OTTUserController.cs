@@ -699,7 +699,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">Filtering OttUser request</param>
         /// <remarks>Possible status codes: 
-        /// UserDoesNotExist = 2</remarks>
+        /// UserDoesNotExist = 2000, </remarks>
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]

@@ -18,7 +18,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="query">Query for assets statistics</param>
         /// <remarks></remarks>
-        [Route("list"), HttpPost]
+        [Route("query"), HttpPost]
         [ApiAuthorize]
         public KalturaAssetStatisticsListResponse Query(KalturaAssetStatisticsQuery query)
         {
