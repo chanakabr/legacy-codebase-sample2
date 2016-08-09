@@ -1602,5 +1602,50 @@ namespace Users
 
             return response;
         }
+
+        public virtual DeviceResponse SubmitAddDeviceToDomain(int groupID, int domainID, string userID, string deviceUdid, string deviceName, int brandID)
+        {
+            DeviceResponse response = new DeviceResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
+
+            if (domainID <= 0 || string.IsNullOrEmpty(deviceUdid))
+            {
+                return response;
+            }
+
+            Domain domain = DomainInitializer(groupID, domainID, false);
+
+            if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.DomainSuspended, "Domain suspended") ;
+                return response;
+            }
+
+            Device device = new Device(deviceUdid, brandID, m_nGroupID, deviceName, domainID);
+            
+            DomainResponseStatus domainResponseStatus;
+            int userId = 0;
+            if (!int.TryParse(userID, out userId))
+            {
+                return response;
+            }
+
+
+            // If domain is restricted and action user is the master, just add the device
+            if ((domain.m_DomainRestriction == DomainRestriction.Unrestricted) ||
+                (domain.m_DomainRestriction == DomainRestriction.UserMasterRestricted) ||
+                ((domain.m_DomainRestriction == DomainRestriction.DeviceMasterRestricted || domain.m_DomainRestriction == DomainRestriction.DeviceUserMasterRestricted) &&
+                (domain.m_masterGUIDs != null && domain.m_masterGUIDs.Count > 0) && (domain.m_masterGUIDs.Contains(userId))))
+            {
+                domainResponseStatus = domain.AddDeviceToDomain(groupID, domain.m_nDomainID, deviceUdid, deviceName, brandID, ref device);
+                response.Device = new DeviceResponseObject() { m_oDevice = device, m_oDeviceResponseStatus = DeviceResponseStatus.OK };
+                response.Status = Utils.ConvertDomainResponseStatusToResponseObject(domainResponseStatus);
+                return response;
+            }
+
+            domainResponseStatus = domain.SubmitAddDeviceToDomainRequest(groupID, deviceUdid, deviceName, ref device);
+            response.Device = new DeviceResponseObject() { m_oDevice = device, m_oDeviceResponseStatus = DeviceResponseStatus.OK };
+            response.Status = Utils.ConvertDomainResponseStatusToResponseObject(domainResponseStatus);
+            return response;
+        }
     }
 }
