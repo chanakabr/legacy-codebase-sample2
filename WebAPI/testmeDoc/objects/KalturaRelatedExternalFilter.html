@@ -29,7 +29,7 @@
 		<h2>Kaltura API</h2>
 		<table class="action" width="80%">
 			<tr>
-				<th class="service_action_title">KalturaAssetBookmarks</th>
+				<th class="service_action_title">KalturaRelatedExternalFilter</th>
 			</tr>
 			<tr>
 				<td class="title">Properties</td>
@@ -71,7 +71,7 @@
 						<tbody>
 							<tr>
 								<td class="inheritedFrom">
-									<b><img class="base-attribute" src="../images/collapsed.gif" alt="KalturaSlimAsset" /> Inherited from <a href="KalturaSlimAsset.html">KalturaSlimAsset</a></b>
+									<b><img class="base-attribute" src="../images/collapsed.gif" alt="KalturaFilter" /> Inherited from <a href="KalturaFilter.html">KalturaFilter</a></b>
 								</td>
 							</tr>
 						</tbody>
@@ -86,18 +86,11 @@
 								<th class="subtitle">Description</th>
 							</tr>
 							<tr >
-								<td>id</td>
-								<td>string</td>
+								<td>orderBy</td>
+								<td><a href="../enums/KalturaRelatedExternalOrderBy.html">KalturaRelatedExternalOrderBy</a></td>
 								<td>V</td>
 								<td></td>
-								<td>Internal identifier of the asset</td>
-							</tr>
-							<tr class="odd">
-								<td>type</td>
-								<td><a href="../enums/KalturaAssetType.html">KalturaAssetType</a></td>
-								<td>V</td>
 								<td></td>
-								<td>The type of the asset. Possible values: media, recording, epg</td>
 							</tr>
 						</tbody>
 					</table>
@@ -108,7 +101,20 @@
 					<table style="">
 						<tbody>
 							<tr>
-								<td class="inheritedFrom"><b>KalturaAssetBookmarks</b></td>
+								<td class="inheritedFrom">
+									<b>Inherited from <a href="KalturaAssetFilter.html">KalturaAssetFilter</a></b>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<table style="">
+						<tbody>
+							<tr>
+								<td class="inheritedFrom"><b>KalturaRelatedExternalFilter</b></td>
 							</tr>
 						</tbody>
 					</table>
@@ -122,11 +128,34 @@
 								<th class="subtitle">Description</th>
 							</tr>
 							<tr >
-								<td>objects</td>
-								<td>array of <a href="KalturaAssetBookmark.html">KalturaAssetBookmark</a></td>
+								<td>idEqual</td>
+								<td>int</td>
 								<td>V</td>
 								<td></td>
-								<td>List of bookmarks</td>
+								<td>the External ID of the asset for which to return related assets</td>
+							</tr>
+							<tr class="odd">
+								<td>typeIn</td>
+								<td>string</td>
+								<td>V</td>
+								<td></td>
+								<td>Comma separated list of asset types to search within. 
+            Possible values: 0 – EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).
+            If omitted – all types should be included.</td>
+							</tr>
+							<tr >
+								<td>utcOffsetEqual</td>
+								<td>int</td>
+								<td>V</td>
+								<td></td>
+								<td>UtcOffsetEqual</td>
+							</tr>
+							<tr class="odd">
+								<td>freeText</td>
+								<td>string</td>
+								<td>V</td>
+								<td></td>
+								<td>FreeText</td>
 							</tr>
 						</tbody>
 					</table>

@@ -29,7 +29,7 @@
 		<h2>Kaltura API</h2>
 		<table class="action" width="80%">
 			<tr>
-				<th class="service_action_title">KalturaUserBillingTransaction</th>
+				<th class="service_action_title">KalturaSearchAssetFilter</th>
 			</tr>
 			<tr>
 				<td class="title">Properties</td>
@@ -71,7 +71,7 @@
 						<tbody>
 							<tr>
 								<td class="inheritedFrom">
-									<b><img class="base-attribute" src="../images/collapsed.gif" alt="KalturaBillingTransaction" /> Inherited from <a href="KalturaBillingTransaction.html">KalturaBillingTransaction</a></b>
+									<b><img class="base-attribute" src="../images/collapsed.gif" alt="KalturaFilter" /> Inherited from <a href="KalturaFilter.html">KalturaFilter</a></b>
 								</td>
 							</tr>
 						</tbody>
@@ -86,109 +86,11 @@
 								<th class="subtitle">Description</th>
 							</tr>
 							<tr >
-								<td>recieptCode</td>
-								<td>string</td>
+								<td>orderBy</td>
+								<td><a href="../enums/KalturaSearchAssetOrderBy.html">KalturaSearchAssetOrderBy</a></td>
 								<td>V</td>
 								<td></td>
-								<td>Reciept Code</td>
-							</tr>
-							<tr class="odd">
-								<td>purchasedItemName</td>
-								<td>string</td>
-								<td>V</td>
 								<td></td>
-								<td>Purchased Item Name</td>
-							</tr>
-							<tr >
-								<td>purchasedItemCode</td>
-								<td>string</td>
-								<td>V</td>
-								<td></td>
-								<td>Purchased Item Code</td>
-							</tr>
-							<tr class="odd">
-								<td>itemType</td>
-								<td><a href="../enums/KalturaBillingItemsType.html">KalturaBillingItemsType</a></td>
-								<td>V</td>
-								<td></td>
-								<td>Item Type</td>
-							</tr>
-							<tr >
-								<td>billingAction</td>
-								<td><a href="../enums/KalturaBillingAction.html">KalturaBillingAction</a></td>
-								<td>V</td>
-								<td></td>
-								<td>Billing Action</td>
-							</tr>
-							<tr class="odd">
-								<td>price</td>
-								<td><a href="KalturaPrice.html">KalturaPrice</a></td>
-								<td>V</td>
-								<td></td>
-								<td>price</td>
-							</tr>
-							<tr >
-								<td>actionDate</td>
-								<td>bigint</td>
-								<td>V</td>
-								<td></td>
-								<td>Action Date</td>
-							</tr>
-							<tr class="odd">
-								<td>startDate</td>
-								<td>bigint</td>
-								<td>V</td>
-								<td></td>
-								<td>Start Date</td>
-							</tr>
-							<tr >
-								<td>endDate</td>
-								<td>bigint</td>
-								<td>V</td>
-								<td></td>
-								<td>End Date</td>
-							</tr>
-							<tr class="odd">
-								<td>paymentMethod</td>
-								<td><a href="../enums/KalturaPaymentMethodType.html">KalturaPaymentMethodType</a></td>
-								<td>V</td>
-								<td></td>
-								<td>Payment Method</td>
-							</tr>
-							<tr >
-								<td>paymentMethodExtraDetails</td>
-								<td>string</td>
-								<td>V</td>
-								<td></td>
-								<td>Payment Method Extra Details</td>
-							</tr>
-							<tr class="odd">
-								<td>isRecurring</td>
-								<td>bool</td>
-								<td>V</td>
-								<td></td>
-								<td>Is Recurring</td>
-							</tr>
-							<tr >
-								<td>billingProviderRef</td>
-								<td>int</td>
-								<td>V</td>
-								<td></td>
-								<td>Billing Provider Ref</td>
-							</tr>
-							<tr class="odd">
-								<td>purchaseId</td>
-								<td>int</td>
-								<td>V</td>
-								<td></td>
-								<td>Purchase ID</td>
-							</tr>
-							<tr >
-								<td>remarks</td>
-								<td>string</td>
-								<td>V</td>
-								<td></td>
-								<td>Remarks</td>
 							</tr>
 						</tbody>
 					</table>
@@ -199,7 +101,20 @@
 					<table style="">
 						<tbody>
 							<tr>
-								<td class="inheritedFrom"><b>KalturaUserBillingTransaction</b></td>
+								<td class="inheritedFrom">
+									<b>Inherited from <a href="KalturaAssetFilter.html">KalturaAssetFilter</a></b>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<table style="">
+						<tbody>
+							<tr>
+								<td class="inheritedFrom"><b>KalturaSearchAssetFilter</b></td>
 							</tr>
 						</tbody>
 					</table>
@@ -213,18 +128,36 @@
 								<th class="subtitle">Description</th>
 							</tr>
 							<tr >
-								<td>userId</td>
+								<td>kSql</td>
 								<td>string</td>
 								<td>V</td>
 								<td></td>
-								<td></td>
+								<td>Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
+            Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date. 
+            epg_id, media_id - for specific asset IDs.
+            geo_block - only valid value is &quot;true&quot;: When enabled, only assets that are not restriced to the user by geo-block rules will return.
+            parental_rules - only valid value is &quot;true&quot;: When enabled, only assets that the user doesn&#39;t need to provide PIN code will return.
+            epg_channel_id – the channel identifier of the EPG program.
+            entitled_assets - valid values: &quot;free&quot;, &quot;entitled&quot;, &quot;both&quot;. free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
+            Comparison operators: for numerical fields =, &gt;, &gt;=, &lt;, &lt;=, : (in). For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or. 
+            Search values are limited to 20 characters each.
+            (maximum length of entire filter is 1024 characters)</td>
 							</tr>
 							<tr class="odd">
-								<td>userFullNName</td>
+								<td>typeIn</td>
 								<td>string</td>
 								<td>V</td>
 								<td></td>
+								<td>Comma separated list of asset types to search within. 
+            Possible values: 0 – EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).
+            If omitted – all types should be included.</td>
+							</tr>
+							<tr >
+								<td>idIn</td>
+								<td>string</td>
+								<td>V</td>
 								<td></td>
+								<td>Comma separated list of EPG channel ids to search within.</td>
 							</tr>
 						</tbody>
 					</table>

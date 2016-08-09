@@ -40,6 +40,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "type")]
         [JsonProperty("type")]
         [XmlElement(ElementName = "type", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
         public KalturaTransactionType Type { get; set; }
 
         /// <summary>
@@ -48,6 +49,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "entitlementId")]
         [JsonProperty("entitlementId")]
         [XmlElement(ElementName = "entitlementId")]
+        [SchemeProperty(ReadOnly = true)]
         public string EntitlementId { get; set; }
 
         /// <summary>
@@ -56,6 +58,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "currentUses")]
         [JsonProperty("currentUses")]
         [XmlElement(ElementName = "currentUses")]
+        [SchemeProperty(ReadOnly = true)]
         public int? CurrentUses { get; set; }
 
         /// <summary>
@@ -64,6 +67,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "endDate")]
         [JsonProperty("endDate")]
         [XmlElement(ElementName = "endDate")]
+        [SchemeProperty(ReadOnly = true)]
         public long? EndDate { get; set; }
 
         /// <summary>
@@ -72,6 +76,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "currentDate")]
         [JsonProperty("currentDate")]
         [XmlElement(ElementName = "currentDate")]
+        [SchemeProperty(ReadOnly = true)]
         public long? CurrentDate { get; set; }
 
         /// <summary>
@@ -80,6 +85,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "lastViewDate")]
         [JsonProperty("lastViewDate")]
         [XmlElement(ElementName = "lastViewDate")]
+        [SchemeProperty(ReadOnly = true)]
         public long? LastViewDate { get; set; }
 
         /// <summary>
@@ -88,6 +94,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "purchaseDate")]
         [JsonProperty("purchaseDate")]
         [XmlElement(ElementName = "purchaseDate")]
+        [SchemeProperty(ReadOnly = true)]
         public long? PurchaseDate { get; set; }
 
         /// <summary>
@@ -96,6 +103,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "purchaseId")]
         [JsonProperty("purchaseId")]
         [XmlElement(ElementName = "purchaseId")]
+        [SchemeProperty(ReadOnly = true)]
         public int? PurchaseId { get; set; }
 
         /// <summary>
@@ -104,6 +112,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "paymentMethod")]
         [JsonProperty("paymentMethod")]
         [XmlElement(ElementName = "paymentMethod", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
         public KalturaPaymentMethodType PaymentMethod { get; set; }
 
         /// <summary>
@@ -112,6 +121,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "deviceUdid")]
         [JsonProperty("deviceUdid")]
         [XmlElement(ElementName = "deviceUdid")]
+        [SchemeProperty(ReadOnly = true)]
         public string DeviceUDID { get; set; }
 
         /// <summary>
@@ -120,6 +130,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "deviceName")]
         [JsonProperty("deviceName")]
         [XmlElement(ElementName = "deviceName")]
+        [SchemeProperty(ReadOnly = true)]
         public string DeviceName { get; set; }
 
         /// <summary>
@@ -128,6 +139,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "isCancelationWindowEnabled")]
         [JsonProperty("isCancelationWindowEnabled")]
         [XmlElement(ElementName = "isCancelationWindowEnabled")]
+        [SchemeProperty(ReadOnly = true)]
         public bool? IsCancelationWindowEnabled { get; set; }
 
         /// <summary>
@@ -136,6 +148,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "maxUses")]
         [JsonProperty("maxUses")]
         [XmlElement(ElementName = "maxUses")]
+        [SchemeProperty(ReadOnly = true)]
         public int? MaxUses { get; set; }
 
         /// <summary>
@@ -144,6 +157,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "nextRenewalDate")]
         [JsonProperty("nextRenewalDate")]
         [XmlElement(ElementName = "nextRenewalDate")]
+        [SchemeProperty(ReadOnly = true)]
         public long? NextRenewalDate { get; set; }
 
         /// <summary>
@@ -152,6 +166,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "isRenewableForPurchase")]
         [JsonProperty("isRenewableForPurchase")]
         [XmlElement(ElementName = "isRenewableForPurchase")]
+        [SchemeProperty(ReadOnly = true)]
         public bool? IsRenewableForPurchase { get; set; }
 
         /// <summary>
@@ -160,6 +175,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "isRenewable")]
         [JsonProperty("isRenewable")]
         [XmlElement(ElementName = "isRenewable")]
+        [SchemeProperty(ReadOnly = true)]
         public bool? IsRenewable { get; set; }
 
         /// <summary>
@@ -168,6 +184,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "mediaFileId")]
         [JsonProperty("mediaFileId")]
         [XmlElement(ElementName = "mediaFileId")]
+        [SchemeProperty(ReadOnly = true)]
         public int? MediaFileId { get; set; }
 
         /// <summary>
@@ -176,6 +193,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "mediaId")]
         [JsonProperty("mediaId")]
         [XmlElement(ElementName = "mediaId")]
+        [SchemeProperty(ReadOnly = true)]
         public int? MediaId { get; set; }
 
         /// <summary>
@@ -184,6 +202,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "isInGracePeriod")]
         [JsonProperty("isInGracePeriod")]
         [XmlElement(ElementName = "isInGracePeriod")]
+        [SchemeProperty(ReadOnly = true)]
         public bool? IsInGracePeriod { get; set; }
 
     }

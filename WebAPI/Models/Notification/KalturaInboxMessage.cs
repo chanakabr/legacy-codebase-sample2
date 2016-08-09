@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Notification
@@ -14,6 +15,7 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
+        [SchemeProperty(ReadOnly = true)]
         public string Id { get; set; }
 
         /// <summary>
@@ -30,6 +32,7 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "status")]
         [JsonProperty("status")]
         [XmlElement(ElementName = "status")]
+        [SchemeProperty(ReadOnly = true)]
         public KalturaInboxMessageStatus Status { get; set; }
 
         /// <summary>
@@ -47,6 +50,7 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "createdAt")]
         [JsonProperty("createdAt")]
         [XmlElement(ElementName = "createdAt")]
+        [SchemeProperty(ReadOnly = true)]
         public long CreatedAt { get; set; }
 
         /// <summary>

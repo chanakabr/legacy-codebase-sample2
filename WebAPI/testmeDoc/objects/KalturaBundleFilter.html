@@ -29,7 +29,7 @@
 		<h2>Kaltura API</h2>
 		<table class="action" width="80%">
 			<tr>
-				<th class="service_action_title">KalturaRecordingContext</th>
+				<th class="service_action_title">KalturaBundleFilter</th>
 			</tr>
 			<tr>
 				<td class="title">Properties</td>
@@ -70,7 +70,51 @@
 					<table style="">
 						<tbody>
 							<tr>
-								<td class="inheritedFrom"><b>KalturaRecordingContext</b></td>
+								<td class="inheritedFrom">
+									<b><img class="base-attribute" src="../images/collapsed.gif" alt="KalturaFilter" /> Inherited from <a href="KalturaFilter.html">KalturaFilter</a></b>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table style="display: none">
+						<tbody>
+							<tr>
+								<th class="subtitle">Name</th>
+								<th class="subtitle">Type</th>
+								<th class="subtitle">Writable</th>
+								<th class="subtitle">Restrictions</th>
+								<th class="subtitle">Description</th>
+							</tr>
+							<tr >
+								<td>orderBy</td>
+								<td><a href="../enums/KalturaBundleOrderBy.html">KalturaBundleOrderBy</a></td>
+								<td>V</td>
+								<td></td>
+								<td></td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<table style="">
+						<tbody>
+							<tr>
+								<td class="inheritedFrom">
+									<b>Inherited from <a href="KalturaAssetFilter.html">KalturaAssetFilter</a></b>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<table style="">
+						<tbody>
+							<tr>
+								<td class="inheritedFrom"><b>KalturaBundleFilter</b></td>
 							</tr>
 						</tbody>
 					</table>
@@ -84,32 +128,27 @@
 								<th class="subtitle">Description</th>
 							</tr>
 							<tr >
-								<td>code</td>
+								<td>idEqual</td>
 								<td>int</td>
 								<td>V</td>
 								<td></td>
-								<td>query status code</td>
+								<td>Bundle Id.</td>
 							</tr>
 							<tr class="odd">
-								<td>message</td>
+								<td>typeIn</td>
 								<td>string</td>
 								<td>V</td>
 								<td></td>
-								<td>query status message</td>
+								<td>Comma separated list of asset types to search within. 
+            Possible values: 0 – EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).
+            If omitted – all types should be included.</td>
 							</tr>
 							<tr >
-								<td>assetId</td>
-								<td>bigint</td>
+								<td>bundleTypeEqual</td>
+								<td><a href="../enums/KalturaBundleType.html">KalturaBundleType</a></td>
 								<td>V</td>
 								<td></td>
-								<td>Asset identifier</td>
-							</tr>
-							<tr class="odd">
-								<td>recording</td>
-								<td><a href="KalturaRecording.html">KalturaRecording</a></td>
-								<td>V</td>
-								<td></td>
-								<td>Recording object</td>
+								<td>bundleType - possible values: Subscription or Collection</td>
 							</tr>
 						</tbody>
 					</table>

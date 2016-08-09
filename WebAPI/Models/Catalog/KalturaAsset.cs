@@ -190,14 +190,16 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "enableRecordingPlaybackNonEntitledChannel")]
         [JsonProperty(PropertyName = "enableRecordingPlaybackNonEntitledChannel")]
         [XmlElement(ElementName = "enableRecordingPlaybackNonEntitledChannel")]
+        [SchemeProperty(ReadOnly = true)]
         public bool? EnableRecordingPlaybackNonEntitledChannel { get; set; }
 
-                /// <summary>
+        /// <summary>
         /// Enable Recording playback for non existing channel
         /// </summary>
         [DataMember(Name = "enableRecordingPlaybackNonExistingChannel")]
         [JsonProperty(PropertyName = "enableRecordingPlaybackNonExistingChannel")]
         [XmlElement(ElementName = "enableRecordingPlaybackNonExistingChannel")]
+        [SchemeProperty(ReadOnly = true)]
         public bool? EnableRecordingPlaybackNonExistingChannel { get; set; }
         
     }

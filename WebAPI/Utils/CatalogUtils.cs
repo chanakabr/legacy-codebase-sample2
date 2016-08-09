@@ -410,5 +410,77 @@ namespace WebAPI.Utils
 
             return result;
         }
+
+        internal static KalturaAssetListResponse GetMediaWithStatus(IserviceClient client, BaseRequest request, string key, int cacheDuration)
+        {
+            KalturaAssetListResponse result = new KalturaAssetListResponse();
+
+            // fire request
+            MediaIdsStatusResponse mediaIdsResponse = new MediaIdsStatusResponse();
+            if (!CatalogUtils.GetBaseResponse<MediaIdsStatusResponse>(client, request, out mediaIdsResponse, true, key)
+                || mediaIdsResponse == null || mediaIdsResponse.Status.Code != (int)StatusCode.OK)
+            {
+                if (mediaIdsResponse == null)
+                    throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+
+                // general error
+                throw new ClientException((int)mediaIdsResponse.Status.Code, mediaIdsResponse.Status.Message);
+            }
+
+            if (mediaIdsResponse.m_nMediaIds != null && mediaIdsResponse.m_nMediaIds.Count > 0)
+            {
+
+                result.Objects = CatalogUtils.GetMediaByIds(client, mediaIdsResponse.m_nMediaIds, request, cacheDuration);
+                result.TotalCount = mediaIdsResponse.m_nTotalItems;
+            }
+            return result;
+        }
+
+        private static List<KalturaAsset> GetMediaByIds(IserviceClient client, List<SearchResult> mediaIds, BaseRequest request, int cacheDuration)
+        {
+            List<KalturaAsset> result = null;
+
+            // get base objects list
+            List<BaseObject> assetsBaseDataList = mediaIds.Select(x => new BaseObject()
+            {
+                AssetId = x.assetID.ToString(),
+                AssetType = eAssetTypes.MEDIA,
+                m_dUpdateDate = x.UpdateDate
+            }).ToList();
+
+            // get assets from catalog/cache
+            List<KalturaAsset> assetsInfo = CatalogUtils.GetAssets(client, assetsBaseDataList, request, cacheDuration);
+
+            return result;
+        }
+
+
+        //internal static KalturaAssetListResponse GetBundleAssets(IserviceClient client, BundleAssetsRequest request, string key, int cacheDuration)
+        //{
+
+
+        //    // to do : casll BundleAssetsRequest
+        //    KalturaAssetListResponse result = new KalturaAssetListResponse();
+
+        //    // fire request
+        //    UnifiedSearchResponse mediaIdsResponse = new UnifiedSearchResponse();
+        //    if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(client, request, out mediaIdsResponse, true, key))
+        //    {
+        //        // general error
+        //        throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+        //    }
+
+        //    if (mediaIdsResponse.m_nMediaIds != null && mediaIdsResponse.m_nMediaIds.Count > 0)
+        //    {
+        //        // get base objects list
+        //        List<BaseObject> assetsBaseDataList = mediaIdsResponse.m_nMediaIds.Select(x =>new BaseObject(){AssetId = x.assetID.ToString(), m_dUpdateDate = x.UpdateDate}).ToList();
+
+        //        // get assets from catalog/cache
+        //        result.Objects = CatalogUtils.GetAssets(client, assetsBaseDataList, request, cacheDuration);
+
+        //        result.TotalCount = mediaIdsResponse.m_nTotalItems;
+        //    }
+        //    return result;
+        //}
     }
 }

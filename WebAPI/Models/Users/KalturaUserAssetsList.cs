@@ -15,6 +15,7 @@ namespace WebAPI.Models.Users
     /// </summary>
     [Serializable]
     [OldStandard("listType", "list_type")]
+    [Obsolete]
     public class KalturaUserAssetsList : KalturaOTTObject
     {
         /// <summary>

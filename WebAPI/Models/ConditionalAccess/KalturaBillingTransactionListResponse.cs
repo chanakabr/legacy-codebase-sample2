@@ -51,6 +51,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "recieptCode")]
         [JsonProperty("recieptCode")]
         [XmlElement(ElementName = "recieptCode")]
+        [SchemeProperty(ReadOnly = true)]
         public string recieptCode { get; set; }
 
         /// <summary>
@@ -59,6 +60,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "purchasedItemName")]
         [JsonProperty("purchasedItemName")]
         [XmlElement(ElementName = "purchasedItemName")]
+        [SchemeProperty(ReadOnly = true)]
         public string purchasedItemName { get; set; }
 
         /// <summary>
@@ -67,6 +69,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "purchasedItemCode")]
         [JsonProperty("purchasedItemCode")]
         [XmlElement(ElementName = "purchasedItemCode")]
+        [SchemeProperty(ReadOnly = true)]
         public string purchasedItemCode { get; set; }
 
         /// <summary>
@@ -75,6 +78,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "itemType")]
         [JsonProperty("itemType")]
         [XmlElement(ElementName = "itemType")]
+        [SchemeProperty(ReadOnly = true)]
         public KalturaBillingItemsType itemType { get; set; }
 
         /// <summary>
@@ -83,6 +87,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "billingAction")]
         [JsonProperty("billingAction")]
         [XmlElement(ElementName = "billingAction", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
         public KalturaBillingAction billingAction { get; set; }
 
         /// <summary>
@@ -91,6 +96,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "price")]
         [JsonProperty("price")]
         [XmlElement(ElementName = "price", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
         public Pricing.KalturaPrice price { get; set; }
 
         /// <summary>
@@ -99,6 +105,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "actionDate")]
         [JsonProperty("actionDate")]
         [XmlElement(ElementName = "actionDate")]
+        [SchemeProperty(ReadOnly = true)]
         public long? actionDate { get; set; }
 
         /// <summary>
@@ -107,6 +114,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "startDate")]
         [JsonProperty("startDate")]
         [XmlElement(ElementName = "startDate")]
+        [SchemeProperty(ReadOnly = true)]
         public long? startDate { get; set; }
 
         /// <summary>
@@ -115,6 +123,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "endDate")]
         [JsonProperty("endDate")]
         [XmlElement(ElementName = "endDate")]
+        [SchemeProperty(ReadOnly = true)]
         public long? endDate { get; set; }
 
         /// <summary>
@@ -123,6 +132,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "paymentMethod")]
         [JsonProperty("paymentMethod")]
         [XmlElement(ElementName = "paymentMethod", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
         public KalturaPaymentMethodType paymentMethod { get; set; }
 
         /// <summary>
@@ -131,6 +141,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "paymentMethodExtraDetails")]
         [JsonProperty("paymentMethodExtraDetails")]
         [XmlElement(ElementName = "paymentMethodExtraDetails")]
+        [SchemeProperty(ReadOnly = true)]
         public string paymentMethodExtraDetails { get; set; }
 
         /// <summary>
@@ -139,6 +150,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "isRecurring")]
         [JsonProperty("isRecurring")]
         [XmlElement(ElementName = "isRecurring")]
+        [SchemeProperty(ReadOnly = true)]
         public bool? isRecurring { get; set; }
 
         /// <summary>
@@ -147,6 +159,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "billingProviderRef")]
         [JsonProperty("billingProviderRef")]
         [XmlElement(ElementName = "billingProviderRef")]
+        [SchemeProperty(ReadOnly = true)]
         public Int32? billingProviderRef { get; set; }
 
         /// <summary>
@@ -155,6 +168,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "purchaseId")]
         [JsonProperty("purchaseId")]
         [XmlElement(ElementName = "purchaseId")]
+        [SchemeProperty(ReadOnly = true)]
         public Int32? purchaseID { get; set; }
 
         /// <summary>
@@ -163,6 +177,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "remarks")]
         [JsonProperty("remarks")]
         [XmlElement(ElementName = "remarks")]
+        [SchemeProperty(ReadOnly = true)]
         public string remarks { get; set; }
     }
 
@@ -172,11 +187,13 @@ namespace WebAPI.Models.ConditionalAccess
     [Serializable]
     [OldStandard("userId", "user_id")]
     [OldStandard("userFullName", "user_full_name")]
+    [Obsolete]
     public class KalturaUserBillingTransaction : KalturaBillingTransaction
     {
         [DataMember(Name = "userId")]
         [JsonProperty("userId")]
         [XmlElement(ElementName = "userId")]
+        [SchemeProperty(ReadOnly = true)]
         public string UserID
         {
             get;
@@ -186,6 +203,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "userFullNName")]
         [JsonProperty("userFullName")]
         [XmlElement(ElementName = "userFullName")]
+        [SchemeProperty(ReadOnly = true)]
         public string UserFullName { get; set; }
     }
 

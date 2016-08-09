@@ -31,7 +31,7 @@ namespace WebAPI.Models.Notification
         public bool? PushFollowEnabled { get; set; }
     }
 
-
+    [Obsolete]
     public class KalturaNotificationSettings : KalturaNotificationsSettings
     {
     }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
 
@@ -27,6 +28,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "userId")]
         [JsonProperty("userId")]
         [XmlElement(ElementName = "userId", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
         public string UserId { get; set; }
 
         /// <summary>
@@ -35,6 +37,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "position")]
         [JsonProperty("position")]
         [XmlElement(ElementName = "position")]
+        [SchemeProperty(InsertOnly = true)]
         public int? Position { get; set; }
 
         /// <summary>

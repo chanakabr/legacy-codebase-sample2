@@ -22,6 +22,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "couponsGroup")]
         [JsonProperty("couponsGroup")]
         [XmlElement(ElementName = "couponsGroup", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
         public KalturaCouponsGroup CouponsGroup { get; set; }
 
         /// <summary>
@@ -30,6 +31,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "status")]
         [JsonProperty("status")]
         [XmlElement(ElementName = "status")]
+        [SchemeProperty(ReadOnly = true)]
         public KalturaCouponStatus Status { get; set; }
     }
 }

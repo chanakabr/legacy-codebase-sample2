@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
@@ -17,6 +18,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "viewLifeCycle")]
         [JsonProperty("viewLifeCycle")]
         [XmlElement(ElementName = "viewLifeCycle")]
+        [SchemeProperty(ReadOnly = true)]
         public string ViewLifeCycle { get; set; }
 
         /// <summary>
@@ -25,6 +27,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "fullLifeCycle")]
         [JsonProperty("fullLifeCycle")]
         [XmlElement(ElementName = "fullLifeCycle")]
+        [SchemeProperty(ReadOnly = true)]
         public string FullLifeCycle { get; set; }
 
         /// <summary>
@@ -33,6 +36,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "isOfflinePlayBack")]
         [JsonProperty("isOfflinePlayBack")]
         [XmlElement(ElementName = "isOfflinePlayBack")]
+        [SchemeProperty(ReadOnly = true)]
         public bool IsOfflinePlayBack { get; set; }
     }
 }

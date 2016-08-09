@@ -38,6 +38,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "assetId")]
         [JsonProperty(PropertyName = "assetId")]
         [XmlElement(ElementName = "assetId", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
         public long AssetId { get; set; }
 
         /// <summary>
@@ -46,6 +47,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "position")]
         [JsonProperty(PropertyName = "position")]
         [XmlElement(ElementName = "position")]
+        [SchemeProperty(ReadOnly = true)]
         public int? Position { get; set; }
 
         /// <summary>
@@ -54,6 +56,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "duration")]
         [JsonProperty(PropertyName = "duration")]
         [XmlElement(ElementName = "duration")]
+        [SchemeProperty(ReadOnly = true)]
         public int? Duration { get; set; }
 
         /// <summary>
@@ -62,6 +65,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "watchedDate")]
         [JsonProperty(PropertyName = "watchedDate")]
         [XmlElement(ElementName = "watchedDate")]
+        [SchemeProperty(ReadOnly = true)]
         public long? LastWatched { get; set; }
 
         /// <summary>
@@ -70,6 +74,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "finishedWatching")]
         [JsonProperty(PropertyName = "finishedWatching")]
         [XmlElement(ElementName = "finishedWatching")]
+        [SchemeProperty(ReadOnly = true)]
         public bool? IsFinishedWatching { get; set; }
     }
 

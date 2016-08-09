@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Notification
@@ -27,6 +28,7 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
+        [SchemeProperty(ReadOnly = true)]
         public string Id { get; set; }
 
         /// <summary>

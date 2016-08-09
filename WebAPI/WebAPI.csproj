@@ -695,6 +695,7 @@
     <Content Include="testmeDoc\enums\KalturaBillingAction.html" />
     <Content Include="testmeDoc\enums\KalturaBillingItemsType.html" />
     <Content Include="testmeDoc\enums\KalturaBookmarkOrderBy.html" />
+    <Content Include="testmeDoc\enums\KalturaBundleType.html" />
     <Content Include="testmeDoc\enums\KalturaChannelEnrichment.html" />
     <Content Include="testmeDoc\enums\KalturaCouponStatus.html" />
     <Content Include="testmeDoc\enums\KalturaDeviceState.html" />
@@ -770,15 +771,12 @@
     <Content Include="testmeDoc\objects\KalturaApiParameterPermissionItem.html" />
     <Content Include="testmeDoc\objects\KalturaAppToken.html" />
     <Content Include="testmeDoc\objects\KalturaAsset.html" />
-    <Content Include="testmeDoc\objects\KalturaAssetBookmark.html" />
-    <Content Include="testmeDoc\objects\KalturaAssetBookmarks.html" />
     <Content Include="testmeDoc\objects\KalturaAssetFileContext.html" />
     <Content Include="testmeDoc\objects\KalturaAssetFilter.html" />
     <Content Include="testmeDoc\objects\KalturaAssetHistory.html" />
     <Content Include="testmeDoc\objects\KalturaAssetHistoryFilter.html" />
     <Content Include="testmeDoc\objects\KalturaAssetHistoryListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaAssetListResponse.html" />
-    <Content Include="testmeDoc\objects\KalturaAssetsBookmarksResponse.html" />
     <Content Include="testmeDoc\objects\KalturaBaseAssetInfo.html" />
     <Content Include="testmeDoc\objects\KalturaBaseChannel.html" />
     <Content Include="testmeDoc\objects\KalturaBaseOTTUser.html" />
@@ -790,6 +788,7 @@
     <Content Include="testmeDoc\objects\KalturaBookmarkListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaBookmarkPlayerData.html" />
     <Content Include="testmeDoc\objects\KalturaBooleanValue.html" />
+    <Content Include="testmeDoc\objects\KalturaBundleFilter.html" />
     <Content Include="testmeDoc\objects\KalturaCDNAdapterProfile.html" />
     <Content Include="testmeDoc\objects\KalturaCDNAdapterProfileListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaCDNPartnerSettings.html" />
@@ -797,6 +796,8 @@
     <Content Include="testmeDoc\objects\KalturaCDVRAdapterProfileListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaChannel.html" />
     <Content Include="testmeDoc\objects\KalturaChannelEnrichmentHolder.html" />
+    <Content Include="testmeDoc\objects\KalturaChannelExternalFilter.html" />
+    <Content Include="testmeDoc\objects\KalturaChannelFilter.html" />
     <Content Include="testmeDoc\objects\KalturaCountry.html" />
     <Content Include="testmeDoc\objects\KalturaCoupon.html" />
     <Content Include="testmeDoc\objects\KalturaCouponsGroup.html" />
@@ -859,7 +860,6 @@
     <Content Include="testmeDoc\objects\KalturaMediaFile.html" />
     <Content Include="testmeDoc\objects\KalturaMediaImage.html" />
     <Content Include="testmeDoc\objects\KalturaMessageTemplate.html" />
-    <Content Include="testmeDoc\objects\KalturaNotificationSettings.html" />
     <Content Include="testmeDoc\objects\KalturaNotificationsPartnerSettings.html" />
     <Content Include="testmeDoc\objects\KalturaNotificationsSettings.html" />
     <Content Include="testmeDoc\objects\KalturaOSSAdapterBaseProfile.html" />
@@ -882,8 +882,6 @@
     <Content Include="testmeDoc\objects\KalturaPaymentMethodProfileListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaPermission.html" />
     <Content Include="testmeDoc\objects\KalturaPermissionItem.html" />
-    <Content Include="testmeDoc\objects\KalturaPersonalAsset.html" />
-    <Content Include="testmeDoc\objects\KalturaPersonalAssetListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaPersonalFeed.html" />
     <Content Include="testmeDoc\objects\KalturaPersonalFeedFilter.html" />
     <Content Include="testmeDoc\objects\KalturaPersonalFeedListResponse.html" />
@@ -908,13 +906,15 @@
     <Content Include="testmeDoc\objects\KalturaRecommendationProfile.html" />
     <Content Include="testmeDoc\objects\KalturaRecommendationProfileListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaRecording.html" />
-    <Content Include="testmeDoc\objects\KalturaRecordingContext.html" />
-    <Content Include="testmeDoc\objects\KalturaRecordingContextListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaRecordingFilter.html" />
     <Content Include="testmeDoc\objects\KalturaRecordingListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaRegistryResponse.html" />
     <Content Include="testmeDoc\objects\KalturaRegistrySettings.html" />
     <Content Include="testmeDoc\objects\KalturaRegistrySettingsListResponse.html" />
+    <Content Include="testmeDoc\objects\KalturaRelatedExternalFilter.html" />
+    <Content Include="testmeDoc\objects\KalturaRelatedFilter.html" />
+    <Content Include="testmeDoc\objects\KalturaSearchAssetFilter.html" />
+    <Content Include="testmeDoc\objects\KalturaSearchExternalFilter.html" />
     <Content Include="testmeDoc\objects\KalturaSeriesRecording.html" />
     <Content Include="testmeDoc\objects\KalturaSeriesRecordingFilter.html" />
     <Content Include="testmeDoc\objects\KalturaSeriesRecordingListResponse.html" />
@@ -934,7 +934,6 @@
     <Content Include="testmeDoc\objects\KalturaTopic.html" />
     <Content Include="testmeDoc\objects\KalturaTopicFilter.html" />
     <Content Include="testmeDoc\objects\KalturaTopicListResponse.html" />
-    <Content Include="testmeDoc\objects\KalturaTopicResponse.html" />
     <Content Include="testmeDoc\objects\KalturaTransaction.html" />
     <Content Include="testmeDoc\objects\KalturaTransactionHistoryFilter.html" />
     <Content Include="testmeDoc\objects\KalturaTransactionStatus.html" />
@@ -943,10 +942,7 @@
     <Content Include="testmeDoc\objects\KalturaUserAssetRule.html" />
     <Content Include="testmeDoc\objects\KalturaUserAssetRuleFilter.html" />
     <Content Include="testmeDoc\objects\KalturaUserAssetRuleListResponse.html" />
-    <Content Include="testmeDoc\objects\KalturaUserAssetsList.html" />
     <Content Include="testmeDoc\objects\KalturaUserAssetsListItem.html" />
-    <Content Include="testmeDoc\objects\KalturaUserAssetsListListResponse.html" />
-    <Content Include="testmeDoc\objects\KalturaUserBillingTransaction.html" />
     <Content Include="testmeDoc\objects\KalturaUserLoginPin.html" />
     <Content Include="testmeDoc\objects\KalturaUserRole.html" />
     <Content Include="testmeDoc\objects\KalturaUserRoleFilter.html" />
@@ -1451,11 +1447,8 @@
     <Content Include="testme\json\KalturaAnnouncement-subclasses.json" />
     <Content Include="testme\json\KalturaAppToken-subclasses.json" />
     <Content Include="testme\json\KalturaAsset-subclasses.json" />
-    <Content Include="testme\json\KalturaAssetBookmark-subclasses.json" />
-    <Content Include="testme\json\KalturaAssetBookmarks-subclasses.json" />
     <Content Include="testme\json\KalturaAssetFilter-subclasses.json" />
     <Content Include="testme\json\KalturaAssetListResponse-subclasses.json" />
-    <Content Include="testme\json\KalturaAssetsBookmarksResponse-subclasses.json" />
     <Content Include="testme\json\KalturaBaseAssetInfo-subclasses.json" />
     <Content Include="testme\json\KalturaBaseChannel-subclasses.json" />
     <Content Include="testme\json\KalturaBaseOTTUser-subclasses.json" />
@@ -1524,8 +1517,6 @@
     <Content Include="testme\json\KalturaPaymentGatewayConfiguration-subclasses.json" />
     <Content Include="testme\json\KalturaPaymentGatewayProfile-subclasses.json" />
     <Content Include="testme\json\KalturaPaymentGatewayProfileListResponse-subclasses.json" />
-    <Content Include="testme\json\KalturaPersonalAsset-subclasses.json" />
-    <Content Include="testme\json\KalturaPersonalAssetListResponse-subclasses.json" />
     <Content Include="testme\json\KalturaPpv-subclasses.json" />
     <Content Include="testme\json\KalturaPPVItemPriceDetails-subclasses.json" />
     <Content Include="testme\json\KalturaPpvPrice-subclasses.json" />
@@ -1541,8 +1532,6 @@
     <Content Include="testme\json\KalturaProgramAsset-subclasses.json" />
     <Content Include="testme\json\KalturaRecommendationProfile-subclasses.json" />
     <Content Include="testme\json\KalturaRecording-subclasses.json" />
-    <Content Include="testme\json\KalturaRecordingContext-subclasses.json" />
-    <Content Include="testme\json\KalturaRecordingContextListResponse-subclasses.json" />
     <Content Include="testme\json\KalturaRecordingFilter-subclasses.json" />
     <Content Include="testme\json\KalturaRecordingListResponse-subclasses.json" />
     <Content Include="testme\json\KalturaRegistryResponse-subclasses.json" />
@@ -1557,17 +1546,13 @@
     <Content Include="testme\json\KalturaSubscriptionListResponse-subclasses.json" />
     <Content Include="testme\json\KalturaSubscriptionPrice-subclasses.json" />
     <Content Include="testme\json\KalturaTopic-subclasses.json" />
-    <Content Include="testme\json\KalturaTopicResponse-subclasses.json" />
     <Content Include="testme\json\KalturaTransactionHistoryFilter-subclasses.json" />
     <Content Include="testme\json\KalturaTranslationToken-subclasses.json" />
     <Content Include="testme\json\KalturaUsageModule-subclasses.json" />
     <Content Include="testme\json\KalturaUserAssetRule-subclasses.json" />
     <Content Include="testme\json\KalturaUserAssetRuleFilter-subclasses.json" />
     <Content Include="testme\json\KalturaUserAssetRuleListResponse-subclasses.json" />
-    <Content Include="testme\json\KalturaUserAssetsList-subclasses.json" />
     <Content Include="testme\json\KalturaUserAssetsListItem-subclasses.json" />
-    <Content Include="testme\json\KalturaUserAssetsListListResponse-subclasses.json" />
-    <Content Include="testme\json\KalturaUserBillingTransaction-subclasses.json" />
     <Content Include="testme\json\KalturaValue-subclasses.json" />
     <Content Include="testme\json\ossadapterprofile-actions.json" />
     <Content Include="testme\json\ossadapterprofile-add-action-info.json" />
@@ -1759,7 +1744,6 @@
     <Content Include="testme\json\notificationssettings-update-action-info.json" />
     <Content Include="testme\json\ossadapterprofile-update-action-info.json" />
     <Content Include="testme\json\KalturaTimeShiftedTvPartnerSettings-subclasses.json" />
-    <Content Include="testme\json\KalturaNotificationSettings-subclasses.json" />
     <Content Include="testme\json\KalturaNotificationsPartnerSettings-subclasses.json" />
     <Content Include="testme\json\KalturaNotificationsSettings-subclasses.json" />
     <Content Include="testme\json\KalturaHouseholdPaymentGateway-subclasses.json" />
@@ -1882,6 +1866,13 @@
     <Content Include="testme\json\seriesrecording-cancelByEpgId-action-info.json" />
     <Content Include="testme\json\seriesrecording-cancelBySeasonNumber-action-info.json" />
     <Content Include="testme\json\seriesrecording-deleteBySeasonNumber-action-info.json" />
+    <Content Include="testme\json\KalturaBundleFilter-subclasses.json" />
+    <Content Include="testme\json\KalturaChannelExternalFilter-subclasses.json" />
+    <Content Include="testme\json\KalturaChannelFilter-subclasses.json" />
+    <Content Include="testme\json\KalturaRelatedExternalFilter-subclasses.json" />
+    <Content Include="testme\json\KalturaRelatedFilter-subclasses.json" />
+    <Content Include="testme\json\KalturaSearchAssetFilter-subclasses.json" />
+    <Content Include="testme\json\KalturaSearchExternalFilter-subclasses.json" />
     <None Include="Web References\Api\api.disco" />
     <Content Include="Web References\Billing\AdyenBillingDetail.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -2442,6 +2433,7 @@
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
     <Compile Include="Controllers\CDNPartnerSettingsController.cs" />
     <Compile Include="Controllers\RegionController.cs" />
+    <Compile Include="Controllers\EpgController.cs" />
     <Compile Include="Controllers\HouseholdPaymentMethodController.cs" />
     <Compile Include="Controllers\HouseholdPaymentGatewayController.cs" />
     <Compile Include="Controllers\ProductPriceController.cs" />
@@ -2548,6 +2540,14 @@
     <Compile Include="Models\Catalog\KalturaAssetFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAsset.cs" />
     <Compile Include="Models\Catalog\KalturaAssetOrderBy.cs" />
+    <Compile Include="Models\Catalog\KalturaBundleFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaBundleType.cs" />
+    <Compile Include="Models\Catalog\KalturaChannelExternalFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaChannelFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaRelatedFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaRelatedExternalFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaSearchAssetFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaSearchExternalFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaLicensedUrlMediaRequest.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaLicensedUrlEpgRequest.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaLicensedUrlRecordingRequest.cs" />
@@ -2754,7 +2754,6 @@
     <Compile Include="Models\API\KalturaTimeShiftedTvPartnerSettings.cs">
       <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
     </Compile>
-    <Compile Include="Models\Users\KalturaUserAssetsListListResponse.cs" />
     <Compile Include="Models\Users\KalturaFavoriteFilter.cs" />
     <Compile Include="Models\Users\KalturaLoginResponse.cs" />
     <Compile Include="Models\Users\KalturaOTTUserFilter.cs" />

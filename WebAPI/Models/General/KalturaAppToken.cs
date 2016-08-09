@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.General
 {
@@ -20,6 +21,7 @@ namespace WebAPI.Models.General
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
+        [SchemeProperty(ReadOnly = true)]
         public string Id { get; set; }
 
         /// <summary>
@@ -76,6 +78,7 @@ namespace WebAPI.Models.General
         [DataMember(Name = "status")]
         [JsonProperty("status")]
         [XmlElement(ElementName = "status")]
+        [SchemeProperty(ReadOnly = true)]
         public KalturaAppTokenStatus Status { get; set; }
 
         /// <summary>

@@ -145,6 +145,7 @@ namespace WebAPI.Managers
         /// </summary>
         /// <param name="service">Service name</param>
         /// <param name="action">Action name</param>
+        /// <param name="silent">Fail silently</param>
         internal static void ValidateActionPermitted(string service, string action, bool silent = false)
         {
             KS ks = getKS(silent);
@@ -189,9 +190,10 @@ namespace WebAPI.Managers
         /// <summary>
         /// Checks if a property of an object is allowed
         /// </summary>
-        /// <param name="service">Type name</param>
-        /// <param name="action">Property name</param>
+        /// <param name="type">Type name</param>
+        /// <param name="property">Property name</param>
         /// <param name="action">Required action</param>
+        /// <param name="silent">Fail silently</param>
         /// <returns>True if the property is permitted, false otherwise</returns>
         internal static void ValidatePropertyPermitted(string type, string property, RequestType action, bool silent = false)
         {

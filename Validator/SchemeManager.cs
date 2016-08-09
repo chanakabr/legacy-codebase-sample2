@@ -412,9 +412,8 @@ namespace Validator.Managers.Scheme
 
             if (param.Name.Contains('_'))
             {
-                logError("Warning", controller, string.Format("Parameter {0} in method {1}.{2} ({3}) may not contain underscores", param.Name, serviceId, actionId, controller.Name));
-                if (strict)
-                    valid = false;
+                logError("Error", controller, string.Format("Parameter {0} in method {1}.{2} ({3}) may not contain underscores", param.Name, serviceId, actionId, controller.Name));
+                valid = false;
             }
 
             if (!Char.IsLower(param.Name, 0))
@@ -450,9 +449,8 @@ namespace Validator.Managers.Scheme
             string actionId = route.Template;
             if (actionId != "get" && actionId != "add" && actionId != "update" && actionId != "delete" && actionId != "list" && !hasValidationException(action, SchemeValidationType.ACTION_NAME))
             {
-                logError("Warning", controller, string.Format("Action {0}.{1} ({2}) has non-standard name (add, update, get, delete and list are allowed)", serviceId, actionId, controller.Name));
-                if (strict)
-                    valid = false;
+                logError("Error", controller, string.Format("Action {0}.{1} ({2}) has non-standard name (add, update, get, delete and list are allowed)", serviceId, actionId, controller.Name));
+                valid = false;
             }
 
             string expectedObjectType = string.Format("Kaltura{0}", FirstCharacterToUpper(serviceId));

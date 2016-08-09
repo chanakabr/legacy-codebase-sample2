@@ -24,6 +24,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
+        [SchemeProperty(ReadOnly = true)]
         public string Id { get; set; }
 
         /// <summary>

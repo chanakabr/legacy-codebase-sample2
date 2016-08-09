@@ -21,6 +21,7 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "announcementId")]
         [JsonProperty(PropertyName = "announcementId")]
         [XmlElement(ElementName = "announcementId")]
+        [SchemeProperty(ReadOnly = true)]
         public long AnnouncementId { get; set; }
 
         /// <summary>
@@ -29,6 +30,7 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "status")]
         [JsonProperty(PropertyName = "status")]
         [XmlElement(ElementName = "status")]
+        [SchemeProperty(ReadOnly = true)]
         public int Status { get; set; }
 
         /// <summary>
@@ -37,6 +39,7 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "title")]
         [JsonProperty(PropertyName = "title")]
         [XmlElement(ElementName = "title")]
+        [SchemeProperty(ReadOnly = true)]
         public string Title { get; set; }
 
         /// <summary>
@@ -45,6 +48,7 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "timestamp")]
         [JsonProperty(PropertyName = "timestamp")]
         [XmlElement(ElementName = "timestamp")]
+        [SchemeProperty(ReadOnly = true)]
         public long Timestamp { get; set; }
 
         /// <summary>
@@ -53,6 +57,7 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "followPhrase")]
         [JsonProperty(PropertyName = "followPhrase")]
         [XmlElement(ElementName = "followPhrase")]
+        [SchemeProperty(ReadOnly = true)]
         public string FollowPhrase { get; set; }
     }
 }

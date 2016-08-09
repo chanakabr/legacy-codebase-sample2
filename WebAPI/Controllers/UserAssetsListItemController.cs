@@ -56,7 +56,9 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Get an item from user’s private asset list
         /// </summary>
-        /// <param name="userAssetsListItem">A list item to get</param>
+        /// <param name="assetId">Asset id to get</param>
+        /// <param name="listType">Asset list type to get from</param>
+        /// <param name="itemType">item type to get</param>
         /// <remarks>Possible status codes: 
         /// Item was not found in list = 2032</remarks>
         /// <returns></returns>
@@ -119,7 +121,8 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Deletes an item from user’s private asset list
         /// </summary>
-        /// <param name="userAssetsListItem">A list item to delete</param>
+        /// <param name="assetId">Asset id to delete</param>
+        /// <param name="listType">Asset list type to delete from</param>
         /// <remarks>Possible status codes: 
         /// Item was not found in list = 2032</remarks>
         /// <returns></returns>

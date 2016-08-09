@@ -64,6 +64,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("state")]
         [XmlElement(ElementName = "state", IsNullable = true)]
         [Obsolete]
+        [SchemeProperty(ReadOnly = true)]
         public KalturaDeviceState State { get; set; }
 
         /// <summary>

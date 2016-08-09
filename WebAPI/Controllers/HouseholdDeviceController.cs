@@ -308,6 +308,7 @@ namespace WebAPI.Controllers
         /// Limitation period = 1014, Device not in domain = 1003, Exceeded limit = 1001 </remarks>
         [Route("updateStatus"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public bool UpdateStatus(string udid, KalturaDeviceStatus status)
         {
             int groupId = KS.GetFromRequest().GroupId;

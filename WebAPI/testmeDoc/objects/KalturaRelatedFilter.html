@@ -29,7 +29,7 @@
 		<h2>Kaltura API</h2>
 		<table class="action" width="80%">
 			<tr>
-				<th class="service_action_title">KalturaNotificationSettings</th>
+				<th class="service_action_title">KalturaRelatedFilter</th>
 			</tr>
 			<tr>
 				<td class="title">Properties</td>
@@ -71,7 +71,7 @@
 						<tbody>
 							<tr>
 								<td class="inheritedFrom">
-									<b><img class="base-attribute" src="../images/collapsed.gif" alt="KalturaNotificationsSettings" /> Inherited from <a href="KalturaNotificationsSettings.html">KalturaNotificationsSettings</a></b>
+									<b><img class="base-attribute" src="../images/collapsed.gif" alt="KalturaFilter" /> Inherited from <a href="KalturaFilter.html">KalturaFilter</a></b>
 								</td>
 							</tr>
 						</tbody>
@@ -86,18 +86,11 @@
 								<th class="subtitle">Description</th>
 							</tr>
 							<tr >
-								<td>pushNotificationEnabled</td>
-								<td>bool</td>
+								<td>orderBy</td>
+								<td><a href="../enums/KalturaRelatedOrderBy.html">KalturaRelatedOrderBy</a></td>
 								<td>V</td>
 								<td></td>
-								<td>Specify if the user want to receive push notifications or not</td>
-							</tr>
-							<tr class="odd">
-								<td>pushFollowEnabled</td>
-								<td>bool</td>
-								<td>V</td>
 								<td></td>
-								<td>Specify if the user will be notified for followed content via push. (requires push_notification_enabled to be enabled)</td>
 							</tr>
 						</tbody>
 					</table>
@@ -108,7 +101,20 @@
 					<table style="">
 						<tbody>
 							<tr>
-								<td class="inheritedFrom"><b>KalturaNotificationSettings</b></td>
+								<td class="inheritedFrom">
+									<b>Inherited from <a href="KalturaAssetFilter.html">KalturaAssetFilter</a></b>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<table style="">
+						<tbody>
+							<tr>
+								<td class="inheritedFrom"><b>KalturaRelatedFilter</b></td>
 							</tr>
 						</tbody>
 					</table>
@@ -120,6 +126,38 @@
 								<th class="subtitle">Writable</th>
 								<th class="subtitle">Restrictions</th>
 								<th class="subtitle">Description</th>
+							</tr>
+							<tr >
+								<td>kSql</td>
+								<td>string</td>
+								<td>V</td>
+								<td></td>
+								<td>Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
+            Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date. 
+            epg_id, media_id - for specific asset IDs.
+            geo_block - only valid value is &quot;true&quot;: When enabled, only assets that are not restriced to the user by geo-block rules will return.
+            parental_rules - only valid value is &quot;true&quot;: When enabled, only assets that the user doesn&#39;t need to provide PIN code will return.
+            epg_channel_id – the channel identifier of the EPG program.
+            entitled_assets - valid values: &quot;free&quot;, &quot;entitled&quot;, &quot;both&quot;. free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
+            Comparison operators: for numerical fields =, &gt;, &gt;=, &lt;, &lt;=, : (in). For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or. 
+            Search values are limited to 20 characters each.
+            (maximum length of entire filter is 1024 characters)</td>
+							</tr>
+							<tr class="odd">
+								<td>idEqual</td>
+								<td>string</td>
+								<td>V</td>
+								<td></td>
+								<td>the ID of the asset for which to return related assets</td>
+							</tr>
+							<tr >
+								<td>typeIn</td>
+								<td>string</td>
+								<td>V</td>
+								<td></td>
+								<td>Comma separated list of asset types to search within. 
+            Possible values: 0 – EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).
+            If omitted – all types should be included.</td>
 							</tr>
 						</tbody>
 					</table>
