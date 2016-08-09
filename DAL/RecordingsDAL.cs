@@ -557,7 +557,7 @@ namespace DAL
             return domainSeriesId;
         }
 
-        public static bool UpdateRecordingsExternalId(int groupId, string externalRecordingIdToUpdate, string crid, long channelId, string currentExternalId = null)
+        public static bool UpdateRecordingsExternalId(int groupId, string externalRecordingIdToUpdate, string crid, long channelId)
         {
             int updatedRowsCount = 0;
             ODBCWrapper.StoredProcedure spUpdateRecordingsExternalId = new ODBCWrapper.StoredProcedure("UpdateRecordingsExternalId");
@@ -566,10 +566,6 @@ namespace DAL
             spUpdateRecordingsExternalId.AddParameter("@ExternalRecordingId", externalRecordingIdToUpdate);
             spUpdateRecordingsExternalId.AddParameter("@Crid", crid);
             spUpdateRecordingsExternalId.AddParameter("@ChannelId", channelId);
-            if (!string.IsNullOrEmpty(currentExternalId))
-            {
-                spUpdateRecordingsExternalId.AddParameter("@CurrentExternalId", currentExternalId);
-            }
 
             updatedRowsCount = spUpdateRecordingsExternalId.ExecuteReturnValue<int>();
 

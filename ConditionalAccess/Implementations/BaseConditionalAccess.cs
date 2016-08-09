@@ -19693,5 +19693,18 @@ namespace ConditionalAccess
             }
             return response;
         }
+
+        public bool CheckRecordingDuplicateCrids(int groupID, long recordingId)
+        {
+            try
+            {
+                return RecordingsManager.Instance.CheckRecordingDuplicateCrids(groupID, recordingId);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat(string.Format("Failed RecordingsManager.Instance.CheckRecordingDuplicateCrids for groupId: {0}, recordingId: {1}", groupID, recordingId), ex);
+                return false;
+            }
+        }
     }
 }

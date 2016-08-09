@@ -30,6 +30,8 @@ namespace Recordings
         private static readonly int MINUTES_ALLOWED_DIFFERENCE = 5;
         private static readonly int MINUTES_RETRY_INTERVAL;
         private static readonly int MAXIMUM_RETRIES_ALLOWED;
+        private static readonly bool REMOVE_DUPLICATE_CRIDS;
+        private static readonly int CHECK_DUPLICATE_CRID_INTERVAL_SEC;
 
         #endregion
 
@@ -50,7 +52,7 @@ namespace Recordings
         private RecordingsManager()
         {
             synchronizer = new CouchbaseSynchronizer(1000, 60);
-            synchronizer.SynchronizedAct += synchronizer_SynchronizedAct;
+            synchronizer.SynchronizedAct += synchronizer_SynchronizedAct;            
         }
 
         private static object locker = new object();
@@ -77,6 +79,13 @@ namespace Recordings
 
         static RecordingsManager()
         {
+            REMOVE_DUPLICATE_CRIDS = TVinciShared.WS_Utils.GetTcmBoolValue("RemoveDuplicateCrids");
+            CHECK_DUPLICATE_CRID_INTERVAL_SEC = TVinciShared.WS_Utils.GetTcmIntValue("CheckDuplicateCridIntervalSec");
+            if (CHECK_DUPLICATE_CRID_INTERVAL_SEC == 0)
+            {
+                // default is 7 days
+                CHECK_DUPLICATE_CRID_INTERVAL_SEC = 604800;
+            }
             int retryInterval = TVinciShared.WS_Utils.GetTcmIntValue("CDVRAdapterRetryInterval");
             int maximumRetries = TVinciShared.WS_Utils.GetTcmIntValue("CDVRAdapterMaximumRetriesAllowed");
 
@@ -140,6 +149,7 @@ namespace Recordings
                     {
                         recording = (Recording)recordingObject;
                     }
+                    // all good
                     else
                     {
                         recording = ConditionalAccess.Utils.GetRecordingByEpgId(groupId, programId);
@@ -152,13 +162,9 @@ namespace Recordings
                 else
                 {
                     Recording existingRecordingWithMinStartDate = recordingsEpgMap.OrderBy(x => x.Value.EpgStartDate).ToList().First().Value;
-                    if (startDate < existingRecordingWithMinStartDate.EpgStartDate && existingRecordingWithMinStartDate.EpgEndDate > DateTime.UtcNow)
+                    if (!REMOVE_DUPLICATE_CRIDS || (startDate < existingRecordingWithMinStartDate.EpgStartDate && existingRecordingWithMinStartDate.EpgEndDate > DateTime.UtcNow)
+                        || existingRecordingWithMinStartDate.RecordingStatus != TstvRecordingStatus.Recorded)
                     {
-                        if (!string.IsNullOrEmpty(existingRecordingWithMinStartDate.ExternalRecordingId))
-                        {
-                            syncParmeters.Add("externalRecordingIdToCancel", existingRecordingWithMinStartDate.ExternalRecordingId);
-                        }
-
                         bool syncedAction = synchronizer.DoAction(syncKey, syncParmeters);
 
                         object recordingObject;
@@ -171,18 +177,23 @@ namespace Recordings
                         {
                             recording = ConditionalAccess.Utils.GetRecordingByEpgId(groupId, programId);
                         }
+
+                        if (REMOVE_DUPLICATE_CRIDS)
+                        {
+                            // Schedule a message to check duplicate crid
+                            DateTime checkTime = endDate.AddSeconds(CHECK_DUPLICATE_CRID_INTERVAL_SEC);
+                            eRecordingTask task = eRecordingTask.CheckRecordingDuplicateCrids;
+                            EnqueueMessage(groupId, programId, recording.Id, startDate, checkTime, task);
+                        }
                     }
-                    else
+                    /***** if min recording is already recorded we don't go to the adapter and insert the current
+                           recording with the min recording external ID and REMOVE_DUPLICATE_CRIDS is true *****/
+                    else if (existingRecordingWithMinStartDate.RecordingStatus == TstvRecordingStatus.Recorded && REMOVE_DUPLICATE_CRIDS)
                     {
                         recording = new Recording(existingRecordingWithMinStartDate) { EpgStartDate = startDate, EpgEndDate = endDate, EpgId = programId, RecordingStatus = TstvRecordingStatus.Scheduled };
-                        recording = ConditionalAccess.Utils.InsertRecording(recording, groupId, RecordingInternalStatus.OK);                        
+                        recording = ConditionalAccess.Utils.InsertRecording(recording, groupId, RecordingInternalStatus.OK);
                         UpdateIndex(groupId, recording.Id, eAction.Update);
-                        
-                        // Schedule a message to check status 1 minute after recording of program is supposed to be over
-                        DateTime checkTime = endDate.AddMinutes(1);
-                        eRecordingTask task = eRecordingTask.GetStatusAfterProgramEnded;
-                        EnqueueMessage(groupId, programId, recording.Id, startDate, checkTime, task);
-                    }                                        
+                    }                    
                 }
             }
 
@@ -287,7 +298,7 @@ namespace Recordings
                         return status;
                     }
                 }
-                /***** WHEN ADAPTER_ID > 0 it means we came from CleanupRecordings and we dont care about min value ***** 
+                /***** WHEN ADAPTER_ID > 0 it means we came from CleanupRecordings and we don't care about min value ***** 
                 more than one recording exist, we need to check if the current recording is the min*/
                 else if (adapterId == 0)
                 {
@@ -665,51 +676,7 @@ namespace Recordings
             }
 
             return status;
-        }
-
-        internal static ApiObjects.Response.Status UpdateFirstRecordingWithSameCrid(int groupId, string externalRecordingIdToCancel, Recording recordingToRecord)
-        {
-            ApiObjects.Response.Status status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-
-            AdapterControllers.CDVR.CdvrAdapterController adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
-            int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
-
-            CallAdapterRecord(groupId, recordingToRecord.ChannelId, recordingToRecord.EpgStartDate, recordingToRecord.EpgEndDate, false, recordingToRecord);
-            if (recordingToRecord.Status == null || recordingToRecord.Status.Code != (int)eResponseStatus.OK)
-            {
-                status = recordingToRecord.Status;
-                return status;
-            }
-            else if (!RecordingsDAL.UpdateRecordingsExternalId(groupId, recordingToRecord.ExternalRecordingId, recordingToRecord.Crid, recordingToRecord.ChannelId))
-            {
-                log.ErrorFormat("Failed UpdateRecordingsExternalId, ExternalRecordingId: {0}, Crid: {1}", recordingToRecord.ExternalRecordingId, recordingToRecord.Crid);
-                status = new Status((int)eResponseStatus.Error, "Failed updating recordings external IDs in database.");
-                return status;
-            }
-
-            // nothing to do - We're OK!!!
-            if (string.IsNullOrEmpty(externalRecordingIdToCancel))
-            {
-                return status;
-            }
-
-            // all good
-            RecordResult adapterResponse = adapterController.CancelRecording(groupId, externalRecordingIdToCancel, adapterId);
-
-            if (adapterResponse == null)
-            {
-                log.ErrorFormat("Failed CancelRecording, ExternalRecordingId: {0}, Crid: {1}", externalRecordingIdToCancel, recordingToRecord.Crid);
-                status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                return status;
-            }
-            else if (adapterResponse.FailReason != 0)
-            {
-                log.ErrorFormat("Failed CancelRecording, ExternalRecordingId: {0}, Crid: {1}, adapterFailReason: {2}", externalRecordingIdToCancel, recordingToRecord.Crid, adapterResponse.FailReason);
-                status = CreateFailStatus(adapterResponse);
-                return status;
-            }
-            return status;
-        }
+        }        
 
         public Recording GetRecordingByProgramId(int groupId, long programId)
         {
@@ -756,6 +723,62 @@ namespace Recordings
                 statuses.Contains(recording.RecordingStatus)).ToList();
 
             return filteredRecording;
+        }
+
+        public bool CheckRecordingDuplicateCrids(int groupId, long recordingId)
+        {
+            Recording recording = ConditionalAccess.Utils.GetRecordingById(recordingId);
+
+            if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK)
+            {
+                Dictionary<long, Recording> recordingsEpgMap = ConditionalAccess.Utils.GetEpgToRecordingsMapByCridAndChannel(groupId, recording.Crid, recording.ChannelId);
+                if (recordingsEpgMap.Count == 0)
+                {
+                    log.DebugFormat("Failed getting recordingsEpgMap for crid: {0}, channel: {1} from ConditionalAccess.Utils.GetEpgToRecordingsMapByCridAndChannel", recording.Crid, recording.ChannelId);
+                    return true;
+                }
+
+                Recording existingRecordingWithMinStartDate = recordingsEpgMap.OrderBy(x => x.Value.EpgStartDate).ToList().First().Value;
+                // if the min recording is my recordingId and the recordingStatus is RECORDED, we're OK
+                if (existingRecordingWithMinStartDate.Id == recordingId && existingRecordingWithMinStartDate.RecordingStatus == TstvRecordingStatus.Recorded)
+                {
+                    return true;
+                }
+
+                // if the min recordingStatis is RECORDED, cancel the current recording on the adapter and update the external recording ID to point to min recording
+                if (existingRecordingWithMinStartDate.Id != recordingId && existingRecordingWithMinStartDate.RecordingStatus == TstvRecordingStatus.Recorded)
+                {
+                    AdapterControllers.CDVR.CdvrAdapterController adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
+                    int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
+                    RecordResult adapterResponse = adapterController.CancelRecording(groupId, recording.ExternalRecordingId, adapterId);
+
+                    if (adapterResponse == null)
+                    {
+                        log.ErrorFormat("Failed CancelRecording, ExternalRecordingId: {0}, Crid: {1}", recording.ExternalRecordingId, recording.Crid);
+                        return true;                        
+                    }
+                    else if (adapterResponse.FailReason != 0)
+                    {
+                        log.ErrorFormat("Failed CancelRecording, ExternalRecordingId: {0}, Crid: {1}, adapterFailReason: {2}", recording.ExternalRecordingId, recording.Crid, adapterResponse.FailReason);
+                        return true; 
+                    }
+
+                    recording.ExternalRecordingId = existingRecordingWithMinStartDate.ExternalRecordingId;
+                    // update recording information on DB (just external recording ID changes)
+                    if (!ConditionalAccess.Utils.UpdateRecording(recording, groupId, 1, 1, RecordingInternalStatus.OK))
+                    {
+                        log.ErrorFormat("Failed ConditionalAccess.Utils.UpdateRecording for recording ID: {0}", recordingId);
+                        return true; 
+                    }
+                }
+            }            
+            else
+            {
+                log.DebugFormat("Failed getting recording with ID: {0} from ConditionalAccess.Utils.GetRecordingById", recordingId);
+                return true;
+            }
+
+            return true;
         }
 
         public static TstvRecordingStatus GetTstvRecordingStatus(DateTime epgStartDate, DateTime epgEndDate, TstvRecordingStatus recordingStatus)
@@ -956,7 +979,7 @@ namespace Recordings
             }
         }
 
-        public static RecordingCB GetRecordingCB(int groupId, long programId, long recordingId)
+        private static RecordingCB GetRecordingCB(int groupId, long programId, long recordingId)
         {
             RecordingCB recording = RecordingsDAL.GetRecordingByProgramId_CB(programId);
 
@@ -995,34 +1018,6 @@ namespace Recordings
 
                 // Otherwise, we tried too much! Mark this recording as failed. Sorry mates!
                 currentRecording.RecordingStatus = TstvRecordingStatus.Failed;
-                if (!RecordingsDAL.UpdateRecordingsExternalId(groupId, string.Empty, currentRecording.Crid, currentRecording.ChannelId))
-                {
-                    log.ErrorFormat("Failed UpdateRecordingsExternalId, recordingId: {0}, ExternalRecordingId: {1}, Crid: {2}",
-                                       currentRecording.Id, currentRecording.ExternalRecordingId, currentRecording.Crid);
-                }
-
-                Dictionary<long, Recording> recordingsEpgMap = ConditionalAccess.Utils.GetEpgToRecordingsMapByCridAndChannel(groupId, currentRecording.Crid, currentRecording.ChannelId);
-                // if the recording crid has more than 1 recording and the min recording is the current, we need to call the adapter with the 2nd recording and switch external recording id
-                if (recordingsEpgMap.Count > 1)
-                {
-                    List<Recording> orderedRecordings = recordingsEpgMap.Values.OrderBy(x => x.EpgStartDate).ToList();
-                    Recording firstRecordingWithMinStartDate = orderedRecordings[0];
-                    if (currentRecording.Id == firstRecordingWithMinStartDate.Id)
-                    {
-                        Recording secondRecordingWithMinStartDate = orderedRecordings[1];
-                        CallAdapterRecord(groupId, secondRecordingWithMinStartDate.ChannelId, secondRecordingWithMinStartDate.EpgStartDate, secondRecordingWithMinStartDate.EpgEndDate, false, secondRecordingWithMinStartDate);
-                        if (secondRecordingWithMinStartDate.Status == null || secondRecordingWithMinStartDate.Status.Code != (int)eResponseStatus.OK)
-                        {
-                            log.ErrorFormat("Failed recording secondRecordingWithMinStartDate on RetryTaskBeforeProgramStarted, firstRecordingWithMinStartDate: {0}, secondRecordingWithMinStartDate: {1}",
-                                                firstRecordingWithMinStartDate.ToString(), secondRecordingWithMinStartDate.ToString());
-                        }
-                        else if (!RecordingsDAL.UpdateRecordingsExternalId(groupId, secondRecordingWithMinStartDate.ExternalRecordingId, secondRecordingWithMinStartDate.Crid, secondRecordingWithMinStartDate.ChannelId))
-                        {
-                            log.ErrorFormat("Failed UpdateRecordingsExternalId, ExternalRecordingId: {0}, Crid: {1}, firstRecordingWithMinStartDate ID: {2}, secondRecordingWithMinStartDate ID: {3}",
-                                            secondRecordingWithMinStartDate.ExternalRecordingId, secondRecordingWithMinStartDate.Crid, firstRecordingWithMinStartDate, secondRecordingWithMinStartDate);
-                        }
-                    }
-                }
 
                 // Update recording after updating the status
                 ConditionalAccess.Utils.UpdateRecording(currentRecording, groupId, 1, 1, RecordingInternalStatus.Failed);
@@ -1084,29 +1079,6 @@ namespace Recordings
             {
                 log.DebugFormat("Retry task before program started: program started already, we will mark recording {0} as failed.", recording.Id);
                 recording.RecordingStatus = TstvRecordingStatus.Failed;
-
-                Dictionary<long, Recording> recordingsEpgMap = ConditionalAccess.Utils.GetEpgToRecordingsMapByCridAndChannel(groupId, recording.Crid, recording.ChannelId);
-                // if the recording crid has more than 1 recording and the min recording is the current, we need to call the adapter with the 2nd recording and switch external recording id
-                if (recordingsEpgMap.Count > 1)
-                {
-                    List<Recording> orderedRecordings = recordingsEpgMap.Values.OrderBy(x => x.EpgStartDate).ToList();
-                    Recording firstRecordingWithMinStartDate = orderedRecordings[0];
-                    if (recording.Id == firstRecordingWithMinStartDate.Id)
-                    {
-                        Recording secondRecordingWithMinStartDate = orderedRecordings[1];
-                        CallAdapterRecord(groupId, secondRecordingWithMinStartDate.ChannelId, secondRecordingWithMinStartDate.EpgStartDate, secondRecordingWithMinStartDate.EpgEndDate, false, secondRecordingWithMinStartDate);
-                        if (secondRecordingWithMinStartDate.Status == null || secondRecordingWithMinStartDate.Status.Code != (int)eResponseStatus.OK)
-                        {
-                            log.ErrorFormat("Failed recording secondRecordingWithMinStartDate on RetryTaskBeforeProgramStarted, firstRecordingWithMinStartDate: {0}, secondRecordingWithMinStartDate: {1}",
-                                                firstRecordingWithMinStartDate.ToString(), secondRecordingWithMinStartDate.ToString());
-                        }
-                        else if (!RecordingsDAL.UpdateRecordingsExternalId(groupId, secondRecordingWithMinStartDate.ExternalRecordingId, secondRecordingWithMinStartDate.Crid, secondRecordingWithMinStartDate.ChannelId))
-                        {
-                            log.ErrorFormat("Failed UpdateRecordingsExternalId, ExternalRecordingId: {0}, Crid: {1}, firstRecordingWithMinStartDate ID: {2}, secondRecordingWithMinStartDate ID: {3}",
-                                            secondRecordingWithMinStartDate.ExternalRecordingId, secondRecordingWithMinStartDate.Crid, firstRecordingWithMinStartDate, secondRecordingWithMinStartDate);
-                        }
-                    }                    
-                }
 
                 // Update recording after updating the status
                 ConditionalAccess.Utils.UpdateRecording(recording, groupId, 1, 1, RecordingInternalStatus.Failed);
@@ -1277,6 +1249,49 @@ namespace Recordings
                 status = new Status((int)eResponseStatus.Error, "Exception on CancelRecording or DeleteRecording on DB");
             }
 
+            return status;
+        }
+
+        private static ApiObjects.Response.Status UpdateFirstRecordingWithSameCrid(int groupId, string externalRecordingIdToCancel, Recording recordingToRecord)
+        {
+            ApiObjects.Response.Status status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+            AdapterControllers.CDVR.CdvrAdapterController adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
+            int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
+
+            CallAdapterRecord(groupId, recordingToRecord.ChannelId, recordingToRecord.EpgStartDate, recordingToRecord.EpgEndDate, false, recordingToRecord);
+            if (recordingToRecord.Status == null || recordingToRecord.Status.Code != (int)eResponseStatus.OK)
+            {
+                status = recordingToRecord.Status;
+                return status;
+            }
+            // nothing to do - We're OK!!!
+            if (string.IsNullOrEmpty(externalRecordingIdToCancel))
+            {                
+                return status;
+            }
+            else if (!RecordingsDAL.UpdateRecordingsExternalId(groupId, recordingToRecord.ExternalRecordingId, recordingToRecord.Crid, recordingToRecord.ChannelId))
+            {
+                log.ErrorFormat("Failed UpdateRecordingsExternalId, ExternalRecordingId: {0}, Crid: {1}", recordingToRecord.ExternalRecordingId, recordingToRecord.Crid);
+                status = new Status((int)eResponseStatus.Error, "Failed updating recordings external IDs in database.");
+                return status;
+            }
+
+            // all good
+            RecordResult adapterResponse = adapterController.CancelRecording(groupId, externalRecordingIdToCancel, adapterId);
+
+            if (adapterResponse == null)
+            {
+                log.ErrorFormat("Failed CancelRecording, ExternalRecordingId: {0}, Crid: {1}", externalRecordingIdToCancel, recordingToRecord.Crid);
+                status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                return status;
+            }
+            else if (adapterResponse.FailReason != 0)
+            {
+                log.ErrorFormat("Failed CancelRecording, ExternalRecordingId: {0}, Crid: {1}, adapterFailReason: {2}", externalRecordingIdToCancel, recordingToRecord.Crid, adapterResponse.FailReason);
+                status = CreateFailStatus(adapterResponse);
+                return status;
+            }
             return status;
         }
 
