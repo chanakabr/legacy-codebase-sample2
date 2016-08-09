@@ -33,6 +33,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "householdId")]
         [JsonProperty("householdId")]
         [XmlElement(ElementName = "householdId")]
+        [SchemeProperty(ReadOnly = true)]
         public int? HouseholdID { get; set; }
 
         /// <summary>
@@ -148,6 +149,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "isHouseholdMaster")]
         [JsonProperty("isHouseholdMaster")]
         [XmlElement(ElementName = "isHouseholdMaster")]
+        [SchemeProperty(ReadOnly = true)]
         public bool? IsHouseholdMaster { get; set; }
 
         /// <summary>
@@ -156,6 +158,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "suspentionState")]
         [JsonProperty("suspentionState")]
         [XmlElement(ElementName = "suspentionState")]
+        [SchemeProperty(ReadOnly = true)]
         public KalturaHouseholdSuspentionState SuspentionState { get; set; }
 
         /// <summary>
@@ -164,6 +167,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "userState")]
         [JsonProperty("userState")]
         [XmlElement(ElementName = "userState")]
+        [SchemeProperty(ReadOnly = true)]
         public KalturaUserState UserState { get; set; }
 
         internal int getHouseholdID()

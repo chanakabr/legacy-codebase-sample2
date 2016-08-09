@@ -50,6 +50,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "createDate")]
         [JsonProperty("createDate")]
         [XmlElement(ElementName = "createDate")]
+        [SchemeProperty(ReadOnly = true)]
         public long CreateDate { get; set; }
 
     }

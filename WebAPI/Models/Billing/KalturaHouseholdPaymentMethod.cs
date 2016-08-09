@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Billing
@@ -17,6 +18,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
+        [SchemeProperty(ReadOnly = true)]
         public int? Id { get; set; }
 
         /// <summary>

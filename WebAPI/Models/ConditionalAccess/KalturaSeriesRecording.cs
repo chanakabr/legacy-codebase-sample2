@@ -18,6 +18,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
         public long Id { get; set; }
 
         /// <summary>
@@ -66,6 +67,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "createDate")]
         [JsonProperty("createDate")]
         [XmlElement(ElementName = "createDate")]
+        [SchemeProperty(ReadOnly = true)]
         public long CreateDate { get; set; }
 
         /// <summary>
@@ -74,6 +76,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "updateDate")]
         [JsonProperty("updateDate")]
         [XmlElement(ElementName = "updateDate")]
+        [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
 
         /// <summary>

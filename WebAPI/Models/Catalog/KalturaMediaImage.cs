@@ -62,6 +62,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "id")]
         [JsonProperty(PropertyName = "id")]
         [XmlElement(ElementName = "id")]
+        [SchemeProperty(ReadOnly = true)]
         public string Id { get; set; }
 
         /// <summary>

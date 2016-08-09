@@ -42,6 +42,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
+        [SchemeProperty(ReadOnly = true)]
         public int? Id { get; set; }
 
         /// <summary>
@@ -90,6 +91,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "sharedSecret")]
         [JsonProperty("sharedSecret")]
         [XmlElement(ElementName = "sharedSecret")]
+        [SchemeProperty(ReadOnly = true)]
         public string SharedSecret { get; set; }
 
         /// <summary>

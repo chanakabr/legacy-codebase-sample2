@@ -13,6 +13,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// Recordings context info wrapper
     /// </summary>
     [Serializable]
+    [Obsolete]
     public class KalturaRecordingContextListResponse : KalturaListResponse
     {
         /// <summary>

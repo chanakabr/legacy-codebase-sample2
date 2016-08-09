@@ -42,6 +42,7 @@ namespace WebAPI.Models.Notifications
         [DataMember(Name = "status")]
         [JsonProperty(PropertyName = "status")]
         [XmlElement(ElementName = "status")]
+        [SchemeProperty(ReadOnly = true)]
         public KalturaAnnouncementStatus Status { get; set; }
 
         [DataMember(Name = "recipients")]
@@ -52,6 +53,7 @@ namespace WebAPI.Models.Notifications
         [DataMember(Name = "id")]
         [JsonProperty(PropertyName = "id")]
         [XmlElement(ElementName = "id")]
+        [SchemeProperty(ReadOnly = true)]
         public int? Id { get; set; }
 
         internal long getStartTime()
