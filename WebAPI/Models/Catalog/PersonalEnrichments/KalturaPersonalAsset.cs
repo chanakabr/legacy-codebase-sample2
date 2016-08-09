@@ -13,6 +13,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// List of personal assets
     /// </summary>
+    [Obsolete]
     public class KalturaPersonalAssetListResponse : KalturaListResponse
     {
         /// <summary>

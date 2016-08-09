@@ -29,7 +29,7 @@
 		<h2>Kaltura API</h2>
 		<table class="action" width="80%">
 			<tr>
-				<th class="service_action_title">KalturaSlimAssetInfoWrapper</th>
+				<th class="service_action_title">KalturaSearchAssetFilter</th>
 			</tr>
 			<tr>
 				<td class="title">Properties</td>
@@ -71,7 +71,7 @@
 						<tbody>
 							<tr>
 								<td class="inheritedFrom">
-									<b><img class="base-attribute" src="../images/collapsed.gif"> Inherited from <a href="KalturaListResponse.html">KalturaListResponse</a></b>
+									<b><img class="base-attribute" src="../images/collapsed.gif"> Inherited from <a href="KalturaFilter.html">KalturaFilter</a></b>
 								</td>
 							</tr>
 						</tbody>
@@ -86,11 +86,11 @@
 								<th class="subtitle">Description</th>
 							</tr>
 							<tr >
-								<td>totalCount</td>
-								<td>int</td>
+								<td>orderBy</td>
+								<td><a href="../enums/KalturaSearchAssetOrderBy.html">KalturaSearchAssetOrderBy</a></td>
 								<td>V</td>
 								<td></td>
-								<td>Total items</td>
+								<td></td>
 							</tr>
 						</tbody>
 					</table>
@@ -101,7 +101,20 @@
 					<table style="">
 						<tbody>
 							<tr>
-								<td class="inheritedFrom"><b>KalturaSlimAssetInfoWrapper</b></td>
+								<td class="inheritedFrom">
+									<b>Inherited from <a href="KalturaAssetFilter.html">KalturaAssetFilter</a></b>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<table style="">
+						<tbody>
+							<tr>
+								<td class="inheritedFrom"><b>KalturaSearchAssetFilter</b></td>
 							</tr>
 						</tbody>
 					</table>
@@ -115,11 +128,36 @@
 								<th class="subtitle">Description</th>
 							</tr>
 							<tr >
-								<td>objects</td>
-								<td>array of <a href="KalturaBaseAssetInfo.html">KalturaBaseAssetInfo</a></td>
+								<td>kSql</td>
+								<td>string</td>
 								<td>V</td>
 								<td></td>
-								<td>Assets</td>
+								<td>Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
+            Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date. 
+            epg_id, media_id - for specific asset IDs.
+            geo_block - only valid value is &quot;true&quot;: When enabled, only assets that are not restriced to the user by geo-block rules will return.
+            parental_rules - only valid value is &quot;true&quot;: When enabled, only assets that the user doesn&#39;t need to provide PIN code will return.
+            epg_channel_id – the channel identifier of the EPG program.
+            entitled_assets - valid values: &quot;free&quot;, &quot;entitled&quot;, &quot;both&quot;. free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
+            Comparison operators: for numerical fields =, &gt;, &gt;=, &lt;, &lt;=, : (in). For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or. 
+            Search values are limited to 20 characters each.
+            (maximum length of entire filter is 1024 characters)</td>
+							</tr>
+							<tr class="odd">
+								<td>typeIn</td>
+								<td>string</td>
+								<td>V</td>
+								<td></td>
+								<td>Comma separated list of asset types to search within. 
+            Possible values: 0 – EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).
+            If omitted – all types should be included.</td>
+							</tr>
+							<tr >
+								<td>idIn</td>
+								<td>string</td>
+								<td>V</td>
+								<td></td>
+								<td>Comma separated list of EPG channel ids to search within.</td>
 							</tr>
 						</tbody>
 					</table>
