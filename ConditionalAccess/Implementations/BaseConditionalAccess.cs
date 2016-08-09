@@ -18711,7 +18711,7 @@ namespace ConditionalAccess
                     }
                     else
                     {
-                        log.DebugFormat("recordingId: {0} has no domain recording that protect it");
+                        log.DebugFormat("recordingId: {0} has no domain recording that protect it", task.RecordingId);
                     }
 
                 }
