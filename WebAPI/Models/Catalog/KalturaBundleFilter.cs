@@ -5,21 +5,20 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
-using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaRelatedExternalFilter : KalturaAssetFilter
+    public class KalturaBundleFilter : KalturaAssetFilter
     {
-         /// <summary>
-        /// the External ID of the asset for which to return related assets
+        /// <summary>
+        ///Bundle Id. 
         /// </summary>
         [DataMember(Name = "idEqual")]
         [JsonProperty("idEqual")]
         [XmlElement(ElementName = "idEqual", IsNullable = true)]
         public int IdEqual { get; set; }
 
-         /// <summary>
+        /// <summary>
         /// Comma separated list of asset types to search within. 
         /// Possible values: 0 – EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).
         /// If omitted – all types should be included.
@@ -27,26 +26,17 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "typeIn")]
         [JsonProperty("typeIn")]
         [XmlElement(ElementName = "typeIn", IsNullable = true)]
-        public string TypeIn { get; set; }        
+        public string TypeIn { get; set; }            
+       
 
         /// <summary>
-        /// UtcOffsetEqual 
+        /// bundleType - possible values: Subscription or Collection
         /// </summary>
-        [DataMember(Name = "utcOffsetEqual")]
-        [JsonProperty("utcOffsetEqual")]
-        [XmlElement(ElementName = "utcOffsetEqual", IsNullable = true)]
-        public int UtcOffsetEqual { get; set; }
+        [DataMember(Name = "bundleTypeEqual")]
+        [JsonProperty("bundleTypeEqual")]
+        [XmlElement(ElementName = "bundleTypeEqual", IsNullable = true)]
+        public KalturaBundleType BundleTypeEqual { get; set; }
 
-         /// <summary>
-        ///FreeText
-        /// </summary>
-        [DataMember(Name = "freeText")]
-        [JsonProperty("freeText")]
-        [XmlElement(ElementName = "freeText", IsNullable = true)]
-        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        public string FreeText { get; set; }
-
-       
         internal List<int> getTypeIn()
         {
             if (string.IsNullOrEmpty(TypeIn))
@@ -69,16 +59,19 @@ namespace WebAPI.Models.Catalog
 
             return values;
         }
-                       
-        public KalturaRelatedExternalFilter()
-        {          
+
+        public KalturaBundleFilter()
+        {            
         }
+
         internal override void Validate()
         {
-            if (IdEqual == 0)
+            if (IdEqual <= 0)
             {
-                throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id cannot be 0");
-            }           
+                throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id must be positive");
+            }
+                    
         }
+
     }
 }

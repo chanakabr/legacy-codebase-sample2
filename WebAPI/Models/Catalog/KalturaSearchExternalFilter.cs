@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Catalog
 {
@@ -13,10 +14,11 @@ namespace WebAPI.Models.Catalog
         /// <summary>
         ///Query
         /// </summary>
-        [DataMember(Name = "queryEqual")]
-        [JsonProperty("queryEqual")]
-        [XmlElement(ElementName = "queryEqual", IsNullable = true)]
-        public string QueryEqual { get; set; }
+        [DataMember(Name = "query")]
+        [JsonProperty("query")]
+        [XmlElement(ElementName = "query", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public string Query { get; set; }
 
         /// <summary>
         /// UtcOffsetEqual 
@@ -64,11 +66,8 @@ namespace WebAPI.Models.Catalog
             return values;
         }
 
-        public KalturaSearchExternalFilter(KalturaSearchExternalFilter k)
+        public KalturaSearchExternalFilter()
         {
-            this.QueryEqual = k.QueryEqual;
-            this.UtcOffsetEqual = k.UtcOffsetEqual;
-            this.TypeIn = k.TypeIn;
         }
 
     }

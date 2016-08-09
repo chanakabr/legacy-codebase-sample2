@@ -1842,5 +1842,59 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        internal KalturaAssetListResponse GetBundleAssets(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, int id,
+            KalturaAssetOrderBy? orderBy, List<int> mediaTypes, KalturaBundleType bundleType)
+        {
+            KalturaAssetListResponse result = new KalturaAssetListResponse();
+
+            // Create catalog order object
+            OrderObj order = new OrderObj();
+            if (orderBy == null)
+            {
+                order.m_eOrderBy = OrderBy.NONE;
+            }
+            else
+            {
+                order = CatalogConvertor.ConvertOrderToOrderObj(orderBy.Value);
+            }
+
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
+
+            // build request
+            BundleAssetsRequest request = new BundleAssetsRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_bUseStartDate = group.UseStartDate,
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
+                },
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize.Value,
+                m_sSiteGuid = userID,
+                domainId = domainId,
+                m_oOrderObj = order,
+                m_sMediaType = mediaTypes != null ? string.Join(";", mediaTypes.ToArray()) : null,
+                m_dServerTime = getServerTime(),
+                m_eBundleType = bundleType == KalturaBundleType.collection ? eBundleType.COLLECTION : eBundleType.SUBSCRIPTION,
+                m_nBundleID = id
+            };
+
+              // build failover cache key
+            StringBuilder key = new StringBuilder();
+            key.AppendFormat("bundle_id={0}_pi={1}_pz={2}_g={3}_l={4}_mt={5}_type={6}",
+                id, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty, bundleType.ToString());
+
+            result = CatalogUtils.GetMedia(CatalogClientModule, request, key.ToString(), CacheDuration);
+           
+            return result;
+        }
     }
 }

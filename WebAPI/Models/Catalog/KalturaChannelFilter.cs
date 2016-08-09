@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Catalog
 {
@@ -18,20 +19,17 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "idEqual", IsNullable = true)]
         public int IdEqual { get; set; }
 
-        /// <summary>
-        ///Query
-        /// </summary>
-        [DataMember(Name = "queryEqual")]
-        [JsonProperty("queryEqual")]
-        [XmlElement(ElementName = "queryEqual", IsNullable = true)]
-        public string QueryEqual { get; set; }
+        [DataMember(Name = "kSql")]
+        [JsonProperty("kSql")]
+        [XmlElement(ElementName = "kSql", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public string KSql { get; set; }
 
 
-        public KalturaChannelFilter(KalturaChannelFilter k)
-        {
-            this.IdEqual = k.IdEqual;
-            this.QueryEqual = k.QueryEqual;
+        public KalturaChannelFilter()
+        {            
         }
+
         internal override void Validate()
         {
             if (IdEqual <= 0)

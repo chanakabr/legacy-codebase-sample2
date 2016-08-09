@@ -146,7 +146,7 @@ namespace WebAPI.Controllers
         /// <param name="pager">Paging the request</param>
         /// <remarks></remarks>
         [Route("list"), HttpPost]
-        [ApiAuthorize]
+        [ApiAuthorize]        
         public KalturaAssetListResponse List(KalturaAssetFilter filter = null,  KalturaFilterPager pager = null)
         {
             KalturaAssetListResponse response = null;
@@ -165,23 +165,25 @@ namespace WebAPI.Controllers
             {
                 filter = new KalturaSearchAssetFilter();
             }
+            else
+            {
+                filter.Validate();
+            }
            
             try
-            {
+            {              
                 // external channel 
                 if (filter is KalturaChannelExternalFilter)
                 {
-                    KalturaChannelExternalFilter channelExternalFilter = new KalturaChannelExternalFilter((KalturaChannelExternalFilter)filter);
-                    channelExternalFilter.Validate();
+                    KalturaChannelExternalFilter channelExternalFilter = (KalturaChannelExternalFilter)filter;                   
                     string deviceType = System.Web.HttpContext.Current.Request.UserAgent;
                     response = ClientsManager.CatalogClient().GetExternalChannelAssets(groupId, channelExternalFilter.IdEqual.ToString(), userID, domainId, udid,
-                        language, pager.getPageIndex(), pager.PageSize, filter.OrderBy, deviceType, channelExternalFilter.UtcOffsetEqual, channelExternalFilter.FreeTextEqual);
+                        language, pager.getPageIndex(), pager.PageSize, filter.OrderBy, deviceType, channelExternalFilter.UtcOffsetEqual, channelExternalFilter.FreeText);
                 }
                 //SearchAssets - Unified search across – VOD: Movies, TV Series/episodes, EPG content.
                 else if (filter is KalturaSearchAssetFilter)
                 {
-                    KalturaSearchAssetFilter regularAssetFilter = new KalturaSearchAssetFilter((KalturaSearchAssetFilter)filter);
-                    regularAssetFilter.Validate();
+                    KalturaSearchAssetFilter regularAssetFilter = (KalturaSearchAssetFilter)filter;
                     response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, regularAssetFilter.KSql,
                         regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn());
                 }
@@ -190,8 +192,7 @@ namespace WebAPI.Controllers
                 //Response is ordered by relevancy. On-demand, per asset enrichment is supported. Maximum number of returned assets – 20, using paging
                 else if (filter is KalturaRelatedFilter)
                 {
-                    KalturaRelatedFilter relatedFilter = new KalturaRelatedFilter((KalturaRelatedFilter)filter);
-                    relatedFilter.Validate();
+                    KalturaRelatedFilter relatedFilter = (KalturaRelatedFilter)filter;
                     response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, domainId, udid,
                     language, pager.getPageIndex(), pager.PageSize, relatedFilter.getMediaId(), relatedFilter.KSql, relatedFilter.getTypeIn(), relatedFilter.OrderBy);
                 }
@@ -200,30 +201,41 @@ namespace WebAPI.Controllers
                 //Maximum number of returned assets – 20, using paging  
                 else if (filter is KalturaRelatedExternalFilter)
                 {
-                    KalturaRelatedExternalFilter relatedExternalFilter = new KalturaRelatedExternalFilter((KalturaRelatedExternalFilter)filter);
+                    KalturaRelatedExternalFilter relatedExternalFilter = (KalturaRelatedExternalFilter)filter;
                     response = ClientsManager.CatalogClient().GetRelatedMediaExternal(groupId, userID, domainId, udid,
                         language, pager.getPageIndex(), pager.PageSize, relatedExternalFilter.IdEqual, relatedExternalFilter.getTypeIn(), relatedExternalFilter.UtcOffsetEqual,
-                        relatedExternalFilter.FreeTextEqual);
+                        relatedExternalFilter.FreeText);
                 }
                 // Search for assets via external service (e.g. external recommendation engine). 
                 //Search can return multi asset types. Support on-demand, per asset enrichment. Maximum number of returned assets – 100, using paging
                 else if (filter is KalturaSearchExternalFilter)
                 {
-                    KalturaSearchExternalFilter searchExternalFilter = new KalturaSearchExternalFilter((KalturaSearchExternalFilter)filter);
+                    KalturaSearchExternalFilter searchExternalFilter = (KalturaSearchExternalFilter)filter;
                     if (pager == null)
                         pager = new KalturaFilterPager() { PageIndex = 0, PageSize = 5 };
 
                     response = ClientsManager.CatalogClient().GetSearchMediaExternal(groupId, userID, domainId, udid,
-                        language, pager.getPageIndex(), pager.PageSize, searchExternalFilter.QueryEqual, searchExternalFilter.getTypeIn(), searchExternalFilter.UtcOffsetEqual);
+                        language, pager.getPageIndex(), pager.PageSize, searchExternalFilter.Query, searchExternalFilter.getTypeIn(), searchExternalFilter.UtcOffsetEqual);
                 }
                 // Returns assets that belong to a channel
+                else if (filter is KalturaChannelFilter)
                 {
-                    KalturaChannelFilter channelFilter = new KalturaChannelFilter((KalturaChannelFilter)filter);
+                    KalturaChannelFilter channelFilter = (KalturaChannelFilter)filter;
                     if (pager == null)
                         pager = new KalturaFilterPager();
 
                     response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, domainId, udid, language,
-                        pager.getPageIndex(), pager.PageSize, channelFilter.IdEqual, channelFilter.OrderBy, channelFilter.QueryEqual);
+                        pager.getPageIndex(), pager.PageSize, channelFilter.IdEqual, channelFilter.OrderBy, channelFilter.KSql);
+                }
+                else if (filter is KalturaBundleFilter)
+                {
+                    KalturaBundleFilter bundleFilter = (KalturaBundleFilter)filter;
+                    response = ClientsManager.CatalogClient().GetBundleAssets(groupId, userID, domainId, udid, language,
+                       pager.getPageIndex(), pager.PageSize, bundleFilter.IdEqual, bundleFilter.OrderBy, bundleFilter.getTypeIn(), bundleFilter.BundleTypeEqual);
+                }
+                else
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Not implemented");
                 }
             }
             catch (ClientException ex)
@@ -659,6 +671,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("searchExternal"), HttpPost]
         [ApiAuthorize]
+        [Obsolete]
         public KalturaAssetInfoListResponse searchExternal(string query, KalturaFilterPager pager = null, List<KalturaIntegerValue> filter_type_ids = null, int utc_offset = 0,
             List<KalturaCatalogWithHolder> with = null)
         {
@@ -711,6 +724,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("channel"), HttpPost]
         [ApiAuthorize]
+        [Obsolete]
         public KalturaAssetInfoListResponse Channel(int id, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
             KalturaFilterPager pager = null, string filter_query = null)
         {

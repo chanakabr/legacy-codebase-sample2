@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Catalog
 {
@@ -29,19 +30,15 @@ namespace WebAPI.Models.Catalog
         /// <summary>
         ///FreeTextEqual
         /// </summary>
-        [DataMember(Name = "freeTextEqual")]
-        [JsonProperty("freeTextEqual")]
-        [XmlElement(ElementName = "freeTextEqual", IsNullable = true)]
-        public string FreeTextEqual { get; set; }
-
-        public KalturaChannelExternalFilter(KalturaChannelExternalFilter k)
-        {        
-            this.OrderBy = k.OrderBy;
-            this.IdEqual = k.IdEqual;
-            this.FreeTextEqual = k.FreeTextEqual;
-            this.UtcOffsetEqual = k.UtcOffsetEqual;
-        }       
-
+        [DataMember(Name = "freeText")]
+        [JsonProperty("freeText")]
+        [XmlElement(ElementName = "freeText", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public string FreeText { get; set; }
+              
+        public KalturaChannelExternalFilter()
+        {
+        }
 
         internal override void Validate()
         {

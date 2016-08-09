@@ -52,14 +52,6 @@ namespace WebAPI.Models.Catalog
         {
         }
 
-        public KalturaSearchAssetFilter(KalturaSearchAssetFilter k)
-        {
-            this.KSql = k.KSql;
-            this.TypeIn = k.TypeIn;
-            this.IdIn = k.IdIn;
-            this.OrderBy = k.OrderBy;
-        }
-
         internal List<int> getTypeIn()
         {
             if (string.IsNullOrEmpty(TypeIn))

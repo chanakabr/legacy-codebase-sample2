@@ -2440,6 +2440,7 @@
     <Compile Include="Controllers\CDNAdapterProfileController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
     <Compile Include="Controllers\CDNPartnerSettingsController.cs" />
+    <Compile Include="Controllers\EpgController.cs" />
     <Compile Include="Controllers\HouseholdPaymentMethodController.cs" />
     <Compile Include="Controllers\HouseholdPaymentGatewayController.cs" />
     <Compile Include="Controllers\ProductPriceController.cs" />
@@ -2540,6 +2541,8 @@
     <Compile Include="Models\Catalog\KalturaAssetFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAsset.cs" />
     <Compile Include="Models\Catalog\KalturaAssetOrderBy.cs" />
+    <Compile Include="Models\Catalog\KalturaBundleFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaBundleType.cs" />
     <Compile Include="Models\Catalog\KalturaChannelExternalFilter.cs" />
     <Compile Include="Models\Catalog\KalturaChannelFilter.cs" />
     <Compile Include="Models\Catalog\KalturaRelatedFilter.cs" />

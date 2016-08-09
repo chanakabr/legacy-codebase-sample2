@@ -48,10 +48,8 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "typeIn", IsNullable = true)]
         public string TypeIn { get; set; }
 
-        public KalturaRelatedFilter(KalturaRelatedFilter k)
+        public KalturaRelatedFilter()
         {
-            this.IdEqual = k.IdEqual;
-            this.KSql = k.KSql;
         }
 
         private int mediaId { get; set; }

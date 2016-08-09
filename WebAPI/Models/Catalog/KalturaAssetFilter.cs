@@ -9,8 +9,8 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
-{
-    public abstract class KalturaAssetFilter : KalturaFilter<KalturaAssetOrderBy>
+{    
+    public class KalturaAssetFilter : KalturaFilter<KalturaAssetOrderBy>
     {
         public override KalturaAssetOrderBy GetDefaultOrderByValue()
         {

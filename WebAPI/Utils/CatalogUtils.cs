@@ -453,6 +453,34 @@ namespace WebAPI.Utils
 
             return result;
         }
-         
+
+
+        //internal static KalturaAssetListResponse GetBundleAssets(IserviceClient client, BundleAssetsRequest request, string key, int cacheDuration)
+        //{
+
+
+        //    // to do : casll BundleAssetsRequest
+        //    KalturaAssetListResponse result = new KalturaAssetListResponse();
+
+        //    // fire request
+        //    UnifiedSearchResponse mediaIdsResponse = new UnifiedSearchResponse();
+        //    if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(client, request, out mediaIdsResponse, true, key))
+        //    {
+        //        // general error
+        //        throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+        //    }
+
+        //    if (mediaIdsResponse.m_nMediaIds != null && mediaIdsResponse.m_nMediaIds.Count > 0)
+        //    {
+        //        // get base objects list
+        //        List<BaseObject> assetsBaseDataList = mediaIdsResponse.m_nMediaIds.Select(x =>new BaseObject(){AssetId = x.assetID.ToString(), m_dUpdateDate = x.UpdateDate}).ToList();
+
+        //        // get assets from catalog/cache
+        //        result.Objects = CatalogUtils.GetAssets(client, assetsBaseDataList, request, cacheDuration);
+
+        //        result.TotalCount = mediaIdsResponse.m_nTotalItems;
+        //    }
+        //    return result;
+        //}
     }
 }
