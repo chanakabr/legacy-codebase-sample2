@@ -42,6 +42,24 @@ namespace WebAPI.Models.Domains
         [XmlElement(ElementName = "isMaster")]
         public bool? IsMaster { get; set; }
 
+        /// <summary>
+        /// The username of the household master for adding a user in status pending for the household master to approve
+        /// </summary>
+        [DataMember(Name = "householdMasterUsername")]
+        [JsonProperty("householdMasterUsername")]
+        [XmlElement(ElementName = "householdMasterUsername")]
+        [SchemeProperty(InsertOnly = true)]
+        public string HouseholdMasterUsername { get; set; }
+
+        /// <summary>
+        /// The username of the household master for adding a user in status pending for the household master to approve
+        /// </summary>
+        [DataMember(Name = "status")]
+        [JsonProperty("status")]
+        [XmlElement(ElementName = "status")]
+        [SchemeProperty(ReadOnly = true)]
+        public KalturaHouseholdUserStatus Status { get; set; }
+
         internal bool getIsMaster()
         {
             return IsMaster.HasValue ? (bool)IsMaster : false;

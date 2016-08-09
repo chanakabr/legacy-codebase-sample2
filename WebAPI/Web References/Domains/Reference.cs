@@ -494,13 +494,13 @@ namespace WebAPI.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/SubmitAddUserToDomainRequest", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public DomainResponseObject SubmitAddUserToDomainRequest(string sWSUserName, string sWSPassword, int nUserID, string sMasterUsername) {
+        public DomainStatusResponse SubmitAddUserToDomainRequest(string sWSUserName, string sWSPassword, int nUserID, string sMasterUsername) {
             object[] results = this.Invoke("SubmitAddUserToDomainRequest", new object[] {
                         sWSUserName,
                         sWSPassword,
                         nUserID,
                         sMasterUsername});
-            return ((DomainResponseObject)(results[0]));
+            return ((DomainStatusResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -3779,10 +3779,10 @@ namespace WebAPI.Domains {
         }
         
         /// <remarks/>
-        public DomainResponseObject Result {
+        public DomainStatusResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((DomainResponseObject)(this.results[0]));
+                return ((DomainStatusResponse)(this.results[0]));
             }
         }
     }

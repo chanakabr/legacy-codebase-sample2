@@ -205,7 +205,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal bool AddUserToDomain(int groupId, int domainId, string userId, string masterUserId, bool isMaster)
+        internal KalturaHousehold AddUserToDomain(int groupId, int domainId, string userId, string masterUserId, bool isMaster)
         {
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -238,7 +238,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            return true;
+            return Mapper.Map<KalturaHousehold>(response.DomainResponse.m_oDomain);
         }
 
         internal bool RemoveDeviceFromDomain(int groupId, int domainId, string udid)
@@ -1064,6 +1064,41 @@ namespace WebAPI.Clients
             KalturaHouseholdDevice result = Mapper.Map<KalturaHouseholdDevice>(response.Device.m_oDevice);
 
             return result;
+        }
+
+        internal void SubmitAddUserToDomainRequest(int groupId, string userId, string householdMasterUsername)
+        {
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Domains.DomainStatusResponse response = null;
+            
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Domains.SubmitAddUserToDomainRequest(group.DomainsCredentials.Username, group.DomainsCredentials.Password, int.Parse(userId), householdMasterUsername);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.DomainResponse == null || response.DomainResponse.m_oDomain == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
         }
     }
 }

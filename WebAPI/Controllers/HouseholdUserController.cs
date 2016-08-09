@@ -74,15 +74,10 @@ namespace WebAPI.Controllers
             try
             {
                 // get domain id       
-                int householdId;
+                int householdId = 0;
                 string masterId = "";
 
-                if (!householdUser.HouseholdId.HasValue)
-                {
-                    householdId = (int) HouseholdUtils.GetHouseholdIDByKS(groupId);
-                    masterId = KS.GetFromRequest().UserId;
-                }
-                else
+                if (householdUser.HouseholdId.HasValue)
                 {
                     householdId = householdUser.HouseholdId.Value;
                     KalturaHousehold household = ClientsManager.DomainsClient().GetDomainInfo(groupId, householdId);
@@ -91,9 +86,28 @@ namespace WebAPI.Controllers
                     if (household.MasterUsers.FirstOrDefault() != null)
                         masterId = household.MasterUsers.FirstOrDefault().Id;
                 }
+                else if (string.IsNullOrEmpty(householdUser.HouseholdMasterUsername))
+                {
+                    householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+                    masterId = KS.GetFromRequest().UserId;
+                }
 
-                // call client
-                ClientsManager.DomainsClient().AddUserToDomain(groupId, (int)householdId, householdUser.UserId, masterId, householdUser.getIsMaster());
+                if (householdId > 0)
+                {
+                    ClientsManager.DomainsClient().AddUserToDomain(groupId, (int)householdId, householdUser.UserId, masterId, householdUser.getIsMaster());
+                    householdUser.Status = KalturaHouseholdUserStatus.OK;
+                }
+                else if (!string.IsNullOrEmpty(householdUser.HouseholdMasterUsername))
+                {
+                    ClientsManager.DomainsClient().SubmitAddUserToDomainRequest(groupId, householdUser.UserId, householdUser.HouseholdMasterUsername);
+                    householdUser.Status = KalturaHouseholdUserStatus.PENDING;
+                }
+                else
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, 
+                        "If the calling user is not master, one of the parameters: 'householdMasterUsername', 'householdId' must not be empty");
+                }
+
                 householdUser.IsMaster = householdUser.getIsMaster();
             }
             catch (ClientException ex)
@@ -125,7 +139,7 @@ namespace WebAPI.Controllers
                 var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
                 // call client
-                return ClientsManager.DomainsClient().AddUserToDomain(groupId, (int)domainId, user_id_to_add, KS.GetFromRequest().UserId, is_master);
+                return ClientsManager.DomainsClient().AddUserToDomain(groupId, (int)domainId, user_id_to_add, KS.GetFromRequest().UserId, is_master) != null;
             }
             catch (ClientException ex)
             {
@@ -161,7 +175,7 @@ namespace WebAPI.Controllers
                     masterId = domain.MasterUsers.FirstOrDefault().Id;
 
                 // call client
-                return ClientsManager.DomainsClient().AddUserToDomain(groupId, household_id, user_id_to_add, masterId, is_master);
+                return ClientsManager.DomainsClient().AddUserToDomain(groupId, household_id, user_id_to_add, masterId, is_master) != null;
             }
             catch (ClientException ex)
             {

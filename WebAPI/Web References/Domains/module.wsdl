@@ -275,7 +275,7 @@
       <s:element name="SubmitAddUserToDomainRequestResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="SubmitAddUserToDomainRequestResult" type="tns:DomainResponseObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="SubmitAddUserToDomainRequestResult" type="tns:DomainStatusResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1160,7 +1160,6 @@
       </s:element>
       <s:element name="DomainStatusResponse" nillable="true" type="tns:DomainStatusResponse" />
       <s:element name="DomainResponseStatus" type="tns:DomainResponseStatus" />
-      <s:element name="DomainResponseObject" nillable="true" type="tns:DomainResponseObject" />
       <s:element name="ArrayOfString" nillable="true" type="tns:ArrayOfString" />
       <s:element name="DeviceResponse" nillable="true" type="tns:DeviceResponse" />
       <s:element name="DomainResponse" nillable="true" type="tns:DomainResponse" />
@@ -1168,6 +1167,7 @@
       <s:element name="ArrayOfDomain" nillable="true" type="tns:ArrayOfDomain" />
       <s:element name="DevicePinResponse" nillable="true" type="tns:DevicePinResponse" />
       <s:element name="Status" nillable="true" type="tns:Status" />
+      <s:element name="DomainResponseObject" nillable="true" type="tns:DomainResponseObject" />
       <s:element name="ArrayOfInt" nillable="true" type="tns:ArrayOfInt" />
       <s:element name="DeviceResponseObject" nillable="true" type="tns:DeviceResponseObject" />
       <s:element name="boolean" type="s:boolean" />
@@ -1525,7 +1525,7 @@
     <wsdl:part name="sMasterUsername" type="s:string" />
   </wsdl:message>
   <wsdl:message name="SubmitAddUserToDomainRequestHttpPostOut">
-    <wsdl:part name="Body" element="tns:DomainResponseObject" />
+    <wsdl:part name="Body" element="tns:DomainStatusResponse" />
   </wsdl:message>
   <wsdl:message name="GetDomainUserListHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
