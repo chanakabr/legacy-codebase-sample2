@@ -19369,12 +19369,15 @@ namespace ConditionalAccess
                     if (domainId > 0 && userId > 0 && QuotaManager.Instance.GetDomainQuota(m_nGroupID, domainId) >= recordingDuration)
                     {
                         bool shouldIssueRecordForDomain = true;
+                        HashSet<string> domainRecordedCrids = RecordingsDAL.GetDomainRecordingsCridsByDomainsSeriesIds(m_nGroupID, domainId, new List<long>() { domainSeriesRecordingId });
                         Dictionary<long, Recording> domainRecordings = Utils.GetDomainRecordingIdToRecordingMapByEpgIds(m_nGroupID, domainId, new List<long>() { epgId });
                         if (domainRecordings != null)
                         {
                             foreach (Recording currentRecording in domainRecordings.Values)
                             {
-                                if (Utils.IsValidRecordingStatus(currentRecording.RecordingStatus) || currentRecording.RecordingStatus == TstvRecordingStatus.SeriesCancel || currentRecording.RecordingStatus == TstvRecordingStatus.SeriesDelete)
+                                // if the rec
+                                if (Utils.IsValidRecordingStatus(currentRecording.RecordingStatus) || currentRecording.RecordingStatus == TstvRecordingStatus.SeriesCancel
+                                    || currentRecording.RecordingStatus == TstvRecordingStatus.SeriesDelete || domainRecordedCrids.Contains(recording.Crid))
                                 {
                                     shouldIssueRecordForDomain = false;
                                     break;
