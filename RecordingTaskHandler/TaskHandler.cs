@@ -128,6 +128,11 @@ namespace RecordingTaskHandler
                         success = cas.DistributeRecording(username, password, request.ProgramId, request.RecordingId, request.EpgStartDate);
                         break;
                     }
+                    case eRecordingTask.CheckRecordingDuplicateCrids:
+                    {
+                        success = cas.CheckRecordingDuplicateCrids(username, password, request.RecordingId);
+                        break;
+                    }
                 }
 
                 if (!success)
