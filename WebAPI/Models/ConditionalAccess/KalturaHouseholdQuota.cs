@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 
@@ -18,6 +19,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "householdId")]
         [JsonProperty("householdId")]
         [XmlElement(ElementName = "householdId", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
         public long HouseholdId { get; set; }
 
         /// <summary>
@@ -26,6 +28,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "totalQuota")]
         [JsonProperty("totalQuota")]
         [XmlElement(ElementName = "totalQuota")]
+        [SchemeProperty(ReadOnly = true)]
         public int TotalQuota { get; set; }
 
         /// <summary>
@@ -34,6 +37,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "availableQuota")]
         [JsonProperty("availableQuota")]
         [XmlElement(ElementName = "availableQuota")]
+        [SchemeProperty(ReadOnly = true)]
         public int AvailableQuota { get; set; }
 
     }

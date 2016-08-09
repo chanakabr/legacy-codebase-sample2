@@ -35,6 +35,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
+        [SchemeProperty(ReadOnly = true)]
         public long? Id { get; set; }
 
         /// <summary>
@@ -147,6 +148,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "state")]
         [JsonProperty("state")]
         [XmlElement(ElementName = "state", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
         public KalturaHouseholdState State { get; set; }
 
         /// <summary>

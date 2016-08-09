@@ -32,6 +32,7 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "assetId")]
         [JsonProperty(PropertyName = "assetId")]
         [XmlElement(ElementName = "assetId")]
+        [SchemeProperty(ReadOnly = true)]
         public int AssetId { get; set; }
     }
 

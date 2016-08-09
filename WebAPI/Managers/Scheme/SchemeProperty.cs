@@ -49,7 +49,7 @@ namespace WebAPI.Managers.Scheme
 
             if (isA(requiresPermission, RequestType.WRITE))
             {
-                if (ReadOnly)
+                if (ReadOnly && !OldStandardAttribute.isCurrentRequestOldVersion())
                     throw new BadRequestException((int)StatusCode.InvalidActionParameters, string.Format("Object property {0} is read only.", name));
 
                 if (DynamicType != null)

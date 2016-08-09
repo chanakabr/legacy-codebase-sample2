@@ -17,6 +17,7 @@ namespace WebAPI.Models.Catalog
     [Serializable]
     [OldStandard("positionOwner", "position_owner")]
     [OldStandard("finishedWatching", "finished_watching")]
+    [Obsolete]
     public class KalturaAssetBookmark : KalturaOTTObject
     {
         /// <summary>

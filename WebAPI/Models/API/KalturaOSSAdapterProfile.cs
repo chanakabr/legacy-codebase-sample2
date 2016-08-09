@@ -58,6 +58,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "sharedSecret")]
         [JsonProperty("sharedSecret")]
         [XmlElement(ElementName = "sharedSecret")]
+        [SchemeProperty(ReadOnly = true)]
         public string SharedSecret { get; set; }
     }
 }

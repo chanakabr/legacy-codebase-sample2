@@ -18,6 +18,7 @@ namespace WebAPI.Models.Social
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
+        [SchemeProperty(ReadOnly = true)]
         public string ID { get; set; }
 
         /// <summary>
@@ -66,6 +67,7 @@ namespace WebAPI.Models.Social
         [DataMember(Name = "userId")]
         [JsonProperty("userId")]
         [XmlElement(ElementName = "userId")]
+        [SchemeProperty(ReadOnly = true)]
         public string UserId { get; set; }
 
         /// <summary>
@@ -83,6 +85,7 @@ namespace WebAPI.Models.Social
         [DataMember(Name = "status")]
         [JsonProperty("status")]
         [XmlElement(ElementName = "status")]
+        [SchemeProperty(ReadOnly = true)]
         public string Status { get; set; }
 
         /// <summary>

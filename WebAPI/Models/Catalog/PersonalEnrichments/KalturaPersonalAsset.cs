@@ -29,6 +29,7 @@ namespace WebAPI.Models.Catalog
         }
     }
 
+    [Obsolete]
     public class KalturaPersonalAsset : KalturaOTTObject
     {
         /// <summary>

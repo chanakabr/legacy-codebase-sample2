@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
@@ -11,6 +12,7 @@ namespace WebAPI.Models.Notification
     /// </summary>
     [DataContract(Name = "KalturaTopicResponse", Namespace = "")]
     [XmlRoot("KalturaTopicResponse")]
+    [Obsolete]
     public class KalturaTopicResponse : KalturaListResponse
     {
         /// <summary>

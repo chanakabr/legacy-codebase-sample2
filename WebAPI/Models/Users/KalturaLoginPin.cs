@@ -40,6 +40,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "userId")]
         [JsonProperty(PropertyName = "userId")]
         [XmlElement(ElementName = "userId")]
+        [SchemeProperty(ReadOnly = true)]
         public string UserId { get; set; }
     }
 }
