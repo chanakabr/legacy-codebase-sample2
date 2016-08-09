@@ -18931,33 +18931,35 @@ namespace ConditionalAccess
                 if (epgs != null && epgs.Count > 0)
                 {
                     // check if epg related to series and season
-                    bool result = Utils.GetEpgRelatedToSeriesRecording(m_nGroupID, epgs, seriesRecording, seasonNumber);
-
-                    // convert status Cancel/Delete ==> SeriesCancel/SeriesDelete
-                    TstvRecordingStatus? seriesStatus = Utils.ConvertToSeriesStatus(tstvRecordingStatus);
-                    if (!seriesStatus.HasValue)
+                    List<EpgCB> epgMatch = Utils.GetEpgRelatedToSeriesRecording(m_nGroupID, seriesRecording, epgs, seasonNumber);
+                    if (epgMatch != null && epgMatch.Count > 0)
                     {
-                        log.ErrorFormat("fail to perform cancel or delete domainSeriesRecordingId = {1}, tstvRecordingStatus = {2}", domainSeriesRecordingId, tstvRecordingStatus.ToString());
-                        return;
-                    }                    
-
-                    // set max amount of concurrent tasks
-                    int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
-                    if (maxDegreeOfParallelism == 0)
-                    {
-                        maxDegreeOfParallelism = 5;
-                    }
-                    ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
-                    ContextData contextData = new ContextData();
-                    Parallel.ForEach(epgs, options, (currentEpg) =>
-                    {
-                        contextData.Load();
-                        //call cancelOrDelete
-                        if (epgRecordingMapping.ContainsKey((long)currentEpg.EpgID))
+                        // convert status Cancel/Delete ==> SeriesCancel/SeriesDelete
+                        TstvRecordingStatus? seriesStatus = Utils.ConvertToSeriesStatus(tstvRecordingStatus);
+                        if (!seriesStatus.HasValue)
                         {
-                            CancelOrDeleteRecord(userId, domainId, epgRecordingMapping[(long)currentEpg.EpgID], seriesStatus.Value, false);
+                            log.ErrorFormat("fail to perform cancel or delete domainSeriesRecordingId = {1}, tstvRecordingStatus = {2}", domainSeriesRecordingId, tstvRecordingStatus.ToString());
+                            return;
                         }
-                    });
+
+                        // set max amount of concurrent tasks
+                        int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
+                        if (maxDegreeOfParallelism == 0)
+                        {
+                            maxDegreeOfParallelism = 5;
+                        }
+                        ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
+                        ContextData contextData = new ContextData();
+                        Parallel.ForEach(epgMatch, options, (currentEpg) =>
+                        {
+                            contextData.Load();
+                            //call cancelOrDelete
+                            if (epgRecordingMapping.ContainsKey((long)currentEpg.EpgID))
+                            {
+                                CancelOrDeleteRecord(userId, domainId, epgRecordingMapping[(long)currentEpg.EpgID], seriesStatus.Value, false);
+                            }
+                        });
+                    }
                 }
             }
             // mark the row in status = 2
@@ -18995,10 +18997,9 @@ namespace ConditionalAccess
                 TvinciEpgBL epgBLTvinci = new TvinciEpgBL(m_nGroupID);
                 List<EpgCB> epgs = epgBLTvinci.GetEpgs(new List<string>{ epgId.ToString() });
                 // check if epg related to series and season
-                bool result = Utils.GetEpgRelatedToSeriesRecording(m_nGroupID, epgs, seriesRecording);
-                if (epgs != null && epgs.Count > 0) // epg related to series and season
+                List<EpgCB>  epgMatch = Utils.GetEpgRelatedToSeriesRecording(m_nGroupID, seriesRecording, epgs);
+                if (epgMatch != null && epgMatch.Count > 0) // epg related to series and season
                 {
-
                     // convert status Cancel/Delete ==> SeriesCancel/SeriesDelete
                     TstvRecordingStatus? seriesStatus = Utils.ConvertToSeriesStatus(tstvRecordingStatus);
                     if (!seriesStatus.HasValue)
@@ -19020,7 +19021,11 @@ namespace ConditionalAccess
                                 Recording recording = CancelOrDeleteRecord(userId, domainId, domainRecordingID, seriesStatus.Value, false);
                                 if (recording == null || (recording != null && recording.Status.Code != (int)eResponseStatus.OK))
                                 {
-                                    seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error,  string.Format("fail to cancel or delete epgid = {0}", epgId));
+                                    seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Format("fail to cancel or delete epgid = {0}", epgId));
+                                }
+                                else
+                                {
+                                    log.DebugFormat("CancelOrDelete Epg={0} has been updated to status={1}, domainSeriesRecordingId = {2}", epgId, tstvRecordingStatus.ToString(), domainSeriesRecordingId);
                                 }
                             }
                         }
@@ -19036,7 +19041,7 @@ namespace ConditionalAccess
                             recording = new Recording()
                                 {
                                     Id = 0,
-                                    ChannelId = (long)epgs[0].ChannelID,
+                                    ChannelId = (long)epgMatch[0].ChannelID,
                                     EpgId = epgId,
                                     RecordingStatus = seriesStatus.Value,
                                     Type = seriesRecording.SeasonNumber > 0 ? RecordingType.Season : RecordingType.Series
@@ -19051,7 +19056,7 @@ namespace ConditionalAccess
                         if (!res)
                         {
                             seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to cancel or delete epgid");
-                        }
+                        }                        
                     }
                 }
                 else
