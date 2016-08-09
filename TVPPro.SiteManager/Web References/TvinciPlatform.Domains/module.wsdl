@@ -275,7 +275,7 @@
       <s:element name="SubmitAddUserToDomainRequestResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="SubmitAddUserToDomainRequestResult" type="tns:DomainResponseObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="SubmitAddUserToDomainRequestResult" type="tns:DomainStatusResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1138,9 +1138,28 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="SubmitAddDeviceToDomain">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainID" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="userID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="deviceUdid" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="deviceName" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="brandID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SubmitAddDeviceToDomainResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SubmitAddDeviceToDomainResult" type="tns:DeviceResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="DomainStatusResponse" nillable="true" type="tns:DomainStatusResponse" />
       <s:element name="DomainResponseStatus" type="tns:DomainResponseStatus" />
-      <s:element name="DomainResponseObject" nillable="true" type="tns:DomainResponseObject" />
       <s:element name="ArrayOfString" nillable="true" type="tns:ArrayOfString" />
       <s:element name="DeviceResponse" nillable="true" type="tns:DeviceResponse" />
       <s:element name="DomainResponse" nillable="true" type="tns:DomainResponse" />
@@ -1148,6 +1167,7 @@
       <s:element name="ArrayOfDomain" nillable="true" type="tns:ArrayOfDomain" />
       <s:element name="DevicePinResponse" nillable="true" type="tns:DevicePinResponse" />
       <s:element name="Status" nillable="true" type="tns:Status" />
+      <s:element name="DomainResponseObject" nillable="true" type="tns:DomainResponseObject" />
       <s:element name="ArrayOfInt" nillable="true" type="tns:ArrayOfInt" />
       <s:element name="DeviceResponseObject" nillable="true" type="tns:DeviceResponseObject" />
       <s:element name="boolean" type="s:boolean" />
@@ -1442,6 +1462,12 @@
   <wsdl:message name="AddDomainHomeNetworkSoapOut">
     <wsdl:part name="parameters" element="tns:AddDomainHomeNetworkResponse" />
   </wsdl:message>
+  <wsdl:message name="SubmitAddDeviceToDomainSoapIn">
+    <wsdl:part name="parameters" element="tns:SubmitAddDeviceToDomain" />
+  </wsdl:message>
+  <wsdl:message name="SubmitAddDeviceToDomainSoapOut">
+    <wsdl:part name="parameters" element="tns:SubmitAddDeviceToDomainResponse" />
+  </wsdl:message>
   <wsdl:message name="AddDomainHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -1499,7 +1525,7 @@
     <wsdl:part name="sMasterUsername" type="s:string" />
   </wsdl:message>
   <wsdl:message name="SubmitAddUserToDomainRequestHttpPostOut">
-    <wsdl:part name="Body" element="tns:DomainResponseObject" />
+    <wsdl:part name="Body" element="tns:DomainStatusResponse" />
   </wsdl:message>
   <wsdl:message name="GetDomainUserListHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1889,6 +1915,18 @@
   <wsdl:message name="AddDomainHomeNetworkHttpPostOut">
     <wsdl:part name="Body" element="tns:HomeNetworkResponse" />
   </wsdl:message>
+  <wsdl:message name="SubmitAddDeviceToDomainHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="domainID" type="s:string" />
+    <wsdl:part name="userID" type="s:string" />
+    <wsdl:part name="deviceUdid" type="s:string" />
+    <wsdl:part name="deviceName" type="s:string" />
+    <wsdl:part name="brandID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SubmitAddDeviceToDomainHttpPostOut">
+    <wsdl:part name="Body" element="tns:DeviceResponse" />
+  </wsdl:message>
   <wsdl:portType name="moduleSoap">
     <wsdl:operation name="AddDomain">
       <wsdl:input message="tns:AddDomainSoapIn" />
@@ -2077,6 +2115,10 @@
     <wsdl:operation name="AddDomainHomeNetwork">
       <wsdl:input message="tns:AddDomainHomeNetworkSoapIn" />
       <wsdl:output message="tns:AddDomainHomeNetworkSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SubmitAddDeviceToDomain">
+      <wsdl:input message="tns:SubmitAddDeviceToDomainSoapIn" />
+      <wsdl:output message="tns:SubmitAddDeviceToDomainSoapOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="moduleHttpPost">
@@ -2267,6 +2309,10 @@
     <wsdl:operation name="AddDomainHomeNetwork">
       <wsdl:input message="tns:AddDomainHomeNetworkHttpPostIn" />
       <wsdl:output message="tns:AddDomainHomeNetworkHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SubmitAddDeviceToDomain">
+      <wsdl:input message="tns:SubmitAddDeviceToDomainHttpPostIn" />
+      <wsdl:output message="tns:SubmitAddDeviceToDomainHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="moduleSoap" type="tns:moduleSoap">
@@ -2687,6 +2733,15 @@
     </wsdl:operation>
     <wsdl:operation name="AddDomainHomeNetwork">
       <soap:operation soapAction="http://domains.tvinci.com/AddDomainHomeNetwork" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SubmitAddDeviceToDomain">
+      <soap:operation soapAction="http://domains.tvinci.com/SubmitAddDeviceToDomain" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -3120,6 +3175,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="SubmitAddDeviceToDomain">
+      <soap12:operation soapAction="http://domains.tvinci.com/SubmitAddDeviceToDomain" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="moduleHttpPost" type="tns:moduleHttpPost">
     <http:binding verb="POST" />
@@ -3539,6 +3603,15 @@
     </wsdl:operation>
     <wsdl:operation name="AddDomainHomeNetwork">
       <http:operation location="/AddDomainHomeNetwork" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SubmitAddDeviceToDomain">
+      <http:operation location="/SubmitAddDeviceToDomain" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
