@@ -92,18 +92,13 @@ namespace WebAPI.Controllers
 
             try
             {
-                switch (device.Status)
+                if (HouseholdUtils.IsUserMaster())
                 {
-                    case KalturaDeviceStatus.PENDING:
-                        device = ClientsManager.DomainsClient().SubmitAddDeviceToDomainRequest(groupId, householdId, device.Name, device.Udid, device.Name, device.getBrandId());
-                        break;
-                    case KalturaDeviceStatus.ACTIVATED:
-                        device = ClientsManager.DomainsClient().AddDevice(groupId, householdId, device.Name, device.Udid, device.getBrandId());
-                        break;
-                    case KalturaDeviceStatus.NOT_ACTIVATED:
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "'NOT_ACTIVATED' status is not allowed");
-                    default:
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "unknown status value");
+                    device = ClientsManager.DomainsClient().AddDevice(groupId, householdId, device.Name, device.Udid, device.getBrandId());
+                }
+                else
+                {
+                    device = ClientsManager.DomainsClient().SubmitAddDeviceToDomain(groupId, householdId, device.Name, device.Udid, device.Name, device.getBrandId());
                 }
             }
             catch (ClientException ex)

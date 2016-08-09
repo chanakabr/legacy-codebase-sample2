@@ -123,6 +123,8 @@ namespace WebAPI.Domains {
         
         private System.Threading.SendOrPostCallback AddDomainHomeNetworkOperationCompleted;
         
+        private System.Threading.SendOrPostCallback SubmitAddDeviceToDomainOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -301,6 +303,9 @@ namespace WebAPI.Domains {
         
         /// <remarks/>
         public event AddDomainHomeNetworkCompletedEventHandler AddDomainHomeNetworkCompleted;
+        
+        /// <remarks/>
+        public event SubmitAddDeviceToDomainCompletedEventHandler SubmitAddDeviceToDomainCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/AddDomain", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -1154,7 +1159,7 @@ namespace WebAPI.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/SubmitAddDeviceToDomainRequest", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public DomainResponseObject SubmitAddDeviceToDomainRequest(string sWSUserName, string sWSPassword, int nDomainID, int nUserID, string sDeviceUdid, string sDeviceName, int nBrandID) {
+        public DomainStatusResponse SubmitAddDeviceToDomainRequest(string sWSUserName, string sWSPassword, int nDomainID, int nUserID, string sDeviceUdid, string sDeviceName, int nBrandID) {
             object[] results = this.Invoke("SubmitAddDeviceToDomainRequest", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -1163,7 +1168,7 @@ namespace WebAPI.Domains {
                         sDeviceUdid,
                         sDeviceName,
                         nBrandID});
-            return ((DomainResponseObject)(results[0]));
+            return ((DomainStatusResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -1992,6 +1997,47 @@ namespace WebAPI.Domains {
             if ((this.AddDomainHomeNetworkCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.AddDomainHomeNetworkCompleted(this, new AddDomainHomeNetworkCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/SubmitAddDeviceToDomain", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public DeviceResponse SubmitAddDeviceToDomain(string sWSUserName, string sWSPassword, int domainID, string userID, string deviceUdid, string deviceName, int brandID) {
+            object[] results = this.Invoke("SubmitAddDeviceToDomain", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        domainID,
+                        userID,
+                        deviceUdid,
+                        deviceName,
+                        brandID});
+            return ((DeviceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SubmitAddDeviceToDomainAsync(string sWSUserName, string sWSPassword, int domainID, string userID, string deviceUdid, string deviceName, int brandID) {
+            this.SubmitAddDeviceToDomainAsync(sWSUserName, sWSPassword, domainID, userID, deviceUdid, deviceName, brandID, null);
+        }
+        
+        /// <remarks/>
+        public void SubmitAddDeviceToDomainAsync(string sWSUserName, string sWSPassword, int domainID, string userID, string deviceUdid, string deviceName, int brandID, object userState) {
+            if ((this.SubmitAddDeviceToDomainOperationCompleted == null)) {
+                this.SubmitAddDeviceToDomainOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSubmitAddDeviceToDomainOperationCompleted);
+            }
+            this.InvokeAsync("SubmitAddDeviceToDomain", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        domainID,
+                        userID,
+                        deviceUdid,
+                        deviceName,
+                        brandID}, this.SubmitAddDeviceToDomainOperationCompleted, userState);
+        }
+        
+        private void OnSubmitAddDeviceToDomainOperationCompleted(object arg) {
+            if ((this.SubmitAddDeviceToDomainCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SubmitAddDeviceToDomainCompleted(this, new SubmitAddDeviceToDomainCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -4227,10 +4273,10 @@ namespace WebAPI.Domains {
         }
         
         /// <remarks/>
-        public DomainResponseObject Result {
+        public DomainStatusResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((DomainResponseObject)(this.results[0]));
+                return ((DomainStatusResponse)(this.results[0]));
             }
         }
     }
@@ -4803,6 +4849,32 @@ namespace WebAPI.Domains {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((HomeNetworkResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void SubmitAddDeviceToDomainCompletedEventHandler(object sender, SubmitAddDeviceToDomainCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SubmitAddDeviceToDomainCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SubmitAddDeviceToDomainCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public DeviceResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((DeviceResponse)(this.results[0]));
             }
         }
     }

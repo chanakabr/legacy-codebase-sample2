@@ -1027,7 +1027,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaHouseholdDevice SubmitAddDeviceToDomainRequest(int groupId, int domainId, string userId, string udid, string deviceName, int deviceBrandId)
+        internal KalturaHouseholdDevice SubmitAddDeviceToDomain(int groupId, int domainId, string userId, string udid, string deviceName, int deviceBrandId)
         {
             WebAPI.Domains.DeviceResponse response = null;
 
@@ -1037,7 +1037,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.AddDevice(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId, udid, deviceName, deviceBrandId);
+                    response = Domains.SubmitAddDeviceToDomain(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId, userId, udid, deviceName, deviceBrandId);
                 }
             }
             catch (Exception ex)

@@ -29,7 +29,7 @@ namespace WebAPI.Utils
             if (userID == "0")
                 return 0;
 
-            KalturaHousehold domain = GetHouseholdFromRequest(groupID, userID);
+            KalturaHousehold domain = GetHouseholdFromRequest();
             if (domain == null)
                 return 0;
 
@@ -48,7 +48,7 @@ namespace WebAPI.Utils
             if (userID == "0")
                 return null;
 
-            KalturaHousehold domain = GetHouseholdFromRequest(groupID, userID);
+            KalturaHousehold domain = GetHouseholdFromRequest();
             if (domain == null)
                 return null;
 
@@ -69,7 +69,7 @@ namespace WebAPI.Utils
             return userIds;
         }
 
-        public static KalturaHousehold GetHouseholdFromRequest(int groupID, string userID)
+        public static KalturaHousehold GetHouseholdFromRequest()
         {
             KalturaHousehold domain = null;
 
@@ -79,9 +79,16 @@ namespace WebAPI.Utils
             }
             else
             {
+                var ks = KS.GetFromRequest();
+
+                if (ks == null)
+                {
+                    return null;
+                }
+
                 try
                 {
-                    domain = ClientsManager.DomainsClient().GetDomainByUser(groupID, userID);
+                    domain = ClientsManager.DomainsClient().GetDomainByUser(ks.GroupId, ks.UserId);
                 }
                 catch (ClientException ex)
                 {
@@ -103,6 +110,31 @@ namespace WebAPI.Utils
             }
 
             return domain;
+        }
+
+        public static bool IsUserMaster()
+        {
+            var ks = KS.GetFromRequest();
+
+            if (ks == null)
+                return false;
+
+            string userID = ks.UserId;
+
+            if (userID == "0")
+                return false;
+
+            KalturaHousehold domain = GetHouseholdFromRequest();
+
+            if (domain == null)
+                return false;
+
+            if (domain.MasterUsers != null && domain.MasterUsers.Where(u => u.Id == userID).FirstOrDefault() != null)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }
