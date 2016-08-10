@@ -17852,10 +17852,13 @@ namespace ConditionalAccess
                                                 status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                                                 return status;
                                             }
-                                            // check if followed by at least 1 domain
+                                            
                                             string sereisId = epgFieldMappings[Utils.SERIES_ID];
-                                            int seasonNum = epgFieldMappings.ContainsKey(Utils.SEASON_NUMBER) ? int.Parse(epgFieldMappings[Utils.SEASON_NUMBER]) : 0;
-                                            if (RecordingsDAL.IsSeriesFollowed(m_nGroupID, sereisId, seasonNum, channelId))
+                                            int seasonNum = epgFieldMappings.ContainsKey(Utils.SEASON_NUMBER) ? int.Parse(epgFieldMappings[Utils.SEASON_NUMBER]) : 0;                                            
+                                            Recording recording = Utils.ValidateEpgForRecord(accountSettings, epg, true);
+                                            // check if epg is in recording schedule window + in catch-up buffer and series if followed by at least 1 domain
+                                            if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK
+                                                && RecordingsDAL.IsSeriesFollowed(m_nGroupID, sereisId, seasonNum, channelId))
                                             {
                                                 // record
                                                 Recording serieRecording = RecordingsManager.Instance.Record(m_nGroupID, epg.EPG_ID, channelId, startDate, endDate, epg.CRID);
