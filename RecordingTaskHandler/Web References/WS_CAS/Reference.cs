@@ -85,7 +85,7 @@ namespace RecordingTaskHandler.WS_CAS {
         
         private System.Threading.SendOrPostCallback GetRecordingByIDOperationCompleted;
         
-        private System.Threading.SendOrPostCallback UpdateRecordingOperationCompleted;
+        private System.Threading.SendOrPostCallback IngestRecordingOperationCompleted;
         
         private System.Threading.SendOrPostCallback RecoverRecordingMessagesOperationCompleted;
         
@@ -409,7 +409,7 @@ namespace RecordingTaskHandler.WS_CAS {
         public event GetRecordingByIDCompletedEventHandler GetRecordingByIDCompleted;
         
         /// <remarks/>
-        public event UpdateRecordingCompletedEventHandler UpdateRecordingCompleted;
+        public event IngestRecordingCompletedEventHandler IngestRecordingCompleted;
         
         /// <remarks/>
         public event RecoverRecordingMessagesCompletedEventHandler RecoverRecordingMessagesCompleted;
@@ -1810,9 +1810,9 @@ namespace RecordingTaskHandler.WS_CAS {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/UpdateRecording", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status UpdateRecording(string sWSUserName, string sWSPassword, long[] epgs, eAction action) {
-            object[] results = this.Invoke("UpdateRecording", new object[] {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/IngestRecording", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status IngestRecording(string sWSUserName, string sWSPassword, long[] epgs, eAction action) {
+            object[] results = this.Invoke("IngestRecording", new object[] {
                         sWSUserName,
                         sWSPassword,
                         epgs,
@@ -1821,26 +1821,26 @@ namespace RecordingTaskHandler.WS_CAS {
         }
         
         /// <remarks/>
-        public void UpdateRecordingAsync(string sWSUserName, string sWSPassword, long[] epgs, eAction action) {
-            this.UpdateRecordingAsync(sWSUserName, sWSPassword, epgs, action, null);
+        public void IngestRecordingAsync(string sWSUserName, string sWSPassword, long[] epgs, eAction action) {
+            this.IngestRecordingAsync(sWSUserName, sWSPassword, epgs, action, null);
         }
         
         /// <remarks/>
-        public void UpdateRecordingAsync(string sWSUserName, string sWSPassword, long[] epgs, eAction action, object userState) {
-            if ((this.UpdateRecordingOperationCompleted == null)) {
-                this.UpdateRecordingOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdateRecordingOperationCompleted);
+        public void IngestRecordingAsync(string sWSUserName, string sWSPassword, long[] epgs, eAction action, object userState) {
+            if ((this.IngestRecordingOperationCompleted == null)) {
+                this.IngestRecordingOperationCompleted = new System.Threading.SendOrPostCallback(this.OnIngestRecordingOperationCompleted);
             }
-            this.InvokeAsync("UpdateRecording", new object[] {
+            this.InvokeAsync("IngestRecording", new object[] {
                         sWSUserName,
                         sWSPassword,
                         epgs,
-                        action}, this.UpdateRecordingOperationCompleted, userState);
+                        action}, this.IngestRecordingOperationCompleted, userState);
         }
         
-        private void OnUpdateRecordingOperationCompleted(object arg) {
-            if ((this.UpdateRecordingCompleted != null)) {
+        private void OnIngestRecordingOperationCompleted(object arg) {
+            if ((this.IngestRecordingCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.UpdateRecordingCompleted(this, new UpdateRecordingCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+                this.IngestRecordingCompleted(this, new IngestRecordingCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -13057,17 +13057,17 @@ namespace RecordingTaskHandler.WS_CAS {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void UpdateRecordingCompletedEventHandler(object sender, UpdateRecordingCompletedEventArgs e);
+    public delegate void IngestRecordingCompletedEventHandler(object sender, IngestRecordingCompletedEventArgs e);
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class UpdateRecordingCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+    public partial class IngestRecordingCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
         
         private object[] results;
         
-        internal UpdateRecordingCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+        internal IngestRecordingCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }

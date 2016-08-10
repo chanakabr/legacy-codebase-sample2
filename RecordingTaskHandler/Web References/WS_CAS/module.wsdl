@@ -869,7 +869,7 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="UpdateRecording">
+      <s:element name="IngestRecording">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
@@ -889,10 +889,10 @@
           <s:enumeration value="Rebase" />
         </s:restriction>
       </s:simpleType>
-      <s:element name="UpdateRecordingResponse">
+      <s:element name="IngestRecordingResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="UpdateRecordingResult" type="tns:Status" />
+            <s:element minOccurs="0" maxOccurs="1" name="IngestRecordingResult" type="tns:Status" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -4024,11 +4024,11 @@
   <wsdl:message name="GetRecordingByIDSoapOut">
     <wsdl:part name="parameters" element="tns:GetRecordingByIDResponse" />
   </wsdl:message>
-  <wsdl:message name="UpdateRecordingSoapIn">
-    <wsdl:part name="parameters" element="tns:UpdateRecording" />
+  <wsdl:message name="IngestRecordingSoapIn">
+    <wsdl:part name="parameters" element="tns:IngestRecording" />
   </wsdl:message>
-  <wsdl:message name="UpdateRecordingSoapOut">
-    <wsdl:part name="parameters" element="tns:UpdateRecordingResponse" />
+  <wsdl:message name="IngestRecordingSoapOut">
+    <wsdl:part name="parameters" element="tns:IngestRecordingResponse" />
   </wsdl:message>
   <wsdl:message name="RecoverRecordingMessagesSoapIn">
     <wsdl:part name="parameters" element="tns:RecoverRecordingMessages" />
@@ -4884,13 +4884,13 @@
   <wsdl:message name="GetRecordingByIDHttpPostOut">
     <wsdl:part name="Body" element="tns:Recording" />
   </wsdl:message>
-  <wsdl:message name="UpdateRecordingHttpPostIn">
+  <wsdl:message name="IngestRecordingHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="epgs" type="s4:StringArray" />
     <wsdl:part name="action" type="s:string" />
   </wsdl:message>
-  <wsdl:message name="UpdateRecordingHttpPostOut">
+  <wsdl:message name="IngestRecordingHttpPostOut">
     <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:message name="RecoverRecordingMessagesHttpPostIn">
@@ -6188,9 +6188,9 @@
       <wsdl:input message="tns:GetRecordingByIDSoapIn" />
       <wsdl:output message="tns:GetRecordingByIDSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="UpdateRecording">
-      <wsdl:input message="tns:UpdateRecordingSoapIn" />
-      <wsdl:output message="tns:UpdateRecordingSoapOut" />
+    <wsdl:operation name="IngestRecording">
+      <wsdl:input message="tns:IngestRecordingSoapIn" />
+      <wsdl:output message="tns:IngestRecordingSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="RecoverRecordingMessages">
       <wsdl:input message="tns:RecoverRecordingMessagesSoapIn" />
@@ -6690,9 +6690,9 @@
       <wsdl:input message="tns:GetRecordingByIDHttpPostIn" />
       <wsdl:output message="tns:GetRecordingByIDHttpPostOut" />
     </wsdl:operation>
-    <wsdl:operation name="UpdateRecording">
-      <wsdl:input message="tns:UpdateRecordingHttpPostIn" />
-      <wsdl:output message="tns:UpdateRecordingHttpPostOut" />
+    <wsdl:operation name="IngestRecording">
+      <wsdl:input message="tns:IngestRecordingHttpPostIn" />
+      <wsdl:output message="tns:IngestRecordingHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="RecoverRecordingMessages">
       <wsdl:input message="tns:RecoverRecordingMessagesHttpPostIn" />
@@ -7312,8 +7312,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="UpdateRecording">
-      <soap:operation soapAction="http://ca.tvinci.com/UpdateRecording" style="document" />
+    <wsdl:operation name="IngestRecording">
+      <soap:operation soapAction="http://ca.tvinci.com/IngestRecording" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -8476,8 +8476,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="UpdateRecording">
-      <soap12:operation soapAction="http://ca.tvinci.com/UpdateRecording" style="document" />
+    <wsdl:operation name="IngestRecording">
+      <soap12:operation soapAction="http://ca.tvinci.com/IngestRecording" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -9604,8 +9604,8 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="UpdateRecording">
-      <http:operation location="/UpdateRecording" />
+    <wsdl:operation name="IngestRecording">
+      <http:operation location="/IngestRecording" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

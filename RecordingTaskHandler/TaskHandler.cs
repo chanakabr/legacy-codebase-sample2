@@ -106,7 +106,7 @@ namespace RecordingTaskHandler
                     case eRecordingTask.UpdateRecording:
                     {
                         long[] epgs = new long[]{request.ProgramId};
-                        var status = cas.UpdateRecording(username, password, epgs, WS_CAS.eAction.Update);
+                        var status = cas.IngestRecording(username, password, epgs, WS_CAS.eAction.Update);
 
                         if (status == null)
                         {
