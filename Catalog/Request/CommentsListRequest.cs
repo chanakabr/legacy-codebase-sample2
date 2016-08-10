@@ -90,6 +90,7 @@ namespace Catalog.Request
                                 comment.m_sContentText = regex.Replace(comment.m_sContentText, "****");
                             }
 
+                            comment.AssetType = ApiObjects.eAssetType.MEDIA;
                             response.m_lComments.Add(comment);
                         }
                         response.m_nTotalItems = response.m_lComments.Count;

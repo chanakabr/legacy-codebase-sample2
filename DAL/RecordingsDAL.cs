@@ -555,26 +555,7 @@ namespace DAL
             domainSeriesId = spIsFollowingSeries.ExecuteReturnValue<long>();
 
             return domainSeriesId;
-        }
-
-        public static bool UpdateRecordingsExternalId(int groupId, string externalRecordingIdToUpdate, string crid, long channelId, string currentExternalId = null)
-        {
-            int updatedRowsCount = 0;
-            ODBCWrapper.StoredProcedure spUpdateRecordingsExternalId = new ODBCWrapper.StoredProcedure("UpdateRecordingsExternalId");
-            spUpdateRecordingsExternalId.SetConnectionKey(RECORDING_CONNECTION);
-            spUpdateRecordingsExternalId.AddParameter("@GroupID", groupId);
-            spUpdateRecordingsExternalId.AddParameter("@ExternalRecordingId", externalRecordingIdToUpdate);
-            spUpdateRecordingsExternalId.AddParameter("@Crid", crid);
-            spUpdateRecordingsExternalId.AddParameter("@ChannelId", channelId);
-            if (!string.IsNullOrEmpty(currentExternalId))
-            {
-                spUpdateRecordingsExternalId.AddParameter("@CurrentExternalId", currentExternalId);
-            }
-
-            updatedRowsCount = spUpdateRecordingsExternalId.ExecuteReturnValue<int>();
-
-            return updatedRowsCount > 0;            
-        }
+        }        
 
         public static DataSet GetDomainSeriesRecordings(int groupId, long domainId)
         {
@@ -1103,5 +1084,18 @@ namespace DAL
 
             return crids;
         }
+
+        public static DataTable GetRecordingsByExternalRecordingId(int groupId, string externalRecordingId)
+        {
+            DataTable dt = null;
+            ODBCWrapper.StoredProcedure spGetEpgToRecordingsMapByExternalRecordingId = new ODBCWrapper.StoredProcedure("GetRecordingsByExternalRecordingId");
+            spGetEpgToRecordingsMapByExternalRecordingId.SetConnectionKey(RECORDING_CONNECTION);
+            spGetEpgToRecordingsMapByExternalRecordingId.AddParameter("@GroupID", groupId);
+            spGetEpgToRecordingsMapByExternalRecordingId.AddParameter("@ExternalRecordingId", externalRecordingId);
+            dt = spGetEpgToRecordingsMapByExternalRecordingId.Execute();
+
+            return dt;
+        }
+
     }
 }

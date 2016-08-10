@@ -100,6 +100,7 @@ namespace Catalog.Request
                                 comment.m_sContentText = regex.Replace(comment.m_sContentText, "****");
                             }
 
+                            comment.AssetType = ApiObjects.eAssetType.PROGRAM;
                             response.m_lComments.Add(comment);
                         }
                         response.m_nTotalItems = ds.Tables[1].Rows.Count;

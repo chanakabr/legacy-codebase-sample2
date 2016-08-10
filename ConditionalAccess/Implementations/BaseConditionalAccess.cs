@@ -17225,8 +17225,10 @@ namespace ConditionalAccess
                 {
                     if (QuotaManager.Instance.IncreaseDomainQuota(domainId, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds))
                     {
+                        ContextData contextData = new ContextData();
                         System.Threading.Tasks.Task async = Task.Factory.StartNew((taskDomainId) =>
                         {
+                            contextData.Load();
                             if (!CompleteDomainSeriesRecordings((long)taskDomainId))
                             {
                                 log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after CancelOrDeleteRecord: domainId: {0}", domainId);
@@ -17852,10 +17854,13 @@ namespace ConditionalAccess
                                                 status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                                                 return status;
                                             }
-                                            // check if followed by at least 1 domain
+                                            
                                             string sereisId = epgFieldMappings[Utils.SERIES_ID];
-                                            int seasonNum = epgFieldMappings.ContainsKey(Utils.SEASON_NUMBER) ? int.Parse(epgFieldMappings[Utils.SEASON_NUMBER]) : 0;
-                                            if (RecordingsDAL.IsSeriesFollowed(m_nGroupID, sereisId, seasonNum, channelId))
+                                            int seasonNum = epgFieldMappings.ContainsKey(Utils.SEASON_NUMBER) ? int.Parse(epgFieldMappings[Utils.SEASON_NUMBER]) : 0;                                            
+                                            Recording recording = Utils.ValidateEpgForRecord(accountSettings, epg, true);
+                                            // check if epg is in recording schedule window + in catch-up buffer and series if followed by at least 1 domain
+                                            if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK
+                                                && RecordingsDAL.IsSeriesFollowed(m_nGroupID, sereisId, seasonNum, channelId))
                                             {
                                                 // record
                                                 Recording serieRecording = RecordingsManager.Instance.Record(m_nGroupID, epg.EPG_ID, channelId, startDate, endDate, epg.CRID);
@@ -19679,6 +19684,19 @@ namespace ConditionalAccess
                 log.Error(string.Format("Error in GetRecordingLicensedLink. userId = {0}, domainRecordingId = {1}, udid = {2}, fileType = {3}", userId, domainRecordingId, udid, fileType), ex);
             }
             return response;
+        }
+
+        public bool CheckRecordingDuplicateCrids(int groupID, long recordingId)
+        {
+            try
+            {
+                return RecordingsManager.Instance.CheckRecordingDuplicateCrids(groupID, recordingId);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat(string.Format("Failed RecordingsManager.Instance.CheckRecordingDuplicateCrids for groupId: {0}, recordingId: {1}", groupID, recordingId), ex);
+                return false;
+            }
         }
     }
 }

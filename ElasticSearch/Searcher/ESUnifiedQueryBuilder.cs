@@ -453,7 +453,7 @@ namespace ElasticSearch.Searcher
                     {
                         Key = "search_end_date"
                     };
-                    epgSearchEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GT, DateTime.UtcNow.ToString("yyyyMMddHHmmss")));
+                    epgSearchEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LT, DateTime.UtcNow.ToString("yyyyMMddHHmmss")));
                     epgDatesFilter.AddChild(epgSearchEndDateRange);
                 }
 
@@ -719,7 +719,7 @@ namespace ElasticSearch.Searcher
                     {
                         Key = "search_end_date"
                     };
-                    epgSearchEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GT, DateTime.UtcNow.ToString("yyyyMMddHHmmss")));
+                    epgSearchEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LT, DateTime.UtcNow.ToString("yyyyMMddHHmmss")));
                     recoedingsDatesFilter.AddChild(epgSearchEndDateRange);
                 }
 
