@@ -30,7 +30,11 @@ namespace CouchbaseManager
         CACHE = 7,
         SCHEDULED_TASKS = 8,
         CROWDSOURCE = 9,
-        DRM = 10
+        DRM = 10,
+        RECORDINGS = 11,
+        DOMAIN_CONCURRENCY = 12,
+        EPG_MARKS = 13,
+        MEDIA_HITS = 14
     }
 
     public class CouchbaseManager
