@@ -1,43 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Implementations" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Implementations" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd10" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" />
-  <xs:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd7" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" />
-  <xs:complexType name="RealTimeViewsItem">
-    <xs:complexContent mixed="false">
-      <xs:extension xmlns:q1="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" base="q1:BaseCrowdsourceItem">
-        <xs:sequence>
-          <xs:element minOccurs="0" name="EpgStartTime" type="xs:long" />
-          <xs:element minOccurs="0" name="ProgramId" type="xs:long" />
-          <xs:element minOccurs="0" name="ProgramImage" nillable="true" type="xs:string" />
-          <xs:element minOccurs="0" name="ProgramName" nillable="true" type="xs:string" />
-          <xs:element minOccurs="0" name="TypeDescription" nillable="true" type="xs:string" />
-          <xs:element minOccurs="0" name="Views" type="xs:int" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd13" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems" />
+  <xs:complexType name="ArrayOfBaseCrowdsourceItem">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="BaseCrowdsourceItem" nillable="true" type="tns:BaseCrowdsourceItem" />
+    </xs:sequence>
   </xs:complexType>
-  <xs:element name="RealTimeViewsItem" nillable="true" type="tns:RealTimeViewsItem" />
-  <xs:complexType name="OrcaItem">
-    <xs:complexContent mixed="false">
-      <xs:extension xmlns:q2="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" base="q2:BaseCrowdsourceItem">
-        <xs:sequence />
-      </xs:extension>
-    </xs:complexContent>
+  <xs:element name="ArrayOfBaseCrowdsourceItem" nillable="true" type="tns:ArrayOfBaseCrowdsourceItem" />
+  <xs:complexType name="BaseCrowdsourceItem">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="MediaId" type="xs:int" />
+      <xs:element minOccurs="0" name="MediaImage" nillable="true" type="tns:ArrayOfBaseCrowdsourceItem.Pic" />
+      <xs:element minOccurs="0" name="MediaName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Order" type="xs:int" />
+      <xs:element minOccurs="0" name="TimeStamp" type="xs:long" />
+      <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems" minOccurs="0" name="Type" type="q1:eItemType" />
+    </xs:sequence>
   </xs:complexType>
-  <xs:element name="OrcaItem" nillable="true" type="tns:OrcaItem" />
-  <xs:complexType name="SlidingWindowItem">
-    <xs:complexContent mixed="false">
-      <xs:extension xmlns:q3="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" base="q3:BaseCrowdsourceItem">
-        <xs:sequence>
-          <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="Action" type="q4:OrderBy" />
-          <xs:element minOccurs="0" name="ActionDescription" nillable="true" type="xs:string" />
-          <xs:element minOccurs="0" name="ActionVal" type="xs:double" />
-          <xs:element minOccurs="0" name="Period" type="xs:int" />
-          <xs:element minOccurs="0" name="PeriodDescription" nillable="true" type="xs:string" />
-          <xs:element minOccurs="0" name="TypeDescription" nillable="true" type="xs:string" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
+  <xs:element name="BaseCrowdsourceItem" nillable="true" type="tns:BaseCrowdsourceItem" />
+  <xs:complexType name="ArrayOfBaseCrowdsourceItem.Pic">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="BaseCrowdsourceItem.Pic" nillable="true" type="tns:BaseCrowdsourceItem.Pic" />
+    </xs:sequence>
   </xs:complexType>
-  <xs:element name="SlidingWindowItem" nillable="true" type="tns:SlidingWindowItem" />
+  <xs:element name="ArrayOfBaseCrowdsourceItem.Pic" nillable="true" type="tns:ArrayOfBaseCrowdsourceItem.Pic" />
+  <xs:complexType name="BaseCrowdsourceItem.Pic">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Size" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="URL" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="BaseCrowdsourceItem.Pic" nillable="true" type="tns:BaseCrowdsourceItem.Pic" />
 </xs:schema>

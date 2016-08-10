@@ -310,4 +310,20 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <xs:element name="RebaseIndex">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="groupId" type="xs:int" />
+        <xs:element xmlns:q22="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="type" type="q22:eObjectType" />
+        <xs:element minOccurs="0" name="startDate" type="xs:dateTime" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RebaseIndexResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="RebaseIndexResult" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 </xs:schema>
