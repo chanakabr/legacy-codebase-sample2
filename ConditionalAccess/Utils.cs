@@ -5673,56 +5673,60 @@ namespace ConditionalAccess
             return true;
         }
 
-        internal static bool GetEpgRelatedToSeriesRecording(int groupId, List<EpgCB> epgs, SeriesRecording seriesRecording, long seasonNumber = 0)
+        internal static List<EpgCB> GetEpgRelatedToSeriesRecording(int groupId, SeriesRecording seriesRecording, List<EpgCB> epgs, long seasonNumber = 0)
         {
-            bool result = false;
             List<EpgCB> epgMatch = new List<EpgCB>();
-            List<ApiObjects.Epg.FieldTypeEntity> metaTagsMappings = Tvinci.Core.DAL.CatalogDAL.GetAliasMappingFields(groupId);
-            if (metaTagsMappings == null || metaTagsMappings.Count == 0)
-            {
-                log.ErrorFormat("failed to 'GetAliasMappingFields' for seriesId. groupId = {0} ", groupId);
-                return result;
-            }
-
-            ApiObjects.Epg.FieldTypeEntity series_alias = metaTagsMappings.Where(m => m.Alias.ToLower() == SERIES_ALIAS).FirstOrDefault();
-            if (series_alias == null)
-            {
-                log.ErrorFormat("alias for series_id was not found. group_id = {0}", groupId);
-                return result;
-            }
-
-            if (series_alias.FieldType == FieldTypes.Meta)
-            {
-                epgMatch = epgs.Where(x => x.Metas.Any(y => y.Key == series_alias.Name && y.Value.Contains(seriesRecording.SeriesId))).ToList();
-            }
-            else if (series_alias.FieldType == FieldTypes.Tag)
-            {
-                epgMatch = epgs.Where(x => x.Tags.Any(y => y.Key == series_alias.Name && y.Value.Contains(seriesRecording.SeriesId))).ToList();
-            }
-
-
-            if (seriesRecording.SeasonNumber > 0 || seasonNumber > 0)
-            {
-                long seasonNumberEqual = seriesRecording.SeasonNumber > 0 ? seriesRecording.SeasonNumber : seasonNumber;
-                ApiObjects.Epg.FieldTypeEntity season_alias = metaTagsMappings.Where(m => m.Alias.ToLower() == SEASON_ALIAS).FirstOrDefault();
-                if (season_alias == null)
+            try
+            {   
+                List<ApiObjects.Epg.FieldTypeEntity> metaTagsMappings = Tvinci.Core.DAL.CatalogDAL.GetAliasMappingFields(groupId);
+                if (metaTagsMappings == null || metaTagsMappings.Count == 0)
                 {
-                    log.ErrorFormat("alias for season_number was not found. group_id = {0}", groupId);
-                    return result;
+                    log.ErrorFormat("failed to 'GetAliasMappingFields' for seriesId. groupId = {0} ", groupId);
+                    return new List<EpgCB>();
                 }
 
-                if (season_alias.FieldType == FieldTypes.Meta)
+                ApiObjects.Epg.FieldTypeEntity series_alias = metaTagsMappings.Where(m => m.Alias.ToLower() == SERIES_ALIAS).FirstOrDefault();
+                if (series_alias == null)
                 {
-                    epgMatch = epgMatch.Where(x => x.Metas.Any(y => y.Key == season_alias.Name && y.Value.Contains(seasonNumberEqual.ToString()))).ToList();
+                    log.ErrorFormat("alias for series_id was not found. group_id = {0}", groupId);
+                    return new List<EpgCB>();
                 }
-                else if (season_alias.FieldType == FieldTypes.Tag)
+
+                if (series_alias.FieldType == FieldTypes.Meta)
                 {
-                    epgMatch = epgMatch.Where(x => x.Tags.Any(y => y.Key == season_alias.Name && y.Value.Contains(seasonNumberEqual.ToString()))).ToList();
+                    epgMatch = epgs.Where(x => x.Metas.Any(y => y.Key == series_alias.Name && y.Value.Contains(seriesRecording.SeriesId))).ToList();
+                }
+                else if (series_alias.FieldType == FieldTypes.Tag)
+                {
+                    epgMatch = epgs.Where(x => x.Tags.Any(y => y.Key == series_alias.Name && y.Value.Contains(seriesRecording.SeriesId))).ToList();
+                }
+
+
+                if (seriesRecording.SeasonNumber > 0 || seasonNumber > 0)
+                {
+                    long seasonNumberEqual = seriesRecording.SeasonNumber > 0 ? seriesRecording.SeasonNumber : seasonNumber;
+                    ApiObjects.Epg.FieldTypeEntity season_alias = metaTagsMappings.Where(m => m.Alias.ToLower() == SEASON_ALIAS).FirstOrDefault();
+                    if (season_alias == null)
+                    {
+                        log.ErrorFormat("alias for season_number was not found. group_id = {0}", groupId);
+                        return new List<EpgCB>();
+                    }
+
+                    if (season_alias.FieldType == FieldTypes.Meta)
+                    {
+                        epgMatch = epgMatch.Where(x => x.Metas.Any(y => y.Key == season_alias.Name && y.Value.Contains(seasonNumberEqual.ToString()))).ToList();
+                    }
+                    else if (season_alias.FieldType == FieldTypes.Tag)
+                    {
+                        epgMatch = epgMatch.Where(x => x.Tags.Any(y => y.Key == season_alias.Name && y.Value.Contains(seasonNumberEqual.ToString()))).ToList();
+                    }
                 }
             }
-
-            epgs = epgMatch;
-            return true;
+            catch (Exception ex)
+            {
+                log.ErrorFormat("failed to 'GetEpgRelatedToSeriesRecording groupId = {0}, seriesRecordingID = {1}", groupId, seriesRecording.Id);
+            }
+            return epgMatch;            
         }
 
         internal static string GetFollowingUserIdForSerie(int groupId, List<DomainSeriesRecording> series, WS_Catalog.ExtendedSearchResult potentialRecording,

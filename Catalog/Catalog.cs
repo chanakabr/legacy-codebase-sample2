@@ -2702,19 +2702,27 @@ namespace Catalog
 
         public static void GetLinearChannelSettings(int groupID, List<EPGChannelProgrammeObject> lEpgProg)
         {
-            List<string> epgChannelIds = lEpgProg.Where(item => item != null).Select(item => item.EPG_CHANNEL_ID).ToList<string>();// get all epg channel ids
-
-            Dictionary<string, LinearChannelSettings> linearChannelSettings = CatalogCache.Instance().GetLinearChannelSettings(groupID, epgChannelIds);
-            foreach (EPGChannelProgrammeObject epg in lEpgProg)
+            try
             {
-                if (linearChannelSettings.ContainsKey(epg.EPG_CHANNEL_ID))
+                List<string> epgChannelIds = lEpgProg.Where(item => item != null && !string.IsNullOrEmpty(item.EPG_CHANNEL_ID)).Select(item => item.EPG_CHANNEL_ID).ToList<string>();// get all epg channel ids
+
+                Dictionary<string, LinearChannelSettings> linearChannelSettings = CatalogCache.Instance().GetLinearChannelSettings(groupID, epgChannelIds);
+                foreach (EPGChannelProgrammeObject epg in lEpgProg)
                 {
-                    LinearChannelSettings linearSettings = linearChannelSettings[epg.EPG_CHANNEL_ID];
-                    if (linearSettings != null)
+                    if (linearChannelSettings.ContainsKey(epg.EPG_CHANNEL_ID))
                     {
-                        SetLinearEpgProgramSettings(epg, linearSettings);
+                        LinearChannelSettings linearSettings = linearChannelSettings[epg.EPG_CHANNEL_ID];
+                        if (linearSettings != null)
+                        {
+                            SetLinearEpgProgramSettings(epg, linearSettings);
+                        }
                     }
                 }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("failed Catalog.GetLinearChannelSettings for groupId: {0}, lEpgProg: {1}", groupID, lEpgProg != null ? string.Join(", ", lEpgProg.Select(x => x.EPG_ID).ToList()) : string.Empty), ex);
             }
         }
 

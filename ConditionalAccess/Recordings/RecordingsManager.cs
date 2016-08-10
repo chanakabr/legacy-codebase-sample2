@@ -474,7 +474,7 @@ namespace Recordings
 
             Recording recording = ConditionalAccess.Utils.GetRecordingByEpgId(groupId, programId);
 
-            double oldRecordingLength = 0;
+            int oldRecordingLength = 0;
             bool shouldUpdateDomainsQuota = false;
 
             // If there is no recording, nothing to do
@@ -500,8 +500,8 @@ namespace Recordings
                 }
                 else
                 {
-                    oldRecordingLength = (recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
-                    var newRecordingLength = (endDate - startDate).TotalSeconds;
+                    oldRecordingLength = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
+                    int newRecordingLength = (int)(endDate - startDate).TotalSeconds;
 
                     if (oldRecordingLength != newRecordingLength)
                     {
@@ -656,7 +656,7 @@ namespace Recordings
             {
                 //TODO: update domains quota
                 GenericCeleryQueue queue = new GenericCeleryQueue();
-                RecordingModificationData data = new RecordingModificationData(groupId, 0, recording.Id, 0) { ETA = DateTime.UtcNow };
+                RecordingModificationData data = new RecordingModificationData(groupId, 0, recording.Id, 0, oldRecordingLength) { ETA = DateTime.UtcNow };
                 bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_MODIFIED_RECORDING, groupId));
                 if (!queueExpiredRecordingResult)
                 {
