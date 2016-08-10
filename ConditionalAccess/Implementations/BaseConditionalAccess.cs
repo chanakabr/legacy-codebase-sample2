@@ -19367,22 +19367,9 @@ namespace ConditionalAccess
                     long domainSeriesRecordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
                     RecordingType recordingType = seasonNumber > 0 ? RecordingType.Season : RecordingType.Series;
                     if (domainId > 0 && userId > 0 && QuotaManager.Instance.GetDomainQuota(m_nGroupID, domainId) >= recordingDuration)
-                    {
-                        bool shouldIssueRecordForDomain = true;
-                        Dictionary<long, Recording> domainRecordings = Utils.GetDomainRecordingIdToRecordingMapByEpgIds(m_nGroupID, domainId, new List<long>() { epgId });
-                        if (domainRecordings != null)
-                        {
-                            foreach (Recording currentRecording in domainRecordings.Values)
-                            {
-                                if (Utils.IsValidRecordingStatus(currentRecording.RecordingStatus) || currentRecording.RecordingStatus == TstvRecordingStatus.SeriesCancel || currentRecording.RecordingStatus == TstvRecordingStatus.SeriesDelete)
-                                {
-                                    shouldIssueRecordForDomain = false;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (shouldIssueRecordForDomain)
+                    {                        
+                        HashSet<string> domainRecordedCrids = RecordingsDAL.GetDomainRecordingsCridsByDomainsSeriesIds(m_nGroupID, domainId, new List<long>() { domainSeriesRecordingId }, recording.Crid);
+                        if (!domainRecordedCrids.Contains(recording.Crid))                        
                         {
                             Recording userRecording = Record(userId.ToString(), epgId, recordingType, domainSeriesRecordingId);
                             if (userRecording != null && userRecording.Status != null && userRecording.Status.Code == (int)eResponseStatus.OK && userRecording.Id > 0)

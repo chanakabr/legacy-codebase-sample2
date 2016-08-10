@@ -1069,7 +1069,7 @@ namespace DAL
             return dt;
         }
 
-        public static HashSet<string> GetDomainRecordingsCridsByDomainsSeriesIds(int groupID, long domainID, List<long> domainSeriesIds)
+        public static HashSet<string> GetDomainRecordingsCridsByDomainsSeriesIds(int groupID, long domainID, List<long> domainSeriesIds, string specificCrid = null)
         {
             HashSet<string> crids = new HashSet<string>();
             DataTable dt = null;
@@ -1078,6 +1078,11 @@ namespace DAL
             sp.AddParameter("@GroupID", groupID);
             sp.AddParameter("@DomainID", domainID);
             sp.AddIDListParameter<long>("@DomainsSeriesIds", domainSeriesIds, "ID");
+            if (!string.IsNullOrEmpty(specificCrid))
+            {
+                sp.AddParameter("@SpecificCrid", specificCrid);
+            }
+
             dt = sp.Execute();
 
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)

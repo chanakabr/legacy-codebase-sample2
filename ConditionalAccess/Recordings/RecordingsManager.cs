@@ -649,7 +649,6 @@ namespace Recordings
                         else if (recording.EpgStartDate < existingRecordingWithMinStartDate.EpgStartDate && existingRecordingWithMinStartDate.EpgEndDate > DateTime.UtcNow)
                         {
                             status = UpdateFirstRecordingWithSameCrid(groupId, existingRecordingWithMinStartDate.ExternalRecordingId, recording);
-                            
                         }
                         // the update recording was the first but now it's not - cancel and record the next
                         else if (recording.EpgId == existingRecordingWithMinStartDate.EpgId
