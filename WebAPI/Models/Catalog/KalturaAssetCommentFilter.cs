@@ -16,14 +16,14 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "assetIdEqual")]
         [JsonProperty("assetIdEqual")]
         [XmlElement(ElementName = "assetIdEqual", IsNullable = true)]
-        public string AssetIdEqual { get; set; }
+        public int AssetIdEqual { get; set; }
 
          /// <summary>
         ///Asset Type
         /// </summary>
         [DataMember(Name = "assetTypeEqual")]
         [JsonProperty("assetTypeEqual")]
-        [XmlElement(ElementName = "asetTypeEqual", IsNullable = true)]
+        [XmlElement(ElementName = "assetTypeEqual", IsNullable = true)]
         public KalturaAssetType AssetTypeEqual { get; set; }
 
 

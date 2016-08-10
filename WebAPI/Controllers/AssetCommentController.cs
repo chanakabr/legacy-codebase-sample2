@@ -23,7 +23,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns Epg Comments by EpgId
         /// </summary>
-        /// <param name="id">Epg identifier</param>
+        /// <param name="filter">Filtering the assets comments request</param>
         /// <param name="pager">Page size and index</param>
         /// <remarks></remarks>
         [Route("list"), HttpPost]
@@ -31,12 +31,8 @@ namespace WebAPI.Controllers
         public KalturaAssetCommentListResponse List(KalturaAssetCommentFilter filter, KalturaFilterPager pager = null)
         {
             KalturaAssetCommentListResponse response = null;
-            int assetID = 0;
-            if (string.IsNullOrEmpty(filter.AssetIdEqual))
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id cannot have zero or less value");
-            }
-            if (!int.TryParse(filter.AssetIdEqual, out assetID))
+           
+            if (filter.AssetIdEqual <= 0)
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id cannot have zero or less value");
             }
@@ -51,7 +47,7 @@ namespace WebAPI.Controllers
                 string udid = KSUtils.ExtractKSPayload().UDID;
                 int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
 
-                response = ClientsManager.CatalogClient().GetAssetCommentsList(groupId, language, assetID, filter.AssetTypeEqual, userId, domainId, udid, pager.getPageIndex(), pager.PageSize,
+                response = ClientsManager.CatalogClient().GetAssetCommentsList(groupId, language, filter.AssetIdEqual, filter.AssetTypeEqual, userId, domainId, udid, pager.getPageIndex(), pager.PageSize,
                     filter.OrderBy);
 
                 // if no response - return not found status 
