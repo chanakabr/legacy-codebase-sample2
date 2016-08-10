@@ -276,7 +276,22 @@ namespace WebAPI.ObjectsConvertor
             }
             return result;
         }
-        
+
+        public static OrderObj ConvertOrderToOrderObj(KalturaAssetCommentOrderBy order)
+        {
+            OrderObj result = new OrderObj();
+
+            switch (order)
+            {
+                case KalturaAssetCommentOrderBy.CREATE_DATE_DESC:
+                    result.m_eOrderBy = OrderBy.START_DATE;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;              
+            }
+            return result;
+        }
+
+
         public static List<KalturaEPGChannelAssets> ConvertEPGChannelAssets(int groupId, List<EpgResultsObj> epgResultsList, List<KalturaCatalogWith> withList)
         {
             List<KalturaEPGChannelAssets> finalResults = new List<KalturaEPGChannelAssets>();

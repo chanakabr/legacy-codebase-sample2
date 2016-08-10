@@ -249,8 +249,23 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ExtraParams, opt => opt.MapFrom(src => BuildExtraParamsDictionary(src.m_oProgram)))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_oProgram.EPG_PICTURES));
 
-        }
+            //Comments to KalturaAssetComment
+            Mapper.CreateMap<Comments, KalturaAssetComment>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.m_nAssetID))
+                .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertAssetType(src.AssetType)))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dCreateDate)))
+                .ForMember(dest => dest.Header, opt => opt.MapFrom(src => src.m_sHeader))
+                .ForMember(dest => dest.SubHeader, opt => opt.MapFrom(src => src.m_sSubHeader))
+                .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.m_sContentText))
+                .ForMember(dest => dest.LanguageId, opt => opt.MapFrom(src => src.m_nLang))
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.m_sSiteGuid))
+                .ForMember(dest => dest.Writer, opt => opt.MapFrom(src => src.m_sWriter))
+                .ForMember(dest => dest.UserPictureURL, opt => opt.MapFrom(src => src.m_sUserPicURL));
 
+
+        }
+        
         //eAssetTypes to KalturaAssetType
         public static KalturaAssetType ConvertAssetType(eAssetTypes assetType)
         {
@@ -266,6 +281,27 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case eAssetTypes.MEDIA:
                     result = KalturaAssetType.media;
                     break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown Asset Type");
+            }
+
+            return result;
+        }
+
+
+        //eAssetType to KalturaAssetType
+        public static KalturaAssetType ConvertAssetType(eAssetType assetType)
+        {
+            KalturaAssetType result;
+            switch (assetType)
+            {
+                case eAssetType.PROGRAM:
+                    result = KalturaAssetType.epg;
+                    break;
+                case eAssetType.MEDIA:
+                    result = KalturaAssetType.media;
+                    break;
+                case eAssetType.UNKNOWN:                    
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown Asset Type");
             }

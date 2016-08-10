@@ -103,6 +103,14 @@ namespace WebAPI.Controllers
                 List<object> methodParams = (List<object>)HttpContext.Current.Items[RequestParser.REQUEST_METHOD_PARAMETERS];
                 response = methodInfo.Invoke(classInstance, methodParams.ToArray());
             }
+            catch (ApiException ex)
+            {
+                throw ex;
+            }
+            catch (TargetParameterCountException ex)
+            {
+                throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.InvalidActionParameters, "Mismatch in parameters");
+            }
             catch (Exception ex)
             {
                 log.Error("Failed to perform action", ex);
@@ -110,11 +118,6 @@ namespace WebAPI.Controllers
                 if (ex.InnerException is ApiException)
                 {
                     throw ex.InnerException;
-                }
-
-                if (ex is TargetParameterCountException)
-                {
-                    throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.InvalidActionParameters, "Mismatch in parameters");
                 }
 
                 throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error, "Unable to perform action");
