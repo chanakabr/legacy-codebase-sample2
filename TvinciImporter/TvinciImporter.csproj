@@ -303,28 +303,58 @@
     <None Include="Service References\Notification_WCF\TvinciImporter.Notification_WCF.NotificationMessage.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\WSCatalog\Service10.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WSCatalog\Service11.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WSCatalog\Service12.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WSCatalog\Service13.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WSCatalog\Service14.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WSCatalog\Service15.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WSCatalog\Service16.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Service References\WSCatalog\Service17.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service171.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service1710.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service1711.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service1712.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service1713.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service1714.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service1715.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service1716.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service1717.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service172.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service173.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service174.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service175.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service176.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service177.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service178.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service179.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\WSCatalog\Service18.xsd">
@@ -341,14 +371,13 @@
     <None Include="Service References\WSCatalog\Service21.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\WSCatalog\Service22.wsdl" />
     <None Include="Service References\WSCatalog\Service22.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\WSCatalog\Service23.wsdl" />
     <None Include="Service References\WSCatalog\Service3.wsdl" />
     <None Include="Service References\WSCatalog\Service4.wsdl" />
-    <None Include="Service References\WSCatalog\Service6.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Service References\WSCatalog\Service61.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -362,15 +391,6 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\WSCatalog\Service65.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WSCatalog\Service7.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WSCatalog\Service8.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WSCatalog\Service9.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\WSCatalog\TvinciImporter.WSCatalog.BaseResponse1.datasource">
@@ -580,6 +600,7 @@
     <Content Include="obj\Release\TvinciImporter.csproj.FileListAbsolute.txt" />
     <Content Include="obj\Release\TvinciImporter.dll" />
     <Content Include="obj\Release\TvinciImporter.pdb" />
+    <None Include="Service References\WSCatalog\Service11.disco" />
     <None Include="Service References\Notification_WCF\NotificationService12.disco" />
     <None Include="Web References\WS_ConditionalAccess\module.disco" />
     <None Include="Service References\WSCatalog\Service2.disco" />

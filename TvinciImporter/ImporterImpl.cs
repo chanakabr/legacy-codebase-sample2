@@ -1019,7 +1019,7 @@ namespace TvinciImporter
                             UpdateMedias(nGroupID, channelID, deserializedChannels.export[i].medias);
                         }
 
-                        UpdateChannelIndex(LoginManager.GetLoginGroupID(), new List<int>() { channelID }, ApiObjects.eAction.Update);
+                        UpdateChannel(LoginManager.GetLoginGroupID(), new List<int>() { channelID }, ApiObjects.eAction.Update);
                     }
                 }
 
@@ -4867,7 +4867,7 @@ namespace TvinciImporter
 
                             if (wsCatalog != null)
                             {
-                                bUpdate = wsCatalog.UpdateChannel(nGroupId, nChannelID);
+                                bUpdate = wsCatalog.UpdateChannelIndex(new int[]{nChannelID}, nGroupId, WSCatalog.eAction.Update);
 
                                 log.Debug("UpdateChannelInLucene - " + string.Format("Group:{0}, Channel:{1}, Url:{2}, Res:{3}", nGroupId, nChannelID, sEndPointAddress, bUpdate));
 
@@ -5353,14 +5353,78 @@ namespace TvinciImporter
             return isUpdateIndexSucceeded;
         }
 
-        public static bool UpdateChannelIndex(int nGroupId, List<int> lChannelIds, eAction eAction)
+        public static bool UpdateChannel(int nGroupId, List<int> lChannelIds, eAction eAction)
         {
+            bool isUpdateSuccessful = false;
             bool isUpdateChannelIndexSucceeded = false;
+            bool isUpdateChannelCacheSucceeded = true;
+
+            #region Index
+
+            WSCatalog.IserviceClient wsCatalog = null;
+
+            try
+            {
+                int nParentGroupID = DAL.UtilsDal.GetParentGroupID(nGroupId);
+
+                if (lChannelIds != null && lChannelIds.Count > 0 && nParentGroupID > 0)
+                {
+                    string sWSURL = GetCatalogUrl(nParentGroupID);
+
+                    if (!string.IsNullOrEmpty(sWSURL))
+                    {
+                        string[] arrAddresses = sWSURL.Split(';');
+
+                        foreach (string sEndPointAddress in arrAddresses)
+                        {
+                            try
+                            {
+                                wsCatalog = GetCatalogClient(sEndPointAddress);
+
+                                if (wsCatalog != null)
+                                {
+                                    foreach (var channelId in lChannelIds)
+                                    {
+                                        bool currentRemove = wsCatalog.RemoveChannelFromCache(
+                                        nParentGroupID, channelId);
+
+                                        string sInfo = currentRemove == true ? "succeeded" : "not succeeded";
+                                        log.DebugFormat("Remove channel {0} from cache of catalog '{1}'", sInfo, sEndPointAddress);
+
+                                        isUpdateChannelIndexSucceeded &= currentRemove;
+                                    }
+                                    
+                                    wsCatalog.Close();
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                log.ErrorFormat(string.Format("Couldn't update catalog '{0}' due to the following error: {1}", sEndPointAddress, ex.Message), ex);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("process failed", ex);
+            }
+            finally
+            {
+                if (wsCatalog != null)
+                {
+                    wsCatalog.Close();
+                }
+            }
+
+            #endregion
+
+            #region Cache
 
             string sUseElasticSearch = GetConfigVal("indexer");
             if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES"))
             {
-                WSCatalog.IserviceClient wsCatalog = null;
+                wsCatalog = null;
 
                 try
                 {
@@ -5368,7 +5432,7 @@ namespace TvinciImporter
 
                     if (lChannelIds != null && lChannelIds.Count > 0 && nParentGroupID > 0)
                     {
-                        string sWSURL = GetCatalogUrlByParameters(nParentGroupID, eObjectType.Channel, eAction);
+                        string sWSURL = WS_Utils.GetTcmGenericValue<string>("WS_Catalog");
 
                         if (!string.IsNullOrEmpty(sWSURL))
                         {
@@ -5388,22 +5452,22 @@ namespace TvinciImporter
                                         switch (eAction)
                                         {
                                             case eAction.Off:
-                                                actionCatalog = WSCatalog.eAction.Off;
-                                                break;
+                                            actionCatalog = WSCatalog.eAction.Off;
+                                            break;
                                             case eAction.On:
-                                                actionCatalog = WSCatalog.eAction.On;
-                                                break;
+                                            actionCatalog = WSCatalog.eAction.On;
+                                            break;
                                             case eAction.Update:
-                                                actionCatalog = WSCatalog.eAction.Update;
-                                                break;
+                                            actionCatalog = WSCatalog.eAction.Update;
+                                            break;
                                             case eAction.Delete:
-                                                actionCatalog = WSCatalog.eAction.Delete;
-                                                break;
+                                            actionCatalog = WSCatalog.eAction.Delete;
+                                            break;
                                             case eAction.Rebuild:
-                                                actionCatalog = WSCatalog.eAction.Rebuild;
-                                                break;
+                                            actionCatalog = WSCatalog.eAction.Rebuild;
+                                            break;
                                             default:
-                                                break;
+                                            break;
                                         }
 
                                         isUpdateChannelIndexSucceeded = wsCatalog.UpdateChannelIndex(
@@ -5438,14 +5502,11 @@ namespace TvinciImporter
                     }
                 }
             }
-            else
-            {
-                if (lChannelIds != null && lChannelIds.Count > 0)
-                {
-                    isUpdateChannelIndexSucceeded = ImporterImpl.UpdateChannelInLucene(nGroupId, lChannelIds[0]);
-                }
-            }
-            return isUpdateChannelIndexSucceeded;
+
+            #endregion
+
+            isUpdateSuccessful = isUpdateChannelIndexSucceeded && isUpdateChannelCacheSucceeded;
+            return isUpdateSuccessful;
         }
 
         public static bool UpdateOperator(int nGroupID, int nOperatorID, int nSubscriptionID, long lChannelID, eOperatorEvent oe)
