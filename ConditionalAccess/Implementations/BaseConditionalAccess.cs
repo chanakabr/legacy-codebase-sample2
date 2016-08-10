@@ -17744,7 +17744,7 @@ namespace ConditionalAccess
             return response;
         }
 
-        public ApiObjects.Response.Status UpdateRecording(List<long> epgIds, eAction action)
+        public ApiObjects.Response.Status IngestRecording(List<long> epgIds, eAction action)
         {
             ApiObjects.Response.Status status = null;
 
@@ -17866,11 +17866,11 @@ namespace ConditionalAccess
                                                 Recording serieRecording = RecordingsManager.Instance.Record(m_nGroupID, epg.EPG_ID, channelId, startDate, endDate, epg.CRID);
                                                 if (serieRecording == null || serieRecording.Status == null || serieRecording.Status.Code != (int)eResponseStatus.OK || serieRecording.Id == 0)
                                                 {
-                                                    log.ErrorFormat("failed to record epg as series on UpdateRecording, epgId = {0}", epg.EPG_ID);
+                                                    log.ErrorFormat("failed to record epg as series on IngestRecording, epgId = {0}", epg.EPG_ID);
                                                 }
                                                 else
                                                 {
-                                                    log.DebugFormat("successfully recorded epg as series on UpdateRecording, epgId = {0}, recordingId = {1}", epg.EPG_ID, serieRecording.Id);
+                                                    log.DebugFormat("successfully recorded epg as series on IngestRecording, epgId = {0}, recordingId = {1}", epg.EPG_ID, serieRecording.Id);
                                                     DateTime distributeTime = startDate.AddMinutes(1);
                                                     eRecordingTask task = eRecordingTask.DistributeRecording;
                                                     RecordingsManager.EnqueueMessage(m_nGroupID, serieRecording.EpgId, serieRecording.Id, serieRecording.EpgStartDate, distributeTime, task);
@@ -18641,7 +18641,7 @@ namespace ConditionalAccess
                 if (shouldGetDomainRecordings)
                 {
                     int status = 1;
-                    // Currently canceled can be only due to UpdateRecording which Deletes EPG
+                    // Currently canceled can be only due to IngestRecording which Deletes EPG
                     if (domainRecordingStatus.Value != DomainRecordingStatus.OK)
                     {
                         status = 2;

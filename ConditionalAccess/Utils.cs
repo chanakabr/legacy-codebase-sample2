@@ -4333,8 +4333,9 @@ namespace ConditionalAccess
 
             try
             {
-                WS_Catalog.UnifiedSearchRequest request = new WS_Catalog.UnifiedSearchRequest();
+                WS_Catalog.UnifiedSearchRequest request = new WS_Catalog.UnifiedSearchRequest();                
                 request.m_nGroupID = groupID;
+                request.m_dServerTime = DateTime.UtcNow;
                 request.m_sSiteGuid = userID;
                 request.domainId = (int)domainID;
                 request.m_nPageIndex = pageIndex;
@@ -5245,6 +5246,7 @@ namespace ConditionalAccess
                 WS_Catalog.ExtendedSearchRequest request = new WS_Catalog.ExtendedSearchRequest()
                 {
                     m_nGroupID = groupId,
+                    m_dServerTime = DateTime.UtcNow,
                     m_nPageIndex = 0,
                     m_nPageSize = 0,
                     assetTypes = new int[1] { 0 },
@@ -5295,10 +5297,10 @@ namespace ConditionalAccess
             return programs;
         }
 
-        internal static Dictionary<long, Recording> GetEpgToRecordingsMapByCridAndChannel(int groupId, string crid, long channelId)
+        internal static Dictionary<long, Recording> GetEpgToRecordingsMapByCridAndChannel(int groupId, string crid, long channelId, long epgId)
         {
             Dictionary<long, Recording> epgToRecordingMap = new Dictionary<long, Recording>();
-            DataTable dt = RecordingsDAL.GetEpgToRecordingsMapByCridAndChannel(groupId, crid, channelId);
+            DataTable dt = RecordingsDAL.GetEpgToRecordingsMapByCridChannelAndEpgId(groupId, crid, channelId, epgId);
             if (dt != null && dt.Rows != null)
             {
                 foreach (DataRow dr in dt.Rows)
@@ -5577,6 +5579,7 @@ namespace ConditionalAccess
                 WS_Catalog.ExtendedSearchRequest request = new WS_Catalog.ExtendedSearchRequest()
                 {
                     m_nGroupID = groupID,
+                    m_dServerTime = DateTime.UtcNow,
                     m_nPageIndex = 0,
                     m_nPageSize = 0,
                     assetTypes = new int[1] { 1 },
