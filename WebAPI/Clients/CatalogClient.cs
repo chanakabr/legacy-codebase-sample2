@@ -1896,5 +1896,73 @@ namespace WebAPI.Clients
            
             return result;
         }
+
+        internal KalturaAssetCommentListResponse GetAssetCommentsList(int groupId, string language, int id, KalturaAssetType AssetType, string userId, int domainId, string udid,
+            int pageIndex, int? pageSize, KalturaAssetCommentOrderBy? orderBy)
+        {
+            KalturaAssetCommentListResponse result = new KalturaAssetCommentListResponse();
+
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
+            // Create catalog order object
+            OrderObj order = new OrderObj();
+            if (orderBy == null)
+            {
+                order.m_eOrderBy = OrderBy.NONE;
+            }
+            else
+            {
+                order = CatalogConvertor.ConvertOrderToOrderObj(orderBy.Value);
+            }
+
+            // build request
+            AssetCommentsRequest request = new AssetCommentsRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_bUseStartDate = group.UseStartDate,
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
+                },
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize.Value,
+                m_sSiteGuid = userId,
+                domainId = domainId,            
+                m_dServerTime = getServerTime(),
+                assetId = id,
+                assetType = AssetType == KalturaAssetType.epg ? eAssetType.PROGRAM : eAssetType.MEDIA,
+                orderObj = order,
+            };
+
+            // build failover cache key
+            StringBuilder key = new StringBuilder();
+            key.AppendFormat("asset_id={0}_pi={1}_pz={2}_g={3}_l={4}_type={5}",
+                id, pageIndex, pageSize, groupId, language, eAssetType.PROGRAM.ToString());
+            AssetCommentsListResponse commentResponse = new AssetCommentsListResponse();
+            if (CatalogUtils.GetBaseResponse<AssetCommentsListResponse>(CatalogClientModule, request, out commentResponse))
+            {
+                if (commentResponse.status.Code != (int)StatusCode.OK)
+                {
+                    // Bad response received from WS
+                    throw new ClientException(commentResponse.status.Code, commentResponse.status.Message);
+                }
+                else
+                {
+                    result.Objects = commentResponse.Comments != null ?
+                        Mapper.Map<List<KalturaAssetComment>>(commentResponse.Comments) : null;
+                }
+            }
+            else
+            {
+                // general error
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+            return result;
+        }
     }
 }

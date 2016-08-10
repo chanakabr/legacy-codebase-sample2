@@ -129,6 +129,12 @@
   <wsdl:message name="Iservice_ClearStatistics_OutputMessage">
     <wsdl:part name="parameters" element="ClearStatisticsResponse" />
   </wsdl:message>
+  <wsdl:message name="Iservice_RebaseIndex_InputMessage">
+    <wsdl:part name="parameters" element="RebaseIndex" />
+  </wsdl:message>
+  <wsdl:message name="Iservice_RebaseIndex_OutputMessage">
+    <wsdl:part name="parameters" element="RebaseIndexResponse" />
+  </wsdl:message>
   <wsdl:portType name="Iservice">
     <wsdl:operation name="IngestAdiData">
       <wsdl:input wsaw:Action="urn:Iservice/IngestAdiData" message="Iservice_IngestAdiData_InputMessage" />
@@ -201,6 +207,10 @@
     <wsdl:operation name="ClearStatistics">
       <wsdl:input wsaw:Action="urn:Iservice/ClearStatistics" message="Iservice_ClearStatistics_InputMessage" />
       <wsdl:output wsaw:Action="urn:Iservice/ClearStatisticsResponse" message="Iservice_ClearStatistics_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="RebaseIndex">
+      <wsdl:input wsaw:Action="urn:Iservice/RebaseIndex" message="Iservice_RebaseIndex_InputMessage" />
+      <wsdl:output wsaw:Action="urn:Iservice/RebaseIndexResponse" message="Iservice_RebaseIndex_OutputMessage" />
     </wsdl:operation>
   </wsdl:portType>
 </wsdl:definitions>

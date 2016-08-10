@@ -144,20 +144,18 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="KeyValuePair" nillable="true" type="tns:KeyValuePair" />
-  <xs:complexType name="ArrayOfePersonalFilter">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="ePersonalFilter" type="tns:ePersonalFilter" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="ArrayOfePersonalFilter" nillable="true" type="tns:ArrayOfePersonalFilter" />
-  <xs:simpleType name="ePersonalFilter">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="ParentalRules" />
-      <xs:enumeration value="GeoBlockRules" />
-      <xs:enumeration value="EntitledAssets" />
-    </xs:restriction>
+  <xs:simpleType name="eAssetType">
+    <xs:list>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="UNKNOWN" />
+          <xs:enumeration value="MEDIA" />
+          <xs:enumeration value="PROGRAM" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:list>
   </xs:simpleType>
-  <xs:element name="ePersonalFilter" nillable="true" type="tns:ePersonalFilter" />
+  <xs:element name="eAssetType" nillable="true" type="tns:eAssetType" />
   <xs:simpleType name="NPVRSearchBy">
     <xs:restriction base="xs:string">
       <xs:enumeration value="Other" />
@@ -238,6 +236,20 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="RecordedSeriesObject" nillable="true" type="tns:RecordedSeriesObject" />
+  <xs:complexType name="ArrayOfePersonalFilter">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="ePersonalFilter" type="tns:ePersonalFilter" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfePersonalFilter" nillable="true" type="tns:ArrayOfePersonalFilter" />
+  <xs:simpleType name="ePersonalFilter">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ParentalRules" />
+      <xs:enumeration value="GeoBlockRules" />
+      <xs:enumeration value="EntitledAssets" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="ePersonalFilter" nillable="true" type="tns:ePersonalFilter" />
   <xs:simpleType name="eWatchStatus">
     <xs:restriction base="xs:string">
       <xs:enumeration value="Undefined" />
@@ -254,6 +266,7 @@
       <xs:enumeration value="Update" />
       <xs:enumeration value="Delete" />
       <xs:enumeration value="Rebuild" />
+      <xs:enumeration value="Rebase" />
     </xs:restriction>
   </xs:simpleType>
   <xs:element name="eAction" nillable="true" type="tns:eAction" />

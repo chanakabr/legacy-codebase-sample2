@@ -2431,7 +2431,7 @@
     <Compile Include="Controllers\CDNAdapterProfileController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
     <Compile Include="Controllers\CDNPartnerSettingsController.cs" />
-    <Compile Include="Controllers\EpgController.cs" />
+    <Compile Include="Controllers\AssetCommentController.cs" />
     <Compile Include="Controllers\HouseholdPaymentMethodController.cs" />
     <Compile Include="Controllers\HouseholdPaymentGatewayController.cs" />
     <Compile Include="Controllers\ProductPriceController.cs" />
@@ -2525,6 +2525,8 @@
     <Compile Include="Models\API\KalturaExportTaskOrderBy.cs" />
     <Compile Include="Models\API\KalturaParentalRuleOrderBy.cs" />
     <Compile Include="Models\API\KalturaUserAssetRuleOrderBy.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetCommentFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetCommentOrderBy.cs" />
     <Compile Include="Models\Catalog\KalturaBookmarkOrderBy.cs" />
     <Compile Include="Models\Catalog\KalturaBookmarkFilter.cs" />
     <Compile Include="Models\Catalog\KalturaBookmark.cs" />
@@ -2536,6 +2538,7 @@
     <Compile Include="Models\Catalog\KalturaBundleType.cs" />
     <Compile Include="Models\Catalog\KalturaChannelExternalFilter.cs" />
     <Compile Include="Models\Catalog\KalturaChannelFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaEpgCommentListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaRelatedFilter.cs" />
     <Compile Include="Models\Catalog\KalturaRelatedExternalFilter.cs" />
     <Compile Include="Models\Catalog\KalturaSearchAssetFilter.cs" />
