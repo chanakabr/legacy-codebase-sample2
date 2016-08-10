@@ -371,6 +371,11 @@ namespace WebAPI.Filters
                             createErrorResponse(actionContext, e.Code, e.Message);
                             return;
                         }
+                        catch (ApiException e)
+                        {
+                            createErrorResponse(actionContext, (int)e.Code, e.Message);
+                            return;
+                        }
                         catch (JsonReaderException)
                         {
                             createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidJSONRequest, "Invalid JSON");

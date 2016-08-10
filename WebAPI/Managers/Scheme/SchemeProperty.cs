@@ -43,8 +43,12 @@ namespace WebAPI.Managers.Scheme
             MinFloat = float.MinValue;
         }
 
-        internal void Validate(string typeName, string parameterName, object value, RequestType requiresPermission = RequestType.WRITE)
+        internal void Validate(string typeName, string parameterName, object value)
         {
+            RequestType requiresPermission = RequestType.READ;
+            if(HttpContext.Current.Items[RequestParser.REQUEST_TYPE] != null)
+                requiresPermission = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+
             string name = string.Format("{0}.{1}", typeName, parameterName);
 
             if (isA(requiresPermission, RequestType.WRITE))
@@ -120,14 +124,14 @@ namespace WebAPI.Managers.Scheme
                     if (fValue < MinLength)
                         throw new BadRequestException((int)StatusCode.InvalidActionParameters, string.Format("Object property {0} minimum value is {1}.", name, MinFloat));
                 }
+            }
 
-                if (RequiresPermission > 0)
+            if (RequiresPermission > 0)
+            {
+                RequestType? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+                if (requestType.HasValue && isA(requestType.Value, RequiresPermission))
                 {
-                    RequestType? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
-                    if (requestType.HasValue && isA(requestType.Value, RequiresPermission))
-                    {
-                        RolesManager.ValidatePropertyPermitted(typeName, parameterName, requestType.Value);
-                    }
+                    RolesManager.ValidatePropertyPermitted(typeName, parameterName, requestType.Value);
                 }
             }
 
