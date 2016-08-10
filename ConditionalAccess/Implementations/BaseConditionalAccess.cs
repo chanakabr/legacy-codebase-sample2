@@ -17225,8 +17225,10 @@ namespace ConditionalAccess
                 {
                     if (QuotaManager.Instance.IncreaseDomainQuota(domainId, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds))
                     {
+                        ContextData contextData = new ContextData();
                         System.Threading.Tasks.Task async = Task.Factory.StartNew((taskDomainId) =>
                         {
+                            contextData.Load();
                             if (!CompleteDomainSeriesRecordings((long)taskDomainId))
                             {
                                 log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after CancelOrDeleteRecord: domainId: {0}", domainId);
