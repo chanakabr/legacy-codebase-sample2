@@ -144,10 +144,12 @@
     <Compile Include="LinearChannelSettings.cs" />
     <Compile Include="PicData.cs" />
     <Compile Include="PicSize.cs" />
+    <Compile Include="Request\AssetCommentsRequest.cs" />
     <Compile Include="Request\AssetsBookmarksRequest.cs" />
     <Compile Include="Request\AssetsBookmarksRequestData.cs" />
     <Compile Include="Request\ExtendedSearchRequest.cs" />
     <Compile Include="Request\CountryRequest.cs" />
+    <Compile Include="Response\AssetCommentsListResponse.cs" />
     <Compile Include="Response\AssetsBookmarksResponse.cs" />
     <Compile Include="Request\AssetStatsRequest.cs" />
     <Compile Include="Request\BundleMediaRequest.cs" />
