@@ -6164,6 +6164,26 @@ namespace ConditionalAccess
             return domainIdToRecordingMap;
         }
 
+        internal static List<Recording> GetRecordingsByExternalRecordingId(int groupId, string externalRecordingId)
+        {
+            List<Recording> recordings = new List<Recording>();
+            DataTable dt = RecordingsDAL.GetRecordingsByExternalRecordingId(groupId, externalRecordingId);
+            if (dt != null && dt.Rows != null)
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    Recording recording = BuildRecordingFromDataRow(dr);
+                    // add recording if its valid
+                    if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK)                        
+                    {
+                        recordings.Add(recording);
+                    }
+                }
+            }
+
+            return recordings;
+        }
+
     }
 }
 

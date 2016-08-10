@@ -65,6 +65,10 @@ namespace Catalog.Response
         public string m_Action;
         [JsonProperty("group_id")]
         public int m_nGroupID;
+        
+        [DataMember]
+        [JsonIgnore]
+        public ApiObjects.eAssetType AssetType;
 
         public Comments()
         {

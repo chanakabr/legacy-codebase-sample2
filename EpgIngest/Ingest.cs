@@ -971,7 +971,7 @@ namespace EpgIngest
 
                         if (TagTypeIdWithValue.ContainsKey(nTagTypeID))
                         {
-                            List<KeyValuePair<string, int>> list = TagTypeIdWithValue[nTagTypeID].Where(x => x.Key == sTagValue.ToLower()).ToList();
+                            List<KeyValuePair<string, int>> list = TagTypeIdWithValue[nTagTypeID].Where(x => x.Key.ToLower() == sTagValue.ToLower()).ToList();
                             if (list != null && list.Count > 0)
                             {
                                 //Insert New EPG Tag Value in EPG_Program_Tags, we are assuming this tag value was not assigned to the program because the program is new                                                    
