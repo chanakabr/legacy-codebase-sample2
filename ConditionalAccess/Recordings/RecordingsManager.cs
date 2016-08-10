@@ -138,7 +138,7 @@ namespace Recordings
             try
             {
                 Dictionary<long, Recording> recordingsEpgMap = ConditionalAccess.Utils.GetEpgToRecordingsMapByCridAndChannel(groupId, crid, epgChannelID);
-
+                bool insertCheckDuplicateCridTask = true;
                 // remember and not forget
                 if (recordingsEpgMap.Count == 0)
                 {
@@ -177,23 +177,25 @@ namespace Recordings
                         {
                             recording = ConditionalAccess.Utils.GetRecordingByEpgId(groupId, programId);
                         }
-
-                        if (REMOVE_DUPLICATE_CRIDS)
-                        {
-                            // Schedule a message to check duplicate crid
-                            DateTime checkTime = endDate.AddSeconds(CHECK_DUPLICATE_CRID_INTERVAL_SEC);
-                            eRecordingTask task = eRecordingTask.CheckRecordingDuplicateCrids;
-                            EnqueueMessage(groupId, programId, recording.Id, startDate, checkTime, task);
-                        }
                     }
-                    /***** if min recording is already recorded we don't go to the adapter and insert the current
-                           recording with the min recording external ID and REMOVE_DUPLICATE_CRIDS is true *****/
+                    /***** if min recording is already recorded and REMOVE_DUPLICATE_CRIDS is true
+                     *     we don't go to the adapter and insert the current recording with the min recording external ID  *****/
                     else if (existingRecordingWithMinStartDate.RecordingStatus == TstvRecordingStatus.Recorded && REMOVE_DUPLICATE_CRIDS)
                     {
                         recording = new Recording(existingRecordingWithMinStartDate) { EpgStartDate = startDate, EpgEndDate = endDate, EpgId = programId, RecordingStatus = TstvRecordingStatus.Scheduled };
+                        recording.RecordingStatus = GetTstvRecordingStatus(recording.EpgStartDate, recording.EpgEndDate, recording.RecordingStatus);
                         recording = ConditionalAccess.Utils.InsertRecording(recording, groupId, RecordingInternalStatus.OK);
                         UpdateIndex(groupId, recording.Id, eAction.Update);
-                    }                    
+                        insertCheckDuplicateCridTask = false;
+                    }
+                }
+
+                if (insertCheckDuplicateCridTask)
+                {
+                    // Schedule a message to check duplicate crid
+                    DateTime checkTime = endDate.AddSeconds(CHECK_DUPLICATE_CRID_INTERVAL_SEC);
+                    eRecordingTask task = eRecordingTask.CheckRecordingDuplicateCrids;
+                    EnqueueMessage(groupId, programId, recording.Id, startDate, checkTime, task);
                 }
             }
 
