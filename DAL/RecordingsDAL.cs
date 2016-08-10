@@ -497,14 +497,15 @@ namespace DAL
             return spUpdateExpiredRecordingAfterScheduledTask.ExecuteReturnValue<bool>();
         }
 
-        public static DataTable GetEpgToRecordingsMapByCridAndChannel(int groupId, string crid, long channelId)
+        public static DataTable GetEpgToRecordingsMapByCridChannelAndEpgId(int groupId, string crid, long channelId, long epgId)
         {
             DataTable dt = null;
-            ODBCWrapper.StoredProcedure spGetEpgToRecordingsMapByCrid = new ODBCWrapper.StoredProcedure("GetRecordingsByCridAndChannel");
+            ODBCWrapper.StoredProcedure spGetEpgToRecordingsMapByCrid = new ODBCWrapper.StoredProcedure("GetRecordingsByCridChannelAndEpgId");
             spGetEpgToRecordingsMapByCrid.SetConnectionKey(RECORDING_CONNECTION);
             spGetEpgToRecordingsMapByCrid.AddParameter("@GroupID", groupId);
             spGetEpgToRecordingsMapByCrid.AddParameter("@Crid", crid);
             spGetEpgToRecordingsMapByCrid.AddParameter("@ChannelId", channelId);
+            spGetEpgToRecordingsMapByCrid.AddParameter("@EpgId", epgId);
             dt = spGetEpgToRecordingsMapByCrid.Execute();
 
             return dt;
@@ -555,26 +556,7 @@ namespace DAL
             domainSeriesId = spIsFollowingSeries.ExecuteReturnValue<long>();
 
             return domainSeriesId;
-        }
-
-        public static bool UpdateRecordingsExternalId(int groupId, string externalRecordingIdToUpdate, string crid, long channelId, string currentExternalId = null)
-        {
-            int updatedRowsCount = 0;
-            ODBCWrapper.StoredProcedure spUpdateRecordingsExternalId = new ODBCWrapper.StoredProcedure("UpdateRecordingsExternalId");
-            spUpdateRecordingsExternalId.SetConnectionKey(RECORDING_CONNECTION);
-            spUpdateRecordingsExternalId.AddParameter("@GroupID", groupId);
-            spUpdateRecordingsExternalId.AddParameter("@ExternalRecordingId", externalRecordingIdToUpdate);
-            spUpdateRecordingsExternalId.AddParameter("@Crid", crid);
-            spUpdateRecordingsExternalId.AddParameter("@ChannelId", channelId);
-            if (!string.IsNullOrEmpty(currentExternalId))
-            {
-                spUpdateRecordingsExternalId.AddParameter("@CurrentExternalId", currentExternalId);
-            }
-
-            updatedRowsCount = spUpdateRecordingsExternalId.ExecuteReturnValue<int>();
-
-            return updatedRowsCount > 0;            
-        }
+        }        
 
         public static DataSet GetDomainSeriesRecordings(int groupId, long domainId)
         {
@@ -1073,7 +1055,7 @@ namespace DAL
             return dt;
         }
 
-        public static HashSet<string> GetDomainRecordingsCridsByDomainsSeriesIds(int groupID, long domainID, List<long> domainSeriesIds)
+        public static HashSet<string> GetDomainRecordingsCridsByDomainsSeriesIds(int groupID, long domainID, List<long> domainSeriesIds, string specificCrid = null)
         {
             HashSet<string> crids = new HashSet<string>();
             DataTable dt = null;
@@ -1082,6 +1064,11 @@ namespace DAL
             sp.AddParameter("@GroupID", groupID);
             sp.AddParameter("@DomainID", domainID);
             sp.AddIDListParameter<long>("@DomainsSeriesIds", domainSeriesIds, "ID");
+            if (!string.IsNullOrEmpty(specificCrid))
+            {
+                sp.AddParameter("@SpecificCrid", specificCrid);
+            }
+
             dt = sp.Execute();
 
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
@@ -1098,5 +1085,18 @@ namespace DAL
 
             return crids;
         }
+
+        public static DataTable GetRecordingsByExternalRecordingId(int groupId, string externalRecordingId)
+        {
+            DataTable dt = null;
+            ODBCWrapper.StoredProcedure spGetEpgToRecordingsMapByExternalRecordingId = new ODBCWrapper.StoredProcedure("GetRecordingsByExternalRecordingId");
+            spGetEpgToRecordingsMapByExternalRecordingId.SetConnectionKey(RECORDING_CONNECTION);
+            spGetEpgToRecordingsMapByExternalRecordingId.AddParameter("@GroupID", groupId);
+            spGetEpgToRecordingsMapByExternalRecordingId.AddParameter("@ExternalRecordingId", externalRecordingId);
+            dt = spGetEpgToRecordingsMapByExternalRecordingId.Execute();
+
+            return dt;
+        }
+
     }
 }

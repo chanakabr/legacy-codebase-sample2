@@ -65,6 +65,7 @@ namespace Catalog.Request
     [ServiceKnownType(typeof(ExternalChannelRequest))]
     [ServiceKnownType(typeof(BaseChannelRequest))]
     [ServiceKnownType(typeof(InternalChannelRequest))]
+    [ServiceKnownType(typeof(AssetCommentsRequest))]
     [DataContract]
     public class BaseRequest
     {

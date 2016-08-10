@@ -643,7 +643,8 @@ namespace ApiObjects
         GetStatusAfterProgramEnded = 1,
         Record = 2,
         UpdateRecording = 3,
-        DistributeRecording = 4
+        DistributeRecording = 4,
+        CheckRecordingDuplicateCrids = 5
     }
 
     public enum eSeriesRecordingTask

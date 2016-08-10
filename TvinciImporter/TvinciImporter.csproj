@@ -217,10 +217,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TvinciImporter_WS_Encryptor_Encryptor</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost:82/ws_cas/module.asmx">
+    <WebReferenceUrl Include="http://localhost/WS_ConditionalAccess/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\WS_ConditionalAccess\</RelPath>
-      <UpdateFromURL>http://localhost:82/ws_cas/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/WS_ConditionalAccess/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -428,6 +428,9 @@
     <None Include="Web References\WS_ConditionalAccess\CollectionsPricesContainer1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\WS_ConditionalAccess\DomainQuotaResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\WS_ConditionalAccess\DomainsBillingTransactionsResponse1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -483,15 +486,18 @@
     <None Include="Web References\WS_ConditionalAccess\Recording1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\WS_ConditionalAccess\RecordingIDsResponse1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
     <None Include="Web References\WS_ConditionalAccess\RecordingResponse1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\WS_ConditionalAccess\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\SeriesRecording.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\SeriesResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\WS_ConditionalAccess\Status1.datasource">
       <DependentUpon>Reference.map</DependentUpon>

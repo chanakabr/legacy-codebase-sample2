@@ -5910,8 +5910,8 @@ namespace TvinciImporter
                             break;
                     }
 
-                    cas.UpdateRecordingAsync(sWSUserName, sWSPassword, epgIds.Select(i => (long)i).ToArray(), casAction);
-                    log.DebugFormat("cas.UpdateRecordingAsync has been called for epgIds {0}", string.Join(", ",  epgIds.Select(x => x.ToString()).ToArray()));
+                    cas.IngestRecordingAsync(sWSUserName, sWSPassword, epgIds.Select(i => (long)i).ToArray(), casAction);
+                    log.DebugFormat("cas.IngestRecordingAsync has been called for epgIds {0}", string.Join(", ", epgIds.Select(x => x.ToString()).ToArray()));
                 }
             }
             catch (Exception ex)

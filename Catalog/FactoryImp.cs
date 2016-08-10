@@ -241,6 +241,10 @@ namespace Catalog
             {
                 return (CountryRequest)m_oBaseRequest;
             }
+            if (m_oBaseRequest is AssetCommentsRequest)
+            {
+                return (AssetCommentsRequest)m_oBaseRequest;
+            }
 
             return null;
         }
