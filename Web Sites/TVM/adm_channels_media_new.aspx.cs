@@ -49,7 +49,7 @@ public partial class adm_channels_media_new : System.Web.UI.Page
                             nChannelId = int.Parse(oChannelId.ToString());
 
                             nChannelId = int.Parse(oChannelId.ToString());
-                            result = ImporterImpl.UpdateChannelIndex(LoginManager.GetLoginGroupID(), new List<int>() { nChannelId }, ApiObjects.eAction.Update);
+                            result = ImporterImpl.UpdateChannel(LoginManager.GetLoginGroupID(), new List<int>() { nChannelId }, ApiObjects.eAction.Update);
                         }
                     }
                 }

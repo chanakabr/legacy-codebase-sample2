@@ -360,6 +360,6 @@ FROM   (SELECT lct.description AS 'channel_type',
         int nAction = int.Parse(sStatus);
         eAction = (nAction == 0) ? eAction = eAction.Delete : eAction = eAction.Update;
 
-        bool result = ImporterImpl.UpdateChannelIndex(nGroupID, idsToUpdate, eAction);
+        bool result = ImporterImpl.UpdateChannel(nGroupID, idsToUpdate, eAction);
     }
 }
