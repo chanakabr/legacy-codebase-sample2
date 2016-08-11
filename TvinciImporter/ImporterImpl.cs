@@ -5540,10 +5540,10 @@ namespace TvinciImporter
                 #region Update Recordings (CAS)
 
                 // Update recordings only if we know that the dates have changed
-                if (datesUpdates)
-                {
-                    UpdateRecordingsOfEPGs(epgIds, groupId, action);
-                }
+                //if (datesUpdates)
+                //{
+                //    //UpdateRecordingsOfEPGs(epgIds, groupId, action);
+                //}
 
                 #endregion
             }
@@ -5682,6 +5682,8 @@ namespace TvinciImporter
                         default:
                             break;
                     }
+
+                    cas.Url = casURL;
 
                     var status = cas.UpdateRecording(sWSUserName, sWSPassword, epgIds.Select(i => (long)i).ToArray(), casAction);
 
