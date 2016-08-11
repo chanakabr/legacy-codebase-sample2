@@ -45,7 +45,7 @@ public partial class adm_channels_new : System.Web.UI.Page
 
                     //Update channel at Lucene/ ES
 
-                    result = ImporterImpl.UpdateChannel(loginGroupID, new List<int>() { nId }, ApiObjects.eAction.Update);
+                    result = ImporterImpl.UpdateChannelIndex(loginGroupID, new List<int>() { nId }, ApiObjects.eAction.Update);
                 }
                 return;
             }
@@ -737,7 +737,7 @@ public partial class adm_channels_new : System.Web.UI.Page
         bool inserted = TvmDAL.InsertChannelMediaType(groupID, channelID, mediaTypeIDs);
         if (inserted)
         {
-            bool result = ImporterImpl.UpdateChannel(groupID, new List<int>() { channelID }, ApiObjects.eAction.Update);
+            bool result = ImporterImpl.UpdateChannelIndex(groupID, new List<int>() { channelID }, ApiObjects.eAction.Update);
         }
     }
 
@@ -746,7 +746,7 @@ public partial class adm_channels_new : System.Web.UI.Page
         bool updated = TvmDAL.UpdateChannelMediaType(channelMediaTypeID, status, groupID, channelID);
         if (updated)
         {
-            bool result = ImporterImpl.UpdateChannel(groupID, new List<int>() { channelID }, ApiObjects.eAction.Update);
+            bool result = ImporterImpl.UpdateChannelIndex(groupID, new List<int>() { channelID }, ApiObjects.eAction.Update);
         }
     }
 

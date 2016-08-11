@@ -267,7 +267,7 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                     }
                     break;
                 case "channels":
-                    if (!ImporterImpl.UpdateChannel(nGroupId, lIds, action))
+                    if (!ImporterImpl.UpdateChannelIndex(nGroupId, lIds, action))
                     {
                         log.Error(string.Format("Failed updating channel index for channelIDs: {0}, groupID: {1}", lIds, nGroupId));
                     }
@@ -281,7 +281,7 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                         lIds.Clear();
                         lIds.Add(nChannelId);
 
-                        if (!ImporterImpl.UpdateChannel(nGroupId, lIds, action))
+                        if (!ImporterImpl.UpdateChannelIndex(nGroupId, lIds, action))
                         {
                             log.Error(string.Format("Failed updating channel index for channelIDs: {0}, groupID: {1}", lIds, nGroupId));
                         }
