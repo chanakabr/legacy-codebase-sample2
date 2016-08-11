@@ -69,7 +69,7 @@ namespace ElasticSearchHandler
                 while (!isDone)
                 {
                     // If we reached the limit - this is the last bulk
-                    if (firstIndex + sizeOfBulk > groupMedias.Count)
+                    if (firstIndex + sizeOfBulk >= groupMedias.Count)
                     {
                         // The current bulk will be until the end of the list/dictionary
                         lastIndex = groupMedias.Count;
@@ -84,94 +84,103 @@ namespace ElasticSearchHandler
                         lastIndex = firstIndex + sizeOfBulk;
                     }
 
-                    HashSet<int> allIdsFromDB = new HashSet<int>();
-
-                    // Create a list with all the IDs that were found in Database
-                    for (int i = firstIndex; i < lastIndex; i++)
+                    try
                     {
-                        int currentId = groupMedias[i].Key;
+                        HashSet<int> allIdsFromDB = new HashSet<int>();
 
-                        allIdsFromDB.Add(currentId);
-                    }
-
-                    List<ESBulkRequestObj<int>> bulkRequests = new List<ESBulkRequestObj<int>>();
-                    HashSet<int> assetsToDelete = new HashSet<int>();
-                    HashSet<int> assetsToUpdate = new HashSet<int>();
-
-                    // For each language
-                    foreach (var language in languages)
-                    {
-                        int firstMediaId = groupMedias[firstIndex].Key;
-                        int lastMediaId = groupMedias[lastIndex].Key;
-                        string documentType = ElasticSearchTaskUtils.GetTanslationType(MEDIA, language);
-
-                        bool isFirstRun = firstIndex == 0;
-                        List<ElasticSearchApi.ESAssetDocument> searchResults =
-                            GetRangedDocuments(indexName, firstMediaId.ToString(), lastMediaId.ToString(), "media_id", documentType, isFirstRun);
-
-                        foreach (var currentAsset in searchResults)
+                        // Create a list with all the IDs that were found in Database
+                        for (int i = firstIndex; i < lastIndex; i++)
                         {
-                            int assetId = currentAsset.asset_id;
-                            DateTime updateDateES = currentAsset.update_date;
-                            string isESActiveString;
-                            currentAsset.extraReturnFields.TryGetValue("is_active", out isESActiveString);
-                            bool isESActive = isESActiveString == "1";
+                            int currentId = groupMedias[i].Key;
 
-                            // If it is not contained in list of IDs from DB - 
-                            // this means this media is deleted and should be deleted from ES as well
-                            if (!allIdsFromDB.Contains(assetId))
-                            {
-                                assetsToDelete.Add(assetId);
-                                deletedDocuments++;
-                            }
-                            else
-                            {
-                                // Otherwise - remove it from this list, so eventually it will contain only the assets that are in DB but not in ES
-                                // assets that will eventually remain in this list are assets that exist in DB and not in ES
-                                allIdsFromDB.Remove(assetId);
+                            allIdsFromDB.Add(currentId);
+                        }
 
-                                if (groupMediasDictionary.ContainsKey(assetId))
+                        List<ESBulkRequestObj<int>> bulkRequests = new List<ESBulkRequestObj<int>>();
+                        HashSet<int> assetsToDelete = new HashSet<int>();
+                        HashSet<int> assetsToUpdate = new HashSet<int>();
+
+                        // For each language
+                        foreach (var language in languages)
+                        {
+                            int firstMediaId = groupMedias[firstIndex].Key;
+                            int lastMediaId = groupMedias[lastIndex - 1].Key;
+                            string documentType = ElasticSearchTaskUtils.GetTanslationType(MEDIA, language);
+
+                            bool isFirstRun = firstIndex == 0;
+                            List<ElasticSearchApi.ESAssetDocument> searchResults =
+                                GetRangedDocuments(indexName, firstMediaId.ToString(), lastMediaId.ToString(), "media_id", documentType, isFirstRun);
+
+                            foreach (var currentAsset in searchResults)
+                            {
+                                int assetId = currentAsset.asset_id;
+                                DateTime updateDateES = currentAsset.update_date;
+                                string isESActiveString;
+                                currentAsset.extraReturnFields.TryGetValue("is_active", out isESActiveString);
+                                bool isESActive = isESActiveString == "1";
+
+                                // If it is not contained in list of IDs from DB - 
+                                // this means this media is deleted and should be deleted from ES as well
+                                if (!allIdsFromDB.Contains(assetId))
                                 {
-                                    DateTime updateDateDB = groupMediasDictionary[assetId].Value;
-                                    bool isDBActive = groupMediasDictionary[assetId].Key;
+                                    assetsToDelete.Add(assetId);
+                                    deletedDocuments++;
+                                }
+                                else
+                                {
+                                    // Otherwise - remove it from this list, so eventually it will contain only the assets that are in DB but not in ES
+                                    // assets that will eventually remain in this list are assets that exist in DB and not in ES
+                                    allIdsFromDB.Remove(assetId);
 
-                                    // Compare the dates - if the DB was updated after the ES was updated, this means we need to update ES
-                                    if ((updateDateDB.Subtract(updateDateES) > minimumTimeSpan) ||
-                                        // or is the is_active is different between them
-                                        (isESActive != isDBActive))
+                                    if (groupMediasDictionary.ContainsKey(assetId))
                                     {
-                                        assetsToUpdate.Add(assetId);
-                                        updatedDocuments++;
+                                        DateTime updateDateDB = groupMediasDictionary[assetId].Value;
+                                        bool isDBActive = groupMediasDictionary[assetId].Key;
+
+                                        // Compare the dates - if the DB was updated after the ES was updated, this means we need to update ES
+                                        if ((updateDateDB.Subtract(updateDateES) > minimumTimeSpan) ||
+                                            // or is the is_active is different between them
+                                            (isESActive != isDBActive))
+                                        {
+                                            assetsToUpdate.Add(assetId);
+                                            updatedDocuments++;
+                                        }
                                     }
                                 }
                             }
-                        }
 
-                        // create a request for each deleted asset
-                        foreach (var currentAsset in assetsToDelete)
-                        {
-                            ESBulkRequestObj<int> currentRequest = new ESBulkRequestObj<int>()
+                            // create a request for each deleted asset
+                            foreach (var currentAsset in assetsToDelete)
                             {
-                                docID = currentAsset,
-                                document = string.Empty,
-                                index = indexName,
-                                Operation = eOperation.delete,
-                                type = documentType
-                            };
+                                ESBulkRequestObj<int> currentRequest = new ESBulkRequestObj<int>()
+                                {
+                                    docID = currentAsset,
+                                    document = string.Empty,
+                                    index = indexName,
+                                    Operation = eOperation.delete,
+                                    type = documentType
+                                };
 
-                            bulkRequests.Add(currentRequest);
+                                bulkRequests.Add(currentRequest);
+                            }
+
+                            // create a request for each new asset
+                            // assets that were left in this list are assets that exist in DB and not in ES
+                            foreach (var assetId in allIdsFromDB)
+                            {
+                                assetsToUpdate.Add(assetId);
+                                updatedDocuments++;
+                            }
                         }
 
-                        // create a request for each new asset
-                        // assets that were left in this list are assets that exist in DB and not in ES
-                        foreach (var assetId in allIdsFromDB)
-                        {
-                            assetsToUpdate.Add(assetId);
-                            updatedDocuments++;
-                        }
+                        IssueUpdatesAndDeletes<int>(bulkRequests, assetsToUpdate.ToList());
                     }
-
-                    IssueUpdatesAndDeletes<int>(bulkRequests, assetsToUpdate.ToList());
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat(
+                            "Rebase media index of group {0} failed in bulk between INDEXES {1} and {2}. error = {3}", 
+                            groupId, firstIndex, lastIndex, ex);
+                    }
 
                     // move on to the new index
                     firstIndex = lastIndex - 1;

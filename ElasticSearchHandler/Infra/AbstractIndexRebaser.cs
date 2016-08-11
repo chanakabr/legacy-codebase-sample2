@@ -25,7 +25,7 @@ namespace ElasticSearchHandler
         ///  Minimum time span to consider that there was a real change
         ///  (because ES update date has no milliseconds)
         /// </summary>
-        protected readonly TimeSpan minimumTimeSpan = new TimeSpan(0, 0, 2);
+        protected readonly TimeSpan minimumTimeSpan = new TimeSpan(0, 0, 6, 250);
 
         public AbstractIndexRebaser(int groupId)
         {
