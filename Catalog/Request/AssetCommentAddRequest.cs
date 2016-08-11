@@ -20,21 +20,19 @@ namespace Catalog.Request
         [DataMember]
         public ApiObjects.eAssetType assetType;
         [DataMember]
-        public string m_sWriter;
+        public string writer;
         [DataMember]
-        public string m_sHeader;
+        public string header;
         [DataMember]
-        public string m_sSubHeader;
+        public string subHeader;
         [DataMember]
-        public string m_sContentText;
+        public string contentText;
         [DataMember]
-        public string m_sUDID;
+        public string udid;
         [DataMember]
-        public string m_sCountry;
+        public bool shouldAutoActive;
         [DataMember]
-        public bool m_bAutoActive;
-        [DataMember]
-        public Int32 m_nAssetID;
+        public Int32 assetId;
 
         public AssetCommentAddRequest(): base()
         {
@@ -55,26 +53,26 @@ namespace Catalog.Request
                 }
 
                 CheckSignature(request);
+                string country = string.Empty;
 
-
-                if (string.IsNullOrEmpty(request.m_sCountry))
+                if (!string.IsNullOrEmpty(request.m_sUserIP))
                 {
-                    request.m_sCountry = TVinciShared.WS_Utils.GetIP2CountryCode(request.m_sUserIP);
+                    country = TVinciShared.WS_Utils.GetIP2CountryCode(request.m_sUserIP);
                 }
 
                 // insert comment
-                int nIsActive = request.m_bAutoActive == true ? 1 : 0;
+                int nIsActive = request.shouldAutoActive == true ? 1 : 0;
                 long id = 0;
                 DateTime? createdDate = null;
                 switch (request.assetType)
 	            {
                     case ApiObjects.eAssetType.MEDIA:
-                        id = CatalogDAL.InsertMediaComment(request.m_sSiteGuid, request.m_nAssetID, request.m_sWriter, request.m_nGroupID, nIsActive, 0, request.m_sUserIP,
-                                                      request.m_sHeader,request.m_sSubHeader, request.m_sContentText, request.m_oFilter.m_nLanguage, request.m_sUDID, ref createdDate);
+                        id = CatalogDAL.InsertMediaComment(request.m_sSiteGuid, request.assetId, request.writer, request.m_nGroupID, nIsActive, 0, request.m_sUserIP,
+                                                      request.header,request.subHeader, request.contentText, request.m_oFilter.m_nLanguage, request.udid, ref createdDate);
                         break;
                     case ApiObjects.eAssetType.PROGRAM:
-                        id = CatalogDAL.InsertEpgComment(request.m_nAssetID, request.m_oFilter.m_nLanguage, request.m_sWriter,request.m_nGroupID, request.m_sUserIP, request.m_sHeader,
-                                                    request.m_sSubHeader, request.m_sContentText, request.m_sSiteGuid, request.m_sUDID, request.m_sCountry, nIsActive, ref createdDate);
+                        id = CatalogDAL.InsertEpgComment(request.assetId, request.m_oFilter.m_nLanguage, request.writer, request.m_nGroupID, request.m_sUserIP, request.header,
+                                                    request.subHeader, request.contentText, request.m_sSiteGuid, request.udid, country, nIsActive, ref createdDate);
                         break;
                     default:
                         break;
@@ -89,12 +87,12 @@ namespace Catalog.Request
                 response.AssetComment = new Comments()
                 {
                     Id = (int)id,
-                    m_nAssetID = request.m_nAssetID,
+                    m_nAssetID = request.assetId,
                     m_sAssetType = request.assetType.ToString(),
-                    m_sWriter = request.m_sWriter,
-                    m_sHeader = request.m_sHeader,
-                    m_sSubHeader = request.m_sSubHeader,
-                    m_sContentText = request.m_sContentText,
+                    m_sWriter = request.writer,
+                    m_sHeader = request.header,
+                    m_sSubHeader = request.subHeader,
+                    m_sContentText = request.contentText,
                     m_dCreateDate = createdDate.Value,
                     m_sSiteGuid = request.m_sSiteGuid,
                     m_nLang = request.m_oFilter.m_nLanguage,
