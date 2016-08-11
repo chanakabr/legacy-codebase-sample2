@@ -1935,7 +1935,7 @@ namespace WebAPI.Clients
                 domainId = domainId,            
                 m_dServerTime = getServerTime(),
                 assetId = id,
-                assetType = AssetType == KalturaAssetType.epg ? eAssetType.PROGRAM : eAssetType.MEDIA,
+                assetType = CatalogMappings.ConvertToAssetType(AssetType),
                 orderObj = order,
             };
 
@@ -1962,6 +1962,63 @@ namespace WebAPI.Clients
                 // general error
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
+            return result;
+        }
+
+        internal KalturaAssetComment AddAssetComment(int groupId, int assetId, KalturaAssetType assetType, string userId, int domainId, string writer, string header,
+                                                     string subHeader, string contextText, string udid, int languageId, bool shouldAutoActive = true)
+        {
+            KalturaAssetComment result = new KalturaAssetComment();
+
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
+
+            // build request
+            AssetCommentAddRequest request = new AssetCommentAddRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    m_nLanguage = languageId,
+                    m_bUseStartDate = group.UseStartDate,
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
+                },
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                m_sSiteGuid = userId,
+                domainId = domainId,
+                m_dServerTime = getServerTime(),
+                assetId = assetId,
+                assetType = CatalogMappings.ConvertToAssetType(assetType),
+                writer = writer,
+                header = header,
+                subHeader = subHeader,
+                contentText = contextText,
+                udid = udid,
+                shouldAutoActive = shouldAutoActive
+            };
+
+            AssetCommentResponse assetCommentResponse = null;
+            if (CatalogUtils.GetBaseResponse<AssetCommentResponse>(CatalogClientModule, request, out assetCommentResponse))
+            {
+                if (assetCommentResponse.Status.Code != (int)StatusCode.OK)
+                {
+                    // Bad response received from WS
+                    throw new ClientException(assetCommentResponse.Status.Code, assetCommentResponse.Status.Message);
+                }
+                else
+                {
+                    result = assetCommentResponse.AssetComment != null ? Mapper.Map<KalturaAssetComment>(assetCommentResponse.AssetComment) : null;
+                }
+            }
+            else
+            {
+                // general error
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
             return result;
         }
     }
