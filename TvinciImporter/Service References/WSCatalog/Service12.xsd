@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ApiObjects" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ApiObjects" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://localhost:98/ws_catalog/Service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
-  <xs:import schemaLocation="http://localhost:98/ws_catalog/Service.svc?xsd=xsd8" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Epg" />
+  <xs:import schemaLocation="http://localhost:82/WS_Catalog/Service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:import schemaLocation="http://localhost:82/WS_Catalog/Service.svc?xsd=xsd8" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Epg" />
   <xs:simpleType name="eAssetTypes">
     <xs:restriction base="xs:string">
       <xs:enumeration value="UNKNOWN">
@@ -35,6 +35,13 @@
     </xs:restriction>
   </xs:simpleType>
   <xs:element name="eAssetTypes" nillable="true" type="tns:eAssetTypes" />
+  <xs:simpleType name="EpgSearchType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ByDate" />
+      <xs:enumeration value="Current" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="EpgSearchType" nillable="true" type="tns:EpgSearchType" />
   <xs:simpleType name="StatsType">
     <xs:restriction base="xs:string">
       <xs:enumeration value="MEDIA" />
@@ -107,13 +114,6 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="ArrayOfEPGChannelProgrammeObject" nillable="true" type="tns:ArrayOfEPGChannelProgrammeObject" />
-  <xs:simpleType name="EpgSearchType">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="ByDate" />
-      <xs:enumeration value="Current" />
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:element name="EpgSearchType" nillable="true" type="tns:EpgSearchType" />
   <xs:simpleType name="NPVRSearchBy">
     <xs:restriction base="xs:string">
       <xs:enumeration value="Other" />
