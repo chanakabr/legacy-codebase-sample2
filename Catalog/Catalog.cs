@@ -6037,10 +6037,10 @@ namespace Catalog
 
                         if (!definitions.shouldDateSearchesApplyToAllTypes)
                         {
-                            leaf.assetTypes = new List<eAssetTypes>()
+                            leaf.assetTypes = new List<eObjectType>()
                             {
-                                eAssetTypes.EPG,
-                                eAssetTypes.NPVR
+                                eObjectType.EPG,
+                                eObjectType.Recording
                             };
                         }
                     }
@@ -6051,10 +6051,10 @@ namespace Catalog
 
                         if (!definitions.shouldDateSearchesApplyToAllTypes)
                         {
-                            leaf.assetTypes = new List<eAssetTypes>()
+                            leaf.assetTypes = new List<eObjectType>()
                             {
-                                eAssetTypes.EPG,
-                                eAssetTypes.NPVR
+                                eObjectType.EPG,
+                                eObjectType.Recording
                             };
                         }
                     }
