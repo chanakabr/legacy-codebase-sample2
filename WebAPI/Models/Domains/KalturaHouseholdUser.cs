@@ -32,6 +32,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "userId")]
         [JsonProperty("userId")]
         [XmlElement(ElementName = "userId")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
         public string UserId { get; set; }
 
         /// <summary>

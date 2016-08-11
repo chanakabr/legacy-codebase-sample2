@@ -100,7 +100,7 @@ namespace WebAPI.Controllers
                 }
                 else if (!string.IsNullOrEmpty(householdUser.HouseholdMasterUsername))
                 {
-                    ClientsManager.DomainsClient().SubmitAddUserToDomainRequest(groupId, householdUser.UserId, householdUser.HouseholdMasterUsername);
+                    ClientsManager.DomainsClient().SubmitAddUserToDomainRequest(groupId, KS.GetFromRequest().UserId, householdUser.HouseholdMasterUsername);
                     householdUser.Status = KalturaHouseholdUserStatus.PENDING;
                 }
                 else
