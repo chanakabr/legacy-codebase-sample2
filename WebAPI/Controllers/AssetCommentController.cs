@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         
         /// <summary>
-        /// Returns Epg Comments by EpgId
+        /// Returns asset comments by asset id
         /// </summary>
         /// <param name="filter">Filtering the assets comments request</param>
         /// <param name="pager">Page size and index</param>
@@ -57,6 +57,42 @@ namespace WebAPI.Controllers
                 }               
             }
 
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Add asset comments by asset id
+        /// </summary>        
+        /// <param name="comment">comment</param>
+        /// <remarks></remarks>
+        [Route("add"), HttpPost]
+        [ApiAuthorize]
+        public KalturaAssetComment Add(KalturaAssetComment comment)
+        {
+            KalturaAssetComment response = null;
+
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
+                long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);     
+                string udid = KSUtils.ExtractKSPayload().UDID;
+
+                int assetId = 0;
+                if (!int.TryParse(comment.AssetId, out assetId) || assetId <= 0)
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Invalid assetId");
+                }
+
+                // call client
+                response = ClientsManager.CatalogClient().AddAssetComment(groupId, assetId, comment.AssetType, userId, (int)domainId, comment.Writer,
+                                                                          comment.Header, comment.SubHeader, comment.Text, udid, comment.LanguageId);
+            }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
