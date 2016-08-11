@@ -6,12 +6,14 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    public class AssetStatisticsController
+    [RoutePrefix("_service/assetStatistics/action")]
+    public class AssetStatisticsController : ApiController
     {
         /// <summary>
         /// Returns statistics for given list of assets by type and / or time period
@@ -20,6 +22,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("query"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaAssetStatisticsListResponse Query(KalturaAssetStatisticsQuery query)
         {
             List<KalturaAssetStatistics> response = null;

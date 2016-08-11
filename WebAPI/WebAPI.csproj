@@ -498,6 +498,7 @@
     <Content Include="testmeDoc\actions\assetcomment.list.html" />
     <Content Include="testmeDoc\actions\assetfile.getContext.html" />
     <Content Include="testmeDoc\actions\assethistory.list.html" />
+    <Content Include="testmeDoc\actions\assetstatistics.query.html" />
     <Content Include="testmeDoc\actions\bookmark.add.html" />
     <Content Include="testmeDoc\actions\bookmark.list.html" />
     <Content Include="testmeDoc\actions\cdnadapterprofile.add.html" />
@@ -788,6 +789,7 @@
     <Content Include="testmeDoc\objects\KalturaAssetListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaAssetStatistics.html" />
     <Content Include="testmeDoc\objects\KalturaAssetStatisticsListResponse.html" />
+    <Content Include="testmeDoc\objects\KalturaAssetStatisticsQuery.html" />
     <Content Include="testmeDoc\objects\KalturaBaseAssetInfo.html" />
     <Content Include="testmeDoc\objects\KalturaBaseChannel.html" />
     <Content Include="testmeDoc\objects\KalturaBaseOTTUser.html" />
@@ -970,6 +972,7 @@
     <Content Include="testmeDoc\services\assetcomment.html" />
     <Content Include="testmeDoc\services\assetfile.html" />
     <Content Include="testmeDoc\services\assethistory.html" />
+    <Content Include="testmeDoc\services\assetstatistics.html" />
     <Content Include="testmeDoc\services\bookmark.html" />
     <Content Include="testmeDoc\services\cdnadapterprofile.html" />
     <Content Include="testmeDoc\services\cdnpartnersettings.html" />
@@ -1906,6 +1909,9 @@
     <Content Include="testme\json\KalturaRegionListResponse-subclasses.json" />
     <Content Include="testme\json\region-actions.json" />
     <Content Include="testme\json\region-list-action-info.json" />
+    <Content Include="testme\json\assetstatistics-actions.json" />
+    <Content Include="testme\json\assetstatistics-query-action-info.json" />
+    <Content Include="testme\json\KalturaAssetStatisticsQuery-subclasses.json" />
     <None Include="Web References\Api\api.disco" />
     <Content Include="Web References\Billing\AdyenBillingDetail.datasource">
       <DependentUpon>Reference.map</DependentUpon>
