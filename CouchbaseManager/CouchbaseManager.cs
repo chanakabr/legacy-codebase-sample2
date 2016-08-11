@@ -144,8 +144,14 @@ namespace CouchbaseManager
 
         private ITypeTranscoder GetTranscoder()
         {
-            JsonSerializerSettings serializerSettings = new JsonSerializerSettings() { ContractResolver = new DefaultContractResolver() };
-            JsonSerializerSettings deserializationSettings = new JsonSerializerSettings() { ContractResolver = new DefaultContractResolver() };
+            JsonSerializerSettings serializerSettings = new JsonSerializerSettings()
+            {
+                ContractResolver = new DefaultContractResolver()
+            };
+            JsonSerializerSettings deserializationSettings = new JsonSerializerSettings()
+            {
+                ContractResolver = new DefaultContractResolver()
+            };
             CustomSerializer serializer = new CustomSerializer(deserializationSettings, serializerSettings);
             CustomTranscoder transcoder = new CustomTranscoder(serializer);
 
@@ -251,12 +257,12 @@ namespace CouchbaseManager
                     case 147:
                     // OperationTimeout
                     case 148:
-                        {
-                            //m_Client = CouchbaseManager.CouchbaseManager.RefreshInstance(bucket);
-                            break;
-                        }
-                    default:
+                    {
+                        //m_Client = CouchbaseManager.CouchbaseManager.RefreshInstance(bucket);
                         break;
+                    }
+                    default:
+                    break;
                 }
             }
         }
@@ -282,55 +288,55 @@ namespace CouchbaseManager
             switch (result.Status)
             {
                 case Couchbase.IO.ResponseStatus.AuthenticationContinue:
-                    break;
+                break;
                 case Couchbase.IO.ResponseStatus.AuthenticationError:
-                    break;
+                break;
                 case Couchbase.IO.ResponseStatus.Busy:
-                    break;
+                break;
                 case Couchbase.IO.ResponseStatus.ClientFailure:
-                    break;
+                break;
                 case Couchbase.IO.ResponseStatus.DocumentMutationLost:
-                    break;
+                break;
                 case Couchbase.IO.ResponseStatus.IncrDecrOnNonNumericValue:
-                    break;
+                break;
                 case Couchbase.IO.ResponseStatus.InternalError:
-                    break;
+                break;
                 case Couchbase.IO.ResponseStatus.InvalidArguments:
-                    break;
+                break;
                 case Couchbase.IO.ResponseStatus.InvalidRange:
-                    break;
+                break;
                 case Couchbase.IO.ResponseStatus.ItemNotStored:
-                    break;
+                break;
                 case Couchbase.IO.ResponseStatus.KeyExists:
-                    break;
+                break;
                 case Couchbase.IO.ResponseStatus.KeyNotFound:
-                    break;
+                break;
                 case Couchbase.IO.ResponseStatus.NoReplicasFound:
-                    break;
+                break;
                 case Couchbase.IO.ResponseStatus.NodeUnavailable:
-                    break;
+                break;
                 case Couchbase.IO.ResponseStatus.None:
-                    break;
+                break;
                 case Couchbase.IO.ResponseStatus.NotSupported:
-                    break;
+                break;
                 case Couchbase.IO.ResponseStatus.OperationTimeout:
-                    break;
+                break;
                 case Couchbase.IO.ResponseStatus.OutOfMemory:
-                    break;
+                break;
                 case Couchbase.IO.ResponseStatus.Success:
-                    break;
+                break;
                 case Couchbase.IO.ResponseStatus.TemporaryFailure:
-                    break;
+                break;
                 case Couchbase.IO.ResponseStatus.TransportFailure:
-                    break;
+                break;
                 case Couchbase.IO.ResponseStatus.UnknownCommand:
-                    break;
+                break;
                 case Couchbase.IO.ResponseStatus.VBucketBelongsToAnotherServer:
-                    break;
+                break;
                 case Couchbase.IO.ResponseStatus.ValueTooLarge:
-                    break;
+                break;
                 default:
-                    break;
+                break;
             }
         }
 
@@ -897,7 +903,7 @@ namespace CouchbaseManager
 
                 IOperationResult<T> getResult;
 
-                string action = string.Format("Action: Get; bucket: {0}; key: {1}", bucketName, key); 
+                string action = string.Format("Action: Get; bucket: {0}; key: {1}", bucketName, key);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
                     getResult = bucket.Get<T>(key);
@@ -933,6 +939,7 @@ namespace CouchbaseManager
             T result = default(T);
             status = Couchbase.IO.ResponseStatus.None;
 
+
             if (asJson)
                 return GetJsonAsTWithVersion<T>(key, out version, out status);
 
@@ -942,7 +949,7 @@ namespace CouchbaseManager
 
                 IOperationResult<T> getResult;
 
-                string action = string.Format("Action: Get; bucket: {0}; key: {1}", bucketName, key); 
+                string action = string.Format("Action: Get; bucket: {0}; key: {1}", bucketName, key);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
                     getResult = bucket.Get<T>(key);
@@ -991,7 +998,7 @@ namespace CouchbaseManager
             IOperationResult setResult;
             expiration = FixExpirationTime(expiration);
 
-            string action = string.Format("Action: Upsert; bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration); 
+            string action = string.Format("Action: Upsert; bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
             {
                 if (!asJson)
@@ -1039,7 +1046,7 @@ namespace CouchbaseManager
             IOperationResult setResult;
             expiration = FixExpirationTime(expiration);
 
-            string action = string.Format("Action: Upsert; bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration); 
+            string action = string.Format("Action: Upsert; bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
             {
                 if (!asJson)
@@ -1101,7 +1108,7 @@ namespace CouchbaseManager
             IOperationResult setResult;
             expiration = FixExpirationTime(expiration);
 
-            string action = string.Format("Action: Upsert; bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration); 
+            string action = string.Format("Action: Upsert; bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
             {
                 if (!asJson)
@@ -1149,7 +1156,7 @@ namespace CouchbaseManager
             IOperationResult setResult;
             expiration = FixExpirationTime(expiration);
 
-            string action = string.Format("Action: Upsert; bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration); 
+            string action = string.Format("Action: Upsert; bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
             {
                 if (!asJson)
@@ -1535,7 +1542,7 @@ namespace CouchbaseManager
             var bucket = ClusterHelper.GetBucket(bucketName);
             IOperationResult<ulong> incrementResult = null;
 
-            string action = string.Format("Action: Increment; bucket: {0}; key: {1}", bucketName, key); 
+            string action = string.Format("Action: Increment; bucket: {0}; key: {1}", bucketName, key);
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
             {
                 incrementResult = bucket.Increment(key, delta);
