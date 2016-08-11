@@ -27,10 +27,12 @@ namespace Catalog.Request
                 MediaCommentRequest request = (MediaCommentRequest)oBaseRequest;
 
                 int nIsActive = request.m_bAutoActive == true ? 1 : 0;
-
-                return CatalogDAL.InsertMediaComment(request.m_sSiteGuid, request.m_nAssetID, request.m_sWriter,
+                DateTime? createdDate = null;
+                long insertedId = CatalogDAL.InsertMediaComment(request.m_sSiteGuid, request.m_nAssetID, request.m_sWriter,
                     request.m_nGroupID, nIsActive, 0, request.m_sUserIP, request.m_sHeader,
-                    request.m_sSubHeader, request.m_sContentText, request.m_oFilter.m_nLanguage, request.m_sUDID);
+                    request.m_sSubHeader, request.m_sContentText, request.m_oFilter.m_nLanguage, request.m_sUDID, ref createdDate);
+
+                return insertedId > 0;
             }
             catch (Exception ex)
             {
