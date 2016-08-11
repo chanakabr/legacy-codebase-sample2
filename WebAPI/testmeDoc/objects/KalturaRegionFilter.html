@@ -29,7 +29,7 @@
 		<h2>Kaltura API</h2>
 		<table class="action" width="80%">
 			<tr>
-				<th class="service_action_title">KalturaHouseholdUser</th>
+				<th class="service_action_title">KalturaRegionFilter</th>
 			</tr>
 			<tr>
 				<td class="title">Properties</td>
@@ -70,7 +70,38 @@
 					<table style="">
 						<tbody>
 							<tr>
-								<td class="inheritedFrom"><b>KalturaHouseholdUser</b></td>
+								<td class="inheritedFrom">
+									<b><img class="base-attribute" src="../images/collapsed.gif" alt="KalturaFilter" /> Inherited from <a href="KalturaFilter.html">KalturaFilter</a></b>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table style="display: none">
+						<tbody>
+							<tr>
+								<th class="subtitle">Name</th>
+								<th class="subtitle">Type</th>
+								<th class="subtitle">Writable</th>
+								<th class="subtitle">Restrictions</th>
+								<th class="subtitle">Description</th>
+							</tr>
+							<tr >
+								<td>orderBy</td>
+								<td><a href="../enums/KalturaRegionOrderBy.html">KalturaRegionOrderBy</a></td>
+								<td>V</td>
+								<td></td>
+								<td></td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<table style="">
+						<tbody>
+							<tr>
+								<td class="inheritedFrom"><b>KalturaRegionFilter</b></td>
 							</tr>
 						</tbody>
 					</table>
@@ -84,39 +115,11 @@
 								<th class="subtitle">Description</th>
 							</tr>
 							<tr >
-								<td>householdId</td>
-								<td>int</td>
-								<td>V</td>
-								<td></td>
-								<td>The identifier of the household</td>
-							</tr>
-							<tr class="odd">
-								<td>userId</td>
+								<td>externalIdIn</td>
 								<td>string</td>
 								<td>V</td>
 								<td></td>
-								<td>The identifier of the user</td>
-							</tr>
-							<tr >
-								<td>isMaster</td>
-								<td>bool</td>
-								<td>V</td>
-								<td></td>
-								<td>True if the user added as master use</td>
-							</tr>
-							<tr class="odd">
-								<td>householdMasterUsername</td>
-								<td>string</td>
-								<td>V</td>
-								<td></td>
-								<td>The username of the household master for adding a user in status pending for the household master to approve</td>
-							</tr>
-							<tr >
-								<td>status</td>
-								<td><a href="../enums/KalturaHouseholdUserStatus.html">KalturaHouseholdUserStatus</a></td>
-								<td>V</td>
-								<td></td>
-								<td>The username of the household master for adding a user in status pending for the household master to approve</td>
+								<td>List of comma separated regions external identifiers</td>
 							</tr>
 						</tbody>
 					</table>

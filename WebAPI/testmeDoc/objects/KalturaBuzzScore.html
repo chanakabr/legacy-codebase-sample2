@@ -29,7 +29,7 @@
 		<h2>Kaltura API</h2>
 		<table class="action" width="80%">
 			<tr>
-				<th class="service_action_title">KalturaHouseholdUser</th>
+				<th class="service_action_title">KalturaBuzzScore</th>
 			</tr>
 			<tr>
 				<td class="title">Properties</td>
@@ -70,7 +70,7 @@
 					<table style="">
 						<tbody>
 							<tr>
-								<td class="inheritedFrom"><b>KalturaHouseholdUser</b></td>
+								<td class="inheritedFrom"><b>KalturaBuzzScore</b></td>
 							</tr>
 						</tbody>
 					</table>
@@ -84,39 +84,25 @@
 								<th class="subtitle">Description</th>
 							</tr>
 							<tr >
-								<td>householdId</td>
-								<td>int</td>
+								<td>normalizedAvgScore</td>
+								<td>float</td>
 								<td>V</td>
 								<td></td>
-								<td>The identifier of the household</td>
+								<td>Normalized average score</td>
 							</tr>
 							<tr class="odd">
-								<td>userId</td>
-								<td>string</td>
+								<td>updateDate</td>
+								<td>bigint</td>
 								<td>V</td>
 								<td></td>
-								<td>The identifier of the user</td>
+								<td>Update date</td>
 							</tr>
 							<tr >
-								<td>isMaster</td>
-								<td>bool</td>
+								<td>avgScore</td>
+								<td>float</td>
 								<td>V</td>
 								<td></td>
-								<td>True if the user added as master use</td>
-							</tr>
-							<tr class="odd">
-								<td>householdMasterUsername</td>
-								<td>string</td>
-								<td>V</td>
-								<td></td>
-								<td>The username of the household master for adding a user in status pending for the household master to approve</td>
-							</tr>
-							<tr >
-								<td>status</td>
-								<td><a href="../enums/KalturaHouseholdUserStatus.html">KalturaHouseholdUserStatus</a></td>
-								<td>V</td>
-								<td></td>
-								<td>The username of the household master for adding a user in status pending for the household master to approve</td>
+								<td>Average score</td>
 							</tr>
 						</tbody>
 					</table>

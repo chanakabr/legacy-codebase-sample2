@@ -429,6 +429,14 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.AssetCommentController.List(WebAPI.Models.Catalog.KalturaAssetCommentFilter,WebAPI.Models.General.KalturaFilterPager)">
+            <summary>
+            Returns Epg Comments by EpgId
+            </summary>
+            <param name="filter">Filtering the assets comments request</param>
+            <param name="pager">Page size and index</param>
+            <remarks></remarks>
+        </member>
         <member name="M:WebAPI.Controllers.HouseholdPaymentMethodController.List">
             <summary>
             Get a list of all configured Payment Gateways providers available for the account. For each payment is provided with the household associated payment methods. 
@@ -1727,7 +1735,7 @@
             </summary>                
             <param name="device">Device</param>
             <remarks>Possible status codes: 
-            Domain does not exist = 1006, Domain suspended = 1009, Device exists in other domain = 1016 , Device already exists = 1015</remarks>
+            Household does not exist = 1006, Household suspended = 1009, Device exists in other household = 1016 , Device already exists = 1015, No users in household = 1017</remarks>
         </member>
         <member name="M:WebAPI.Controllers.HouseholdDeviceController.AddOldStandard(System.String,System.Int32,System.String)">
             <summary>
@@ -1737,14 +1745,14 @@
             <param name="device_brand_id">Device brand identifier</param>
             <param name="udid">Device UDID</param>
             <remarks>Possible status codes: 
-            Domain does not exist = 1006, Domain suspended = 1009, Device exists in other domain = 1016 , Device already exists = 1015</remarks>
+            Household does not exist = 1006, Household suspended = 1009, Device exists in other household = 1016 , Device already exists = 1015</remarks>
         </member>
         <member name="M:WebAPI.Controllers.HouseholdDeviceController.Get">
             <summary>
             Returns device registration status to the supplied household
             </summary>
             <returns></returns><remarks>Possible status codes: 
-            Device does not exist = 1019, Device not in domain = 1003, Device exists in other domain = 1016</remarks>
+            Device does not exist = 1019, Device not in household = 1003, Device exists in other household = 1016</remarks>
         </member>
         <member name="M:WebAPI.Controllers.HouseholdDeviceController.GetStatus">
             <summary>
@@ -1785,7 +1793,7 @@
             <param name="udid">Device UDID</param>
             <param name="status">Device status</param>
             <remarks>Possible status codes: 
-            Limitation period = 1014, Device not in domain = 1003, Exceeded limit = 1001 </remarks>
+            Limitation period = 1014, Device not in household = 1003, Exceeded limit = 1001 </remarks>
         </member>
         <member name="M:WebAPI.Controllers.BookmarkController.ListOldStandard(WebAPI.Models.Catalog.KalturaAssetsFilter)">
             <summary>
@@ -1891,7 +1899,8 @@
             </summary>                
             <param name="householdUser">User details to add</param>
             <remarks>Possible status codes: 
-            Household suspended = 1009, Invalid user = 1026, User Already In household = 1029
+            Household suspended = 1009, Invalid user = 1026, User Already In household = 1029, User not allowed = 1027, Household suspended = 1009, 
+            Action user is not master = 1021, No users in household = 1017, User exists in other households = 1018, User not allowed = 1027, Exceeded user limit = 1022, Request failed = 1025, 
             </remarks>
         </member>
         <member name="M:WebAPI.Controllers.HouseholdUserController.AddOldStandard(System.String,System.Boolean)">
@@ -3161,6 +3170,16 @@
             /// The end of the time window to get the statistics for (in epoch).
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetCommentFilter.AssetIdEqual">
+             <summary>
+            Asset Id
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetCommentFilter.AssetTypeEqual">
+             <summary>
+            Asset Type
+             </summary>
+        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaBookmarkFilter">
             <summary>
             Filtering Assets requests
@@ -3463,6 +3482,76 @@
              <summary>
             Channel Id
              </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaAssetCommentListResponse">
+            <summary>
+            Epg Comment Response
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetCommentListResponse.Objects">
+            <summary>
+            Assets
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaAssetComment">
+            <summary>
+            Asset Comment
+            </summary>
+        </member>
+        <member name="F:WebAPI.Models.Catalog.KalturaAssetComment.Id">
+            <summary>
+            Comment ID
+            </summary>
+        </member>
+        <member name="F:WebAPI.Models.Catalog.KalturaAssetComment.LanguageId">
+            <summary>
+            Language Id
+            </summary>
+        </member>
+        <member name="F:WebAPI.Models.Catalog.KalturaAssetComment.Header">
+            <summary>
+            Header
+            </summary>
+        </member>
+        <member name="F:WebAPI.Models.Catalog.KalturaAssetComment.SubHeader">
+            <summary>
+            Sub Header
+            </summary>
+        </member>
+        <member name="F:WebAPI.Models.Catalog.KalturaAssetComment.Text">
+            <summary>
+            Text
+            </summary>
+        </member>
+        <member name="F:WebAPI.Models.Catalog.KalturaAssetComment.CreateDate">
+            <summary>
+            CreateDate
+            </summary>
+        </member>
+        <member name="F:WebAPI.Models.Catalog.KalturaAssetComment.UserId">
+            <summary>
+            User Id
+            </summary>
+        </member>
+        <member name="F:WebAPI.Models.Catalog.KalturaAssetComment.Writer">
+            <summary>
+            Writer
+            </summary>
+        </member>
+        <member name="F:WebAPI.Models.Catalog.KalturaAssetComment.UserPictureURL">
+            <summary>
+            User Picture URL
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetComment.AssetId">
+            <summary>
+            Asset identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetComment.AssetType">
+            <summary>
+            Asset Type
+            </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaRelatedFilter.KSql">
             <summary>
@@ -15056,7 +15145,7 @@
             </summary>
             <param name="filter">Filtering OttUser request</param>
             <remarks>Possible status codes: 
-            UserDoesNotExist = 2</remarks>
+            UserDoesNotExist = 2000, </remarks>
             <returns></returns>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetInfoListResponse">

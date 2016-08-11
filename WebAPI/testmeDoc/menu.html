@@ -82,6 +82,12 @@
 							<li class="action"><a href="actions/asset.get.html" target="main">get</a></li>
 							<li class="action"><a href="actions/asset.list.html" target="main">list</a></li>
 						</ul></li>
+					<li class="service" id="assetcomment">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/assetcomment.html" target="main">assetComment</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/assetcomment.list.html" target="main">list</a></li>
+						</ul></li>
 					<li class="service" id="assetfile">
 						<img class="tree-item" src="images/collapsed.gif" />
 						<a class="tree-content" href="services/assetfile.html" target="main">assetFile</a>
@@ -219,6 +225,7 @@
 							<li class="action"><a href="actions/householddevice.generatePin.html" target="main">generatePin</a></li>
 							<li class="action"><a href="actions/householddevice.get.html" target="main">get</a></li>
 							<li class="action"><a href="actions/householddevice.update.html" target="main">update</a></li>
+							<li class="action"><a href="actions/householddevice.updateStatus.html" target="main">updateStatus</a></li>
 						</ul></li>
 					<li class="service" id="householdlimitations">
 						<img class="tree-item" src="images/collapsed.gif" />
@@ -434,6 +441,12 @@
 							<li class="action"><a href="actions/recording.list.html" target="main">list</a></li>
 							<li class="action"><a href="actions/recording.protect.html" target="main">protect</a></li>
 						</ul></li>
+					<li class="service" id="region">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/region.html" target="main">region</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/region.list.html" target="main">list</a></li>
+						</ul></li>
 					<li class="service" id="registrysettings">
 						<img class="tree-item" src="images/collapsed.gif" />
 						<a class="tree-content" href="services/registrysettings.html" target="main">registrySettings</a>
@@ -558,10 +571,14 @@
 					<li id="object_KalturaApiParameterPermissionItem"><a href="objects/KalturaApiParameterPermissionItem.html" target="main">KalturaApiParameterPermissionItem</a></li>
 					<li id="object_KalturaAppToken"><a href="objects/KalturaAppToken.html" target="main">KalturaAppToken</a></li>
 					<li id="object_KalturaAsset"><a href="objects/KalturaAsset.html" target="main">KalturaAsset</a></li>
+					<li id="object_KalturaAssetComment"><a href="objects/KalturaAssetComment.html" target="main">KalturaAssetComment</a></li>
+					<li id="object_KalturaAssetCommentListResponse"><a href="objects/KalturaAssetCommentListResponse.html" target="main">KalturaAssetCommentListResponse</a></li>
 					<li id="object_KalturaAssetFileContext"><a href="objects/KalturaAssetFileContext.html" target="main">KalturaAssetFileContext</a></li>
 					<li id="object_KalturaAssetHistory"><a href="objects/KalturaAssetHistory.html" target="main">KalturaAssetHistory</a></li>
 					<li id="object_KalturaAssetHistoryListResponse"><a href="objects/KalturaAssetHistoryListResponse.html" target="main">KalturaAssetHistoryListResponse</a></li>
 					<li id="object_KalturaAssetListResponse"><a href="objects/KalturaAssetListResponse.html" target="main">KalturaAssetListResponse</a></li>
+					<li id="object_KalturaAssetStatistics"><a href="objects/KalturaAssetStatistics.html" target="main">KalturaAssetStatistics</a></li>
+					<li id="object_KalturaAssetStatisticsListResponse"><a href="objects/KalturaAssetStatisticsListResponse.html" target="main">KalturaAssetStatisticsListResponse</a></li>
 					<li id="object_KalturaBaseAssetInfo"><a href="objects/KalturaBaseAssetInfo.html" target="main">KalturaBaseAssetInfo</a></li>
 					<li id="object_KalturaBaseChannel"><a href="objects/KalturaBaseChannel.html" target="main">KalturaBaseChannel</a></li>
 					<li id="object_KalturaBaseOTTUser"><a href="objects/KalturaBaseOTTUser.html" target="main">KalturaBaseOTTUser</a></li>
@@ -572,6 +589,7 @@
 					<li id="object_KalturaBookmarkListResponse"><a href="objects/KalturaBookmarkListResponse.html" target="main">KalturaBookmarkListResponse</a></li>
 					<li id="object_KalturaBookmarkPlayerData"><a href="objects/KalturaBookmarkPlayerData.html" target="main">KalturaBookmarkPlayerData</a></li>
 					<li id="object_KalturaBooleanValue"><a href="objects/KalturaBooleanValue.html" target="main">KalturaBooleanValue</a></li>
+					<li id="object_KalturaBuzzScore"><a href="objects/KalturaBuzzScore.html" target="main">KalturaBuzzScore</a></li>
 					<li id="object_KalturaCDNAdapterProfile"><a href="objects/KalturaCDNAdapterProfile.html" target="main">KalturaCDNAdapterProfile</a></li>
 					<li id="object_KalturaCDNAdapterProfileListResponse"><a href="objects/KalturaCDNAdapterProfileListResponse.html" target="main">KalturaCDNAdapterProfileListResponse</a></li>
 					<li id="object_KalturaCDNPartnerSettings"><a href="objects/KalturaCDNPartnerSettings.html" target="main">KalturaCDNPartnerSettings</a></li>
@@ -677,6 +695,9 @@
 					<li id="object_KalturaRecommendationProfileListResponse"><a href="objects/KalturaRecommendationProfileListResponse.html" target="main">KalturaRecommendationProfileListResponse</a></li>
 					<li id="object_KalturaRecording"><a href="objects/KalturaRecording.html" target="main">KalturaRecording</a></li>
 					<li id="object_KalturaRecordingListResponse"><a href="objects/KalturaRecordingListResponse.html" target="main">KalturaRecordingListResponse</a></li>
+					<li id="object_KalturaRegion"><a href="objects/KalturaRegion.html" target="main">KalturaRegion</a></li>
+					<li id="object_KalturaRegionListResponse"><a href="objects/KalturaRegionListResponse.html" target="main">KalturaRegionListResponse</a></li>
+					<li id="object_KalturaRegionalChannel"><a href="objects/KalturaRegionalChannel.html" target="main">KalturaRegionalChannel</a></li>
 					<li id="object_KalturaRegistryResponse"><a href="objects/KalturaRegistryResponse.html" target="main">KalturaRegistryResponse</a></li>
 					<li id="object_KalturaRegistrySettings"><a href="objects/KalturaRegistrySettings.html" target="main">KalturaRegistrySettings</a></li>
 					<li id="object_KalturaRegistrySettingsListResponse"><a href="objects/KalturaRegistrySettingsListResponse.html" target="main">KalturaRegistrySettingsListResponse</a></li>
@@ -713,6 +734,7 @@
 				<h2>Filter Objects</h2>
 				<ul>
 					<li id="object_KalturaAnnouncementFilter"><a href="objects/KalturaAnnouncementFilter.html" target="main">KalturaAnnouncementFilter</a></li>
+					<li id="object_KalturaAssetCommentFilter"><a href="objects/KalturaAssetCommentFilter.html" target="main">KalturaAssetCommentFilter</a></li>
 					<li id="object_KalturaAssetFilter"><a href="objects/KalturaAssetFilter.html" target="main">KalturaAssetFilter</a></li>
 					<li id="object_KalturaAssetHistoryFilter"><a href="objects/KalturaAssetHistoryFilter.html" target="main">KalturaAssetHistoryFilter</a></li>
 					<li id="object_KalturaBookmarkFilter"><a href="objects/KalturaBookmarkFilter.html" target="main">KalturaBookmarkFilter</a></li>
@@ -731,6 +753,7 @@
 					<li id="object_KalturaPersonalFeedFilter"><a href="objects/KalturaPersonalFeedFilter.html" target="main">KalturaPersonalFeedFilter</a></li>
 					<li id="object_KalturaProductPriceFilter"><a href="objects/KalturaProductPriceFilter.html" target="main">KalturaProductPriceFilter</a></li>
 					<li id="object_KalturaRecordingFilter"><a href="objects/KalturaRecordingFilter.html" target="main">KalturaRecordingFilter</a></li>
+					<li id="object_KalturaRegionFilter"><a href="objects/KalturaRegionFilter.html" target="main">KalturaRegionFilter</a></li>
 					<li id="object_KalturaRelatedExternalFilter"><a href="objects/KalturaRelatedExternalFilter.html" target="main">KalturaRelatedExternalFilter</a></li>
 					<li id="object_KalturaRelatedFilter"><a href="objects/KalturaRelatedFilter.html" target="main">KalturaRelatedFilter</a></li>
 					<li id="object_KalturaSearchAssetFilter"><a href="objects/KalturaSearchAssetFilter.html" target="main">KalturaSearchAssetFilter</a></li>
@@ -752,6 +775,7 @@
 					<li id="object_KalturaApiParameterPermissionItemAction"><a href="enums/KalturaApiParameterPermissionItemAction.html" target="main">KalturaApiParameterPermissionItemAction</a></li>
 					<li id="object_KalturaAppTokenHashType"><a href="enums/KalturaAppTokenHashType.html" target="main">KalturaAppTokenHashType</a></li>
 					<li id="object_KalturaAppTokenStatus"><a href="enums/KalturaAppTokenStatus.html" target="main">KalturaAppTokenStatus</a></li>
+					<li id="object_KalturaAssetCommentOrderBy"><a href="enums/KalturaAssetCommentOrderBy.html" target="main">KalturaAssetCommentOrderBy</a></li>
 					<li id="object_KalturaAssetHistoryOrderBy"><a href="enums/KalturaAssetHistoryOrderBy.html" target="main">KalturaAssetHistoryOrderBy</a></li>
 					<li id="object_KalturaAssetOrderBy"><a href="enums/KalturaAssetOrderBy.html" target="main">KalturaAssetOrderBy</a></li>
 					<li id="object_KalturaAssetReferenceType"><a href="enums/KalturaAssetReferenceType.html" target="main">KalturaAssetReferenceType</a></li>
@@ -762,7 +786,7 @@
 					<li id="object_KalturaBundleType"><a href="enums/KalturaBundleType.html" target="main">KalturaBundleType</a></li>
 					<li id="object_KalturaChannelEnrichment"><a href="enums/KalturaChannelEnrichment.html" target="main">KalturaChannelEnrichment</a></li>
 					<li id="object_KalturaCouponStatus"><a href="enums/KalturaCouponStatus.html" target="main">KalturaCouponStatus</a></li>
-					<li id="object_KalturaDeviceState"><a href="enums/KalturaDeviceState.html" target="main">KalturaDeviceState</a></li>
+					<li id="object_KalturaDeviceStatus"><a href="enums/KalturaDeviceStatus.html" target="main">KalturaDeviceStatus</a></li>
 					<li id="object_KalturaEntitlementOrderBy"><a href="enums/KalturaEntitlementOrderBy.html" target="main">KalturaEntitlementOrderBy</a></li>
 					<li id="object_KalturaEntityReferenceBy"><a href="enums/KalturaEntityReferenceBy.html" target="main">KalturaEntityReferenceBy</a></li>
 					<li id="object_KalturaExportDataType"><a href="enums/KalturaExportDataType.html" target="main">KalturaExportDataType</a></li>
@@ -775,6 +799,7 @@
 					<li id="object_KalturaHouseholdRestriction"><a href="enums/KalturaHouseholdRestriction.html" target="main">KalturaHouseholdRestriction</a></li>
 					<li id="object_KalturaHouseholdState"><a href="enums/KalturaHouseholdState.html" target="main">KalturaHouseholdState</a></li>
 					<li id="object_KalturaHouseholdSuspentionState"><a href="enums/KalturaHouseholdSuspentionState.html" target="main">KalturaHouseholdSuspentionState</a></li>
+					<li id="object_KalturaHouseholdUserStatus"><a href="enums/KalturaHouseholdUserStatus.html" target="main">KalturaHouseholdUserStatus</a></li>
 					<li id="object_KalturaInboxMessageOrderBy"><a href="enums/KalturaInboxMessageOrderBy.html" target="main">KalturaInboxMessageOrderBy</a></li>
 					<li id="object_KalturaInboxMessageStatus"><a href="enums/KalturaInboxMessageStatus.html" target="main">KalturaInboxMessageStatus</a></li>
 					<li id="object_KalturaInboxMessageType"><a href="enums/KalturaInboxMessageType.html" target="main">KalturaInboxMessageType</a></li>
@@ -796,6 +821,7 @@
 					<li id="object_KalturaRecordingOrderBy"><a href="enums/KalturaRecordingOrderBy.html" target="main">KalturaRecordingOrderBy</a></li>
 					<li id="object_KalturaRecordingStatus"><a href="enums/KalturaRecordingStatus.html" target="main">KalturaRecordingStatus</a></li>
 					<li id="object_KalturaRecordingType"><a href="enums/KalturaRecordingType.html" target="main">KalturaRecordingType</a></li>
+					<li id="object_KalturaRegionOrderBy"><a href="enums/KalturaRegionOrderBy.html" target="main">KalturaRegionOrderBy</a></li>
 					<li id="object_KalturaRuleLevel"><a href="enums/KalturaRuleLevel.html" target="main">KalturaRuleLevel</a></li>
 					<li id="object_KalturaRuleType"><a href="enums/KalturaRuleType.html" target="main">KalturaRuleType</a></li>
 					<li id="object_KalturaSeriesRecordingOrderBy"><a href="enums/KalturaSeriesRecordingOrderBy.html" target="main">KalturaSeriesRecordingOrderBy</a></li>

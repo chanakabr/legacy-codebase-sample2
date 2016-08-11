@@ -495,6 +495,7 @@
     <Content Include="testmeDoc\actions\apptoken.startSession.html" />
     <Content Include="testmeDoc\actions\asset.get.html" />
     <Content Include="testmeDoc\actions\asset.list.html" />
+    <Content Include="testmeDoc\actions\assetcomment.list.html" />
     <Content Include="testmeDoc\actions\assetfile.getContext.html" />
     <Content Include="testmeDoc\actions\assethistory.list.html" />
     <Content Include="testmeDoc\actions\bookmark.add.html" />
@@ -553,6 +554,7 @@
     <Content Include="testmeDoc\actions\householddevice.generatePin.html" />
     <Content Include="testmeDoc\actions\householddevice.get.html" />
     <Content Include="testmeDoc\actions\householddevice.update.html" />
+    <Content Include="testmeDoc\actions\householddevice.updateStatus.html" />
     <Content Include="testmeDoc\actions\householdlimitations.get.html" />
     <Content Include="testmeDoc\actions\householdpaymentgateway.delete.html" />
     <Content Include="testmeDoc\actions\householdpaymentgateway.getChargeID.html" />
@@ -637,6 +639,7 @@
     <Content Include="testmeDoc\actions\recording.get.html" />
     <Content Include="testmeDoc\actions\recording.list.html" />
     <Content Include="testmeDoc\actions\recording.protect.html" />
+    <Content Include="testmeDoc\actions\region.list.html" />
     <Content Include="testmeDoc\actions\registrysettings.list.html" />
     <Content Include="testmeDoc\actions\seriesrecording.add.html" />
     <Content Include="testmeDoc\actions\seriesrecording.cancel.html" />
@@ -688,6 +691,7 @@
     <Content Include="testmeDoc\enums\KalturaApiParameterPermissionItemAction.html" />
     <Content Include="testmeDoc\enums\KalturaAppTokenHashType.html" />
     <Content Include="testmeDoc\enums\KalturaAppTokenStatus.html" />
+    <Content Include="testmeDoc\enums\KalturaAssetCommentOrderBy.html" />
     <Content Include="testmeDoc\enums\KalturaAssetHistoryOrderBy.html" />
     <Content Include="testmeDoc\enums\KalturaAssetOrderBy.html" />
     <Content Include="testmeDoc\enums\KalturaAssetReferenceType.html" />
@@ -698,7 +702,7 @@
     <Content Include="testmeDoc\enums\KalturaBundleType.html" />
     <Content Include="testmeDoc\enums\KalturaChannelEnrichment.html" />
     <Content Include="testmeDoc\enums\KalturaCouponStatus.html" />
-    <Content Include="testmeDoc\enums\KalturaDeviceState.html" />
+    <Content Include="testmeDoc\enums\KalturaDeviceStatus.html" />
     <Content Include="testmeDoc\enums\KalturaEntitlementOrderBy.html" />
     <Content Include="testmeDoc\enums\KalturaEntityReferenceBy.html" />
     <Content Include="testmeDoc\enums\KalturaExportDataType.html" />
@@ -711,6 +715,7 @@
     <Content Include="testmeDoc\enums\KalturaHouseholdRestriction.html" />
     <Content Include="testmeDoc\enums\KalturaHouseholdState.html" />
     <Content Include="testmeDoc\enums\KalturaHouseholdSuspentionState.html" />
+    <Content Include="testmeDoc\enums\KalturaHouseholdUserStatus.html" />
     <Content Include="testmeDoc\enums\KalturaInboxMessageOrderBy.html" />
     <Content Include="testmeDoc\enums\KalturaInboxMessageStatus.html" />
     <Content Include="testmeDoc\enums\KalturaInboxMessageType.html" />
@@ -732,6 +737,7 @@
     <Content Include="testmeDoc\enums\KalturaRecordingOrderBy.html" />
     <Content Include="testmeDoc\enums\KalturaRecordingStatus.html" />
     <Content Include="testmeDoc\enums\KalturaRecordingType.html" />
+    <Content Include="testmeDoc\enums\KalturaRegionOrderBy.html" />
     <Content Include="testmeDoc\enums\KalturaRuleLevel.html" />
     <Content Include="testmeDoc\enums\KalturaRuleType.html" />
     <Content Include="testmeDoc\enums\KalturaSeriesRecordingOrderBy.html" />
@@ -771,12 +777,17 @@
     <Content Include="testmeDoc\objects\KalturaApiParameterPermissionItem.html" />
     <Content Include="testmeDoc\objects\KalturaAppToken.html" />
     <Content Include="testmeDoc\objects\KalturaAsset.html" />
+    <Content Include="testmeDoc\objects\KalturaAssetComment.html" />
+    <Content Include="testmeDoc\objects\KalturaAssetCommentFilter.html" />
+    <Content Include="testmeDoc\objects\KalturaAssetCommentListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaAssetFileContext.html" />
     <Content Include="testmeDoc\objects\KalturaAssetFilter.html" />
     <Content Include="testmeDoc\objects\KalturaAssetHistory.html" />
     <Content Include="testmeDoc\objects\KalturaAssetHistoryFilter.html" />
     <Content Include="testmeDoc\objects\KalturaAssetHistoryListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaAssetListResponse.html" />
+    <Content Include="testmeDoc\objects\KalturaAssetStatistics.html" />
+    <Content Include="testmeDoc\objects\KalturaAssetStatisticsListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaBaseAssetInfo.html" />
     <Content Include="testmeDoc\objects\KalturaBaseChannel.html" />
     <Content Include="testmeDoc\objects\KalturaBaseOTTUser.html" />
@@ -789,6 +800,7 @@
     <Content Include="testmeDoc\objects\KalturaBookmarkPlayerData.html" />
     <Content Include="testmeDoc\objects\KalturaBooleanValue.html" />
     <Content Include="testmeDoc\objects\KalturaBundleFilter.html" />
+    <Content Include="testmeDoc\objects\KalturaBuzzScore.html" />
     <Content Include="testmeDoc\objects\KalturaCDNAdapterProfile.html" />
     <Content Include="testmeDoc\objects\KalturaCDNAdapterProfileListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaCDNPartnerSettings.html" />
@@ -908,6 +920,10 @@
     <Content Include="testmeDoc\objects\KalturaRecording.html" />
     <Content Include="testmeDoc\objects\KalturaRecordingFilter.html" />
     <Content Include="testmeDoc\objects\KalturaRecordingListResponse.html" />
+    <Content Include="testmeDoc\objects\KalturaRegion.html" />
+    <Content Include="testmeDoc\objects\KalturaRegionalChannel.html" />
+    <Content Include="testmeDoc\objects\KalturaRegionFilter.html" />
+    <Content Include="testmeDoc\objects\KalturaRegionListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaRegistryResponse.html" />
     <Content Include="testmeDoc\objects\KalturaRegistrySettings.html" />
     <Content Include="testmeDoc\objects\KalturaRegistrySettingsListResponse.html" />
@@ -951,6 +967,7 @@
     <Content Include="testmeDoc\services\announcement.html" />
     <Content Include="testmeDoc\services\apptoken.html" />
     <Content Include="testmeDoc\services\asset.html" />
+    <Content Include="testmeDoc\services\assetcomment.html" />
     <Content Include="testmeDoc\services\assetfile.html" />
     <Content Include="testmeDoc\services\assethistory.html" />
     <Content Include="testmeDoc\services\bookmark.html" />
@@ -993,6 +1010,7 @@
     <Content Include="testmeDoc\services\purchasesettings.html" />
     <Content Include="testmeDoc\services\recommendationprofile.html" />
     <Content Include="testmeDoc\services\recording.html" />
+    <Content Include="testmeDoc\services\region.html" />
     <Content Include="testmeDoc\services\registrysettings.html" />
     <Content Include="testmeDoc\services\seriesrecording.html" />
     <Content Include="testmeDoc\services\session.html" />
@@ -1873,6 +1891,21 @@
     <Content Include="testme\json\KalturaRelatedFilter-subclasses.json" />
     <Content Include="testme\json\KalturaSearchAssetFilter-subclasses.json" />
     <Content Include="testme\json\KalturaSearchExternalFilter-subclasses.json" />
+    <Content Include="testme\json\assetcomment-actions.json" />
+    <Content Include="testme\json\assetcomment-list-action-info.json" />
+    <Content Include="testme\json\householddevice-updateStatus-action-info.json" />
+    <Content Include="testme\json\KalturaAssetComment-subclasses.json" />
+    <Content Include="testme\json\KalturaAssetCommentFilter-subclasses.json" />
+    <Content Include="testme\json\KalturaAssetCommentListResponse-subclasses.json" />
+    <Content Include="testme\json\KalturaAssetStatistics-subclasses.json" />
+    <Content Include="testme\json\KalturaAssetStatisticsListResponse-subclasses.json" />
+    <Content Include="testme\json\KalturaBuzzScore-subclasses.json" />
+    <Content Include="testme\json\KalturaRegion-subclasses.json" />
+    <Content Include="testme\json\KalturaRegionalChannel-subclasses.json" />
+    <Content Include="testme\json\KalturaRegionFilter-subclasses.json" />
+    <Content Include="testme\json\KalturaRegionListResponse-subclasses.json" />
+    <Content Include="testme\json\region-actions.json" />
+    <Content Include="testme\json\region-list-action-info.json" />
     <None Include="Web References\Api\api.disco" />
     <Content Include="Web References\Billing\AdyenBillingDetail.datasource">
       <DependentUpon>Reference.map</DependentUpon>

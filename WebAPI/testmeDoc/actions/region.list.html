@@ -10,13 +10,13 @@
 		<h2>Kaltura API</h2>
 		<table class="action">
 			<tr>
-				<th colspan="5" class="service_action_title">householddevice.update</th>
+				<th colspan="5" class="service_action_title">region.list</th>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Description:</td>
 			</tr>
 			<tr>
-				<td class="description" colspan="5">Update the name of the device by UDID</td>
+				<td class="description" colspan="5">Returns all regions for the partner</td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Input Params</td>
@@ -29,16 +29,9 @@
 				<th class="subtitle">Default Value</th>
 			</tr>
 			<tr>
-				<td>udid</td>
-				<td>string</td>
-				<td>Device UDID</td>
-				<td>V</td>
+				<td>filter</td>
+				<td><a href="../objects/KalturaRegionFilter.html">KalturaRegionFilter</a></td>
 				<td></td>
-			</tr>
-			<tr>
-				<td>device</td>
-				<td><a href="../objects/KalturaHouseholdDevice.html">KalturaHouseholdDevice</a></td>
-				<td>Device object</td>
 				<td>V</td>
 				<td></td>
 			</tr>
@@ -46,26 +39,21 @@
 				<td colspan="5" class="title">Output Type</td>
 			</tr>
 			<tr>
-				<td colspan="5"><a href="../objects/KalturaHouseholdDevice.html">KalturaHouseholdDevice</a></td>
+				<td colspan="5"><a href="../objects/KalturaRegionListResponse.html">KalturaRegionListResponse</a></td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Example HTTP Hit</td>
 			</tr>
 			<tr>
-				<td colspan="5">http://www.kaltura.com/api_v3/service/householddevice/action/update<br />
+				<td colspan="5">http://www.kaltura.com/api_v3/service/region/action/list<br />
 				<strong>JSON object:</strong>
 				<pre>
 				<div class="post_fields">
 {
-	udid: "value",
-	device: {
-		objectType: "KalturaHouseholdDevice",
-		udid: "value",
-		name: "value",
-		brand: "value",
-		brandId: value,
-		activatedOn: value,
-		status: "value"
+	filter: {
+		objectType: "KalturaRegionFilter",
+		orderBy: value,
+		externalIdIn: "value"
 	}
 }
 				</pre></td>

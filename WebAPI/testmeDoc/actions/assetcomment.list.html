@@ -10,13 +10,13 @@
 		<h2>Kaltura API</h2>
 		<table class="action">
 			<tr>
-				<th colspan="5" class="service_action_title">householddevice.update</th>
+				<th colspan="5" class="service_action_title">assetcomment.list</th>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Description:</td>
 			</tr>
 			<tr>
-				<td class="description" colspan="5">Update the name of the device by UDID</td>
+				<td class="description" colspan="5">Returns Epg Comments by EpgId</td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Input Params</td>
@@ -29,43 +29,44 @@
 				<th class="subtitle">Default Value</th>
 			</tr>
 			<tr>
-				<td>udid</td>
-				<td>string</td>
-				<td>Device UDID</td>
+				<td>filter</td>
+				<td><a href="../objects/KalturaAssetCommentFilter.html">KalturaAssetCommentFilter</a></td>
+				<td>Filtering the assets comments request</td>
 				<td>V</td>
 				<td></td>
 			</tr>
 			<tr>
-				<td>device</td>
-				<td><a href="../objects/KalturaHouseholdDevice.html">KalturaHouseholdDevice</a></td>
-				<td>Device object</td>
-				<td>V</td>
+				<td>pager</td>
+				<td><a href="../objects/KalturaFilterPager.html">KalturaFilterPager</a></td>
+				<td>Page size and index</td>
 				<td></td>
+				<td>1</td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Output Type</td>
 			</tr>
 			<tr>
-				<td colspan="5"><a href="../objects/KalturaHouseholdDevice.html">KalturaHouseholdDevice</a></td>
+				<td colspan="5"><a href="../objects/KalturaAssetCommentListResponse.html">KalturaAssetCommentListResponse</a></td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Example HTTP Hit</td>
 			</tr>
 			<tr>
-				<td colspan="5">http://www.kaltura.com/api_v3/service/householddevice/action/update<br />
+				<td colspan="5">http://www.kaltura.com/api_v3/service/assetcomment/action/list<br />
 				<strong>JSON object:</strong>
 				<pre>
 				<div class="post_fields">
 {
-	udid: "value",
-	device: {
-		objectType: "KalturaHouseholdDevice",
-		udid: "value",
-		name: "value",
-		brand: "value",
-		brandId: value,
-		activatedOn: value,
-		status: "value"
+	filter: {
+		objectType: "KalturaAssetCommentFilter",
+		orderBy: value,
+		assetIdEqual: value,
+		assetTypeEqual: "value"
+	},
+	pager: {
+		objectType: "KalturaFilterPager",
+		pageSize: value,
+		pageIndex: value
 	}
 }
 				</pre></td>
