@@ -305,7 +305,7 @@ namespace WebAPI.Controllers
         /// <param name="udid">Device UDID</param>
         /// <param name="status">Device status</param>
         /// <remarks>Possible status codes: 
-        /// Limitation period = 1014, Device not in household = 1003, Exceeded limit = 1001 </remarks>
+        /// Limitation period = 1014, Exceeded limit = 1001 </remarks>
         [Route("updateStatus"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]

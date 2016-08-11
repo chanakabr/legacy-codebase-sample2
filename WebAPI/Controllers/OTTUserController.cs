@@ -692,14 +692,12 @@ namespace WebAPI.Controllers
             return response;
         }
 
-
-
         /// <summary>
-        /// Retrieve the user’s lists 
+        /// Retrieve user by external identifier or username 
         /// </summary>
-        /// <param name="filter">Filtering OttUser request</param>
+        /// <param name="filter">Filter request</param>
         /// <remarks>Possible status codes: 
-        /// UserDoesNotExist = 2000, </remarks>
+        /// UserDoesNotExist = 2000 </remarks>
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]
