@@ -99,21 +99,6 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="UpdateChannel">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="nGroupId" type="xs:int" />
-        <xs:element minOccurs="0" name="nChannelId" type="xs:int" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="UpdateChannelResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="UpdateChannelResult" type="xs:boolean" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
   <xs:element name="RemoveChannelFromCache">
     <xs:complexType>
       <xs:sequence>

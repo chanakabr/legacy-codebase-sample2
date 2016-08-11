@@ -51,12 +51,6 @@
   <wsdl:message name="Iservice_GetMediasByIDs_OutputMessage">
     <wsdl:part name="parameters" element="GetMediasByIDsResponse" />
   </wsdl:message>
-  <wsdl:message name="Iservice_UpdateChannel_InputMessage">
-    <wsdl:part name="parameters" element="UpdateChannel" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_UpdateChannel_OutputMessage">
-    <wsdl:part name="parameters" element="UpdateChannelResponse" />
-  </wsdl:message>
   <wsdl:message name="Iservice_RemoveChannelFromCache_InputMessage">
     <wsdl:part name="parameters" element="RemoveChannelFromCache" />
   </wsdl:message>
@@ -149,10 +143,6 @@
     <wsdl:operation name="GetMediasByIDs">
       <wsdl:input wsaw:Action="urn:Iservice/GetMediasByIDs" message="Iservice_GetMediasByIDs_InputMessage" />
       <wsdl:output wsaw:Action="urn:Iservice/GetMediasByIDsResponse" message="Iservice_GetMediasByIDs_OutputMessage" />
-    </wsdl:operation>
-    <wsdl:operation name="UpdateChannel">
-      <wsdl:input wsaw:Action="urn:Iservice/UpdateChannel" message="Iservice_UpdateChannel_InputMessage" />
-      <wsdl:output wsaw:Action="urn:Iservice/UpdateChannelResponse" message="Iservice_UpdateChannel_OutputMessage" />
     </wsdl:operation>
     <wsdl:operation name="RemoveChannelFromCache">
       <wsdl:input wsaw:Action="urn:Iservice/RemoveChannelFromCache" message="Iservice_RemoveChannelFromCache_InputMessage" />
