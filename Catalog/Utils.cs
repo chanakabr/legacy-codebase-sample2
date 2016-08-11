@@ -254,7 +254,6 @@ namespace Catalog
         }
 
 
-
         //This method is used specifically for Lucene cases when we get a search result which does not consist of an update date (Lucene does not hold update_date
         //within its documents and therefore we need to go to the DB and return the media update date
         public static List<SearchResult> GetMediaUpdateDate(List<ApiObjects.SearchObjects.SearchResult> lSearchResults)
