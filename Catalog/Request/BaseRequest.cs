@@ -103,7 +103,7 @@ namespace Catalog.Request
         /// <param name="sSiteGuid"></param>
         /// <param name="nDomainId"></param>
         public BaseRequest(Int32 nPageSize, Int32 nPageIndex, string sUserIP, Int32 nGroupID, Filter oFilter, 
-            string sSignature, string sSignString, string sSiteGuid, int nDomainId)
+            string sSignature, string sSignString, string sSiteGuid, int nDomainId) : this()
         {
             m_nGroupID = nGroupID;
             m_sUserIP = sUserIP;
@@ -133,6 +133,7 @@ namespace Catalog.Request
 
         public BaseRequest()
         {
+            m_dServerTime = DateTime.UtcNow;
         }
 
 
