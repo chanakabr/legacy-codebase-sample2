@@ -92,7 +92,7 @@ public partial class adm_channel_media_types_popup_selector : System.Web.UI.Page
         bool inserted = TvmDAL.Insert_ChannelAssetType(groupID, channelID, new List<int>() { assetTypeID });
         if (inserted)
         {
-            bool result = ImporterImpl.UpdateChannelIndex(groupID, new List<int>() { channelID }, ApiObjects.eAction.Update);
+            bool result = ImporterImpl.UpdateChannel(groupID, new List<int>() { channelID }, ApiObjects.eAction.Update);
         }
     }
 
@@ -101,7 +101,7 @@ public partial class adm_channel_media_types_popup_selector : System.Web.UI.Page
         bool updated = TvmDAL.UpdateChannelAssetType(channelAssetTypeID, status, groupID, channelID);
         if (updated)
         {
-            bool result = ImporterImpl.UpdateChannelIndex(groupID, new List<int>() { channelID }, ApiObjects.eAction.Update);
+            bool result = ImporterImpl.UpdateChannel(groupID, new List<int>() { channelID }, ApiObjects.eAction.Update);
         }
     }
 

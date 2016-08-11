@@ -101,7 +101,7 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
 
                         //Update channel at Lucene/ ES
 
-                        result = ImporterImpl.UpdateChannelIndex(loginGroupID, new List<int>() { channelId }, ApiObjects.eAction.Update);
+                        result = ImporterImpl.UpdateChannel(loginGroupID, new List<int>() { channelId }, ApiObjects.eAction.Update);
                     }
                     return;
                 }
@@ -597,7 +597,7 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
 
         if (inserted)
         {
-            bool result = ImporterImpl.UpdateChannelIndex(groupID, new List<int>() { channelID }, ApiObjects.eAction.Update);
+            bool result = ImporterImpl.UpdateChannel(groupID, new List<int>() { channelID }, ApiObjects.eAction.Update);
         }
     }
 
@@ -606,7 +606,7 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
         bool updated = TvmDAL.UpdateChannelMediaType(channelMediaTypeID, status, groupID, channelID);
         if (updated)
         {
-            bool result = ImporterImpl.UpdateChannelIndex(groupID, new List<int>() { channelID }, ApiObjects.eAction.Update);
+            bool result = ImporterImpl.UpdateChannel(groupID, new List<int>() { channelID }, ApiObjects.eAction.Update);
         }
     }
 
