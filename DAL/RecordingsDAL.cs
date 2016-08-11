@@ -497,14 +497,15 @@ namespace DAL
             return spUpdateExpiredRecordingAfterScheduledTask.ExecuteReturnValue<bool>();
         }
 
-        public static DataTable GetEpgToRecordingsMapByCridAndChannel(int groupId, string crid, long channelId)
+        public static DataTable GetEpgToRecordingsMapByCridChannelAndEpgId(int groupId, string crid, long channelId, long epgId)
         {
             DataTable dt = null;
-            ODBCWrapper.StoredProcedure spGetEpgToRecordingsMapByCrid = new ODBCWrapper.StoredProcedure("GetRecordingsByCridAndChannel");
+            ODBCWrapper.StoredProcedure spGetEpgToRecordingsMapByCrid = new ODBCWrapper.StoredProcedure("GetRecordingsByCridChannelAndEpgId");
             spGetEpgToRecordingsMapByCrid.SetConnectionKey(RECORDING_CONNECTION);
             spGetEpgToRecordingsMapByCrid.AddParameter("@GroupID", groupId);
             spGetEpgToRecordingsMapByCrid.AddParameter("@Crid", crid);
             spGetEpgToRecordingsMapByCrid.AddParameter("@ChannelId", channelId);
+            spGetEpgToRecordingsMapByCrid.AddParameter("@EpgId", epgId);
             dt = spGetEpgToRecordingsMapByCrid.Execute();
 
             return dt;
