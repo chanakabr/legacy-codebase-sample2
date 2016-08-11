@@ -196,8 +196,8 @@ namespace TvinciImporter.WSCatalog {
     [System.Runtime.Serialization.DataContractAttribute(Name="BaseRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.BaseChannelRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.ExternalChannelRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.InternalChannelRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.ExternalChannelRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.MediaAutoCompleteRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.MediaMarkRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.MediaHitRequest))]
@@ -601,8 +601,8 @@ namespace TvinciImporter.WSCatalog {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="BaseChannelRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
     [System.SerializableAttribute()]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.ExternalChannelRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.InternalChannelRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.ExternalChannelRequest))]
     public partial class BaseChannelRequest : TvinciImporter.WSCatalog.BaseRequest {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -665,6 +665,45 @@ namespace TvinciImporter.WSCatalog {
                 if ((this.typeField.Equals(value) != true)) {
                     this.typeField = value;
                     this.RaisePropertyChanged("type");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="InternalChannelRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
+    [System.SerializableAttribute()]
+    public partial class InternalChannelRequest : TvinciImporter.WSCatalog.BaseChannelRequest {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool m_bIgnoreDeviceRuleIDField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private TvinciImporter.WSCatalog.OrderObj orderField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool m_bIgnoreDeviceRuleID {
+            get {
+                return this.m_bIgnoreDeviceRuleIDField;
+            }
+            set {
+                if ((this.m_bIgnoreDeviceRuleIDField.Equals(value) != true)) {
+                    this.m_bIgnoreDeviceRuleIDField = value;
+                    this.RaisePropertyChanged("m_bIgnoreDeviceRuleID");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public TvinciImporter.WSCatalog.OrderObj order {
+            get {
+                return this.orderField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.orderField, value) != true)) {
+                    this.orderField = value;
+                    this.RaisePropertyChanged("order");
                 }
             }
         }
@@ -736,45 +775,6 @@ namespace TvinciImporter.WSCatalog {
                 if ((object.ReferenceEquals(this.utcOffsetField, value) != true)) {
                     this.utcOffsetField = value;
                     this.RaisePropertyChanged("utcOffset");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="InternalChannelRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
-    [System.SerializableAttribute()]
-    public partial class InternalChannelRequest : TvinciImporter.WSCatalog.BaseChannelRequest {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private bool m_bIgnoreDeviceRuleIDField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private TvinciImporter.WSCatalog.OrderObj orderField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public bool m_bIgnoreDeviceRuleID {
-            get {
-                return this.m_bIgnoreDeviceRuleIDField;
-            }
-            set {
-                if ((this.m_bIgnoreDeviceRuleIDField.Equals(value) != true)) {
-                    this.m_bIgnoreDeviceRuleIDField = value;
-                    this.RaisePropertyChanged("m_bIgnoreDeviceRuleID");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public TvinciImporter.WSCatalog.OrderObj order {
-            get {
-                return this.orderField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.orderField, value) != true)) {
-                    this.orderField = value;
-                    this.RaisePropertyChanged("order");
                 }
             }
         }
@@ -11346,6 +11346,12 @@ namespace TvinciImporter.WSCatalog {
         [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/GetMediasByIDs", ReplyAction="urn:Iservice/GetMediasByIDsResponse")]
         System.Threading.Tasks.Task<TvinciImporter.WSCatalog.MediaResponse> GetMediasByIDsAsync(TvinciImporter.WSCatalog.MediasProtocolRequest mediaRequest);
         
+        [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/UpdateChannel", ReplyAction="urn:Iservice/UpdateChannelResponse")]
+        bool UpdateChannel(int nGroupId, int nChannelId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/UpdateChannel", ReplyAction="urn:Iservice/UpdateChannelResponse")]
+        System.Threading.Tasks.Task<bool> UpdateChannelAsync(int nGroupId, int nChannelId);
+        
         [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/RemoveChannelFromCache", ReplyAction="urn:Iservice/RemoveChannelFromCacheResponse")]
         bool RemoveChannelFromCache(int nGroupId, int nChannelId);
         
@@ -11484,6 +11490,14 @@ namespace TvinciImporter.WSCatalog {
         
         public System.Threading.Tasks.Task<TvinciImporter.WSCatalog.MediaResponse> GetMediasByIDsAsync(TvinciImporter.WSCatalog.MediasProtocolRequest mediaRequest) {
             return base.Channel.GetMediasByIDsAsync(mediaRequest);
+        }
+        
+        public bool UpdateChannel(int nGroupId, int nChannelId) {
+            return base.Channel.UpdateChannel(nGroupId, nChannelId);
+        }
+        
+        public System.Threading.Tasks.Task<bool> UpdateChannelAsync(int nGroupId, int nChannelId) {
+            return base.Channel.UpdateChannelAsync(nGroupId, nChannelId);
         }
         
         public bool RemoveChannelFromCache(int nGroupId, int nChannelId) {

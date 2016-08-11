@@ -57,6 +57,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="UpdateChannel">
+      <soap12:operation soapAction="urn:Iservice/UpdateChannel" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="RemoveChannelFromCache">
       <soap12:operation soapAction="urn:Iservice/RemoveChannelFromCache" style="document" />
       <wsdl:input>
