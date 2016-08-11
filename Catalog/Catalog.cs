@@ -4928,7 +4928,7 @@ namespace Catalog
 
                 if (group != null)
                 {
-                    ApiObjects.CeleryIndexingData data = new CeleryIndexingData(group.m_nParentGroupID, null, type,
+                    ApiObjects.CeleryIndexingData data = new CeleryIndexingData(group.m_nParentGroupID, new List<long>(), type,
                         eAction.Rebase, date);
 
                     var queue = new CatalogQueue();
