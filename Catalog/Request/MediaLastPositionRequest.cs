@@ -108,7 +108,7 @@ namespace Catalog.Request
             int nSiteGuid = 0;
             int pos = 0;
 
-            if (request.data.m_nMediaID == 0  )
+            if (request.data.m_nMediaID == 0)
             {
                 response.m_sStatus = "INVALID_PARAMS";
             }
