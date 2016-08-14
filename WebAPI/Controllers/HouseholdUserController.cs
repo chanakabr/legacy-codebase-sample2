@@ -97,11 +97,14 @@ namespace WebAPI.Controllers
                 {
                     ClientsManager.DomainsClient().AddUserToDomain(groupId, (int)householdId, householdUser.UserId, masterId, householdUser.getIsMaster());
                     householdUser.Status = KalturaHouseholdUserStatus.OK;
+                    householdUser.HouseholdId = (int)householdId;
                 }
                 else if (!string.IsNullOrEmpty(householdUser.HouseholdMasterUsername))
                 {
-                    ClientsManager.DomainsClient().SubmitAddUserToDomainRequest(groupId, KS.GetFromRequest().UserId, householdUser.HouseholdMasterUsername);
+                    householdUser.UserId = KS.GetFromRequest().UserId;
+                    var household = ClientsManager.DomainsClient().SubmitAddUserToDomainRequest(groupId, householdUser.UserId, householdUser.HouseholdMasterUsername);
                     householdUser.Status = KalturaHouseholdUserStatus.PENDING;
+                    householdUser.HouseholdId = (int)household.Id;
                 }
                 else
                 {

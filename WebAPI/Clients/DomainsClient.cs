@@ -1066,9 +1066,12 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal void SubmitAddUserToDomainRequest(int groupId, string userId, string householdMasterUsername)
+        internal KalturaHousehold SubmitAddUserToDomainRequest(int groupId, string userId, string householdMasterUsername)
         {
+            KalturaHousehold household = null;
+
             Group group = GroupsManager.GetGroup(groupId);
+
 
             WebAPI.Domains.DomainStatusResponse response = null;
             
@@ -1099,6 +1102,10 @@ namespace WebAPI.Clients
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
+
+            household = Mapper.Map<KalturaHousehold>(response.DomainResponse.m_oDomain);
+
+            return household;
         }
     }
 }
