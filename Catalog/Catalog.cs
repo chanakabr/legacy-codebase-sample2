@@ -5850,7 +5850,7 @@ namespace Catalog
                         string key = keyValue.m_sKey;
                         string value = keyValue.m_sValue;
 
-                        BooleanLeaf leaf = new BooleanLeaf("media.tags." + key.ToLower(), value.ToLower(), typeof(string), ComparisonOperator.Equals);
+                        BooleanLeaf leaf = new BooleanLeaf("tags." + key.ToLower(), value.ToLower(), typeof(string), ComparisonOperator.Equals);
                         nodes.Add(leaf);
                     }
                 }
@@ -5865,7 +5865,7 @@ namespace Catalog
                         string key = keyValue.m_sKey;
                         string value = keyValue.m_sValue;
 
-                        BooleanLeaf leaf = new BooleanLeaf("media.metas." + key.ToLower(), value.ToLower(), typeof(string), ComparisonOperator.Equals);
+                        BooleanLeaf leaf = new BooleanLeaf("metas." + key.ToLower(), value.ToLower(), typeof(string), ComparisonOperator.Equals);
                         nodes.Add(leaf);
                     }
                 }
