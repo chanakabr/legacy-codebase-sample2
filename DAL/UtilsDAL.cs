@@ -736,7 +736,7 @@ namespace DAL
         #region ScheduledTasks
 
         // return object incase someone will want to extend ScheduledTaskLastRunResponse
-        private static object GetLastScheduleTaksSuccessfulRunDetails(ScheduledTaskType scheduledTaskType)
+        private static object GetScheduleTaskLastRunDetails(ScheduledTaskType scheduledTaskType)
         {
             object response = null;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
@@ -826,9 +826,9 @@ namespace DAL
         }
 
         // return object incase someone will want to extend ScheduledTaskLastRunResponse
-        public static object GetLastScheduleTaksSuccessfulRun(ScheduledTaskType scheduledTaskType)
+        public static object GetScheduleTaskLastRun(ScheduledTaskType scheduledTaskType)
         {
-            object response = UtilsDal.GetLastScheduleTaksSuccessfulRunDetails(scheduledTaskType);
+            object response = UtilsDal.GetScheduleTaskLastRunDetails(scheduledTaskType);
             if (response != null)
             {
                 ScheduledTaskLastRunResponse scheduledTaskLastRunResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<ScheduledTaskLastRunResponse>(response.ToString());
