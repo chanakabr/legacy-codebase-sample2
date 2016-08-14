@@ -23,6 +23,8 @@ namespace WebAPI.Models.Catalog
 
         newest,
 
-        oldest_first
+        oldest_first,
+
+        likes
     }
 }

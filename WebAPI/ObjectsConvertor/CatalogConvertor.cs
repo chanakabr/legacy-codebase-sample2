@@ -231,6 +231,10 @@ namespace WebAPI.ObjectsConvertor
                     result.m_eOrderBy = OrderBy.START_DATE;
                     result.m_eOrderDir = OrderDir.ASC;
                     break;
+                case KalturaOrder.likes:
+                    result.m_eOrderBy = OrderBy.LIKE_COUNTER;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
             }
             return result;
         }
