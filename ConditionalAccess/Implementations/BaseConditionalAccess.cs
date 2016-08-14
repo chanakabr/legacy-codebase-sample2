@@ -17183,44 +17183,44 @@ namespace ConditionalAccess
                     log.DebugFormat("recording status not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", domainRecordingId, domainId, userId, recording != null ? recording.ToString() : string.Empty);
                     return recording;
                 }
-                List<TstvRecordingStatus> RecordingStatus;
+                List<TstvRecordingStatus> RecordingStatus = new List<TstvRecordingStatus>();
                 DomainRecordingStatus? domainStatus = Utils.ConvertToDomainRecordingStatus(tstvRecordingStatus);
-                
+                bool shouldCancel = false;
                 switch (tstvRecordingStatus)
                 {
                     case TstvRecordingStatus.Canceled:
                     case TstvRecordingStatus.SeriesCancel:
                         RecordingStatus = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recording, TstvRecordingStatus.Scheduled };
-                        if (!Utils.IsValidRecordingStatus(recording.RecordingStatus, RecordingStatus))
-                        {
-                            log.DebugFormat("Recording ID is 0 or RecordingStatus not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", domainRecordingId, domainId, userId, recording.ToString());
-                            recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotValid, recording.RecordingStatus.ToString());
-                            recording.Id = domainRecordingId;
-                            return recording;
-                        }
-                        else
-                        {                            
-                            res = RecordingsDAL.CancelDomainRecording(domainRecordingId, domainStatus.Value);  // delete recording id from domian                             
-                        }
+                        shouldCancel = true;
                         break;
                     case TstvRecordingStatus.Deleted:
-                    case TstvRecordingStatus.SeriesDelete:
                         RecordingStatus = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recorded };
-                        if (!Utils.IsValidRecordingStatus(recording.RecordingStatus, RecordingStatus))
-                        {
-                            log.DebugFormat("Recording ID is 0 or RecordingStatus not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", domainRecordingId, domainId, userId, recording.ToString());
-                            recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotValid, recording.RecordingStatus.ToString());
-                            recording.Id = domainRecordingId;
-                            return recording;
-                        }
-                        else
-                        {
-                            res = RecordingsDAL.DeleteDomainRecording(domainRecordingId, domainStatus.Value);
-                        }
+                        break;
+                    case TstvRecordingStatus.SeriesDelete:
+                        RecordingStatus = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recorded, TstvRecordingStatus.Recording };
                         break;
                     default:
                         break;
                 }
+
+                if (!Utils.IsValidRecordingStatus(recording.RecordingStatus, RecordingStatus))
+                {
+                    log.DebugFormat("CancelOrDeleteRecord - domainRecordingId: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", domainRecordingId, domainId, userId, recording.ToString());
+                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotValid, recording.RecordingStatus.ToString());
+                    recording.Id = domainRecordingId;
+                    return recording;
+                }
+                else if (shouldCancel)
+                {
+                    res = RecordingsDAL.CancelDomainRecording(domainRecordingId, domainStatus.Value);  // delete recording id from domain
+                    log.DebugFormat("canceled domainRecordingId: {0} with result: {1}", domainRecordingId, res);
+                }                
+                else
+                {
+                    res = RecordingsDAL.DeleteDomainRecording(domainRecordingId, domainStatus.Value);
+                    log.DebugFormat("deleted domainRecordingId: {0} with result: {1}", domainRecordingId, res);
+                }
+
                 if (res)
                 {
                     if (QuotaManager.Instance.IncreaseDomainQuota(domainId, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds))
@@ -18815,7 +18815,7 @@ namespace ConditionalAccess
                         userRecordingCrids.Add(globalRecording.Crid);
                         if (userRecording != null && userRecording.Status != null && userRecording.Status.Code == (int)eResponseStatus.OK && userRecording.Id > 0)
                         {
-                            log.DebugFormat("successfully distributed recording for domainId = {0}, epgId = {1}, new recordingId = {2}", domainId, epgId, userRecording.Id);
+                            log.DebugFormat("successfully recorded epgId = {0}, domainId = {1}, new recordingId = {2}", epgId, domainId, userRecording.Id);
                         }
                     }
                 }
@@ -18916,8 +18916,7 @@ namespace ConditionalAccess
                     validRecordingStatuses = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recording, TstvRecordingStatus.Scheduled };
                     break;
                 case TstvRecordingStatus.Deleted:
-                    validRecordingStatuses = new List<TstvRecordingStatus>(){TstvRecordingStatus.Scheduled, TstvRecordingStatus.Recording, TstvRecordingStatus.OK, TstvRecordingStatus.Recorded, TstvRecordingStatus.Failed, 
-                                                                            TstvRecordingStatus.LifeTimePeriodExpired};
+                    validRecordingStatuses = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recorded };
                     break;
                 default:
                     seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "TstvRecordingStatus is not cancel or delete");
@@ -18926,7 +18925,7 @@ namespace ConditionalAccess
 
             Dictionary<long, Recording> domainRecordings = Utils.GetDomainRecordingsByDomainSeriesId(m_nGroupID, domainId, domainSeriesRecordingId);
 
-            // if we domain has recordings of the series
+            // if the domain has recordings of the series
             if (domainRecordings != null && domainRecordings.Count > 0)
             {
                 // convert status Cancel/Delete ==> SeriesCancel/SeriesDelete
