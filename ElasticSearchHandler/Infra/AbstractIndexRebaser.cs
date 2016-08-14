@@ -27,6 +27,17 @@ namespace ElasticSearchHandler
         /// </summary>
         protected readonly TimeSpan minimumTimeSpan = new TimeSpan(0, 0, 6, 250);
 
+        public string Url
+        {
+            set
+            {
+                if (api != null)
+                {
+                    api.baseUrl = value;
+                }
+            }
+        }
+
         public AbstractIndexRebaser(int groupId)
         {
             this.groupId = groupId;

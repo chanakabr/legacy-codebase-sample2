@@ -12,6 +12,7 @@ namespace ElasticSearchHandler
         public static AbstractIndexRebaser CreateRebaser(int groupId, ApiObjects.eObjectType type)
         {
             AbstractIndexRebaser rebaser = null;
+
             switch (type)
             {
                 case ApiObjects.eObjectType.Unknown:

@@ -66,7 +66,17 @@ namespace ElasticSearchHandler
 
                     if (rebaser != null)
                     {
+                        string urlV1 = ElasticSearchTaskUtils.GetTcmConfigValue("ES_URL_V1");
+                        string urlV2 = ElasticSearchTaskUtils.GetTcmConfigValue("ES_URL_V2");
+
                         bool result = rebaser.Rebase();
+
+                        if (!string.IsNullOrEmpty(urlV2))
+                        {
+                            rebaser.Url = urlV2;
+
+                            result &= rebaser.Rebase();
+                        }
 
                         if (result)
                         {
