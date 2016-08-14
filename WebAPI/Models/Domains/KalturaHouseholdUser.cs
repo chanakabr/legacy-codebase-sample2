@@ -53,7 +53,7 @@ namespace WebAPI.Models.Domains
         public string HouseholdMasterUsername { get; set; }
 
         /// <summary>
-        /// The username of the household master for adding a user in status pending for the household master to approve
+        /// The status of the user in the household 
         /// </summary>
         [DataMember(Name = "status")]
         [JsonProperty("status")]
