@@ -18913,33 +18913,44 @@ namespace ConditionalAccess
             // if the domain has recordings of the series
             if (domainRecordings != null && domainRecordings.Count > 0)
             {
-                // convert status Cancel/Delete ==> SeriesCancel/SeriesDelete
-                TstvRecordingStatus? seriesStatus = Utils.ConvertToSeriesStatus(tstvRecordingStatus);
-                if (!seriesStatus.HasValue)
+                List<string> epgIds = domainRecordings.Select(x => x.Value.EpgId.ToString()).ToList();
+                TvinciEpgBL epgBLTvinci = new TvinciEpgBL(m_nGroupID);
+                List<EpgCB> epgs = epgBLTvinci.GetEpgs(epgIds);
+                if (epgs != null && epgs.Count > 0)
                 {
-                    log.ErrorFormat("fail to perform cancel or delete domainSeriesRecordingId = {1}, tstvRecordingStatus = {2}", domainSeriesRecordingId, tstvRecordingStatus.ToString());
-                    return;
-                }
-
-                List<TstvRecordingStatus> validRecordingStatuses = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recording, TstvRecordingStatus.Scheduled, TstvRecordingStatus.Recorded };
-
-                // set max amount of concurrent tasks
-                int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
-                if (maxDegreeOfParallelism == 0)
-                {
-                    maxDegreeOfParallelism = 5;
-                }
-                ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
-                ContextData contextData = new ContextData();
-                Parallel.ForEach(domainRecordings.AsEnumerable(), options, (pair) =>
-                {
-                    contextData.Load();
-                    //call cancelOrDelete if the recordings status is valid (Cancel possible only for recording/scheduled)
-                    if (pair.Value != null && pair.Value.Status.Code == (int)eResponseStatus.OK && validRecordingStatuses.Contains(pair.Value.RecordingStatus))
+                    // check if epg related to series and season
+                    List<EpgCB> epgMatch = Utils.GetEpgRelatedToSeriesRecording(m_nGroupID, seriesRecording, epgs, seasonNumber);
+                    if (epgMatch != null && epgMatch.Count > 0)
                     {
-                        CancelOrDeleteRecord(userId, domainId, pair.Key, seriesStatus.Value, false);
+                        // convert status Cancel/Delete ==> SeriesCancel/SeriesDelete
+                        TstvRecordingStatus? seriesStatus = Utils.ConvertToSeriesStatus(tstvRecordingStatus);
+                        if (!seriesStatus.HasValue)
+                        {
+                            log.ErrorFormat("fail to perform cancel or delete domainSeriesRecordingId = {1}, tstvRecordingStatus = {2}", domainSeriesRecordingId, tstvRecordingStatus.ToString());
+                            return;
+                        }
+
+                        List<TstvRecordingStatus> validRecordingStatuses = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recording, TstvRecordingStatus.Scheduled, TstvRecordingStatus.Recorded };
+
+                        // set max amount of concurrent tasks
+                        int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
+                        if (maxDegreeOfParallelism == 0)
+                        {
+                            maxDegreeOfParallelism = 5;
+                        }
+                        ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
+                        ContextData contextData = new ContextData();
+                        Parallel.ForEach(domainRecordings.AsEnumerable(), options, (pair) =>
+                        {
+                            contextData.Load();
+                            //call cancelOrDelete if the recordings status is valid (Cancel possible only for recording/scheduled)
+                            if (pair.Value != null && pair.Value.Status.Code == (int)eResponseStatus.OK && validRecordingStatuses.Contains(pair.Value.RecordingStatus))
+                            {
+                                CancelOrDeleteRecord(userId, domainId, pair.Key, seriesStatus.Value, false);
+                            }
+                        });
                     }
-                });
+                }
             }
         
             // mark the row in status = 2
