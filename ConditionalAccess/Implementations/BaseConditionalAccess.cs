@@ -18921,7 +18921,7 @@ namespace ConditionalAccess
                     // check if epg related to series and season
                     List<EpgCB> epgMatch = Utils.GetEpgRelatedToSeriesRecording(m_nGroupID, seriesRecording, epgs, seasonNumber);
                     if (epgMatch != null && epgMatch.Count > 0)
-                    {
+                    {                        
                         // convert status Cancel/Delete ==> SeriesCancel/SeriesDelete
                         TstvRecordingStatus? seriesStatus = Utils.ConvertToSeriesStatus(tstvRecordingStatus);
                         if (!seriesStatus.HasValue)
@@ -18940,9 +18940,10 @@ namespace ConditionalAccess
                         }
                         ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
                         ContextData contextData = new ContextData();
-                        Parallel.ForEach(domainRecordings.AsEnumerable(), options, (pair) =>
+                        Parallel.ForEach(epgMatch, options, (currentEpg) =>
                         {
                             contextData.Load();
+                            KeyValuePair<long, Recording> pair = domainRecordings.Where(x => x.Value.EpgId == (long)currentEpg.EpgID).FirstOrDefault();
                             //call cancelOrDelete if the recordings status is valid (Cancel possible only for recording/scheduled)
                             if (pair.Value != null && pair.Value.Status.Code == (int)eResponseStatus.OK && validRecordingStatuses.Contains(pair.Value.RecordingStatus))
                             {
