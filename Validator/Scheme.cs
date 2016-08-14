@@ -15,6 +15,8 @@ using System.Web.Http.Description;
 using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Utils;
+using WebAPI.Managers.Scheme;
+using WebAPI.Filters;
 
 namespace Validator.Managers.Scheme
 {
@@ -586,8 +588,44 @@ namespace Validator.Managers.Scheme
                 }
 
                 writer.WriteAttributeString("description", getDescription(property));
-                writer.WriteAttributeString("readOnly", "0");
-                writer.WriteAttributeString("insertOnly", "0");
+
+                SchemePropertyAttribute schemeProperty = property.GetCustomAttribute<SchemePropertyAttribute>();
+                if (schemeProperty == null)
+                {
+                    writer.WriteAttributeString("readOnly", "0");
+                    writer.WriteAttributeString("insertOnly", "0");
+                }
+                else
+                {
+                    writer.WriteAttributeString("readOnly", schemeProperty.ReadOnly ? "1" : "0");
+                    writer.WriteAttributeString("insertOnly", schemeProperty.InsertOnly ? "1" : "0");
+                    writer.WriteAttributeString("writeOnly", schemeProperty.WriteOnly ? "1" : "0");
+
+                    if (schemeProperty.DynamicType != null)
+                        writer.WriteAttributeString("valuesEnumType", schemeProperty.DynamicType.Name);
+
+                    if (schemeProperty.RequiresPermission > 0)
+                    {
+                        RequestType[] validPermissions = new RequestType[] { RequestType.READ, RequestType.UPDATE, RequestType.INSERT };
+                        string[] permissions = (string[]) validPermissions.Where((t, i) => ((int)t & schemeProperty.RequiresPermission) > 0).Select(t => t.ToString().ToLower()).ToArray();
+                        writer.WriteAttributeString("requiresPermissions", string.Join(",", permissions));
+                    }
+
+                    if (schemeProperty.MaxInteger < int.MaxValue)
+                        writer.WriteAttributeString("maxValue", schemeProperty.MaxInteger.ToString());
+                    else if (schemeProperty.MaxLong < long.MaxValue)
+                        writer.WriteAttributeString("maxValue", schemeProperty.MaxLong.ToString());
+                    else if (schemeProperty.MaxFloat < float.MaxValue)
+                        writer.WriteAttributeString("maxValue", schemeProperty.MaxFloat.ToString());
+
+                    if (schemeProperty.MinInteger < int.MinValue)
+                        writer.WriteAttributeString("minValue", schemeProperty.MinInteger.ToString());
+                    else if (schemeProperty.MinLong < long.MinValue)
+                        writer.WriteAttributeString("minValue", schemeProperty.MinLong.ToString());
+                    else if (schemeProperty.MinFloat < float.MinValue)
+                        writer.WriteAttributeString("minValue", schemeProperty.MinFloat.ToString());
+
+                }
                 writer.WriteEndElement(); // property
             }
 
