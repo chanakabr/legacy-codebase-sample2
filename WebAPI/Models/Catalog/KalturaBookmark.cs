@@ -78,7 +78,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "action")]
         [JsonProperty(PropertyName = "action")]
         [XmlArrayItem(ElementName = "action")]
-        public string action { get; set; }
+        public KalturaBookmarkActionType action { get; set; }
 
         /// <summary>
         /// Average Bitrate
