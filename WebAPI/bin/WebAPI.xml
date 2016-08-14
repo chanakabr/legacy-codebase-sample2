@@ -431,10 +431,17 @@
         </member>
         <member name="M:WebAPI.Controllers.AssetCommentController.List(WebAPI.Models.Catalog.KalturaAssetCommentFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
-            Returns Epg Comments by EpgId
+            Returns asset comments by asset id
             </summary>
             <param name="filter">Filtering the assets comments request</param>
             <param name="pager">Page size and index</param>
+            <remarks></remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.AssetCommentController.Add(WebAPI.Models.Catalog.KalturaAssetComment)">
+            <summary>
+            Add asset comments by asset id
+            </summary>        
+            <param name="comment">comment</param>
             <remarks></remarks>
         </member>
         <member name="M:WebAPI.Controllers.HouseholdPaymentMethodController.List">
@@ -1793,7 +1800,7 @@
             <param name="udid">Device UDID</param>
             <param name="status">Device status</param>
             <remarks>Possible status codes: 
-            Limitation period = 1014, Device not in household = 1003, Exceeded limit = 1001 </remarks>
+            Limitation period = 1014, Exceeded limit = 1001 </remarks>
         </member>
         <member name="M:WebAPI.Controllers.BookmarkController.ListOldStandard(WebAPI.Models.Catalog.KalturaAssetsFilter)">
             <summary>
@@ -4876,7 +4883,7 @@
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.Type">
             <summary>
-            Recording Type: single/series
+            Recording Type: single/season/series
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.ViewableUntilDate">
@@ -5141,7 +5148,7 @@
         </member>
         <member name="P:WebAPI.Models.Domains.KalturaHouseholdUser.Status">
             <summary>
-            The username of the household master for adding a user in status pending for the household master to approve
+            The status of the user in the household 
             </summary>
         </member>
         <member name="T:WebAPI.Models.Domains.KalturaHouseholdLimitations">
@@ -5556,7 +5563,7 @@
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaPlayerAssetData.action">
             <summary>
-            Action
+            Action: HIT/PLAY/STOP/PAUSE/FIRST_PLAY/SWOOSH/FULL_SCREEN/SEND_TO_FRIEND/LOAD/FULL_SCREEN_EXIT/FINISH/BITRATE_CHANGE/ERROR/NONE
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaPlayerAssetData.location">
@@ -15141,11 +15148,11 @@
         </member>
         <member name="M:WebAPI.Controllers.OttUserController.List(WebAPI.Models.Users.KalturaOTTUserFilter)">
             <summary>
-            Retrieve the user’s lists 
+            Retrieve user by external identifier or username 
             </summary>
-            <param name="filter">Filtering OttUser request</param>
+            <param name="filter">Filter request</param>
             <remarks>Possible status codes: 
-            UserDoesNotExist = 2000, </remarks>
+            UserDoesNotExist = 2000 </remarks>
             <returns></returns>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetInfoListResponse">
