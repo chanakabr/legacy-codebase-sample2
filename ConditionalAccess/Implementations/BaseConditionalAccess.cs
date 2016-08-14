@@ -18908,21 +18908,6 @@ namespace ConditionalAccess
         
         private void CancelOrDeleteSeries(string userId, long domainId, SeriesRecording seriesRecording, TstvRecordingStatus tstvRecordingStatus, long domainSeriesRecordingId, long seasonNumber)
         {
-            // get all domain recording - filter those related to series_id + season_number
-            List<TstvRecordingStatus> validRecordingStatuses;
-            switch (tstvRecordingStatus)
-            {
-                case TstvRecordingStatus.Canceled:
-                    validRecordingStatuses = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recording, TstvRecordingStatus.Scheduled };
-                    break;
-                case TstvRecordingStatus.Deleted:
-                    validRecordingStatuses = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recorded };
-                    break;
-                default:
-                    seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "TstvRecordingStatus is not cancel or delete");
-                    return ;
-            }
-
             Dictionary<long, Recording> domainRecordings = Utils.GetDomainRecordingsByDomainSeriesId(m_nGroupID, domainId, domainSeriesRecordingId);
 
             // if the domain has recordings of the series
@@ -18935,6 +18920,8 @@ namespace ConditionalAccess
                     log.ErrorFormat("fail to perform cancel or delete domainSeriesRecordingId = {1}, tstvRecordingStatus = {2}", domainSeriesRecordingId, tstvRecordingStatus.ToString());
                     return;
                 }
+
+                List<TstvRecordingStatus> validRecordingStatuses = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recording, TstvRecordingStatus.Scheduled, TstvRecordingStatus.Recorded };
 
                 // set max amount of concurrent tasks
                 int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
