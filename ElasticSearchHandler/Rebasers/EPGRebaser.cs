@@ -114,7 +114,7 @@ namespace ElasticSearchHandler
 
                         bool isFirstRun = firstIndex == 0;
                         List<ElasticSearchApi.ESAssetDocument> searchResults =
-                            GetRangedDocuments(indexName, firstEpgId.ToString(), lastEpgId.ToString(), "epg_id", documentType, isFirstRun);
+                            GetRangedDocuments(indexName, firstEpgId.ToString(), lastEpgId.ToString(), "epg_id", documentType, isFirstRun, allIdsFromDB.Count);
 
                         foreach (var currentAsset in searchResults)
                         {

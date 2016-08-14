@@ -58,7 +58,7 @@ namespace ElasticSearchHandler
         }
 
         protected List<ElasticSearchApi.ESAssetDocument> GetRangedDocuments(string indexName, 
-            string firstId, string lastId, string idField, string documentType, bool isFirstRun)
+            string firstId, string lastId, string idField, string documentType, bool isFirstRun, int countOfOriginalIds)
         {
             // Create a search range from the first ID to the last ID
             ESRange range = new ESRange(true)
@@ -107,7 +107,7 @@ namespace ElasticSearchHandler
             }
 
             log.DebugFormat("Get ranged documents for index {0}, first ID = {1}, last ID = {2}, bulk size = {3}, search result count = {4}",
-                indexName, firstId, lastId, sizeOfBulk, count);
+                indexName, firstId, lastId, countOfOriginalIds, count);
 
             return searchResults;
         }
