@@ -2574,6 +2574,7 @@
     <Compile Include="Models\Catalog\KalturaAssetStatisticsQuery.cs" />
     <Compile Include="Models\Catalog\KalturaAssetCommentFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAssetCommentOrderBy.cs" />
+    <Compile Include="Models\Catalog\KalturaBookmarkActionType.cs" />
     <Compile Include="Models\Catalog\KalturaBookmarkOrderBy.cs" />
     <Compile Include="Models\Catalog\KalturaBookmarkFilter.cs" />
     <Compile Include="Models\Catalog\KalturaBookmark.cs" />
