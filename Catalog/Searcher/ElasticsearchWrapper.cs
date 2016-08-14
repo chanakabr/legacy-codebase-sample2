@@ -2244,7 +2244,7 @@ namespace Catalog
                             }
 
                             string id = ((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken);
-                            DateTime update_date = ((tempToken = item.SelectToken("fields.update_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
+                            DateTime update_date = ((tempToken = item.SelectToken("fields.update_date").First()) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
                                         DateTime.ParseExact((string)tempToken, DATE_FORMAT, null));
 
                             // Find the asset in the list with this ID, set its update date
