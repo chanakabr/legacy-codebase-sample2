@@ -73,7 +73,7 @@ namespace WebAPI.Models.Catalog
     public class KalturaBookmarkPlayerData : KalturaOTTObject
     {
         /// <summary>
-        /// Action
+        /// Action: HIT/PLAY/STOP/PAUSE/FIRST_PLAY/SWOOSH/FULL_SCREEN/SEND_TO_FRIEND/LOAD/FULL_SCREEN_EXIT/FINISH/BITRATE_CHANGE/ERROR/NONE
         /// </summary>
         [DataMember(Name = "action")]
         [JsonProperty(PropertyName = "action")]

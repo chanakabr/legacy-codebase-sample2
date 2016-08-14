@@ -41,7 +41,7 @@ namespace WebAPI.Models.ConditionalAccess
         public long AssetId { get; set; }
 
         /// <summary>
-        /// Recording Type: single/series
+        /// Recording Type: single/season/series
         /// </summary>
         [DataMember(Name = "type")]
         [JsonProperty("type")]
