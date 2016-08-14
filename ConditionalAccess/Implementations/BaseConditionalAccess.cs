@@ -18909,64 +18909,53 @@ namespace ConditionalAccess
         private void CancelOrDeleteSeries(string userId, long domainId, SeriesRecording seriesRecording, TstvRecordingStatus tstvRecordingStatus, long domainSeriesRecordingId, long seasonNumber)
         {
             // get all domain recording - filter those related to series_id + season_number
-            List<TstvRecordingStatus> RecordingStatus;
+            List<TstvRecordingStatus> validRecordingStatuses;
             switch (tstvRecordingStatus)
             {
                 case TstvRecordingStatus.Canceled:
-                    RecordingStatus = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recording, TstvRecordingStatus.Scheduled };
+                    validRecordingStatuses = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recording, TstvRecordingStatus.Scheduled };
                     break;
                 case TstvRecordingStatus.Deleted:
-                    RecordingStatus = new List<TstvRecordingStatus>(){TstvRecordingStatus.Scheduled, TstvRecordingStatus.Recording, TstvRecordingStatus.OK, TstvRecordingStatus.Recorded, TstvRecordingStatus.Failed, 
+                    validRecordingStatuses = new List<TstvRecordingStatus>(){TstvRecordingStatus.Scheduled, TstvRecordingStatus.Recording, TstvRecordingStatus.OK, TstvRecordingStatus.Recorded, TstvRecordingStatus.Failed, 
                                                                             TstvRecordingStatus.LifeTimePeriodExpired};
                     break;
                 default:
                     seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "TstvRecordingStatus is not cancel or delete");
                     return ;
             }
-            Dictionary<long, Recording> domainRecordings = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, domainId, RecordingStatus);
-            // if specific epgs exsits to series 
+
+            Dictionary<long, Recording> domainRecordings = Utils.GetDomainRecordingsByDomainSeriesId(m_nGroupID, domainId, domainSeriesRecordingId);
+
+            // if we domain has recordings of the series
             if (domainRecordings != null && domainRecordings.Count > 0)
             {
-                Dictionary<long, long> epgRecordingMapping = domainRecordings.ToDictionary(x => x.Value.EpgId, x => x.Key);
-
-                List<string> epgIds = domainRecordings.Select(x => x.Value.EpgId.ToString()).ToList();
-
-                TvinciEpgBL epgBLTvinci = new TvinciEpgBL(m_nGroupID);
-                List<EpgCB> epgs = epgBLTvinci.GetEpgs(epgIds);
-                if (epgs != null && epgs.Count > 0)
+                // convert status Cancel/Delete ==> SeriesCancel/SeriesDelete
+                TstvRecordingStatus? seriesStatus = Utils.ConvertToSeriesStatus(tstvRecordingStatus);
+                if (!seriesStatus.HasValue)
                 {
-                    // check if epg related to series and season
-                    List<EpgCB> epgMatch = Utils.GetEpgRelatedToSeriesRecording(m_nGroupID, seriesRecording, epgs, seasonNumber);
-                    if (epgMatch != null && epgMatch.Count > 0)
-                    {
-                        // convert status Cancel/Delete ==> SeriesCancel/SeriesDelete
-                        TstvRecordingStatus? seriesStatus = Utils.ConvertToSeriesStatus(tstvRecordingStatus);
-                        if (!seriesStatus.HasValue)
-                        {
-                            log.ErrorFormat("fail to perform cancel or delete domainSeriesRecordingId = {1}, tstvRecordingStatus = {2}", domainSeriesRecordingId, tstvRecordingStatus.ToString());
-                            return;
-                        }
-
-                        // set max amount of concurrent tasks
-                        int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
-                        if (maxDegreeOfParallelism == 0)
-                        {
-                            maxDegreeOfParallelism = 5;
-                        }
-                        ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
-                        ContextData contextData = new ContextData();
-                        Parallel.ForEach(epgMatch, options, (currentEpg) =>
-                        {
-                            contextData.Load();
-                            //call cancelOrDelete
-                            if (epgRecordingMapping.ContainsKey((long)currentEpg.EpgID))
-                            {
-                                CancelOrDeleteRecord(userId, domainId, epgRecordingMapping[(long)currentEpg.EpgID], seriesStatus.Value, false);
-                            }
-                        });
-                    }
+                    log.ErrorFormat("fail to perform cancel or delete domainSeriesRecordingId = {1}, tstvRecordingStatus = {2}", domainSeriesRecordingId, tstvRecordingStatus.ToString());
+                    return;
                 }
+
+                // set max amount of concurrent tasks
+                int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
+                if (maxDegreeOfParallelism == 0)
+                {
+                    maxDegreeOfParallelism = 5;
+                }
+                ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
+                ContextData contextData = new ContextData();
+                Parallel.ForEach(domainRecordings.AsEnumerable(), options, (pair) =>
+                {
+                    contextData.Load();
+                    //call cancelOrDelete if the recordings status is valid (Cancel possible only for recording/scheduled)
+                    if (pair.Value != null && pair.Value.Status.Code == (int)eResponseStatus.OK && validRecordingStatuses.Contains(pair.Value.RecordingStatus))
+                    {
+                        CancelOrDeleteRecord(userId, domainId, pair.Key, seriesStatus.Value, false);
+                    }
+                });
             }
+        
             // mark the row in status = 2
             if (seasonNumber > 0) // need to insert new "record" series+ season to domain series recordings
             {
