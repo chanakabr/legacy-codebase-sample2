@@ -495,6 +495,7 @@
     <Content Include="testmeDoc\actions\apptoken.startSession.html" />
     <Content Include="testmeDoc\actions\asset.get.html" />
     <Content Include="testmeDoc\actions\asset.list.html" />
+    <Content Include="testmeDoc\actions\assetcomment.add.html" />
     <Content Include="testmeDoc\actions\assetcomment.list.html" />
     <Content Include="testmeDoc\actions\assetfile.getContext.html" />
     <Content Include="testmeDoc\actions\assethistory.list.html" />
@@ -699,6 +700,7 @@
     <Content Include="testmeDoc\enums\KalturaAssetType.html" />
     <Content Include="testmeDoc\enums\KalturaBillingAction.html" />
     <Content Include="testmeDoc\enums\KalturaBillingItemsType.html" />
+    <Content Include="testmeDoc\enums\KalturaBookmarkActionType.html" />
     <Content Include="testmeDoc\enums\KalturaBookmarkOrderBy.html" />
     <Content Include="testmeDoc\enums\KalturaBundleType.html" />
     <Content Include="testmeDoc\enums\KalturaChannelEnrichment.html" />
