@@ -17754,6 +17754,13 @@ namespace ConditionalAccess
                 return new ApiObjects.Response.Status((int)eResponseStatus.OK); 
             }
 
+            // check if CDVR is enabled
+            var tstvSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+            if (!tstvSettings.IsCdvrEnabled.HasValue || !tstvSettings.IsCdvrEnabled.Value)
+            {
+                return new ApiObjects.Response.Status((int)eResponseStatus.OK); 
+            }
+
             // In case an EPG was deleted - recording should be canceled as well
             if (action == eAction.Delete)
             {
