@@ -518,7 +518,7 @@ namespace Catalog
                         Query = currentQuery
                     };
 
-                    boolQuery.AddChild(currentQuery, CutWith.OR);
+                    boolQuery.AddChild(currentFilteredQuery, CutWith.OR);
                 }
             }
 
@@ -1119,8 +1119,7 @@ namespace Catalog
                             name = ((tempToken = item.SelectToken("fields.name")) == null ? string.Empty : (string)tempToken),
                             cache_date = ((tempToken = item.SelectToken("fields.cache_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
                                             DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
-                            update_date = ((tempToken = item.SelectToken("fields.update_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
-                                            DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
+                            update_date = ExtractDateFromToken(item, "fields.update_date"),
                             epg_channel_id = ((tempToken = item.SelectToken("fields.epg_channel_id")) == null ? 0 : (int)tempToken),
                             start_date = ((tempToken = item.SelectToken("fields.start_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
                                             DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
@@ -2244,8 +2243,7 @@ namespace Catalog
                             }
 
                             string id = ((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken);
-                            DateTime update_date = ((tempToken = item.SelectToken("fields.update_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
-                                        DateTime.ParseExact((string)tempToken, DATE_FORMAT, null));
+                            DateTime update_date = ExtractDateFromToken(item, "fields.update_date");                            
 
                             // Find the asset in the list with this ID, set its update date
                             assets.First(result => result.AssetId == id).m_dUpdateDate = update_date;
