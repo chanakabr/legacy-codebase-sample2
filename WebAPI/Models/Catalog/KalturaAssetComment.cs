@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
@@ -45,6 +46,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "languageCode")]
         [JsonProperty(PropertyName = "languageCode")]
         [XmlElement(ElementName = "languageCode")]
+        [SchemeProperty(ReadOnly = true)]
         public string LanguageCode { get; set; }
 
         /// <summary>

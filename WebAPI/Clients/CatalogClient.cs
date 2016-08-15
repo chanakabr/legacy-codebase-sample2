@@ -1966,7 +1966,7 @@ namespace WebAPI.Clients
         }
 
         internal KalturaAssetComment AddAssetComment(int groupId, int assetId, KalturaAssetType assetType, string userId, int domainId, string writer, string header,
-                                                     string subHeader, string contextText, string udid, string languageId, bool shouldAutoActive = true)
+                                                     string subHeader, string contextText, string udid, string language, bool shouldAutoActive = true)
         {
             KalturaAssetComment result = new KalturaAssetComment();
 
@@ -1981,7 +1981,7 @@ namespace WebAPI.Clients
                 m_oFilter = new Filter()
                 {
                     m_sDeviceId = udid,
-                    //m_nLanguage = languageId,
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
                     m_bUseStartDate = group.UseStartDate,
                     m_bOnlyActiveMedia = group.GetOnlyActiveAssets
                 },

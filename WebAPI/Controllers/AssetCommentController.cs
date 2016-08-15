@@ -82,6 +82,7 @@ namespace WebAPI.Controllers
                 string userId = KS.GetFromRequest().UserId;
                 long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);     
                 string udid = KSUtils.ExtractKSPayload().UDID;
+                string language = Utils.Utils.GetLanguageFromRequest();
 
                 int assetId = 0;
                 if (!int.TryParse(comment.AssetId, out assetId) || assetId <= 0)
@@ -91,7 +92,7 @@ namespace WebAPI.Controllers
 
                 // call client
                 response = ClientsManager.CatalogClient().AddAssetComment(groupId, assetId, comment.AssetType, userId, (int)domainId, comment.Writer,
-                                                                          comment.Header, comment.SubHeader, comment.Text, udid, comment.LanguageCode);
+                                                                          comment.Header, comment.SubHeader, comment.Text, udid, language);
             }
             catch (ClientException ex)
             {
