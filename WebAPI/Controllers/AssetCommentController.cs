@@ -91,7 +91,7 @@ namespace WebAPI.Controllers
 
                 // call client
                 response = ClientsManager.CatalogClient().AddAssetComment(groupId, assetId, comment.AssetType, userId, (int)domainId, comment.Writer,
-                                                                          comment.Header, comment.SubHeader, comment.Text, udid, comment.LanguageId);
+                                                                          comment.Header, comment.SubHeader, comment.Text, udid, comment.LanguageCode);
             }
             catch (ClientException ex)
             {

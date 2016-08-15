@@ -10,27 +10,6 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Catalog
 {
     /// <summary>
-    /// Epg Comment Response
-    /// </summary>
-    [Serializable]
-
-    public class KalturaAssetCommentListResponse : KalturaListResponse        
-    {
-        /// <summary>
-        /// Assets
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty(PropertyName = "objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem("item")]
-        public List<KalturaAssetComment> Objects { get; set; }
-
-        //[DataMember(Name = "requestId")]
-        //[JsonProperty(PropertyName = "requestId")]
-        //[XmlElement("requestId", IsNullable = true)]
-        //public string RequestId { get; set; }
-    }
-     /// <summary>
     /// Asset Comment
     /// </summary>
     [Serializable]
@@ -42,7 +21,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "id")]
         [JsonProperty(PropertyName = "id")]
         [XmlElement(ElementName = "id")]
-        public Int32 Id;
+        public int Id { get; set; }
 
         /// <summary>
         /// Asset identifier
@@ -59,38 +38,38 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "assetType")]
         [XmlElement(ElementName = "assetType")]
         public KalturaAssetType AssetType { get; set; }
-        
+
         /// <summary>
         /// Language Id
         /// </summary>
-        [DataMember(Name = "languageId")]
-        [JsonProperty(PropertyName = "languageId")]
-        [XmlElement(ElementName = "languageId")]
-        public int LanguageId;
+        [DataMember(Name = "languageCode")]
+        [JsonProperty(PropertyName = "languageCode")]
+        [XmlElement(ElementName = "languageCode")]
+        public string LanguageCode { get; set; }
 
         /// <summary>
         /// Header
         /// </summary>
         [DataMember(Name = "header")]
         [JsonProperty(PropertyName = "header")]
-        [XmlElement(ElementName = "header")]       
-        public string Header;
+        [XmlElement(ElementName = "header")]
+        public string Header { get; set; }
 
         /// <summary>
         /// Sub Header
         /// </summary>
         [DataMember(Name = "subHeader")]
         [JsonProperty(PropertyName = "subHeader")]
-        [XmlElement(ElementName = "subHeader")]     
-        public string SubHeader;
+        [XmlElement(ElementName = "subHeader")]
+        public string SubHeader { get; set; }
 
         /// <summary>
         /// Text
         /// </summary>
         [DataMember(Name = "text")]
         [JsonProperty(PropertyName = "text")]
-        [XmlElement(ElementName = "text")]     
-        public string Text;
+        [XmlElement(ElementName = "text")]
+        public string Text { get; set; }
 
         /// <summary>
         /// CreateDate
@@ -98,15 +77,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "createDate")]
         [JsonProperty(PropertyName = "createDate")]
         [XmlElement(ElementName = "createDate")]
-        public long CreateDate;
-
-        /// <summary>
-        /// User Id
-        /// </summary>
-        [DataMember(Name = "userId")]
-        [JsonProperty(PropertyName = "userId")]
-        [XmlElement(ElementName = "userId")]
-        public string UserId;
+        public long CreateDate { get; set; }
 
         /// <summary>
         /// Writer
@@ -114,14 +85,6 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "writer")]
         [JsonProperty(PropertyName = "writer")]
         [XmlElement(ElementName = "writer")]
-        public string Writer;
-
-        /// <summary>
-        /// User Picture URL
-        /// </summary>
-        [DataMember(Name = "userPictureURL")]
-        [JsonProperty(PropertyName = "userPictureURL")]
-        [XmlElement(ElementName = "userPictureURL")]
-        public string UserPictureURL;
+        public string Writer { get; set; }
     }
 }

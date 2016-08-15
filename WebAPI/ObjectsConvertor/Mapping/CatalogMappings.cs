@@ -258,10 +258,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Header, opt => opt.MapFrom(src => src.m_sHeader))
                 .ForMember(dest => dest.SubHeader, opt => opt.MapFrom(src => src.m_sSubHeader))
                 .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.m_sContentText))
-                .ForMember(dest => dest.LanguageId, opt => opt.MapFrom(src => src.m_nLang))
-                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.m_sSiteGuid))
-                .ForMember(dest => dest.Writer, opt => opt.MapFrom(src => src.m_sWriter))
-                .ForMember(dest => dest.UserPictureURL, opt => opt.MapFrom(src => src.m_sUserPicURL));
+                .ForMember(dest => dest.LanguageCode, opt => opt.MapFrom(src => src.m_nLang))
+                .ForMember(dest => dest.Writer, opt => opt.MapFrom(src => src.m_sWriter));
 
         }
         
