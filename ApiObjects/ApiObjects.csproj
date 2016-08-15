@@ -333,7 +333,6 @@
     <Compile Include="Rules\RegistryResponse.cs" />
     <Compile Include="Rules\RegistrySettings.cs" />
     <Compile Include="ScheduledTasks\HandleDomainQuataByRecordingTask.cs" />
-    <Compile Include="ScheduledTasks\ScheduledTaskLastRunResponse.cs" />
     <Compile Include="Scheduling.cs" />
     <Compile Include="SearchDefinitionObject.cs" />
     <Compile Include="SearchObjects\BaseSearchObject.cs" />
