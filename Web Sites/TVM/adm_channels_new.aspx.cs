@@ -36,11 +36,11 @@ public partial class adm_channels_new : System.Web.UI.Page
                 {
                     int loginGroupID = LoginManager.GetLoginGroupID();
                     //Update MediaType if its new channel
-                    if (Session["media_type_ids"] != null && Session["media_type_ids"] is List<int>)
+                    if (Session["asset_type_ids"] != null && Session["asset_type_ids"] is List<int>)
                     {
-                        List<int> updatedMediaType = Session["media_type_ids"] as List<int>;
+                        List<int> updatedMediaType = Session["asset_type_ids"] as List<int>;
                         InsertChannelMediaType(updatedMediaType, nId, loginGroupID);
-                        Session["media_type_ids"] = null;
+                        Session["asset_type_ids"] = null;
                     }
 
                     //Update channel at Lucene/ ES
@@ -714,14 +714,14 @@ public partial class adm_channels_new : System.Web.UI.Page
         }
         else
         {
-            // save media type id values to associate with cjannel (after get channelId)
+            // save media type id values to associate with channel (after get channelId)
             List<int> mediaTypeList = new List<int>();
-            if (Session["media_type_ids"] != null && Session["media_type_ids"] is List<int>)
+            if (Session["asset_type_ids"] != null && Session["asset_type_ids"] is List<int>)
             {
-                mediaTypeList = Session["media_type_ids"] as List<int>;
+                mediaTypeList = Session["asset_type_ids"] as List<int>;
             }
             mediaTypeList.Add(mediaTypeID);
-            Session["media_type_ids"] = mediaTypeList;
+            Session["asset_type_ids"] = mediaTypeList;
 
         }
         return "";
