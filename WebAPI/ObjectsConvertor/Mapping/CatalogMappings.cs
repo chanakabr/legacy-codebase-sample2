@@ -11,6 +11,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
+using WebAPI.ClientManagers;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -257,10 +258,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dCreateDate)))
                 .ForMember(dest => dest.Header, opt => opt.MapFrom(src => src.m_sHeader))
                 .ForMember(dest => dest.SubHeader, opt => opt.MapFrom(src => src.m_sSubHeader))
-                .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.m_sContentText))
-                .ForMember(dest => dest.LanguageCode, opt => opt.MapFrom(src => src.m_nLang))
+                .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.m_sContentText))               
                 .ForMember(dest => dest.Writer, opt => opt.MapFrom(src => src.m_sWriter));
-
         }
         
         //eAssetTypes to KalturaAssetType
@@ -605,5 +604,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             return result;
         }
+
+
+      
     }
 }

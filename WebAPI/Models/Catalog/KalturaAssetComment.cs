@@ -41,15 +41,6 @@ namespace WebAPI.Models.Catalog
         public KalturaAssetType AssetType { get; set; }
 
         /// <summary>
-        /// Language Id
-        /// </summary>
-        [DataMember(Name = "languageCode")]
-        [JsonProperty(PropertyName = "languageCode")]
-        [XmlElement(ElementName = "languageCode")]
-        [SchemeProperty(ReadOnly = true)]
-        public string LanguageCode { get; set; }
-
-        /// <summary>
         /// Header
         /// </summary>
         [DataMember(Name = "header")]
