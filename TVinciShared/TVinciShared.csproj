@@ -195,10 +195,6 @@
       <Project>{e4f95ccc-2127-4a5c-90bb-d60a446bec3b}</Project>
       <Name>QueueWrapper</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ScheduledTasks\ScheduledTasks.csproj">
-      <Project>{4eb719ed-06b1-4c05-a7ca-269d802105ea}</Project>
-      <Name>ScheduledTasks</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Uploader\Uploader.csproj">
       <Project>{a35bd0d3-3055-4206-8b3f-80079f9eca15}</Project>
       <Name>Uploader</Name>

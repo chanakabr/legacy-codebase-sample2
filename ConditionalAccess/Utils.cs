@@ -1,6 +1,5 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
-using ApiObjects.ScheduledTasks;
 using ApiObjects.TimeShiftedTv;
 using ConditionalAccess.TvinciDomains;
 using ConditionalAccess.TvinciPricing;

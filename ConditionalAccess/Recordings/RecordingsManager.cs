@@ -16,7 +16,6 @@ using TVinciShared;
 using Synchronizer;
 using KlogMonitorHelper;
 using ApiObjects.QueueObjects;
-using ApiObjects.ScheduledTasks;
 
 namespace Recordings
 {

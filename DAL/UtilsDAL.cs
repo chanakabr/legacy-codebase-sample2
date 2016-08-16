@@ -1,5 +1,4 @@
 ﻿using ApiObjects;
-using ApiObjects.ScheduledTasks;
 using ApiObjects.TimeShiftedTv;
 using KLogMonitor;
 using ODBCWrapper;

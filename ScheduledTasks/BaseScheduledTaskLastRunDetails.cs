@@ -9,23 +9,48 @@ using System.Threading.Tasks;
 
 namespace ScheduledTasks
 {
-    public class RecordingsScheduledTask: ScheduledTaskLastRunResponse
+    public class BaseScheduledTaskLastRunDetails: ScheduledTaskLastRunDetails
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public RecordingsScheduledTask() { }
+        public BaseScheduledTaskLastRunDetails() : base() { }
 
-        public RecordingsScheduledTask(ScheduledTaskType scheduledTaskType) 
+        public BaseScheduledTaskLastRunDetails(ScheduledTaskType scheduledTaskType)
+            : base()
         {
             this.ScheduledTaskType = scheduledTaskType;
         }
 
-        public RecordingsScheduledTask(DateTime lastRunDate, int impactedItems, double nextRunIntervalInSeconds, ScheduledTaskType scheduledTaskType)
+        public BaseScheduledTaskLastRunDetails(DateTime lastRunDate, int impactedItems, double nextRunIntervalInSeconds, ScheduledTaskType scheduledTaskType)
             : base(lastRunDate, impactedItems, nextRunIntervalInSeconds, scheduledTaskType) { }
 
-        public override object GetLastRunDetails()
+        private string GetKey()
         {
-            RecordingsScheduledTask response = null;
+            string key = string.Empty;
+            switch (ScheduledTaskType)
+            {
+                case ApiObjects.ScheduledTaskType.recordingsLifetime:
+                    key = "recordings_lifetime";
+                    break;
+                case ApiObjects.ScheduledTaskType.recordingsScheduledTasks:
+                    key = "recordings_scheduledTasks";
+                    break;
+                case ApiObjects.ScheduledTaskType.recordingsCleanup:
+                    key = "recordings_cleanup";
+                    break;
+                case ApiObjects.ScheduledTaskType.notificationCleanup:
+                    key = "notification_cleanup";
+                    break;
+                default:
+                    break;
+            }
+
+            return key;
+        }
+
+        public override ScheduledTaskLastRunDetails GetLastRunDetails()
+        {
+            BaseScheduledTaskLastRunDetails response = null;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
@@ -41,20 +66,20 @@ namespace ScheduledTasks
                 int numOfRetries = 0;
                 while (numOfRetries < limitRetries)
                 {
-                    response = cbClient.Get<RecordingsScheduledTask>(scheduledTaksKey, out getResult);
+                    response = cbClient.Get<BaseScheduledTaskLastRunDetails>(scheduledTaksKey, out getResult);
                     if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
                     {
-                        log.ErrorFormat("Error while trying to get last successful scheduled task run date, KeyNotFound. scheduleTaskName: {0}, key: {1}", scheduledTaksKey, scheduledTaksKey);
+                        log.ErrorFormat("Error while trying to get last scheduled task run details, KeyNotFound. scheduleTaskName: {0}, key: {1}", scheduledTaksKey, scheduledTaksKey);
                         break;
                     }
                     else if (getResult == Couchbase.IO.ResponseStatus.Success)
                     {
-                        log.DebugFormat("RecordingsScheduledTask with scheduleTaskName: {0} and key {1} was found", scheduledTaksKey, scheduledTaksKey);
+                        log.DebugFormat("BaseScheduledTaskLastRunDetails with scheduleTaskName: {0} and key {1} was found", scheduledTaksKey, scheduledTaksKey);
                         break;
                     }
                     else
                     {
-                        log.ErrorFormat("Retrieving RecordingsScheduledTask with scheduledTaskName: {0} and key {1} failed with status: {2}, retryAttempt: {3}, maxRetries: {4}", ScheduledTaskType.ToString(), scheduledTaksKey, getResult, numOfRetries, limitRetries);
+                        log.ErrorFormat("Retrieving BaseScheduledTaskLastRunDetails with scheduledTaskName: {0} and key {1} failed with status: {2}, retryAttempt: {3}, maxRetries: {4}", ScheduledTaskType.ToString(), scheduledTaksKey, getResult, numOfRetries, limitRetries);
                         numOfRetries++;
                         System.Threading.Thread.Sleep(r.Next(50));
                     }
@@ -62,31 +87,10 @@ namespace ScheduledTasks
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while trying to get last run details for RecordingsScheduledTask, scheduledTaskName: {0}, ex: {1}", ScheduledTaskType.ToString(), ex);
+                log.ErrorFormat("Error while trying to get last run details for BaseScheduledTaskLastRunDetails, scheduledTaskName: {0}, ex: {1}", ScheduledTaskType.ToString(), ex);
             }
 
             return response;
-        }
-
-        public override string GetKey()
-        {
-            string key = string.Empty;
-            switch (ScheduledTaskType)
-            {
-                case ApiObjects.ScheduledTaskType.recordingsLifetime:
-                    key = "recordings_lifetime";
-                    break;
-                case ApiObjects.ScheduledTaskType.recordingsScheduledTasks:
-                    key = "recordings_scheduledTasks";
-                    break;
-                case ApiObjects.ScheduledTaskType.recordingsCleanup:
-                    key = "recordings_cleanup";
-                    break;
-                default:
-                    break;
-            }
-
-            return key;
         }
 
         public override bool SetLastRunDetails()
@@ -108,16 +112,16 @@ namespace ScheduledTasks
                 {
                     ulong version;
                     Couchbase.IO.ResponseStatus status;
-                    object currentScheduledTask = cbClient.GetWithVersion<object>(scheduledTaksKey, out version, out status);
+                    BaseScheduledTaskLastRunDetails currentScheduledTask = cbClient.GetWithVersion<BaseScheduledTaskLastRunDetails>(scheduledTaksKey, out version, out status);
                     if (status == Couchbase.IO.ResponseStatus.Success || status == Couchbase.IO.ResponseStatus.KeyNotFound)
                     {
-                        result = cbClient.SetWithVersion<RecordingsScheduledTask>(scheduledTaksKey, (RecordingsScheduledTask)this, version);
+                        result = cbClient.SetWithVersion<BaseScheduledTaskLastRunDetails>(scheduledTaksKey, this, version);
                     }
 
                     if (!result)
                     {
                         numOfRetries++;
-                        log.ErrorFormat("Error while updating successful scheduled task run details. scheduledTaskName: {0}, number of tries: {1}/{2}",
+                        log.ErrorFormat("Error while updating scheduled task run details. scheduledTaskName: {0}, number of tries: {1}/{2}",
                                          ScheduledTaskType.ToString(), numOfRetries, limitRetries);
 
                         System.Threading.Thread.Sleep(r.Next(50));
@@ -126,7 +130,7 @@ namespace ScheduledTasks
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while updating successful scheduled task run details, scheduledTaskName: {0}, ex: {1}", ScheduledTaskType.ToString(), ex);
+                log.ErrorFormat("Error while updating scheduled task run details, scheduledTaskName: {0}, ex: {1}", ScheduledTaskType.ToString(), ex);
             }
 
             return result;
@@ -151,11 +155,11 @@ namespace ScheduledTasks
                 {
                     ulong version;
                     Couchbase.IO.ResponseStatus status;
-                    ScheduledTaskLastRunResponse scheduledTask = cbClient.GetWithVersion<ScheduledTaskLastRunResponse>(scheduledTaksKey, out version, out status);
+                    BaseScheduledTaskLastRunDetails scheduledTask = cbClient.GetWithVersion<BaseScheduledTaskLastRunDetails>(scheduledTaksKey, out version, out status);
                     if (status == Couchbase.IO.ResponseStatus.Success)
                     {
                         scheduledTask.NextRunIntervalInSeconds = updatedNextRunIntervalInSeconds;
-                        result = cbClient.SetWithVersion<ScheduledTaskLastRunResponse>(scheduledTaksKey, scheduledTask, version);
+                        result = cbClient.SetWithVersion<BaseScheduledTaskLastRunDetails>(scheduledTaksKey, scheduledTask, version);
                     }
                     else if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
                     {
@@ -178,19 +182,7 @@ namespace ScheduledTasks
             }
 
             return result;
-        }
-
-        public override string ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append(string.Format("Status Code: {0}, Status Message: {1} ", Status.Code, Status.Message));
-            sb.Append(string.Format("LastSuccessfulRunDate: {0}, ", LastRunDate.ToString()));
-            sb.Append(string.Format("ImpactedItems: {0}, ", ImpactedItemsOnLastRun));
-            sb.Append(string.Format("NextRunIntervalInSeconds: {0} ", NextRunIntervalInSeconds));
-            sb.Append(string.Format("ScheduledTaskType: {0}", ScheduledTaskType.ToString()));
-
-            return sb.ToString();
-        }
+        }        
 
     }
 }

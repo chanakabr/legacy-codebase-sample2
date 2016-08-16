@@ -30,6 +30,14 @@ namespace QueueWrapper
                 if (this.Implementation != null)
                 {
                     bIsEnqueueSucceeded = this.Implementation.Enqueue(sMessage, routingKey, expirationMiliSec);
+                    if (!bIsEnqueueSucceeded)
+                    {
+                        log.ErrorFormat("Failed inserting message: {0}, routingKey: {1}", sMessage, routingKey);
+                    }
+                    else
+                    {
+                        log.DebugFormat("Successfully inserted message: {0}, routingKey: {1}", sMessage, routingKey);
+                    }
                 }
 
                 if (bIsEnqueueSucceeded && storeForRecovery)

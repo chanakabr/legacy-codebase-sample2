@@ -129,7 +129,6 @@
     <Compile Include="Notification\Announcement.cs" />
     <Compile Include="Notification\AnnouncementSubscription.cs" />
     <Compile Include="Notification\AnnouncementsResponse.cs" />
-    <Compile Include="Notification\NotificationCleanupResponse.cs" />
     <Compile Include="Notification\InboxMessageResponse.cs" />
     <Compile Include="Notification\DbAnnouncement.cs" />
     <Compile Include="Notification\DeviceNotificationData.cs" />
@@ -332,7 +331,7 @@
     <Compile Include="Rules\PurchaseSettingsResponse.cs" />
     <Compile Include="Rules\RegistryResponse.cs" />
     <Compile Include="Rules\RegistrySettings.cs" />
-    <Compile Include="ScheduledTasks\HandleDomainQuataByRecordingTask.cs" />
+    <Compile Include="TimeShiftedTv\HandleDomainQuataByRecordingTask.cs" />
     <Compile Include="Scheduling.cs" />
     <Compile Include="SearchDefinitionObject.cs" />
     <Compile Include="SearchObjects\BaseSearchObject.cs" />
