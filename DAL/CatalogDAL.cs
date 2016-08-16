@@ -620,7 +620,7 @@ namespace Tvinci.Core.DAL
             // because it is a live, constant, "endless" stream
             if (!isLinearChannel)
             {
-                while (limitRetries >= 0 || !success)
+                while (limitRetries >= 0 && !success)
                 {
                     shouldUpdateLocation = UpdateOrInsert_UsersMediaMarkOrHit(mediaHitsManager, sUDID, ref limitRetries, r, mmKey, ref success, dev, finishedPercentThreshold);
                 }
@@ -633,7 +633,7 @@ namespace Tvinci.Core.DAL
                 limitRetries = RETRY_LIMIT;
                 success = false;
 
-                while (limitRetries >= 0 || !success)
+                while (limitRetries >= 0 && !success)
                 {
                     UpdateOrInsert_UsersMediaMarkOrHit(mediaMarksManager, sUDID, ref limitRetries, r, mmKey, ref success, dev, 0);
                 }
@@ -2363,7 +2363,7 @@ namespace Tvinci.Core.DAL
             if (isFirstPlay)
             {
                 bool success = false;
-                while (limitRetries >= 0 || !success)
+                while (limitRetries >= 0 && !success)
                 {
                     UpdateOrInsert_UsersMediaMarkOrHit(mediaMarkManager, sUDID, ref limitRetries, r, mmKey, ref success, userMediaMark);
                 }
