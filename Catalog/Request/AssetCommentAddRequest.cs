@@ -88,8 +88,9 @@ namespace Catalog.Request
                 response.AssetComment = new Comments()
                 {
                     Id = (int)id,
-                    m_nAssetID = request.assetId,
-                    m_sAssetType = request.assetType.ToString(),
+                    m_nAssetID = request.assetId,                    
+                    m_sAssetType = CatalogDAL.Get_MediaTypeIdByMediaId(request.assetId).ToString(),
+                    AssetType = request.assetType,
                     m_sWriter = request.writer,
                     m_sHeader = request.header,
                     m_sSubHeader = request.subHeader,
@@ -109,7 +110,7 @@ namespace Catalog.Request
                 {
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
-
+                
                 return response;
 
 
