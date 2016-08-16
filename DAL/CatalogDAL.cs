@@ -574,7 +574,7 @@ namespace Tvinci.Core.DAL
         {
             var mediaMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             var mediaHitsManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
-            var domainMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.DOMAIN_HITS);
+            var domainMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.DOMAIN_CONCURRENCY);
 
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
@@ -1552,7 +1552,7 @@ namespace Tvinci.Core.DAL
 
         public static List<UserMediaMark> GetDomainLastPositions(int nDomainID, int ttl, ePlayType ePlay = ePlayType.MEDIA)
         {
-            var domainMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.DOMAIN_HITS);
+            var domainMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.DOMAIN_CONCURRENCY);
 
             string docKey = UtilsDal.getDomainMediaMarksDocKey(nDomainID);
             var data = domainMarksManager.Get<string>(docKey);
@@ -2305,7 +2305,7 @@ namespace Tvinci.Core.DAL
             int fileDuration, string action, bool isFirstPlay = false, int finishedPercent = 95)
         {
             var mediaMarkManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
-            var domainMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.DOMAIN_HITS);
+            var domainMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.DOMAIN_CONCURRENCY);
 
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
@@ -2375,7 +2375,7 @@ namespace Tvinci.Core.DAL
         {
             var mediaMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             var mediaHitsManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
-            var domainMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.DOMAIN_HITS);
+            var domainMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.DOMAIN_CONCURRENCY);
 
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
@@ -2474,7 +2474,7 @@ namespace Tvinci.Core.DAL
         // get all devices last position in domain by media_id 
         public static DomainMediaMark GetDomainLastPosition(int mediaID, int userID, int domainID)
         {
-            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.DOMAIN_HITS);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.DOMAIN_CONCURRENCY);
             // get domain document 
             string key = UtilsDal.getDomainMediaMarksDocKey(domainID);
             var data = cbManager.Get<string>(key);
