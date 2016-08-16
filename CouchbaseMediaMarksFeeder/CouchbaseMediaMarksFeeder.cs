@@ -294,7 +294,7 @@ namespace CouchbaseMediaMarksFeeder
                     json = Encoding.UTF8.GetString(fileContent);
                     MediaMarkLog oldMml = JsonConvert.DeserializeObject<MediaMarkLog>(json);
                     oldMml.LastMark = devices.FirstOrDefault();
-                    oldMml.devices = devices;
+                    //oldMml.devices = devices;
                     // flush, in order to move from read operation to write operation
                     file.Flush();
                     file.SetLength(0);
@@ -629,7 +629,11 @@ namespace CouchbaseMediaMarksFeeder
             bool res = false;
             StreamWriter file = null;
             string outputJson = string.Empty;
-            MediaMarkLog mml = new MediaMarkLog() { devices = devices, LastMark = devices.FirstOrDefault() };
+            MediaMarkLog mml = new MediaMarkLog()
+            {
+                //devices = devices,
+                LastMark = devices.FirstOrDefault()
+            };
             string filename = String.Concat(outputDirectory, umk.ToString(), JSON_FILE_ENDING);
             try
             {
