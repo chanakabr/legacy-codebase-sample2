@@ -10,9 +10,10 @@ namespace ApiObjects.MediaMarks
     public class MediaMarkLog
     {
         [JsonProperty("lm")]
-        public UserMediaMark LastMark { get; set; }
-
-        [JsonProperty("devices")]
-        public List<UserMediaMark> devices;
+        public UserMediaMark LastMark
+        {
+            get;
+            set;
+        }
     }
 }

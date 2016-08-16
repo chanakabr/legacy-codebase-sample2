@@ -2066,7 +2066,8 @@ namespace Catalog
             }
         }
 
-        public static void UpdateFollowMe(int nGroupID, string sAssetID, string sSiteGUID, int nPlayTime, string sUDID, int duration, string assetAction, int mediaTypeId, int nDomainID = 0, ePlayType ePlayType = ePlayType.MEDIA)
+        public static void UpdateFollowMe(int nGroupID, string sAssetID, string sSiteGUID, int nPlayTime, string sUDID, int duration, string assetAction, int mediaTypeId,
+            int nDomainID = 0, ePlayType ePlayType = ePlayType.MEDIA, bool isFirstPlay = false, bool isLinearChannel = false)
         {          
             if (Catalog.IsAnonymousUser(sSiteGUID))
             {
@@ -2081,18 +2082,29 @@ namespace Catalog
                 nDomainID = DomainDal.GetDomainIDBySiteGuid(nGroupID, int.Parse(sSiteGUID), ref opID, ref isMaster, ref eSuspendStat);
             }
 
+             // take finished percent threshold
+	        int finishedPercentThreshold = 0;
+	        object dbThresholdVal = ODBCWrapper.Utils.GetTableSingleVal("groups", "FINISHED_PERCENT_THRESHOLD", nGroupID, 86400);
+	        if (dbThresholdVal == null ||
+	            dbThresholdVal == DBNull.Value ||
+	            !int.TryParse(dbThresholdVal.ToString(), out finishedPercentThreshold))
+	        {
+	            finishedPercentThreshold = Catalog.FINISHED_PERCENT_THRESHOLD;
+	        }
+
             if (nDomainID > 0)
             {
                 switch (ePlayType)
                 {
                     case ePlayType.MEDIA:
-                        CatalogDAL.UpdateOrInsert_UsersMediaMark(nDomainID, int.Parse(sSiteGUID), sUDID, int.Parse(sAssetID), nGroupID, nPlayTime, duration, assetAction, mediaTypeId);
+                    CatalogDAL.UpdateOrInsert_UsersMediaMark(nDomainID, int.Parse(sSiteGUID), sUDID, int.Parse(sAssetID), nGroupID, 
+                        nPlayTime, duration, assetAction, mediaTypeId, isFirstPlay, isLinearChannel, finishedPercentThreshold);
                         break;
                     case ePlayType.NPVR:
                         CatalogDAL.UpdateOrInsert_UsersNpvrMark(nDomainID, int.Parse(sSiteGUID), sUDID, sAssetID, nGroupID, nPlayTime, duration, assetAction);
                         break;
                     case ePlayType.EPG:
-                        CatalogDAL.UpdateOrInsert_UsersEpgMark(nDomainID, int.Parse(sSiteGUID), sUDID, int.Parse(sAssetID), nGroupID, nPlayTime, duration, assetAction);
+                        CatalogDAL.UpdateOrInsert_UsersEpgMark(nDomainID, int.Parse(sSiteGUID), sUDID, int.Parse(sAssetID), nGroupID, nPlayTime, duration, assetAction, isFirstPlay);
                         break;
                     default:
                         break;
@@ -4150,6 +4162,9 @@ namespace Catalog
             object oCountryID = catalogCache.Get(ipKey);
             bool bIP = false;
             bool bMedia = false;
+
+            bool isValid = false;
+
             if (oCountryID != null)
             {
                 countryID = (int)oCountryID;
@@ -4161,9 +4176,25 @@ namespace Catalog
             if (lMedia != null && lMedia.Count > 0)
             {
                 InitMediaMarkHitDataFromCache(ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID, ref fileDuration, lMedia);
+
+                if (cdnID == -1 && qualityID == -1 && formatID == -1 && mediaTypeID == -1 && billingTypeID == -1 && fileDuration == -1)
+                {
+                    isValid = false;
+                }
+                else
+                {
+                    isValid = true;
+                }
+
                 bMedia = true;
             }
+
             #endregion
+
+            if (!isValid)
+            {
+                return false;
+            }
 
             if (!bIP) // try getting countryID from ES, if it fails get countryID from DB
             {
@@ -4190,8 +4221,19 @@ namespace Catalog
                     catalogCache.Set(m_mf_Key, lMedia, cacheTime);
                     bMedia = true;
                 }
+                else
+                {
+                    // If couldn't get media - create an "invalid" record and save it in cache
+                    InitMediaMarkHitDataToCache(ownerGroupID, -1, -1, -1, -1, -1, -1, ref lMedia);
+                    catalogCache.Set(m_mf_Key, lMedia, cacheTime);
+                    bMedia = false;
+                }
             }
-
+            else if (cdnID == -1 && qualityID == -1 && formatID == -1 && mediaTypeID == -1 && billingTypeID == -1 && fileDuration == -1)
+            {
+                bMedia = false;
+            }
+            
             return bIP && bMedia;
         }
 
