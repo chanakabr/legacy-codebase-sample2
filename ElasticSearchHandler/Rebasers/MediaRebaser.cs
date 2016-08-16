@@ -88,8 +88,17 @@ namespace ElasticSearchHandler
                     {
                         HashSet<int> allIdsFromDB = new HashSet<int>();
 
+                        bool isFirstRun = firstIndex == 0;
+
+                        int skip = 1;
+
+                        if (isFirstRun)
+                        {
+                            skip = 0;
+                        }
+                        
                         // Create a list with all the IDs that were found in Database
-                        for (int i = firstIndex; i < lastIndex; i++)
+                        for (int i = firstIndex + skip; i < lastIndex; i++)
                         {
                             int currentId = groupMedias[i].Key;
 
@@ -107,7 +116,6 @@ namespace ElasticSearchHandler
                             int lastMediaId = groupMedias[lastIndex - 1].Key;
                             string documentType = ElasticSearchTaskUtils.GetTanslationType(MEDIA, language);
 
-                            bool isFirstRun = firstIndex == 0;
                             List<ElasticSearchApi.ESAssetDocument> searchResults =
                                 GetRangedDocuments(indexName, firstMediaId.ToString(), lastMediaId.ToString(), "media_id", documentType, isFirstRun, allIdsFromDB.Count);
 

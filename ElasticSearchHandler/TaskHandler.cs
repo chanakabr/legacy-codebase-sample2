@@ -71,8 +71,11 @@ namespace ElasticSearchHandler
 
                         bool result = rebaser.Rebase();
 
+                        //log.DebugFormat("Test 26. URL = {0}", urlV2);
+
                         if (!string.IsNullOrEmpty(urlV2))
                         {
+                            log.DebugFormat("Enviroment has more than one ElasticSearch servers. Initiating rebase for V2 server. URL = {0}", urlV2);
                             rebaser.Url = urlV2;
 
                             result &= rebaser.Rebase();
