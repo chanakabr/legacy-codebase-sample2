@@ -121,7 +121,7 @@ namespace WebAPI.Utils
 
             string userID = ks.UserId;
 
-            if (userID == "0")
+            if (string.IsNullOrEmpty(userID) || userID == "0")
                 return false;
 
             KalturaHousehold domain = GetHouseholdFromRequest();
