@@ -13,6 +13,7 @@ using Tvinci.Core.DAL;
 
 namespace Catalog.Request
 {
+    [DataContract]
     public class AssetCommentAddRequest : BaseRequest, IRequestImp
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());

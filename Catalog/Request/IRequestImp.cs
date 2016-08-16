@@ -41,6 +41,7 @@ namespace Catalog.Request
         [ServiceKnownType(typeof(EpgProgramDetailsRequest))]
         [ServiceKnownType(typeof(MediaRelatedExternalRequest))]
         [ServiceKnownType(typeof(MediaSearchExternalRequest))]
+        [ServiceKnownType(typeof(AssetCommentAddRequest))]
 
         [OperationContract]
         BaseResponse GetResponse(BaseRequest oBaseRequest);

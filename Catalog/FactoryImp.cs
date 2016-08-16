@@ -245,6 +245,10 @@ namespace Catalog
             {
                 return (AssetCommentsRequest)m_oBaseRequest;
             }
+            if (m_oBaseRequest is AssetCommentAddRequest)
+            {
+                return (AssetCommentAddRequest)m_oBaseRequest;
+            }
 
             return null;
         }
