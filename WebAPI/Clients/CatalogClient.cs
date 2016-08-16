@@ -1955,6 +1955,10 @@ namespace WebAPI.Clients
                 {
                     result.Objects = commentResponse.Comments != null ?
                         Mapper.Map<List<KalturaAssetComment>>(commentResponse.Comments) : null;
+                    if (result.Objects != null)
+                    {
+                        result.TotalCount = commentResponse.m_nTotalItems;
+                    }
                 }
             }
             else
