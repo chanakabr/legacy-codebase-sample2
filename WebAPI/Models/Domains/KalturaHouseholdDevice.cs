@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Filters;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -17,6 +18,15 @@ namespace WebAPI.Models.Domains
     [OldStandard("activatedOn", "activated_on")]
     public class KalturaHouseholdDevice : KalturaOTTObject
     {
+        /// <summary>
+        /// Household identifier
+        /// </summary>
+        [DataMember(Name = "householdId")]
+        [JsonProperty("householdId")]
+        [XmlElement(ElementName = "householdId")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
+        public int HouseholdId { get; set; }
+
         /// <summary>
         /// Device UDID
         /// </summary>

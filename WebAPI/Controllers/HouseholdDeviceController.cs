@@ -89,6 +89,7 @@ namespace WebAPI.Controllers
         {
             int groupId = KS.GetFromRequest().GroupId;
             int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+            string userId = KS.GetFromRequest().UserId;
 
             try
             {
@@ -96,9 +97,13 @@ namespace WebAPI.Controllers
                 {
                     device = ClientsManager.DomainsClient().AddDevice(groupId, householdId, device.Name, device.Udid, device.getBrandId());
                 }
+                else if (device.HouseholdId != 0)
+                {
+                    device = ClientsManager.DomainsClient().AddDevice(groupId, device.HouseholdId, device.Name, device.Udid, device.getBrandId());
+                }
                 else
                 {
-                    device = ClientsManager.DomainsClient().SubmitAddDeviceToDomain(groupId, householdId, device.Name, device.Udid, device.Name, device.getBrandId());
+                    device = ClientsManager.DomainsClient().SubmitAddDeviceToDomain(groupId, householdId, userId, device.Udid, device.Name, device.getBrandId());
                 }
             }
             catch (ClientException ex)

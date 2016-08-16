@@ -2780,7 +2780,7 @@
     <Compile Include="Models\Pricing\KalturaProductsPriceListResponse.cs" />
     <Compile Include="Models\Pricing\KalturaUsageModule.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaEntitlementListResponse.cs" />
-    <Compile Include="Models\Domains\KalturaDevice.cs" />
+    <Compile Include="Models\Domains\KalturaHouseholdDevice.cs" />
     <Compile Include="Models\Domains\KalturaDeviceFamily.cs" />
     <Compile Include="Models\Domains\KalturaDeviceState.cs" />
     <Compile Include="Models\Domains\KalturaHousehold.cs" />
