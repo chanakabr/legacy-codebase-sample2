@@ -1062,15 +1062,16 @@ namespace SetupTaskHandler.ws_notifications {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="AddMessageAnnouncementResponse", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="MessageAnnouncementResponse", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
     [System.SerializableAttribute()]
-    public partial class AddMessageAnnouncementResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(SetupTaskHandler.ws_notifications.AddMessageAnnouncementResponse))]
+    public partial class MessageAnnouncementResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
         
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int IdField;
+        private SetupTaskHandler.ws_notifications.MessageAnnouncement AnnouncementField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private ApiObjects.Response.Status StatusField;
@@ -1086,14 +1087,14 @@ namespace SetupTaskHandler.ws_notifications {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int Id {
+        public SetupTaskHandler.ws_notifications.MessageAnnouncement Announcement {
             get {
-                return this.IdField;
+                return this.AnnouncementField;
             }
             set {
-                if ((this.IdField.Equals(value) != true)) {
-                    this.IdField = value;
-                    this.RaisePropertyChanged("Id");
+                if ((object.ReferenceEquals(this.AnnouncementField, value) != true)) {
+                    this.AnnouncementField = value;
+                    this.RaisePropertyChanged("Announcement");
                 }
             }
         }
@@ -1117,6 +1118,29 @@ namespace SetupTaskHandler.ws_notifications {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
             if ((propertyChanged != null)) {
                 propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="AddMessageAnnouncementResponse", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
+    [System.SerializableAttribute()]
+    public partial class AddMessageAnnouncementResponse : SetupTaskHandler.ws_notifications.MessageAnnouncementResponse {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int IdField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int Id {
+            get {
+                return this.IdField;
+            }
+            set {
+                if ((this.IdField.Equals(value) != true)) {
+                    this.IdField = value;
+                    this.RaisePropertyChanged("Id");
+                }
             }
         }
     }
@@ -1440,6 +1464,67 @@ namespace SetupTaskHandler.ws_notifications {
         }
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="FollowResponse", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
+    [System.SerializableAttribute()]
+    public partial class FollowResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private SetupTaskHandler.ws_notifications.FollowDataBase FollowField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private ApiObjects.Response.Status StatusField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public SetupTaskHandler.ws_notifications.FollowDataBase Follow {
+            get {
+                return this.FollowField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.FollowField, value) != true)) {
+                    this.FollowField = value;
+                    this.RaisePropertyChanged("Follow");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public ApiObjects.Response.Status Status {
+            get {
+                return this.StatusField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.StatusField, value) != true)) {
+                    this.StatusField = value;
+                    this.RaisePropertyChanged("Status");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="ws_notifications.INotificationService")]
     public interface INotificationService {
@@ -1537,10 +1622,10 @@ namespace SetupTaskHandler.ws_notifications {
         System.Threading.Tasks.Task<bool> SendMessageAnnouncementAsync(string sWSUserName, string sWSPassword, long startTime, int id);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/UpdateMessageAnnouncementResponse")]
-        ApiObjects.Response.Status UpdateMessageAnnouncement(string sWSUserName, string sWSPassword, SetupTaskHandler.ws_notifications.MessageAnnouncement announcement);
+        SetupTaskHandler.ws_notifications.MessageAnnouncementResponse UpdateMessageAnnouncement(string sWSUserName, string sWSPassword, int announcementId, SetupTaskHandler.ws_notifications.MessageAnnouncement announcement);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/UpdateMessageAnnouncementResponse")]
-        System.Threading.Tasks.Task<ApiObjects.Response.Status> UpdateMessageAnnouncementAsync(string sWSUserName, string sWSPassword, SetupTaskHandler.ws_notifications.MessageAnnouncement announcement);
+        System.Threading.Tasks.Task<SetupTaskHandler.ws_notifications.MessageAnnouncementResponse> UpdateMessageAnnouncementAsync(string sWSUserName, string sWSPassword, int announcementId, SetupTaskHandler.ws_notifications.MessageAnnouncement announcement);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateMessageAnnouncementStatus", ReplyAction="http://tempuri.org/INotificationService/UpdateMessageAnnouncementStatusResponse")]
         ApiObjects.Response.Status UpdateMessageAnnouncementStatus(string sWSUserName, string sWSPassword, long id, bool status);
@@ -1597,10 +1682,10 @@ namespace SetupTaskHandler.ws_notifications {
         System.Threading.Tasks.Task<ApiObjects.Response.Status> UnfollowAsync(string sWSUserName, string sWSPassword, int userId, SetupTaskHandler.ws_notifications.FollowDataBase followData);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/Follow", ReplyAction="http://tempuri.org/INotificationService/FollowResponse")]
-        ApiObjects.Response.Status Follow(string sWSUserName, string sWSPassword, int userId, SetupTaskHandler.ws_notifications.FollowDataBase followData);
+        SetupTaskHandler.ws_notifications.FollowResponse Follow(string sWSUserName, string sWSPassword, int userId, SetupTaskHandler.ws_notifications.FollowDataBase followData);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/Follow", ReplyAction="http://tempuri.org/INotificationService/FollowResponse")]
-        System.Threading.Tasks.Task<ApiObjects.Response.Status> FollowAsync(string sWSUserName, string sWSPassword, int userId, SetupTaskHandler.ws_notifications.FollowDataBase followData);
+        System.Threading.Tasks.Task<SetupTaskHandler.ws_notifications.FollowResponse> FollowAsync(string sWSUserName, string sWSPassword, int userId, SetupTaskHandler.ws_notifications.FollowDataBase followData);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/Get_FollowedAssetIdsFromAssets", ReplyAction="http://tempuri.org/INotificationService/Get_FollowedAssetIdsFromAssetsResponse")]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ApiObjects.Response.IdListResponse))]
@@ -1671,11 +1756,19 @@ namespace SetupTaskHandler.ws_notifications {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteAnnouncementsOlderThan", ReplyAction="http://tempuri.org/INotificationService/DeleteAnnouncementsOlderThanResponse")]
         System.Threading.Tasks.Task<ApiObjects.Response.Status> DeleteAnnouncementsOlderThanAsync(string sWSUserName, string sWSPassword);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetNotificationLastCleanupDate", ReplyAction="http://tempuri.org/INotificationService/GetNotificationLastCleanupDateResponse")]
-        ApiObjects.Notification.NotificationCleanupResponse GetNotificationLastCleanupDate(string sWSUserName, string sWSPassword);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/RegisterPushAnnouncementParameters", ReplyAction="http://tempuri.org/INotificationService/RegisterPushAnnouncementParametersRespons" +
+            "e")]
+        ApiObjects.Notification.RegistryResponse RegisterPushAnnouncementParameters(string sWSUserName, string sWSPassword, long announcementId, string hash, string ip);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetNotificationLastCleanupDate", ReplyAction="http://tempuri.org/INotificationService/GetNotificationLastCleanupDateResponse")]
-        System.Threading.Tasks.Task<ApiObjects.Notification.NotificationCleanupResponse> GetNotificationLastCleanupDateAsync(string sWSUserName, string sWSPassword);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/RegisterPushAnnouncementParameters", ReplyAction="http://tempuri.org/INotificationService/RegisterPushAnnouncementParametersRespons" +
+            "e")]
+        System.Threading.Tasks.Task<ApiObjects.Notification.RegistryResponse> RegisterPushAnnouncementParametersAsync(string sWSUserName, string sWSPassword, long announcementId, string hash, string ip);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/RegisterPushSystemParameters", ReplyAction="http://tempuri.org/INotificationService/RegisterPushSystemParametersResponse")]
+        ApiObjects.Notification.RegistryResponse RegisterPushSystemParameters(string sWSUserName, string sWSPassword, string hash, string ip);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/RegisterPushSystemParameters", ReplyAction="http://tempuri.org/INotificationService/RegisterPushSystemParametersResponse")]
+        System.Threading.Tasks.Task<ApiObjects.Notification.RegistryResponse> RegisterPushSystemParametersAsync(string sWSUserName, string sWSPassword, string hash, string ip);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -1825,12 +1918,12 @@ namespace SetupTaskHandler.ws_notifications {
             return base.Channel.SendMessageAnnouncementAsync(sWSUserName, sWSPassword, startTime, id);
         }
         
-        public ApiObjects.Response.Status UpdateMessageAnnouncement(string sWSUserName, string sWSPassword, SetupTaskHandler.ws_notifications.MessageAnnouncement announcement) {
-            return base.Channel.UpdateMessageAnnouncement(sWSUserName, sWSPassword, announcement);
+        public SetupTaskHandler.ws_notifications.MessageAnnouncementResponse UpdateMessageAnnouncement(string sWSUserName, string sWSPassword, int announcementId, SetupTaskHandler.ws_notifications.MessageAnnouncement announcement) {
+            return base.Channel.UpdateMessageAnnouncement(sWSUserName, sWSPassword, announcementId, announcement);
         }
         
-        public System.Threading.Tasks.Task<ApiObjects.Response.Status> UpdateMessageAnnouncementAsync(string sWSUserName, string sWSPassword, SetupTaskHandler.ws_notifications.MessageAnnouncement announcement) {
-            return base.Channel.UpdateMessageAnnouncementAsync(sWSUserName, sWSPassword, announcement);
+        public System.Threading.Tasks.Task<SetupTaskHandler.ws_notifications.MessageAnnouncementResponse> UpdateMessageAnnouncementAsync(string sWSUserName, string sWSPassword, int announcementId, SetupTaskHandler.ws_notifications.MessageAnnouncement announcement) {
+            return base.Channel.UpdateMessageAnnouncementAsync(sWSUserName, sWSPassword, announcementId, announcement);
         }
         
         public ApiObjects.Response.Status UpdateMessageAnnouncementStatus(string sWSUserName, string sWSPassword, long id, bool status) {
@@ -1905,11 +1998,11 @@ namespace SetupTaskHandler.ws_notifications {
             return base.Channel.UnfollowAsync(sWSUserName, sWSPassword, userId, followData);
         }
         
-        public ApiObjects.Response.Status Follow(string sWSUserName, string sWSPassword, int userId, SetupTaskHandler.ws_notifications.FollowDataBase followData) {
+        public SetupTaskHandler.ws_notifications.FollowResponse Follow(string sWSUserName, string sWSPassword, int userId, SetupTaskHandler.ws_notifications.FollowDataBase followData) {
             return base.Channel.Follow(sWSUserName, sWSPassword, userId, followData);
         }
         
-        public System.Threading.Tasks.Task<ApiObjects.Response.Status> FollowAsync(string sWSUserName, string sWSPassword, int userId, SetupTaskHandler.ws_notifications.FollowDataBase followData) {
+        public System.Threading.Tasks.Task<SetupTaskHandler.ws_notifications.FollowResponse> FollowAsync(string sWSUserName, string sWSPassword, int userId, SetupTaskHandler.ws_notifications.FollowDataBase followData) {
             return base.Channel.FollowAsync(sWSUserName, sWSPassword, userId, followData);
         }
         
@@ -2001,12 +2094,20 @@ namespace SetupTaskHandler.ws_notifications {
             return base.Channel.DeleteAnnouncementsOlderThanAsync(sWSUserName, sWSPassword);
         }
         
-        public ApiObjects.Notification.NotificationCleanupResponse GetNotificationLastCleanupDate(string sWSUserName, string sWSPassword) {
-            return base.Channel.GetNotificationLastCleanupDate(sWSUserName, sWSPassword);
+        public ApiObjects.Notification.RegistryResponse RegisterPushAnnouncementParameters(string sWSUserName, string sWSPassword, long announcementId, string hash, string ip) {
+            return base.Channel.RegisterPushAnnouncementParameters(sWSUserName, sWSPassword, announcementId, hash, ip);
         }
         
-        public System.Threading.Tasks.Task<ApiObjects.Notification.NotificationCleanupResponse> GetNotificationLastCleanupDateAsync(string sWSUserName, string sWSPassword) {
-            return base.Channel.GetNotificationLastCleanupDateAsync(sWSUserName, sWSPassword);
+        public System.Threading.Tasks.Task<ApiObjects.Notification.RegistryResponse> RegisterPushAnnouncementParametersAsync(string sWSUserName, string sWSPassword, long announcementId, string hash, string ip) {
+            return base.Channel.RegisterPushAnnouncementParametersAsync(sWSUserName, sWSPassword, announcementId, hash, ip);
+        }
+        
+        public ApiObjects.Notification.RegistryResponse RegisterPushSystemParameters(string sWSUserName, string sWSPassword, string hash, string ip) {
+            return base.Channel.RegisterPushSystemParameters(sWSUserName, sWSPassword, hash, ip);
+        }
+        
+        public System.Threading.Tasks.Task<ApiObjects.Notification.RegistryResponse> RegisterPushSystemParametersAsync(string sWSUserName, string sWSPassword, string hash, string ip) {
+            return base.Channel.RegisterPushSystemParametersAsync(sWSUserName, sWSPassword, hash, ip);
         }
     }
 }
