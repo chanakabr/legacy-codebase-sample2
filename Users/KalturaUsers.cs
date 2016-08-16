@@ -178,6 +178,10 @@ namespace Users
                             if (!bValidDomainStat)
                                 return Response;
                             break;
+                        case UserActivationState.UserSuspended:
+                            Response.m_user = new User(groupId, siteGuid);
+                            Response.m_RespStatus = ResponseStatus.UserSuspended;
+                            break;
                     }
                 }
                 if (userStatus != UserActivationState.UserWIthNoDomain)
