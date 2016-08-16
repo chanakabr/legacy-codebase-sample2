@@ -1485,6 +1485,7 @@ namespace WebAPI.Clients
                 domainId = householdId,
                 m_nGroupID = groupId,
                 m_sSiteGuid = siteGuid,
+                m_sUserIP = Utils.Utils.GetClientIP(),
                 m_oMediaPlayRequestData = new MediaPlayRequestData()
                 {
                     m_eAssetType = CatalogAssetType,
