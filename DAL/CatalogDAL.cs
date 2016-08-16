@@ -1009,9 +1009,10 @@ namespace Tvinci.Core.DAL
             return result;
         }
 
-        public static bool InsertEpgComment(int nEpgProgramID, int nLanguage, string sWriter, int nGroupID, string sCommentIp,
-            string sHeader, string sSubHeader, string sContentText, string sSiteGuid, string sUDID, string sCountry, int nIsActive)
+        public static long InsertEpgComment(int nEpgProgramID, int nLanguage, string sWriter, int nGroupID, string sCommentIp,
+            string sHeader, string sSubHeader, string sContentText, string sSiteGuid, string sUDID, string sCountry, int nIsActive, ref DateTime? createdDate)
         {
+            long insertedId = 0;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_EpgComment");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
 
@@ -1027,8 +1028,15 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@DeviceUdid", sUDID);
             sp.AddParameter("@Country", sCountry);
             sp.AddParameter("@IsActive", nIsActive);
-            bool result = sp.ExecuteReturnValue<bool>();
-            return result;
+            DataTable dt = sp.Execute();
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+            {
+                insertedId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID", 0);
+                createdDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dt.Rows[0], "CREATE_DATE");
+            }
+
+            return insertedId;
         }
 
         public static DataSet Get_EPGCommentsList(int nEpgProgramID, int nGroupID, int nLanguage, List<int> lSubGroupTree)
@@ -1057,9 +1065,10 @@ namespace Tvinci.Core.DAL
             return null;
         }
 
-        public static bool InsertMediaComment(string sSiteGUID, int nMediaID, string sWriter, int nGroupID, int nAutoActive, int nWatcherID,
-                                              string sCommentIP, string sHeader, string sSubHeader, string sContent, int nLangID, string sUDID)
+        public static long InsertMediaComment(string sSiteGUID, int nMediaID, string sWriter, int nGroupID, int nAutoActive, int nWatcherID,
+                                              string sCommentIP, string sHeader, string sSubHeader, string sContent, int nLangID, string sUDID, ref DateTime? createdDate)
         {
+            long insertedId = 0;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_MediaComment");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
 
@@ -1076,8 +1085,15 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@Content", sContent);
             sp.AddParameter("@LangID", nLangID);
             sp.AddParameter("@UDID", sUDID);
-            bool result = sp.ExecuteReturnValue<bool>();
-            return result;
+            DataTable dt = sp.Execute();
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+            {
+                insertedId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID", 0);
+                createdDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dt.Rows[0], "CREATE_DATE");
+            }
+
+            return insertedId;
         }
 
         public static DataTable Get_UserMediaMark(int groupID, int mediaID, string siteGUID, bool PCFlag, string sUDID)

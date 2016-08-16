@@ -122,7 +122,7 @@ namespace KlogMonitorHelper
                 if (requestString.Length > MAX_LOG_REQUEST_SIZE)
                     log.Debug("REQUEST STRING (large request string - partial log): " + requestString.Substring(0, MAX_LOG_REQUEST_SIZE));
                 else
-                    log.Debug("REQUEST STRING: " + requestString);
+                    log.Debug("REQUEST STRING: " + Environment.NewLine + requestString);
             }
         }
 
@@ -173,7 +173,7 @@ namespace KlogMonitorHelper
                     if (requestString.Length > MAX_LOG_REQUEST_SIZE)
                         log.Debug("REQUEST STRING (large request string - partial log): " + requestString.Substring(0, MAX_LOG_REQUEST_SIZE));
                     else
-                        log.Debug("REQUEST STRING: " + requestString);
+                        log.Debug("REQUEST STRING: " + Environment.NewLine + requestString);
                 }
             }
         }

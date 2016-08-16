@@ -1538,12 +1538,13 @@ namespace DAL
         /// <param name="groupId"></param>
         /// <param name="regionIds"></param>
         /// <returns></returns>
-        public static DataSet Get_RegionsByExternalRegions(int groupId, List<string> externalRegionsList)
+        public static DataSet Get_RegionsByExternalRegions(int groupId, List<string> externalRegionsList, RegionOrderBy orderBy)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_ExternalRegions");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddIDListParameter("@ExternalRegionIDs", externalRegionsList, "STR");
             sp.AddParameter("@GroupID", groupId);
+            sp.AddParameter("@orderBy", (int)orderBy);
 
             return sp.ExecuteDataSet();
         }

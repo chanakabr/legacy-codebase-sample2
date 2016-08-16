@@ -17183,44 +17183,44 @@ namespace ConditionalAccess
                     log.DebugFormat("recording status not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", domainRecordingId, domainId, userId, recording != null ? recording.ToString() : string.Empty);
                     return recording;
                 }
-                List<TstvRecordingStatus> RecordingStatus;
+                List<TstvRecordingStatus> RecordingStatus = new List<TstvRecordingStatus>();
                 DomainRecordingStatus? domainStatus = Utils.ConvertToDomainRecordingStatus(tstvRecordingStatus);
-                
+                bool shouldCancel = false;
                 switch (tstvRecordingStatus)
                 {
                     case TstvRecordingStatus.Canceled:
                     case TstvRecordingStatus.SeriesCancel:
                         RecordingStatus = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recording, TstvRecordingStatus.Scheduled };
-                        if (!Utils.IsValidRecordingStatus(recording.RecordingStatus, RecordingStatus))
-                        {
-                            log.DebugFormat("Recording ID is 0 or RecordingStatus not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", domainRecordingId, domainId, userId, recording.ToString());
-                            recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotValid, recording.RecordingStatus.ToString());
-                            recording.Id = domainRecordingId;
-                            return recording;
-                        }
-                        else
-                        {                            
-                            res = RecordingsDAL.CancelDomainRecording(domainRecordingId, domainStatus.Value);  // delete recording id from domian                             
-                        }
+                        shouldCancel = true;
                         break;
                     case TstvRecordingStatus.Deleted:
-                    case TstvRecordingStatus.SeriesDelete:
                         RecordingStatus = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recorded };
-                        if (!Utils.IsValidRecordingStatus(recording.RecordingStatus, RecordingStatus))
-                        {
-                            log.DebugFormat("Recording ID is 0 or RecordingStatus not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", domainRecordingId, domainId, userId, recording.ToString());
-                            recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotValid, recording.RecordingStatus.ToString());
-                            recording.Id = domainRecordingId;
-                            return recording;
-                        }
-                        else
-                        {
-                            res = RecordingsDAL.DeleteDomainRecording(domainRecordingId, domainStatus.Value);
-                        }
+                        break;
+                    case TstvRecordingStatus.SeriesDelete:
+                        RecordingStatus = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recorded, TstvRecordingStatus.Recording };
                         break;
                     default:
                         break;
                 }
+
+                if (!Utils.IsValidRecordingStatus(recording.RecordingStatus, RecordingStatus))
+                {
+                    log.DebugFormat("CancelOrDeleteRecord - domainRecordingId: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", domainRecordingId, domainId, userId, recording.ToString());
+                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotValid, recording.RecordingStatus.ToString());
+                    recording.Id = domainRecordingId;
+                    return recording;
+                }
+                else if (shouldCancel)
+                {
+                    res = RecordingsDAL.CancelDomainRecording(domainRecordingId, domainStatus.Value);  // delete recording id from domain
+                    log.DebugFormat("canceled domainRecordingId: {0} with result: {1}", domainRecordingId, res);
+                }                
+                else
+                {
+                    res = RecordingsDAL.DeleteDomainRecording(domainRecordingId, domainStatus.Value);
+                    log.DebugFormat("deleted domainRecordingId: {0} with result: {1}", domainRecordingId, res);
+                }
+
                 if (res)
                 {
                     if (QuotaManager.Instance.IncreaseDomainQuota(domainId, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds))
@@ -17744,12 +17744,19 @@ namespace ConditionalAccess
             return response;
         }
 
-        public ApiObjects.Response.Status UpdateRecording(List<long> epgIds, eAction action)
+        public ApiObjects.Response.Status IngestRecording(List<long> epgIds, eAction action)
         {
             ApiObjects.Response.Status status = null;
 
             // Nothing to do
             if (epgIds == null || epgIds.Count == 0)
+            {
+                return new ApiObjects.Response.Status((int)eResponseStatus.OK); 
+            }
+
+            // check if CDVR is enabled
+            var tstvSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+            if (!tstvSettings.IsCdvrEnabled.HasValue || !tstvSettings.IsCdvrEnabled.Value)
             {
                 return new ApiObjects.Response.Status((int)eResponseStatus.OK); 
             }
@@ -17866,11 +17873,11 @@ namespace ConditionalAccess
                                                 Recording serieRecording = RecordingsManager.Instance.Record(m_nGroupID, epg.EPG_ID, channelId, startDate, endDate, epg.CRID);
                                                 if (serieRecording == null || serieRecording.Status == null || serieRecording.Status.Code != (int)eResponseStatus.OK || serieRecording.Id == 0)
                                                 {
-                                                    log.ErrorFormat("failed to record epg as series on UpdateRecording, epgId = {0}", epg.EPG_ID);
+                                                    log.ErrorFormat("failed to record epg as series on IngestRecording, epgId = {0}", epg.EPG_ID);
                                                 }
                                                 else
                                                 {
-                                                    log.DebugFormat("successfully recorded epg as series on UpdateRecording, epgId = {0}, recordingId = {1}", epg.EPG_ID, serieRecording.Id);
+                                                    log.DebugFormat("successfully recorded epg as series on IngestRecording, epgId = {0}, recordingId = {1}", epg.EPG_ID, serieRecording.Id);
                                                     DateTime distributeTime = startDate.AddMinutes(1);
                                                     eRecordingTask task = eRecordingTask.DistributeRecording;
                                                     RecordingsManager.EnqueueMessage(m_nGroupID, serieRecording.EpgId, serieRecording.Id, serieRecording.EpgStartDate, distributeTime, task);
@@ -18641,7 +18648,7 @@ namespace ConditionalAccess
                 if (shouldGetDomainRecordings)
                 {
                     int status = 1;
-                    // Currently canceled can be only due to UpdateRecording which Deletes EPG
+                    // Currently canceled can be only due to IngestRecording which Deletes EPG
                     if (domainRecordingStatus.Value != DomainRecordingStatus.OK)
                     {
                         status = 2;
@@ -18815,7 +18822,7 @@ namespace ConditionalAccess
                         userRecordingCrids.Add(globalRecording.Crid);
                         if (userRecording != null && userRecording.Status != null && userRecording.Status.Code == (int)eResponseStatus.OK && userRecording.Id > 0)
                         {
-                            log.DebugFormat("successfully distributed recording for domainId = {0}, epgId = {1}, new recordingId = {2}", domainId, epgId, userRecording.Id);
+                            log.DebugFormat("successfully recorded epgId = {0}, domainId = {1}, new recordingId = {2}", epgId, domainId, userRecording.Id);
                         }
                     }
                 }
@@ -18908,29 +18915,12 @@ namespace ConditionalAccess
         
         private void CancelOrDeleteSeries(string userId, long domainId, SeriesRecording seriesRecording, TstvRecordingStatus tstvRecordingStatus, long domainSeriesRecordingId, long seasonNumber)
         {
-            // get all domain recording - filter those related to series_id + season_number
-            List<TstvRecordingStatus> RecordingStatus;
-            switch (tstvRecordingStatus)
-            {
-                case TstvRecordingStatus.Canceled:
-                    RecordingStatus = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recording, TstvRecordingStatus.Scheduled };
-                    break;
-                case TstvRecordingStatus.Deleted:
-                    RecordingStatus = new List<TstvRecordingStatus>(){TstvRecordingStatus.Scheduled, TstvRecordingStatus.Recording, TstvRecordingStatus.OK, TstvRecordingStatus.Recorded, TstvRecordingStatus.Failed, 
-                                                                            TstvRecordingStatus.LifeTimePeriodExpired};
-                    break;
-                default:
-                    seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "TstvRecordingStatus is not cancel or delete");
-                    return ;
-            }
-            Dictionary<long, Recording> domainRecordings = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, domainId, RecordingStatus);
-            // if specific epgs exsits to series 
+            Dictionary<long, Recording> domainRecordings = Utils.GetDomainRecordingsByDomainSeriesId(m_nGroupID, domainId, domainSeriesRecordingId);
+
+            // if the domain has recordings of the series
             if (domainRecordings != null && domainRecordings.Count > 0)
             {
-                Dictionary<long, long> epgRecordingMapping = domainRecordings.ToDictionary(x => x.Value.EpgId, x => x.Key);
-
                 List<string> epgIds = domainRecordings.Select(x => x.Value.EpgId.ToString()).ToList();
-
                 TvinciEpgBL epgBLTvinci = new TvinciEpgBL(m_nGroupID);
                 List<EpgCB> epgs = epgBLTvinci.GetEpgs(epgIds);
                 if (epgs != null && epgs.Count > 0)
@@ -18938,7 +18928,7 @@ namespace ConditionalAccess
                     // check if epg related to series and season
                     List<EpgCB> epgMatch = Utils.GetEpgRelatedToSeriesRecording(m_nGroupID, seriesRecording, epgs, seasonNumber);
                     if (epgMatch != null && epgMatch.Count > 0)
-                    {
+                    {                        
                         // convert status Cancel/Delete ==> SeriesCancel/SeriesDelete
                         TstvRecordingStatus? seriesStatus = Utils.ConvertToSeriesStatus(tstvRecordingStatus);
                         if (!seriesStatus.HasValue)
@@ -18946,6 +18936,8 @@ namespace ConditionalAccess
                             log.ErrorFormat("fail to perform cancel or delete domainSeriesRecordingId = {1}, tstvRecordingStatus = {2}", domainSeriesRecordingId, tstvRecordingStatus.ToString());
                             return;
                         }
+
+                        List<TstvRecordingStatus> validRecordingStatuses = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recording, TstvRecordingStatus.Scheduled, TstvRecordingStatus.Recorded };
 
                         // set max amount of concurrent tasks
                         int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
@@ -18958,15 +18950,17 @@ namespace ConditionalAccess
                         Parallel.ForEach(epgMatch, options, (currentEpg) =>
                         {
                             contextData.Load();
-                            //call cancelOrDelete
-                            if (epgRecordingMapping.ContainsKey((long)currentEpg.EpgID))
+                            KeyValuePair<long, Recording> pair = domainRecordings.Where(x => x.Value.EpgId == (long)currentEpg.EpgID).FirstOrDefault();
+                            //call cancelOrDelete if the recordings status is valid (Cancel possible only for recording/scheduled)
+                            if (pair.Value != null && pair.Value.Status.Code == (int)eResponseStatus.OK && validRecordingStatuses.Contains(pair.Value.RecordingStatus))
                             {
-                                CancelOrDeleteRecord(userId, domainId, epgRecordingMapping[(long)currentEpg.EpgID], seriesStatus.Value, false);
+                                CancelOrDeleteRecord(userId, domainId, pair.Key, seriesStatus.Value, false);
                             }
                         });
                     }
                 }
             }
+        
             // mark the row in status = 2
             if (seasonNumber > 0) // need to insert new "record" series+ season to domain series recordings
             {

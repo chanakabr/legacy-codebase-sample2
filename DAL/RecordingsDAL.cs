@@ -497,14 +497,15 @@ namespace DAL
             return spUpdateExpiredRecordingAfterScheduledTask.ExecuteReturnValue<bool>();
         }
 
-        public static DataTable GetEpgToRecordingsMapByCridAndChannel(int groupId, string crid, long channelId)
+        public static DataTable GetEpgToRecordingsMapByCridChannelAndEpgId(int groupId, string crid, long channelId, long epgId)
         {
             DataTable dt = null;
-            ODBCWrapper.StoredProcedure spGetEpgToRecordingsMapByCrid = new ODBCWrapper.StoredProcedure("GetRecordingsByCridAndChannel");
+            ODBCWrapper.StoredProcedure spGetEpgToRecordingsMapByCrid = new ODBCWrapper.StoredProcedure("GetRecordingsByCridChannelAndEpgId");
             spGetEpgToRecordingsMapByCrid.SetConnectionKey(RECORDING_CONNECTION);
             spGetEpgToRecordingsMapByCrid.AddParameter("@GroupID", groupId);
             spGetEpgToRecordingsMapByCrid.AddParameter("@Crid", crid);
             spGetEpgToRecordingsMapByCrid.AddParameter("@ChannelId", channelId);
+            spGetEpgToRecordingsMapByCrid.AddParameter("@EpgId", epgId);
             dt = spGetEpgToRecordingsMapByCrid.Execute();
 
             return dt;
@@ -1093,6 +1094,19 @@ namespace DAL
             spGetEpgToRecordingsMapByExternalRecordingId.AddParameter("@GroupID", groupId);
             spGetEpgToRecordingsMapByExternalRecordingId.AddParameter("@ExternalRecordingId", externalRecordingId);
             dt = spGetEpgToRecordingsMapByExternalRecordingId.Execute();
+
+            return dt;
+        }
+
+        public static DataTable GetDomainRecordingsByDomainSeriesId(int groupID, long domainID, long domainSeriesRecordingId)
+        {
+            DataTable dt = null;
+            ODBCWrapper.StoredProcedure spGetDomainRecordingsByDomainSeriesId = new ODBCWrapper.StoredProcedure("GetDomainRecordingsByDomainSeriesId");
+            spGetDomainRecordingsByDomainSeriesId.SetConnectionKey(RECORDING_CONNECTION);
+            spGetDomainRecordingsByDomainSeriesId.AddParameter("@GroupId", groupID);
+            spGetDomainRecordingsByDomainSeriesId.AddParameter("@DomainId", domainID);
+            spGetDomainRecordingsByDomainSeriesId.AddParameter("@DomainSeriesRecordingId", domainSeriesRecordingId);            
+            dt = spGetDomainRecordingsByDomainSeriesId.Execute();
 
             return dt;
         }

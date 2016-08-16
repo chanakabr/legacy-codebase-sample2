@@ -41,6 +41,7 @@ namespace Catalog.Response
     [KnownType(typeof(MediaIdsStatusResponse))]
     [KnownType(typeof(ExtendedSearchResult))]
     [KnownType(typeof(AssetCommentsListResponse))]
+    [KnownType(typeof(AssetCommentResponse))]
     public class BaseResponse
     {  
         [DataMember]
