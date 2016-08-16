@@ -718,7 +718,8 @@ namespace ApiObjects
     {
         recordingsLifetime = 0,
         recordingsScheduledTasks = 1,
-        recordingsCleanup = 2
+        recordingsCleanup = 2,
+        notificationCleanup = 3
     }
 
     public enum SearchSeriesRecordingsTimeOptions

@@ -23,10 +23,10 @@ namespace ScheduledTasks
 
         public ScheduledTaskLastRunResponse() { }
 
-        public ScheduledTaskLastRunResponse(DateTime lastSuccessfulRunDate, int impactedItems, double nextRunIntervalInSeconds, ScheduledTaskType scheduledTaskType)
+        public ScheduledTaskLastRunResponse(DateTime lastRunDate, int impactedItems, double nextRunIntervalInSeconds, ScheduledTaskType scheduledTaskType)
         {
             this.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-            this.LastRunDate = lastSuccessfulRunDate;
+            this.LastRunDate = lastRunDate;
             this.ImpactedItemsOnLastRun = impactedItems;
             this.NextRunIntervalInSeconds = nextRunIntervalInSeconds;
             this.ScheduledTaskType = scheduledTaskType;

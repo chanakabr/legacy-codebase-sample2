@@ -20,8 +20,8 @@ namespace ScheduledTasks
             this.ScheduledTaskType = scheduledTaskType;
         }
 
-        public RecordingsScheduledTask(DateTime lastSuccessfulRunDate, int impactedItems, double nextRunIntervalInSeconds, ScheduledTaskType scheduledTaskType)
-            : base(lastSuccessfulRunDate, impactedItems, nextRunIntervalInSeconds, scheduledTaskType) { }
+        public RecordingsScheduledTask(DateTime lastRunDate, int impactedItems, double nextRunIntervalInSeconds, ScheduledTaskType scheduledTaskType)
+            : base(lastRunDate, impactedItems, nextRunIntervalInSeconds, scheduledTaskType) { }
 
         public override object GetLastRunDetails()
         {
