@@ -3177,11 +3177,6 @@
             Asset Type
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetComment.LanguageCode">
-            <summary>
-            Language Id
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetComment.Header">
             <summary>
             Header
@@ -6514,6 +6509,11 @@
         <member name="T:WebAPI.Models.Domains.KalturaHouseholdDevice">
             <summary>
             Device details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.HouseholdId">
+            <summary>
+            Household identifier
             </summary>
         </member>
         <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.Udid">
