@@ -137,12 +137,19 @@
 											</table>
 										</div>
 									</td>
-								</tr-->
-								<tr>
+								</tr--> 
+                              
+								  <tr >  
+                                       
+                                    <td style="color:red;">show only first 200 assets !</td>
+                                </tr>
+                                <tr>
 									<td id="page_content">
+                                      
 									    <!-- the actual content -->
 									</td>
 								</tr>
+                              
 								<tr>
 								    <td onclick='window.document.location.href="adm_channels.aspx?search_save=1";'><a href="#" class="btn_back"></a></td>
 								</tr>
