@@ -550,7 +550,10 @@ namespace TvinciImporter
             }
 
             //update log topic with EPGIdentifier
-            OperationContext.Current.IncomingMessageProperties[Constants.TOPIC] = string.Format("ingest import epg_identifier:{0}", sEPGIdentifier);
+            if (OperationContext.Current != null && OperationContext.Current.IncomingMessageProperties != null)
+            {
+                OperationContext.Current.IncomingMessageProperties[Constants.TOPIC] = string.Format("ingest import epg_identifier:{0}", sEPGIdentifier);
+            }
 
             ingestAssetStatus.Status.Code = (int)eResponseStatus.OK;
             ingestAssetStatus.Status.Message = eResponseStatus.OK.ToString();
@@ -1582,7 +1585,10 @@ namespace TvinciImporter
             }
 
             //update log topic with media's co guid
-            OperationContext.Current.IncomingMessageProperties[Constants.TOPIC] = string.Format("ingest import co_guid:{0}", sCoGuid);
+            if (OperationContext.Current != null && OperationContext.Current.IncomingMessageProperties != null)
+            {
+                OperationContext.Current.IncomingMessageProperties[Constants.TOPIC] = string.Format("ingest import co_guid:{0}", sCoGuid);
+            }
 
             ingestAssetStatus.ExternalAssetId = sCoGuid;
             ingestAssetStatus.Status.Code = (int)eResponseStatus.OK;
