@@ -18536,7 +18536,7 @@ namespace ConditionalAccess
             try
             {
                 // try to get interval for next run take default
-                BaseScheduledTaskLastRunDetails recordingsScheduledTask = new BaseScheduledTaskLastRunDetails(ScheduledTaskType.recordingsCleanup);
+                BaseScheduledTaskLastRunDetails recordingsScheduledTask = new BaseScheduledTaskLastRunDetails(ScheduledTaskType.recordingsScheduledTasks);
                 ScheduledTaskLastRunDetails lastRunDetails = recordingsScheduledTask.GetLastRunDetails();
                 recordingsScheduledTask = lastRunDetails != null ? (BaseScheduledTaskLastRunDetails)lastRunDetails : null;
                 if (recordingsScheduledTask != null && recordingsScheduledTask.Status.Code == (int)eResponseStatus.OK && recordingsScheduledTask.NextRunIntervalInSeconds > 0)
