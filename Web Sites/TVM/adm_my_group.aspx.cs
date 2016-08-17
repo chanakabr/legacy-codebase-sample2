@@ -332,6 +332,11 @@ public partial class adm_my_group : System.Web.UI.Page
         dr_Catalog_Urls.Initialize("Catalog URLs", "adm_table_header_nbg", "FormInput", "CATALOG_URL", false);
         theRecord.AddRecord(dr_Catalog_Urls);
 
+        DataRecordCheckBoxField dr_enable_comment_automatically = new DataRecordCheckBoxField(true);
+        dr_enable_comment_automatically.Initialize("Enable Users Comment Automatically", "adm_table_header_nbg", "FormInput", "enable_comment_automatically", false);
+        dr_enable_comment_automatically.SetDefault(1);
+        theRecord.AddRecord(dr_enable_comment_automatically);
+
         string sTable = theRecord.GetTableHTML("adm_my_group.aspx?submited=1");
 
         return sTable;
