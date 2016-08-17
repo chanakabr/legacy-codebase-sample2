@@ -4,6 +4,7 @@ using Catalog.Response;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -30,8 +31,6 @@ namespace Catalog.Request
         public string contentText;
         [DataMember]
         public string udid;
-        [DataMember]
-        public bool shouldAutoActive;
         [DataMember]
         public Int32 assetId;
 
@@ -62,7 +61,8 @@ namespace Catalog.Request
                 }
 
                 // insert comment
-                int nIsActive = request.shouldAutoActive == true ? 1 : 0;
+                DataRow dr = ODBCWrapper.Utils.GetTableSingleRowColumnsByParamValue("groups", "group_id", request.m_nGroupID.ToString(), new List<string>() { "ENABLE_COMMENT_AUTOMATICALLY" });
+                int nIsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_COMMENT_AUTOMATICALLY", 1);
                 long id = 0;
                 DateTime? createdDate = null;
                 switch (request.assetType)
