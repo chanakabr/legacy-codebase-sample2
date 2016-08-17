@@ -1971,7 +1971,7 @@ namespace WebAPI.Clients
         }
 
         internal KalturaAssetComment AddAssetComment(int groupId, int assetId, KalturaAssetType assetType, string userId, int domainId, string writer, string header,
-                                                     string subHeader, string contextText, string udid, string language, bool shouldAutoActive = true)
+                                                     string subHeader, string contextText, string udid, string language)
         {
             KalturaAssetComment result = new KalturaAssetComment();
 
@@ -2001,8 +2001,7 @@ namespace WebAPI.Clients
                 header = header,
                 subHeader = subHeader,
                 contentText = contextText,
-                udid = udid,
-                shouldAutoActive = shouldAutoActive
+                udid = udid
             };
 
             AssetCommentResponse assetCommentResponse = null;
