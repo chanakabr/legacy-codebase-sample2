@@ -193,9 +193,9 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Obsolete]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public bool SetExternalId(string paymentGatewayId, string paymentMethodName, string paymentDetails, string paymentMethodExternalId)
+        public int SetExternalId(string paymentGatewayId, string paymentMethodName, string paymentDetails, string paymentMethodExternalId)
         {
-            bool response = false;
+            int response = 0;
 
             if (string.IsNullOrEmpty(paymentGatewayId))
             {

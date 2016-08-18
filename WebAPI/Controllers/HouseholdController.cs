@@ -318,9 +318,9 @@ namespace WebAPI.Controllers
         [Route("setPaymentMethodExternalId"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
-        public bool SetPaymentMethodExternalId(string payment_gateway_id, string payment_method_name, string payment_details, string payment_method_external_id)
+        public int SetPaymentMethodExternalId(string payment_gateway_id, string payment_method_name, string payment_details, string payment_method_external_id)
         {
-            bool response = false;
+            int response = 0;
 
             if (string.IsNullOrEmpty(payment_gateway_id))
             {
