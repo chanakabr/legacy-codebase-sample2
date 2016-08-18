@@ -3074,6 +3074,14 @@ namespace DAL
                                 Action = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "ACTION"),
                             };
                             break;
+                        case ePermissionItemType.Argument:
+                            permissionItem = new ApiArgumentPermissionItem()
+                            {
+                                Service = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "SERVICE"),
+                                Action = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "ACTION"),
+                                Parameter = ODBCWrapper.Utils.GetSafeStr(permissionsRow, "PARAMETER"),
+                            };
+                            break;
                         default:
                             permissionItem = null;
                             break;
