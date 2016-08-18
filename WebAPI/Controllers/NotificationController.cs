@@ -79,35 +79,6 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// TBD
-        /// </summary>        
-        /// <remarks>
-        /// 
-        /// </remarks>
-        /// <returns></returns>
-        [Route("getLastCleanupDate"), HttpPost]
-        [ApiAuthorize]
-        [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public long GetLastCleanupDate()
-        {
-            long response = 0;
-
-            int groupId = KS.GetFromRequest().GroupId;
-
-            try
-            {
-                // call client
-                response = ClientsManager.NotificationClient().GetNotificationLastCleanupDate(groupId);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return response;
-        }
-
-        /// <summary>
         /// TBD 
         /// </summary>
         /// <remarks>
