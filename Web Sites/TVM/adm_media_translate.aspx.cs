@@ -233,7 +233,8 @@ public partial class adm_media_translate : System.Web.UI.Page
         List<string> tagsTypeTranslate = new List<string>();
         string sGroups = PageUtils.GetParentsGroupsStr(LoginManager.GetLoginGroupID());
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery += "select * from media_tags_types where status=1 and TagFamilyID IS NULL and group_id " + sGroups;
+        selectQuery += "select * from media_tags_types where (status=1 and TagFamilyID IS NULL and group_id " + sGroups+")"  ;
+        selectQuery += " or (group_id=0 and TagFamilyID = 1) ";
         selectQuery += "order by order_num";
         if (selectQuery.Execute("query", true) != null)
         {
@@ -247,8 +248,7 @@ public partial class adm_media_translate : System.Web.UI.Page
         }
         selectQuery.Finish();
         selectQuery = null;
-
-
+               
         string name = string.Empty;
         string value = string.Empty;
        
