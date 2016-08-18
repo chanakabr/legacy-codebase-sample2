@@ -504,6 +504,7 @@ namespace WebAPI.Filters
             ParameterInfo[] parameters = methodInfo.GetParameters();
             Dictionary<string, string> oldStandardParameters = OldStandardAttribute.getOldMembers(methodInfo);
 
+            IEnumerable<SchemeArgumentAttribute> schemaArguments = methodInfo.GetCustomAttributes<SchemeArgumentAttribute>();
             List<Object> methodParams = new List<object>();
             foreach (var p in parameters)
             {
@@ -530,6 +531,7 @@ namespace WebAPI.Filters
                 try
                 {
                     Type t = p.ParameterType;
+                    object value = null;
                     
                     // If it is an enum, newtonsoft's bad "ToObject" doesn't do this easily, 
                     // so we do it ourselves in this not so good looking way
@@ -540,7 +542,7 @@ namespace WebAPI.Filters
                         var names = t.GetEnumNames().ToList();
                         if (names.Contains(paramAsString))
                         {
-                            methodParams.Add(Enum.Parse(t, paramAsString, true));
+                            value = Enum.Parse(t, paramAsString, true);
                         }
                     }
                     // nullable enum
@@ -549,89 +551,10 @@ namespace WebAPI.Filters
                         var paramAsString = reqParams[name] != null ? reqParams[name].ToString() : null;
                         if (paramAsString != null)
                         {
-                            methodParams.Add(Enum.Parse(u, paramAsString, true));
-                        }
-                        else
-                        {
-                            methodParams.Add(null);
+                            value = Enum.Parse(u, paramAsString, true);
                         }
                     }
-                    else if (OldStandardAttribute.isCurrentRequestOldVersion())
-                    {
-                        if (t.IsSubclassOf(typeof(KalturaOTTObject)))
-                        {
-                            Dictionary<string, object> param;
-                            if (reqParams[name].GetType() == typeof(JObject) || reqParams[name].GetType().IsSubclassOf(typeof(JObject)))
-                            {
-                                param = ((JObject)reqParams[name]).ToObject<Dictionary<string, object>>();
-                            }
-                            else
-                            {
-                                param = (Dictionary<string, object>) reqParams[name];
-                            }
-
-                            KalturaOTTObject res = buildObject(t, param);
-                            methodParams.Add(res);
-                        }
-                        else if (t.IsArray || t.IsGenericType) // array or list
-                        {
-                            Type dictType = typeof(SerializableDictionary<,>);
-                            object res = null;
-
-                            if (t.GetGenericArguments().Count() == 1)
-                            {
-                                // if nullable
-                                if (t.GetGenericTypeDefinition() == typeof(Nullable<>))
-                                {
-                                    Type underlyingType = Nullable.GetUnderlyingType(t);
-                                    if (underlyingType.IsEnum)
-                                    {
-                                        res = Enum.Parse(underlyingType, reqParams[name].ToString(), true);
-                                    }
-                                    else
-                                    {
-                                        res = Convert.ChangeType(reqParams[name], underlyingType);
-                                    }
-                                }
-                                else // list
-                                {
-                                    res = buildList(t, (JArray)reqParams[name]);
-                                }
-                            }
-
-                            //if Dictionary
-                            else if (t.GetGenericArguments().Count() == 2)
-                            {
-                                Dictionary<string, object> param;
-                                if (reqParams[name].GetType() == typeof(JObject) || reqParams[name].GetType().IsSubclassOf(typeof(JObject)))
-                                {
-                                    param = ((JObject)reqParams[name]).ToObject<Dictionary<string, object>>();
-                                }
-                                else
-                                {
-                                    param = (Dictionary<string, object>)reqParams[name];
-                                }
-
-                                res = buildDictionary(t, param);
-                            }
-                            methodParams.Add(res);
-                        }
-                        else
-                        {
-                            object param;
-                            if (reqParams[name].GetType() == typeof(JObject) || reqParams[name].GetType().IsSubclassOf(typeof(JObject)))
-                            {
-                                param = ((JObject)reqParams[name]).ToObject(t);
-                            }
-                            else
-                            {
-                                param = Convert.ChangeType(reqParams[name], t);
-                            }
-
-                            methodParams.Add(param);
-                        }
-                    }
-                    else if (t.IsSubclassOf(typeof(KalturaOTTObject)))
+                    if (t.IsSubclassOf(typeof(KalturaOTTObject)))
                     {
                         Dictionary<string, object> param;
                         if (reqParams[name].GetType() == typeof(JObject) || reqParams[name].GetType().IsSubclassOf(typeof(JObject)))
@@ -640,26 +563,74 @@ namespace WebAPI.Filters
                         }
                         else
                         {
-                            param = (Dictionary<string, object>)reqParams[name];
+                            param = (Dictionary<string, object>) reqParams[name];
                         }
 
                         KalturaOTTObject res = buildObject(t, param);
-                        methodParams.Add(res);
+                        value = res;
+                    }
+                    else if (t.IsArray || t.IsGenericType) // array or list
+                    {
+                        Type dictType = typeof(SerializableDictionary<,>);
+                        object res = null;
+
+                        if (t.GetGenericArguments().Count() == 1)
+                        {
+                            // if nullable
+                            if (t.GetGenericTypeDefinition() == typeof(Nullable<>))
+                            {
+                                Type underlyingType = Nullable.GetUnderlyingType(t);
+                                if (underlyingType.IsEnum)
+                                {
+                                    res = Enum.Parse(underlyingType, reqParams[name].ToString(), true);
+                                }
+                                else
+                                {
+                                    res = Convert.ChangeType(reqParams[name], underlyingType);
+                                }
+                            }
+                            else // list
+                            {
+                                res = buildList(t, (JArray)reqParams[name]);
+                            }
+                        }
+
+                        //if Dictionary
+                        else if (t.GetGenericArguments().Count() == 2)
+                        {
+                            Dictionary<string, object> param;
+                            if (reqParams[name].GetType() == typeof(JObject) || reqParams[name].GetType().IsSubclassOf(typeof(JObject)))
+                            {
+                                param = ((JObject)reqParams[name]).ToObject<Dictionary<string, object>>();
+                            }
+                            else
+                            {
+                                param = (Dictionary<string, object>)reqParams[name];
+                            }
+
+                            res = buildDictionary(t, param);
+                        }
+                        value = res;
                     }
                     else
                     {
-                        object param;
                         if (reqParams[name].GetType() == typeof(JObject) || reqParams[name].GetType().IsSubclassOf(typeof(JObject)))
                         {
-                            param = ((JObject)reqParams[name]).ToObject(t);
+                            value = ((JObject)reqParams[name]).ToObject(t);
                         }
                         else
                         {
-                            param = Convert.ChangeType(reqParams[name], t);
+                            value = Convert.ChangeType(reqParams[name], t);
                         }
-
-                        methodParams.Add(param);
                     }
+
+                    foreach (SchemeArgumentAttribute schemaArgument in schemaArguments)
+                    {
+                        if (schemaArgument.Name.Equals(name))
+                            schemaArgument.Validate(methodInfo, name, value);
+                    }
+
+                    methodParams.Add(value);
                 }
                 catch (ApiException ex)
                 {

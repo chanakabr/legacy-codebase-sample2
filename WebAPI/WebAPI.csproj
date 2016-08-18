@@ -2086,6 +2086,9 @@
     <Content Include="Web References\Api\TimeShiftedTvPartnerSettingsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Api\ScheduledTaskLastRunDetails.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Billing\module.disco" />
     <None Include="Web References\Billing\module.wsdl" />
     <Content Include="Web References\Billing\PaymentGatewayChargeIDResponse.datasource">
@@ -2551,6 +2554,8 @@
     <Compile Include="Managers\Models\AppToken.cs" />
     <Compile Include="Managers\Models\KSUtils.cs" />
     <Compile Include="Managers\RolesManager.cs" />
+    <Compile Include="Managers\Scheme\SchemeArgument.cs" />
+    <Compile Include="Managers\Scheme\SchemeInput.cs" />
     <Compile Include="Managers\Scheme\SchemeProperty.cs" />
     <Compile Include="Managers\Scheme\OnlyNewStandard.cs" />
     <Compile Include="Managers\Scheme\OldStandard.cs" />
@@ -2683,6 +2688,7 @@
     <Compile Include="Models\Domains\KalturaHouseholdFrequencyType.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdLimitations.cs" />
     <Compile Include="Models\Domains\KalturaDevicePin.cs" />
+    <Compile Include="Models\General\KalturaApiArgumentPermissionItem.cs" />
     <Compile Include="Models\General\KalturaApiParameterPermissionItem.cs" />
     <Compile Include="Models\General\KalturaFilter.cs" />
     <Compile Include="Models\General\KalturaOTTAssetType.cs" />
