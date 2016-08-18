@@ -554,7 +554,7 @@ namespace WebAPI.Filters
                             value = Enum.Parse(u, paramAsString, true);
                         }
                     }
-                    if (t.IsSubclassOf(typeof(KalturaOTTObject)))
+                    else if (t.IsSubclassOf(typeof(KalturaOTTObject)))
                     {
                         Dictionary<string, object> param;
                         if (reqParams[name].GetType() == typeof(JObject) || reqParams[name].GetType().IsSubclassOf(typeof(JObject)))
