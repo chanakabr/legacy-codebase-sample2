@@ -76,8 +76,8 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("RecordingLifetimePeroid: {0}, ", RecordingLifetimePeriod.HasValue ? RecordingLifetimePeriod.Value.ToString() : "Null"));
             sb.Append(string.Format("CleanupNoticePeroid: {0}, ", CleanupNoticePeroid.HasValue ? CleanupNoticePeroid.Value.ToString() : "Null"));
             sb.Append(string.Format("IsSeriesRecordingEnabled: {0}, ", IsSeriesRecordingEnabled.HasValue ? IsSeriesRecordingEnabled.Value.ToString() : "Null"));
-            sb.Append(string.Format("IsRecordingPlaybackEnabled: {0}, ", IsRecordingPlaybackNonEntitledChannelEnabled.HasValue ? IsRecordingPlaybackNonEntitledChannelEnabled.Value.ToString() : "Null"));
-            sb.Append(string.Format("IsRecordingPlaybackEnabled: {0}, ", IsRecordingPlaybackNonExistingChannelEnabled.HasValue ? IsRecordingPlaybackNonExistingChannelEnabled.Value.ToString() : "Null"));
+            sb.Append(string.Format("IsRecordingPlaybackNonEntitledChannelEnabled: {0}, ", IsRecordingPlaybackNonEntitledChannelEnabled.HasValue ? IsRecordingPlaybackNonEntitledChannelEnabled.Value.ToString() : "Null"));
+            sb.Append(string.Format("IsRecordingPlaybackNonExistingChannelEnabled: {0}, ", IsRecordingPlaybackNonExistingChannelEnabled.HasValue ? IsRecordingPlaybackNonExistingChannelEnabled.Value.ToString() : "Null"));
                         
             return sb.ToString();
         }
