@@ -217,6 +217,32 @@
             background-repeat: no-repeat;
         }
 
+    .ListComponent .items-list li .add-move-up-icon {
+        top: 12px;
+        position: absolute;
+        background-repeat: no-repeat;
+        padding: 6px;
+        background-image: url(../images/move-up.png);
+        left: 32px;
+    }
+
+        .ListComponent .items-list li .add-move-up-icon:hover {
+            background-image: url(../images/move-up-hover.png);
+        }
+
+    .ListComponent .items-list li .add-move-down-icon {
+        top: 12px;
+        position: absolute;
+        background-repeat: no-repeat;
+        padding: 6px;
+        background-image: url(../images/move-down.png);
+        left: 50px;
+    }
+
+        .ListComponent .items-list li .add-move-down-icon:hover {
+            background-image: url(../images/move-down-hover.png);
+        }
+
 .tooltip {
     color: rgb(255, 255, 255);
     left: -14px;
@@ -246,6 +272,16 @@
     overflow: hidden;
     display: inline-block;
     white-space: nowrap;
+}
+
+#selected-list .ppvm-text-withButtons {    
+    line-height:18px;
+    width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    display: inline-block;
+    white-space: nowrap;
+    margin-left: 32px;
 }
 
 #unselected-list .ppvm-text {

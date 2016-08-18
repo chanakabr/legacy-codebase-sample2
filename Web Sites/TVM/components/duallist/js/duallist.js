@@ -2,8 +2,10 @@ var DualList = function (firstListParams, secondListParams, attachToElement, pag
 
     var firstListTitle = (firstListParams) ? (firstListParams.Title) ? firstListParams.Title : "First List Title" : "First List Title";
     var firstListItems = (firstListParams) ? (firstListParams.data) ? firstListParams.data : {} : {};
+    var firstListwithUpDownButtonOption = (firstListParams) ? (firstListParams.WithOrderByButtons) ? firstListParams.WithOrderByButtons : false : false;
     var secondListTitle = (secondListParams) ? (secondListParams.Title) ? secondListParams.Title : "Second List Title" : "Second List Title";
     var secondListItems = (secondListParams) ? (secondListParams.data) ? secondListParams.data : {} : {};
+    var secondListwithUpDownButtonOption = (secondListParams) ? (secondListParams.WithOrderByButtons) ? secondListParams.WithOrderByButtons : false : false;
     var dualListName = attachToElement.id;
     var $firstList, $secondList, firstList, secondList
 
@@ -14,10 +16,10 @@ var DualList = function (firstListParams, secondListParams, attachToElement, pag
 
     var createDualList = function () {
         
-        firstList = new List("selected-list", firstListTitle, pageName, withCalendar, dualListName);
-        secondList = new List("unselected-list", secondListTitle, pageName, withCalendar, dualListName);
-        firstList.addItemsToList(firstListItems,'remove');
-        secondList.addItemsToList(secondListItems,'add');
+        firstList = new List("selected-list", firstListTitle, pageName, withCalendar, dualListName, firstListwithUpDownButtonOption);
+        secondList = new List("unselected-list", secondListTitle, pageName, withCalendar, dualListName, secondListwithUpDownButtonOption);
+        firstList.addItemsToList(firstListItems, 'remove');
+        secondList.addItemsToList(secondListItems, 'add');
         $firstList = $(firstList.getComponentElement());
         $secondList = $(secondList.getComponentElement());
         $(attachToElement).append($firstList);
@@ -36,6 +38,8 @@ var DualList = function (firstListParams, secondListParams, attachToElement, pag
 
     var bindEvents = function () {
         $firstList.on('click', '.remove', moveItem);
+        $firstList.on('click', '.add-move-up-icon', moveUp);
+        $firstList.on('click', '.add-move-down-icon', moveDown);
         $secondList.on('click', '.add', moveItem);
 
     };
@@ -58,6 +62,20 @@ var DualList = function (firstListParams, secondListParams, attachToElement, pag
             secondList.addItemsToList([itemToAdd], 'add',true);
             secondListItems.push(itemToAdd);
         }
+    };
+
+    var moveUp = function (event) {
+        var $target = $(event.target);
+        var $item = $target.parents('li');
+        var itemId = $item.data('id');
+        firstList.moveItemUp([itemId]);        
+    };
+
+    var moveDown = function (event) {
+        var $target = $(event.target);
+        var $item = $target.parents('li');
+        var itemId = $item.data('id');
+        firstList.moveItemDown([itemId]);
     };
 
     var removeFromListData = function (listItemsData,itemId) {

@@ -1,5 +1,5 @@
 /* This describes a single list, the duallist, well.. uses two of these */
-var List = function (listId, listTitle, pageName, withCalendar, dualListParent) {
+var List = function (listId, listTitle, pageName, withCalendar, dualListParent, WithOrderByButtons) {
     var listComponentId = listId;
     var listComponentTitle = listTitle;    
     var listWrapper, listItems, listItemsArray, quickSearchInput;
@@ -98,9 +98,25 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent) 
                         infoIcon.setAttribute('href', 'javascript:;');
                         listLiItem.appendChild(infoIcon);
                     }
-                    //if the Calendar is not used the width of ppvm-text should be 100% of the list
-                    else {
+                    
+                    if (WithOrderByButtons === true) {
+                        listLiItem.setAttribute("data-orderNum", items[i].OrderNum);
+                        var moveUpIcon = document.createElement('a');
+                        $(moveUpIcon).addClass('add-move-up-icon');
+                        moveUpIcon.setAttribute('href', 'javascript:;');
+                        listLiItem.appendChild(moveUpIcon);
+                        var moveDownIcon = document.createElement('a');
+                        $(moveDownIcon).addClass('add-move-down-icon');
+                        moveDownIcon.setAttribute('href', 'javascript:;');
+                        listLiItem.appendChild(moveDownIcon);
+                    }
+
+                    //if the Calendar and WithOrderByButtons are not used the width of ppvm-text should be 100% of the list
+                    if (withCalendar === false && WithOrderByButtons === false) {
                         listLiItem.childNodes[0].style.width = "100%";
+                    }
+                    else {
+                        listLiItem.childNodes[0].className = "ppvm-text-withButtons";
                     }
 
                     $(listLiItem).hide();
@@ -160,6 +176,54 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent) 
         }
     };
 
+    var moveItemUp = function (itemsId) {
+        var itemsLength = itemsId.length;
+        if (itemsId && itemsLength) {
+            var liItems = listItems.children;
+            var liItemsLength = liItems.length;
+            for (var j = 0; j < liItemsLength; j++) {
+                var liItem = liItems[j];
+                if ($(liItem).data('id') && itemsId.indexOf(parseInt($(liItem).data('id'))) !== -1) {
+                    if (j == 0) {
+                        break;
+                    }
+                    var previousItem = liItems[j - 2];
+                    var newOrderNumValue = previousItem.getAttribute("data-orderNum") - 1;
+                    liItem.setAttribute("data-orderNum", newOrderNumValue);
+                    $(liItem).hide("slide", { direction: 'up' }, 200, function () { });
+                    $(previousItem).hide("slide", { direction: 'down' }, 200, function () { });
+                    $(listItems).insertBefore($(previousItem));
+                    $(liItem).show("slide", { direction: 'up' }, 200, function () { });
+                    $(previousItem).show("slide", { direction: 'down' }, 200, function () { });
+                    break;
+                }
+            }
+        }
+    };
+
+    var moveItemDown = function (itemsId) {
+        var itemsLength = itemsId.length;
+        if (itemsId && itemsLength) {
+            var liItems = listItems.children;
+            var liItemsLength = liItems.length;
+            for (var j = 0; j < liItemsLength; j++) {
+                var liItem = liItems[j];
+                if ($(liItem).data('id') && itemsId.indexOf(parseInt($(liItem).data('id'))) !== -1) {
+                    if (j == liItemsLength - 1) {
+                        break;
+                    }
+                    var direction = 'down';
+                    $(liItem).hide("slide", { direction: direction }, 200, function () {
+                        $($(liItem)[0].nextSibling).remove();
+                        $(liItem).remove();
+                    });
+
+                    break;
+                }
+            }
+        }
+    };
+
     var getComponentElement = function () {
         return listWrapper;
     };
@@ -169,6 +233,8 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent) 
     return {
         addItemsToList: addItemsToList,
         removeItemsFromList: removeItemsFromList,
-        getComponentElement: getComponentElement
+        getComponentElement: getComponentElement,
+        moveItemUp: moveItemUp,
+        moveItemDown: moveItemDown
     }
 };

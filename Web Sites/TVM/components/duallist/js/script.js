@@ -10,14 +10,16 @@ function initDualList(data)
     {
         var first = {
             Title: data.FirstListTitle,
+            WithOrderByButtons: data.FirstListWithOrderByButtons,
             data: getListData(data.Data, true)
         };
         var second = {
             Title: data.SecondListTitle,
+            WithOrderByButtons: data.SecondListWithOrderByButtons,
             data: getListData(data.Data, false)
         };
         window.components = window.components || {};
-        window.components.dualList = new DualList(first, second, document.getElementById('DualListPH'), data.pageName, data.withCalendar);
+        window.components.dualList = new DualList(first, second, document.getElementById('DualListPH'), data.pageName, data.withCalendar, data.withUpDownButton);
         $('.has-placeholder').placeholder();
     }
 }
@@ -29,14 +31,16 @@ function initMultipleLists(dataLists) {
         var currentDualList = dataLists[i];
         var first = {
             Title: currentDualList.FirstListTitle,
+            WithOrderByButtons: data.FirstListWithOrderByButtons,
             data: getListData(currentDualList.Data, true)
         };
         var second = {
             Title: currentDualList.SecondListTitle,
+            WithOrderByButtons: data.SecondListWithOrderByButtons,
             data: getListData(currentDualList.Data, false)
         };
         window.components = window.components || {};
-        window.components.dualList = new DualList(first, second, document.getElementById(currentDualList.name), currentDualList.pageName, currentDualList.withCalendar);
+        window.components.dualList = new DualList(first, second, document.getElementById(currentDualList.name), currentDualList.pageName, currentDualList.withCalendar, currentDualList.withUpDownButton);
         $('.has-placeholder').placeholder();
     }
 }
@@ -67,7 +71,8 @@ function getListData(data, isInCurrentList) {
                 EndDate: data[i].EndDate,
                 ID: data[i].ID,
                 Info: data[i].Description,
-                Title: data[i].Title
+                Title: data[i].Title,
+                OrderNum: data[i].OrderNum
             };
             ListData.push(res);
         }
@@ -77,6 +82,14 @@ function getListData(data, isInCurrentList) {
 
 function changeItemStatus(sID, pageName, dualListParent) {
     RS.Execute(pageName, "changeItemStatus", sID, dualListParent, callback_status_changed, errorCallback);
+}
+
+function changeItemUp(sID, pageName) {
+    RS.Execute(pageName, "changeItemUp", sID, action, callback_status_changed, errorCallback);
+}
+
+function changeItemDown(sID, pageName) {
+    RS.Execute(pageName, "changeItemDown", sID, action, callback_status_changed, errorCallback);
 }
 
 function changeItemDates(sID, startDate, endDate, pageName) {
