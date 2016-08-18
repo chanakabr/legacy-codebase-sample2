@@ -23,22 +23,26 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns the household model       
         /// </summary>
+        /// <param name="id">Household identifier</param>
         /// <remarks>Possible status codes: 
         /// Household does not exist = 1006, Household user failed = 1007</remarks>        
         [Route("get"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        public KalturaHousehold Get()
+        [SchemeArgument("id", RequiresPermission = true)]
+        public KalturaHousehold Get(int? id = null)
         {
             var ks = KS.GetFromRequest();
             KalturaHousehold response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-            
+            if (!id.HasValue)
+                id = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+
             try
             {
                 // call client
-                response = ClientsManager.DomainsClient().GetDomainInfo(groupId, (int) HouseholdUtils.GetHouseholdIDByKS(groupId));
+                response = ClientsManager.DomainsClient().GetDomainInfo(groupId, id.Value);
             }
             catch (ClientException ex)
             {
@@ -461,6 +465,32 @@ namespace WebAPI.Controllers
             }
 
             return household;
+        }
+
+        /// <summary>
+        /// Fully delete a household. Delete all of the household information, including users, devices, transactions and assets.
+        /// </summary>
+        /// <param name="id">Household identifier</param>
+        /// <remarks>Possible status codes: 
+        ///</remarks>
+        [Route("delete"), HttpPost]
+        [ApiAuthorize]
+        public bool Delete(int id)
+        {
+            var ks = KS.GetFromRequest();
+
+            int groupId = KS.GetFromRequest().GroupId;
+            
+            try
+            {
+                return ClientsManager.DomainsClient().RemoveDomain(groupId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return true;
         }
 
         /// <summary>
