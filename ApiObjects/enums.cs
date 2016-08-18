@@ -483,7 +483,8 @@ namespace ApiObjects
     public enum ePermissionItemType
     {
         Action = 1,
-        Parameter = 2
+        Parameter = 2,
+        Argument = 3
     }
 
     public enum ePermissionType

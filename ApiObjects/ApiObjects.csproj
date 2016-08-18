@@ -303,6 +303,7 @@
     <Compile Include="Response\StatusErrorCodesResponse.cs" />
     <Compile Include="Roles\ApiActionPermissionItem.cs" />
     <Compile Include="Roles\ApiParameterPermissionItem.cs" />
+    <Compile Include="Roles\ApiArgumentPermissionItem.cs" />
     <Compile Include="Roles\Role.cs" />
     <Compile Include="Roles\GroupPermission.cs" />
     <Compile Include="Roles\Permission.cs" />
