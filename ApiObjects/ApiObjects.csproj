@@ -101,6 +101,7 @@
     <Compile Include="Billing\PaymentGatewayListResponse.cs" />
     <Compile Include="Billing\PaymentGatewayAssociate.cs" />
     <Compile Include="Billing\PaymentMethod.cs" />
+    <Compile Include="Billing\PaymentMethodIdResponse.cs" />
     <Compile Include="Catalog\Enums.cs" />
     <Compile Include="Catalog\IngestRequest.cs" />
     <Compile Include="Catalog\IngestWarnings.cs" />
