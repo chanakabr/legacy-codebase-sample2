@@ -31,10 +31,10 @@ namespace WebAPI.Managers
         {
             Dictionary<string, Dictionary<long, string>> dictionary = new Dictionary<string, Dictionary<long, string>>();
 
-            string serviceActionPair;
-            string objectParameterPair;
+            string key = null;
             KalturaApiActionPermissionItem apiActionPermissionItem;
             KalturaApiParameterPermissionItem apiParameterPermissionItem;
+            KalturaApiArgumentPermissionItem apiArgumentPermissionItem;
             string usersGroup;
 
             foreach (var role in roles)
@@ -57,52 +57,40 @@ namespace WebAPI.Managers
                         if (permissionItem is KalturaApiActionPermissionItem)
                         {
                             apiActionPermissionItem = (KalturaApiActionPermissionItem)permissionItem;
-
-                            // build the service action key
-                            serviceActionPair = string.Format("{0}_{1}", apiActionPermissionItem.Service, apiActionPermissionItem.Action).ToLower();
-
-                            // if the dictionary already contains the action, try to append the role and /or the users group
-                            if (dictionary.ContainsKey(serviceActionPair))
-                            {
-                                if (!dictionary[serviceActionPair].ContainsKey(role.getId()))
-                                {
-                                    dictionary[serviceActionPair].Add(role.getId(), usersGroup);
-                                }
-                                else
-                                {
-                                    dictionary[serviceActionPair][role.getId()] = string.Format("{0};{1}", usersGroup, dictionary[serviceActionPair][role.getId()]);
-                                }
-                            }
-                            // add the action to the dictionary
-                            else
-                            {
-                                dictionary.Add(serviceActionPair, new Dictionary<long, string>() { { role.getId(), usersGroup } });
-                            }
+                            key = string.Format("{0}_{1}", apiActionPermissionItem.Service, apiActionPermissionItem.Action).ToLower();
                         }
                         else if (permissionItem is KalturaApiParameterPermissionItem)
                         {
                             apiParameterPermissionItem = (KalturaApiParameterPermissionItem)permissionItem;
+                            key = string.Format("{0}_{1}_{2}", apiParameterPermissionItem.Object, apiParameterPermissionItem.Parameter, apiParameterPermissionItem.Action).ToLower();
+                        }
+                        else if (permissionItem is KalturaApiArgumentPermissionItem)
+                        {
+                            apiArgumentPermissionItem = (KalturaApiArgumentPermissionItem)permissionItem;
+                            key = string.Format("{0}_{1}_{2}", apiArgumentPermissionItem.Service, apiArgumentPermissionItem.Action, apiArgumentPermissionItem.Parameter).ToLower();
+                        }
+                        else
+                        {
+                            continue;
+                        }
 
-                            // build the service action key
-                            objectParameterPair = string.Format("{0}_{1}_{2}", apiParameterPermissionItem.Object, apiParameterPermissionItem.Parameter, apiParameterPermissionItem.Action).ToLower();
 
-                            // if the dictionary already contains the action, try to append the role and /or the users group
-                            if (dictionary.ContainsKey(objectParameterPair))
+                        // if the dictionary already contains the action, try to append the role and /or the users group
+                        if (dictionary.ContainsKey(key))
+                        {
+                            if (!dictionary[key].ContainsKey(role.getId()))
                             {
-                                if (!dictionary[objectParameterPair].ContainsKey(role.getId()))
-                                {
-                                    dictionary[objectParameterPair].Add(role.getId(), usersGroup);
-                                }
-                                else
-                                {
-                                    dictionary[objectParameterPair][role.getId()] = string.Format("{0};{1}", usersGroup, dictionary[objectParameterPair][role.getId()]);
-                                }
+                                dictionary[key].Add(role.getId(), usersGroup);
                             }
-                            // add the parameter to the dictionary
                             else
                             {
-                                dictionary.Add(objectParameterPair, new Dictionary<long, string>() { { role.getId(), usersGroup } });
+                                dictionary[key][role.getId()] = string.Format("{0};{1}", usersGroup, dictionary[key][role.getId()]);
                             }
+                        }
+                        // add the action to the dictionary
+                        else
+                        {
+                            dictionary.Add(key, new Dictionary<long, string>() { { role.getId(), usersGroup } });
                         }
                     }
                 }
@@ -215,31 +203,42 @@ namespace WebAPI.Managers
         /// <summary>
         /// Checks if a property of an object is allowed
         /// </summary>
-        /// <param name="groupId">Group ID</param>
-        /// <param name="type">Type name</param>
-        /// <param name="property">Property name</param>
-        /// <param name="action">Required action</param>
-        /// <param name="roleIds">Role IDs</param>
-        /// <param name="usersGroup">list of users separated by ';'</param>
-        /// <returns>True if the property is permitted, false otherwise</returns>
-        private static bool IsPropertyPermittedForRoles(int groupId, string type, string property, string action, List<long> roleIds, out string usersGroup)
+        /// <param name="service">Controller service name</param>
+        /// <param name="action">Method action name</param>
+        /// <param name="argument">Argument name</param>
+        /// <param name="silent">Fail silently</param>
+        /// <returns>True if the method argument is permitted, false otherwise</returns>
+        internal static void ValidateArgumentPermitted(string service, string action, string argument, bool silent = false)
+        {
+            KS ks = getKS(silent);
+            List<long> roleIds = getRoleIds(ks);
+
+            // no roles found for the user
+            if (roleIds == null || roleIds.Count == 0)
+                throw new UnauthorizedException((int)StatusCode.ServiceForbidden, string.Format("Argument {0} in action {1}.{2} is forbidden", argument, service, action));
+
+            string allowedUsersGroup = null;
+
+            // user not permitted
+            if (!IsArgumentPermittedForRoles(ks.GroupId, service, action, argument, roleIds, out allowedUsersGroup))
+                throw new UnauthorizedException((int)StatusCode.ServiceForbidden, string.Format("Argument {0} in action {1}.{2} is forbidden", argument, service, action));
+        }
+
+        private static bool IsPermittedForRoles(int groupId, string objectPropertyKey, List<long> roleIds, out string usersGroup)
         {
             usersGroup = null;
             StringBuilder usersGroupStringBuilder = new StringBuilder();
 
-            // build the key for the service action key for roles schema (permission items - roles dictionary)
-            string objectPropertyKey = string.Format("{0}_{1}_{2}", type, property, action).ToLower();
-
             // get group's roles schema
-            Dictionary<string, Dictionary<long, string>> propertyPermissionItemsDictionary = GroupsManager.GetGroup(groupId).PermissionItemsRolesMapping;
+            Dictionary<string, Dictionary<long, string>> permissionItemsDictionary = GroupsManager.GetGroup(groupId).PermissionItemsRolesMapping;
 
             // if the permission for the property is not defined in the schema - return false
-            if (!propertyPermissionItemsDictionary.ContainsKey(objectPropertyKey))
+            if (!permissionItemsDictionary.ContainsKey(objectPropertyKey))
             {
                 return false;
             }
 
-            Dictionary<long, string> roles = propertyPermissionItemsDictionary[objectPropertyKey];
+            Dictionary<long, string> roles = permissionItemsDictionary[objectPropertyKey];
             bool isPermitted = false;
 
 
@@ -266,15 +265,26 @@ namespace WebAPI.Managers
             return isPermitted;
         }
 
-        /// <summary>
-        /// Checks if an action from a service is allowed for a user role under the group's role schema
-        /// </summary>
-        /// <param name="groupId">Group ID</param>
-        /// <param name="service">Service name</param>
-        /// <param name="action">Action name</param>
-        /// <param name="roleIds">Role IDs</param>
-        /// <param name="usersGroup">list of users separated by ';'</param>
-        /// <returns>True if the action is permitted, false otherwise, and a users group list (if exists) for this action</returns>
+        private static bool IsArgumentPermittedForRoles(int groupId, string service, string action, string argument, List<long> roleIds, out string usersGroup)
+        {
+            usersGroup = null;
+            StringBuilder usersGroupStringBuilder = new StringBuilder();
+
+            // build the key for the service action key for roles schema (permission items - roles dictionary)
+            string methodArgumentKey = string.Format("{0}_{1}_{2}", service, action, argument).ToLower();
+            return IsPermittedForRoles(groupId, methodArgumentKey, roleIds, out usersGroup);
+        }
+
+        private static bool IsPropertyPermittedForRoles(int groupId, string type, string property, string action, List<long> roleIds, out string usersGroup)
+        {
+            usersGroup = null;
+            StringBuilder usersGroupStringBuilder = new StringBuilder();
+
+            // build the key for the service action key for roles schema (permission items - roles dictionary)
+            string objectPropertyKey = string.Format("{0}_{1}_{2}", type, property, action).ToLower();
+            return IsPermittedForRoles(groupId, objectPropertyKey, roleIds, out usersGroup);
+        }
+
         private static bool IsActionPermittedForRoles(int groupId, string service, string action, List<long> roleIds, out string usersGroup)
         {
             usersGroup = null;
@@ -282,41 +292,7 @@ namespace WebAPI.Managers
 
             // build the key for the service action key for roles schema (permission items - roles dictionary)
             string serviceActionKey = string.Format("{0}_{1}", service, action).ToLower();
-
-            // get group's roles schema
-            var actionPermissionItemsDictionary = GroupsManager.GetGroup(groupId).PermissionItemsRolesMapping;
-
-            // if the permission for the action is not defined in the schema - return false
-            if (!actionPermissionItemsDictionary.ContainsKey(serviceActionKey))
-            {
-                return false;
-            }
-
-            var roles = actionPermissionItemsDictionary[serviceActionKey];
-            bool isPermitted = false;
-
-
-            foreach (var roleId in roleIds)
-            {
-                // if the permission item for the action is part of one of the supplied roles - return true
-                if (roles.ContainsKey(roleId))
-                {
-                    isPermitted = true;
-
-                    // the action is permitted for the role, append the users group of the permission if defined
-                    if (usersGroupStringBuilder.Length == 0)
-                    {
-                        usersGroupStringBuilder.Append(roles[roleId]);
-                    }
-                    else
-                    {
-                        usersGroupStringBuilder.AppendFormat(";{0}", roles[roleId]);
-                    }
-                }
-            }
-
-            usersGroup = usersGroupStringBuilder.ToString();
-            return isPermitted;
+            return IsPermittedForRoles(groupId, serviceActionKey, roleIds, out usersGroup);
         }
     }
 }

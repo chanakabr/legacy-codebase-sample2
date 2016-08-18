@@ -199,6 +199,17 @@
           <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
         </s:sequence>
       </s:complexType>
+      <s:complexType name="ApiArgumentPermissionItem">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PermissionItem">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="Service" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="Action" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="Parameter" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="ApiParameterPermissionItem">
         <s:complexContent mixed="false">
           <s:extension base="tns:PermissionItem">
@@ -943,7 +954,7 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="GetLastScheduleTaksSuccessfulRun">
+      <s:element name="GetScheduledTaskLastRun">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="1" maxOccurs="1" name="scheduledTaskType" type="tns:ScheduledTaskType" />
@@ -955,15 +966,31 @@
           <s:enumeration value="recordingsLifetime" />
           <s:enumeration value="recordingsScheduledTasks" />
           <s:enumeration value="recordingsCleanup" />
+          <s:enumeration value="notificationCleanup" />
         </s:restriction>
       </s:simpleType>
-      <s:element name="GetLastScheduleTaksSuccessfulRunResponse">
+      <s:element name="GetScheduledTaskLastRunResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetLastScheduleTaksSuccessfulRunResult" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetScheduledTaskLastRunResult" type="tns:ScheduledTaskLastRunDetails" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="ScheduledTaskLastRunDetails" abstract="true">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="1" maxOccurs="1" name="LastRunDate" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="EstimatedNextRunDate" nillable="true" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="ImpactedItemsOnLastRun" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="NextRunIntervalInSeconds" type="s:double" />
+          <s:element minOccurs="1" maxOccurs="1" name="ScheduledTaskType" type="tns:ScheduledTaskType" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="BaseScheduledTaskLastRunDetails">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:ScheduledTaskLastRunDetails" />
+        </s:complexContent>
+      </s:complexType>
       <s:element name="UpdateScheduledTaskNextRunIntervalInSeconds">
         <s:complexType>
           <s:sequence>
@@ -2328,17 +2355,6 @@
           <s:enumeration value="AddDeviceToDomain" />
         </s:restriction>
       </s:simpleType>
-      <s:complexType name="SendAdminTokenRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sIP" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sDuration" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="ChangePasswordMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
@@ -2348,14 +2364,13 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="AddDeviceMailRequest">
+      <s:complexType name="SendAdminTokenRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceUdid" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sIP" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sDuration" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -2389,6 +2404,41 @@
           <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
         </s:sequence>
+      </s:complexType>
+      <s:complexType name="AddDeviceMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceUdid" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceName" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="AddUserMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewFirstName" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ChangedPinMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGuid" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sRuleName" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
       </s:complexType>
       <s:complexType name="SendPasswordMailRequest">
         <s:complexContent mixed="false">
@@ -2441,11 +2491,6 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="PreviewModuleCancelOrRefundRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:PurchaseMailRequest" />
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="PurchaseWithPreviewModuleRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:PurchaseMailRequest">
@@ -2455,32 +2500,14 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="PurchaseFailRequest">
+      <s:complexType name="PreviewModuleCancelOrRefundRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:PurchaseMailRequest" />
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="AddUserMailRequest">
+      <s:complexType name="PurchaseFailRequest">
         <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewFirstName" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="ChangedPinMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGuid" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sRuleName" type="s:string" />
-            </s:sequence>
-          </s:extension>
+          <s:extension base="tns:PurchaseMailRequest" />
         </s:complexContent>
       </s:complexType>
       <s:complexType name="CinepolisRenewalFailMailRequest">
@@ -4573,9 +4600,10 @@
       <s:element name="CDNAdapterListResponse" nillable="true" type="tns:CDNAdapterListResponse" />
       <s:element name="CDNAdapterResponse" nillable="true" type="tns:CDNAdapterResponse" />
       <s:element name="CDNPartnerSettingsResponse" nillable="true" type="tns:CDNPartnerSettingsResponse" />
-      <s:element name="string" nillable="true" type="s:string" />
+      <s:element name="ScheduledTaskLastRunDetails" nillable="true" type="tns:ScheduledTaskLastRunDetails" />
       <s:element name="ArrayOfEPGChannelObject" nillable="true" type="tns:ArrayOfEPGChannelObject" />
       <s:element name="AdminAccountUserResponse" nillable="true" type="tns:AdminAccountUserResponse" />
+      <s:element name="string" nillable="true" type="s:string" />
       <s:element name="ArrayOfInt" nillable="true" type="tns:ArrayOfInt" />
       <s:element name="ArrayOfUnifiedSearchResult" nillable="true" type="tns:ArrayOfUnifiedSearchResult" />
       <s:element name="ArrayOfFileTypeContainer" nillable="true" type="tns:ArrayOfFileTypeContainer" />
@@ -4896,11 +4924,11 @@
   <wsdl:message name="MigrateStatisticsSoapOut">
     <wsdl:part name="parameters" element="tns:MigrateStatisticsResponse" />
   </wsdl:message>
-  <wsdl:message name="GetLastScheduleTaksSuccessfulRunSoapIn">
-    <wsdl:part name="parameters" element="tns:GetLastScheduleTaksSuccessfulRun" />
+  <wsdl:message name="GetScheduledTaskLastRunSoapIn">
+    <wsdl:part name="parameters" element="tns:GetScheduledTaskLastRun" />
   </wsdl:message>
-  <wsdl:message name="GetLastScheduleTaksSuccessfulRunSoapOut">
-    <wsdl:part name="parameters" element="tns:GetLastScheduleTaksSuccessfulRunResponse" />
+  <wsdl:message name="GetScheduledTaskLastRunSoapOut">
+    <wsdl:part name="parameters" element="tns:GetScheduledTaskLastRunResponse" />
   </wsdl:message>
   <wsdl:message name="UpdateScheduledTaskNextRunIntervalInSecondsSoapIn">
     <wsdl:part name="parameters" element="tns:UpdateScheduledTaskNextRunIntervalInSeconds" />
@@ -5854,11 +5882,11 @@
   <wsdl:message name="GetGroupDefaultCDNAdapterHttpPostOut">
     <wsdl:part name="Body" element="tns:CDNAdapterResponse" />
   </wsdl:message>
-  <wsdl:message name="GetLastScheduleTaksSuccessfulRunHttpPostIn">
+  <wsdl:message name="GetScheduledTaskLastRunHttpPostIn">
     <wsdl:part name="scheduledTaskType" type="s:string" />
   </wsdl:message>
-  <wsdl:message name="GetLastScheduleTaksSuccessfulRunHttpPostOut">
-    <wsdl:part name="Body" element="tns:string" />
+  <wsdl:message name="GetScheduledTaskLastRunHttpPostOut">
+    <wsdl:part name="Body" element="tns:ScheduledTaskLastRunDetails" />
   </wsdl:message>
   <wsdl:message name="UpdateScheduledTaskNextRunIntervalInSecondsHttpPostIn">
     <wsdl:part name="scheduledTaskType" type="s:string" />
@@ -6778,9 +6806,9 @@
       <wsdl:input message="tns:MigrateStatisticsSoapIn" />
       <wsdl:output message="tns:MigrateStatisticsSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="GetLastScheduleTaksSuccessfulRun">
-      <wsdl:input message="tns:GetLastScheduleTaksSuccessfulRunSoapIn" />
-      <wsdl:output message="tns:GetLastScheduleTaksSuccessfulRunSoapOut" />
+    <wsdl:operation name="GetScheduledTaskLastRun">
+      <wsdl:input message="tns:GetScheduledTaskLastRunSoapIn" />
+      <wsdl:output message="tns:GetScheduledTaskLastRunSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="UpdateScheduledTaskNextRunIntervalInSeconds">
       <wsdl:input message="tns:UpdateScheduledTaskNextRunIntervalInSecondsSoapIn" />
@@ -7388,9 +7416,9 @@
       <wsdl:input message="tns:GetGroupDefaultCDNAdapterHttpPostIn" />
       <wsdl:output message="tns:GetGroupDefaultCDNAdapterHttpPostOut" />
     </wsdl:operation>
-    <wsdl:operation name="GetLastScheduleTaksSuccessfulRun">
-      <wsdl:input message="tns:GetLastScheduleTaksSuccessfulRunHttpPostIn" />
-      <wsdl:output message="tns:GetLastScheduleTaksSuccessfulRunHttpPostOut" />
+    <wsdl:operation name="GetScheduledTaskLastRun">
+      <wsdl:input message="tns:GetScheduledTaskLastRunHttpPostIn" />
+      <wsdl:output message="tns:GetScheduledTaskLastRunHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="UpdateScheduledTaskNextRunIntervalInSeconds">
       <wsdl:input message="tns:UpdateScheduledTaskNextRunIntervalInSecondsHttpPostIn" />
@@ -8054,8 +8082,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetLastScheduleTaksSuccessfulRun">
-      <soap:operation soapAction="http://api.tvinci.com/GetLastScheduleTaksSuccessfulRun" style="document" />
+    <wsdl:operation name="GetScheduledTaskLastRun">
+      <soap:operation soapAction="http://api.tvinci.com/GetScheduledTaskLastRun" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -9542,8 +9570,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetLastScheduleTaksSuccessfulRun">
-      <soap12:operation soapAction="http://api.tvinci.com/GetLastScheduleTaksSuccessfulRun" style="document" />
+    <wsdl:operation name="GetScheduledTaskLastRun">
+      <soap12:operation soapAction="http://api.tvinci.com/GetScheduledTaskLastRun" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -10913,8 +10941,8 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetLastScheduleTaksSuccessfulRun">
-      <http:operation location="/GetLastScheduleTaksSuccessfulRun" />
+    <wsdl:operation name="GetScheduledTaskLastRun">
+      <http:operation location="/GetScheduledTaskLastRun" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
