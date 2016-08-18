@@ -19501,7 +19501,7 @@ namespace ConditionalAccess
             return recording;
         }
 
-        public LicensedLinkResponse GetRecordingLicensedLink(string userId, int domainRecordingId, DateTime startTime, string udid, string userIp, string fileType)
+        public LicensedLinkResponse GetRecordingLicensedLink(string userId, int domainRecordingId, string udid, string userIp, string fileType)
         {
             LicensedLinkResponse response = new LicensedLinkResponse()
             {
