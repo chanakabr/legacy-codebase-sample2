@@ -7055,7 +7055,8 @@ namespace Catalog
         public static List<WatchHistory> GetUserWatchHistory(int groupId, string siteGuid, List<int> assetTypes, List<string> assetIds, List<int> excludedAssetTypes, eWatchStatus filterStatus, int numOfDays, ApiObjects.SearchObjects.OrderDir orderDir, int pageIndex, int pageSize, int finishedPercent, out int totalItems)
         {
             List<WatchHistory> usersWatchHistory = new List<WatchHistory>();
-            var cbManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.MEDIAMARK);
+            var mediaMarksManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.MEDIAMARK);
+            var mediaHitsManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.MEDIA_HITS);
             totalItems = 0;
 
             // build date filter
@@ -7086,7 +7087,7 @@ namespace Catalog
                     asJson = true
                 };
 
-                List<WatchHistory> unFilteredresult = cbManager.View<WatchHistory>(viewManager);
+                List<WatchHistory> unFilteredresult = mediaMarksManager.View<WatchHistory>(viewManager);
 
                 if (unFilteredresult != null && unFilteredresult.Count > 0)
                 {
@@ -7208,6 +7209,42 @@ namespace Catalog
                     if (excludedAssetTypes != null && excludedAssetTypes.Count > 0)
                         unFilteredresult.RemoveAll(x => excludedAssetTypes.Contains(x.AssetTypeId));
 
+                    // Location is not saved on Media Marks bucket. It is saved in media hits bucket.
+                    // We will get the location of the relevant media marks from this bucket
+                    // But we will go only if necessary and only for the unfinished assets
+                    if (filterStatus != eWatchStatus.Done && unFilteredresult.Count > 0)
+                    {
+                        List<string> keysToGetLocation = new List<string>();
+
+                        foreach (var currentResult in unFilteredresult)
+                        {
+                            if (!currentResult.IsFinishedWatching)
+                            {
+                                string key = GetWatchHistoryCouchbaseKey(currentResult);
+
+                                keysToGetLocation.Add(key);
+                            }
+                        }
+
+                        if (keysToGetLocation.Count > 0)
+                        {                            
+                            var mediaHitsDictionary = mediaHitsManager.GetValues<MediaMarkLog>(keysToGetLocation, true, true);                            
+
+                            if (mediaHitsDictionary != null && mediaHitsDictionary.Keys.Count() > 0)
+                            {
+                                foreach (var currentResult in unFilteredresult)
+                                {
+                                    string key = GetWatchHistoryCouchbaseKey(currentResult);
+
+                                    if (mediaHitsDictionary.ContainsKey(key))
+                                    {                                        
+                                        currentResult.Location = mediaHitsDictionary[key].LastMark.Location;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     // order list
                     switch (orderDir)
                     {
@@ -7239,6 +7276,37 @@ namespace Catalog
 
             return usersWatchHistory;
         }
+
+        private static string GetWatchHistoryCouchbaseKey(WatchHistory currentResult)
+        {
+            string assetType = string.Empty;
+
+            switch (currentResult.AssetTypeId)
+            {
+                case (int)eAssetTypes.EPG:
+                    {
+                        assetType = "epg";
+                        break;
+                    }
+
+                case (int)eAssetTypes.NPVR:
+                    {
+                        assetType = "npvr";
+                        break;
+                    }
+                case (int)eAssetTypes.MEDIA:
+                default:
+                    {
+                        assetType = "m";
+                        break;
+                    }
+            }
+
+            string key = string.Format("u{0}_{1}{2}", currentResult.UserID, assetType, currentResult.AssetId);
+            return key;
+        }
+
+        
     }
 }
 
