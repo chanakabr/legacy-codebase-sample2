@@ -9,6 +9,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Billing;
+using WebAPI.Models.General;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -180,6 +181,42 @@ namespace WebAPI.Controllers
 
                 // call client
                 response = ClientsManager.BillingClient().DeleteHouseholdPaymentGateway(groupId, paymentGatewayId, userID, domainId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Gets the Payment Gateway Configuration for the payment gateway identifier given
+        /// </summary>
+        /// <param name="paymentGatewayId">The payemnt gateway for which to return the registration URL/s for the household. If omitted – return the regisration URL for the household for the default payment gateway</param>                
+        /// <param name="intent">Represent the client’s intent for working with the payment gateway. Intent options to be coordinated with the applicable payment gateway adapter.</param>                
+        /// <param name="extraParameters">Additional parameters to send to the payment gateway adapter.</param>
+        /// <remarks>
+        /// Possible status codes:       
+        /// PaymentGatewayNotExist = 6008, SignatureMismatch = 6013
+        /// </remarks>
+        [Route("invoke"), HttpPost]
+        [ApiAuthorize]
+        [OldStandard("extraParameters", "extra_parameters")]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public Models.Billing.KalturaPaymentGatewayConfiguration Invoke(int paymentGatewayId, string intent, List<KalturaKeyValue> extraParameters)
+        {
+            Models.Billing.KalturaPaymentGatewayConfiguration response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            // get domain id      
+            var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+            try
+            {
+                // call client
+                response = ClientsManager.BillingClient().PaymentGatewayInvoke(groupId, paymentGatewayId, intent, extraParameters);
             }
             catch (ClientException ex)
             {

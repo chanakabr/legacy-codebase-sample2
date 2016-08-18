@@ -908,6 +908,41 @@ namespace WebAPI.Clients
 
             return true;
         }
+
+        internal KalturaPaymentGatewayConfiguration PaymentGatewayInvoke(int groupId, int paymentGatewayId, string intent, List<KalturaKeyValue> extraParams)
+        {
+            Models.Billing.KalturaPaymentGatewayConfiguration configuration = null;
+            WebAPI.Billing.PaymentGatewayConfigurationResponse response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+            List<KeyValuePair> keyValuePairs = Mapper.Map<List<KeyValuePair>>(extraParams);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Billing.PaymentGatewayInvoke(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, intent, keyValuePairs.ToArray());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetPaymentGatewayConfiguration.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            configuration = Mapper.Map<WebAPI.Models.Billing.KalturaPaymentGatewayConfiguration>(response);
+
+            return configuration;
+        }
     }
 }
 
