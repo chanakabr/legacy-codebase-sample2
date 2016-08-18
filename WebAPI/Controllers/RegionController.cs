@@ -31,7 +31,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.ApiClient().GetRegions(groupId, filter.GetExternalIdIn(), filter.GetDefaultOrderByValue());
+                response = ClientsManager.ApiClient().GetRegions(groupId, filter.GetExternalIdIn(), filter.OrderBy);
             }
             catch (ClientException ex)
             {
