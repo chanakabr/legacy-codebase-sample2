@@ -688,7 +688,6 @@
           <s:extension base="tns:DomainSeriesRecording">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
-              <s:element minOccurs="1" maxOccurs="1" name="Id" type="s:long" />
               <s:element minOccurs="1" maxOccurs="1" name="CreateDate" type="s:dateTime" />
               <s:element minOccurs="1" maxOccurs="1" name="UpdateDate" type="s:dateTime" />
               <s:element minOccurs="1" maxOccurs="1" name="Type" type="tns:RecordingType" />
@@ -698,6 +697,7 @@
       </s:complexType>
       <s:complexType name="DomainSeriesRecording">
         <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Id" type="s:long" />
           <s:element minOccurs="0" maxOccurs="1" name="SeriesId" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="SeasonNumber" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="EpgId" type="s:long" />
@@ -869,7 +869,7 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="UpdateRecording">
+      <s:element name="IngestRecording">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
@@ -889,10 +889,10 @@
           <s:enumeration value="Rebase" />
         </s:restriction>
       </s:simpleType>
-      <s:element name="UpdateRecordingResponse">
+      <s:element name="IngestRecordingResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="UpdateRecordingResult" type="tns:Status" />
+            <s:element minOccurs="0" maxOccurs="1" name="IngestRecordingResult" type="tns:Status" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1147,7 +1147,6 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="recordingId" type="s:int" />
-            <s:element minOccurs="1" maxOccurs="1" name="startTime" type="s:dateTime" />
             <s:element minOccurs="0" maxOccurs="1" name="udid" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="userIp" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="fileType" type="s:string" />
@@ -1169,6 +1168,22 @@
           <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
         </s:sequence>
       </s:complexType>
+      <s:element name="CheckRecordingDuplicateCrids">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="recordingId" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CheckRecordingDuplicateCridsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="CheckRecordingDuplicateCridsResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="GetUserPermittedItems">
         <s:complexType>
           <s:sequence>
@@ -3286,11 +3301,6 @@
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="DeleteNPVRCommand">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:BaseNPVRCommand" />
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="RetrieveQuotaNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand" />
@@ -3323,6 +3333,11 @@
         </s:complexContent>
       </s:complexType>
       <s:complexType name="DeleteSeriesNPVRCommand">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseNPVRCommand" />
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="DeleteNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
@@ -4008,11 +4023,11 @@
   <wsdl:message name="GetRecordingByIDSoapOut">
     <wsdl:part name="parameters" element="tns:GetRecordingByIDResponse" />
   </wsdl:message>
-  <wsdl:message name="UpdateRecordingSoapIn">
-    <wsdl:part name="parameters" element="tns:UpdateRecording" />
+  <wsdl:message name="IngestRecordingSoapIn">
+    <wsdl:part name="parameters" element="tns:IngestRecording" />
   </wsdl:message>
-  <wsdl:message name="UpdateRecordingSoapOut">
-    <wsdl:part name="parameters" element="tns:UpdateRecordingResponse" />
+  <wsdl:message name="IngestRecordingSoapOut">
+    <wsdl:part name="parameters" element="tns:IngestRecordingResponse" />
   </wsdl:message>
   <wsdl:message name="RecoverRecordingMessagesSoapIn">
     <wsdl:part name="parameters" element="tns:RecoverRecordingMessages" />
@@ -4097,6 +4112,12 @@
   </wsdl:message>
   <wsdl:message name="GetRecordingLicensedLinkSoapOut">
     <wsdl:part name="parameters" element="tns:GetRecordingLicensedLinkResponse" />
+  </wsdl:message>
+  <wsdl:message name="CheckRecordingDuplicateCridsSoapIn">
+    <wsdl:part name="parameters" element="tns:CheckRecordingDuplicateCrids" />
+  </wsdl:message>
+  <wsdl:message name="CheckRecordingDuplicateCridsSoapOut">
+    <wsdl:part name="parameters" element="tns:CheckRecordingDuplicateCridsResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsSoapIn">
     <wsdl:part name="parameters" element="tns:GetUserPermittedItems" />
@@ -4862,13 +4883,13 @@
   <wsdl:message name="GetRecordingByIDHttpPostOut">
     <wsdl:part name="Body" element="tns:Recording" />
   </wsdl:message>
-  <wsdl:message name="UpdateRecordingHttpPostIn">
+  <wsdl:message name="IngestRecordingHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="epgs" type="s4:StringArray" />
     <wsdl:part name="action" type="s:string" />
   </wsdl:message>
-  <wsdl:message name="UpdateRecordingHttpPostOut">
+  <wsdl:message name="IngestRecordingHttpPostOut">
     <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:message name="RecoverRecordingMessagesHttpPostIn">
@@ -4965,13 +4986,20 @@
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="userId" type="s:string" />
     <wsdl:part name="recordingId" type="s:string" />
-    <wsdl:part name="startTime" type="s:string" />
     <wsdl:part name="udid" type="s:string" />
     <wsdl:part name="userIp" type="s:string" />
     <wsdl:part name="fileType" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetRecordingLicensedLinkHttpPostOut">
     <wsdl:part name="Body" element="tns:LicensedLinkResponse" />
+  </wsdl:message>
+  <wsdl:message name="CheckRecordingDuplicateCridsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="recordingId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CheckRecordingDuplicateCridsHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -6158,9 +6186,9 @@
       <wsdl:input message="tns:GetRecordingByIDSoapIn" />
       <wsdl:output message="tns:GetRecordingByIDSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="UpdateRecording">
-      <wsdl:input message="tns:UpdateRecordingSoapIn" />
-      <wsdl:output message="tns:UpdateRecordingSoapOut" />
+    <wsdl:operation name="IngestRecording">
+      <wsdl:input message="tns:IngestRecordingSoapIn" />
+      <wsdl:output message="tns:IngestRecordingSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="RecoverRecordingMessages">
       <wsdl:input message="tns:RecoverRecordingMessagesSoapIn" />
@@ -6217,6 +6245,10 @@
     <wsdl:operation name="GetRecordingLicensedLink">
       <wsdl:input message="tns:GetRecordingLicensedLinkSoapIn" />
       <wsdl:output message="tns:GetRecordingLicensedLinkSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckRecordingDuplicateCrids">
+      <wsdl:input message="tns:CheckRecordingDuplicateCridsSoapIn" />
+      <wsdl:output message="tns:CheckRecordingDuplicateCridsSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsSoapIn" />
@@ -6656,9 +6688,9 @@
       <wsdl:input message="tns:GetRecordingByIDHttpPostIn" />
       <wsdl:output message="tns:GetRecordingByIDHttpPostOut" />
     </wsdl:operation>
-    <wsdl:operation name="UpdateRecording">
-      <wsdl:input message="tns:UpdateRecordingHttpPostIn" />
-      <wsdl:output message="tns:UpdateRecordingHttpPostOut" />
+    <wsdl:operation name="IngestRecording">
+      <wsdl:input message="tns:IngestRecordingHttpPostIn" />
+      <wsdl:output message="tns:IngestRecordingHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="RecoverRecordingMessages">
       <wsdl:input message="tns:RecoverRecordingMessagesHttpPostIn" />
@@ -6707,6 +6739,10 @@
     <wsdl:operation name="GetRecordingLicensedLink">
       <wsdl:input message="tns:GetRecordingLicensedLinkHttpPostIn" />
       <wsdl:output message="tns:GetRecordingLicensedLinkHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckRecordingDuplicateCrids">
+      <wsdl:input message="tns:CheckRecordingDuplicateCridsHttpPostIn" />
+      <wsdl:output message="tns:CheckRecordingDuplicateCridsHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsHttpPostIn" />
@@ -7274,8 +7310,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="UpdateRecording">
-      <soap:operation soapAction="http://ca.tvinci.com/UpdateRecording" style="document" />
+    <wsdl:operation name="IngestRecording">
+      <soap:operation soapAction="http://ca.tvinci.com/IngestRecording" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -7402,6 +7438,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetRecordingLicensedLink">
       <soap:operation soapAction="http://ca.tvinci.com/GetRecordingLicensedLink" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckRecordingDuplicateCrids">
+      <soap:operation soapAction="http://ca.tvinci.com/CheckRecordingDuplicateCrids" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -8429,8 +8474,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="UpdateRecording">
-      <soap12:operation soapAction="http://ca.tvinci.com/UpdateRecording" style="document" />
+    <wsdl:operation name="IngestRecording">
+      <soap12:operation soapAction="http://ca.tvinci.com/IngestRecording" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -8557,6 +8602,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetRecordingLicensedLink">
       <soap12:operation soapAction="http://ca.tvinci.com/GetRecordingLicensedLink" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckRecordingDuplicateCrids">
+      <soap12:operation soapAction="http://ca.tvinci.com/CheckRecordingDuplicateCrids" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -9548,8 +9602,8 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="UpdateRecording">
-      <http:operation location="/UpdateRecording" />
+    <wsdl:operation name="IngestRecording">
+      <http:operation location="/IngestRecording" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -9658,6 +9712,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetRecordingLicensedLink">
       <http:operation location="/GetRecordingLicensedLink" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckRecordingDuplicateCrids">
+      <http:operation location="/CheckRecordingDuplicateCrids" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

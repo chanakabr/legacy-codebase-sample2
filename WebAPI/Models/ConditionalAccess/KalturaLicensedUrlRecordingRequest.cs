@@ -14,14 +14,6 @@ namespace WebAPI.Models.ConditionalAccess
     public class KalturaLicensedUrlRecordingRequest : KalturaLicensedUrlBaseRequest
     {
         /// <summary>
-        /// The start date of the recording (epoch)
-        /// </summary>
-        [DataMember(Name = "startDate")]
-        [JsonProperty("startDate")]
-        [XmlElement(ElementName = "startDate")]
-        public long StartDate { get; set; }
-
-        /// <summary>
         /// The file type for the URL
         /// </summary>
         [DataMember(Name = "fileType")]

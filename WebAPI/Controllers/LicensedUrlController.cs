@@ -123,7 +123,7 @@ namespace WebAPI.Controllers
                 {
                     KalturaLicensedUrlRecordingRequest recordingRequest = request as KalturaLicensedUrlRecordingRequest;
 
-                    response = ClientsManager.ConditionalAccessClient().GetRecordingLicensedLink(groupId, userId, udid, recordingRequest.GetRecordingId(), recordingRequest.StartDate, recordingRequest.FileType);
+                    response = ClientsManager.ConditionalAccessClient().GetRecordingLicensedLink(groupId, userId, udid, recordingRequest.GetRecordingId(), recordingRequest.FileType);
                 }
                 else
                 {
