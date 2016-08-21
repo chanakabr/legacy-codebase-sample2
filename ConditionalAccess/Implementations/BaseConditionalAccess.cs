@@ -17442,7 +17442,7 @@ namespace ConditionalAccess
                     log.DebugFormat("No files were found for all the requested EPGs, DomainID: {1}, UserID: {2}", domainID, userID);
                     foreach (long epgId in validEpgsForRecording.Keys)
                     {
-                        Recording RecordingWithNoFileIds = new Recording() { EpgId = epgId, Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
+                        Recording RecordingWithNoFileIds = new Recording() { EpgId = epgId, Status = new ApiObjects.Response.Status((int)eResponseStatus.NotEntitled, eResponseStatus.NotEntitled.ToString()) };
                         response.Recordings.Add(RecordingWithNoFileIds);
                     }
                 }
