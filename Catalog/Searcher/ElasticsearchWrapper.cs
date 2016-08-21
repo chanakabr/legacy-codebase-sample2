@@ -1693,7 +1693,7 @@ namespace Catalog
             #endregion
 
             // Sort the list of key value pairs by the value (the start date)
-            var sortedDictionary = idToStartDate.OrderBy(pair => pair.Value);
+            var sortedDictionary = idToStartDate.OrderBy(pair => pair.Value).ThenBy(pair => pair.Key);
 
             #region Create final, sorted, list
 
