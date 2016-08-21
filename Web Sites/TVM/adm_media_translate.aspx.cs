@@ -233,8 +233,7 @@ public partial class adm_media_translate : System.Web.UI.Page
         List<string> tagsTypeTranslate = new List<string>();
         string sGroups = PageUtils.GetParentsGroupsStr(LoginManager.GetLoginGroupID());
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery += "select * from media_tags_types where (status=1 and TagFamilyID IS NULL and group_id " + sGroups+")"  ;
-        selectQuery += " or (group_id=0 and TagFamilyID = 1) ";
+        selectQuery += "select NAME from media_tags_types where status=1 and TagFamilyID IS NULL and group_id " + sGroups.Replace("in (", "in (0, ");
         selectQuery += "order by order_num";
         if (selectQuery.Execute("query", true) != null)
         {
@@ -252,7 +251,7 @@ public partial class adm_media_translate : System.Web.UI.Page
         string name = string.Empty;
         string value = string.Empty;
        
-       selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery = new ODBCWrapper.DataSetSelectQuery();
         selectQuery += " SELECT mtt.id AS tag_type_id, mtt.NAME AS tag_type_name ,t.id AS tag_id ,tt.value as translateTagValue, t.value as tagValue ";
         selectQuery += " FROM dbo.tags t WITH(NOLOCK) INNER JOIN dbo.media_tags_types mtt WITH(NOLOCK) ON mtt.id = t.TAG_TYPE_ID ";
         selectQuery += " INNER JOIN dbo.media_tags mt WITH (NOLOCK) ON mt.tag_id = t.id ";
