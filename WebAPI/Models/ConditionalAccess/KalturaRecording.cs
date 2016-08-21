@@ -45,7 +45,8 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "type")]
         [JsonProperty("type")]
-        [XmlElement(ElementName = "type")]        
+        [XmlElement(ElementName = "type")]
+        [SchemeProperty(ReadOnly = true)]
         public KalturaRecordingType Type { get; set; }
 
         /// <summary>
@@ -54,6 +55,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "viewableUntilDate")]
         [JsonProperty("viewableUntilDate")]
         [XmlElement(ElementName = "viewableUntilDate")]
+        [SchemeProperty(ReadOnly = true)]
         public long? ViewableUntilDate { get; set; }
 
         /// <summary>
@@ -62,6 +64,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "isProtected")]
         [JsonProperty("isProtected")]
         [XmlElement(ElementName = "isProtected")]
+        [SchemeProperty(ReadOnly = true)]
         public bool IsProtected { get; set; }
 
         /// <summary>
@@ -70,6 +73,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "createDate")]
         [JsonProperty("createDate")]
         [XmlElement(ElementName = "createDate")]
+        [SchemeProperty(ReadOnly = true)]
         public long CreateDate { get; set; }
 
         /// <summary>
@@ -78,6 +82,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "updateDate")]
         [JsonProperty("updateDate")]
         [XmlElement(ElementName = "updateDate")]
+        [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
 
     }
