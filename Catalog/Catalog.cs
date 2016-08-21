@@ -6961,7 +6961,7 @@ namespace Catalog
                             }
                         }
 
-                        var mediaHitsDictionary = mediaHitsManager.GetValues<MediaMarkLog>(keysToGetLocation, true, false);
+                        var mediaHitsDictionary = mediaHitsManager.GetValues<MediaMarkLog>(keysToGetLocation, true, true);
 
                         foreach (var currentResult in unFilteredresult)
                         {
