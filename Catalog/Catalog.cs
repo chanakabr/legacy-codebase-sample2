@@ -6176,8 +6176,15 @@ namespace Catalog
                                 newMediaNodes.Add(newLeaf);
                             }
 
-                            newEpgNodes.Add(new BooleanLeaf("_type", "epg", typeof(string), ComparisonOperator.Prefix));
-                            newEpgNodes.Add(new BooleanLeaf("_type", "recording", typeof(string), ComparisonOperator.Prefix));
+                            List<BooleanPhraseNode> typeNodesList = new List<BooleanPhraseNode>()
+                            {
+                                new BooleanLeaf("_type", "epg", typeof(string), ComparisonOperator.Prefix),
+                                new BooleanLeaf("_type", "recording", typeof(string), ComparisonOperator.Prefix)
+                            };
+
+                            var newTypesNode = new BooleanPhrase(typeNodesList, eCutType.Or);
+
+                            newEpgNodes.Add(newTypesNode);
 
                             // Run on all tags and their values
                             foreach (KeyValuePair<string, List<string>> tagValues in mediaParentalRulesTags)
