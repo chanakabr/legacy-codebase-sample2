@@ -10,13 +10,13 @@
 		<h2>Kaltura API</h2>
 		<table class="action">
 			<tr>
-				<th colspan="5" class="service_action_title">notification.getLastCleanupDate</th>
+				<th colspan="5" class="service_action_title">household.delete</th>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Description:</td>
 			</tr>
 			<tr>
-				<td class="description" colspan="5">TBD</td>
+				<td class="description" colspan="5">Fully delete a household. Delete all of the household information, including users, devices, transactions and assets.</td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Input Params</td>
@@ -29,21 +29,28 @@
 				<th class="subtitle">Default Value</th>
 			</tr>
 			<tr>
+				<td>id</td>
+				<td>int</td>
+				<td>Household identifier</td>
+				<td>V</td>
+				<td></td>
+			</tr>
+			<tr>
 				<td colspan="5" class="title">Output Type</td>
 			</tr>
 			<tr>
-				<td colspan="5">bigint</td>
+				<td colspan="5">bool</td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Example HTTP Hit</td>
 			</tr>
 			<tr>
-				<td colspan="5">http://www.kaltura.com/api_v3/service/notification/action/getLastCleanupDate<br />
+				<td colspan="5">http://www.kaltura.com/api_v3/service/household/action/delete<br />
 				<strong>JSON object:</strong>
 				<pre>
 				<div class="post_fields">
 {
-
+	id: value
 }
 				</pre></td>
 			</tr>

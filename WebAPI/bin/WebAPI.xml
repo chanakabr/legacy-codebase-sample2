@@ -557,6 +557,18 @@
             </remarks>
             <param name="paymentGatewayId">Payment Gateway Identifier</param>
         </member>
+        <member name="M:WebAPI.Controllers.HouseholdPaymentGatewayController.Invoke(System.Int32,System.String,System.Collections.Generic.List{WebAPI.Models.General.KalturaKeyValue})">
+            <summary>
+            Gets the Payment Gateway Configuration for the payment gateway identifier given
+            </summary>
+            <param name="paymentGatewayId">The payemnt gateway for which to return the registration URL/s for the household. If omitted – return the regisration URL for the household for the default payment gateway</param>                
+            <param name="intent">Represent the client’s intent for working with the payment gateway. Intent options to be coordinated with the applicable payment gateway adapter.</param>                
+            <param name="extraParameters">Additional parameters to send to the payment gateway adapter.</param>
+            <remarks>
+            Possible status codes:       
+            PaymentGatewayNotExist = 6008, SignatureMismatch = 6013
+            </remarks>
+        </member>
         <member name="M:WebAPI.Controllers.ProductPriceController.List(WebAPI.Models.ConditionalAccess.KalturaProductPriceFilter)">
             <summary>
             Returns a price and a purchase status for each subscription or/and media file, for a given user (if passed) and with the consideration of a coupon code (if passed). 
@@ -3639,11 +3651,6 @@
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaLicensedUrlEpgRequest.StartDate">
             <summary>
             The start date of the stream (epoch)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaLicensedUrlRecordingRequest.StartDate">
-            <summary>
-            The start date of the recording (epoch)
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaLicensedUrlRecordingRequest.FileType">
@@ -10455,6 +10462,33 @@
         <member name="M:WebAPI.Billing.module.UpdateRecordedTransactionAsync(System.String,System.String,System.Int32,System.String,System.String,System.String,System.Int32,System.String,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.Billing.module.AddHouseholdNewPaymentMethod(System.String,System.String,System.String,System.Int32,System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.AddHouseholdNewPaymentMethodAsync(System.String,System.String,System.String,System.Int32,System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.AddHouseholdNewPaymentMethodAsync(System.String,System.String,System.String,System.Int32,System.String,System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.PaymentGatewayInvoke(System.String,System.String,System.Int32,System.String,WebAPI.Billing.KeyValuePair[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.PaymentGatewayInvokeAsync(System.String,System.String,System.Int32,System.String,WebAPI.Billing.KeyValuePair[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.PaymentGatewayInvokeAsync(System.String,System.String,System.Int32,System.String,WebAPI.Billing.KeyValuePair[],System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.AddPaymentGatewayHouseholdPaymentMethod(System.String,System.String,System.String,System.Int32,System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.AddPaymentGatewayHouseholdPaymentMethodAsync(System.String,System.String,System.String,System.Int32,System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.AddPaymentGatewayHouseholdPaymentMethodAsync(System.String,System.String,System.String,System.Int32,System.String,System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.Billing.module.CancelAsync(System.Object)">
             <remarks/>
         </member>
@@ -10627,6 +10661,15 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.Billing.module.UpdateRecordedTransactionCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Billing.module.AddHouseholdNewPaymentMethodCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Billing.module.PaymentGatewayInvokeCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Billing.module.AddPaymentGatewayHouseholdPaymentMethodCompleted">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.module">
@@ -10878,13 +10921,13 @@
         <member name="M:WebAPI.ConditionalAccess.module.GetRecordingByIDAsync(System.String,System.String,System.Int64,System.Int64,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.UpdateRecording(System.String,System.String,System.Int64[],WebAPI.ConditionalAccess.eAction)">
+        <member name="M:WebAPI.ConditionalAccess.module.IngestRecording(System.String,System.String,System.Int64[],WebAPI.ConditionalAccess.eAction)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.UpdateRecordingAsync(System.String,System.String,System.Int64[],WebAPI.ConditionalAccess.eAction)">
+        <member name="M:WebAPI.ConditionalAccess.module.IngestRecordingAsync(System.String,System.String,System.Int64[],WebAPI.ConditionalAccess.eAction)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.UpdateRecordingAsync(System.String,System.String,System.Int64[],WebAPI.ConditionalAccess.eAction,System.Object)">
+        <member name="M:WebAPI.ConditionalAccess.module.IngestRecordingAsync(System.String,System.String,System.Int64[],WebAPI.ConditionalAccess.eAction,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.ConditionalAccess.module.RecoverRecordingMessages(System.String,System.String)">
@@ -11004,13 +11047,22 @@
         <member name="M:WebAPI.ConditionalAccess.module.CompleteDomainSeriesRecordingsAsync(System.String,System.String,System.Int64,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.GetRecordingLicensedLink(System.String,System.String,System.String,System.Int32,System.DateTime,System.String,System.String,System.String)">
+        <member name="M:WebAPI.ConditionalAccess.module.GetRecordingLicensedLink(System.String,System.String,System.String,System.Int32,System.String,System.String,System.String)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.GetRecordingLicensedLinkAsync(System.String,System.String,System.String,System.Int32,System.DateTime,System.String,System.String,System.String)">
+        <member name="M:WebAPI.ConditionalAccess.module.GetRecordingLicensedLinkAsync(System.String,System.String,System.String,System.Int32,System.String,System.String,System.String)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.GetRecordingLicensedLinkAsync(System.String,System.String,System.String,System.Int32,System.DateTime,System.String,System.String,System.String,System.Object)">
+        <member name="M:WebAPI.ConditionalAccess.module.GetRecordingLicensedLinkAsync(System.String,System.String,System.String,System.Int32,System.String,System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.CheckRecordingDuplicateCrids(System.String,System.String,System.Int64)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.CheckRecordingDuplicateCridsAsync(System.String,System.String,System.Int64)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.CheckRecordingDuplicateCridsAsync(System.String,System.String,System.Int64,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.ConditionalAccess.module.GetUserPermittedItems(System.String,System.String,System.String)">
@@ -11871,7 +11923,7 @@
         <member name="E:WebAPI.ConditionalAccess.module.GetRecordingByIDCompleted">
             <remarks/>
         </member>
-        <member name="E:WebAPI.ConditionalAccess.module.UpdateRecordingCompleted">
+        <member name="E:WebAPI.ConditionalAccess.module.IngestRecordingCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.ConditionalAccess.module.RecoverRecordingMessagesCompleted">
@@ -11914,6 +11966,9 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.ConditionalAccess.module.GetRecordingLicensedLinkCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.ConditionalAccess.module.CheckRecordingDuplicateCridsCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.ConditionalAccess.module.GetUserPermittedItemsCompleted">
@@ -19725,13 +19780,13 @@
         <member name="P:WebAPI.Billing.BillingInfo.variant">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Billing.PaymentMethodResponse">
+        <member name="T:WebAPI.Billing.PaymentMethodIdResponse">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Billing.PaymentMethodResponse.Status">
+        <member name="P:WebAPI.Billing.PaymentMethodIdResponse.PaymentMethodId">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Billing.PaymentMethodResponse.PaymentMethod">
+        <member name="P:WebAPI.Billing.PaymentMethodIdResponse.Status">
             <remarks/>
         </member>
         <member name="T:WebAPI.Billing.Status">
@@ -19741,6 +19796,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Billing.Status.Message">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.PaymentMethodResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentMethodResponse.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentMethodResponse.PaymentMethod">
             <remarks/>
         </member>
         <member name="T:WebAPI.Billing.PaymentMethod">
@@ -20700,6 +20764,33 @@
         <member name="P:WebAPI.Billing.UpdateRecordedTransactionCompletedEventArgs.Result">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Billing.AddHouseholdNewPaymentMethodCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.AddHouseholdNewPaymentMethodCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.AddHouseholdNewPaymentMethodCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.PaymentGatewayInvokeCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.PaymentGatewayInvokeCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentGatewayInvokeCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.AddPaymentGatewayHouseholdPaymentMethodCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.AddPaymentGatewayHouseholdPaymentMethodCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.AddPaymentGatewayHouseholdPaymentMethodCompletedEventArgs.Result">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.ConditionalAccess.Status">
             <remarks/>
         </member>
@@ -20814,6 +20905,9 @@
         <member name="P:WebAPI.ConditionalAccess.BaseNPVRCommand.assetID">
             <remarks/>
         </member>
+        <member name="T:WebAPI.ConditionalAccess.DeleteNPVRCommand">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.ConditionalAccess.DeleteSeriesNPVRCommand">
             <remarks/>
         </member>
@@ -20854,9 +20948,6 @@
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.RetrieveQuotaNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.DeleteNPVRCommand">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.CancelNPVRCommand">
@@ -22062,6 +22153,9 @@
         <member name="T:WebAPI.ConditionalAccess.DomainSeriesRecording">
             <remarks/>
         </member>
+        <member name="P:WebAPI.ConditionalAccess.DomainSeriesRecording.Id">
+            <remarks/>
+        </member>
         <member name="P:WebAPI.ConditionalAccess.DomainSeriesRecording.SeriesId">
             <remarks/>
         </member>
@@ -22081,9 +22175,6 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.SeriesRecording.Status">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.SeriesRecording.Id">
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.SeriesRecording.CreateDate">
@@ -22875,13 +22966,13 @@
         <member name="P:WebAPI.ConditionalAccess.GetRecordingByIDCompletedEventArgs.Result">
             <remarks/>
         </member>
-        <member name="T:WebAPI.ConditionalAccess.UpdateRecordingCompletedEventHandler">
+        <member name="T:WebAPI.ConditionalAccess.IngestRecordingCompletedEventHandler">
             <remarks/>
         </member>
-        <member name="T:WebAPI.ConditionalAccess.UpdateRecordingCompletedEventArgs">
+        <member name="T:WebAPI.ConditionalAccess.IngestRecordingCompletedEventArgs">
             <remarks/>
         </member>
-        <member name="P:WebAPI.ConditionalAccess.UpdateRecordingCompletedEventArgs.Result">
+        <member name="P:WebAPI.ConditionalAccess.IngestRecordingCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.RecoverRecordingMessagesCompletedEventHandler">
@@ -23008,6 +23099,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.GetRecordingLicensedLinkCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.CheckRecordingDuplicateCridsCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.CheckRecordingDuplicateCridsCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.CheckRecordingDuplicateCridsCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.GetUserPermittedItemsCompletedEventHandler">
