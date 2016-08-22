@@ -84,12 +84,8 @@ function changeItemStatus(sID, pageName, dualListParent) {
     RS.Execute(pageName, "changeItemStatus", sID, dualListParent, callback_status_changed, errorCallback);
 }
 
-function changeItemUp(sID, pageName) {
-    RS.Execute(pageName, "changeItemUp", sID, action, callback_status_changed, errorCallback);
-}
-
-function changeItemDown(sID, pageName) {
-    RS.Execute(pageName, "changeItemDown", sID, action, callback_status_changed, errorCallback);
+function changeItemOrder(sID, pageName, updatedOrderNum) {
+    RS.Execute(pageName, "changeItemOrder", sID, updatedOrderNum, callback_order_changed, errorCallback);
 }
 
 function changeItemDates(sID, startDate, endDate, pageName) {
@@ -113,5 +109,9 @@ function callback_dates_changed(res) {
 }
 
 function callback_status_changed(res) {
+    //
+}
+
+function callback_order_changed(res) {
     //
 }

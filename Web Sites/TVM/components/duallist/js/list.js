@@ -85,7 +85,8 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent, 
                 if (items[i].Title) {
                     var listLiItem = document.createElement('li');
                     listLiItem.setAttribute("data-id", items[i].ID);
-                    listLiItem.innerHTML = "<span class='ppvm-text' title='" + items[i].Title + "'>" + items[i].Title + "</span>";
+                    var title = WithOrderByButtons === true ? "#" + items[i].OrderNum + " " + items[i].Title : items[i].Title;
+                    listLiItem.innerHTML = "<span class='ppvm-text' title='" + title + "'>" + title + "</span>";
                     var addRemoveIcon = document.createElement('a');
                     $(addRemoveIcon).addClass('add-remove-icon');
                     $(addRemoveIcon).addClass(type);
@@ -116,7 +117,7 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent, 
                         listLiItem.childNodes[0].style.width = "100%";
                     }
                     else {
-                        listLiItem.childNodes[0].className = "ppvm-text-withButtons";
+                        listLiItem.childNodes[0].className = "ppvm-text-withButtons";                        
                     }
 
                     $(listLiItem).hide();
@@ -181,20 +182,20 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent, 
         if (itemsId && itemsLength) {
             var liItems = listItems.children;
             var liItemsLength = liItems.length;
-            for (var j = 0; j < liItemsLength; j++) {
+            for (var j = 0; j+1 < liItemsLength; j++) {
                 var liItem = liItems[j];
                 if ($(liItem).data('id') && itemsId.indexOf(parseInt($(liItem).data('id'))) !== -1) {
-                    if (j == 0) {
+                    if (!canBeMoved("up", j, liItemsLength)) {
                         break;
                     }
                     var previousItem = liItems[j - 2];
-                    var newOrderNumValue = previousItem.getAttribute("data-orderNum") - 1;
-                    liItem.setAttribute("data-orderNum", newOrderNumValue);
-                    $(liItem).hide("slide", { direction: 'up' }, 200, function () { });
-                    $(previousItem).hide("slide", { direction: 'down' }, 200, function () { });
-                    $(listItems).insertBefore($(previousItem));
-                    $(liItem).show("slide", { direction: 'up' }, 200, function () { });
-                    $(previousItem).show("slide", { direction: 'down' }, 200, function () { });
+                    var updatedOrderNum = previousItem.getAttribute("data-orderNum");
+                    updatedOrderNum--;
+                    if (swapItems(liItems, updatedOrderNum, j, liItemsLength, "up")) {
+                        var itemId = liItem.getAttribute("data-id");
+                        changeItemOrder(itemId, pageName, updatedOrderNum);
+                    }
+
                     break;
                 }
             }
@@ -206,22 +207,81 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent, 
         if (itemsId && itemsLength) {
             var liItems = listItems.children;
             var liItemsLength = liItems.length;
-            for (var j = 0; j < liItemsLength; j++) {
+            for (var j = 0; j + 1 < liItemsLength; j++) {
                 var liItem = liItems[j];
                 if ($(liItem).data('id') && itemsId.indexOf(parseInt($(liItem).data('id'))) !== -1) {
-                    if (j == liItemsLength - 1) {
+                    if (!canBeMoved("down", j, liItemsLength)) {
                         break;
                     }
-                    var direction = 'down';
-                    $(liItem).hide("slide", { direction: direction }, 200, function () {
-                        $($(liItem)[0].nextSibling).remove();
-                        $(liItem).remove();
-                    });
+                    var nextItem = liItems[j + 2];
+                    var updatedOrderNum = nextItem.getAttribute("data-orderNum");
+                    updatedOrderNum++;
+                    if (swapItems(liItems, updatedOrderNum, j, liItemsLength, "down")) {
+                        var itemId = liItem.getAttribute("data-id");                        
+                        changeItemOrder(itemId, pageName, updatedOrderNum);
+                    }
 
                     break;
                 }
             }
         }
+    };
+
+    var swapItems = function (itemsList, currentItemUpdatedOrderNum, itemIndex, listLength, direction) {
+        var currentItem = itemsList[itemIndex];
+        var currentItemOrderNum = currentItem.getAttribute("data-orderNum");
+        currentItem.setAttribute("data-orderNum", currentItemUpdatedOrderNum);
+        currentItem.innerHTML = currentItem.innerHTML.replace("#" + currentItemOrderNum, "#" + currentItemUpdatedOrderNum);
+        currentItem.innerHTML = currentItem.innerHTML.replace("#" + currentItemOrderNum, "#" + currentItemUpdatedOrderNum);
+        if (direction.toUpperCase() == "UP") {
+            while (canBeMoved(direction, itemIndex, listLength)) {
+                var nextItem = itemsList[itemIndex - 2];
+                var nextItemOrderNum = nextItem.getAttribute("data-orderNum");
+                if (nextItemOrderNum > currentItemUpdatedOrderNum) {
+                    var ItemsDiv = currentItem.nextSibling;
+                    $(ItemsDiv).remove();
+                    $(currentItem).remove();
+                    $(nextItem).before(currentItem);
+                    $(currentItem).after(ItemsDiv);
+                    itemIndex = itemIndex - 2;
+                }
+                else {
+                    return true;
+                }
+            }
+        }
+        else if (direction.toUpperCase() == "DOWN") {
+            while (canBeMoved(direction, itemIndex, listLength)) {
+                var nextItem = itemsList[itemIndex + 2];
+                var nextItemOrderNum = nextItem.getAttribute("data-orderNum");
+                if (nextItemOrderNum < currentItemUpdatedOrderNum) {
+                    var ItemsDiv = currentItem.nextSibling;
+                    $(ItemsDiv).remove();
+                    $(currentItem).remove();
+                    $(nextItem.nextSibling).after(currentItem);
+                    $(currentItem).after(ItemsDiv);
+                    itemIndex = itemIndex + 2;
+                }
+                else {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    };
+
+    var canBeMoved = function (direction, index, listLength) {        
+        if (direction.toUpperCase() == "UP")
+        {
+            return index > 0 && index - 2 >= 0;
+        }
+        else if (direction.toUpperCase() == "DOWN")
+        {
+            return index < listLength && index + 2 < listLength;
+        }
+
+        return false;
     };
 
     var getComponentElement = function () {
