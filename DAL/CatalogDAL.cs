@@ -2558,6 +2558,8 @@ namespace Tvinci.Core.DAL
 
         public static DomainMediaMark GetAssetLastPosition(string assetID, eAssetTypes assetType, List<int> users)
         {
+            eCouchbaseBucket bucket = eCouchbaseBucket.MEDIA_HITS;
+
             DomainMediaMark dmmResponse = new DomainMediaMark();
 
             //Create users keys according to asset type
@@ -2566,12 +2568,16 @@ namespace Tvinci.Core.DAL
             switch (assetType)
             {
                 case eAssetTypes.EPG:
+                {
                     foreach (int userID in users)
                     {
                         userDocKey = UtilsDal.getUserEpgMarkDocKey(userID, assetID);
                         userKeys.Add(userDocKey);
                     }
+
+                    bucket = eCouchbaseBucket.MEDIAMARK;
                     break;
+                }
                 case eAssetTypes.NPVR:
                     foreach (int userID in users)
                     {
@@ -2595,7 +2601,7 @@ namespace Tvinci.Core.DAL
             }
 
             // get all documents from CB
-            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
+            var cbManager = new CouchbaseManager.CouchbaseManager(bucket);
             IDictionary<string, MediaMarkLog> usersData = cbManager.GetValues<MediaMarkLog>(userKeys, true, true);
             List<UserMediaMark> usersMediaMark = new List<UserMediaMark>();
 
