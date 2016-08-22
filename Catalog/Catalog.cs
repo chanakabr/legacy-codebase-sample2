@@ -6177,6 +6177,7 @@ namespace Catalog
                             }
 
                             newEpgNodes.Add(new BooleanLeaf("_type", "epg", typeof(string), ComparisonOperator.Prefix));
+                            newEpgNodes.Add(new BooleanLeaf("_type", "recording", typeof(string), ComparisonOperator.Prefix));
 
                             // Run on all tags and their values
                             foreach (KeyValuePair<string, List<string>> tagValues in mediaParentalRulesTags)
