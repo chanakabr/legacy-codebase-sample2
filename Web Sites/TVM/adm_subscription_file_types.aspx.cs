@@ -205,7 +205,7 @@ public partial class adm_subscription_file_types : System.Web.UI.Page
         object[] resultData = null;
         List<object> fileTypes = new List<object>();
         Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
-        DataSet ds = TvmDAL.GetSubscriptionPossibleChannels(nLogedInGroupID, subscriptionId);
+        DataSet ds = TvmDAL.GetSubscriptionPossibleFileTypes(nLogedInGroupID, subscriptionId);
         if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
         {
             DataTable availableFileTypes = ds.Tables[0];
