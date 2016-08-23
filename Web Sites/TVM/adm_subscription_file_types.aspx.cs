@@ -253,36 +253,4 @@ public partial class adm_subscription_file_types : System.Web.UI.Page
         return dualList.ToJSON();
     }
 
-    protected bool IsChannelBelong(Int32 nFileTypeID)
-    {
-        try
-        {
-            bool bRet = false;
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery.SetConnectionKey("pricing_connection");
-            selectQuery += "select id from subscriptions_file_types where is_active=1 and status=1 and ";
-            Int32 nCommerceGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "COMMERCE_GROUP_ID", LoginManager.GetLoginGroupID()).ToString());
-            if (nCommerceGroupID == 0)
-                nCommerceGroupID = LoginManager.GetLoginGroupID();
-            selectQuery += " group_id " + PageUtils.GetFullChildGroupsStr(nCommerceGroupID, "");
-            //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", LoginManager.GetLoginGroupID());
-            selectQuery += " and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_ID", "=", int.Parse(Session["subscription_id"].ToString()));
-            selectQuery += " and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("FILE_TYPE_ID", "=", nFileTypeID);
-            if (selectQuery.Execute("query", true) != null)
-            {
-                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                if (nCount > 0)
-                    bRet = true;
-            }
-            selectQuery.Finish();
-            selectQuery = null;
-            return bRet;
-        }
-        catch
-        {
-            return false;
-        }
-    }
 }
