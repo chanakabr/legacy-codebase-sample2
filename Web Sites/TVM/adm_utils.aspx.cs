@@ -263,7 +263,7 @@ public partial class adm_utils : System.Web.UI.Page
                     }
                     break;
                 case "channels":
-                    if (!ImporterImpl.UpdateChannel(nGroupID, idsToUpdate, eAction))
+                    if (!ImporterImpl.UpdateChannelIndex(nGroupID, idsToUpdate, eAction))
                     {
                         log.Error(string.Format("Failed updating channel index for channelIDs: {0}, groupID: {1}", idsToUpdate, nGroupID));
                     }
@@ -320,7 +320,7 @@ public partial class adm_utils : System.Web.UI.Page
             if (nChannelID > 0)
             {
                 bool result = false;
-                result = ImporterImpl.UpdateChannel(nGroupID, new List<int>() { nChannelID }, eAction.Update);
+                result = ImporterImpl.UpdateChannelIndex(nGroupID, new List<int>() { nChannelID }, eAction.Update);
                 log.Debug("ChangeOrderNumRow - " + string.Format("cahnnel:{0}, media:{1}, orderNum:{2}, res:{3}", nChannelID, nMediaID, nOrderNum, result));
             }
         }
