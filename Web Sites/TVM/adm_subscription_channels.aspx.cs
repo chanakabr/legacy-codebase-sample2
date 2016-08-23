@@ -235,7 +235,7 @@ public partial class adm_subscription_channels : System.Web.UI.Page
             }
             if (availableChannels != null && availableChannels.Rows != null)
             {
-                foreach (DataRow dr in channelsIncludedInSubscription.Rows)
+                foreach (DataRow dr in availableChannels.Rows)
                 {
                     long channelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
                     string groupName = ODBCWrapper.Utils.GetSafeStr(dr, "GROUP_NAME");

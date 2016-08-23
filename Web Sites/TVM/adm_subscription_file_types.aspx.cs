@@ -224,7 +224,7 @@ public partial class adm_subscription_file_types : System.Web.UI.Page
             }
             if (availableFileTypes != null && availableFileTypes.Rows != null)
             {
-                foreach (DataRow dr in fileTypesIncludedInSubscription.Rows)
+                foreach (DataRow dr in availableFileTypes.Rows)
                 {
                     long fileTypeId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
                     string title = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION");
