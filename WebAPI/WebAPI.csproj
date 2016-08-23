@@ -1820,7 +1820,6 @@
     <Content Include="testme\json\messagetemplate-actions.json" />
     <Content Include="testme\json\messagetemplate-get-action-info.json" />
     <Content Include="testme\json\messagetemplate-update-action-info.json" />
-    <Content Include="testme\json\notification-getLastCleanupDate-action-info.json" />
     <Content Include="testme\json\notification-initiateCleanup-action-info.json" />
     <Content Include="testme\json\notification-setDevicePushToken-action-info.json" />
     <Content Include="testme\json\ottuser-list-action-info.json" />
