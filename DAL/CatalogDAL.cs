@@ -618,7 +618,7 @@ namespace Tvinci.Core.DAL
 
             // media hits interest us only on media that are not linear channel - if it is a linear channel, we are not interested in the location
             // because it is a live, constant, "endless" stream
-            if (!isLinearChannel)
+            if (!isLinearChannel || (isLinearChannel && isFirstPlay))
             {
                 while (limitRetries >= 0 && !success)
                 {
