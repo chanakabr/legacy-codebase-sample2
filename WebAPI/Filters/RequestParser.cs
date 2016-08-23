@@ -540,10 +540,7 @@ namespace WebAPI.Filters
                     {
                         var paramAsString = reqParams[name].ToString();
                         var names = t.GetEnumNames().ToList();
-                        if (names.Contains(paramAsString))
-                        {
-                            value = Enum.Parse(t, paramAsString, true);
-                        }
+                        value = Enum.Parse(t, paramAsString, true);
                     }
                     // nullable enum
                     else if (u != null && u.IsEnum)
