@@ -579,7 +579,6 @@
     <Content Include="testmeDoc\actions\licensedurl.get.html" />
     <Content Include="testmeDoc\actions\messagetemplate.get.html" />
     <Content Include="testmeDoc\actions\messagetemplate.update.html" />
-    <Content Include="testmeDoc\actions\notification.getLastCleanupDate.html" />
     <Content Include="testmeDoc\actions\notification.initiateCleanup.html" />
     <Content Include="testmeDoc\actions\notification.register.html" />
     <Content Include="testmeDoc\actions\notification.setDevicePushToken.html" />
