@@ -1147,7 +1147,6 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="recordingId" type="s:int" />
-            <s:element minOccurs="1" maxOccurs="1" name="startTime" type="s:dateTime" />
             <s:element minOccurs="0" maxOccurs="1" name="udid" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="userIp" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="fileType" type="s:string" />
@@ -4987,7 +4986,6 @@
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="userId" type="s:string" />
     <wsdl:part name="recordingId" type="s:string" />
-    <wsdl:part name="startTime" type="s:string" />
     <wsdl:part name="udid" type="s:string" />
     <wsdl:part name="userIp" type="s:string" />
     <wsdl:part name="fileType" type="s:string" />

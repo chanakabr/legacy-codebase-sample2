@@ -2283,13 +2283,12 @@ namespace TvinciImporter.WS_ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetRecordingLicensedLink", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public LicensedLinkResponse GetRecordingLicensedLink(string sWSUserName, string sWSPassword, string userId, int recordingId, System.DateTime startTime, string udid, string userIp, string fileType) {
+        public LicensedLinkResponse GetRecordingLicensedLink(string sWSUserName, string sWSPassword, string userId, int recordingId, string udid, string userIp, string fileType) {
             object[] results = this.Invoke("GetRecordingLicensedLink", new object[] {
                         sWSUserName,
                         sWSPassword,
                         userId,
                         recordingId,
-                        startTime,
                         udid,
                         userIp,
                         fileType});
@@ -2297,12 +2296,12 @@ namespace TvinciImporter.WS_ConditionalAccess {
         }
         
         /// <remarks/>
-        public void GetRecordingLicensedLinkAsync(string sWSUserName, string sWSPassword, string userId, int recordingId, System.DateTime startTime, string udid, string userIp, string fileType) {
-            this.GetRecordingLicensedLinkAsync(sWSUserName, sWSPassword, userId, recordingId, startTime, udid, userIp, fileType, null);
+        public void GetRecordingLicensedLinkAsync(string sWSUserName, string sWSPassword, string userId, int recordingId, string udid, string userIp, string fileType) {
+            this.GetRecordingLicensedLinkAsync(sWSUserName, sWSPassword, userId, recordingId, udid, userIp, fileType, null);
         }
         
         /// <remarks/>
-        public void GetRecordingLicensedLinkAsync(string sWSUserName, string sWSPassword, string userId, int recordingId, System.DateTime startTime, string udid, string userIp, string fileType, object userState) {
+        public void GetRecordingLicensedLinkAsync(string sWSUserName, string sWSPassword, string userId, int recordingId, string udid, string userIp, string fileType, object userState) {
             if ((this.GetRecordingLicensedLinkOperationCompleted == null)) {
                 this.GetRecordingLicensedLinkOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetRecordingLicensedLinkOperationCompleted);
             }
@@ -2311,7 +2310,6 @@ namespace TvinciImporter.WS_ConditionalAccess {
                         sWSPassword,
                         userId,
                         recordingId,
-                        startTime,
                         udid,
                         userIp,
                         fileType}, this.GetRecordingLicensedLinkOperationCompleted, userState);
