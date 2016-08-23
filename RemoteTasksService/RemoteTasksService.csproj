@@ -214,6 +214,10 @@
       <Project>{4625c3a4-d4dd-4f5b-8dcc-2d033fa090ca}</Project>
       <Name>UpdateCacheHandler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\UserTaskHandler\UserTaskHandler.csproj">
+      <Project>{a1d8f832-293a-4a0c-944a-a5419896a0cb}</Project>
+      <Name>UserTaskHandler</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
