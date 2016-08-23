@@ -618,7 +618,7 @@ namespace Tvinci.Core.DAL
 
             // media hits interest us only on media that are not linear channel - if it is a linear channel, we are not interested in the location
             // because it is a live, constant, "endless" stream
-            if (!isLinearChannel)
+            if (!isLinearChannel || (isLinearChannel && isFirstPlay))
             {
                 while (limitRetries >= 0 && !success)
                 {
@@ -2410,54 +2410,53 @@ namespace Tvinci.Core.DAL
                     break;
             }
 
+            string mmKey = UtilsDal.getUserEpgMarkDocKey(nSiteUserGuid, nAssetID.ToString());
+
             if (isFirstPlay)
             {
-                limitRetries = RETRY_LIMIT;
-                string mmKey = UtilsDal.getUserEpgMarkDocKey(nSiteUserGuid, nAssetID.ToString());
-                while (limitRetries >= 0)
+                UpdateOrInsert_UserEpgMarkOrHit(mediaMarksManager, r, dev, mmKey);
+            }
+
+            UpdateOrInsert_UserEpgMarkOrHit(mediaHitsManager, r, dev, mmKey);
+        }
+
+        private static bool UpdateOrInsert_UserEpgMarkOrHit(CouchbaseManager.CouchbaseManager manager, Random r, UserMediaMark dev, string mmKey)
+        {
+            bool success = false;
+            int limitRetries = RETRY_LIMIT;
+
+            while (limitRetries >= 0)
+            {
+                ulong version;
+                var data = manager.GetWithVersion<string>(mmKey, out version);
+
+                MediaMarkLog umm = new MediaMarkLog();
+
+                //For quick last position access
+                umm.LastMark = dev;
+
+                TimeSpan? epgDocExpiry = null;
+
+                uint cbEpgDocumentExpiryDays;
+                uint.TryParse(CB_EPG_DOCUMENT_EXPIRY_DAYS, out cbEpgDocumentExpiryDays);
+
+                bool res = (epgDocExpiry.HasValue) ?
+                    manager.SetWithVersion(mmKey, JsonConvert.SerializeObject(umm, Formatting.None), version, cbEpgDocumentExpiryDays * 24 * 60 * 60)
+                    : manager.SetWithVersion(mmKey, JsonConvert.SerializeObject(umm, Formatting.None), version);
+
+                if (!res)
                 {
-                    ulong version;
-                    var data = mediaMarksManager.GetWithVersion<string>(mmKey, out version);
-
-                    MediaMarkLog umm = new MediaMarkLog();
-
-                    //if (data == null)
-                    //{
-                    //    umm.devices = new List<UserMediaMark>();
-                    //    umm.devices.Add(dev);
-                    //}
-                    //else
-                    //{
-                    //    umm = JsonConvert.DeserializeObject<MediaMarkLog>(data);
-                    //    var existdev = umm.devices.Where(x => x.UDID == sUDID).FirstOrDefault();
-
-                    //    if (existdev != null)
-                    //        umm.devices.Remove(existdev);
-
-                    //    umm.devices.Add(dev);
-                    //}
-
-                    //For quick last position access
-                    umm.LastMark = dev;
-
-                    TimeSpan? epgDocExpiry = null;
-
-                    uint cbEpgDocumentExpiryDays;
-                    uint.TryParse(CB_EPG_DOCUMENT_EXPIRY_DAYS, out cbEpgDocumentExpiryDays);
-
-                    bool res = (epgDocExpiry.HasValue) ?
-                        mediaMarksManager.SetWithVersion(mmKey, JsonConvert.SerializeObject(umm, Formatting.None), version, cbEpgDocumentExpiryDays * 24 * 60 * 60)
-                        : mediaMarksManager.SetWithVersion(mmKey, JsonConvert.SerializeObject(umm, Formatting.None), version);
-
-                    if (!res)
-                    {
-                        Thread.Sleep(r.Next(50));
-                        limitRetries--;
-                    }
-                    else
-                        break;
+                    Thread.Sleep(r.Next(50));
+                    limitRetries--;
+                }
+                else
+                {
+                    success = true;
+                    break;
                 }
             }
+
+            return success;
         }
 
         public static int GetLastPosition(string NpvrID, int userID)
@@ -2558,8 +2557,6 @@ namespace Tvinci.Core.DAL
 
         public static DomainMediaMark GetAssetLastPosition(string assetID, eAssetTypes assetType, List<int> users)
         {
-            eCouchbaseBucket bucket = eCouchbaseBucket.MEDIA_HITS;
-
             DomainMediaMark dmmResponse = new DomainMediaMark();
 
             //Create users keys according to asset type
@@ -2568,16 +2565,12 @@ namespace Tvinci.Core.DAL
             switch (assetType)
             {
                 case eAssetTypes.EPG:
-                {
                     foreach (int userID in users)
                     {
                         userDocKey = UtilsDal.getUserEpgMarkDocKey(userID, assetID);
                         userKeys.Add(userDocKey);
                     }
-
-                    bucket = eCouchbaseBucket.MEDIAMARK;
                     break;
-                }
                 case eAssetTypes.NPVR:
                     foreach (int userID in users)
                     {
@@ -2601,7 +2594,7 @@ namespace Tvinci.Core.DAL
             }
 
             // get all documents from CB
-            var cbManager = new CouchbaseManager.CouchbaseManager(bucket);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
             IDictionary<string, MediaMarkLog> usersData = cbManager.GetValues<MediaMarkLog>(userKeys, true, true);
             List<UserMediaMark> usersMediaMark = new List<UserMediaMark>();
 
