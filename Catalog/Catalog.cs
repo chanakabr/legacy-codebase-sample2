@@ -2101,7 +2101,7 @@ namespace Catalog
                         nPlayTime, duration, assetAction, mediaTypeId, isFirstPlay, isLinearChannel, finishedPercentThreshold);
                         break;
                     case ePlayType.NPVR:
-                        CatalogDAL.UpdateOrInsert_UsersNpvrMark(nDomainID, int.Parse(sSiteGUID), sUDID, sAssetID, nGroupID, nPlayTime, duration, assetAction);
+                        CatalogDAL.UpdateOrInsert_UsersNpvrMark(nDomainID, int.Parse(sSiteGUID), sUDID, sAssetID, nGroupID, nPlayTime, duration, assetAction, isFirstPlay);
                         break;
                     case ePlayType.EPG:
                         CatalogDAL.UpdateOrInsert_UsersEpgMark(nDomainID, int.Parse(sSiteGUID), sUDID, int.Parse(sAssetID), nGroupID, nPlayTime, duration, assetAction, isFirstPlay);
