@@ -192,6 +192,7 @@
     <Compile Include="QueueObjects\MessageAnnouncementData.cs" />
     <Compile Include="QueueObjects\RecordingTaskData.cs" />
     <Compile Include="QueueObjects\UserNotificationData.cs" />
+    <Compile Include="QueueObjects\UserTaskData.cs" />
     <Compile Include="RecommendationEngine\RecommendationEngineResponse.cs" />
     <Compile Include="RecommendationEngine\RecommendationEngineResponseList.cs" />
     <Compile Include="RecommendationEngine\RecommendationEngineSettinsResponse.cs" />

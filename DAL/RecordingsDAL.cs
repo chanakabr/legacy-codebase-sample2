@@ -1111,5 +1111,17 @@ namespace DAL
             return dt;
         }
 
+
+        public static bool UpdateDomainSeriesRecordingsUserId(int groupId, List<long> domainSeriesIdsToUpdate, string masterUserId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateDomainSeriesRecordingsUserId");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddIDListParameter("@domainSeriesIds", domainSeriesIdsToUpdate, "ID");
+            sp.AddParameter("@UserId", masterUserId);
+            int res = sp.ExecuteReturnValue<int>();
+
+            return res > 0;
+        }
     }
 }
