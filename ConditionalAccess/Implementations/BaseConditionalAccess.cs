@@ -18857,7 +18857,7 @@ namespace ConditionalAccess
             SeriesRecording seriesRecording = new SeriesRecording();
             try
             {
-                if (epgId > 0 && seasonNumber > 0)
+                if (epgId <= 0 || seasonNumber <= 0)
                 {
                     log.ErrorFormat("can't get epgid and season number, DomainID: {0}, UserID: {1}, domainSeriesRecordingId: {2}", domainId, userId, domainSeriesRecordingId);
                     seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
