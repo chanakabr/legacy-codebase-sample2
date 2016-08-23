@@ -1136,7 +1136,27 @@ namespace DAL
             }
 
             return idFromTable;
-        }      
-    }
-    
+        }
+
+        public static DataSet GetSubscriptionPossibleChannels(int groupId, long subscriptionId)
+        {
+            StoredProcedure sp_GetSubscriptionPossibleChannels = new StoredProcedure("GetSubscriptionPossibleChannels");
+            sp_GetSubscriptionPossibleChannels.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp_GetSubscriptionPossibleChannels.AddParameter("@GroupID", groupId);
+            sp_GetSubscriptionPossibleChannels.AddParameter("@SubscriptionId", subscriptionId);
+
+            return sp_GetSubscriptionPossibleChannels.ExecuteDataSet();
+        }
+
+        public static DataSet GetSubscriptionPossibleFileTypes(int groupId, long subscriptionId)
+        {
+            StoredProcedure sp_GetSubscriptionPossibleChannels = new StoredProcedure("GetSubscriptionPossibleFileTypes");
+            sp_GetSubscriptionPossibleChannels.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp_GetSubscriptionPossibleChannels.AddParameter("@GroupID", groupId);
+            sp_GetSubscriptionPossibleChannels.AddParameter("@SubscriptionId", subscriptionId);
+
+            return sp_GetSubscriptionPossibleChannels.ExecuteDataSet();
+        }
+
+    }    
 }
