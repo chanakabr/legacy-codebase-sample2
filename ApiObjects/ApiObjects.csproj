@@ -334,7 +334,7 @@
     <Compile Include="Rules\PurchaseSettingsResponse.cs" />
     <Compile Include="Rules\RegistryResponse.cs" />
     <Compile Include="Rules\RegistrySettings.cs" />
-    <Compile Include="TimeShiftedTv\UserRecording.cs" />
+    <Compile Include="TimeShiftedTv\Recording.cs" />
     <Compile Include="TimeShiftedTv\HandleDomainQuataByRecordingTask.cs" />
     <Compile Include="Scheduling.cs" />
     <Compile Include="SearchDefinitionObject.cs" />
@@ -375,7 +375,7 @@
     <Compile Include="TimeShiftedTv\DomainQuotaResponse.cs" />
     <Compile Include="TimeShiftedTv\DomainSeriesRecording.cs" />
     <Compile Include="TimeShiftedTv\QuotaManagementModel.cs" />
-    <Compile Include="TimeShiftedTv\Recording.cs" />
+    <Compile Include="TimeShiftedTv\UserRecording.cs" />
     <Compile Include="TimeShiftedTv\RecordingCB.cs" />
     <Compile Include="TimeShiftedTv\RecordingResponse.cs" />
     <Compile Include="TimeShiftedTv\RecordResult.cs" />
