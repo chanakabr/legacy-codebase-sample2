@@ -19693,5 +19693,45 @@ namespace ConditionalAccess
                 return false;
             }
         }
+
+
+        public ApiObjects.Response.Status HandleUserTask(int domainId, string userId, UserTaskType actionType)
+        {
+            ApiObjects.Response.Status result = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            ConditionalAccess.TvinciDomains.Domain domain;
+            ApiObjects.Response.Status status = Utils.ValidateDomain(m_nGroupID, domainId, out domain);
+            if (status == null)
+            {
+                log.ErrorFormat("Failed to validate domain = {0}", domainId);
+                return result;
+            }
+            if (status.Code != (int)eResponseStatus.OK)
+            {
+                log.ErrorFormat("Failed to validate domain = {0}, code = {1}, message = {2}", domainId, status.Code, status.Message);
+                return status;
+            }
+
+            switch (actionType)
+            {
+                case UserTaskType.Delete:
+                    {
+                        if (domain != null && domain.m_masterGUIDs != null && domain.m_masterGUIDs.Length > 0)
+                        {
+                            if (Utils.UpdateDomainSeriesRecordingsUserToMaster(m_nGroupID, domainId, userId, domain.m_masterGUIDs[0].ToString()) &&
+                                Utils.UpdateScheduledRecordingsUserToMaster(m_nGroupID, domainId, userId, domain.m_masterGUIDs[0].ToString()))
+                                result = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        }
+                        else
+                        {
+                            log.ErrorFormat("domain without master user. DomainId = {0}", domainId);
+                        }
+                    }
+                    break;
+            }
+
+            return result;
+        }
+
     }
 }

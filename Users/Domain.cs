@@ -26,6 +26,8 @@ namespace Users
     public class Domain
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private const string SCHEDULED_TASKS_ROUTING_KEY = "PROCESS_USER_TASK\\{0}";
+
 
         //Name of the Domain       
         public string m_sName;
@@ -613,6 +615,11 @@ namespace Users
 
                 if (rowsAffected > 0)
                 {
+                    // send message to update data of the user in the domain (like series recordings, entitlements)
+                    var queue = new QueueWrapper.GenericCeleryQueue();
+                    ApiObjects.QueueObjects.UserTaskData message = new ApiObjects.QueueObjects.UserTaskData(nGroupID, UserTaskType.Delete, nUserID.ToString(), nDomainID);
+                    queue.Enqueue(message, string.Format(SCHEDULED_TASKS_ROUTING_KEY, nGroupID));
+
                     SetDomainFlag(nDomainID, 1, false);
                     RemoveUserFromList(nUserID);
 

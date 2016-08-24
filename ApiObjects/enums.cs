@@ -735,4 +735,9 @@ namespace ApiObjects
         CreateDateAsc = 0,
         CreateDateDesc = 1
     }
+
+    public enum UserTaskType
+    {
+        Delete = 0
+    }
 }
