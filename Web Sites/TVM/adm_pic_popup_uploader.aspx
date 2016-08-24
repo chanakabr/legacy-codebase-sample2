@@ -42,7 +42,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td class='adm_table_header_nbg' nowrap><span class="red">*&nbsp;&nbsp;</span>Pic LInk</td>
+                    <td class='adm_table_header_nbg' nowrap><span class="red">*&nbsp;&nbsp;</span>Pic Link</td>
                     <td class="align1">
                         <asp:TextBox ID="txtPicLink" runat="server" Width="300" MaxLength="128"></asp:TextBox>
                     </td>
