@@ -1123,5 +1123,17 @@ namespace DAL
 
             return res > 0;
         }
+
+        public static bool UpdateDomainScheduledRecordingsUserId(int groupId, List<long> domainSceduledIdsToUpdate, string masterUserId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateDomainScheduledRecordingsUserId");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddIDListParameter("@domainRecordingIds", domainSceduledIdsToUpdate, "ID");
+            sp.AddParameter("@UserId", masterUserId);
+            int res = sp.ExecuteReturnValue<int>();
+
+            return res > 0;
+        }
     }
 }

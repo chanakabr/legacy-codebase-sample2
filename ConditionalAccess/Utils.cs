@@ -4913,7 +4913,7 @@ namespace ConditionalAccess
             return DomainRecordingIdToRecordingMap;
         }
 
-        internal static Dictionary<long, Recording> GetDomainRecordingsByTstvRecordingStatuses(int groupID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses)
+        internal static Dictionary<long, Recording> GetDomainRecordingsByTstvRecordingStatuses(int groupID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses, bool withUser = false)
         {
             Dictionary<long, Recording> DomainRecordingIdToRecordingMap = null;
             List<DomainRecordingStatus> domainRecordingStatuses = ConvertToDomainRecordingStatus(recordingStatuses);
@@ -4931,6 +4931,10 @@ namespace ConditionalAccess
                         if (domainRecording != null && domainRecording.Status != null && domainRecording.Status.Code == (int)eResponseStatus.OK
                             && !DomainRecordingIdToRecordingMap.ContainsKey(domainRecordingID) && recordingStatuses.Contains(domainRecording.RecordingStatus))
                         {
+                            if (withUser)
+                            {
+                                domainRecording = new UserRecording(domainRecording, ODBCWrapper.Utils.GetSafeStr(dr, "USER_ID"));
+                            }
                             DomainRecordingIdToRecordingMap.Add(domainRecordingID, domainRecording);
                         }
                     }
@@ -5111,6 +5115,7 @@ namespace ConditionalAccess
                 string externalRecordingId = ODBCWrapper.Utils.GetSafeStr(dr, "EXTERNAL_RECORDING_ID");
                 string crid = ODBCWrapper.Utils.GetSafeStr(dr, "CRID");
                 RecordingType recordingType = (RecordingType)ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_TYPE");
+                string userId = ODBCWrapper.Utils.GetSafeStr(dr, "USER_ID");
 
                 if (!recordingStatus.HasValue)
                 {
@@ -5149,7 +5154,8 @@ namespace ConditionalAccess
                     RecordingStatus = recordingStatus.Value,
                     ExternalRecordingId = externalRecordingId,
                     Crid = crid,
-                    Type = recordingType
+                    Type = recordingType,
+
                 };
 
                 // if recording status is Recorded then set ViewableUntilDate
@@ -6225,6 +6231,66 @@ namespace ConditionalAccess
             return DomainRecordingIdToRecordingMap;
         }
 
+
+        public static bool UpdateDomainSeriesRecordingsUserToMaster(int groupId, int domainId, string userId, string masterUserId)
+        {
+            bool result = false;
+            // update domain series recordings to master user
+            var domainSeriesDs = RecordingsDAL.GetDomainSeriesRecordings(groupId, domainId);
+            var domainSeries = GetDomainSeriesRecordingFromDataSet(domainSeriesDs);
+
+            if (domainSeries != null && domainSeries.Count > 0)
+            {
+                List<long> domainSeriesIdsToUpdate = domainSeries.Where(s => s.UserId == userId).Select(s => s.Id).ToList();
+                if (domainSeriesIdsToUpdate != null)
+                {
+                    result = RecordingsDAL.UpdateDomainSeriesRecordingsUserId(groupId, domainSeriesIdsToUpdate, masterUserId);
+                    if (!result)
+                    {
+                        log.ErrorFormat("Failed to update DomainSeriesRecordings to master user after deleting user = {0}, domainId = {1}", userId, domainId);
+                    }
+                    else
+                    {
+                        log.DebugFormat("Successfully updated DomainSeriesRecordings to master user after deleting user = {0}, domainId = {1}, masterUserId = {2}", userId, domainId, masterUserId);
+                    }
+                }
+            }
+            else
+            {
+                return true;
+            }
+
+            return result;
+        }
+
+        public static bool UpdateScheduledRecordingsUserToMaster(int groupId, int domainId, string userId, string masterUserId)
+        {
+            bool result = false;
+            var domainScheduledRecordings = GetDomainRecordingsByTstvRecordingStatuses(groupId, domainId, new List<TstvRecordingStatus> { TstvRecordingStatus.Scheduled }, true);
+
+            if (domainScheduledRecordings != null && domainScheduledRecordings.Count > 0)
+            {
+                List<long> domainSceduledIdsToUpdate = domainScheduledRecordings.Where(r => ((UserRecording)r.Value).UserId == userId).Select(r => r.Key).ToList();
+                if (domainSceduledIdsToUpdate != null)
+                {
+                    result = RecordingsDAL.UpdateDomainScheduledRecordingsUserId(groupId, domainSceduledIdsToUpdate, masterUserId);
+                    if (!result)
+                    {
+                        log.ErrorFormat("Failed to update domain scheduled recordings to master user after deleting user = {0}, domainId = {1}", userId, domainId);
+                    }
+                    else
+                    {
+                        log.DebugFormat("Successfully updated domain scheduled recordings to master user after deleting user = {0}, domainId = {1}, masterUserId = {2}", userId, domainId, masterUserId);
+                    }
+                }
+            }
+            else
+            {
+                return true;
+            }
+
+            return result;
+        }
     }
 }
 

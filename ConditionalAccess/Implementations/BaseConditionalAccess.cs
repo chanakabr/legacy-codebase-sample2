@@ -19716,8 +19716,16 @@ namespace ConditionalAccess
             {
                 case UserTaskType.Delete:
                     {
-                        if (UpdateDomainSeriesRecordingsUserToMaster(domainId, userId, domain.m_masterGUIDs[0].ToString()))
-                            result = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        if (domain != null && domain.m_masterGUIDs != null && domain.m_masterGUIDs.Length > 0)
+                        {
+                            if (Utils.UpdateDomainSeriesRecordingsUserToMaster(m_nGroupID, domainId, userId, domain.m_masterGUIDs[0].ToString()) &&
+                                Utils.UpdateScheduledRecordingsUserToMaster(m_nGroupID, domainId, userId, domain.m_masterGUIDs[0].ToString()))
+                                result = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        }
+                        else
+                        {
+                            log.ErrorFormat("domain without master user. DomainId = {0}", domainId);
+                        }
                     }
                     break;
             }
@@ -19725,31 +19733,5 @@ namespace ConditionalAccess
             return result;
         }
 
-        public bool UpdateDomainSeriesRecordingsUserToMaster(int domainId, string userId, string masterUserId)
-        {
-            bool result = false;
-            // update domain series recordings to master user
-            var domainSeriesDs = RecordingsDAL.GetDomainSeriesRecordings(m_nGroupID, domainId);
-            var domainSeries = Utils.GetDomainSeriesRecordingFromDataSet(domainSeriesDs);
-
-            if (domainSeries != null && domainSeries.Count > 0)
-            {
-                List<long> domainSeriesIdsToUpdate = domainSeries.Where(s => s.UserId == userId).Select(s => s.Id).ToList();
-                if (domainSeriesIdsToUpdate != null)
-                {
-                    result = RecordingsDAL.UpdateDomainSeriesRecordingsUserId(m_nGroupID, domainSeriesIdsToUpdate, masterUserId);
-                    if (!result) 
-                    {
-                        log.ErrorFormat("Failed to update DomainSeriesRecordings to master user after deleting user = {0}, domainId = {1}", userId, domainId);
-                    }
-                }
-            }
-            else
-            {
-                return true;
-            }
-
-            return result;
-        }
     }
 }
