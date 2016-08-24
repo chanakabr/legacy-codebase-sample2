@@ -1150,12 +1150,63 @@ namespace DAL
 
         public static DataSet GetSubscriptionPossibleFileTypes(int groupId, long subscriptionId)
         {
-            StoredProcedure sp_GetSubscriptionPossibleChannels = new StoredProcedure("GetSubscriptionPossibleFileTypes");
-            sp_GetSubscriptionPossibleChannels.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp_GetSubscriptionPossibleChannels.AddParameter("@GroupID", groupId);
-            sp_GetSubscriptionPossibleChannels.AddParameter("@SubscriptionId", subscriptionId);
+            StoredProcedure sp_GetSubscriptionPossibleFileTypes = new StoredProcedure("GetSubscriptionPossibleFileTypes");
+            sp_GetSubscriptionPossibleFileTypes.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp_GetSubscriptionPossibleFileTypes.AddParameter("@GroupID", groupId);
+            sp_GetSubscriptionPossibleFileTypes.AddParameter("@SubscriptionId", subscriptionId);
 
-            return sp_GetSubscriptionPossibleChannels.ExecuteDataSet();
+            return sp_GetSubscriptionPossibleFileTypes.ExecuteDataSet();
+        }
+
+        public static DataSet GetCategoriesPossibleChannels(int groupId, long categoryId)
+        {
+            StoredProcedure sp_GetCategoriesPossibleChannels = new StoredProcedure("GetCategoriesPossibleChannels");
+            sp_GetCategoriesPossibleChannels.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp_GetCategoriesPossibleChannels.AddParameter("@GroupID", groupId);
+            sp_GetCategoriesPossibleChannels.AddParameter("@CategoryId", categoryId);
+
+            return sp_GetCategoriesPossibleChannels.ExecuteDataSet();
+        }
+
+        public static bool InsertChannelToCategory(int groupId, int updaterId, long categoryId, long channelId)
+        {
+            ODBCWrapper.StoredProcedure sp_InsertChannelToCategory = new ODBCWrapper.StoredProcedure("InsertChannelToCategory");
+            sp_InsertChannelToCategory.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp_InsertChannelToCategory.AddParameter("@GroupID", groupId);
+            sp_InsertChannelToCategory.AddParameter("@UpdaterId", updaterId);
+            sp_InsertChannelToCategory.AddParameter("@CategoryId", categoryId);
+            sp_InsertChannelToCategory.AddParameter("@ChannelId", channelId);
+
+            int updatedRows = sp_InsertChannelToCategory.ExecuteReturnValue<int>();
+
+            return updatedRows == 1;
+        }
+
+        public static bool RemoveChannelFromCategory(int updaterId, long categoryId, long channelId)
+        {
+            ODBCWrapper.StoredProcedure sp_RemoveChannelFromCategory = new ODBCWrapper.StoredProcedure("RemoveChannelFromCategory");
+            sp_RemoveChannelFromCategory.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp_RemoveChannelFromCategory.AddParameter("@UpdaterId", updaterId);
+            sp_RemoveChannelFromCategory.AddParameter("@CategoryId", categoryId);
+            sp_RemoveChannelFromCategory.AddParameter("@ChannelId", channelId);
+
+            int updatedRows = sp_RemoveChannelFromCategory.ExecuteReturnValue<int>();
+
+            return updatedRows == 1;
+        }
+
+        public static bool UpdateChannelOrderNumInCategory(int updaterId, long categoryId, long channelId, int orderNum)
+        {
+            ODBCWrapper.StoredProcedure sp_UpdateChannelOrderNumInCategory = new ODBCWrapper.StoredProcedure("UpdateChannelOrderNumInCategory");
+            sp_UpdateChannelOrderNumInCategory.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp_UpdateChannelOrderNumInCategory.AddParameter("@UpdaterId", updaterId);
+            sp_UpdateChannelOrderNumInCategory.AddParameter("@CategoryId", categoryId);
+            sp_UpdateChannelOrderNumInCategory.AddParameter("@ChannelId", channelId);
+            sp_UpdateChannelOrderNumInCategory.AddParameter("@@OrderNum", orderNum);
+
+            int updatedRows = sp_UpdateChannelOrderNumInCategory.ExecuteReturnValue<int>();
+
+            return updatedRows == 1;
         }
 
     }    
