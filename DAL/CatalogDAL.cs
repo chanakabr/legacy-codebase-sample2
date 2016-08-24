@@ -620,7 +620,7 @@ namespace Tvinci.Core.DAL
             // because it is a live, constant, "endless" stream
             if (!isLinearChannel || (isLinearChannel && isFirstPlay))
             {
-                while (limitRetries >= 0 || !success)
+                while (limitRetries >= 0 && !success)
                 {
                     shouldUpdateLocation = UpdateOrInsert_UsersMediaMarkOrHit(mediaHitsManager, sUDID, ref limitRetries, r, mmKey, ref success, dev, finishedPercentThreshold);
                 }
@@ -633,7 +633,7 @@ namespace Tvinci.Core.DAL
                 limitRetries = RETRY_LIMIT;
                 success = false;
 
-                while (limitRetries >= 0 || !success)
+                while (limitRetries >= 0 && !success)
                 {
                     UpdateOrInsert_UsersMediaMarkOrHit(mediaMarksManager, sUDID, ref limitRetries, r, mmKey, ref success, dev, 0);
                 }
@@ -2289,6 +2289,7 @@ namespace Tvinci.Core.DAL
             int fileDuration, string action, bool isFirstPlay = false, int finishedPercent = 95)
         {
             var mediaMarkManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
+            var mediaHitManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
             var domainMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.DOMAIN_CONCURRENCY);
 
             int limitRetries = RETRY_LIMIT;
@@ -2344,13 +2345,20 @@ namespace Tvinci.Core.DAL
 
             limitRetries = RETRY_LIMIT;
 
+            bool success = false;
+
             if (isFirstPlay)
             {
-                bool success = false;
-                while (limitRetries >= 0 || !success)
+                while (limitRetries >= 0 && !success)
                 {
                     UpdateOrInsert_UsersMediaMarkOrHit(mediaMarkManager, sUDID, ref limitRetries, r, mmKey, ref success, userMediaMark);
                 }
+            }
+
+            success = false;
+            while (limitRetries >= 0 && !success)
+            {
+                UpdateOrInsert_UsersMediaMarkOrHit(mediaHitManager, sUDID, ref limitRetries, r, mmKey, ref success, userMediaMark);
             }
         }
 
