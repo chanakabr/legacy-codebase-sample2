@@ -2301,10 +2301,11 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static void UpdateOrInsert_UsersNpvrMark(int nDomainID, int nSiteUserGuid, string sUDID, string sAssetID, int nGroupID, int nLoactionSec, 
+        public static void UpdateOrInsert_UsersNpvrMark(int nDomainID, int nSiteUserGuid, string sUDID, string sAssetID, int nGroupID, int nLoactionSec,
             int fileDuration, string action, bool isFirstPlay = false, int finishedPercent = 95)
         {
             var mediaMarkManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
+            var mediaHitManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
             var domainMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.DOMAIN_CONCURRENCY);
 
             int limitRetries = RETRY_LIMIT;
@@ -2328,7 +2329,7 @@ namespace Tvinci.Core.DAL
                 FileDuration = fileDuration,
                 AssetTypeId = (int)eAssetTypes.NPVR
             };
-            
+
             while (limitRetries >= 0)
             {
                 bool res = UpdateDomainConcurrency(sUDID, domainMarksManager, docKey, dev);
@@ -2360,13 +2361,20 @@ namespace Tvinci.Core.DAL
 
             limitRetries = RETRY_LIMIT;
 
+            bool success = false;
+
             if (isFirstPlay)
             {
-                bool success = false;
                 while (limitRetries >= 0 && !success)
                 {
                     UpdateOrInsert_UsersMediaMarkOrHit(mediaMarkManager, sUDID, ref limitRetries, r, mmKey, ref success, userMediaMark);
                 }
+            }
+
+            success = false;
+            while (limitRetries >= 0 && !success)
+            {
+                UpdateOrInsert_UsersMediaMarkOrHit(mediaHitManager, sUDID, ref limitRetries, r, mmKey, ref success, userMediaMark);
             }
         }
 
