@@ -734,19 +734,7 @@ namespace TVinciShared
         {
             // true in case image server is in use
             //------------------------------------
-            bool isDownloadPicWithImageServer = false;
-
-            string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
-            sUseQueue = sUseQueue.ToLower();
-            if (sUseQueue.Equals("true"))
-            {
-                if (!WS_Utils.IsGroupIDContainedInConfig(LoginManager.GetLoginGroupID(), "USE_OLD_IMAGE_SERVER", ';'))
-                {
-                    isDownloadPicWithImageServer = true;
-                }
-            }
-
-            return isDownloadPicWithImageServer;
+            return !WS_Utils.IsGroupIDContainedInConfig(LoginManager.GetLoginGroupID(), "USE_OLD_IMAGE_SERVER", ';');
         }
 
         public static string GetEpgPicImageUrl(string epgChannelId, out int picId)
