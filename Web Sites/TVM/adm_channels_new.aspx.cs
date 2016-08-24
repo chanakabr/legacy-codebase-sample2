@@ -36,16 +36,16 @@ public partial class adm_channels_new : System.Web.UI.Page
                 {
                     int loginGroupID = LoginManager.GetLoginGroupID();
                     //Update MediaType if its new channel
-                    if (Session["media_type_ids"] != null && Session["media_type_ids"] is List<int>)
+                    if (Session["asset_type_ids"] != null && Session["asset_type_ids"] is List<int>)
                     {
-                        List<int> updatedMediaType = Session["media_type_ids"] as List<int>;
+                        List<int> updatedMediaType = Session["asset_type_ids"] as List<int>;
                         InsertChannelMediaType(updatedMediaType, nId, loginGroupID);
-                        Session["media_type_ids"] = null;
+                        Session["asset_type_ids"] = null;
                     }
 
                     //Update channel at Lucene/ ES
 
-                    result = ImporterImpl.UpdateChannel(loginGroupID, new List<int>() { nId }, ApiObjects.eAction.Update);
+                    result = ImporterImpl.UpdateChannelIndex(loginGroupID, new List<int>() { nId }, ApiObjects.eAction.Update);
                 }
                 return;
             }
@@ -714,14 +714,14 @@ public partial class adm_channels_new : System.Web.UI.Page
         }
         else
         {
-            // save media type id values to associate with cjannel (after get channelId)
+            // save media type id values to associate with channel (after get channelId)
             List<int> mediaTypeList = new List<int>();
-            if (Session["media_type_ids"] != null && Session["media_type_ids"] is List<int>)
+            if (Session["asset_type_ids"] != null && Session["asset_type_ids"] is List<int>)
             {
-                mediaTypeList = Session["media_type_ids"] as List<int>;
+                mediaTypeList = Session["asset_type_ids"] as List<int>;
             }
             mediaTypeList.Add(mediaTypeID);
-            Session["media_type_ids"] = mediaTypeList;
+            Session["asset_type_ids"] = mediaTypeList;
 
         }
         return "";
@@ -737,7 +737,7 @@ public partial class adm_channels_new : System.Web.UI.Page
         bool inserted = TvmDAL.InsertChannelMediaType(groupID, channelID, mediaTypeIDs);
         if (inserted)
         {
-            bool result = ImporterImpl.UpdateChannel(groupID, new List<int>() { channelID }, ApiObjects.eAction.Update);
+            bool result = ImporterImpl.UpdateChannelIndex(groupID, new List<int>() { channelID }, ApiObjects.eAction.Update);
         }
     }
 
@@ -746,7 +746,7 @@ public partial class adm_channels_new : System.Web.UI.Page
         bool updated = TvmDAL.UpdateChannelMediaType(channelMediaTypeID, status, groupID, channelID);
         if (updated)
         {
-            bool result = ImporterImpl.UpdateChannel(groupID, new List<int>() { channelID }, ApiObjects.eAction.Update);
+            bool result = ImporterImpl.UpdateChannelIndex(groupID, new List<int>() { channelID }, ApiObjects.eAction.Update);
         }
     }
 
