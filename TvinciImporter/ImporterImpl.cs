@@ -1830,23 +1830,23 @@ namespace TvinciImporter
                 return 0;
             }
 
-            string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
-            if (!string.IsNullOrEmpty(sUseQueue) && sUseQueue.ToLower().Equals("true"))
+            // use old/or image queue
+            if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, "USE_OLD_IMAGE_SERVER", ';'))
             {
-                // use old/new image server
-                if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, "USE_OLD_IMAGE_SERVER", ';'))
+                string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
+                if (!string.IsNullOrEmpty(sUseQueue) && sUseQueue.ToLower().Equals("true"))
                 {
                     return DownloadEPGPicToQueue(sThumb, sName, nGroupID, nEPGSchedID, nChannelID, ratioID);
                 }
                 else
                 {
-                    return DownloadEPGPicToImageServer(sThumb, sName, nGroupID, nChannelID, ratioID);
+                    return DownloadEPGPicToUploader(sThumb, sName, nGroupID, nEPGSchedID, nChannelID, ratioID);
                 }
-
             }
             else
             {
-                return DownloadEPGPicToUploader(sThumb, sName, nGroupID, nEPGSchedID, nChannelID, ratioID);
+                // use new image server
+                return DownloadEPGPicToImageServer(sThumb, sName, nGroupID, nChannelID, ratioID);
             }
         }
 
@@ -2418,49 +2418,53 @@ namespace TvinciImporter
 
         static public Int32 DownloadPic(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID, List<string> ratioSize = null)
         {
-            string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
-            if (!string.IsNullOrEmpty(sUseQueue) && sUseQueue.ToLower().Equals("true"))
+
+            if (string.IsNullOrEmpty(sPic))
             {
-                if (string.IsNullOrEmpty(sPic))
-                {
-                    log.Debug("File download - picture name is empty. mediaID: " + nMediaID.ToString());
-                    return 0;
-                }
+                log.Debug("File download - picture name is empty. mediaID: " + nMediaID.ToString());
+                return 0;
+            }
 
-                int picId = 0;
+            int picId = 0;
 
-                // use old/new image server
-                if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, "USE_OLD_IMAGE_SERVER", ';'))
+            // use old/or image queue
+            if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, "USE_OLD_IMAGE_SERVER", ';'))
+            {
+                string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
+                if (!string.IsNullOrEmpty(sUseQueue) && sUseQueue.ToLower().Equals("true"))
                 {
                     picId = DownloadPicToQueue(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID, ratioSize);
+
                 }
                 else
                 {
-                    picId = DownloadPicToImageServer(sPic, sMediaName, nGroupID, nMediaID, sMainLang, bSetMediaThumb, ratioID, eAssetImageType.Media);
+                    return DownloadPicToUploader(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID);
                 }
-
-                if (picId > 0)
-                {
-                    IngestionUtils.M2MHandling("ID", "", "", "", "ID", "tags", "pics_tags", "pic_id", "tag_id", "true", sMainLang, sMediaName, nGroupID, picId, false);
-                    if (bSetMediaThumb == true)
-                    {
-                        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_PIC_ID", "=", picId);
-                        updateQuery += " where ";
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaID);
-                        updateQuery.Execute();
-                        updateQuery.Finish();
-                        updateQuery = null;
-                    }
-                }
-
-                return picId;
-
             }
             else
             {
-                return DownloadPicToUploader(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID);
+                // use new image server
+                picId = DownloadPicToImageServer(sPic, sMediaName, nGroupID, nMediaID, sMainLang, bSetMediaThumb, ratioID, eAssetImageType.Media);
+
             }
+
+            if (picId > 0)
+            {
+                IngestionUtils.M2MHandling("ID", "", "", "", "ID", "tags", "pics_tags", "pic_id", "tag_id", "true", sMainLang, sMediaName, nGroupID, picId, false);
+                if (bSetMediaThumb == true)
+                {
+                    ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_PIC_ID", "=", picId);
+                    updateQuery += " where ";
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaID);
+                    updateQuery.Execute();
+                    updateQuery.Finish();
+                    updateQuery = null;
+                }
+            }
+
+            return picId;
+
         }
 
         static public Int32 DownloadPicToUploader(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID)
