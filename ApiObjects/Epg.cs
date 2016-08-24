@@ -126,6 +126,40 @@ namespace ApiObjects
             Crid = string.Empty;
         }
 
+
+        public EpgCB(EpgCB epgCb)
+        {
+            this.EpgID = epgCb.EpgID;
+            this.EpgIdentifier = epgCb.EpgIdentifier;
+            this.isActive = epgCb.isActive;
+            this.Status = epgCb.Status;
+            this.Type = "epg";
+            this.CreateDate = epgCb.CreateDate;
+            this.UpdateDate = epgCb.UpdateDate;
+            this.PicUrl = epgCb.PicUrl;
+            this.PicID = epgCb.PicID;
+            this.GroupID = epgCb.GroupID;
+            this.ParentGroupID = epgCb.ParentGroupID;
+            this.ChannelID = epgCb.ChannelID;
+            this.Name = epgCb.Name;
+            this.Description = epgCb.Description;
+            this.StartDate = epgCb.StartDate;
+            this.EndDate = epgCb.EndDate;
+            this.CoGuid = epgCb.CoGuid;
+            this.BasicData = epgCb.BasicData;
+            this.Statistics = epgCb.Statistics;
+            this.ExtraData = epgCb.ExtraData;
+            this.Metas = new Dictionary<string,List<string>>(epgCb.Metas);
+            this.Tags = new Dictionary<string,List<string>>(epgCb.Tags);
+            this.Language = epgCb.Language;
+            this.pictures = epgCb.pictures;
+            this.EnableCDVR = epgCb.EnableCDVR;
+            this.EnableCatchUp = epgCb.EnableCatchUp;
+            this.EnableStartOver = epgCb.EnableStartOver;
+            this.EnableTrickPlay = epgCb.EnableTrickPlay;
+            this.Crid = epgCb.Crid;
+        }
+
               
         public bool Equals(EpgCB obj)
         {

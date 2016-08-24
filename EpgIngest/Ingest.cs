@@ -268,9 +268,10 @@ namespace EpgIngest
                     #region Name  With languages
                     foreach (title name in prog.title)
                     {
+                        EpgCB newEpgItemLang = new EpgCB(newEpgItem);
                         language = name.lang.ToLower();
-                        newEpgItem.Name = name.Value;
-                        dEpgCbTranslate.Add(language, newEpgItem);
+                        newEpgItemLang.Name = name.Value;
+                        dEpgCbTranslate.Add(language, newEpgItemLang);
 
                         if (language == m_Channels.mainlang.ToLower())
                         {
@@ -291,8 +292,9 @@ namespace EpgIngest
                             }
                             else
                             {
-                                newEpgItem.Description = description.Value;
-                                dEpgCbTranslate.Add(language, newEpgItem);
+                                EpgCB newEpgItemLang = new EpgCB(newEpgItem);
+                                newEpgItemLang.Description = description.Value;
+                                dEpgCbTranslate.Add(language, newEpgItemLang);
                             }
                         }
                     }
