@@ -9,9 +9,14 @@ using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Web.UI.HtmlControls;
 using TVinciShared;
+using System.Collections.Generic;
+using DAL;
+using System.Reflection;
+using KLogMonitor;
 
 public partial class adm_categories_channels : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected void Page_Load(object sender, EventArgs e)
@@ -47,20 +52,6 @@ public partial class adm_categories_channels : System.Web.UI.Page
     protected void GetSubMenu()
     {
         Response.Write(m_sSubMenu);
-    }
-
-    public string GetTableCSV()
-    {
-        string sOldOrderBy = "";
-        if (Session["order_by"] != null)
-            sOldOrderBy = Session["order_by"].ToString();
-        DBTableWebEditor theTable = new DBTableWebEditor(true, true, false, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
-        FillTheTableEditor(ref theTable, sOldOrderBy);
-
-        string sCSVFile = theTable.OpenCSV();
-        theTable.Finish();
-        theTable = null;
-        return sCSVFile;
     }
 
     public void GetBackButton()
@@ -106,108 +97,199 @@ public partial class adm_categories_channels : System.Web.UI.Page
             sRet = "Categories Channels: Root";
         return sRet;
 
-    }
-
-    protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
-    {
-        Int32 nGroupID = LoginManager.GetLoginGroupID();
-        string sGroups = PageUtils.GetAllGroupTreeStr(nGroupID);
-
-        Int32 nCategoryID = 0;
-        if (Session["category_id"] != null && Session["category_id"].ToString() != "" && Session["category_id"].ToString() != "0")
-            nCategoryID = int.Parse(Session["category_id"].ToString());
-
-        theTable += "select q.order_num,q.status,q.c_id as 'Channel ID',q.s_id as 'ID',p.base_url as 'Pic',q.NAME as 'Name',q.description as 'Description',q.channel_type as 'Channel Type',q.s_desc as 'State' from (select lct.description as 'channel_type',cc.order_num as 'order_num',c.PIC_ID as 'pic_id',cc.status,c.ADMIN_NAME as 'NAME',c.DESCRIPTION as 'Description',c.id as 'c_id',cc.id as 's_id',lcs.description as 's_desc' from lu_channel_type lct,channels c,categories_channels cc,lu_content_status lcs";
-        theTable += "where c.is_active=1 and cc.channel_id=c.id and lct.id=c.CHANNEL_TYPE and cc.status=1 and c.status=1 and lcs.id=c.status ";
-        theTable += "and ";
-        theTable += ODBCWrapper.Parameter.NEW_PARAM("cc.category_id", "=", int.Parse(Session["category_id"].ToString()));
-        theTable += "and c.group_id " + sGroups;
-        theTable += " )q LEFT JOIN pics p ON p.id=q.pic_id and " + PageUtils.GetStatusQueryPart("p");
-        if (sOrderBy != "")
-        {
-            theTable += " order by ";
-            theTable += sOrderBy;
-        }
-        else
-            theTable += " order by q.order_num,q.s_id desc";
-        theTable.AddHiddenField("status");
-        theTable.AddOrderByColumn("Name", "q.NAME");
-        //theTable.AddOrderByColumn("ID", "q.s_id");
-        theTable.AddHiddenField("ID");
-        theTable.AddOrderByColumn("Channel ID", "q.c_id");
-        theTable.AddImageField("Pic");
-        theTable.AddTechDetails("categories_channels");
-        theTable.AddOrderNumField("categories_channels", "id", "order_num", "Order Number");
-        theTable.AddHiddenField("order_num");
-
-        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.REMOVE))
-        {
-            DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_remove.aspx", "Delete", "STATUS=1;STATUS=3");
-            linkColumn.AddQueryStringValue("id", "field=id");
-            linkColumn.AddQueryStringValue("table", "categories_channels");
-            linkColumn.AddQueryStringValue("confirm", "true");
-            linkColumn.AddQueryStringValue("main_menu", "6");
-            linkColumn.AddQueryStringValue("sub_menu", "2");
-            linkColumn.AddQueryStringValue("rep_field", "NAME");
-            linkColumn.AddQueryStringValue("rep_name", "ων");
-            theTable.AddLinkColumn(linkColumn);
-        }
-
-        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH))
-        {
-            DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Confirm", "STATUS=3;STATUS=4");
-            linkColumn.AddQueryStringValue("id", "field=id");
-            linkColumn.AddQueryStringValue("table", "categories_channels");
-            linkColumn.AddQueryStringValue("confirm", "true");
-            linkColumn.AddQueryStringValue("main_menu", "6");
-            linkColumn.AddQueryStringValue("sub_menu", "2");
-            linkColumn.AddQueryStringValue("rep_field", "NAME");
-            linkColumn.AddQueryStringValue("rep_name", "ων");
-            theTable.AddLinkColumn(linkColumn);
-        }
-
-        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH))
-        {
-            DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Cancel", "STATUS=3;STATUS=4");
-            linkColumn.AddQueryStringValue("id", "field=id");
-            linkColumn.AddQueryStringValue("table", "categories_channels");
-            linkColumn.AddQueryStringValue("confirm", "false");
-            linkColumn.AddQueryStringValue("main_menu", "6");
-            linkColumn.AddQueryStringValue("sub_menu", "2");
-            linkColumn.AddQueryStringValue("rep_field", "NAME");
-            linkColumn.AddQueryStringValue("rep_name", "ων");
-            theTable.AddLinkColumn(linkColumn);
-        }
-    }
-
-    public string GetPageContent(string sOrderBy, string sPageNum)
-    {
-        string sOldOrderBy = "";
-        if (Session["order_by"] != null)
-            sOldOrderBy = Session["order_by"].ToString();
-        DBTableWebEditor theTable = new DBTableWebEditor(true, true, false, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
-        FillTheTableEditor(ref theTable, sOrderBy);
-
-        Int32 nCategoryID = 0;
-        //GetFirstCategoryValues(ref sCatName, ref nCategoryID);
-        if (Session["category_id"] != null && Session["category_id"].ToString() != "" && Session["category_id"].ToString() != "0")
-            nCategoryID = int.Parse(Session["category_id"].ToString());
-        string sTable = theTable.GetPageHTML(int.Parse(sPageNum), sOrderBy, "adm_groups.aspx?category_id=" + nCategoryID.ToString());
-        Session["LastContentPage"] = "adm_categories.aspx?category_id=" + nCategoryID.ToString();
-        theTable.Finish();
-        theTable = null;
-        return sTable;
-    }
+    }    
 
     public void GetHeader()
     {
         Response.Write(PageUtils.GetPreHeader() + ": " + GetWhereAmIStr());
     }
 
-    public void GetCahannelsIFrame()
+    public string changeItemStatus(string id, string sAction)
     {
-        string sRet = "<IFRAME SRC=\"admin_tree_player.aspx";
-        sRet += "\" WIDTH=\"800px\" HEIGHT=\"300px\" FRAMEBORDER=\"0\"></IFRAME>";
-        Response.Write(sRet);
+        long categoryId = 0;
+        if (Session["category_id"] == null || Session["category_id"].ToString() == "" || !long.TryParse(Session["category_id"].ToString(), out categoryId) || categoryId <= 0)
+        {
+            LoginManager.LogoutFromSite("index.html");
+            return "";
+        }
+
+        HashSet<long> includedChannelsHashset = new HashSet<long>();
+        HashSet<long> availableChannelsHashset = new HashSet<long>();
+        if (Session["includedChannels"] != null && Session["availableChannels"] != null)
+        {
+            includedChannelsHashset = (HashSet<long>)Session["includedChannels"];
+            availableChannelsHashset = (HashSet<long>)Session["availableChannels"];
+        }
+        
+        long channelId;
+        if (long.TryParse(id, out channelId))
+        {
+            int updaterId = LoginManager.GetLoginID();
+            if (includedChannelsHashset.Contains(channelId))
+            {
+                if (!TvmDAL.RemoveChannelFromCategory(updaterId, categoryId, channelId))
+                {
+                    log.ErrorFormat("Failed removing channel {0} from category {1}", channelId, categoryId);
+                }
+            }
+            else
+            {
+                int groupId = LoginManager.GetLoginGroupID();                
+                if (!TvmDAL.InsertChannelToCategory(groupId, updaterId, categoryId, channelId))
+                {
+                    log.ErrorFormat("Failed inserting channel {0} to category {1}", channelId, categoryId);
+                }
+            }
+        }
+
+        return "";
+    }
+
+    public string changeItemOrder(string id, string updatedOrderNum)
+    {
+        long categoryId = 0;
+        if (Session["category_id"] == null || Session["category_id"].ToString() == "" || !long.TryParse(Session["category_id"].ToString(), out categoryId) || categoryId <= 0)
+        {
+            LoginManager.LogoutFromSite("index.html");
+            return "";
+        }
+        
+        long channelId;
+        int orderNum;
+        if (long.TryParse(id, out channelId) && int.TryParse(updatedOrderNum, out orderNum))
+        {
+            int updaterId = LoginManager.GetLoginID();
+            if (!TvmDAL.UpdateChannelOrderNumInCategory(updaterId, categoryId, channelId, orderNum))
+            {
+                log.ErrorFormat("Failed updating channel {0} orderNum value to: {1} on category {2}", channelId, orderNum, categoryId);
+            }
+        }
+
+        return "";
+    }
+
+    private void updateChannelOrderNumInCategory(long categoryId, long channelId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public string initDualObj()
+    {
+        long categoryId = 0;
+        if (Session["category_id"] == null || Session["category_id"].ToString() == "" || !long.TryParse(Session["category_id"].ToString(), out categoryId) || categoryId <= 0)
+        {
+            LoginManager.LogoutFromSite("index.html");
+            return "";
+        }
+
+        Dictionary<string, object> dualList = new Dictionary<string, object>();
+        dualList.Add("FirstListTitle", "Channels included in category");
+        dualList.Add("FirstListWithOrderByButtons", true);
+        dualList.Add("SecondListTitle", "Available Channels");
+
+        object[] resultData = null;
+        List<object> categoryChannelsData = new List<object>();
+        Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
+        DataSet ds = TvmDAL.GetCategoriesPossibleChannels(nLogedInGroupID, categoryId);
+        HashSet<long> includedChannelsHashset = new HashSet<long>();
+        HashSet<long> availableChannelsHashset = new HashSet<long>();        
+        if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
+        {
+            DataTable availableChannels = ds.Tables[0];
+            DataTable channelsIncludedInCategory = ds.Tables[1];
+            List<KeyValuePair<long, int>> categoryChannelsMap = new List<KeyValuePair<long,int>>();
+            HashSet<long> channelsInCategory = new HashSet<long>();
+            Dictionary<long, CategoryChannel> channelsToOrder = new Dictionary<long,CategoryChannel>();
+            if (channelsIncludedInCategory != null && channelsIncludedInCategory.Rows != null)
+            {
+                foreach (DataRow dr in channelsIncludedInCategory.Rows)
+                {
+                    long channelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "CHANNEL_ID", 0);
+                    int orderNum = ODBCWrapper.Utils.GetIntSafeVal(dr, "ORDER_NUM");
+                    if (channelId > 0 && !channelsInCategory.Contains(channelId))
+                    {
+                        categoryChannelsMap.Add(new KeyValuePair<long, int>(channelId, orderNum));
+                        channelsInCategory.Add(channelId);
+                    }
+                }                
+            }
+            
+            if (availableChannels != null && availableChannels.Rows != null)
+            {
+                foreach (DataRow dr in availableChannels.Rows)
+                {
+                    long channelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
+                    string groupName = ODBCWrapper.Utils.GetSafeStr(dr, "GROUP_NAME");
+                    string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
+                    string adminName = ODBCWrapper.Utils.GetSafeStr(dr, "ADMIN_NAME");
+
+                    string title = adminName;
+                    if (string.IsNullOrEmpty(title) && !string.IsNullOrEmpty(name))
+                    {
+                        title = string.Format("{0} - {1}", channelId, name);
+                    }
+
+                    title += "(" + groupName + ")";
+                    if (channelsInCategory.Contains(channelId))
+                    {
+                        CategoryChannel categoryChannel = new CategoryChannel()
+                        {
+                            ID = channelId,
+                            Title = title,
+                            Description = title,
+                            InList = true,
+                            OrderNum = 0
+                        };
+
+                        channelsToOrder.Add(channelId, categoryChannel);
+                        includedChannelsHashset.Add(channelId);
+                    }
+                    else
+                    {
+                        
+                        var data = new
+                        {
+                            ID = channelId.ToString(),
+                            Title = title,
+                            Description = title,
+                            InList = false
+                        };
+
+                        categoryChannelsData.Add(data);
+                        availableChannelsHashset.Add(channelId);
+                    }
+                }
+
+                foreach (KeyValuePair<long, int> pair in categoryChannelsMap)
+                {
+                    CategoryChannel categoryChannel = channelsToOrder[pair.Key];
+                    categoryChannel.OrderNum = pair.Value;                    
+                    categoryChannelsData.Add(categoryChannel);
+                }
+
+                Session["includedChannels"] = includedChannelsHashset;
+                Session["availableChannels"] = availableChannelsHashset;
+            }
+        }
+
+        resultData = new object[categoryChannelsData.Count];
+        resultData = categoryChannelsData.ToArray();
+
+        dualList.Add("Data", resultData);
+        dualList.Add("pageName", "adm_categories_channels.aspx");
+        dualList.Add("withCalendar", false);
+
+        return dualList.ToJSON();
+    }
+
+    public class CategoryChannel
+    {
+        public long ID { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public bool InList { get; set; }
+        public int OrderNum { get; set; }
+
+        public CategoryChannel() { }
     }
 }

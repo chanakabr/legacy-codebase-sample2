@@ -101,7 +101,21 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent, 
                     }
                     
                     if (WithOrderByButtons === true) {
-                        listLiItem.setAttribute("data-orderNum", items[i].OrderNum);
+                        if (toChangeStatus === true) {
+                            var liItems = listItems.children;
+                            var liItemsLength = liItems.length;
+                            if (liItemsLength > 0) {
+                                var lastItem = liItems[liItemsLength - 2];
+                                var lastItemOrderNum = lastItem.getAttribute("data-orderNum");
+                                lastItemOrderNum++;
+                                listLiItem.setAttribute("data-orderNum", lastItemOrderNum);
+                                listLiItem.innerHTML = listLiItem.innerHTML.replace("#undefined", "#" + lastItemOrderNum);
+                                listLiItem.innerHTML = listLiItem.innerHTML.replace("#undefined", "#" + lastItemOrderNum);
+                            }
+                        }
+                        else {
+                            listLiItem.setAttribute("data-orderNum", items[i].OrderNum);
+                        }
                         var moveUpIcon = document.createElement('a');
                         $(moveUpIcon).addClass('add-move-up-icon');
                         moveUpIcon.setAttribute('href', 'javascript:;');

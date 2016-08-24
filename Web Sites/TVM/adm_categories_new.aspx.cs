@@ -236,16 +236,6 @@ public partial class adm_categories_new : System.Web.UI.Page
         dr_parent_category_id.SetValue(nParentID.ToString());
         theRecord.AddRecord(dr_parent_category_id);
 
-        Int32 nGroupID = LoginManager.GetLoginGroupID();
-        string sGroups = PageUtils.GetAllGroupTreeStr(nGroupID);
-
-        DataRecordMultiField dr_channels = new DataRecordMultiField("channels", "id", "id", "categories_channels", "category_id", "channel_ID", false, "ltr", 60, "tags");
-        dr_channels.Initialize("Channels", "adm_table_header_nbg", "FormInput", "ADMIN_NAME", false);
-        string sQuery = "select ADMIN_NAME as txt,id as val from channels where WATCHER_ID=0 and status=1 and group_id " + sGroups;
-        sQuery += " order by ADMIN_NAME";
-        dr_channels.SetCollectionQuery(sQuery);
-        theRecord.AddRecord(dr_channels);
-
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
         dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());

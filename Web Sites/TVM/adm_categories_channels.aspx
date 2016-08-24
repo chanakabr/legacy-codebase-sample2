@@ -13,21 +13,30 @@
 <meta content="<% TVinciShared.PageUtils.GetKeyWords(); %>" name="Keywords" />
 <meta http-equiv="Pragma" content="no-cache" />
 <link href="css/styles-en.css" type="text/css" rel="stylesheet" />
+<link href="components/duallist/css/duallist.css" type="text/css" rel="stylesheet" />
+<script language="JavaScript" src="js/jquery-1.10.2.min.js" type="text/javascript"></script>
+<script language="JavaScript" src="js/jquery-placeholder.js" type="text/javascript"></script>
+<script src="https://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
 <script language="JavaScript" src="js/rs.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/adm_utils.js" type="text/javascript"></script>
-<script type="text/javascript">
-    function GetPageTable(orderBy , pageNum)
-    {
-        RS.Execute("adm_categories_channels.aspx", "GetPageContent", orderBy , pageNum , callback_page_content, errorCallback);
-    }
-    function create_csv()
-    {
-        RS.Execute("adm_categories_channels.aspx", "GetTableCSV" , callback_create_csv, errorCallback);
-    }
-</script>
+<script language="JavaScript" src="js/ajaxFuncs.js" type="text/javascript"></script>
+<script type="text/javascript" src="js/SWFObj.js" language="javascript"></script>
+<script type="text/javascript" src="js/WMPInterface.js" language="javascript"></script>
+<script type="text/javascript" src="js/WMPObject.js" language="javascript"></script>
+<script type="text/javascript" src="js/FlashUtils.js" language="javascript"></script>
+<script type="text/javascript" src="js/Player.js" language="javascript"></script>
+<script type="text/javascript" src="js/VGObject.js" language="javascript"></script>
+    <!-- dual list -->
+<script type="text/javascript" src="components/duallist/js/script.js"></script>
+<script type="text/javascript" src="components/duallist/js/info.js"></script>
+<script type="text/javascript" src="components/duallist/js/calender.js"></script>
+<script type="text/javascript" src="components/duallist/js/list.js"></script>
+<script type="text/javascript" src="components/duallist/js/duallist.js"></script>
+<!-- end dual list -->
+
 </head>
-<body class="admin_body" onload="GetPageTable('' , 0);">
-<form id="form1" name="form1" action="" method="post" runat=server>
+<body class="admin_body" onload="initDuallistObj('adm_categories_channels.aspx')">
+<form id="form1" name="form1" action="" method="post" runat="server">
 	<div class="floating_div" id="tag_collections_div"></div>
 	<table align=center cellpadding=0 cellspacing=0 class="admContainer">
 		<!-- top banner -->
@@ -99,17 +108,9 @@
 									</td>
 								</tr>
 								<tr>
-								    <td>
-										<div>
-											<table>
-												<tr>
-									                <td>
-									                    <% GetCahannelsIFrame(); %>
-									                </td>
-												</tr>
-											</table>
-										</div>
-									 </td>  
+									<td id="Td1">
+									    <div id="DualListPH"></div>
+									</td>
 								</tr>
 								<!-- content -->
 								<!--tr>
