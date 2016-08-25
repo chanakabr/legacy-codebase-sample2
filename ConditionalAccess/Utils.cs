@@ -6277,8 +6277,8 @@ namespace ConditionalAccess
 
                 if (epgIdsToGetFromDb.Count > 0)
                 {
-                    Dictionary<long, List<int>> epgsToFileIdsMap = ConditionalAccessDAL.GetEpgsToFileIdsMap(groupId, epgIdsToGetFromDb.ToList());                    
-                    if (epgIdsToGetFromDb != null)
+                    Dictionary<long, List<int>> epgsToFileIdsMap = ConditionalAccessDAL.GetEpgsToFileIdsMap(groupId, epgIdsToGetFromDb.ToList());
+                    if (epgsToFileIdsMap != null)
                     {
                         foreach (KeyValuePair<long, List<int>> epgFileIdDetails in epgsToFileIdsMap)
                         {
