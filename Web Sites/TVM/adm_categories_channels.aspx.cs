@@ -127,19 +127,32 @@ public partial class adm_categories_channels : System.Web.UI.Page
             int updaterId = LoginManager.GetLoginID();
             if (includedChannelsHashset.Contains(channelId))
             {
-                if (!TvmDAL.RemoveChannelFromCategory(updaterId, categoryId, channelId))
+                if (TvmDAL.RemoveChannelFromCategory(updaterId, categoryId, channelId))
+                {
+                    includedChannelsHashset.Remove(channelId);
+                    availableChannelsHashset.Add(channelId);
+                }
+                else
                 {
                     log.ErrorFormat("Failed removing channel {0} from category {1}", channelId, categoryId);
                 }
             }
             else
             {
-                int groupId = LoginManager.GetLoginGroupID();                
-                if (!TvmDAL.InsertChannelToCategory(groupId, updaterId, categoryId, channelId))
+                int groupId = LoginManager.GetLoginGroupID();
+                if (TvmDAL.InsertChannelToCategory(groupId, updaterId, categoryId, channelId))
+                {                    
+                    availableChannelsHashset.Remove(channelId);
+                    includedChannelsHashset.Add(channelId);
+                }
+                else
                 {
                     log.ErrorFormat("Failed inserting channel {0} to category {1}", channelId, categoryId);
                 }
             }
+
+            Session["includedChannels"] = includedChannelsHashset;
+            Session["availableChannels"] = availableChannelsHashset;
         }
 
         return "";
@@ -166,11 +179,6 @@ public partial class adm_categories_channels : System.Web.UI.Page
         }
 
         return "";
-    }
-
-    private void updateChannelOrderNumInCategory(long categoryId, long channelId)
-    {
-        throw new NotImplementedException();
     }
 
     public string initDualObj()
