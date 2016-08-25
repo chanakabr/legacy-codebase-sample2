@@ -37,7 +37,7 @@ namespace WebAPI.ObjectsConvertor
                         mediaAssetsStats = ClientsManager.CatalogClient().GetAssetsStats(groupId, string.Empty, mediaBaseListIds, KalturaAssetType.media);
 
                     // get EPG IDs for assets statistics
-                    List<int> epgBaseListIds = assetBaseList.Select(e => int.Parse(e.AssetId)).ToList();
+                    List<int> epgBaseListIds = assetBaseList.Where(m => m.AssetType == eAssetTypes.EPG).Select(e => int.Parse(e.AssetId)).ToList();
                     if (epgBaseListIds != null && epgBaseListIds.Count > 0)
                         epgAssetsStats = ClientsManager.CatalogClient().GetAssetsStats(groupId, string.Empty, epgBaseListIds, KalturaAssetType.epg);
                 }
