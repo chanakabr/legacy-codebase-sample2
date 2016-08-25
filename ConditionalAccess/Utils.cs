@@ -6231,6 +6231,87 @@ namespace ConditionalAccess
             return DomainRecordingIdToRecordingMap;
         }
 
+        internal static Dictionary<int, List<long>> GetFileIdsToEpgIdsMap(int groupId, List<long> epgIds)
+        {
+            Dictionary<int, List<long>> fileIdsToEpgMap = new Dictionary<int,List<long>>();
+            HashSet<long> epgIdsToGetFromDb = new HashSet<long>();
+            try
+            {
+                foreach (long epgId in epgIds)
+                {
+                    List<int> epgFileIds = null;
+                    string key = string.Format("Epg_{0}_FileIds", epgId);
+                    if (!TvinciCache.WSCache.Instance.TryGet(key, out epgFileIds))
+                    {
+                        lock (lck)
+                        {
+                            if (!TvinciCache.WSCache.Instance.TryGet(key, out epgFileIds))
+                            {
+                                log.DebugFormat("Getting Epg {0} file ids from DB", epgId);
+                                if (!epgIdsToGetFromDb.Contains(epgId))
+                                {
+                                    epgIdsToGetFromDb.Add(epgId);
+                                }                                
+                            }
+                        }
+                    }
+                    else if (epgFileIds == null)
+                    {
+                        log.ErrorFormat("Epg {0} FileIds list is null", epgId);
+                    }
+                    else
+                    {
+                        foreach (int fileId in epgFileIds)
+                        {
+                            if (fileIdsToEpgMap.ContainsKey(fileId))
+                            {
+                                fileIdsToEpgMap[fileId].Add(epgId);
+                            }
+                            else
+                            {
+                                fileIdsToEpgMap.Add(fileId, new List<long>() { epgId });
+                            }
+                        }
+                    }
+                }
+
+                if (epgIdsToGetFromDb.Count > 0)
+                {
+                    Dictionary<long, List<int>> epgsToFileIdsMap = ConditionalAccessDAL.GetEpgsToFileIdsMap(groupId, epgIdsToGetFromDb.ToList());                    
+                    if (epgIdsToGetFromDb != null)
+                    {
+                        foreach (KeyValuePair<long, List<int>> epgFileIdDetails in epgsToFileIdsMap)
+                        {
+                            long epgId = epgFileIdDetails.Key;
+                            List<int> epgFileIds = epgFileIdDetails.Value;
+                            foreach (int fileId in epgFileIds)
+                            {
+                                if (fileIdsToEpgMap.ContainsKey(fileId))
+                                {
+                                    fileIdsToEpgMap[fileId].Add(epgId);
+                                }
+                                else
+                                {
+                                    fileIdsToEpgMap.Add(fileId, new List<long>() { epgId });
+                                }
+                            }
+
+                            string key = string.Format("Epg_{0}_FileIds", epgId);
+                            TvinciCache.WSCache.Instance.Add(key, epgFileIds, 10);
+                        }
+                    }
+                }
+
+                log.DebugFormat("current fileIds returned from GetFileIdsToEpgIdsMap are: {0}", string.Join(",", fileIdsToEpgMap.Keys));
+            }
+
+            catch (Exception ex)
+            {
+                log.Error("GetFileIdsToEpgIdsMap - " + string.Format("Error in GetFileIdsToEpgIdsMap: groupID = {0}, epgIds: {1], ex.Message: {2}, ex.StackTrace: {3}", groupId, string.Join(",", epgIds), ex.Message, ex.StackTrace), ex);
+            }
+
+            return fileIdsToEpgMap;
+        }
 
         public static bool UpdateDomainSeriesRecordingsUserToMaster(int groupId, int domainId, string userId, string masterUserId)
         {

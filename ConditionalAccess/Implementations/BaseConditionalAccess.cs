@@ -17393,7 +17393,7 @@ namespace ConditionalAccess
             if (validEpgsForRecording != null && validEpgsForRecording.Count > 0)
             {
                 // get all fileIds from Epgs that are valid for recording
-                Dictionary<int, List<long>> fileIdsToEpgsMap = ConditionalAccessDAL.GetFileIdsToEpgIdsMap(m_nGroupID, validEpgsForRecording.Keys.ToList());
+                Dictionary<int, List<long>> fileIdsToEpgsMap = Utils.GetFileIdsToEpgIdsMap(m_nGroupID, validEpgsForRecording.Keys.ToList());
 
                 if (fileIdsToEpgsMap != null && fileIdsToEpgsMap.Count > 0)
                 {
@@ -19585,7 +19585,7 @@ namespace ConditionalAccess
                 if ((epgChannelLinearMedia != null && !epgChannelLinearMedia.EnableRecordingPlaybackNonEntitledChannel))
                 {
                     // get fileIds for epg 
-                    Dictionary<int, List<long>> fileIdsToEpgsMap = ConditionalAccessDAL.GetFileIdsToEpgIdsMap(m_nGroupID, new List<long>() { recording.EpgId });
+                    Dictionary<int, List<long>> fileIdsToEpgsMap = Utils.GetFileIdsToEpgIdsMap(m_nGroupID, new List<long>() { recording.EpgId });
                     if (fileIdsToEpgsMap == null || fileIdsToEpgsMap.Count == 0)
                     {
                         log.ErrorFormat("No files were found for the requested EPG. groupId = {0}, userId = {1}, domainId = {2}, domainRecordingId = {3}, epgId = {4}, recordingId = {5}",

@@ -2209,9 +2209,9 @@ namespace DAL
             return sp.ExecuteDataSet();            
         }
 
-        public static Dictionary<int, List<long>> GetFileIdsToEpgIdsMap(int groupId, List<long> epgIds)
+        public static Dictionary<long, List<int>> GetEpgsToFileIdsMap(int groupId, List<long> epgIds)
         {
-            Dictionary<int, List<long>> fileIdsToEpgMap = new Dictionary<int, List<long>>();
+            Dictionary<long, List<int>> epgToFileIdsMap = new Dictionary<long, List<int>>();
             ODBCWrapper.StoredProcedure spGet_Get_FilesByEpgIds = new ODBCWrapper.StoredProcedure("Get_FilesByEpgIds");
             spGet_Get_FilesByEpgIds.SetConnectionKey("MAIN_CONNECTION_STRING");
             spGet_Get_FilesByEpgIds.AddParameter("@GroupId", groupId);
@@ -2220,27 +2220,26 @@ namespace DAL
             DataTable dt = spGet_Get_FilesByEpgIds.Execute();
 
             if (dt != null && dt.Rows != null)
-            {
-                fileIdsToEpgMap = new Dictionary<int, List<long>>();
+            {                
                 foreach (DataRow dr in dt.Rows)
                 {
                     int fileId = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_file_id", 0);
                     long epgId = ODBCWrapper.Utils.GetIntSafeVal(dr, "epg_id", 0);
                     if (fileId > 0 && epgId > 0)
                     {
-                        if (fileIdsToEpgMap.ContainsKey(fileId))
+                        if (epgToFileIdsMap.ContainsKey(epgId))
                         {
-                            fileIdsToEpgMap[fileId].Add(epgId);
+                            epgToFileIdsMap[epgId].Add(fileId);
                         }
                         else
                         {
-                            fileIdsToEpgMap.Add(fileId, new List<long>() { epgId });
+                            epgToFileIdsMap.Add(epgId, new List<int>() { fileId });
                         }
                     }
                 }
             }
 
-            return fileIdsToEpgMap;
+            return epgToFileIdsMap;
         }
 
         private static CDVRAdapter CreateCDVRAdapter(DataSet ds)
