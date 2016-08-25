@@ -22,6 +22,7 @@ namespace EpgBL
         public abstract EpgCB GetEpgCB(ulong nProgramID);
         public abstract EpgCB GetEpgCB(ulong nProgramID, out ulong cas);
         public abstract List<EpgCB> GetEpgCB(ulong nProgramID, List<string> languages);
+        public abstract List<EPGChannelProgrammeObject> GetEpgCBsWithLanguage(List<ulong> programIDs, string language);
 
         public abstract ConcurrentDictionary<int, List<EPGChannelProgrammeObject>> GetMultiChannelProgramsDic(int nPageSize, int nStartIndex, List<int> lChannelIDs, DateTime fromDate, DateTime toDate);
         public abstract ConcurrentDictionary<int, List<EPGChannelProgrammeObject>> GetMultiChannelProgramsDicCurrent(int nNextTop, int nPrevTop, List<int> lChannelIDs);

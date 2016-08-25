@@ -306,6 +306,40 @@ namespace EpgBL
             }
         }
 
+        public override List<EPGChannelProgrammeObject> GetEpgCBsWithLanguage(List<ulong> programIDs, string language)
+        {
+            List<EPGChannelProgrammeObject> result = new List<EPGChannelProgrammeObject>();
+            
+            try
+            {
+                string docID = string.Empty;
+                List<string> docIDs = new List<string>();
+                //Build list of keys with language
+                foreach (ulong programId in programIDs)
+                {
+                    // default
+                    if (string.IsNullOrEmpty(language))
+                    {
+                        docID = programId.ToString();
+                    }
+                    else
+                    {
+                        docID = string.Format("epg_{0}_lang_{1}", programId, language.ToLower());
+                    }
+                    docIDs.Add(docID);
+
+                }
+                List<EpgCB> cbEpgs = m_oEpgCouchbase.GetProgram(docIDs);
+                result = ConvertEpgCBtoEpgProgramm(cbEpgs);
+            }
+            catch (Exception)
+            {
+                log.ErrorFormat("Failed to get EPGs from CB with lang = {0}", language);
+            }
+
+            return result;
+        }
+
         public override EpgCB GetEpgCB(ulong nProgramID, out ulong cas)
         {
             EpgCB oRes = m_oEpgCouchbase.GetProgram(nProgramID.ToString(), out cas);

@@ -736,5 +736,10 @@ namespace EpgBL
              return program;
          }*/
         #endregion
+
+        public override List<EPGChannelProgrammeObject> GetEpgCBsWithLanguage(List<ulong> programIDs, string language)
+        {
+            return new List<EPGChannelProgrammeObject>();
+        }
     }
 }

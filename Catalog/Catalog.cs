@@ -2666,25 +2666,38 @@ namespace Catalog
                 lEpgIDs.Add(pRequest.m_lProgramsIds[i]);
             }
 
-            BaseEpgBL epgBL = EpgBL.Utils.GetInstance(pRequest.m_nGroupID);            
-            List<EPGChannelProgrammeObject> lEpgProg = epgBL.GetEpgs(lEpgIDs);
+            LanguageObj lang = null;
+            string langCode = null;
+            if (pRequest.m_oFilter != null)
+            {
+                lang = GetLanguage(pRequest.m_nGroupID, pRequest.m_oFilter.m_nLanguage);
+            }
+
+            if (lang != null && !lang.IsDefault)
+            {
+                langCode = lang.Code;
+            }
+
+            BaseEpgBL epgBL = EpgBL.Utils.GetInstance(pRequest.m_nGroupID);
+            List<EPGChannelProgrammeObject> programs = epgBL.GetEpgCBsWithLanguage(lEpgIDs.Select(e => (ulong)e).ToList(), langCode);
+            
             // get all linear settings about channel + group
-            GetLinearChannelSettings(pRequest.m_nGroupID, lEpgProg);
+            GetLinearChannelSettings(pRequest.m_nGroupID, programs);
 
 
             EPGChannelProgrammeObject epgProg = null;
 
             //keeping the original order and amount of items (some of the items might return as null)
-            if (pRequest.m_lProgramsIds != null && lEpgProg != null)
+            if (pRequest.m_lProgramsIds != null && programs != null)
             {
-                pResponse.m_nTotalItems = lEpgProg.Count;               
+                pResponse.m_nTotalItems = programs.Count;               
             }
 
             foreach (int nProgram in pRequest.m_lProgramsIds)
             {
-                if (lEpgProg.Exists(x => x.EPG_ID == nProgram))
+                if (programs.Exists(x => x.EPG_ID == nProgram))
                 {
-                    epgProg = lEpgProg.Find(x => x.EPG_ID == nProgram);
+                    epgProg = programs.Find(x => x.EPG_ID == nProgram);
                     oProgramObj = new ProgramObj();
                     oProgramObj.m_oProgram = epgProg;
                     oProgramObj.AssetId = epgProg.EPG_ID.ToString();
