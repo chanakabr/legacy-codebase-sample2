@@ -1202,7 +1202,7 @@ namespace DAL
             sp_UpdateChannelOrderNumInCategory.AddParameter("@UpdaterId", updaterId);
             sp_UpdateChannelOrderNumInCategory.AddParameter("@CategoryId", categoryId);
             sp_UpdateChannelOrderNumInCategory.AddParameter("@ChannelId", channelId);
-            sp_UpdateChannelOrderNumInCategory.AddParameter("@@OrderNum", orderNum);
+            sp_UpdateChannelOrderNumInCategory.AddParameter("@OrderNum", orderNum);
 
             int updatedRows = sp_UpdateChannelOrderNumInCategory.ExecuteReturnValue<int>();
 
