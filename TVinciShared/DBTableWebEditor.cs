@@ -1188,7 +1188,14 @@ namespace TVinciShared
                         }
                         if (sFileName != "" && sFileName != "-")
                         {
-                            if (ImageUtils.IsDownloadPicWithImageServer())
+                            int gid = 0;
+                            if (m_theDataTable.Columns.Contains("pic_group_id"))
+                            {
+                                if (m_theDataTable.DefaultView[pageIndx].Row["pic_group_id"] != DBNull.Value && m_theDataTable.DefaultView[pageIndx].Row["pic_group_id"] != null)
+                                    gid = int.Parse(m_theDataTable.DefaultView[pageIndx].Row["pic_group_id"].ToString());
+                            }
+
+                            if (ImageUtils.IsDownloadPicWithImageServer(gid))
                             {
                                 sTable.Append("<td>");
 

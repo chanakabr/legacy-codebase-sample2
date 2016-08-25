@@ -6231,6 +6231,91 @@ namespace ConditionalAccess
             return DomainRecordingIdToRecordingMap;
         }
 
+        internal static Dictionary<int, List<long>> GetFileIdsToEpgIdsMap(int groupId, Dictionary<long,string> epgToChannelMap)
+        {
+            Dictionary<int, List<long>> fileIdsToEpgMap = new Dictionary<int,List<long>>();
+            HashSet<long> epgIdsToGetFromDb = new HashSet<long>();
+            try
+            {
+                foreach (KeyValuePair<long, string> epgAndChannel in epgToChannelMap)
+                {
+                    List<int> channelFileIds = null;
+                    string key = string.Format("Channel_{0}_FileIds", epgAndChannel.Value);
+                    if (!TvinciCache.WSCache.Instance.TryGet(key, out channelFileIds))
+                    {
+                        lock (lck)
+                        {
+                            if (!TvinciCache.WSCache.Instance.TryGet(key, out channelFileIds))
+                            {
+                                log.DebugFormat("Getting Epg {0} file ids from DB", epgAndChannel.Key);
+                                if (!epgIdsToGetFromDb.Contains(epgAndChannel.Key))
+                                {
+                                    epgIdsToGetFromDb.Add(epgAndChannel.Key);
+                                }                                
+                            }
+                        }
+                    }
+                    else if (channelFileIds == null)
+                    {
+                        log.ErrorFormat("Channel {0} FileIds list is null", epgAndChannel.Value);
+                    }
+                    else
+                    {
+                        foreach (int fileId in channelFileIds)
+                        {
+                            if (fileIdsToEpgMap.ContainsKey(fileId))
+                            {
+                                fileIdsToEpgMap[fileId].Add(epgAndChannel.Key);
+                            }
+                            else
+                            {
+                                fileIdsToEpgMap.Add(fileId, new List<long>() { epgAndChannel.Key });
+                            }
+                        }
+                    }
+                }
+
+                if (epgIdsToGetFromDb.Count > 0)
+                {
+                    Dictionary<long, List<int>> epgsToFileIdsMap = ConditionalAccessDAL.GetEpgsToFileIdsMap(groupId, epgIdsToGetFromDb.ToList());
+                    if (epgsToFileIdsMap != null)
+                    {
+                        foreach (KeyValuePair<long, List<int>> epgFileIdDetails in epgsToFileIdsMap)
+                        {
+                            long epgId = epgFileIdDetails.Key;
+                            List<int> epgFileIds = epgFileIdDetails.Value;
+                            foreach (int fileId in epgFileIds)
+                            {
+                                if (fileIdsToEpgMap.ContainsKey(fileId))
+                                {
+                                    fileIdsToEpgMap[fileId].Add(epgId);
+                                }
+                                else
+                                {
+                                    fileIdsToEpgMap.Add(fileId, new List<long>() { epgId });
+                                }
+                            }
+
+                            string key = string.Format("Channel_{0}_FileIds", epgToChannelMap[epgId]);
+                            List<int> channelFileIds = null;
+                            if (!TvinciCache.WSCache.Instance.TryGet(key, out channelFileIds))
+                            {                                
+                                TvinciCache.WSCache.Instance.Add(key, epgFileIds, 10);
+                            }
+                        }
+                    }
+                }
+
+                log.DebugFormat("current fileIds returned from GetFileIdsToEpgIdsMap are: {0}", string.Join(",", fileIdsToEpgMap.Keys));
+            }
+
+            catch (Exception ex)
+            {
+                log.Error("GetFileIdsToEpgIdsMap - " + string.Format("Error in GetFileIdsToEpgIdsMap: groupID = {0}, epgIds: {1], ex.Message: {2}, ex.StackTrace: {3}", groupId, string.Join(",", epgToChannelMap.Keys), ex.Message, ex.StackTrace), ex);
+            }
+
+            return fileIdsToEpgMap;
+        }
 
         public static bool UpdateDomainSeriesRecordingsUserToMaster(int groupId, int domainId, string userId, string masterUserId)
         {
