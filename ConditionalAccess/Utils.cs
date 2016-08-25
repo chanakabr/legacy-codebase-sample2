@@ -6231,45 +6231,45 @@ namespace ConditionalAccess
             return DomainRecordingIdToRecordingMap;
         }
 
-        internal static Dictionary<int, List<long>> GetFileIdsToEpgIdsMap(int groupId, List<long> epgIds)
+        internal static Dictionary<int, List<long>> GetFileIdsToEpgIdsMap(int groupId, Dictionary<long,string> epgToChannelMap)
         {
             Dictionary<int, List<long>> fileIdsToEpgMap = new Dictionary<int,List<long>>();
             HashSet<long> epgIdsToGetFromDb = new HashSet<long>();
             try
             {
-                foreach (long epgId in epgIds)
+                foreach (KeyValuePair<long, string> epgAndChannel in epgToChannelMap)
                 {
-                    List<int> epgFileIds = null;
-                    string key = string.Format("Epg_{0}_FileIds", epgId);
-                    if (!TvinciCache.WSCache.Instance.TryGet(key, out epgFileIds))
+                    List<int> channelFileIds = null;
+                    string key = string.Format("Channel_{0}_FileIds", epgAndChannel.Value);
+                    if (!TvinciCache.WSCache.Instance.TryGet(key, out channelFileIds))
                     {
                         lock (lck)
                         {
-                            if (!TvinciCache.WSCache.Instance.TryGet(key, out epgFileIds))
+                            if (!TvinciCache.WSCache.Instance.TryGet(key, out channelFileIds))
                             {
-                                log.DebugFormat("Getting Epg {0} file ids from DB", epgId);
-                                if (!epgIdsToGetFromDb.Contains(epgId))
+                                log.DebugFormat("Getting Epg {0} file ids from DB", epgAndChannel.Key);
+                                if (!epgIdsToGetFromDb.Contains(epgAndChannel.Key))
                                 {
-                                    epgIdsToGetFromDb.Add(epgId);
+                                    epgIdsToGetFromDb.Add(epgAndChannel.Key);
                                 }                                
                             }
                         }
                     }
-                    else if (epgFileIds == null)
+                    else if (channelFileIds == null)
                     {
-                        log.ErrorFormat("Epg {0} FileIds list is null", epgId);
+                        log.ErrorFormat("Channel {0} FileIds list is null", epgAndChannel.Value);
                     }
                     else
                     {
-                        foreach (int fileId in epgFileIds)
+                        foreach (int fileId in channelFileIds)
                         {
                             if (fileIdsToEpgMap.ContainsKey(fileId))
                             {
-                                fileIdsToEpgMap[fileId].Add(epgId);
+                                fileIdsToEpgMap[fileId].Add(epgAndChannel.Key);
                             }
                             else
                             {
-                                fileIdsToEpgMap.Add(fileId, new List<long>() { epgId });
+                                fileIdsToEpgMap.Add(fileId, new List<long>() { epgAndChannel.Key });
                             }
                         }
                     }
@@ -6296,8 +6296,12 @@ namespace ConditionalAccess
                                 }
                             }
 
-                            string key = string.Format("Epg_{0}_FileIds", epgId);
-                            TvinciCache.WSCache.Instance.Add(key, epgFileIds, 10);
+                            string key = string.Format("Channel_{0}_FileIds", epgToChannelMap[epgId]);
+                            List<int> channelFileIds = null;
+                            if (!TvinciCache.WSCache.Instance.TryGet(key, out channelFileIds))
+                            {                                
+                                TvinciCache.WSCache.Instance.Add(key, epgFileIds, 10);
+                            }
                         }
                     }
                 }
@@ -6307,7 +6311,7 @@ namespace ConditionalAccess
 
             catch (Exception ex)
             {
-                log.Error("GetFileIdsToEpgIdsMap - " + string.Format("Error in GetFileIdsToEpgIdsMap: groupID = {0}, epgIds: {1], ex.Message: {2}, ex.StackTrace: {3}", groupId, string.Join(",", epgIds), ex.Message, ex.StackTrace), ex);
+                log.Error("GetFileIdsToEpgIdsMap - " + string.Format("Error in GetFileIdsToEpgIdsMap: groupID = {0}, epgIds: {1], ex.Message: {2}, ex.StackTrace: {3}", groupId, string.Join(",", epgToChannelMap.Keys), ex.Message, ex.StackTrace), ex);
             }
 
             return fileIdsToEpgMap;
