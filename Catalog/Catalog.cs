@@ -3956,6 +3956,9 @@ namespace Catalog
             object oCountryID = catalogCache.Get(ipKey);
             bool bIP = false;
             bool bMedia = false;
+
+            bool isValid = false;
+
             if (oCountryID != null)
             {
                 countryID = (int)oCountryID;
@@ -3970,12 +3973,14 @@ namespace Catalog
 
                 if (cdnID == -1 && qualityID == -1 && formatID == -1 && mediaTypeID == -1 && billingTypeID == -1 && fileDuration == -1)
                 {
-                    bMedia = false;
+                    isValid = false;
                 }
                 else
                 {
-                    bMedia = true;
+                    isValid = true;
                 }
+
+                bMedia = true;
             }
             #endregion
 
@@ -6900,7 +6905,6 @@ namespace Catalog
                     switch (filterStatus)
                     {
                         case eWatchStatus.Progress:
-
                         // remove all finished
                         unFilteredresult.RemoveAll(x => (x.Duration != 0) && (((float)x.Location / (float)x.Duration * 100) >= finishedPercent));
                         unFilteredresult.ForEach(x => x.IsFinishedWatching = false);
@@ -6927,10 +6931,6 @@ namespace Catalog
                         default:
                         break;
                     }
-
-                    //List<MediaMarkLog> sortedMediaMarksList =
-                    //    //mediaHitsDictionary.Values.OrderBy(x => x.LastMark.CreatedAt).ToList();
-                    //    unFilteredresult.ToList().OrderByDescending(x => x.LastMark.CreatedAt).ToList();
 
                     // filter asset types
                     if (assetTypes != null && assetTypes.Count > 0)
@@ -6961,13 +6961,23 @@ namespace Catalog
                             }
                         }
 
-                        var mediaHitsDictionary = mediaHitsManager.GetValues<MediaMarkLog>(keysToGetLocation, true, true);
-
-                        foreach (var currentResult in unFilteredresult)
+                        if (keysToGetLocation.Count > 0)
                         {
-                            string key = GetWatchHistoryCouchbaseKey(currentResult);
+                            var mediaHitsDictionary = mediaHitsManager.GetValues<MediaMarkLog>(keysToGetLocation, true, true);
 
-                            currentResult.Location = mediaHitsDictionary[key].LastMark.Location;
+                            if (mediaHitsDictionary != null && mediaHitsDictionary.Keys.Count() > 0)
+                            {
+                                foreach (var currentResult in unFilteredresult)
+                                {
+                                    string key = GetWatchHistoryCouchbaseKey(currentResult);
+
+                                    if (mediaHitsDictionary.ContainsKey(key))
+                                    {
+                                        currentResult.Location = mediaHitsDictionary[key].LastMark.Location;
+                                    }
+                                }
+                            }
+
                         }
                     }
 
@@ -6978,7 +6988,6 @@ namespace Catalog
 
                         unFilteredresult = unFilteredresult.OrderBy(x => x.LastWatch).ToList();
                         break;
-
                         case ApiObjects.SearchObjects.OrderDir.DESC:
                         case ApiObjects.SearchObjects.OrderDir.NONE:
                         default:
@@ -7002,7 +7011,6 @@ namespace Catalog
 
             return usersWatchHistory;
         }
-
         private static string GetWatchHistoryCouchbaseKey(WatchHistory currentResult)
         {
             string assetType = string.Empty;
