@@ -5774,10 +5774,10 @@ namespace TvinciImporter
                 #region Update Recordings (CAS)
 
                 // Update recordings only if we know that the dates have changed
-                //if (datesUpdates)
-                //{
-                //    //UpdateRecordingsOfEPGs(epgIds, groupId, action);
-                //}
+                if (datesUpdates)
+                {
+                    UpdateRecordingsOfEPGs(epgIds, groupId, action);
+                }
 
                 #endregion
             }
@@ -5884,56 +5884,45 @@ namespace TvinciImporter
         public static void UpdateRecordingsOfEPGs(List<ulong> epgIds, int groupId, ApiObjects.eAction action, string tcmKey = "conditionalaccess_ws")
         {
             try
-            {
-                TvinciImporter.WS_ConditionalAccess.module cas = new WS_ConditionalAccess.module();
-
+            {                
                 string sWSUserName = string.Empty;
                 string sWSPassword = string.Empty;
                 WS_Utils.GetWSCredentials(groupId, eWSModules.CONDITIONALACCESS.ToString(), ref sWSUserName, ref sWSPassword);
                 string casURL = TVinciShared.WS_Utils.GetTcmConfigValue(tcmKey);
 
-                if (!string.IsNullOrEmpty(casURL))
+                if (string.IsNullOrEmpty(sWSUserName) || string.IsNullOrEmpty(sWSPassword) || string.IsNullOrEmpty(casURL))
                 {
-                    cas.Url = casURL;
-
-                    WS_ConditionalAccess.eAction casAction = WS_ConditionalAccess.eAction.Update;
-
-                    switch (action)
-                    {
-                        case eAction.Off:
-                            casAction = WS_ConditionalAccess.eAction.Off;
-                            break;
-                        case eAction.On:
-                            casAction = WS_ConditionalAccess.eAction.On;
-                            break;
-                        case eAction.Update:
-                            casAction = WS_ConditionalAccess.eAction.Update;
-                            break;
-                        case eAction.Delete:
-                            casAction = WS_ConditionalAccess.eAction.Delete;
-                            break;
-                        case eAction.Rebuild:
-                            casAction = WS_ConditionalAccess.eAction.Rebuild;
-                            break;
-                        default:
-                            break;
-                    }
-
-                    cas.IngestRecordingAsync(sWSUserName, sWSPassword, epgIds.Select(i => (long)i).ToArray(), casAction);
-                    log.DebugFormat("cas.IngestRecordingAsync has been called for epgIds {0}", string.Join(", ", epgIds.Select(x => x.ToString()).ToArray()));
-                    cas.Url = casURL;
-
-                    var status = cas.IngestRecording(sWSUserName, sWSPassword, epgIds.Select(i => (long)i).ToArray(), casAction);
-
-                    if (status == null)
-                    {
-                        log.Error("ImporterImpl - Update Recording returned empty status");
-                    }
-                    else if (status.Code != (int)ApiObjects.Response.eResponseStatus.OK)
-                    {
-                        log.ErrorFormat("ImporterImpl - Update Recording did not finish successfully: code = {0}, message = {1}", status.Code, status.Message);
-                    }
+                    log.ErrorFormat("Failed UpdateRecordingsOfEPGs, sWSUserName/sWSPassword/casURL is invalid for epgIds: {0}", string.Join(",", epgIds));
+                    return;
                 }
+
+                TvinciImporter.WS_ConditionalAccess.module cas = new WS_ConditionalAccess.module();
+                cas.Url = casURL;
+                WS_ConditionalAccess.eAction casAction = WS_ConditionalAccess.eAction.Update;
+
+                switch (action)
+                {
+                    case eAction.Off:
+                        casAction = WS_ConditionalAccess.eAction.Off;
+                        break;
+                    case eAction.On:
+                        casAction = WS_ConditionalAccess.eAction.On;
+                        break;
+                    case eAction.Update:
+                        casAction = WS_ConditionalAccess.eAction.Update;
+                        break;
+                    case eAction.Delete:
+                        casAction = WS_ConditionalAccess.eAction.Delete;
+                        break;
+                    case eAction.Rebuild:
+                        casAction = WS_ConditionalAccess.eAction.Rebuild;
+                        break;
+                    default:
+                        break;
+                }
+
+                cas.IngestRecordingAsync(sWSUserName, sWSPassword, epgIds.Select(i => (long)i).ToArray(), casAction);
+                log.DebugFormat("cas.IngestRecordingAsync has been called for epgIds {0}", string.Join(", ", epgIds.Select(x => x.ToString()).ToArray()));
             }
             catch (Exception ex)
             {
