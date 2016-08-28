@@ -125,7 +125,8 @@
 	            <div class="find"><b class="top"><b></b></b>
 		            <!-- -->
 		            <label for="seach">Free:
-		            <input name='pics_tag_coll' id='pics_tag_coll' name="" type="text" onkeyup='return tagKeyPress("tags" , "media_tags" , "VALUE" , "adm_table_header_nbg" , "(c.id in(select distinct tag_id from media_tags where status=1) )" , "pics_tag" , "");'/>
+		            <input name='pics_tag_coll' id='pics_tag_coll' name="" type="text" />
+                     <%--   onkeyup='return tagKeyPress("tags" , "media_tags" , "VALUE" , "adm_table_header_nbg" , "(c.id in(select distinct tag_id from media_tags where status=1) )" , "pics_tag" , "");'/>--%>
 		            </label>
 		            <a href="javascript:SearchPics();" class="btn_search"></a>
 		            <!-- -->

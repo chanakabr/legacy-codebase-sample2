@@ -4,6 +4,29 @@
     <s:schema elementFormDefault="qualified" targetNamespace="http://api.tvinci.com/">
       <s:import namespace="http://api.tvinci.com/schemas/eAssetTypes1" />
       <s:import namespace="http://api.tvinci.com/schemas/EPGChannelProgrammeObject1" />
+      <s:element name="DeleteBulkExportTask">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="id" type="s:long" />
+            <s:element minOccurs="0" maxOccurs="1" name="externalKey" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteBulkExportTaskResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteBulkExportTaskResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="Status">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="GetBulkExportTasks">
         <s:complexType>
           <s:sequence>
@@ -82,12 +105,6 @@
       <s:complexType name="ArrayOfInt">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="unbounded" name="int" type="s:int" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="Status">
-        <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:element name="Export">
@@ -198,6 +215,17 @@
           <s:element minOccurs="1" maxOccurs="1" name="Id" type="s:long" />
           <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
         </s:sequence>
+      </s:complexType>
+      <s:complexType name="ApiParameterPermissionItem">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PermissionItem">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="Object" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="Parameter" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="Action" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
       </s:complexType>
       <s:complexType name="ApiActionPermissionItem">
         <s:complexContent mixed="false">
@@ -669,7 +697,8 @@
           <s:element minOccurs="1" maxOccurs="1" name="RecordingLifetimePeriod" nillable="true" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="CleanupNoticePeroid" nillable="true" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="IsSeriesRecordingEnabled" nillable="true" type="s:boolean" />
-          <s:element minOccurs="1" maxOccurs="1" name="IsRecordingPlaybackEnabled" nillable="true" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsRecordingPlaybackNonEntitledChannelEnabled" nillable="true" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsRecordingPlaybackNonExistingChannelEnabled" nillable="true" type="s:boolean" />
         </s:sequence>
       </s:complexType>
       <s:element name="UpdateTimeShiftedTvPartnerSettings">
@@ -928,6 +957,58 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="1" maxOccurs="1" name="MigrateStatisticsResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetScheduledTaskLastRun">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="scheduledTaskType" type="tns:ScheduledTaskType" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:simpleType name="ScheduledTaskType">
+        <s:restriction base="s:string">
+          <s:enumeration value="recordingsLifetime" />
+          <s:enumeration value="recordingsScheduledTasks" />
+          <s:enumeration value="recordingsCleanup" />
+          <s:enumeration value="notificationCleanup" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="GetScheduledTaskLastRunResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetScheduledTaskLastRunResult" type="tns:ScheduledTaskLastRunDetails" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ScheduledTaskLastRunDetails" abstract="true">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="1" maxOccurs="1" name="LastRunDate" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="EstimatedNextRunDate" nillable="true" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="ImpactedItemsOnLastRun" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="NextRunIntervalInSeconds" type="s:double" />
+          <s:element minOccurs="1" maxOccurs="1" name="ScheduledTaskType" type="tns:ScheduledTaskType" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="BaseScheduledTaskLastRunDetails">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:ScheduledTaskLastRunDetails" />
+        </s:complexContent>
+      </s:complexType>
+      <s:element name="UpdateScheduledTaskNextRunIntervalInSeconds">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="scheduledTaskType" type="tns:ScheduledTaskType" />
+            <s:element minOccurs="1" maxOccurs="1" name="nextRunIntervalInSeconds" type="s:double" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateScheduledTaskNextRunIntervalInSecondsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateScheduledTaskNextRunIntervalInSecondsResult" type="s:boolean" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1949,6 +2030,31 @@
           <s:enumeration value="MEDIA" />
         </s:restriction>
       </s:simpleType>
+      <s:element name="SearchAssets">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="filter" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="pageIndex" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="pageSize" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="OnlyIsActive" type="s:boolean" />
+            <s:element minOccurs="1" maxOccurs="1" name="languageID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="UseStartDate" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="Udid" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="UserIP" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="SiteGuid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="DomainId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SearchAssetsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SearchAssetsResult" type="tns:ArrayOfUnifiedSearchResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="GetAvailableFileTypes">
         <s:complexType>
           <s:sequence>
@@ -2342,13 +2448,14 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="ChangedPinMailRequest">
+      <s:complexType name="AddUserMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGuid" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sRuleName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewFirstName" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -2423,14 +2530,25 @@
           <s:extension base="tns:PurchaseMailRequest" />
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="AddUserMailRequest">
+      <s:complexType name="CinepolisPurchaseMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ChangedPinMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewFirstName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGuid" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sRuleName" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -2441,18 +2559,6 @@
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="CinepolisPurchaseMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -3218,9 +3324,16 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="externalRegionList" type="tns:ArrayOfString" />
+            <s:element minOccurs="1" maxOccurs="1" name="orderBy" type="tns:RegionOrderBy" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:simpleType name="RegionOrderBy">
+        <s:restriction base="s:string">
+          <s:enumeration value="CreateDateAsc" />
+          <s:enumeration value="CreateDateDesc" />
+        </s:restriction>
+      </s:simpleType>
       <s:element name="GetRegionsResponse">
         <s:complexType>
           <s:sequence>
@@ -3857,6 +3970,7 @@
               <s:element minOccurs="0" maxOccurs="1" name="AdapterUrl" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="ExternalIdentifier" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="SharedSecret" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="SkipSettings" type="s:boolean" />
               <s:element minOccurs="0" maxOccurs="1" name="Settings" type="tns:ArrayOfOSSAdapterSettings" />
             </s:sequence>
           </s:extension>
@@ -4133,6 +4247,7 @@
           <s:element minOccurs="0" maxOccurs="1" name="ExternalIdentifier" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="SharedSecret" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="Settings" type="tns:ArrayOfRecommendationEngineSettings" />
+          <s:element minOccurs="1" maxOccurs="1" name="SkipSettings" type="s:boolean" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ArrayOfRecommendationEngineSettings">
@@ -4488,25 +4603,8 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="DeleteBulkExportTask">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="id" type="s:long" />
-            <s:element minOccurs="0" maxOccurs="1" name="externalKey" type="s:string" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="DeleteBulkExportTaskResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="DeleteBulkExportTaskResult" type="tns:Status" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="boolean" type="s:boolean" />
       <s:element name="Status" nillable="true" type="tns:Status" />
+      <s:element name="boolean" type="s:boolean" />
       <s:element name="KSQLChannelResponse" nillable="true" type="tns:KSQLChannelResponse" />
       <s:element name="KSQLChannelResponseList" nillable="true" type="tns:KSQLChannelResponseList" />
       <s:element name="OSSAdapterEntitlementsResponse" nillable="true" type="tns:OSSAdapterEntitlementsResponse" />
@@ -4516,6 +4614,7 @@
       <s:element name="CDNAdapterListResponse" nillable="true" type="tns:CDNAdapterListResponse" />
       <s:element name="CDNAdapterResponse" nillable="true" type="tns:CDNAdapterResponse" />
       <s:element name="CDNPartnerSettingsResponse" nillable="true" type="tns:CDNPartnerSettingsResponse" />
+      <s:element name="ScheduledTaskLastRunDetails" nillable="true" type="tns:ScheduledTaskLastRunDetails" />
       <s:element name="ArrayOfEPGChannelObject" nillable="true" type="tns:ArrayOfEPGChannelObject" />
       <s:element name="AdminAccountUserResponse" nillable="true" type="tns:AdminAccountUserResponse" />
       <s:element name="string" nillable="true" type="s:string" />
@@ -4629,6 +4728,12 @@
       </s:complexType>
     </s:schema>
   </wsdl:types>
+  <wsdl:message name="DeleteBulkExportTaskSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteBulkExportTask" />
+  </wsdl:message>
+  <wsdl:message name="DeleteBulkExportTaskSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteBulkExportTaskResponse" />
+  </wsdl:message>
   <wsdl:message name="GetBulkExportTasksSoapIn">
     <wsdl:part name="parameters" element="tns:GetBulkExportTasks" />
   </wsdl:message>
@@ -4839,6 +4944,18 @@
   <wsdl:message name="MigrateStatisticsSoapOut">
     <wsdl:part name="parameters" element="tns:MigrateStatisticsResponse" />
   </wsdl:message>
+  <wsdl:message name="GetScheduledTaskLastRunSoapIn">
+    <wsdl:part name="parameters" element="tns:GetScheduledTaskLastRun" />
+  </wsdl:message>
+  <wsdl:message name="GetScheduledTaskLastRunSoapOut">
+    <wsdl:part name="parameters" element="tns:GetScheduledTaskLastRunResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateScheduledTaskNextRunIntervalInSecondsSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateScheduledTaskNextRunIntervalInSeconds" />
+  </wsdl:message>
+  <wsdl:message name="UpdateScheduledTaskNextRunIntervalInSecondsSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateScheduledTaskNextRunIntervalInSecondsResponse" />
+  </wsdl:message>
   <wsdl:message name="TVAPI_GetTvinciGUIDSoapIn">
     <wsdl:part name="parameters" element="tns:TVAPI_GetTvinciGUID" />
   </wsdl:message>
@@ -5006,6 +5123,12 @@
   </wsdl:message>
   <wsdl:message name="GetChannelAssetsSoapOut">
     <wsdl:part name="parameters" element="tns:GetChannelAssetsResponse" />
+  </wsdl:message>
+  <wsdl:message name="SearchAssetsSoapIn">
+    <wsdl:part name="parameters" element="tns:SearchAssets" />
+  </wsdl:message>
+  <wsdl:message name="SearchAssetsSoapOut">
+    <wsdl:part name="parameters" element="tns:SearchAssetsResponse" />
   </wsdl:message>
   <wsdl:message name="GetAvailableFileTypesSoapIn">
     <wsdl:part name="parameters" element="tns:GetAvailableFileTypes" />
@@ -5601,11 +5724,14 @@
   <wsdl:message name="UpdateBulkExportTaskSoapOut">
     <wsdl:part name="parameters" element="tns:UpdateBulkExportTaskResponse" />
   </wsdl:message>
-  <wsdl:message name="DeleteBulkExportTaskSoapIn">
-    <wsdl:part name="parameters" element="tns:DeleteBulkExportTask" />
+  <wsdl:message name="DeleteBulkExportTaskHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="id" type="s:string" />
+    <wsdl:part name="externalKey" type="s:string" />
   </wsdl:message>
-  <wsdl:message name="DeleteBulkExportTaskSoapOut">
-    <wsdl:part name="parameters" element="tns:DeleteBulkExportTaskResponse" />
+  <wsdl:message name="DeleteBulkExportTaskHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:message name="ExportHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -5785,6 +5911,19 @@
   <wsdl:message name="GetGroupDefaultCDNAdapterHttpPostOut">
     <wsdl:part name="Body" element="tns:CDNAdapterResponse" />
   </wsdl:message>
+  <wsdl:message name="GetScheduledTaskLastRunHttpPostIn">
+    <wsdl:part name="scheduledTaskType" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetScheduledTaskLastRunHttpPostOut">
+    <wsdl:part name="Body" element="tns:ScheduledTaskLastRunDetails" />
+  </wsdl:message>
+  <wsdl:message name="UpdateScheduledTaskNextRunIntervalInSecondsHttpPostIn">
+    <wsdl:part name="scheduledTaskType" type="s:string" />
+    <wsdl:part name="nextRunIntervalInSeconds" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="UpdateScheduledTaskNextRunIntervalInSecondsHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
   <wsdl:message name="InsertEPGScheduleHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -5876,6 +6015,23 @@
     <wsdl:part name="channelId" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetChannelAssetsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfUnifiedSearchResult" />
+  </wsdl:message>
+  <wsdl:message name="SearchAssetsHttpPostIn">
+    <wsdl:part name="username" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="filter" type="s:string" />
+    <wsdl:part name="pageIndex" type="s:string" />
+    <wsdl:part name="pageSize" type="s:string" />
+    <wsdl:part name="OnlyIsActive" type="s:string" />
+    <wsdl:part name="languageID" type="s:string" />
+    <wsdl:part name="UseStartDate" type="s:string" />
+    <wsdl:part name="Udid" type="s:string" />
+    <wsdl:part name="UserIP" type="s:string" />
+    <wsdl:part name="SiteGuid" type="s:string" />
+    <wsdl:part name="DomainId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SearchAssetsHttpPostOut">
     <wsdl:part name="Body" element="tns:ArrayOfUnifiedSearchResult" />
   </wsdl:message>
   <wsdl:message name="GetAvailableFileTypesHttpPostIn">
@@ -6546,16 +6702,11 @@
   <wsdl:message name="GetExternalChannelsHttpPostOut">
     <wsdl:part name="Body" element="tns:ExternalChannelResponseList" />
   </wsdl:message>
-  <wsdl:message name="DeleteBulkExportTaskHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="id" type="s:string" />
-    <wsdl:part name="externalKey" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="DeleteBulkExportTaskHttpPostOut">
-    <wsdl:part name="Body" element="tns:Status" />
-  </wsdl:message>
   <wsdl:portType name="APISoap">
+    <wsdl:operation name="DeleteBulkExportTask">
+      <wsdl:input message="tns:DeleteBulkExportTaskSoapIn" />
+      <wsdl:output message="tns:DeleteBulkExportTaskSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetBulkExportTasks">
       <wsdl:input message="tns:GetBulkExportTasksSoapIn" />
       <wsdl:output message="tns:GetBulkExportTasksSoapOut" />
@@ -6696,6 +6847,14 @@
       <wsdl:input message="tns:MigrateStatisticsSoapIn" />
       <wsdl:output message="tns:MigrateStatisticsSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetScheduledTaskLastRun">
+      <wsdl:input message="tns:GetScheduledTaskLastRunSoapIn" />
+      <wsdl:output message="tns:GetScheduledTaskLastRunSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateScheduledTaskNextRunIntervalInSeconds">
+      <wsdl:input message="tns:UpdateScheduledTaskNextRunIntervalInSecondsSoapIn" />
+      <wsdl:output message="tns:UpdateScheduledTaskNextRunIntervalInSecondsSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <wsdl:input message="tns:TVAPI_GetTvinciGUIDSoapIn" />
       <wsdl:output message="tns:TVAPI_GetTvinciGUIDSoapOut" />
@@ -6807,6 +6966,10 @@
     <wsdl:operation name="GetChannelAssets">
       <wsdl:input message="tns:GetChannelAssetsSoapIn" />
       <wsdl:output message="tns:GetChannelAssetsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SearchAssets">
+      <wsdl:input message="tns:SearchAssetsSoapIn" />
+      <wsdl:output message="tns:SearchAssetsSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="GetAvailableFileTypes">
       <wsdl:input message="tns:GetAvailableFileTypesSoapIn" />
@@ -7204,12 +7367,12 @@
       <wsdl:input message="tns:UpdateBulkExportTaskSoapIn" />
       <wsdl:output message="tns:UpdateBulkExportTaskSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="DeleteBulkExportTask">
-      <wsdl:input message="tns:DeleteBulkExportTaskSoapIn" />
-      <wsdl:output message="tns:DeleteBulkExportTaskSoapOut" />
-    </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="APIHttpPost">
+    <wsdl:operation name="DeleteBulkExportTask">
+      <wsdl:input message="tns:DeleteBulkExportTaskHttpPostIn" />
+      <wsdl:output message="tns:DeleteBulkExportTaskHttpPostOut" />
+    </wsdl:operation>
     <wsdl:operation name="Export">
       <wsdl:input message="tns:ExportHttpPostIn" />
       <wsdl:output message="tns:ExportHttpPostOut" />
@@ -7298,6 +7461,14 @@
       <wsdl:input message="tns:GetGroupDefaultCDNAdapterHttpPostIn" />
       <wsdl:output message="tns:GetGroupDefaultCDNAdapterHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetScheduledTaskLastRun">
+      <wsdl:input message="tns:GetScheduledTaskLastRunHttpPostIn" />
+      <wsdl:output message="tns:GetScheduledTaskLastRunHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateScheduledTaskNextRunIntervalInSeconds">
+      <wsdl:input message="tns:UpdateScheduledTaskNextRunIntervalInSecondsHttpPostIn" />
+      <wsdl:output message="tns:UpdateScheduledTaskNextRunIntervalInSecondsHttpPostOut" />
+    </wsdl:operation>
     <wsdl:operation name="InsertEPGSchedule">
       <wsdl:input message="tns:InsertEPGScheduleHttpPostIn" />
       <wsdl:output message="tns:InsertEPGScheduleHttpPostOut" />
@@ -7337,6 +7508,10 @@
     <wsdl:operation name="GetChannelAssets">
       <wsdl:input message="tns:GetChannelAssetsHttpPostIn" />
       <wsdl:output message="tns:GetChannelAssetsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SearchAssets">
+      <wsdl:input message="tns:SearchAssetsHttpPostIn" />
+      <wsdl:output message="tns:SearchAssetsHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetAvailableFileTypes">
       <wsdl:input message="tns:GetAvailableFileTypesHttpPostIn" />
@@ -7634,13 +7809,18 @@
       <wsdl:input message="tns:GetExternalChannelsHttpPostIn" />
       <wsdl:output message="tns:GetExternalChannelsHttpPostOut" />
     </wsdl:operation>
-    <wsdl:operation name="DeleteBulkExportTask">
-      <wsdl:input message="tns:DeleteBulkExportTaskHttpPostIn" />
-      <wsdl:output message="tns:DeleteBulkExportTaskHttpPostOut" />
-    </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="APISoap" type="tns:APISoap">
     <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="DeleteBulkExportTask">
+      <soap:operation soapAction="http://api.tvinci.com/DeleteBulkExportTask" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetBulkExportTasks">
       <soap:operation soapAction="http://api.tvinci.com/GetBulkExportTasks" style="document" />
       <wsdl:input>
@@ -7956,6 +8136,24 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetScheduledTaskLastRun">
+      <soap:operation soapAction="http://api.tvinci.com/GetScheduledTaskLastRun" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateScheduledTaskNextRunIntervalInSeconds">
+      <soap:operation soapAction="http://api.tvinci.com/UpdateScheduledTaskNextRunIntervalInSeconds" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <soap:operation soapAction="http://api.tvinci.com/TVAPI_GetTvinciGUID" style="document" />
       <wsdl:input>
@@ -8201,6 +8399,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetChannelAssets">
       <soap:operation soapAction="http://api.tvinci.com/GetChannelAssets" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchAssets">
+      <soap:operation soapAction="http://api.tvinci.com/SearchAssets" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -9099,18 +9306,18 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="DeleteBulkExportTask">
-      <soap:operation soapAction="http://api.tvinci.com/DeleteBulkExportTask" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="APISoap12" type="tns:APISoap">
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="DeleteBulkExportTask">
+      <soap12:operation soapAction="http://api.tvinci.com/DeleteBulkExportTask" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetBulkExportTasks">
       <soap12:operation soapAction="http://api.tvinci.com/GetBulkExportTasks" style="document" />
       <wsdl:input>
@@ -9426,6 +9633,24 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetScheduledTaskLastRun">
+      <soap12:operation soapAction="http://api.tvinci.com/GetScheduledTaskLastRun" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateScheduledTaskNextRunIntervalInSeconds">
+      <soap12:operation soapAction="http://api.tvinci.com/UpdateScheduledTaskNextRunIntervalInSeconds" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <soap12:operation soapAction="http://api.tvinci.com/TVAPI_GetTvinciGUID" style="document" />
       <wsdl:input>
@@ -9671,6 +9896,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetChannelAssets">
       <soap12:operation soapAction="http://api.tvinci.com/GetChannelAssets" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchAssets">
+      <soap12:operation soapAction="http://api.tvinci.com/SearchAssets" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -10569,18 +10803,18 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="DeleteBulkExportTask">
-      <soap12:operation soapAction="http://api.tvinci.com/DeleteBulkExportTask" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="APIHttpPost" type="tns:APIHttpPost">
     <http:binding verb="POST" />
+    <wsdl:operation name="DeleteBulkExportTask">
+      <http:operation location="/DeleteBulkExportTask" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="Export">
       <http:operation location="/Export" />
       <wsdl:input>
@@ -10779,6 +11013,24 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetScheduledTaskLastRun">
+      <http:operation location="/GetScheduledTaskLastRun" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateScheduledTaskNextRunIntervalInSeconds">
+      <http:operation location="/UpdateScheduledTaskNextRunIntervalInSeconds" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="InsertEPGSchedule">
       <http:operation location="/InsertEPGSchedule" />
       <wsdl:input>
@@ -10862,6 +11114,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetChannelAssets">
       <http:operation location="/GetChannelAssets" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SearchAssets">
+      <http:operation location="/SearchAssets" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -11528,15 +11789,6 @@
     </wsdl:operation>
     <wsdl:operation name="GetExternalChannels">
       <http:operation location="/GetExternalChannels" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="DeleteBulkExportTask">
-      <http:operation location="/DeleteBulkExportTask" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
