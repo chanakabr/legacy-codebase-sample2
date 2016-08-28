@@ -569,7 +569,7 @@ namespace Tvinci.Core.DAL
         }
 
         public static void UpdateOrInsert_UsersMediaMark(int nDomainID, int nSiteUserGuid, string sUDID, int nMediaID,
-            int nGroupID, int nLoactionSec, int fileDuration, string action, int mediaTypeId, bool isFirstPlay, 
+            int nGroupID, int nLoactionSec, int fileDuration, string action, int mediaTypeId, bool isFirstPlay,
             bool isLinearChannel = false, int finishedPercentThreshold = 95)
         {
             var mediaMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
@@ -667,7 +667,7 @@ namespace Tvinci.Core.DAL
             bool res = couchbase.SetWithVersion(documentKey, JsonConvert.SerializeObject(domainMediaMark, Formatting.None), version);
             return res;
         }
-
+        
         private static bool UpdateOrInsert_UsersMediaMarkOrHit(CouchbaseManager.CouchbaseManager couchbaseManager, string udid, 
             ref int limitRetries, Random r, string mmKey, ref bool success, UserMediaMark userMediaMark, int finishedPercent = 95)
         {
@@ -2469,7 +2469,7 @@ namespace Tvinci.Core.DAL
 
         public static int GetLastPosition(string NpvrID, int userID)
         {
-            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
             string key = UtilsDal.getUserNpvrMarkDocKey(userID, NpvrID);
             var data = cbManager.Get<string>(key);
             if (data == null)
@@ -2481,10 +2481,11 @@ namespace Tvinci.Core.DAL
         // get all devices last position in domain by media_id 
         public static DomainMediaMark GetDomainLastPosition(int mediaID, int userID, int domainID)
         {
-            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.DOMAIN_CONCURRENCY);
+            var domainMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.DOMAIN_CONCURRENCY);
+
             // get domain document 
             string key = UtilsDal.getDomainMediaMarksDocKey(domainID);
-            var data = cbManager.Get<string>(key);
+            var data = domainMarksManager.Get<string>(key);
             if (data == null)
                 return null;
 

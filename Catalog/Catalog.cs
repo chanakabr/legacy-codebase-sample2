@@ -72,7 +72,6 @@ namespace Catalog
 
         private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
 
-
         private static readonly HashSet<string> reservedUnifiedSearchStringFields = new HashSet<string>()
 		            {
 			            "name",
@@ -2066,9 +2065,10 @@ namespace Catalog
             }
         }
 
-        public static void UpdateFollowMe(int nGroupID, string sAssetID, string sSiteGUID, int nPlayTime, string sUDID, int duration, string assetAction, int mediaTypeId,
+        public static void UpdateFollowMe(int nGroupID, string sAssetID, string sSiteGUID, int nPlayTime, string sUDID, int duration,
+            string assetAction, int mediaTypeId,
             int nDomainID = 0, ePlayType ePlayType = ePlayType.MEDIA, bool isFirstPlay = false, bool isLinearChannel = false)
-        {          
+        {
             if (Catalog.IsAnonymousUser(sSiteGUID))
             {
                 return;
@@ -2078,7 +2078,7 @@ namespace Catalog
             {
                 DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
                 int opID = 0;
-                bool isMaster = false;  
+                bool isMaster = false;
                 nDomainID = DomainDal.GetDomainIDBySiteGuid(nGroupID, int.Parse(sSiteGUID), ref opID, ref isMaster, ref eSuspendStat);
             }
 
@@ -2106,8 +2106,9 @@ namespace Catalog
                     case ePlayType.EPG:
                         CatalogDAL.UpdateOrInsert_UsersEpgMark(nDomainID, int.Parse(sSiteGUID), sUDID, int.Parse(sAssetID), nGroupID, nPlayTime, duration, assetAction, isFirstPlay);
                         break;
+
                     default:
-                        break;
+                    break;
                 }
 
             }
@@ -4155,9 +4156,8 @@ namespace Catalog
         internal static bool GetMediaMarkHitInitialData(string sSiteGuid, string userIP, int mediaID, int mediaFileID, ref int countryID,
             ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID, ref int fileDuration)
         {
-
             if (!TVinciShared.WS_Utils.GetTcmBoolValue("CATALOG_HIT_CACHE"))
-            {                
+            {
                 countryID = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(userIP);
                 return CatalogDAL.GetMediaPlayData(mediaID, mediaFileID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID, ref fileDuration);
             }
@@ -4200,6 +4200,7 @@ namespace Catalog
                 }
 
                 bMedia = true;
+
             }
 
             #endregion
@@ -7073,11 +7074,14 @@ namespace Catalog
             return status;
         }
 
-        public static List<WatchHistory> GetUserWatchHistory(int groupId, string siteGuid, List<int> assetTypes, List<string> assetIds, List<int> excludedAssetTypes, eWatchStatus filterStatus, int numOfDays, ApiObjects.SearchObjects.OrderDir orderDir, int pageIndex, int pageSize, int finishedPercent, out int totalItems)
+        public static List<WatchHistory> GetUserWatchHistory(int groupId, string siteGuid, List<int> assetTypes,
+            List<string> assetIds, List<int> excludedAssetTypes, eWatchStatus filterStatus, int numOfDays,
+            ApiObjects.SearchObjects.OrderDir orderDir, int pageIndex, int pageSize, int finishedPercent, out int totalItems)
         {
             List<WatchHistory> usersWatchHistory = new List<WatchHistory>();
             var mediaMarksManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.MEDIAMARK);
             var mediaHitsManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.MEDIA_HITS);
+
             totalItems = 0;
 
             // build date filter
@@ -7156,28 +7160,6 @@ namespace Catalog
                                                             .UpdateDate = media.m_dUpdateDate;
 
                             }
-
-                            //// validate media on DB
-                            //DataTable dt = CatalogDAL.GetActiveMedia(unFilteredresult.Where(x => x.AssetTypeId != (int)eAssetTypes.EPG &&
-                            //                                                                     x.AssetTypeId != (int)eAssetTypes.NPVR)
-                            //                                                                     .Select(x => int.Parse(x.AssetId)).ToList());
-
-                            // get active media list and update updated date
-                            //if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                            //{
-                            //    List<int> activeMediaIds = new List<int>();
-                            //    int mediaId;
-                            //    for (int i = 0; i < dt.Rows.Count; i++)
-                            //    {
-                            //        mediaId = Utils.GetIntSafeVal(dt.Rows[i], "ID");
-                            //        activeMediaIds.Add(mediaId);
-
-                            //         get update date
-                            //        unFilteredresult.First(x => int.Parse(x.AssetId) == mediaId &&
-                            //                                    x.AssetTypeId != (int)eAssetTypes.EPG &&
-                            //                                    x.AssetTypeId != (int)eAssetTypes.NPVR)
-                            //                                    .UpdateDate = System.Convert.ToDateTime(dt.Rows[i]["UPDATE_DATE"].ToString());
-                            //    }
                         }
 
                         //remove medias that are not active
@@ -7190,7 +7172,6 @@ namespace Catalog
                     switch (filterStatus)
                     {
                         case eWatchStatus.Progress:
-
                             // remove all finished
                             unFilteredresult.RemoveAll(x => (x.Duration != 0) && (((float)x.Location / (float)x.Duration * 100) >= finishedPercent));
                             unFilteredresult.ForEach(x => x.IsFinishedWatching = false);
@@ -7263,6 +7244,7 @@ namespace Catalog
                                     }
                                 }
                             }
+
                         }
                     }
 
@@ -7273,7 +7255,6 @@ namespace Catalog
 
                             unFilteredresult = unFilteredresult.OrderBy(x => x.LastWatch).ToList();
                             break;
-
                         case ApiObjects.SearchObjects.OrderDir.DESC:
                         case ApiObjects.SearchObjects.OrderDir.NONE:
                         default:
@@ -7304,8 +7285,7 @@ namespace Catalog
 
             switch (currentResult.AssetTypeId)
             {
-                case (int)eAssetTypes.EPG:
-                    {
+                case (int)eAssetTypes.EPG:                    {
                         assetType = "epg";
                         break;
                     }
@@ -7321,13 +7301,12 @@ namespace Catalog
                         assetType = "m";
                         break;
                     }
+
             }
 
             string key = string.Format("u{0}_{1}{2}", currentResult.UserID, assetType, currentResult.AssetId);
             return key;
         }
-
-        
     }
 }
 
@@ -7342,6 +7321,7 @@ namespace Catalog.ws_api
             KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
             return request;
         }
+
     }
 }
 

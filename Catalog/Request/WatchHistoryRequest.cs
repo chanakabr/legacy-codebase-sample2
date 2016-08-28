@@ -72,6 +72,7 @@ namespace Catalog.Request
 
                 // get results
                 int totalItems = 0;
+
                 List<WatchHistory> res = Catalog.GetUserWatchHistory(m_nGroupID, m_sSiteGuid, AssetTypes, AssetIds, new List<int>() { (int)eAssetTypes.NPVR, (int)eAssetTypes.EPG }, FilterStatus, NumOfDays,
                     OrderDir, m_nPageIndex, m_nPageSize, finishedPercentThreshold, out totalItems);
 

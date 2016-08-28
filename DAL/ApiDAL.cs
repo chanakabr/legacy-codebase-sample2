@@ -1004,7 +1004,7 @@ namespace DAL
 
                 //var mediaHitsDictionary = mediaHitsManager.GetValues<MediaMarkLog>(keys, true, false);
 
-                List<MediaMarkLog> sortedMediaMarksList = 
+                List<MediaMarkLog> sortedMediaMarksList =
                     //mediaHitsDictionary.Values.OrderBy(x => x.LastMark.CreatedAt).ToList();
                     viewResult.OrderByDescending(x => x.LastMark.CreatedAt).ToList();
 
