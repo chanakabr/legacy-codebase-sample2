@@ -730,11 +730,15 @@ namespace TVinciShared
             return imageServerUrl;
         }
 
-        public static bool IsDownloadPicWithImageServer()
+        public static bool IsDownloadPicWithImageServer(int groupId = 0)
         {
             // true in case image server is in use
             //------------------------------------
-            return !WS_Utils.IsGroupIDContainedInConfig(LoginManager.GetLoginGroupID(), "USE_OLD_IMAGE_SERVER", ';');
+            if (groupId > 0)
+                return !WS_Utils.IsGroupIDContainedInConfig(groupId, "USE_OLD_IMAGE_SERVER", ';');
+            else
+                return !WS_Utils.IsGroupIDContainedInConfig(LoginManager.GetLoginGroupID(), "USE_OLD_IMAGE_SERVER", ';');
+
         }
 
         public static string GetEpgPicImageUrl(string epgChannelId, out int picId)
