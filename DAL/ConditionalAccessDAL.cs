@@ -2215,7 +2215,15 @@ namespace DAL
             ODBCWrapper.StoredProcedure spGet_Get_FilesByEpgIds = new ODBCWrapper.StoredProcedure("Get_FilesByEpgIds");
             spGet_Get_FilesByEpgIds.SetConnectionKey("MAIN_CONNECTION_STRING");
             spGet_Get_FilesByEpgIds.AddParameter("@GroupId", groupId);
-            spGet_Get_FilesByEpgIds.AddIDListParameter<long>("@EpgIds", epgIds, "ID");
+            if (epgIds.Count == 1)
+            {
+                spGet_Get_FilesByEpgIds.AddIDListParameter<long>("@EpgIds", new List<long>(), "ID");
+                spGet_Get_FilesByEpgIds.AddParameter("@EpgId", epgIds.First());
+            }
+            else
+            {
+                spGet_Get_FilesByEpgIds.AddIDListParameter<long>("@EpgIds", epgIds, "ID");
+            }
 
             DataTable dt = spGet_Get_FilesByEpgIds.Execute();
 
