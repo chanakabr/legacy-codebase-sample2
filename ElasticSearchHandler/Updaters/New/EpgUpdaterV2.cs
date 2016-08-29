@@ -131,6 +131,8 @@ namespace ElasticSearchHandler.Updaters
 
                 if (languages != null)
                 {
+                    //TODO: remove this if when we really support languages:
+                    languages = languages.Where(l => l.IsDefault).ToList();
                     languageCodes = languages.Select(p => p.Code.ToLower()).ToList<string>();
                 }
                 else
