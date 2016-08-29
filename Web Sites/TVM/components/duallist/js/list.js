@@ -104,14 +104,18 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent, 
                         if (toChangeStatus === true) {
                             var liItems = listItems.children;
                             var liItemsLength = liItems.length;
+                            var lastItemOrderNum;
                             if (liItemsLength > 0) {
                                 var lastItem = liItems[liItemsLength - 2];
-                                var lastItemOrderNum = lastItem.getAttribute("data-orderNum");
+                                lastItemOrderNum = lastItem.getAttribute("data-orderNum");
                                 lastItemOrderNum++;
-                                listLiItem.setAttribute("data-orderNum", lastItemOrderNum);
-                                listLiItem.innerHTML = listLiItem.innerHTML.replace("#undefined", "#" + lastItemOrderNum);
-                                listLiItem.innerHTML = listLiItem.innerHTML.replace("#undefined", "#" + lastItemOrderNum);
                             }
+                            else {
+                                lastItemOrderNum = 1;
+                            }
+                            listLiItem.setAttribute("data-orderNum", lastItemOrderNum);
+                            listLiItem.innerHTML = listLiItem.innerHTML.replace("#undefined", "#" + lastItemOrderNum);
+                            listLiItem.innerHTML = listLiItem.innerHTML.replace("#undefined", "#" + lastItemOrderNum);
                         }
                         else {
                             listLiItem.setAttribute("data-orderNum", items[i].OrderNum);
