@@ -141,7 +141,7 @@ namespace WebAPI.Models.API
         public int? CleanupNoticePeroid { get; set; }
 
         /// <summary>
-        /// The time in days before the recording lifetime is due from which the client should be able to warn user about deletion.
+        /// Is recording of series enabled
         /// </summary>
         [DataMember(Name = "seriesRecordingEnabled")]
         [JsonProperty("seriesRecordingEnabled")]
