@@ -918,6 +918,7 @@ namespace ConditionalAccess
                     }
                     else
                     {
+                        long domainId = uObj.m_user.m_domianID;
                         sWSUserName = string.Empty;
                         sWSPass = string.Empty;
 
@@ -941,7 +942,7 @@ namespace ConditionalAccess
                         long.TryParse(sPPVModuleCode, out ppvModuleCode);
 
                         TvinciPricing.PPVModule thePPVModule = m.ValidatePPVModuleForMediaFile(sWSUserName, sWSPass, nMediaFileID, ppvModuleCode);
-                        if (thePPVModule == null)
+                        if (thePPVModule == null || thePPVModule.m_oUsageModule == null)
                         {
                             InAppRes.m_oBillingResponse.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
                             InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
@@ -1010,77 +1011,11 @@ namespace ConditionalAccess
                                     HandleCouponUses(relevantSub, string.Empty, sSiteGUID, p.m_dPrice, sCurrency, nMediaFileID, sCouponCode, sUserIP,
                                         sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, 0, 0);
 
-                                    #region Insert - ppv_purchases
-                                    insertQuery = new ODBCWrapper.InsertQuery("ppv_purchases");
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
-                                    if (relevantSub != null)
-                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", relevantSub.m_sObjectCode);
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_FILE_ID", "=", nMediaFileID);
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE", "=", dPrice);
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CURRENCY_CD", "=", sCurrency);
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("NUM_OF_USES", "=", 0);
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CUSTOMDATA", "=", sCustomData);
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_TRANSACTION_ID", "=", nReciptCode);
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_CODE", "=", sCountryCd);
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_CODE", "=", sLANGUAGE_CODE);
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_NAME", "=", sDEVICE_NAME);
-                                    if (thePPVModule != null &&
-                                        thePPVModule.m_oUsageModule != null)
-                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", thePPVModule.m_oUsageModule.m_nMaxNumberOfViews);
-                                    else
-                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", 0);
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
-                                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-                                    if (thePPVModule != null &&
-                                        thePPVModule.m_oUsageModule != null)
-                                    {
-                                        DateTime d = Utils.GetEndDateTime(DateTime.UtcNow, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle);
-                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", d);
-                                    }
-
-                                    insertQuery.Execute();
-                                    WriteToUserLog(sSiteGUID, "Media file id: " + nMediaFileID.ToString() + " Purchased(CC): " + dPrice.ToString() + sCurrency);
-                                    #endregion
-                                    #region Select - ppv_purchases the current purchase
-                                    Int32 nPurchaseID = 0;
-                                    selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                                    selectQuery += " select id from ppv_purchases with (nolock) where ";
-                                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
-
-                                    if (relevantSub != null)
-                                    {
-                                        selectQuery += "and";
-                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", relevantSub.m_sObjectCode);
-                                    }
-                                    selectQuery += "and";
-                                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_FILE_ID", "=", nMediaFileID);
-                                    selectQuery += "and";
-                                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
-                                    selectQuery += "and";
-                                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE", "=", dPrice);
-                                    selectQuery += "and";
-                                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CURRENCY_CD", "=", sCurrency);
-                                    selectQuery += "and";
-                                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("NUM_OF_USES", "=", 0);
-                                    selectQuery += "and";
-                                    if (thePPVModule != null &&
-                                        thePPVModule.m_oUsageModule != null)
-                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", thePPVModule.m_oUsageModule.m_nMaxNumberOfViews);
-                                    else
-                                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", 0);
-                                    selectQuery += "and";
-                                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
-                                    selectQuery += "and";
-                                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-                                    selectQuery += "order by id desc";
-                                    if (selectQuery.Execute("query", true) != null)
-                                    {
-                                        Int32 nCount1 = selectQuery.Table("query").DefaultView.Count;
-                                        if (nCount1 > 0)
-                                            nPurchaseID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
-                                    }
-                                    #endregion
+                                    DateTime endDate = Utils.GetEndDateTime(DateTime.UtcNow, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle);
+                                    long purchaseID = ConditionalAccessDAL.Insert_NewPPVPurchase(m_nGroupID, nMediaFileID, sSiteGUID, dPrice, sCurrency,
+                                                                                                 thePPVModule.m_oUsageModule != null ? thePPVModule.m_oUsageModule.m_nMaxNumberOfViews : 0, sCustomData,
+                                                                                                 relevantSub != null ? relevantSub.m_sObjectCode : string.Empty, nReciptCode, DateTime.UtcNow, endDate,
+                                                                                                 DateTime.UtcNow, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, domainId);
 
                                     //Should update the PURCHASE_ID
 
@@ -1090,7 +1025,7 @@ namespace ConditionalAccess
                                         Int32 nID = int.Parse(sReciept);
                                         updateQuery = new ODBCWrapper.UpdateQuery("billing_transactions");
                                         updateQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
-                                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PURCHASE_ID", "=", nPurchaseID);
+                                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PURCHASE_ID", "=", purchaseID);
                                         updateQuery += "where";
                                         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nID);
                                         updateQuery.Execute();
@@ -1102,7 +1037,7 @@ namespace ConditionalAccess
                                             {
                                                 {"MediaFileId", nMediaFileID},
                                                 {"SiteGUID", sSiteGUID},
-                                                {"PurchaseId", nPurchaseID},
+                                                {"PurchaseId", purchaseID},
                                                 {"CustomData", sCustomData},
                                                 {"BillingTransactionID", sReciept},
                                                 {"PPVModuleCode", sPPVModuleCode},
@@ -1305,6 +1240,7 @@ namespace ConditionalAccess
                     }
                     else
                     {
+                        int domainId = uObj.m_user.m_domianID;
                         PriceReason theReason = PriceReason.UnKnown;
                         TvinciPricing.Subscription theSub = Utils.GetSubscriptionBytProductCode(m_nGroupID, sProductCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
                         string sSubscriptionCode = theSub.m_SubscriptionCode;
@@ -1351,10 +1287,10 @@ namespace ConditionalAccess
                                 {
                                     try
                                     {
-                                        Int32 nReciptCode = 0;
+                                        long nReciptCode = 0;
                                         if (!string.IsNullOrEmpty(InAppRes.m_oBillingResponse.m_sRecieptCode))
                                         {
-                                            nReciptCode = int.Parse(InAppRes.m_oBillingResponse.m_sRecieptCode);
+                                            nReciptCode = long.Parse(InAppRes.m_oBillingResponse.m_sRecieptCode);
                                         }
                                         Int32 nRet = 0;
                                         selectExistQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -1384,6 +1320,8 @@ namespace ConditionalAccess
                                             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", sSubscriptionCode);
                                             updateQuery += " and ";
                                             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
+                                            updateQuery += " and ";
+                                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("DOMAIN_ID", "=", domainId);
                                             updateQuery.Execute();
 
                                             DateTime dt1970 = new DateTime(1970, 1, 1);
@@ -1391,36 +1329,7 @@ namespace ConditionalAccess
                                             // by default add 6 hours to end date, so that renewer scheduler will work appropiately 
                                             bool shouldAddTimeToEndDate = true;
 
-                                            insertQuery = new ODBCWrapper.InsertQuery("subscriptions_purchases");
-                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
-                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", sSubscriptionCode);
-                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
-                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE", "=", dPrice);
-                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CURRENCY_CD", "=", sCurrency);
-                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CUSTOMDATA", "=", sCustomData);
-                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("NUM_OF_USES", "=", 0);
-                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_CODE", "=", sCountryCd);
-                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_CODE", "=", sLANGUAGE_CODE);
-                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_NAME", "=", sDEVICE_NAME);
-                                            if (theSub != null &&
-                                                theSub.m_oUsageModule != null)
-                                                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", theSub.m_oUsageModule.m_nMaxNumberOfViews);
-                                            else
-                                                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", 0);
-                                            if (theSub != null &&
-                                                theSub.m_oUsageModule != null)
-                                                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("VIEW_LIFE_CYCLE_SECS", "=", theSub.m_oUsageModule.m_tsViewLifeCycle);
-                                            else
-                                                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("VIEW_LIFE_CYCLE_SECS", "=", 0);
-                                            if (bIsRecurring == true)
-                                                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING_STATUS", "=", 1);
-                                            else
-                                                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING_STATUS", "=", 0);
-                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_TRANSACTION_ID", "=", nReciptCode);
-                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
-                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-
-                                            DateTime startDate = DateTime.MinValue;
+                                          DateTime startDate = DateTime.MinValue;
                                             DateTime endDate = DateTime.MinValue;
 
                                             // First try with iOs 6
@@ -1637,60 +1546,11 @@ namespace ConditionalAccess
 
                                             #endregion
 
-                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", endDate);
-                                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", startDate);
-                                            insertQuery.Execute();
-
-                                            #region Select subscription purchase
-
-                                            Int32 nPurchaseID = 0;
-                                            WriteToUserLog(sSiteGUID, "Subscription purchase (CC): " + sSubscriptionCode);
-                                            selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                                            selectQuery += " select id from subscriptions_purchases where ";
-                                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
-                                            selectQuery += " and ";
-                                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", sSubscriptionCode);
-                                            selectQuery += " and ";
-                                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
-                                            selectQuery += " and ";
-                                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE", "=", dPrice);
-                                            selectQuery += " and ";
-                                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CURRENCY_CD", "=", sCurrency);
-                                            selectQuery += " and ";
-                                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("NUM_OF_USES", "=", 0);
-                                            selectQuery += " and ";
-                                            if (theSub != null &&
-                                                theSub.m_oUsageModule != null)
-                                                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", theSub.m_oUsageModule.m_nMaxNumberOfViews);
-                                            else
-                                                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", 0);
-                                            selectQuery += " and ";
-                                            if (theSub != null &&
-                                                theSub.m_oUsageModule != null)
-                                                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("VIEW_LIFE_CYCLE_SECS", "=", theSub.m_oUsageModule.m_tsViewLifeCycle);
-                                            else
-                                                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("VIEW_LIFE_CYCLE_SECS", "=", 0);
-
-                                            selectQuery += " and ";
-                                            if (bIsRecurring)
-                                                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING_STATUS", "=", 1);
-                                            else
-                                                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING_STATUS", "=", 0);
-                                            selectQuery += " and ";
-                                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
-                                            selectQuery += " and ";
-                                            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-                                            selectQuery += " order by id desc";
-                                            if (selectQuery.Execute("query", true) != null)
-                                            {
-                                                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                                                if (nCount > 0)
-                                                {
-                                                    nPurchaseID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
-                                                }
-                                            }
-
-                                            #endregion
+                                            long nPurchaseID = ConditionalAccessDAL.Insert_NewMPPPurchase(m_nGroupID, sSubscriptionCode, sSiteGUID, dPrice, sCurrency, sCustomData, sCountryCd, sLANGUAGE_CODE,
+                                                                                                            sDEVICE_NAME, theSub.m_oUsageModule != null ? theSub.m_oUsageModule.m_nMaxNumberOfViews : 0,
+                                                                                                            theSub.m_oUsageModule != null ? theSub.m_oUsageModule.m_tsViewLifeCycle : 0, bIsRecurring,
+                                                                                                            nReciptCode, theSub.m_oPreviewModule != null ? theSub.m_oPreviewModule.m_nID : 0, startDate, endDate,
+                                                                                                            DateTime.UtcNow, string.Empty, domainId);
 
                                             if (nReciptCode > 0)
                                             {
@@ -3991,7 +3851,7 @@ namespace ConditionalAccess
                 }
 
 
-                Int32 nPPVID = 0;
+                long nPPVID = 0;
                 string sRelSub = string.Empty;
                 if (nIsCreditDownloaded == 1)
                 {
@@ -4000,11 +3860,9 @@ namespace ConditionalAccess
                     nPPVID = GetActivePPVPurchaseID(price.m_oItemPrices[0].m_lPurchasedMediaFileID > 0 ? new List<int>(1) { price.m_oItemPrices[0].m_lPurchasedMediaFileID } : new List<int>(1) { nMediaFileID }, ref sRelSub, lUsersIds, domainID);
                     if (nPPVID == 0 && !string.IsNullOrEmpty(couponCode))
                     {
-                        InsertPPVPurchases(sSiteGUID, nMediaFileID, price.m_oItemPrices[0].m_oPrice.m_dPrice,
+                        nPPVID = InsertPPVPurchases(sSiteGUID, nMediaFileID, price.m_oItemPrices[0].m_oPrice.m_dPrice,
                             price.m_oItemPrices[0].m_oPrice.m_oCurrency.m_sCurrencyCD3, sRelSub, 0, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sPPVMCd,
-                            couponCode, sUserIP);
-
-                        nPPVID = GetActivePPVPurchaseID(new List<int>(1) { nMediaFileID }, ref sRelSub, lUsersIds, domainID);
+                            couponCode, sUserIP, domainID);
                     }
 
                     UpdatePPVPurchases(nPPVID, price.m_oItemPrices[0].m_sPPVModuleCode, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
@@ -4058,7 +3916,7 @@ namespace ConditionalAccess
                             nIsCreditDownloaded1 > 0, nRelPP, nReleventCollectionID));
                     }
 
-                    Int32 nPPVID = 0;
+                    long nPPVID = 0;
                     if (nIsCreditDownloaded1 == 1)
                     {
                         string sRelSub = string.Empty;
@@ -4066,11 +3924,9 @@ namespace ConditionalAccess
 
                         if (nPPVID == 0 && !string.IsNullOrEmpty(couponCode))
                         {
-                            InsertPPVPurchases(sSiteGUID, nMediaFileID, price.m_oItemPrices[0].m_oPrice.m_dPrice,
+                            nPPVID = InsertPPVPurchases(sSiteGUID, nMediaFileID, price.m_oItemPrices[0].m_oPrice.m_dPrice,
                                 price.m_oItemPrices[0].m_oPrice.m_oCurrency.m_sCurrencyCD3, sRelSub, 0, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME,
-                                price.m_oItemPrices[0].m_sPPVModuleCode, couponCode, sUserIP);
-
-                            nPPVID = GetActivePPVPurchaseID(new List<int>(1) { nMediaFileID }, ref sRelSub, lUsersIds, domainID);
+                                price.m_oItemPrices[0].m_sPPVModuleCode, couponCode, sUserIP, domainID);                           
                         }
 
                         UpdatePPVPurchases(nPPVID, price.m_oItemPrices[0].m_sPPVModuleCode, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
@@ -4121,7 +3977,7 @@ namespace ConditionalAccess
                             nRelPP, nReleventCollectionID));
                     }
 
-                    Int32 nPPVID = 0;
+                    long nPPVID = 0;
                     if (nIsCreditDownloaded1 == 1)
                     {
                         string sRelCol = string.Empty;
@@ -4129,11 +3985,9 @@ namespace ConditionalAccess
 
                         if (nPPVID == 0 && !string.IsNullOrEmpty(couponCode))
                         {
-                            InsertPPVPurchases(sSiteGUID, nMediaFileID, price.m_oItemPrices[0].m_oPrice.m_dPrice,
+                            nPPVID = InsertPPVPurchases(sSiteGUID, nMediaFileID, price.m_oItemPrices[0].m_oPrice.m_dPrice,
                                 price.m_oItemPrices[0].m_oPrice.m_oCurrency.m_sCurrencyCD3, sRelCol, 0, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME,
-                                price.m_oItemPrices[0].m_sPPVModuleCode, couponCode, sUserIP);
-
-                            nPPVID = GetActivePPVPurchaseID(new List<int>(1) { nMediaFileID }, ref sRelCol, lUsersIds, domainID);
+                                price.m_oItemPrices[0].m_sPPVModuleCode, couponCode, sUserIP, domainID);                            
                         }
 
                         UpdatePPVPurchases(nPPVID, price.m_oItemPrices[0].m_sPPVModuleCode, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
@@ -4202,7 +4056,7 @@ namespace ConditionalAccess
             return sb.ToString();
         }
 
-        protected bool IsLastView(Int32 nPPVPurchaseID, ref DateTime endDateTime)
+        protected bool IsLastView(long nPPVPurchaseID, ref DateTime endDateTime)
         {
             int nMaxNumOfUses = 0;
             int nNumOfUses = 0;
@@ -4233,7 +4087,7 @@ namespace ConditionalAccess
         /// <summary>
         /// Update PPV Purchases
         /// </summary>
-        protected void UpdatePPVPurchases(Int32 nPPVPurchaseID, string sPPVModuleCode, string sCOUNTRY_CODE,
+        protected void UpdatePPVPurchases(long nPPVPurchaseID, string sPPVModuleCode, string sCOUNTRY_CODE,
             string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
             DateTime endDateTime = DateTime.UtcNow;
@@ -4268,13 +4122,13 @@ namespace ConditionalAccess
         /// <summary>
         /// Insert PPV Purchases
         /// </summary>
-        protected void InsertPPVPurchases(string sSiteGUID, Int32 nMediaFileID, double dPrice, string sCurrency, string sSubCode,
-            Int32 nRecieptCode, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sPPVModuleCode, string sCouponCode, string sUserIP)
+        protected long InsertPPVPurchases(string sSiteGUID, Int32 nMediaFileID, double dPrice, string sCurrency, string sSubCode,
+            Int32 nRecieptCode, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sPPVModuleCode, string sCouponCode, string sUserIP, int domainId)
         {
+            long purchaseId = 0;
             string sWSUserName = string.Empty;
             string sWSPass = string.Empty;
-            TvinciPricing.mdoule m = null;
-            ODBCWrapper.InsertQuery insertQuery = null;
+            TvinciPricing.mdoule m = null;            
             try
             {
                 m = new global::ConditionalAccess.TvinciPricing.mdoule();
@@ -4294,37 +4148,11 @@ namespace ConditionalAccess
                 string sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency, nMediaFileID, nMediaID, sPPVModuleCode, string.Empty, sCouponCode,
                     sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
 
-
-                insertQuery = new ODBCWrapper.InsertQuery("ppv_purchases");
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
-                if (relevantSub != null)
-                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", relevantSub.m_sObjectCode);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_FILE_ID", "=", nMediaFileID);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE", "=", dPrice);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CURRENCY_CD", "=", sCurrency);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("NUM_OF_USES", "=", 0);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CUSTOMDATA", "=", sCustomData);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_TRANSACTION_ID", "=", nRecieptCode);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_CODE", "=", sCountryCd);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_CODE", "=", sLANGUAGE_CODE);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_NAME", "=", sDEVICE_NAME);
-                if (thePPVModule != null &&
-                    thePPVModule.m_oUsageModule != null)
-                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", thePPVModule.m_oUsageModule.m_nMaxNumberOfViews);
-                else
-                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", 0);
-
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-                if (thePPVModule != null &&
-                    thePPVModule.m_oUsageModule != null)
-                {
-                    DateTime d = Utils.GetEndDateTime(DateTime.UtcNow, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle);
-                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", d);
-                }
-
-                insertQuery.Execute();
+                DateTime endDate = Utils.GetEndDateTime(DateTime.UtcNow, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle);
+                purchaseId = ConditionalAccessDAL.Insert_NewPPVPurchase(m_nGroupID, nMediaFileID, sSiteGUID, dPrice, sCurrency,
+                                                                             thePPVModule.m_oUsageModule != null ? thePPVModule.m_oUsageModule.m_nMaxNumberOfViews : 0, sCustomData,
+                                                                             relevantSub != null ? relevantSub.m_sObjectCode : string.Empty, nRecieptCode, DateTime.UtcNow, endDate,
+                                                                             DateTime.UtcNow, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, domainId);
             }
             finally
             {
@@ -4333,12 +4161,10 @@ namespace ConditionalAccess
                 {
                     m.Dispose();
                 }
-                if (insertQuery != null)
-                {
-                    insertQuery.Finish();
-                }
                 #endregion
             }
+
+            return purchaseId;
         }
 
         /// <summary>
@@ -5889,6 +5715,12 @@ namespace ConditionalAccess
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", sSubCode);
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_FILE_ID", "=", nMediaFileID);
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
+                        TvinciUsers.DomainSuspentionStatus suspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
+                        int domainId = 0;
+                        if (Utils.IsUserValid(sSiteGUID, m_nGroupID, ref domainId, ref suspendStatus) && suspendStatus == TvinciUsers.DomainSuspentionStatus.OK)
+                        {
+                            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DOMAIN_ID", "=", domainId);
+                        }
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE", "=", thePPVModule.m_oPriceCode.m_oPrise.m_dPrice);
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CURRENCY_CD", "=", thePPVModule.m_oPriceCode.m_oPrise.m_oCurrency.m_sCurrencyCD3);
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("NUM_OF_USES", "=", 0);
@@ -6085,6 +5917,12 @@ namespace ConditionalAccess
                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", sSubscription);
                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
+                            TvinciUsers.DomainSuspentionStatus suspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
+                            int domainId = 0;
+                            if (Utils.IsUserValid(sSiteGUID, m_nGroupID, ref domainId, ref suspendStatus) && suspendStatus == TvinciUsers.DomainSuspentionStatus.OK)
+                            {
+                                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DOMAIN_ID", "=", domainId);
+                            }
                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CUSTOMDATA", "=", "");
                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("NUM_OF_USES", "=", 0);
                             if (theSub != null &&
@@ -9438,6 +9276,7 @@ namespace ConditionalAccess
                     }
                     else
                     {
+                        int domainId = uObj.m_user.m_domianID;
                         //Get User Valid PP
                         UserPrePaidContainer userPPs = new UserPrePaidContainer();
                         userPPs.Initialize(sSiteGUID, sCurrency);
@@ -9516,6 +9355,7 @@ namespace ConditionalAccess
                                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", relevantSub.m_sObjectCode);
                                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_FILE_ID", "=", nMediaFileID);
                                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DOMAIN_ID", "=", domainId);
                                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE", "=", dPrice);
                                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CURRENCY_CD", "=", sCurrency);
                                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("NUM_OF_USES", "=", 0);
@@ -9797,6 +9637,7 @@ namespace ConditionalAccess
                     }
                     else
                     {
+                        int domainId = uObj.m_user.m_domianID;
                         //Get User Valid PP
                         UserPrePaidContainer userPPs = new UserPrePaidContainer();
                         userPPs.Initialize(sSiteGUID, sCurrency);
@@ -9846,6 +9687,7 @@ namespace ConditionalAccess
                                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
                                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", sSubscriptionCode);
                                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DOMAIN_ID", "=", domainId);
                                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE", "=", dPrice);
                                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CURRENCY_CD", "=", sCurrency);
                                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CUSTOMDATA", "=", string.Empty);
@@ -9879,7 +9721,7 @@ namespace ConditionalAccess
                                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", d);
 
                                         }
-                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("rel_pp", "=", userPPs.m_oUserPPs[0].m_nPPModuleID);
+                                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("rel_pp", "=", userPPs.m_oUserPPs[0].m_nPPModuleID);                                        
                                         insertQuery.Execute();
 
 

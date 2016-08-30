@@ -712,7 +712,7 @@ namespace EpgIngest
                         {
                             if (epgBatch[guid].EpgID > 0)
                             {
-                                epgDic[guid].Where(w => w.Key == guid).ToList().ForEach(i => i.Value.EpgID = epgBatch[guid].EpgID); // update all languages per EpgIdentifier with epgID                                                
+                                epgDic[guid].ForEach(i => i.Value.EpgID = epgBatch[guid].EpgID); // update all languages per EpgIdentifier with epgID                                                
                             }
                         }
                         epgBatch.Clear();
@@ -727,7 +727,7 @@ namespace EpgIngest
                     {
                         if (epgBatch[guid].EpgID > 0)
                         {
-                            epgDic[guid].Where(w => w.Key == guid).ToList().ForEach(i => i.Value.EpgID = epgBatch[guid].EpgID);// update all languages per EpgIdentifier with epgID     
+                            epgDic[guid].ForEach(i => i.Value.EpgID = epgBatch[guid].EpgID);// update all languages per EpgIdentifier with epgID     
                         }
                     }
                 }

@@ -309,7 +309,8 @@ namespace ConditionalAccess
                         }
 
                         string subCode = (relevantSub != null) ? relevantSub.m_sObjectCode : null;
-                        bool dbInsertPpvPurchase = DAL.ConditionalAccessDAL.InsertPPVPurchase(m_nGroupID, subCode, nMediaFileID, sSiteGUID, dPrice, sCurrency, 0, sCustomData, transactionID, sCountryCd, sLANGUAGE_CODE, sDeviceUDID, maxNumOfUses, 1, 1, dtEndDate);
+                        bool dbInsertPpvPurchase = DAL.ConditionalAccessDAL.InsertPPVPurchase(m_nGroupID, subCode, nMediaFileID, sSiteGUID, dPrice, sCurrency, 0, sCustomData, transactionID, sCountryCd,
+                                                                                                sLANGUAGE_CODE, sDeviceUDID, maxNumOfUses, 1, 1, dtEndDate, nDomainID);
 
                         WriteToUserLog(sSiteGUID, "Media file id: " + nMediaFileID.ToString() + " Purchased(CC): " + dPrice.ToString() + sCurrency);
 
@@ -698,6 +699,8 @@ namespace ConditionalAccess
                     WriteToUserLog(sSiteGUID, "while trying to purchase subscription(CC): " + sSubscriptionCode + " error returned: " + ret.m_sStatusDescription);
                 }
 
+                int domainId = uObj.m_user.m_domianID;
+
                 #endregion
 
 
@@ -742,7 +745,7 @@ namespace ConditionalAccess
 
                     case PriceReason.ForPurchase:
 
-                        ret = HandleSubPurchase(sSiteGUID, sHouseholdUID, dPrice, sCurrency, sSubscriptionCode, sCouponCode, sUserIP, sExtraParams, ref sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, "1.1.1.1", theSub, p);
+                        ret = HandleSubPurchase(sSiteGUID, sHouseholdUID, dPrice, sCurrency, sSubscriptionCode, sCouponCode, sUserIP, sExtraParams, ref sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, "1.1.1.1", theSub, p, domainId);
 
                         break;
 
@@ -792,7 +795,7 @@ namespace ConditionalAccess
 
         private TvinciBilling.BillingResponse HandleSubPurchase(string sSiteGUID, string sHouseholdUID, double dPrice, string sCurrency, string sSubscriptionCode, string sCouponCode, string sUserIP,
                                                             string sExtraParams, ref string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sIP, TvinciPricing.Subscription theSub,
-                                                            TvinciPricing.Price p)
+                                                            TvinciPricing.Price p, int domainId)
         {
 
             TvinciBilling.BillingResponse ret = new TvinciBilling.BillingResponse();
@@ -851,10 +854,7 @@ namespace ConditionalAccess
             {
                 HandleCouponUses(theSub, string.Empty, sSiteGUID, dPrice, sCurrency, 0, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, 0, 0);
 
-                int nIsRecurring = 0;
-                int nIsRecurringStatus = (bIsRecurring == true) ? 1 : 0;
-
-                bool dbRes = DAL.ConditionalAccessDAL.UpdateSubPurchase(m_nGroupID, sSiteGUID, sSubscriptionCode, nIsRecurring);
+                bool dbRes = DAL.ConditionalAccessDAL.UpdateSubPurchase(m_nGroupID, sSiteGUID, sSubscriptionCode, bIsRecurring ? 1 : 0);
 
                 int numOfUses = 0;
                 int nMaxNumberOfViews = (theSub != null && theSub.m_oUsageModule != null) ? theSub.m_oUsageModule.m_nMaxNumberOfViews : 0;
@@ -870,19 +870,14 @@ namespace ConditionalAccess
                     dtEndDate = Utils.GetEndDateTime(DateTime.UtcNow, theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
                 }
 
-
-                dbRes = ConditionalAccessDAL.InsertSubPurchase(m_nGroupID, sSubscriptionCode, sSiteGUID, dPrice, sCurrency, sCustomData, numOfUses, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME,
-                                                                nMaxNumberOfViews, nViewLifeCycleSec, nIsRecurringStatus, nReceiptCode, nIsActive, nStatus, dtEndDate);
+                long purchaseId = ConditionalAccessDAL.Insert_NewMPPPurchase(m_nGroupID, sSubscriptionCode, sSiteGUID, dPrice, sCurrency, sCustomData, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, nMaxNumberOfViews,
+                                                                             nViewLifeCycleSec, bIsRecurring, nReceiptCode, 0, DateTime.UtcNow, dtEndDate.Value, DateTime.UtcNow, string.Empty, domainId);
 
                 WriteToUserLog(sSiteGUID, "Subscription purchase (CC): " + sSubscriptionCode);
 
-
-                int nPurchaseID = ConditionalAccessDAL.GetSubPurchaseID(m_nGroupID, sSubscriptionCode, sSiteGUID, dPrice, sCurrency, numOfUses, nMaxNumberOfViews, nViewLifeCycleSec,
-                                                                            nIsRecurringStatus, nIsActive, nStatus);
-
                 if (nReceiptCode > 0)
                 {
-                    dbRes = ConditionalAccessDAL.UpdatePurchaseID(nReceiptCode, nPurchaseID);
+                    dbRes = ConditionalAccessDAL.UpdatePurchaseID(nReceiptCode, (int)purchaseId);
                 }
 
 
@@ -906,7 +901,7 @@ namespace ConditionalAccess
                             if (nReceiptCode > 0)
                             {
                                 bool canceledTransaction = ConditionalAccessDAL.CancelTransaction(nReceiptCode);
-                                bool canceled = canceledTransaction && ConditionalAccessDAL.CancelSubPurchase(m_nGroupID, sSubscriptionCode, nPurchaseID, sSiteGUID);
+                                bool canceled = canceledTransaction && ConditionalAccessDAL.CancelSubPurchase(m_nGroupID, sSubscriptionCode, (int)purchaseId, sSiteGUID);
                             }
 
                             ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;

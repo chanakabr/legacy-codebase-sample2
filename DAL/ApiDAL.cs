@@ -967,8 +967,6 @@ namespace DAL
             return returnedDataTable;
         }
 
-
-
         public static List<int> GetUserStartedWatchingMedias(string sSiteGuid, int nNumOfItems)
         {
             int nSiteGuid = 0;
