@@ -137,6 +137,10 @@ namespace Validator.Managers.Scheme
                     enums.Add(type);
                 return;
             }
+            if (loadedTypes.ContainsKey(type.Name))
+            {
+                return;
+            }
             else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 LoadType(type.GetGenericArguments()[0], loadAll);
@@ -155,10 +159,8 @@ namespace Validator.Managers.Scheme
 
             if (type.IsSubclassOf(typeof(KalturaOTTObject)) && !loadedTypes.ContainsKey(typeName) && (loadAll || SchemeManager.Validate(type, false)))
             {
+                loadedTypes.Add(typeName, type);
                 LoadType(type.BaseType, loadAll);
-
-                if (!loadedTypes.ContainsKey(typeName))
-                    loadedTypes.Add(typeName, type);
 
                 var subClasses = assembly.GetTypes().Where(myType => myType.IsSubclassOf(type));
                 foreach (Type subClass in subClasses)
