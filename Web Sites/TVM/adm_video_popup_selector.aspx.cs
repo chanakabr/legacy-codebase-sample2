@@ -221,7 +221,6 @@ public partial class adm_video_popup_selector : System.Web.UI.Page
                 int nParentGroupID = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
                 TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "SearchAssets", "api", sIP, ref sWSUserName, ref sWSPass);
                 string sWSURL = GetWSURL("api_ws");
-                sWSURL = "http://localhost/ws_api/api.asmx";
                 if (string.IsNullOrEmpty(sWSURL) || string.IsNullOrEmpty(sWSUserName) || string.IsNullOrEmpty(sWSPass))
                 {
                     log.DebugFormat("fail to get api WS sWSURL={0}, sWSUserName={1}, sWSPass={2}", sWSURL, sWSUserName, sWSPass);
@@ -261,7 +260,6 @@ public partial class adm_video_popup_selector : System.Web.UI.Page
       string sRet = "";
       List<int> assetIds = SearchMedias(Query);
       List<AssetDetails> assetDetailsIds = new List<AssetDetails>();
-     // Dictionary<int, KeyValuePair<int, string>> defaulrPicIds = new Dictionary<int, KeyValuePair<int, string>>();// groupid <DEFAULT_PIC_ID, PICS_REMOTE_BASE_URL>
        ODBCWrapper.DataSetSelectQuery selectQuery;
       if (assetIds != null && assetIds.Count > 0)
       {
@@ -286,35 +284,6 @@ public partial class adm_video_popup_selector : System.Web.UI.Page
           selectQuery = null;
       }
 
-      //List<int> GroupIDs = DAL.UtilsDal.GetAllRelatedGroups(LoginManager.GetLoginGroupID());
-      
-      //selectQuery = new ODBCWrapper.DataSetSelectQuery();
-      //selectQuery += "select DEFAULT_PIC_ID, PICS_REMOTE_BASE_URL,  id  from groups WITH(NOLOCK) where id in ( " + string.Join(",", GroupIDs) + " )";
-      //if (selectQuery.Execute("query", true) != null)
-      //{
-      //    DataTable dt = selectQuery.Table("query");
-      //    foreach (DataRow dr in dt.Rows)
-      //    {
-      //        int group = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
-      //        string basePicsURL = ODBCWrapper.Utils.GetSafeStr(dr, "PICS_REMOTE_BASE_URL");
-      //        if (string.IsNullOrEmpty(basePicsURL))
-      //        {
-      //            basePicsURL = "pics";
-      //        }
-      //        else if (basePicsURL.ToLower().Trim().StartsWith("http://") == false && basePicsURL.ToLower().Trim().StartsWith("https://") == false)
-      //        {
-      //            basePicsURL = "http://" + basePicsURL;
-      //        }
-
-      //        defaulrPicIds.Add( group,
-      //            new KeyValuePair<int, string>(
-      //            ODBCWrapper.Utils.GetIntSafeVal(dr, "DEFAULT_PIC_ID"),
-      //            basePicsURL
-      //            ));
-      //    }
-      //}
-      //selectQuery.Finish();
-      //selectQuery = null;
       
       foreach (AssetDetails asset in assetDetailsIds)
       {
