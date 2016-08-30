@@ -216,6 +216,17 @@
           <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
         </s:sequence>
       </s:complexType>
+      <s:complexType name="ApiArgumentPermissionItem">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PermissionItem">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="Service" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="Action" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="Parameter" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="ApiParameterPermissionItem">
         <s:complexContent mixed="false">
           <s:extension base="tns:PermissionItem">
@@ -2045,6 +2056,8 @@
             <s:element minOccurs="0" maxOccurs="1" name="UserIP" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="SiteGuid" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="DomainId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="ExectGroupId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="IgnoreDeviceRule" type="s:boolean" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -3223,6 +3236,7 @@
           <s:element minOccurs="0" maxOccurs="1" name="ExtensionData" type="tns:ExtensionDataObject" />
           <s:element minOccurs="1" maxOccurs="1" name="CHANNEL_CATCH_UP_BUFFER" type="s:long" />
           <s:element minOccurs="0" maxOccurs="1" name="CREATE_DATE" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="CRID" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="DESCRIPTION" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="ENABLE_CATCH_UP" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="ENABLE_CDVR" type="s:int" />
@@ -3237,7 +3251,6 @@
           <s:element minOccurs="0" maxOccurs="1" name="EPG_TAGS" type="tns:ArrayOfEPGDictionary" />
           <s:element minOccurs="0" maxOccurs="1" name="GROUP_ID" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="IS_ACTIVE" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="IS_RECORDED" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="LIKE_COUNTER" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="NAME" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="PIC_ID" type="s:int" />
@@ -6030,6 +6043,8 @@
     <wsdl:part name="UserIP" type="s:string" />
     <wsdl:part name="SiteGuid" type="s:string" />
     <wsdl:part name="DomainId" type="s:string" />
+    <wsdl:part name="ExectGroupId" type="s:string" />
+    <wsdl:part name="IgnoreDeviceRule" type="s:string" />
   </wsdl:message>
   <wsdl:message name="SearchAssetsHttpPostOut">
     <wsdl:part name="Body" element="tns:ArrayOfUnifiedSearchResult" />
