@@ -21,11 +21,11 @@ namespace WebAPI.Models.General
         [DataMember(Name = "relatedObjects")]
         [JsonProperty(PropertyName = "relatedObjects")]
         [XmlElement(ElementName = "relatedObjects")]
-        public string relatedObjects
+        public SerializableDictionary<string, KalturaListResponse> relatedObjects
         {
             get
             {
-                return string.Empty;
+                return null;
             }
 
             set
