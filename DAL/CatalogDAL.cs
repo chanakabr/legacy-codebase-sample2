@@ -2587,7 +2587,7 @@ namespace Tvinci.Core.DAL
             }
 
             // get all documents from CB
-            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
             IDictionary<string, MediaMarkLog> usersData = cbManager.GetValues<MediaMarkLog>(userKeys, true, true);
             List<UserMediaMark> usersMediaMark = new List<UserMediaMark>();
 
