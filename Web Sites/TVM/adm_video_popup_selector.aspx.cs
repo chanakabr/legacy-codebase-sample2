@@ -11,9 +11,13 @@ using System.Web.UI.HtmlControls;
 using TVinciShared;
 using apiWS;
 using System.Collections.Generic;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_video_popup_selector : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     static protected string m_sIDs;
     protected string m_sMenu;
     protected string m_sSubMenu;
@@ -199,14 +203,14 @@ public partial class adm_video_popup_selector : System.Web.UI.Page
     }
 
 
-    protected List<string> SearchMedias(string freeText)
+    protected List<int> SearchMedias(string Query)
     {
       
-        List<string> assetIds = new List<string>();
+        List<int> assetIds = new List<int>();
         UnifiedSearchResult[] assets;
         try
         {
-            if (!string.IsNullOrEmpty(freeText))
+            if (!string.IsNullOrEmpty(Query))
             {
                 //call api to get assets 
 
@@ -217,27 +221,33 @@ public partial class adm_video_popup_selector : System.Web.UI.Page
                 int nParentGroupID = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
                 TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "SearchAssets", "api", sIP, ref sWSUserName, ref sWSPass);
                 string sWSURL = GetWSURL("api_ws");
+                sWSURL = "http://localhost/ws_api/api.asmx";
                 if (string.IsNullOrEmpty(sWSURL) || string.IsNullOrEmpty(sWSUserName) || string.IsNullOrEmpty(sWSPass))
                 {
+                    log.DebugFormat("fail to get api WS sWSURL={0}, sWSUserName={1}, sWSPass={2}", sWSURL, sWSUserName, sWSPass);
                     return assetIds;
                 }
 
                 apiWS.API client = new apiWS.API();
                 client.Url = sWSURL;
 
-                assets = client.SearchAssets(sWSUserName, sWSPass, freeText, 0, 200, true, 0, true, string.Empty, sIP, string.Empty, 0);
+                assets = client.SearchAssets(sWSUserName, sWSPass, Query, 0, 50, false, 0, false, string.Empty, sIP, string.Empty, 0, LoginManager.GetLoginGroupID(), true);
                 if (assets != null && assets.Length > 0)
                 {
+                    int asset = 0;
                     foreach (UnifiedSearchResult item in assets)
                     {
-                        assetIds.Add(item.AssetId);
+                        if (int.TryParse(item.AssetId, out asset))
+                        {
+                            assetIds.Add(asset);
+                        }
                     }
                 }
             }
         }
         catch (Exception ex)
         {
-
+            log.ErrorFormat("fail to get assets in SearchMedias Query = {0}", Query);
         }
         return assetIds;
     }
@@ -246,39 +256,98 @@ public partial class adm_video_popup_selector : System.Web.UI.Page
         return TVinciShared.WS_Utils.GetTcmConfigValue(key);
     }
 
-  public string SearchPics(string freeText)
+  public string SearchPics(string Query)
   {
       string sRet = "";
-      List<string> assetIds = SearchMedias(freeText);
-      List<KeyValuePair<int, int>> assetFileIds = new List<KeyValuePair<int, int>>();
+      List<int> assetIds = SearchMedias(Query);
+      List<AssetDetails> assetDetailsIds = new List<AssetDetails>();
+     // Dictionary<int, KeyValuePair<int, string>> defaulrPicIds = new Dictionary<int, KeyValuePair<int, string>>();// groupid <DEFAULT_PIC_ID, PICS_REMOTE_BASE_URL>
+       ODBCWrapper.DataSetSelectQuery selectQuery;
       if (assetIds != null && assetIds.Count > 0)
       {
-          ODBCWrapper.DataSetSelectQuery selectQuery1 = new ODBCWrapper.DataSetSelectQuery();
-          selectQuery1 += "select mf.id, mf.media_id from media_files mf where mf.status=1 and mf.is_active=1 and ";
-          selectQuery1 += " mf.media_id in ("+ string.Join(",", assetIds) +") ";
-          selectQuery1 += " order by mf.MEDIA_TYPE_ID";
-          if (selectQuery1.Execute("query", true) != null)
+          selectQuery = new ODBCWrapper.DataSetSelectQuery();
+          selectQuery += "select m.id, m.group_id, m.name, m.MEDIA_PIC_ID  from media m where m.status=1 and m.is_active=1 and ";
+          selectQuery += " m.id in (" + string.Join(",", assetIds) + ") ";         
+          if (selectQuery.Execute("query", true) != null)
           {
-              DataTable dt = selectQuery1.Table("query");
+              DataTable dt = selectQuery.Table("query");
               foreach (DataRow dr in dt.Rows)
               {
-                  assetFileIds.Add(new KeyValuePair<int, int>(
-                      ODBCWrapper.Utils.GetIntSafeVal(dr, "id"), ODBCWrapper.Utils.GetIntSafeVal(dr, "media_id")
+                  assetDetailsIds.Add(new AssetDetails(
+                      ODBCWrapper.Utils.GetIntSafeVal(dr, "id"), ODBCWrapper.Utils.GetIntSafeVal(dr, "id"),
+                      ODBCWrapper.Utils.GetIntSafeVal(dr, "group_id"),
+                      ODBCWrapper.Utils.GetSafeStr(dr, "name"),
+                      ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_PIC_ID")
                   ));
               }
           }
+
+          selectQuery.Finish();
+          selectQuery = null;
       }
-      foreach (KeyValuePair<int,int> fileIMediaID in assetFileIds)
+
+      //List<int> GroupIDs = DAL.UtilsDal.GetAllRelatedGroups(LoginManager.GetLoginGroupID());
+      
+      //selectQuery = new ODBCWrapper.DataSetSelectQuery();
+      //selectQuery += "select DEFAULT_PIC_ID, PICS_REMOTE_BASE_URL,  id  from groups WITH(NOLOCK) where id in ( " + string.Join(",", GroupIDs) + " )";
+      //if (selectQuery.Execute("query", true) != null)
+      //{
+      //    DataTable dt = selectQuery.Table("query");
+      //    foreach (DataRow dr in dt.Rows)
+      //    {
+      //        int group = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
+      //        string basePicsURL = ODBCWrapper.Utils.GetSafeStr(dr, "PICS_REMOTE_BASE_URL");
+      //        if (string.IsNullOrEmpty(basePicsURL))
+      //        {
+      //            basePicsURL = "pics";
+      //        }
+      //        else if (basePicsURL.ToLower().Trim().StartsWith("http://") == false && basePicsURL.ToLower().Trim().StartsWith("https://") == false)
+      //        {
+      //            basePicsURL = "http://" + basePicsURL;
+      //        }
+
+      //        defaulrPicIds.Add( group,
+      //            new KeyValuePair<int, string>(
+      //            ODBCWrapper.Utils.GetIntSafeVal(dr, "DEFAULT_PIC_ID"),
+      //            basePicsURL
+      //            ));
+      //    }
+      //}
+      //selectQuery.Finish();
+      //selectQuery = null;
+      
+      foreach (AssetDetails asset in assetDetailsIds)
       {
-          DataRecordMediaViewerField dr_player = new DataRecordMediaViewerField("", fileIMediaID.Key);
-          dr_player.Initialize("הוידאו", "adm_table_header_nbg", "FormInput", "STREAMING_CODE", false);
-          string sRef = dr_player.GetTNImage();
-          string sName = PageUtils.GetTableSingleVal(Session["vidTable"].ToString(), "name", fileIMediaID.Value).ToString();
+          DataRecordMediaViewerField dr_player = new DataRecordMediaViewerField("", asset.assetId);
+          dr_player.Initialize("", "adm_table_header_nbg", "FormInput", "", false);
+          //int picId = asset.mediaPicId != 0 ? asset.mediaPicId : defaulrPicIds[asset.groupId].Key;
+          string sRef = dr_player.GetImapgeSrc(asset.mediaPicId, asset.groupId);
+                   
           sRet += "<li>";
-          sRet += "<h5 title=\"" + sName + "\">" + sName + "</h5>";
-          sRet += "<img src=\"" + sRef + "\" alt=\"" + sName + "\" /><a href=\"javascript:addPic(" + fileIMediaID.Value + " , '" + sRef + "','" + sName.Replace("\"", "~~qoute~~").Replace("'", "~~apos~~") + "');\" title=\"Add\">Add</a></li>";
+          sRet += "<h5 title=\"" + asset.assetName + "\">" + asset.assetName + "</h5>";
+          sRet += "<img src=\"" + sRef + "\" alt=\"" + asset.assetName + "\" /><a href=\"javascript:addPic(" + asset.assetId + " , '" + sRef + "','" + asset.assetName.Replace("\"", "~~qoute~~").Replace("'", "~~apos~~") + "');\" title=\"Add\">Add</a></li>";
+
       }
 
       return sRet;
+  }
+
+  public class AssetDetails
+  {
+      public int assetFileId = 0;
+      public int assetId = 0;
+      public int groupId = 0;
+      public string assetName = string.Empty;
+      public int mediaPicId = 0;
+
+      public AssetDetails(int assetFileId, int assetId, int groupId, string assetName, int mediaPicId)
+      {
+          this.assetFileId = assetFileId;
+          this.assetId = assetId;
+          this.groupId = groupId;
+          this.assetName = assetName;
+          this.mediaPicId = mediaPicId;
+      }
+
   }
 }

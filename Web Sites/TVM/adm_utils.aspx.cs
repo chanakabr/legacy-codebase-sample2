@@ -106,8 +106,9 @@ public partial class adm_utils : System.Web.UI.Page
                 nRowCounter++;
 
                 Int32 nMediaVidID = 0;
+                int groupId = 0;
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery += "select mf.id from media_files mf where mf.status=1 and ";
+                selectQuery += "select mf.id, mf.group_id from media_files mf where mf.status=1 and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("mf.media_id", "=", int.Parse(sSplit[i]));
                 selectQuery += " order by mf.MEDIA_TYPE_ID";
                 if (selectQuery.Execute("query", true) != null)
@@ -116,6 +117,7 @@ public partial class adm_utils : System.Web.UI.Page
                     if (nCount > 0)
                     {
                         nMediaVidID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
+                        groupId = int.Parse(selectQuery.Table("query").DefaultView[0].Row["group_id"].ToString());
                     }
                 }
                 selectQuery.Finish();
@@ -124,7 +126,12 @@ public partial class adm_utils : System.Web.UI.Page
                 DataRecordMediaViewerField dr_player = new DataRecordMediaViewerField("", nMediaVidID);
                 dr_player.Initialize("Video", "adm_table_header_nbg", "FormInput", "STREAMING_CODE", false);
                 string sName = PageUtils.GetTableSingleVal("media", "name", int.Parse(sSplit[i])).ToString();
-                string sPicURL = dr_player.GetTNImage();
+                //string sPicURL = dr_player.GetTNImage();
+
+                int picId = ODBCWrapper.Utils.GetIntSafeVal(PageUtils.GetTableSingleVal("media", "MEDIA_PIC_ID", int.Parse(sSplit[i])));
+                
+                string sPicURL = dr_player.GetImapgeSrc(picId, groupId);               
+
                 sRet += "<img style=\"cursor: pointer;\" onclick=\"ChangeVideoPlayer('" + sObjectID + "','" + dr_player.GetPlayerSrc() + "');\" src=\"";
                 sRet += sPicURL + "\" class=\"img_border\"/>";
                 sRet += "<div class=\"vid_name\">\r\n" + sName + "</div>\r\n";
