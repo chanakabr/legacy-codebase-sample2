@@ -793,33 +793,50 @@ namespace TVinciShared
                 bool isImageServer = false;
                 isImageServer = ImageUtils.IsDownloadPicWithImageServer(LoginManager.GetLoginGroupID());
 
+                if (groupId == 0)
+                {
+                    groupId = LoginManager.GetLoginGroupID();
+                }
+
+                int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
+
                 string basePicsURL = string.Empty;
                 int defaultPicId = 0;
+                int parentDefaultPicId = 0;
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery += "select DEFAULT_PIC_ID, PICS_REMOTE_BASE_URL,  id  from groups WITH(NOLOCK) where id in ( " + groupId + " )";
+                selectQuery += "select DEFAULT_PIC_ID, PICS_REMOTE_BASE_URL,  id  from groups WITH(NOLOCK) where id in ( " + groupId + "," + parentGroupID + " )";
                 if (selectQuery.Execute("query", true) != null)
                 {
                     DataTable dt = selectQuery.Table("query");
                     foreach (DataRow dr in dt.Rows)
                     {
+
                         int group = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
-                        basePicsURL = ODBCWrapper.Utils.GetSafeStr(dr, "PICS_REMOTE_BASE_URL");
-                        if (string.IsNullOrEmpty(basePicsURL))
+                        if (group == groupId)
                         {
-                            basePicsURL = "pics";
+                            basePicsURL = ODBCWrapper.Utils.GetSafeStr(dr, "PICS_REMOTE_BASE_URL");
+                            if (string.IsNullOrEmpty(basePicsURL))
+                            {
+                                basePicsURL = "pics";
+                            }
+                            else if (basePicsURL.ToLower().Trim().StartsWith("http://") == false && basePicsURL.ToLower().Trim().StartsWith("https://") == false)
+                            {
+                                basePicsURL = "http://" + basePicsURL;
+                            }
+                            defaultPicId = ODBCWrapper.Utils.GetIntSafeVal(dr, "DEFAULT_PIC_ID");
                         }
-                        else if (basePicsURL.ToLower().Trim().StartsWith("http://") == false && basePicsURL.ToLower().Trim().StartsWith("https://") == false)
+                        else if (group == parentGroupID)
                         {
-                            basePicsURL = "http://" + basePicsURL;
+                            parentDefaultPicId = ODBCWrapper.Utils.GetIntSafeVal(dr, "DEFAULT_PIC_ID");
                         }
-                        defaultPicId = ODBCWrapper.Utils.GetIntSafeVal(dr, "DEFAULT_PIC_ID");
                     }
                 }
+                
                 selectQuery.Finish();
                 selectQuery = null;
                 if (picId == 0)
                 {
-                    picId = defaultPicId;
+                    picId = defaultPicId != 0 ? defaultPicId : parentDefaultPicId;
                 }
 
                 if (isImageServer)
