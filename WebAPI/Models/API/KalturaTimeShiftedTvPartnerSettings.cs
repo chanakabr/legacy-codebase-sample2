@@ -117,7 +117,7 @@ namespace WebAPI.Models.API
         public int? ProtectionPeriod { get; set; }
 
         /// <summary>
-        /// Indicates how long (in seconds) after the program ends the recording will end
+        /// Indicates how many percent of the quota can be used for protection
         /// </summary>
         [DataMember(Name = "protectionQuotaPercentage")]
         [JsonProperty("protectionQuotaPercentage")]
@@ -141,7 +141,7 @@ namespace WebAPI.Models.API
         public int? CleanupNoticePeroid { get; set; }
 
         /// <summary>
-        /// The time in days before the recording lifetime is due from which the client should be able to warn user about deletion.
+        /// Is recording of series enabled
         /// </summary>
         [DataMember(Name = "seriesRecordingEnabled")]
         [JsonProperty("seriesRecordingEnabled")]
