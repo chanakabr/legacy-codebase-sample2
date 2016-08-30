@@ -894,5 +894,96 @@ namespace TVinciShared
             selectQuery = null;
             return rationId;
         }
+
+        public static string GetImageUrl(int picId, int groupId)
+        {
+            string imageUrl = string.Empty;
+            try
+            {
+                bool isImageServer = false;
+                isImageServer = ImageUtils.IsDownloadPicWithImageServer(LoginManager.GetLoginGroupID());
+
+                if (groupId == 0)
+                {
+                    groupId = LoginManager.GetLoginGroupID();
+                }
+
+                int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
+
+                string basePicsURL = string.Empty;
+                int defaultPicId = 0;
+                int parentDefaultPicId = 0;
+
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select DEFAULT_PIC_ID, PICS_REMOTE_BASE_URL, id from groups WITH(NOLOCK) where id in ( " + groupId + "," + parentGroupID + " )";
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    DataTable dt = selectQuery.Table("query");
+                    foreach (DataRow dr in dt.Rows)
+                    {
+
+                        int group = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
+                        if (group == groupId)
+                        {
+                            basePicsURL = ODBCWrapper.Utils.GetSafeStr(dr, "PICS_REMOTE_BASE_URL");
+                            if (string.IsNullOrEmpty(basePicsURL))
+                            {
+                                basePicsURL = "pics";
+                            }
+                            else if (basePicsURL.ToLower().Trim().StartsWith("http://") == false && basePicsURL.ToLower().Trim().StartsWith("https://") == false)
+                            {
+                                basePicsURL = "http://" + basePicsURL;
+                            }
+                            defaultPicId = ODBCWrapper.Utils.GetIntSafeVal(dr, "DEFAULT_PIC_ID");
+                        }
+                        else if (group == parentGroupID)
+                        {
+                            parentDefaultPicId = ODBCWrapper.Utils.GetIntSafeVal(dr, "DEFAULT_PIC_ID");
+                        }
+                    }
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+
+                if (picId == 0)
+                {
+                    picId = defaultPicId != 0 ? defaultPicId : parentDefaultPicId;
+                }
+
+                if (isImageServer)
+                {
+                    imageUrl = PageUtils.GetPicImageUrlByRatio(picId, 90, 65, groupId);
+                }
+                else
+                {
+                    imageUrl = basePicsURL;
+                    string sPicURL = PageUtils.GetTableSingleVal("pics", "base_url", picId).ToString();
+                    string sP = ImageUtils.GetTNName(sPicURL, "tn");
+
+                    if (imageUrl.EndsWith("=") == false)
+                    {
+                        imageUrl = string.Format("{0}/", imageUrl);
+                    }
+                    if (imageUrl.EndsWith("=") == true)
+                    {
+                        string sTmp1 = "";
+                        string[] s1 = sP.Split('.');
+                        for (int j1 = 0; j1 < s1.Length - 1; j1++)
+                        {
+                            if (j1 > 0)
+                                sTmp1 += ".";
+                            sTmp1 += s1[j1];
+                        }
+                        sP = sTmp1;
+                        imageUrl = string.Format("{0}{1}", imageUrl, sP);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                imageUrl = string.Empty;
+            }
+            return imageUrl;
+        }
     }
 }
