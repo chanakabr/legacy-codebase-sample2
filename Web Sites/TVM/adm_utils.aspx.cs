@@ -130,7 +130,7 @@ public partial class adm_utils : System.Web.UI.Page
 
                 int picId = ODBCWrapper.Utils.GetIntSafeVal(PageUtils.GetTableSingleVal("media", "MEDIA_PIC_ID", int.Parse(sSplit[i])));
                 
-                string sPicURL = dr_player.GetImapgeSrc(picId, groupId);               
+                string sPicURL = ImageUtils.GetImapgeSrc(picId, groupId);
 
                 sRet += "<img style=\"cursor: pointer;\" onclick=\"ChangeVideoPlayer('" + sObjectID + "','" + dr_player.GetPlayerSrc() + "');\" src=\"";
                 sRet += sPicURL + "\" class=\"img_border\"/>";

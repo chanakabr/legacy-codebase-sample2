@@ -13,6 +13,7 @@ using apiWS;
 using System.Collections.Generic;
 using KLogMonitor;
 using System.Reflection;
+using System.Text;
 
 public partial class adm_video_popup_selector : System.Web.UI.Page
 {
@@ -205,7 +206,7 @@ public partial class adm_video_popup_selector : System.Web.UI.Page
 
     protected List<int> SearchMedias(string Query)
     {
-      
+
         List<int> assetIds = new List<int>();
         UnifiedSearchResult[] assets;
         try
@@ -250,73 +251,41 @@ public partial class adm_video_popup_selector : System.Web.UI.Page
         }
         return assetIds;
     }
-  private string GetWSURL(string key)
+    private string GetWSURL(string key)
     {
         return TVinciShared.WS_Utils.GetTcmConfigValue(key);
     }
 
-  public string SearchPics(string Query)
-  {
-      string sRet = "";
-      List<int> assetIds = SearchMedias(Query);
-      List<AssetDetails> assetDetailsIds = new List<AssetDetails>();
-       ODBCWrapper.DataSetSelectQuery selectQuery;
-      if (assetIds != null && assetIds.Count > 0)
-      {
-          selectQuery = new ODBCWrapper.DataSetSelectQuery();
-          selectQuery += "select m.id, m.group_id, m.name, m.MEDIA_PIC_ID  from media m where m.status=1 and m.is_active=1 and ";
-          selectQuery += " m.id in (" + string.Join(",", assetIds) + ") ";         
-          if (selectQuery.Execute("query", true) != null)
-          {
-              DataTable dt = selectQuery.Table("query");
-              foreach (DataRow dr in dt.Rows)
-              {
-                  assetDetailsIds.Add(new AssetDetails(
-                      ODBCWrapper.Utils.GetIntSafeVal(dr, "id"), ODBCWrapper.Utils.GetIntSafeVal(dr, "id"),
-                      ODBCWrapper.Utils.GetIntSafeVal(dr, "group_id"),
-                      ODBCWrapper.Utils.GetSafeStr(dr, "name"),
-                      ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_PIC_ID")
-                  ));
-              }
-          }
-
-          selectQuery.Finish();
-          selectQuery = null;
-      }
-
-      
-      foreach (AssetDetails asset in assetDetailsIds)
-      {
-          DataRecordMediaViewerField dr_player = new DataRecordMediaViewerField("", asset.assetId);
-          dr_player.Initialize("", "adm_table_header_nbg", "FormInput", "", false);
-          //int picId = asset.mediaPicId != 0 ? asset.mediaPicId : defaulrPicIds[asset.groupId].Key;
-          string sRef = dr_player.GetImapgeSrc(asset.mediaPicId, asset.groupId);
-                   
-          sRet += "<li>";
-          sRet += "<h5 title=\"" + asset.assetName + "\">" + asset.assetName + "</h5>";
-          sRet += "<img src=\"" + sRef + "\" alt=\"" + asset.assetName + "\" /><a href=\"javascript:addPic(" + asset.assetId + " , '" + sRef + "','" + asset.assetName.Replace("\"", "~~qoute~~").Replace("'", "~~apos~~") + "');\" title=\"Add\">Add</a></li>";
-
-      }
-
-      return sRet;
-  }
-
-  public class AssetDetails
-  {
-      public int assetFileId = 0;
-      public int assetId = 0;
-      public int groupId = 0;
-      public string assetName = string.Empty;
-      public int mediaPicId = 0;
-
-      public AssetDetails(int assetFileId, int assetId, int groupId, string assetName, int mediaPicId)
-      {
-          this.assetFileId = assetFileId;
-          this.assetId = assetId;
-          this.groupId = groupId;
-          this.assetName = assetName;
-          this.mediaPicId = mediaPicId;
-      }
-
-  }
+    public string SearchPics(string Query)
+    {
+        StringBuilder sRet = new StringBuilder();
+        string sRet2 = string.Empty;
+        List<int> assetIds = SearchMedias(Query);
+        ODBCWrapper.DataSetSelectQuery selectQuery;
+        DataTable dt = null;
+        if (assetIds != null && assetIds.Count > 0)
+        {
+            selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select m.id, m.group_id, m.name, m.MEDIA_PIC_ID  from media m where m.status=1 and ";
+            selectQuery += " m.id in (" + string.Join(",", assetIds) + ") ";
+            if (selectQuery.Execute("query", true) != null)
+            {
+                dt = selectQuery.Table("query");
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+            if (dt != null && dt.Rows != null)
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    string name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                    string picUrl = ImageUtils.GetImapgeSrc(ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_PIC_ID"), ODBCWrapper.Utils.GetIntSafeVal(dr, "group_id"));
+                    sRet.AppendFormat("<li><h5 title=\"{0}\">{1}</h5>", name, name);
+                    sRet.AppendFormat("<img src=\"{0}\" alt=\"{1}\"><a href=\"javascript:addPic({2},'{3}','{4}');\" title=\"Add\">Add</a></li>",
+                        picUrl, name, ODBCWrapper.Utils.GetIntSafeVal(dr, "id"), picUrl, name.Replace("\"", "~~qoute~~").Replace("'", "~~apos~~"));
+                }
+            }
+        }        
+        return sRet.ToString();
+    }
 }
