@@ -279,7 +279,7 @@ public partial class adm_video_popup_selector : System.Web.UI.Page
                 foreach (DataRow dr in dt.Rows)
                 {
                     string name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
-                    string picUrl = ImageUtils.GetImapgeSrc(ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_PIC_ID"), ODBCWrapper.Utils.GetIntSafeVal(dr, "group_id"));
+                    string picUrl = ImageUtils.GetImageUrl(ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_PIC_ID"), ODBCWrapper.Utils.GetIntSafeVal(dr, "group_id"));
                     sRet.AppendFormat("<li><h5 title=\"{0}\">{1}</h5>", name, name);
                     sRet.AppendFormat("<img src=\"{0}\" alt=\"{1}\"><a href=\"javascript:addPic({2},'{3}','{4}');\" title=\"Add\">Add</a></li>",
                         picUrl, name, ODBCWrapper.Utils.GetIntSafeVal(dr, "id"), picUrl, name.Replace("\"", "~~qoute~~").Replace("'", "~~apos~~"));
