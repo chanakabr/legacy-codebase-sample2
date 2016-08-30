@@ -259,7 +259,7 @@ namespace ElasticSearch.Searcher
         }
 
         public void BuildInnerFilterAndQuery(out BaseFilterCompositeType filterPart, out IESTerm queryTerm, 
-            bool ignoreDeviceRuleID = false, bool isActiveOnly = true)
+            bool ignoreDeviceRuleID, bool isActiveOnly = true)
         {
             // Eventual filter will be:
             //
@@ -322,6 +322,16 @@ namespace ElasticSearch.Searcher
                 };
             
                 globalFilter.AddChild(isActiveTerm);
+            }
+
+            if (this.SearchDefinitions.exectGroupId != 0)
+            {
+                ESTerm exectGroupTerm = new ESTerm(true)
+                {
+                    Key = "group_id",
+                    Value = this.SearchDefinitions.exectGroupId.ToString()
+                };
+                globalFilter.AddChild(exectGroupTerm);
             }
 
             #region Specific assets - included and excluded
@@ -558,27 +568,28 @@ namespace ElasticSearch.Searcher
                 #endregion
 
                 #region Device types
-
-                ESTerms deviceRulesTerms = new ESTerms(true)
-                {
-                    Key = "device_rule_id"
-                };
-
-                deviceRulesTerms.Value.Add("0");
-
-                if (this.SearchDefinitions.deviceRuleId != null &&
-                    this.SearchDefinitions.deviceRuleId.Length > 0)
-                {
-
-                    foreach (int deviceRuleId in this.SearchDefinitions.deviceRuleId)
-                    {
-                        deviceRulesTerms.Value.Add(deviceRuleId.ToString());
-                    }                    
-                }
-
                 if (!ignoreDeviceRuleID)
-                    mediaFilter.AddChild(deviceRulesTerms);
+                {
+                    ESTerms deviceRulesTerms = new ESTerms(true)
+                    {
+                        Key = "device_rule_id"
+                    };
 
+                    deviceRulesTerms.Value.Add("0");
+
+                    if (this.SearchDefinitions.deviceRuleId != null &&
+                        this.SearchDefinitions.deviceRuleId.Length > 0)
+                    {
+
+                        foreach (int deviceRuleId in this.SearchDefinitions.deviceRuleId)
+                        {
+                            deviceRulesTerms.Value.Add(deviceRuleId.ToString());
+                        }
+                    }
+
+
+                    mediaFilter.AddChild(deviceRulesTerms);
+                }
                 #endregion
 
                 #region Media Dates ranges
@@ -1292,7 +1303,7 @@ namespace ElasticSearch.Searcher
                 IESTerm queryTerm;
 
                 innerQueryBuilder.SearchDefinitions = definition;
-                innerQueryBuilder.BuildInnerFilterAndQuery(out filterPart, out queryTerm);
+                innerQueryBuilder.BuildInnerFilterAndQuery(out filterPart, out queryTerm, definition.shouldIgnoreDeviceRuleID);
 
                 filteredQuery.Filter.FilterSettings.AddChild(filterPart);
                 boolquery.AddChild(queryTerm, CutWith.OR);

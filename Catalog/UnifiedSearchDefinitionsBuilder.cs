@@ -42,6 +42,8 @@ namespace Catalog
                 definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate();
                 definitions.shouldDateSearchesApplyToAllTypes = request.shouldDateSearchesApplyToAllTypes;
 
+                definitions.shouldIgnoreDeviceRuleID = request.shouldIgnoreDeviceRuleID;
+
                 GroupManager groupManager = new GroupManager();
                 Group group = groupManager.GetGroup(parentGroupID);
 
@@ -60,7 +62,10 @@ namespace Catalog
                     definitions.shouldUseStartDate = request.m_oFilter.m_bUseStartDate;
                     definitions.shouldUseFinalEndDate = request.m_oFilter.m_bUseFinalDate;
                     definitions.userTypeID = request.m_oFilter.m_nUserTypeID;
-                    definitions.deviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
+                    if (!definitions.shouldIgnoreDeviceRuleID)
+                    {
+                        definitions.deviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
+                    }
                 }
 
                 OrderObj order = new OrderObj();
@@ -82,6 +87,7 @@ namespace Catalog
                 definitions.groupId = request.m_nGroupID;
                 definitions.permittedWatchRules = Catalog.GetPermittedWatchRules(request.m_nGroupID);
                 definitions.filterPhrase = request.filterTree;
+                definitions.exectGroupId = request.exectGroupId;
 
                 #endregion
 

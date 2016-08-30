@@ -62,6 +62,17 @@ namespace Catalog.Request
         [DataMember]
         public bool shouldDateSearchesApplyToAllTypes;
 
+        //exectGroupId - add new GroupID to Search assets ONLY in specific group 
+        [DataMember]
+        public int exectGroupId;
+
+        /// <summary>
+        /// Defines if search will be used deviceRule
+        /// </summary>
+        [DataMember]
+        public bool shouldIgnoreDeviceRuleID;
+
+
         #endregion
 
         #region Ctor
@@ -94,6 +105,8 @@ namespace Catalog.Request
             this.filterTree = filterTree;
             this.filterQuery = filterQuery;
             this.nameAndDescription = nameAndDescription;
+            this.shouldIgnoreDeviceRuleID = false;
+            this.exectGroupId = 0;
         }
 
         #endregion

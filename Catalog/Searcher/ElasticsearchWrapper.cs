@@ -507,7 +507,7 @@ namespace Catalog
                     BaseFilterCompositeType currentFilter;
                     IESTerm currentQuery;
 
-                    unifiedQueryBuilder.BuildInnerFilterAndQuery(out currentFilter, out currentQuery);
+                    unifiedQueryBuilder.BuildInnerFilterAndQuery(out currentFilter, out currentQuery, definitions.shouldIgnoreDeviceRuleID);
 
                     ESFilteredQuery currentFilteredQuery = new ESFilteredQuery()
                     {

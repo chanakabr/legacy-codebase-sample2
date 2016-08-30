@@ -287,6 +287,13 @@ namespace ApiObjects.SearchObjects
         [DataMember]
         public bool shouldDateSearchesApplyToAllTypes;
 
+        [JsonProperty()]
+        [DataMember]
+        public int exectGroupId
+        {
+            get;
+            set;
+        }
         #endregion
 
         #region Ctor
@@ -298,6 +305,7 @@ namespace ApiObjects.SearchObjects
             pageSize = 0;
             from = 0;
             groupId = 0;
+            exectGroupId = 0;
             epgDaysOffest = 0;
 
             shouldSearchEpg = false;
