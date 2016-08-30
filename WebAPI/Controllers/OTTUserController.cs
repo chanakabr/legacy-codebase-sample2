@@ -693,7 +693,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Retrieve user by external identifier or username 
+        /// Retrieve user by external identifier or username or if filter is null all user in the master or the user itself
         /// </summary>
         /// <param name="filter">Filter request</param>
         /// <remarks>Possible status codes: 
@@ -709,21 +709,39 @@ namespace WebAPI.Controllers
 
             try
             {
+
                 // call client
-                switch (filter.UserByEqual)
+                if (filter == null || (filter != null && string.IsNullOrEmpty(filter.ExternalIdEqual) && string.IsNullOrEmpty(filter.UserNameEqual)))
                 {
-                    case KalturaOTTUserBy.EXTERNAL_ID:
-                        response = ClientsManager.UsersClient().GetUserByExternalID(groupId, filter.ValueEqual);
-                        break;
-                    case KalturaOTTUserBy.USER_NAME:
-                        response = ClientsManager.UsersClient().GetUserByName(groupId, filter.ValueEqual);
-                        
-                        break;
-                    default:
-                        break;
+                    // get all users of the master / itself                    
 
-                } 
+                    List<string> householdUserIds = new List<string>();
 
+                    if (HouseholdUtils.IsUserMaster())
+                    {
+                        householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId);
+                    }
+                    else
+                    {
+                        string userId = KS.GetFromRequest().UserId;
+                        householdUserIds.Add(userId);
+                    }
+                    response = new KalturaOTTUserListResponse();
+                    response.Users = ClientsManager.UsersClient().GetUsersData(groupId, householdUserIds);
+                    if (response.Users != null)
+                    {
+                        response.TotalCount = response.Users.Count();                        
+                    }
+
+                }
+                if (string.IsNullOrEmpty(filter.ExternalIdEqual))
+                {
+                     response = ClientsManager.UsersClient().GetUserByExternalID(groupId, filter.ExternalIdEqual);
+                }
+                else if (string.IsNullOrEmpty(filter.UserNameEqual))
+                {
+                    response = ClientsManager.UsersClient().GetUserByName(groupId, filter.UserNameEqual);
+                }                     
             }
             catch (ClientException ex)
             {
