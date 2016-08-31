@@ -117,6 +117,12 @@ namespace RecordingTaskHandler.WS_CAS {
         
         private System.Threading.SendOrPostCallback CheckRecordingDuplicateCridsOperationCompleted;
         
+        private System.Threading.SendOrPostCallback HandleUserTaskOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback DistributeRecordingWithDomainIdsOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetSeriesIdAndSeasonNumberByEpgIdOperationCompleted;
+        
         private System.Threading.SendOrPostCallback GetUserPermittedItemsOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetDomainPermittedItemsOperationCompleted;
@@ -455,6 +461,15 @@ namespace RecordingTaskHandler.WS_CAS {
         
         /// <remarks/>
         public event CheckRecordingDuplicateCridsCompletedEventHandler CheckRecordingDuplicateCridsCompleted;
+        
+        /// <remarks/>
+        public event HandleUserTaskCompletedEventHandler HandleUserTaskCompleted;
+        
+        /// <remarks/>
+        public event DistributeRecordingWithDomainIdsCompletedEventHandler DistributeRecordingWithDomainIdsCompleted;
+        
+        /// <remarks/>
+        public event GetSeriesIdAndSeasonNumberByEpgIdCompletedEventHandler GetSeriesIdAndSeasonNumberByEpgIdCompleted;
         
         /// <remarks/>
         public event GetUserPermittedItemsCompletedEventHandler GetUserPermittedItemsCompleted;
@@ -2283,13 +2298,12 @@ namespace RecordingTaskHandler.WS_CAS {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetRecordingLicensedLink", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public LicensedLinkResponse GetRecordingLicensedLink(string sWSUserName, string sWSPassword, string userId, int recordingId, System.DateTime startTime, string udid, string userIp, string fileType) {
+        public LicensedLinkResponse GetRecordingLicensedLink(string sWSUserName, string sWSPassword, string userId, int recordingId, string udid, string userIp, string fileType) {
             object[] results = this.Invoke("GetRecordingLicensedLink", new object[] {
                         sWSUserName,
                         sWSPassword,
                         userId,
                         recordingId,
-                        startTime,
                         udid,
                         userIp,
                         fileType});
@@ -2297,12 +2311,12 @@ namespace RecordingTaskHandler.WS_CAS {
         }
         
         /// <remarks/>
-        public void GetRecordingLicensedLinkAsync(string sWSUserName, string sWSPassword, string userId, int recordingId, System.DateTime startTime, string udid, string userIp, string fileType) {
-            this.GetRecordingLicensedLinkAsync(sWSUserName, sWSPassword, userId, recordingId, startTime, udid, userIp, fileType, null);
+        public void GetRecordingLicensedLinkAsync(string sWSUserName, string sWSPassword, string userId, int recordingId, string udid, string userIp, string fileType) {
+            this.GetRecordingLicensedLinkAsync(sWSUserName, sWSPassword, userId, recordingId, udid, userIp, fileType, null);
         }
         
         /// <remarks/>
-        public void GetRecordingLicensedLinkAsync(string sWSUserName, string sWSPassword, string userId, int recordingId, System.DateTime startTime, string udid, string userIp, string fileType, object userState) {
+        public void GetRecordingLicensedLinkAsync(string sWSUserName, string sWSPassword, string userId, int recordingId, string udid, string userIp, string fileType, object userState) {
             if ((this.GetRecordingLicensedLinkOperationCompleted == null)) {
                 this.GetRecordingLicensedLinkOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetRecordingLicensedLinkOperationCompleted);
             }
@@ -2311,7 +2325,6 @@ namespace RecordingTaskHandler.WS_CAS {
                         sWSPassword,
                         userId,
                         recordingId,
-                        startTime,
                         udid,
                         userIp,
                         fileType}, this.GetRecordingLicensedLinkOperationCompleted, userState);
@@ -2354,6 +2367,115 @@ namespace RecordingTaskHandler.WS_CAS {
             if ((this.CheckRecordingDuplicateCridsCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.CheckRecordingDuplicateCridsCompleted(this, new CheckRecordingDuplicateCridsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/HandleUserTask", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status HandleUserTask(string sWSUserName, string sWSPassword, int domainId, string userId, UserTaskType actionType) {
+            object[] results = this.Invoke("HandleUserTask", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        domainId,
+                        userId,
+                        actionType});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void HandleUserTaskAsync(string sWSUserName, string sWSPassword, int domainId, string userId, UserTaskType actionType) {
+            this.HandleUserTaskAsync(sWSUserName, sWSPassword, domainId, userId, actionType, null);
+        }
+        
+        /// <remarks/>
+        public void HandleUserTaskAsync(string sWSUserName, string sWSPassword, int domainId, string userId, UserTaskType actionType, object userState) {
+            if ((this.HandleUserTaskOperationCompleted == null)) {
+                this.HandleUserTaskOperationCompleted = new System.Threading.SendOrPostCallback(this.OnHandleUserTaskOperationCompleted);
+            }
+            this.InvokeAsync("HandleUserTask", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        domainId,
+                        userId,
+                        actionType}, this.HandleUserTaskOperationCompleted, userState);
+        }
+        
+        private void OnHandleUserTaskOperationCompleted(object arg) {
+            if ((this.HandleUserTaskCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.HandleUserTaskCompleted(this, new HandleUserTaskCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/DistributeRecordingWithDomainIds", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public bool DistributeRecordingWithDomainIds(string sWSUserName, string sWSPassword, long epgId, long Id, System.DateTime epgStartDate, long[] domainIds) {
+            object[] results = this.Invoke("DistributeRecordingWithDomainIds", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        epgId,
+                        Id,
+                        epgStartDate,
+                        domainIds});
+            return ((bool)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void DistributeRecordingWithDomainIdsAsync(string sWSUserName, string sWSPassword, long epgId, long Id, System.DateTime epgStartDate, long[] domainIds) {
+            this.DistributeRecordingWithDomainIdsAsync(sWSUserName, sWSPassword, epgId, Id, epgStartDate, domainIds, null);
+        }
+        
+        /// <remarks/>
+        public void DistributeRecordingWithDomainIdsAsync(string sWSUserName, string sWSPassword, long epgId, long Id, System.DateTime epgStartDate, long[] domainIds, object userState) {
+            if ((this.DistributeRecordingWithDomainIdsOperationCompleted == null)) {
+                this.DistributeRecordingWithDomainIdsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDistributeRecordingWithDomainIdsOperationCompleted);
+            }
+            this.InvokeAsync("DistributeRecordingWithDomainIds", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        epgId,
+                        Id,
+                        epgStartDate,
+                        domainIds}, this.DistributeRecordingWithDomainIdsOperationCompleted, userState);
+        }
+        
+        private void OnDistributeRecordingWithDomainIdsOperationCompleted(object arg) {
+            if ((this.DistributeRecordingWithDomainIdsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.DistributeRecordingWithDomainIdsCompleted(this, new DistributeRecordingWithDomainIdsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetSeriesIdAndSeasonNumberByEpgId", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public KeyValuePair GetSeriesIdAndSeasonNumberByEpgId(string sWSUserName, string sWSPassword, long epgId) {
+            object[] results = this.Invoke("GetSeriesIdAndSeasonNumberByEpgId", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        epgId});
+            return ((KeyValuePair)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetSeriesIdAndSeasonNumberByEpgIdAsync(string sWSUserName, string sWSPassword, long epgId) {
+            this.GetSeriesIdAndSeasonNumberByEpgIdAsync(sWSUserName, sWSPassword, epgId, null);
+        }
+        
+        /// <remarks/>
+        public void GetSeriesIdAndSeasonNumberByEpgIdAsync(string sWSUserName, string sWSPassword, long epgId, object userState) {
+            if ((this.GetSeriesIdAndSeasonNumberByEpgIdOperationCompleted == null)) {
+                this.GetSeriesIdAndSeasonNumberByEpgIdOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetSeriesIdAndSeasonNumberByEpgIdOperationCompleted);
+            }
+            this.InvokeAsync("GetSeriesIdAndSeasonNumberByEpgId", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        epgId}, this.GetSeriesIdAndSeasonNumberByEpgIdOperationCompleted, userState);
+        }
+        
+        private void OnGetSeriesIdAndSeasonNumberByEpgIdOperationCompleted(object arg) {
+            if ((this.GetSeriesIdAndSeasonNumberByEpgIdCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetSeriesIdAndSeasonNumberByEpgIdCompleted(this, new GetSeriesIdAndSeasonNumberByEpgIdCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -6549,12 +6671,12 @@ namespace RecordingTaskHandler.WS_CAS {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteSeriesNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ProtectNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(LicensedLinkNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RetrieveQuotaNPVRCommand))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelSeriesNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByProgramIdNPVRCommand))]
@@ -6645,7 +6767,7 @@ namespace RecordingTaskHandler.WS_CAS {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class DeleteNPVRCommand : BaseNPVRCommand {
+    public partial class CancelNPVRCommand : BaseNPVRCommand {
     }
     
     /// <remarks/>
@@ -6810,7 +6932,7 @@ namespace RecordingTaskHandler.WS_CAS {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class CancelNPVRCommand : BaseNPVRCommand {
+    public partial class DeleteNPVRCommand : BaseNPVRCommand {
     }
     
     /// <remarks/>
@@ -12285,6 +12407,16 @@ namespace RecordingTaskHandler.WS_CAS {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public enum UserTaskType {
+        
+        /// <remarks/>
+        Delete,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum UserCAStatus {
         
         /// <remarks/>
@@ -13467,6 +13599,84 @@ namespace RecordingTaskHandler.WS_CAS {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((bool)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void HandleUserTaskCompletedEventHandler(object sender, HandleUserTaskCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class HandleUserTaskCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal HandleUserTaskCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void DistributeRecordingWithDomainIdsCompletedEventHandler(object sender, DistributeRecordingWithDomainIdsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class DistributeRecordingWithDomainIdsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal DistributeRecordingWithDomainIdsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public bool Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((bool)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetSeriesIdAndSeasonNumberByEpgIdCompletedEventHandler(object sender, GetSeriesIdAndSeasonNumberByEpgIdCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetSeriesIdAndSeasonNumberByEpgIdCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetSeriesIdAndSeasonNumberByEpgIdCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public KeyValuePair Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((KeyValuePair)(this.results[0]));
             }
         }
     }

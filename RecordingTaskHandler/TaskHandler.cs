@@ -12,12 +12,14 @@ using TVinciShared;
 using System.Net;
 using System.Web;
 using System.ServiceModel;
+using DAL;
 
 namespace RecordingTaskHandler
 {
     public class TaskHandler : ITaskHandler
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static bool shouldDistributeRecordingInBulks = TVinciShared.WS_Utils.GetTcmBoolValue("ShouldDistributeRecordingInBulks");
 
         #region ITaskHandler Members
 
@@ -125,7 +127,31 @@ namespace RecordingTaskHandler
                     }
                     case eRecordingTask.DistributeRecording:
                     {
-                        success = cas.DistributeRecording(username, password, request.ProgramId, request.RecordingId, request.EpgStartDate);
+                        if (shouldDistributeRecordingInBulks)
+                        {
+                            RecordingTaskHandler.WS_CAS.KeyValuePair seriesAndSeasonNumber = cas.GetSeriesIdAndSeasonNumberByEpgId(username, password, request.ProgramId);
+                            int seasonNumber = 0;
+                            if (seriesAndSeasonNumber != null && !string.IsNullOrEmpty(seriesAndSeasonNumber.key) && int.TryParse(seriesAndSeasonNumber.value, out seasonNumber))
+                            {
+                                long maxDomainSeriesId = 0;
+                                HashSet<long> domainIds = RecordingsDAL.GetSeriesFollowingDomainsIds(request.GroupID, seriesAndSeasonNumber.key, seasonNumber, ref maxDomainSeriesId);
+                                while (domainIds != null && domainIds.Count > 0 && maxDomainSeriesId > -1)
+                                {
+                                    cas.DistributeRecordingWithDomainIdsAsync(username, password, request.ProgramId, request.RecordingId, request.EpgStartDate, domainIds.ToArray());
+                                    domainIds = RecordingsDAL.GetSeriesFollowingDomainsIds(request.GroupID, seriesAndSeasonNumber.key, seasonNumber, ref maxDomainSeriesId);
+                                }
+                                success = true;
+                            }
+                            else
+                            {
+                                success = false;
+                            }
+                        }
+                        else
+                        {
+                            success = cas.DistributeRecording(username, password, request.ProgramId, request.RecordingId, request.EpgStartDate);
+                        }
+                        
                         break;
                     }
                     case eRecordingTask.CheckRecordingDuplicateCrids:

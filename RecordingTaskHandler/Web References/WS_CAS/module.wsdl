@@ -1147,7 +1147,6 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="recordingId" type="s:int" />
-            <s:element minOccurs="1" maxOccurs="1" name="startTime" type="s:dateTime" />
             <s:element minOccurs="0" maxOccurs="1" name="udid" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="userIp" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="fileType" type="s:string" />
@@ -1182,6 +1181,64 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="1" maxOccurs="1" name="CheckRecordingDuplicateCridsResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="HandleUserTask">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="actionType" type="tns:UserTaskType" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:simpleType name="UserTaskType">
+        <s:restriction base="s:string">
+          <s:enumeration value="Delete" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="HandleUserTaskResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="HandleUserTaskResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DistributeRecordingWithDomainIds">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="epgId" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="Id" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="epgStartDate" type="s:dateTime" />
+            <s:element minOccurs="0" maxOccurs="1" name="domainIds" type="tns:ArrayOfLong" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DistributeRecordingWithDomainIdsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="DistributeRecordingWithDomainIdsResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSeriesIdAndSeasonNumberByEpgId">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="epgId" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSeriesIdAndSeasonNumberByEpgIdResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetSeriesIdAndSeasonNumberByEpgIdResult" type="tns:KeyValuePair" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -3297,7 +3354,7 @@
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="CancelNPVRCommand">
+      <s:complexType name="DeleteNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
@@ -3338,7 +3395,7 @@
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="DeleteNPVRCommand">
+      <s:complexType name="CancelNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
@@ -3555,6 +3612,7 @@
       <s:element name="RecordingResponse" nillable="true" type="tns:RecordingResponse" />
       <s:element name="DomainQuotaResponse" nillable="true" type="tns:DomainQuotaResponse" />
       <s:element name="LicensedLinkResponse" nillable="true" type="tns:LicensedLinkResponse" />
+      <s:element name="KeyValuePair" nillable="true" type="tns:KeyValuePair" />
       <s:element name="ArrayOfPermittedMediaContainer" nillable="true" type="tns:ArrayOfPermittedMediaContainer" />
       <s:element name="PermittedMediaContainerResponse" nillable="true" type="tns:PermittedMediaContainerResponse" />
       <s:element name="UserCAStatus" type="tns:UserCAStatus" />
@@ -4119,6 +4177,24 @@
   </wsdl:message>
   <wsdl:message name="CheckRecordingDuplicateCridsSoapOut">
     <wsdl:part name="parameters" element="tns:CheckRecordingDuplicateCridsResponse" />
+  </wsdl:message>
+  <wsdl:message name="HandleUserTaskSoapIn">
+    <wsdl:part name="parameters" element="tns:HandleUserTask" />
+  </wsdl:message>
+  <wsdl:message name="HandleUserTaskSoapOut">
+    <wsdl:part name="parameters" element="tns:HandleUserTaskResponse" />
+  </wsdl:message>
+  <wsdl:message name="DistributeRecordingWithDomainIdsSoapIn">
+    <wsdl:part name="parameters" element="tns:DistributeRecordingWithDomainIds" />
+  </wsdl:message>
+  <wsdl:message name="DistributeRecordingWithDomainIdsSoapOut">
+    <wsdl:part name="parameters" element="tns:DistributeRecordingWithDomainIdsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetSeriesIdAndSeasonNumberByEpgIdSoapIn">
+    <wsdl:part name="parameters" element="tns:GetSeriesIdAndSeasonNumberByEpgId" />
+  </wsdl:message>
+  <wsdl:message name="GetSeriesIdAndSeasonNumberByEpgIdSoapOut">
+    <wsdl:part name="parameters" element="tns:GetSeriesIdAndSeasonNumberByEpgIdResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsSoapIn">
     <wsdl:part name="parameters" element="tns:GetUserPermittedItems" />
@@ -4987,7 +5063,6 @@
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="userId" type="s:string" />
     <wsdl:part name="recordingId" type="s:string" />
-    <wsdl:part name="startTime" type="s:string" />
     <wsdl:part name="udid" type="s:string" />
     <wsdl:part name="userIp" type="s:string" />
     <wsdl:part name="fileType" type="s:string" />
@@ -5002,6 +5077,35 @@
   </wsdl:message>
   <wsdl:message name="CheckRecordingDuplicateCridsHttpPostOut">
     <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="HandleUserTaskHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+    <wsdl:part name="actionType" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="HandleUserTaskHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="DistributeRecordingWithDomainIdsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="epgId" type="s:string" />
+    <wsdl:part name="Id" type="s:string" />
+    <wsdl:part name="epgStartDate" type="s:string" />
+    <wsdl:part name="domainIds" type="s4:StringArray" />
+  </wsdl:message>
+  <wsdl:message name="DistributeRecordingWithDomainIdsHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetSeriesIdAndSeasonNumberByEpgIdHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="epgId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetSeriesIdAndSeasonNumberByEpgIdHttpPostOut">
+    <wsdl:part name="Body" element="tns:KeyValuePair" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -6252,6 +6356,18 @@
       <wsdl:input message="tns:CheckRecordingDuplicateCridsSoapIn" />
       <wsdl:output message="tns:CheckRecordingDuplicateCridsSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="HandleUserTask">
+      <wsdl:input message="tns:HandleUserTaskSoapIn" />
+      <wsdl:output message="tns:HandleUserTaskSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DistributeRecordingWithDomainIds">
+      <wsdl:input message="tns:DistributeRecordingWithDomainIdsSoapIn" />
+      <wsdl:output message="tns:DistributeRecordingWithDomainIdsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSeriesIdAndSeasonNumberByEpgId">
+      <wsdl:input message="tns:GetSeriesIdAndSeasonNumberByEpgIdSoapIn" />
+      <wsdl:output message="tns:GetSeriesIdAndSeasonNumberByEpgIdSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsSoapIn" />
       <wsdl:output message="tns:GetUserPermittedItemsSoapOut" />
@@ -6745,6 +6861,18 @@
     <wsdl:operation name="CheckRecordingDuplicateCrids">
       <wsdl:input message="tns:CheckRecordingDuplicateCridsHttpPostIn" />
       <wsdl:output message="tns:CheckRecordingDuplicateCridsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="HandleUserTask">
+      <wsdl:input message="tns:HandleUserTaskHttpPostIn" />
+      <wsdl:output message="tns:HandleUserTaskHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DistributeRecordingWithDomainIds">
+      <wsdl:input message="tns:DistributeRecordingWithDomainIdsHttpPostIn" />
+      <wsdl:output message="tns:DistributeRecordingWithDomainIdsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSeriesIdAndSeasonNumberByEpgId">
+      <wsdl:input message="tns:GetSeriesIdAndSeasonNumberByEpgIdHttpPostIn" />
+      <wsdl:output message="tns:GetSeriesIdAndSeasonNumberByEpgIdHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsHttpPostIn" />
@@ -7449,6 +7577,33 @@
     </wsdl:operation>
     <wsdl:operation name="CheckRecordingDuplicateCrids">
       <soap:operation soapAction="http://ca.tvinci.com/CheckRecordingDuplicateCrids" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="HandleUserTask">
+      <soap:operation soapAction="http://ca.tvinci.com/HandleUserTask" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DistributeRecordingWithDomainIds">
+      <soap:operation soapAction="http://ca.tvinci.com/DistributeRecordingWithDomainIds" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSeriesIdAndSeasonNumberByEpgId">
+      <soap:operation soapAction="http://ca.tvinci.com/GetSeriesIdAndSeasonNumberByEpgId" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -8620,6 +8775,33 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="HandleUserTask">
+      <soap12:operation soapAction="http://ca.tvinci.com/HandleUserTask" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DistributeRecordingWithDomainIds">
+      <soap12:operation soapAction="http://ca.tvinci.com/DistributeRecordingWithDomainIds" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSeriesIdAndSeasonNumberByEpgId">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetSeriesIdAndSeasonNumberByEpgId" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <soap12:operation soapAction="http://ca.tvinci.com/GetUserPermittedItems" style="document" />
       <wsdl:input>
@@ -9723,6 +9905,33 @@
     </wsdl:operation>
     <wsdl:operation name="CheckRecordingDuplicateCrids">
       <http:operation location="/CheckRecordingDuplicateCrids" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="HandleUserTask">
+      <http:operation location="/HandleUserTask" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DistributeRecordingWithDomainIds">
+      <http:operation location="/DistributeRecordingWithDomainIds" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSeriesIdAndSeasonNumberByEpgId">
+      <http:operation location="/GetSeriesIdAndSeasonNumberByEpgId" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
