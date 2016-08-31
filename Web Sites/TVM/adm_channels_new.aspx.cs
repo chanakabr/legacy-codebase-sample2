@@ -25,6 +25,7 @@ public partial class adm_channels_new : System.Web.UI.Page
             Response.Expires = -1;
             return;
         }
+
         if (!IsPostBack)
         {
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
