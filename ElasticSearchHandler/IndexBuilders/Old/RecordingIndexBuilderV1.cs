@@ -41,7 +41,7 @@ namespace ElasticSearchHandler.IndexBuilders
             return ElasticsearchTasksCommon.Utils.GetNewRecordingIndexStr(this.groupId);
         }
 
-        protected override void PopulateIndex(string newIndexName)
+        protected override void PopulateIndex(string newIndexName, GroupsCacheManager.Group group)
         {
             List<int> statuses = new List<int>() { (int)RecordingInternalStatus.OK, (int)RecordingInternalStatus.Waiting,
             (int)RecordingInternalStatus.Canceled, (int)RecordingInternalStatus.Failed};
@@ -55,14 +55,9 @@ namespace ElasticSearchHandler.IndexBuilders
             // Get EPG objects
             List<EpgCB> epgs = epgBL.GetEpgs(epgIds);
 
-            Dictionary<ulong, EpgCB> epgDictionary = new Dictionary<ulong, EpgCB>();
+            Dictionary<ulong, Dictionary<string, EpgCB>> epgDictionary = BuildEpgsLanguageDictionary(epgs);
 
-            foreach (var epg in epgs)
-            {
-                epgDictionary.Add(epg.EpgID, epg);
-            }
-
-            this.AddEPGsToIndex(newIndexName, RECORDING, epgDictionary);
+            this.AddEPGsToIndex(newIndexName, RECORDING, epgDictionary, group);
         }
 
         /// <summary>

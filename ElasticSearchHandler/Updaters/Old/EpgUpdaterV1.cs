@@ -130,8 +130,6 @@ namespace ElasticSearchHandler.Updaters
 
                 if (languages != null)
                 {
-                     //TODO: remove this if when we really support languages:
-                    languages = languages.Where(l => l.IsDefault).ToList();
                     languageCodes = languages.Select(p => p.Code.ToLower()).ToList<string>();
                 }
                 else
@@ -188,7 +186,7 @@ namespace ElasticSearchHandler.Updaters
                                 {
                                     docID = GetDocumentId(epg),
                                     index = alias,
-                                    type = GetDocumentType(),
+                                    type = ElasticSearchTaskUtils.GetTanslationType(GetDocumentType(), group.GetLanguage(epg.Language)),
                                     Operation = eOperation.index,
                                     document = serializedEpg
                                 });
@@ -254,18 +252,33 @@ namespace ElasticSearchHandler.Updaters
 
             if (epgIDs != null & epgIDs.Count > 0)
             {
+                // get all languages per group
+                Group group = GroupsCache.Instance().GetGroup(this.groupId);
+
+                if (group == null)
+                {
+                    log.ErrorFormat("Couldn't get group {0}", this.groupId);
+                    return false;
+                }
+
+                // dictionary contains all language ids and its  code (string)
+                List<LanguageObj> languages = group.GetLangauges();
+
                 List<ESBulkRequestObj<int>> bulkRequests = new List<ESBulkRequestObj<int>>();
                 string alias = GetAlias();
 
                 foreach (int epgId in epgIDs)
                 {
-                    bulkRequests.Add(new ESBulkRequestObj<int>()
+                    foreach (var lang in languages)
                     {
-                        docID = (int)GetDocumentId(epgId),
-                        index = alias,
-                        type = GetDocumentType(),
-                        Operation = eOperation.delete
-                    });
+                        bulkRequests.Add(new ESBulkRequestObj<int>()
+                        {
+                            docID = (int)GetDocumentId(epgId),
+                            index = alias,
+                            type = ElasticSearchTaskUtils.GetTanslationType(GetDocumentType(), lang),
+                            Operation = eOperation.delete
+                        });
+                    }
                 }
 
                 esApi.CreateBulkRequest(bulkRequests);

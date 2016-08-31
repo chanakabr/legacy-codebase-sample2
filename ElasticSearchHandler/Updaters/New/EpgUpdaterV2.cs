@@ -131,8 +131,6 @@ namespace ElasticSearchHandler.Updaters
 
                 if (languages != null)
                 {
-                    //TODO: remove this if when we really support languages:
-                    languages = languages.Where(l => l.IsDefault).ToList();
                     languageCodes = languages.Select(p => p.Code.ToLower()).ToList<string>();
                 }
                 else
@@ -189,7 +187,7 @@ namespace ElasticSearchHandler.Updaters
                                 {
                                     docID = GetDocumentId(epg),
                                     index = alias,
-                                    type = GetDocumentType(),
+                                    type = ElasticSearchTaskUtils.GetTanslationType(GetDocumentType(), group.GetLanguage(epg.Language)),
                                     Operation = eOperation.index,
                                     document = serializedEpg,
                                     routing = epg.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
@@ -256,6 +254,18 @@ namespace ElasticSearchHandler.Updaters
 
             if (epgIDs != null & epgIDs.Count > 0)
             {
+                // get all languages per group
+                Group group = GroupsCache.Instance().GetGroup(this.groupId);
+
+                if (group == null)
+                {
+                    log.ErrorFormat("Couldn't get group {0}", this.groupId);
+                    return false;
+                }
+
+                // dictionary contains all language ids and its  code (string)
+                List<LanguageObj> languages = group.GetLangauges();
+
                 string alias = GetAlias();
 
                 ESTerms terms = new ESTerms(true)
@@ -268,8 +278,12 @@ namespace ElasticSearchHandler.Updaters
                 ESQuery query = new ESQuery(terms);
                 string queryString = query.ToString();
 
-                esApi.DeleteDocsByQuery(alias, GetDocumentType(), ref queryString);
-
+                foreach (var lang in languages)
+                {
+                    string type = ElasticSearchTaskUtils.GetTanslationType(GetDocumentType(), lang);
+                    esApi.DeleteDocsByQuery(alias, type, ref queryString);
+                }
+                
                 result = true;
             }
 

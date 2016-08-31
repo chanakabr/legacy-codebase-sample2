@@ -149,7 +149,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
             log.DebugFormat("Start populating epg index = {0}", newIndexName);
 
-            PopulateIndex(newIndexName);
+            PopulateIndex(newIndexName, group);
 
             #region insert channel queries
 
@@ -261,13 +261,13 @@ namespace ElasticSearchHandler.IndexBuilders
             return ElasticSearchTaskUtils.GetEpgGroupAliasStr(groupId);
         }
 
-        protected virtual void PopulateIndex(string newIndexName)
+        protected virtual void PopulateIndex(string newIndexName, Group group)
         {
             DateTime tempDate = StartDate.Value;
 
             while (tempDate <= this.EndDate.Value)
             {
-                PopulateEpgIndex(newIndexName, EPG, tempDate);
+                PopulateEpgIndex(newIndexName, EPG, tempDate, group);
                 tempDate = tempDate.AddDays(1);
             }
         }
@@ -318,14 +318,14 @@ namespace ElasticSearchHandler.IndexBuilders
             }
         }
 
-        protected void PopulateEpgIndex(string index, string type, DateTime date)
+        protected void PopulateEpgIndex(string index, string type, DateTime date, Group group)
         {
             try
             {
                 // Get EPG objects from CB
-                Dictionary<ulong, EpgCB> programs = GetEpgPrograms(groupId, date);
+                Dictionary<ulong, Dictionary<string, EpgCB>> programs = GetEpgPrograms(groupId, date);
 
-                AddEPGsToIndex(index, type, programs);
+                AddEPGsToIndex(index, type, programs, group);
             }
             catch (Exception ex)
             {
@@ -336,50 +336,59 @@ namespace ElasticSearchHandler.IndexBuilders
             }
         }
 
-        protected virtual void AddEPGsToIndex(string index, string type, Dictionary<ulong, EpgCB> programs)
+        protected virtual void AddEPGsToIndex(string index, string type, Dictionary<ulong, Dictionary<string, EpgCB>> programs, Group group)
         {
             List<ESBulkRequestObj<ulong>> bulkRequests = new List<ESBulkRequestObj<ulong>>();
 
             // GetLinear Channel Values 
-            ElasticSearchTaskUtils.GetLinearChannelValues(programs.Values.ToList(), groupId);
+            var programsList = new List<EpgCB>();
+            foreach (var programsValues in programs.Values)
+            {
+                programsList.AddRange(programsValues.Values);
+            }
+            ElasticSearchTaskUtils.GetLinearChannelValues(programsList, groupId);
 
             // Run on all programs
             foreach (ulong epgID in programs.Keys)
             {
-                EpgCB epg = programs[epgID];
-
-                if (epg != null)
+                foreach (var languageCode in programs[epgID].Keys)
                 {
-                    // Serialize EPG object to string
-                    string serializedEpg = SerializeEPGObject(epg);
+                    EpgCB epg = programs[epgID][languageCode];
 
-                    bulkRequests.Add(new ESBulkRequestObj<ulong>()
+                    if (epg != null)
                     {
-                        docID = epg.EpgID,
-                        document = serializedEpg,
-                        index = index,
-                        Operation = eOperation.index,
-                        routing = epg.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
-                        type = type
-                    });
-                }
+                        // Serialize EPG object to string
+                        string serializedEpg = SerializeEPGObject(epg);
+                        string epgType = ElasticSearchTaskUtils.GetTanslationType(type, group.GetLanguage(languageCode));
 
-                // If we exceeded maximum size of bulk 
-                if (bulkRequests.Count >= sizeOfBulk)
-                {
-                    // create bulk request now and clear list
-                    var invalidResults = api.CreateBulkRequest(bulkRequests);
-
-                    if (invalidResults != null && invalidResults.Count > 0)
-                    {
-                        foreach (var item in invalidResults)
+                        bulkRequests.Add(new ESBulkRequestObj<ulong>()
                         {
-                            log.ErrorFormat("Error - Could not add EPG to ES index. GroupID={0};Type={1};EPG_ID={2};error={3};",
-                                groupId, EPG, item.Key, item.Value);
-                        }
+                            docID = epg.EpgID,
+                            document = serializedEpg,
+                            index = index,
+                            Operation = eOperation.index,
+                            routing = epg.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
+                            type = epgType
+                        });
                     }
 
-                    bulkRequests.Clear();
+                    // If we exceeded maximum size of bulk 
+                    if (bulkRequests.Count >= sizeOfBulk)
+                    {
+                        // create bulk request now and clear list
+                        var invalidResults = api.CreateBulkRequest(bulkRequests);
+
+                        if (invalidResults != null && invalidResults.Count > 0)
+                        {
+                            foreach (var item in invalidResults)
+                            {
+                                log.ErrorFormat("Error - Could not add EPG to ES index. GroupID={0};Type={1};EPG_ID={2};error={3};",
+                                    groupId, EPG, item.Key, item.Value);
+                            }
+                        }
+
+                        bulkRequests.Clear();
+                    }
                 }
             }
 
@@ -402,47 +411,6 @@ namespace ElasticSearchHandler.IndexBuilders
         protected virtual ulong GetDocumentId(ulong epgId)
         {
             return epgId;
-        }
-
-        protected Dictionary<ulong, EpgCB> GetEpgPrograms(int groupId, DateTime? dateTime)
-        {
-            try
-            {
-                Dictionary<ulong, EpgCB> epgs = new Dictionary<ulong, EpgCB>();
-
-                //Get All programs by group_id + date from CB
-                TvinciEpgBL oEpgBL = new TvinciEpgBL(groupId);
-                
-                List<EpgCB> lEpgCB = oEpgBL.GetGroupEpgs(0, 0, dateTime, dateTime.Value.AddDays(1));
-                
-                if (lEpgCB != null && lEpgCB.Count > 0)
-                {
-                    foreach (EpgCB epg in lEpgCB)
-                    {
-                        if (epg != null)
-                        {
-                            epgs.Add(epg.EpgID, epg);
-                        }
-                        else
-                        {
-                            log.ErrorFormat("Received null epg from TvinciEpgBL, date is {0}", dateTime);
-                        }
-                    }
-                }
-                else
-                {
-                    log.DebugFormat("Got 0 or null EPG Programs. group = {0}, date = {1}", groupId, dateTime);
-                }
-
-                return epgs;
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error in GetEpgPrograms. group id = {2}, Date = {3}, Message = {0}, stack trace = {1}", 
-                    ex.Message, ex.StackTrace,
-                    groupId, dateTime);
-                throw ex;
-            }
         }
 
         #endregion
