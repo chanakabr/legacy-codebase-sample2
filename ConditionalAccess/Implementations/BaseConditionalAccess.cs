@@ -18411,7 +18411,7 @@ namespace ConditionalAccess
                 // get current utc epoch
                 long utcNowEpoch = TVinciShared.DateUtils.UnixTimeStampNow();
                 // get first batch
-                Dictionary<long, HandleDomainQuataByRecordingTask> expiredRecordingsToSchedule = Utils.GetExpiredRecordingsTasks(utcNowEpoch);
+                Dictionary<long, HandleDomainQuataByRecordingTask> expiredRecordingsToSchedule = Utils.UpdateAndGetExpiredRecordingsTasks(utcNowEpoch);
                 // update successful run date
                 List<HandleDomainQuataByRecordingTask> alreadyDeletedOrCanceledRecordings = new List<HandleDomainQuataByRecordingTask>();
                 if (expiredRecordingsToSchedule != null)
@@ -18509,7 +18509,7 @@ namespace ConditionalAccess
 
                     int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
                     long maxDomainRecordingId = 0;
-                    DataTable modifiedDomainRecordings = RecordingsDAL.GetDomainsRecordingsByRecordingIdAndProtectDate(task.RecordingId, task.ScheduledExpirationEpoch, status, domainRecordingStatus.Value, maxDomainRecordingId);
+                    DataTable modifiedDomainRecordings = RecordingsDAL.UpdateAndGetDomainsRecordingsByRecordingIdAndProtectDate(task.RecordingId, task.ScheduledExpirationEpoch, status, domainRecordingStatus.Value, maxDomainRecordingId);
 
                     // set max amount of concurrent tasks
                     int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
@@ -18561,7 +18561,7 @@ namespace ConditionalAccess
                         });
 
                         maxDomainRecordingId = ODBCWrapper.Utils.GetLongSafeVal(modifiedDomainRecordings.Rows[modifiedDomainRecordings.Rows.Count - 1], "ID");
-                        modifiedDomainRecordings = RecordingsDAL.GetDomainsRecordingsByRecordingIdAndProtectDate(task.RecordingId, task.ScheduledExpirationEpoch, status, domainRecordingStatus.Value, maxDomainRecordingId);
+                        modifiedDomainRecordings = RecordingsDAL.UpdateAndGetDomainsRecordingsByRecordingIdAndProtectDate(task.RecordingId, task.ScheduledExpirationEpoch, status, domainRecordingStatus.Value, maxDomainRecordingId);
                     }
 
                     long minProtectionEpoch = RecordingsDAL.GetRecordingMinProtectedEpoch(task.RecordingId, task.ScheduledExpirationEpoch);

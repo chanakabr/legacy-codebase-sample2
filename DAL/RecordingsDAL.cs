@@ -437,26 +437,26 @@ namespace DAL
             return impactedItems;
         }
 
-        public static DataTable GetExpiredRecordingsTasks(long unixTimeStampNow)
+        public static DataTable UpdateAndGetExpiredRecordingsTasks(long unixTimeStampNow)
         {
-            ODBCWrapper.StoredProcedure spGetExpiredRecordingsTasks = new ODBCWrapper.StoredProcedure("GetExpiredRecordingsTasks");
-            spGetExpiredRecordingsTasks.SetConnectionKey(RECORDING_CONNECTION);
-            spGetExpiredRecordingsTasks.AddParameter("@UtcNowEpoch", unixTimeStampNow);
+            ODBCWrapper.StoredProcedure spUpdateAndGetExpiredRecordingsTasks = new ODBCWrapper.StoredProcedure("UpdateAndGetExpiredRecordingsTasks");
+            spUpdateAndGetExpiredRecordingsTasks.SetConnectionKey(RECORDING_CONNECTION);
+            spUpdateAndGetExpiredRecordingsTasks.AddParameter("@UtcNowEpoch", unixTimeStampNow);
 
-            return spGetExpiredRecordingsTasks.Execute();
+            return spUpdateAndGetExpiredRecordingsTasks.Execute();
         }
 
-        public static DataTable GetDomainsRecordingsByRecordingIdAndProtectDate(long recordingId, long unixTimeStampNow, int status, DomainRecordingStatus domainRecordingStatus, long maxDomainRecordingId)
+        public static DataTable UpdateAndGetDomainsRecordingsByRecordingIdAndProtectDate(long recordingId, long unixTimeStampNow, int status, DomainRecordingStatus domainRecordingStatus, long maxDomainRecordingId)
         {
-            ODBCWrapper.StoredProcedure spGetDomainsRecordingsByRecordingIdAndProtectDate = new ODBCWrapper.StoredProcedure("GetDomainsRecordingsByRecordingIdAndProtectDate");
-            spGetDomainsRecordingsByRecordingIdAndProtectDate.SetConnectionKey(RECORDING_CONNECTION);
-            spGetDomainsRecordingsByRecordingIdAndProtectDate.AddParameter("@RecordingId", recordingId);
-            spGetDomainsRecordingsByRecordingIdAndProtectDate.AddParameter("@UtcNowEpoch", unixTimeStampNow);
-            spGetDomainsRecordingsByRecordingIdAndProtectDate.AddParameter("@Status", status);
-            spGetDomainsRecordingsByRecordingIdAndProtectDate.AddParameter("@DomainRecordingStatus", (int)domainRecordingStatus);
-            spGetDomainsRecordingsByRecordingIdAndProtectDate.AddParameter("@MaxDomainRecordingId", maxDomainRecordingId);
+            ODBCWrapper.StoredProcedure spUpdateAndGetDomainsRecordingsByRecordingIdAndProtectDate = new ODBCWrapper.StoredProcedure("UpdateAndGetDomainsRecordingsByRecordingIdAndProtectDate");
+            spUpdateAndGetDomainsRecordingsByRecordingIdAndProtectDate.SetConnectionKey(RECORDING_CONNECTION);
+            spUpdateAndGetDomainsRecordingsByRecordingIdAndProtectDate.AddParameter("@RecordingId", recordingId);
+            spUpdateAndGetDomainsRecordingsByRecordingIdAndProtectDate.AddParameter("@UtcNowEpoch", unixTimeStampNow);
+            spUpdateAndGetDomainsRecordingsByRecordingIdAndProtectDate.AddParameter("@Status", status);
+            spUpdateAndGetDomainsRecordingsByRecordingIdAndProtectDate.AddParameter("@DomainRecordingStatus", (int)domainRecordingStatus);
+            spUpdateAndGetDomainsRecordingsByRecordingIdAndProtectDate.AddParameter("@MaxDomainRecordingId", maxDomainRecordingId);
 
-            return spGetDomainsRecordingsByRecordingIdAndProtectDate.Execute();
+            return spUpdateAndGetDomainsRecordingsByRecordingIdAndProtectDate.Execute();
         }
 
         public static long GetRecordingMinProtectedEpoch(long recordingId, long unixTimeStampNow)
