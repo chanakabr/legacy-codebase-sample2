@@ -657,6 +657,45 @@ namespace DAL
             return dt;
         }
 
+        public static DataTable GetSeriesFollowingDomainsByIds(string ids)
+        {
+            DataTable dt = null;
+            ODBCWrapper.StoredProcedure spGetSeriesFollowingDomainsByIds = new ODBCWrapper.StoredProcedure("GetSeriesFollowingDomainsByIds");
+            spGetSeriesFollowingDomainsByIds.SetConnectionKey(RECORDING_CONNECTION);
+            spGetSeriesFollowingDomainsByIds.AddParameter("@ListIds", ids);
+            dt = spGetSeriesFollowingDomainsByIds.Execute();
+
+            return dt;
+        }
+
+        public static HashSet<long> GetSeriesFollowingDomainsIds(int groupId, string seriesId, int seasonNumber, ref long maxDomainSeriesId)
+        {
+            HashSet<long> domainIds = new HashSet<long>();
+            ODBCWrapper.StoredProcedure spGetSeriesFollowingDomainsIds = new ODBCWrapper.StoredProcedure("GetSeriesFollowingDomainsIds");
+            spGetSeriesFollowingDomainsIds.SetConnectionKey(RECORDING_CONNECTION);
+            spGetSeriesFollowingDomainsIds.AddParameter("@GroupID", groupId);
+            spGetSeriesFollowingDomainsIds.AddParameter("@SeriesId", seriesId);
+            spGetSeriesFollowingDomainsIds.AddParameter("@SeasonNumber", seasonNumber);
+            spGetSeriesFollowingDomainsIds.AddParameter("@MaxId", maxDomainSeriesId);
+            DataTable dt = spGetSeriesFollowingDomainsIds.Execute();
+
+            if (dt != null && dt.Rows != null)
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    long domainId = ODBCWrapper.Utils.GetLongSafeVal(dr, "DOMAIN_ID", 0);
+                    if (domainId > 0 && !domainIds.Contains(domainId))
+                    {
+                        domainIds.Add(domainId);
+                    }
+                }
+
+                maxDomainSeriesId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[dt.Rows.Count - 1], "ID", -1);
+            }
+
+            return domainIds;
+        }
+
         public static RecordingLink GetRecordingLinkByFileType(int groupId, long externalRecordingId, string fileType)
         {
             RecordingLink recordingLink = null;

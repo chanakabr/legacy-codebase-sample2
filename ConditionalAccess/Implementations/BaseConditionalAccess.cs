@@ -19153,7 +19153,7 @@ namespace ConditionalAccess
             return seriesRecording;
         }
 
-        public bool DistributeRecording(long epgId, long id, DateTime epgStartDate)
+        public bool DistributeRecording(long epgId, long id, DateTime epgStartDate, List<long> domainIds = null)
         {
             bool result = true;
             Recording recording = Utils.GetRecordingById(id);
@@ -19166,7 +19166,7 @@ namespace ConditionalAccess
             if (recording.RecordingStatus != TstvRecordingStatus.Recording && recording.RecordingStatus != TstvRecordingStatus.Recorded)
             {
                 // don't try distributing again
-                return result;                
+                return result;
             }
 
             List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, new List<long>() { epgId });
@@ -19193,9 +19193,19 @@ namespace ConditionalAccess
                 return result;
             }
 
-            int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;            
+            int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
             long maxDomainSeriesId = 0;
-            DataTable followingDomains = RecordingsDAL.GetSeriesFollowingDomains(m_nGroupID, seriesId, epgSeasonNumber, maxDomainSeriesId);
+            DataTable followingDomains = null;
+            // batching is done by remote tasks so get followingDomains by domainIds 
+            if (domainIds != null && domainIds.Count > 0)
+            {
+                followingDomains = RecordingsDAL.GetSeriesFollowingDomainsByIds(string.Join(",", domainIds));
+            }
+            else
+            {
+                followingDomains = RecordingsDAL.GetSeriesFollowingDomains(m_nGroupID, seriesId, epgSeasonNumber, maxDomainSeriesId);
+            }
+
             while (followingDomains != null && followingDomains.Rows != null && followingDomains.Rows.Count > 0 && maxDomainSeriesId > -1)
             {
                 // set max amount of concurrent tasks
@@ -19218,9 +19228,9 @@ namespace ConditionalAccess
                     long domainSeriesRecordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
                     RecordingType recordingType = seasonNumber > 0 ? RecordingType.Season : RecordingType.Series;
                     if (domainId > 0 && userId > 0 && QuotaManager.Instance.GetDomainQuota(m_nGroupID, domainId) >= recordingDuration)
-                    {                        
+                    {
                         HashSet<string> domainRecordedCrids = RecordingsDAL.GetDomainRecordingsCridsByDomainsSeriesIds(m_nGroupID, domainId, new List<long>() { domainSeriesRecordingId }, recording.Crid);
-                        if (!domainRecordedCrids.Contains(recording.Crid))                        
+                        if (!domainRecordedCrids.Contains(recording.Crid))
                         {
                             Recording userRecording = Record(userId.ToString(), epgId, recordingType, domainSeriesRecordingId);
                             if (userRecording != null && userRecording.Status != null && userRecording.Status.Code == (int)eResponseStatus.OK && userRecording.Id > 0)
@@ -19232,9 +19242,20 @@ namespace ConditionalAccess
                 });
 
                 System.Threading.Thread.Sleep(10);
-                // max domain series ID because GetSeriesFollowingDomains is ordered by id asc
-                maxDomainSeriesId = ODBCWrapper.Utils.GetLongSafeVal(followingDomains.Rows[followingDomains.Rows.Count - 1], "ID", -1);
-                followingDomains = RecordingsDAL.GetSeriesFollowingDomains(m_nGroupID, seriesId, epgSeasonNumber, maxDomainSeriesId);
+
+                if (domainIds != null)
+                {
+                    // max domain series ID because GetSeriesFollowingDomains is ordered by id asc
+                    maxDomainSeriesId = ODBCWrapper.Utils.GetLongSafeVal(followingDomains.Rows[followingDomains.Rows.Count - 1], "ID", -1);
+                    followingDomains = RecordingsDAL.GetSeriesFollowingDomains(m_nGroupID, seriesId, epgSeasonNumber, maxDomainSeriesId);
+                }
+                // batching is already done on remote tasks so stop here
+                else
+                {
+                    followingDomains = null;
+                    break;
+                }
+
             }
             return result;
         }
@@ -19545,7 +19566,6 @@ namespace ConditionalAccess
             }
         }
 
-
         public ApiObjects.Response.Status HandleUserTask(int domainId, string userId, UserTaskType actionType)
         {
             ApiObjects.Response.Status result = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -19584,5 +19604,33 @@ namespace ConditionalAccess
             return result;
         }
 
+        public ApiObjects.KeyValuePair GetSeriesIdAndSeasonNumberByEpgId(long epgId)
+        {            
+            List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, new List<long>() { epgId });
+            if (epgs == null || epgs.Count != 1)
+            {
+                log.DebugFormat("Failed Getting EPG from Catalog, groupId: {0}, EpgId: {1}", m_nGroupID, epgId);
+                return new ApiObjects.KeyValuePair();
+            }
+
+            EPGChannelProgrammeObject epg = epgs.First();
+            Dictionary<string, string> epgFieldMappings = null;
+            if (!Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, RecordingType.Series, out epgFieldMappings) || epgFieldMappings == null || epgFieldMappings.Count == 0)
+            {
+                log.ErrorFormat("failed GetEpgFieldTypeEntitys, groupId: {0}, epgId: {1}", m_nGroupID, epg.EPG_ID);
+                return new ApiObjects.KeyValuePair();
+            }
+
+            string seriesId = epgFieldMappings[Utils.SERIES_ID];
+            int epgSeasonNumber = 0;
+
+            if (epgFieldMappings.ContainsKey(Utils.SEASON_NUMBER) && !int.TryParse(epgFieldMappings[Utils.SEASON_NUMBER], out epgSeasonNumber))
+            {
+                log.ErrorFormat("failed parsing SEASON_NUMBER, groupId: {0}, epgId: {1}", m_nGroupID, epg.EPG_ID);
+                return new ApiObjects.KeyValuePair();
+            }
+
+            return new ApiObjects.KeyValuePair(seriesId, epgSeasonNumber.ToString());
+        }
     }
 }
