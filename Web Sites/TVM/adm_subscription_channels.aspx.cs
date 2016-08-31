@@ -9,6 +9,8 @@ using TVinciShared;
 using ApiObjects;
 using KLogMonitor;
 using System.Reflection;
+using System.Data;
+using DAL;
 
 public partial class adm_subscription_channels : System.Web.UI.Page
 {
@@ -200,84 +202,64 @@ public partial class adm_subscription_channels : System.Web.UI.Page
 
     public string initDualObj()
     {
-        if (Session["subscription_id"] == null || Session["subscription_id"].ToString() == "" || Session["subscription_id"].ToString() == "0")
+        long subscriptionId = 0;
+        if (Session["subscription_id"] == null || Session["subscription_id"].ToString() == "" || !long.TryParse(Session["subscription_id"].ToString(), out subscriptionId) || subscriptionId <= 0)        
         {
             LoginManager.LogoutFromSite("index.html");
             return "";
         }
-
-        Int32 nOwnerGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("subscriptions", "group_id", int.Parse(Session["subscription_id"].ToString()), "pricing_connection").ToString());
-        Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
-        if (nLogedInGroupID != nOwnerGroupID && PageUtils.IsTvinciUser() == false)
-        {
-            LoginManager.LogoutFromSite("login.html");
-            return "";
-        }
-
+                
         Dictionary<string, object> dualList = new Dictionary<string, object>();
         dualList.Add("FirstListTitle", "Channels included in subscription");
         dualList.Add("SecondListTitle", "Available Channels");
 
         object[] resultData = null;
         List<object> subscriptionChannels = new List<object>();
-
-        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery += "select * from channels where is_active=1 and status=1 and channel_type<>3 and watcher_id=0 and ";
-        Int32 nCommerceGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "COMMERCE_GROUP_ID", LoginManager.GetLoginGroupID()).ToString());
-        if (nCommerceGroupID == 0)
-            nCommerceGroupID = nLogedInGroupID;
-        selectQuery += "group_id " + PageUtils.GetFullChildGroupsStr(nCommerceGroupID, "");
-        if (selectQuery.Execute("query", true) != null)
+        Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
+        DataSet ds = TvmDAL.GetSubscriptionPossibleChannels(nLogedInGroupID, subscriptionId);
+        if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
         {
-            var defaultView = selectQuery.Table("query").DefaultView;
-
-            Int32 nCount = defaultView.Count;
-            for (int i = 0; i < nCount; i++)
+            DataTable availableChannels = ds.Tables[0];
+            DataTable channelsIncludedInSubscription = ds.Tables[1];
+            HashSet<long> subscriptionChannelsMap = new HashSet<long>();
+            if (channelsIncludedInSubscription != null && channelsIncludedInSubscription.Rows != null)
             {
-                var currentRow = defaultView[i].Row;
-
-                string sID = currentRow["ID"].ToString();
-                string sGroupID = currentRow["group_ID"].ToString();
-                string sTitle = "";
-
-                object adminNameValue = currentRow["ADMIN_NAME"];
-                if (adminNameValue != null &&
-                    adminNameValue != DBNull.Value)
+                foreach (DataRow dr in channelsIncludedInSubscription.Rows)
                 {
-                    sTitle = adminNameValue.ToString();
-                }
-
-                if (string.IsNullOrEmpty(sTitle))
-                {
-                    object nameValue = currentRow["NAME"];
-
-                    if (nameValue != null && nameValue != DBNull.Value)
+                    long channelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "CHANNEL_ID", 0);
+                    if (channelId > 0 && !subscriptionChannelsMap.Contains(channelId))
                     {
-                        sTitle = string.Format("{0} - {1}", sID, nameValue);
+                        subscriptionChannelsMap.Add(channelId);
                     }
                 }
-
-                string sGroupName = ODBCWrapper.Utils.GetTableSingleVal("groups", "GROUP_NAME", int.Parse(sGroupID)).ToString();
-                sTitle += "(" + sGroupName.ToString() + ")";
-
-                bool isInList = false;
-                if (IsChannelBelong(int.Parse(sID)) == true)
+            }
+            if (availableChannels != null && availableChannels.Rows != null)
+            {
+                foreach (DataRow dr in availableChannels.Rows)
                 {
-                    isInList = true;
+                    long channelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
+                    string groupName = ODBCWrapper.Utils.GetSafeStr(dr, "GROUP_NAME");
+                    string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
+                    string adminName = ODBCWrapper.Utils.GetSafeStr(dr, "ADMIN_NAME");
+
+                    string title = adminName;
+                    if (string.IsNullOrEmpty(title) && !string.IsNullOrEmpty(name))
+                    {
+                        title = string.Format("{0} - {1}", channelId, name);
+                    }
+
+                    title += "(" + groupName + ")";
+                    var data = new
+                    {
+                        ID = channelId.ToString(),
+                        Title = title,
+                        Description = title,
+                        InList = subscriptionChannelsMap.Contains(channelId)
+                    };
+                    subscriptionChannels.Add(data);
                 }
-
-                var data = new
-                {
-                    ID = sID,
-                    Title = sTitle,
-                    Description = sTitle,
-                    InList = isInList
-                };
-                subscriptionChannels.Add(data);
             }
         }
-        selectQuery.Finish();
-        selectQuery = null;
 
         resultData = new object[subscriptionChannels.Count];
         resultData = subscriptionChannels.ToArray();
@@ -287,37 +269,5 @@ public partial class adm_subscription_channels : System.Web.UI.Page
         dualList.Add("withCalendar", false);
 
         return dualList.ToJSON();
-    }
-
-    protected bool IsChannelBelong(Int32 nChannelID)
-    {
-        try
-        {
-            bool bRet = false;
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery.SetConnectionKey("pricing_connection");
-            selectQuery += "select id from subscriptions_channels where is_active=1 and status=1 and ";
-            Int32 nCommerceGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "COMMERCE_GROUP_ID", LoginManager.GetLoginGroupID()).ToString());
-            if (nCommerceGroupID == 0)
-                nCommerceGroupID = LoginManager.GetLoginGroupID();
-            selectQuery += " group_id " + PageUtils.GetFullChildGroupsStr(nCommerceGroupID, "");
-            selectQuery += " and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_ID", "=", int.Parse(Session["subscription_id"].ToString()));
-            selectQuery += " and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CHANNEL_ID", "=", nChannelID);
-            if (selectQuery.Execute("query", true) != null)
-            {
-                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                if (nCount > 0)
-                    bRet = true;
-            }
-            selectQuery.Finish();
-            selectQuery = null;
-            return bRet;
-        }
-        catch
-        {
-            return false;
-        }
     }
 }

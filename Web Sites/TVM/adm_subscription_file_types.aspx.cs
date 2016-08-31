@@ -8,6 +8,8 @@ using System.Configuration;
 using TVinciShared;
 using KLogMonitor;
 using System.Reflection;
+using System.Data;
+using DAL;
 
 public partial class adm_subscription_file_types : System.Web.UI.Page
 {
@@ -189,17 +191,10 @@ public partial class adm_subscription_file_types : System.Web.UI.Page
 
     public string initDualObj()
     {
-        if (Session["subscription_id"] == null || Session["subscription_id"].ToString() == "" || Session["subscription_id"].ToString() == "0")
+        long subscriptionId = 0;
+        if (Session["subscription_id"] == null || Session["subscription_id"].ToString() == "" || !long.TryParse(Session["subscription_id"].ToString(), out subscriptionId) || subscriptionId <= 0)
         {
             LoginManager.LogoutFromSite("index.html");
-            return "";
-        }
-
-        Int32 nOwnerGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("subscriptions", "group_id", int.Parse(Session["subscription_id"].ToString()), "pricing_connection").ToString());
-        Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
-        if (nLogedInGroupID != nOwnerGroupID && PageUtils.IsTvinciUser() == false)
-        {
-            LoginManager.LogoutFromSite("login.html");
             return "";
         }
 
@@ -209,38 +204,44 @@ public partial class adm_subscription_file_types : System.Web.UI.Page
 
         object[] resultData = null;
         List<object> fileTypes = new List<object>();
-        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery += "select * from groups_media_type where is_active=1 and status=1 and ";
-        Int32 nCommerceGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "COMMERCE_GROUP_ID", LoginManager.GetLoginGroupID()).ToString());
-        if (nCommerceGroupID == 0)
-            nCommerceGroupID = LoginManager.GetLoginGroupID();
-        selectQuery += " group_id " + PageUtils.GetFullChildGroupsStr(nCommerceGroupID, "");        
-        if (selectQuery.Execute("query", true) != null)
+        Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
+        DataSet ds = TvmDAL.GetSubscriptionPossibleFileTypes(nLogedInGroupID, subscriptionId);
+        if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
         {
-            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-            for (int i = 0; i < nCount; i++)
+            DataTable availableFileTypes = ds.Tables[0];
+            DataTable fileTypesIncludedInSubscription = ds.Tables[1];
+            HashSet<long> subscriptionFileTypesMap = new HashSet<long>();
+            if (fileTypesIncludedInSubscription != null && fileTypesIncludedInSubscription.Rows != null)
             {
-                string sID  = selectQuery.Table("query").DefaultView[i].Row["ID"].ToString();
-                string sGroupID = selectQuery.Table("query").DefaultView[i].Row["GROUP_ID"].ToString();
-                string sGroupName = ODBCWrapper.Utils.GetTableSingleVal("groups", "GROUP_NAME", int.Parse(sGroupID)).ToString();
-                string sTitle = "";
-                if (selectQuery.Table("query").DefaultView[i].Row["DESCRIPTION"] != null && selectQuery.Table("query").DefaultView[i].Row["DESCRIPTION"] != DBNull.Value)
+                foreach (DataRow dr in fileTypesIncludedInSubscription.Rows)
                 {
-                    sTitle = selectQuery.Table("query").DefaultView[i].Row["DESCRIPTION"].ToString();
+                    long fileTypeId = ODBCWrapper.Utils.GetLongSafeVal(dr, "FILE_TYPE_ID", 0);
+                    if (fileTypeId > 0 && !subscriptionFileTypesMap.Contains(fileTypeId))
+                    {
+                        subscriptionFileTypesMap.Add(fileTypeId);
+                    }
                 }
-                sTitle += "(" + sGroupName.ToString() + ")";
-                var data = new
+            }
+            if (availableFileTypes != null && availableFileTypes.Rows != null)
+            {
+                foreach (DataRow dr in availableFileTypes.Rows)
                 {
-                    ID = sID,
-                    Title = sTitle,
-                    Description = sTitle,
-                    InList = IsChannelBelong(int.Parse(sID))
-                };
-                fileTypes.Add(data);
+                    long fileTypeId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
+                    string title = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION");
+                    string groupName = ODBCWrapper.Utils.GetSafeStr(dr, "GROUP_NAME");
+
+                    title += "(" + groupName + ")";
+                    var data = new
+                    {
+                        ID = fileTypeId.ToString(),
+                        Title = title,
+                        Description = title,
+                        InList = subscriptionFileTypesMap.Contains(fileTypeId)
+                    };
+                    fileTypes.Add(data);
+                }
             }
         }
-        selectQuery.Finish();
-        selectQuery = null;
 
         resultData = new object[fileTypes.Count];
         resultData = fileTypes.ToArray();
@@ -252,36 +253,4 @@ public partial class adm_subscription_file_types : System.Web.UI.Page
         return dualList.ToJSON();
     }
 
-    protected bool IsChannelBelong(Int32 nFileTypeID)
-    {
-        try
-        {
-            bool bRet = false;
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery.SetConnectionKey("pricing_connection");
-            selectQuery += "select id from subscriptions_file_types where is_active=1 and status=1 and ";
-            Int32 nCommerceGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "COMMERCE_GROUP_ID", LoginManager.GetLoginGroupID()).ToString());
-            if (nCommerceGroupID == 0)
-                nCommerceGroupID = LoginManager.GetLoginGroupID();
-            selectQuery += " group_id " + PageUtils.GetFullChildGroupsStr(nCommerceGroupID, "");
-            //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", LoginManager.GetLoginGroupID());
-            selectQuery += " and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_ID", "=", int.Parse(Session["subscription_id"].ToString()));
-            selectQuery += " and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("FILE_TYPE_ID", "=", nFileTypeID);
-            if (selectQuery.Execute("query", true) != null)
-            {
-                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                if (nCount > 0)
-                    bRet = true;
-            }
-            selectQuery.Finish();
-            selectQuery = null;
-            return bRet;
-        }
-        catch
-        {
-            return false;
-        }
-    }
 }

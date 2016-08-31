@@ -328,10 +328,6 @@ public partial class adm_my_group : System.Web.UI.Page
         dr_InternalImageServerUrl.Initialize("Internal image server URL", "adm_table_header_nbg", "FormInput", "INTERNAL_IMAGE_SERVER_URL", false);
         theRecord.AddRecord(dr_InternalImageServerUrl);
 
-        DataRecordShortTextField dr_Catalog_Urls = new DataRecordShortTextField("ltr", true, 60, 128);
-        dr_Catalog_Urls.Initialize("Catalog URLs", "adm_table_header_nbg", "FormInput", "CATALOG_URL", false);
-        theRecord.AddRecord(dr_Catalog_Urls);
-
         string sTable = theRecord.GetTableHTML("adm_my_group.aspx?submited=1");
 
         return sTable;
