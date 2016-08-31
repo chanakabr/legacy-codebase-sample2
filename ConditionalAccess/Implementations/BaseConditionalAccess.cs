@@ -19247,17 +19247,18 @@ namespace ConditionalAccess
 
                 System.Threading.Thread.Sleep(10);
 
+                // batching is already done on remote tasks so stop here
                 if (domainIds != null)
+                {
+                    followingDomains = null;
+                    break;
+
+                }                
+                else
                 {
                     // max domain series ID because GetSeriesFollowingDomains is ordered by id asc
                     maxDomainSeriesId = ODBCWrapper.Utils.GetLongSafeVal(followingDomains.Rows[followingDomains.Rows.Count - 1], "ID", -1);
                     followingDomains = RecordingsDAL.GetSeriesFollowingDomains(m_nGroupID, seriesId, epgSeasonNumber, maxDomainSeriesId);
-                }
-                // batching is already done on remote tasks so stop here
-                else
-                {
-                    followingDomains = null;
-                    break;
                 }
 
             }
