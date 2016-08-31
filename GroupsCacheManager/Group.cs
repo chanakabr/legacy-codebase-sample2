@@ -558,6 +558,15 @@ namespace GroupsCacheManager
             return res;
         }
 
+        public LanguageObj GetLanguage(string languageCode)
+        {
+            LanguageObj res;
+
+            res = m_dLangauges.Values.Where(l => l.Code == languageCode).FirstOrDefault();
+
+            return res;
+        }
+
         public List<LanguageObj> GetLangauges()
         {
             return this.m_dLangauges.Select(kvp => kvp.Value).ToList();
