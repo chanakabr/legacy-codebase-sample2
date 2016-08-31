@@ -1,1 +1,0 @@
-{"actionParams":[{"type":"bigint","isSimpleType":true,"isComplexType":false,"isFile":false,"isEnum":false,"isStringEnum":false,"isArray":false,"isAbstract":false,"description":"The role identifier to add","name":"roleId","isOptional":false}],"description":"Edit user details."}

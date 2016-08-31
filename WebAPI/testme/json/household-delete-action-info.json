@@ -1,1 +1,0 @@
-{"actionParams":[{"type":"int","isSimpleType":true,"isComplexType":false,"isFile":false,"isEnum":false,"isStringEnum":false,"isArray":false,"isAbstract":false,"description":"Household identifier","name":"id","isOptional":false}],"description":"Fully delete a household. Delete all of the household information, including users, devices, transactions and assets."}

@@ -1,1 +1,0 @@
-{"actionParams":[{"type":"string","isSimpleType":true,"isComplexType":false,"isFile":false,"isEnum":false,"isStringEnum":false,"isArray":false,"isAbstract":false,"description":"The device-application pair authentication for push delivery","name":"pushToken","isOptional":false}],"description":"Registers the device push token to the push service"}

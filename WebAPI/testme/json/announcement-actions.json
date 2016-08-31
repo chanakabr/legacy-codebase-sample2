@@ -1,1 +1,0 @@
-[{"action":"add","name":"add","label":"add"},{"action":"delete","name":"delete","label":"delete"},{"action":"enableSystemAnnouncements","name":"enableSystemAnnouncements","label":"enableSystemAnnouncements"},{"action":"list","name":"list","label":"list"},{"action":"update","name":"update","label":"update"},{"action":"updateStatus","name":"updateStatus","label":"updateStatus"}]

@@ -1,1 +1,0 @@
-[{"action":"getPurchaseSessionId","name":"getPurchaseSessionId","label":"getPurchaseSessionId"},{"action":"purchase","name":"purchase","label":"purchase"},{"action":"setWaiver","name":"setWaiver","label":"setWaiver"},{"action":"updateStatus","name":"updateStatus","label":"updateStatus"},{"action":"validateReceipt","name":"validateReceipt","label":"validateReceipt"}]
