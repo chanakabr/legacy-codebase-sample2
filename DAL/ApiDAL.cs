@@ -967,63 +967,87 @@ namespace DAL
             return returnedDataTable;
         }
 
-
-
         public static List<int> GetUserStartedWatchingMedias(string sSiteGuid, int nNumOfItems)
         {
             int nSiteGuid = 0;
             int.TryParse(sSiteGuid, out nSiteGuid);
 
-            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
+            var mediaMarkManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
 
-            var res = cbManager.View<MediaMarkLog>(new ViewManager(CB_MEDIA_MARK_DESGIN, "users_watch_history")
+            // this view gets us all media that user has watched
+            var viewResult = mediaMarkManager.View<MediaMarkLog>(new ViewManager(CB_MEDIA_MARK_DESGIN, "users_watch_history")
             {
                 startKey = new object[] { nSiteGuid, 0 },
                 endKey = new object[] { nSiteGuid, string.Empty },
                 asJson = true,
-				shouldLookupById = true
+                shouldLookupById = true
             });
 
-            List<MediaMarkLog> sortedMediaMarksList = res.ToList().OrderByDescending(x => x.LastMark.CreatedAt).ToList();
+            List<int> resultList = new List<int>();
 
-            List<int> retList = new List<int>();
-
-            if (sortedMediaMarksList != null && sortedMediaMarksList.Count > 0)
+            if (viewResult != null)
             {
-                List<int> mediaIdsList = sortedMediaMarksList.Select(x => x.LastMark.MediaID).ToList();
-                DataTable dtMediasMaxDurations = ApiDAL.Get_MediasMaxDuration(mediaIdsList);
+                //// Now we will get the media hits, because this is where the LOCATION is saved
+                //List<string> keys = new List<string>();
 
-                if (dtMediasMaxDurations != null && dtMediasMaxDurations.Rows.Count > 0)
+                //foreach (var currentResult in viewResult)
+                //{
+                //    if (currentResult.LastMark != null)
+                //    {
+                //        string key = string.Format("u{0}_m{1}", currentResult.LastMark.UserID, currentResult.LastMark.MediaID);
+
+                //        keys.Add(key);
+                //    }
+                //}
+
+                //var mediaHitsDictionary = mediaHitsManager.GetValues<MediaMarkLog>(keys, true, false);
+
+                List<MediaMarkLog> sortedMediaMarksList =
+                    //mediaHitsDictionary.Values.OrderBy(x => x.LastMark.CreatedAt).ToList();
+                    viewResult.OrderByDescending(x => x.LastMark.CreatedAt).ToList();
+
+                if (sortedMediaMarksList != null && sortedMediaMarksList.Count > 0)
                 {
-                    Dictionary<int, int> dictMediasMaxDuration = new Dictionary<int, int>();
-                    foreach (DataRow rowDuration in dtMediasMaxDurations.Rows)
-                    {
-                        int nMediaID = ODBCWrapper.Utils.GetIntSafeVal(rowDuration["media_id"]);
-                        int nMaxDuration = ODBCWrapper.Utils.GetIntSafeVal(rowDuration["max_duration"]);
-                        dictMediasMaxDuration.Add(nMediaID, nMaxDuration);
-                    }
+                    List<int> mediaIdsList = sortedMediaMarksList.Select(x => x.LastMark.MediaID).ToList();
+                    DataTable dtMediasMaxDurations = ApiDAL.Get_MediasMaxDuration(mediaIdsList);
 
-                    int i = 0;
-                    foreach (MediaMarkLog mediaMarkLogObject in sortedMediaMarksList)
+                    if (dtMediasMaxDurations != null && dtMediasMaxDurations.Rows.Count > 0)
                     {
-                        if (dictMediasMaxDuration.ContainsKey(mediaMarkLogObject.LastMark.MediaID))
+                        Dictionary<int, int> dictMediasMaxDuration = new Dictionary<int, int>();
+                        foreach (DataRow rowDuration in dtMediasMaxDurations.Rows)
                         {
-                            double dMaxDuration = Math.Round((0.95 * dictMediasMaxDuration[mediaMarkLogObject.LastMark.MediaID]));
-                            if (mediaMarkLogObject.LastMark.Location > 1 && mediaMarkLogObject.LastMark.Location <= dMaxDuration)
+                            int nMediaID = ODBCWrapper.Utils.GetIntSafeVal(rowDuration["media_id"]);
+                            int nMaxDuration = ODBCWrapper.Utils.GetIntSafeVal(rowDuration["max_duration"]);
+                            dictMediasMaxDuration.Add(nMediaID, nMaxDuration);
+                        }
+
+                        int i = 0;
+
+                        foreach (MediaMarkLog mediaMarkLogObject in sortedMediaMarksList)
+                        {
+                            if (dictMediasMaxDuration.ContainsKey(mediaMarkLogObject.LastMark.MediaID))
                             {
-                                if (i >= nNumOfItems || nNumOfItems == 0)
+                                double dMaxDuration = Math.Round((0.95 * dictMediasMaxDuration[mediaMarkLogObject.LastMark.MediaID]));
+
+                                // If it started (not 0) and it is before 95%
+                                if (mediaMarkLogObject.LastMark.Location > 1 && mediaMarkLogObject.LastMark.Location <= dMaxDuration)
                                 {
-                                    break;
+                                    if (i >= nNumOfItems || nNumOfItems == 0)
+                                    {
+                                        break;
+                                    }
+
+                                    resultList.Add(mediaMarkLogObject.LastMark.MediaID);
+                                    i++;
                                 }
-                                retList.Add(mediaMarkLogObject.LastMark.MediaID);
-                                i++;
                             }
                         }
-                    }
 
+                    }
                 }
             }
-            return retList;
+
+            return resultList;
         }
 
         public static bool CleanUserHistory(string siteGuid, List<int> lMediaIDs)
@@ -1034,7 +1058,8 @@ namespace DAL
                 int nSiteGuid = 0;
                 int.TryParse(siteGuid, out nSiteGuid);
 
-                var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
+                var mediaMarkManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
+                var mediaHitManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
 
                 if (lMediaIDs.Count == 0)
                 {
@@ -1045,7 +1070,7 @@ namespace DAL
                         shouldLookupById = true
                     };
 
-                    var res = cbManager.View<string>(view);
+                    var res = mediaMarkManager.View<string>(view);
 
                     // deserialize string to MediaMarkLog
                     List<MediaMarkLog> sortedMediaMarksList = res.Select(current => JsonConvert.DeserializeObject<MediaMarkLog>(current)).ToList();
@@ -1057,18 +1082,23 @@ namespace DAL
                 }
 
                 Random r = new Random();
+
                 foreach (int nMediaID in lMediaIDs)
                 {
-                    string sDcoKey = UtilsDal.getUserMediaMarkDocKey(nSiteGuid, nMediaID);
+                    string documentKey = UtilsDal.getUserMediaMarkDocKey(nSiteGuid, nMediaID);
 
                     // Irena - make sure doc type is right
-                    retVal = cbManager.Remove(sDcoKey);
+                    bool markResult = mediaMarkManager.Remove(documentKey);
+                    bool hitResult = mediaHitManager.Remove(documentKey);
                     Thread.Sleep(r.Next(50));
-                    if (!retVal)
+                
+                    if (!markResult || !hitResult)
                     {
+                        retVal = false;
                         return retVal;
                     }
                 }
+
                 return retVal;
             }
             catch (Exception ex)

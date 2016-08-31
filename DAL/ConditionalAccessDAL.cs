@@ -61,7 +61,8 @@ namespace DAL
             return sCoGuid;
         }
 
-        public static bool InsertPPVPurchase(int nGroupID, string sSubCode, int nMediaFileID, string sSiteGUID, double dPrice, string sCurrency, int nNumOfUses, string sCustomData, int transactionID, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, int maxNumOfUses, int nIsActive, int nStatus, DateTime? dtEndDate)
+        public static bool InsertPPVPurchase(int nGroupID, string sSubCode, int nMediaFileID, string sSiteGUID, double dPrice, string sCurrency, int nNumOfUses, string sCustomData,int transactionID,
+                                             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, int maxNumOfUses, int nIsActive, int nStatus, DateTime? dtEndDate, int domainId)
         {
             bool res = false;
 
@@ -77,6 +78,7 @@ namespace DAL
 
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_FILE_ID", "=", nMediaFileID);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DOMAIN_ID", "=", domainId);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE", "=", dPrice);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CURRENCY_CD", "=", sCurrency);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("NUM_OF_USES", "=", nNumOfUses);
@@ -323,101 +325,6 @@ namespace DAL
             }
 
             return updated;
-        }
-
-        public static bool InsertSubPurchase(int m_nGroupID, string sSubscriptionCode, string sSiteGUID, double dPrice, string sCurrency, string sCustomData, int numOfUses, string sCountryCd,
-            string sLANGUAGE_CODE, string sDEVICE_NAME, int nMaxNumberOfViews, int nViewLifeCycleSec, int nIsRecurringStatus, int nReceiptCode, int nIsActive, int nStatus, DateTime? dtEndDate)
-        {
-
-            bool inserted = false;
-
-            try
-            {
-                ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("subscriptions_purchases");
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", sSubscriptionCode);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE", "=", dPrice);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CURRENCY_CD", "=", sCurrency);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CUSTOMDATA", "=", sCustomData);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("NUM_OF_USES", "=", numOfUses);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_CODE", "=", sCountryCd);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_CODE", "=", sLANGUAGE_CODE);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_NAME", "=", sDEVICE_NAME);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", nMaxNumberOfViews);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("VIEW_LIFE_CYCLE_SECS", "=", nViewLifeCycleSec);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING_STATUS", "=", nIsRecurringStatus);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("BILLING_TRANSACTION_ID", "=", nReceiptCode);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", nIsActive);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", nStatus);
-
-                if (dtEndDate.HasValue)
-                {
-                    insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", dtEndDate.Value);
-                }
-
-                inserted = insertQuery.Execute();
-                insertQuery.Finish();
-                insertQuery = null;
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
-
-            return inserted;
-        }
-
-        public static int GetSubPurchaseID(int m_nGroupID, string sSubscriptionCode, string sSiteGUID, double dPrice, string sCurrency, int numOfUses, int nMaxNumberOfViews, int nViewLifeCycleSec,
-                                        int nIsRecurringStatus, int nIsActive, int nStatus)
-        {
-            int nPurchaseID = 0;
-
-            try
-            {
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery += " SELECT ID FROM SUBSCRIPTIONS_PURCHASES WITH (NOLOCK) WHERE ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
-                selectQuery += " AND ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", sSubscriptionCode);
-                selectQuery += " AND ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
-                selectQuery += " AND ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE", "=", dPrice);
-                selectQuery += " AND ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CURRENCY_CD", "=", sCurrency);
-                selectQuery += " AND ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("NUM_OF_USES", "=", numOfUses);
-                selectQuery += " AND ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MAX_NUM_OF_USES", "=", nMaxNumberOfViews);
-                selectQuery += " AND ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("VIEW_LIFE_CYCLE_SECS", "=", nViewLifeCycleSec);
-                selectQuery += " AND ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING_STATUS", "=", nIsRecurringStatus);
-                selectQuery += " AND ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", nIsActive);
-                selectQuery += " AND ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", nStatus);
-                selectQuery += " ORDER BY ID DESC";
-                if (selectQuery.Execute("query", true) != null)
-                {
-                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                    if (nCount > 0)
-                    {
-                        nPurchaseID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
-                    }
-                }
-
-                selectQuery.Finish();
-                selectQuery = null;
-
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
-
-            return nPurchaseID;
         }
 
         public static bool CancelSubPurchase(int m_nGroupID, string sSubscriptionCode, int nPurchaseID, string sSiteGUID, int nIsActive = 2, int nStatus = 2)
@@ -797,10 +704,14 @@ namespace DAL
 
 
         public static long Insert_NewPPVPurchase(long groupID, long contentID, string siteGuid, double price, string currency, long maxNumOfUses, string customData, string subscriptionCode,
-            long billingTransactionID, DateTime startDate, DateTime endDate, DateTime createAndUpdateDate, string country, string language, string deviceName, long householdID, string billingGuid = null)
+            long billingTransactionID, DateTime startDate, DateTime endDate, DateTime createAndUpdateDate, string country, string language, string deviceName, long householdID, string billingGuid = null, string connectionString = null)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewPPVPurchase");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            if (!string.IsNullOrEmpty(connectionString))
+            {
+                sp.SetConnectionKey(connectionString);
+            }
+
             sp.AddParameter("@GroupID", groupID);
             sp.AddParameter("@MediaFileID", contentID);
             sp.AddParameter("@SiteGuid", siteGuid);

@@ -22,7 +22,11 @@ namespace Catalog.Request
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [DataMember]
-        public MediaLastPositionRequestData data { get; set; }
+        public MediaLastPositionRequestData data
+        {
+            get;
+            set;
+        }
 
         public MediaLastPositionRequest()
             : base()
@@ -87,12 +91,12 @@ namespace Catalog.Request
             int nSiteGuid = 0;
             int pos = 0;
 
-            if (request.data == null || string.IsNullOrEmpty(request.data.m_sNpvrID ))
+            if (request.data == null || string.IsNullOrEmpty(request.data.m_sNpvrID))
             {
                 response.m_sStatus = "INVALID_PARAMS";
             }
             //non-anonymous user
-            else if (!Catalog.IsAnonymousUser(request.data.m_sSiteGuid, out nSiteGuid))          
+            else if (!Catalog.IsAnonymousUser(request.data.m_sSiteGuid, out nSiteGuid))
             {
                 pos = Catalog.GetLastPosition(request.data.m_sNpvrID, nSiteGuid);
             }
@@ -108,11 +112,11 @@ namespace Catalog.Request
             int nSiteGuid = 0;
             int pos = 0;
 
-            if (request.data.m_nMediaID == 0  )
+            if (request.data.m_nMediaID == 0)
             {
                 response.m_sStatus = "INVALID_PARAMS";
             }
-                //non-anonymous user
+            //non-anonymous user
             else if (!string.IsNullOrEmpty(request.data.m_sSiteGuid) && Int32.TryParse(request.data.m_sSiteGuid, out nSiteGuid) || nSiteGuid != 0)
             {
                 pos = Catalog.GetLastPosition(request.data.m_nMediaID, nSiteGuid);

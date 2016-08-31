@@ -197,6 +197,20 @@ namespace Catalog.Request
                 throw new Exception(String.Concat("Failed to bring initial data from DB. Req: ", ToString()));
             }
 
+            bool isLinearChannel = false;
+            var group = new GroupManager().GetGroup(this.m_nGroupID);
+
+            if (group != null)
+            {
+                // make sure media types list is initialized
+                group.GetMediaTypes();
+
+                if (group.linearChannelMediaTypes != null && group.linearChannelMediaTypes.Contains(nMediaTypeID))
+                {
+                    isLinearChannel = true;
+                }
+            }
+
             bool resultParse = Enum.TryParse(m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out action);
             int.TryParse(m_oMediaPlayRequestData.m_sSiteGuid, out nSiteGuid);
 
@@ -221,7 +235,11 @@ namespace Catalog.Request
                                                                             m_oMediaPlayRequestData.m_sUDID, playCycleKey, nSwhoosh, contextData)));
 
                 if (!resultParse || action != MediaPlayActions.BITRATE_CHANGE)
-                    Catalog.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_sAssetID, m_oMediaPlayRequestData.m_sSiteGuid, nPlayTime, m_oMediaPlayRequestData.m_sUDID, fileDuration, action.ToString(), nMediaTypeID, domainId);
+                {
+                    bool isFirstPlay = action == MediaPlayActions.FIRST_PLAY;
+                    Catalog.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_sAssetID, m_oMediaPlayRequestData.m_sSiteGuid,
+                        nPlayTime, m_oMediaPlayRequestData.m_sUDID, fileDuration, action.ToString(), nMediaTypeID, domainId, ePlayType.MEDIA, isFirstPlay, isLinearChannel);
+                }
 
                 if (m_oMediaPlayRequestData.m_nAvgBitRate > 0)
                 {
