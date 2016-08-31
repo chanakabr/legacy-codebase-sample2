@@ -5191,10 +5191,10 @@ namespace ConditionalAccess
             return recording;
         }
 
-        internal static Dictionary<long, HandleDomainQuataByRecordingTask> GetExpiredRecordingsTasks(long unixTimeStampNow)
+        internal static Dictionary<long, HandleDomainQuataByRecordingTask> UpdateAndGetExpiredRecordingsTasks(long unixTimeStampNow)
         {
             Dictionary<long, HandleDomainQuataByRecordingTask> expiredRecordings = new Dictionary<long, HandleDomainQuataByRecordingTask>();
-            DataTable dt = RecordingsDAL.GetExpiredRecordingsTasks(unixTimeStampNow);
+            DataTable dt = RecordingsDAL.UpdateAndGetExpiredRecordingsTasks(unixTimeStampNow);
             if (dt != null && dt.Rows != null)
             {
                 foreach (DataRow dr in dt.Rows)
