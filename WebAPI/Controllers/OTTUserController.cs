@@ -707,11 +707,16 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
 
+            if (filter != null)
+            {
+                filter.Validate();
+            }
+
             try
             {
 
                 // call client
-                if (filter == null || (filter != null && string.IsNullOrEmpty(filter.ExternalIdEqual) && string.IsNullOrEmpty(filter.UserNameEqual)))
+                if (filter == null || (string.IsNullOrEmpty(filter.ExternalIdEqual) && string.IsNullOrEmpty(filter.UserNameEqual)))
                 {
                     // get all users of the master / itself                    
 
@@ -732,13 +737,12 @@ namespace WebAPI.Controllers
                     {
                         response.TotalCount = response.Users.Count();                        
                     }
-
                 }
-                if (string.IsNullOrEmpty(filter.ExternalIdEqual))
+                else if (!string.IsNullOrEmpty(filter.ExternalIdEqual))
                 {
-                     response = ClientsManager.UsersClient().GetUserByExternalID(groupId, filter.ExternalIdEqual);
+                    response = ClientsManager.UsersClient().GetUserByExternalID(groupId, filter.ExternalIdEqual);
                 }
-                else if (string.IsNullOrEmpty(filter.UserNameEqual))
+                else if (!string.IsNullOrEmpty(filter.UserNameEqual))
                 {
                     response = ClientsManager.UsersClient().GetUserByName(groupId, filter.UserNameEqual);
                 }                     

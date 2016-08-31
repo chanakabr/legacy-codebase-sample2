@@ -5,6 +5,8 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Filters;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Users
@@ -20,6 +22,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "userNameEqual")]
         [JsonProperty("userNameEqual")]
         [XmlElement(ElementName = "userNameEqual")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.READ)]
         public string UserNameEqual { get; set; }
 
         /// <summary>
@@ -28,7 +31,16 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "externalIdEqual")]
         [XmlElement("externalIdEqual", IsNullable = true)]
         [JsonProperty("externalIdEqual")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.READ)]
         public string ExternalIdEqual { get; set; }
+
+        internal void Validate()
+        {
+            if (!string.IsNullOrEmpty(UserNameEqual) && !string.IsNullOrEmpty(ExternalIdEqual))
+            {
+                throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Only one of userNameEqual or externalIdEqual can be used, not both of them.");
+            }
+        }
 
         public override KalturaOTTUserOrderBy GetDefaultOrderByValue()
         {
