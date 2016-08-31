@@ -1,1 +1,0 @@
-{"actionParams":[{"type":"string","isSimpleType":true,"isComplexType":false,"isFile":false,"isEnum":false,"isStringEnum":false,"isArray":false,"isAbstract":false,"description":"Subscription Code","name":"subscriptionId","isOptional":false}],"description":"Cancel a household service subscription at the next renewal. The subscription stays valid till the next renewal."}

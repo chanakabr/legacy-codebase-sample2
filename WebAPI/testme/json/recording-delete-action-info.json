@@ -1,1 +1,0 @@
-{"actionParams":[{"type":"bigint","isSimpleType":true,"isComplexType":false,"isFile":false,"isEnum":false,"isStringEnum":false,"isArray":false,"isAbstract":false,"description":"Recording identifier","name":"id","isOptional":false}],"description":"Delete one or more user recording(s). Delete recording can be called only for recordings in status Recorded"}
