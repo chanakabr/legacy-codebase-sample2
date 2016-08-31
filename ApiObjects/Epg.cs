@@ -145,6 +145,7 @@ namespace ApiObjects
             this.Description = epgCb.Description;
             this.StartDate = epgCb.StartDate;
             this.EndDate = epgCb.EndDate;
+            this.SearchEndDate = epgCb.SearchEndDate;
             this.CoGuid = epgCb.CoGuid;
             this.BasicData = epgCb.BasicData;
             this.Statistics = epgCb.Statistics;
