@@ -1215,7 +1215,7 @@
             <s:element minOccurs="1" maxOccurs="1" name="epgId" type="s:long" />
             <s:element minOccurs="1" maxOccurs="1" name="Id" type="s:long" />
             <s:element minOccurs="1" maxOccurs="1" name="epgStartDate" type="s:dateTime" />
-            <s:element minOccurs="0" maxOccurs="1" name="domainIds" type="tns:ArrayOfLong" />
+            <s:element minOccurs="0" maxOccurs="1" name="domainSeriesIds" type="tns:ArrayOfLong" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -5094,7 +5094,7 @@
     <wsdl:part name="epgId" type="s:string" />
     <wsdl:part name="Id" type="s:string" />
     <wsdl:part name="epgStartDate" type="s:string" />
-    <wsdl:part name="domainIds" type="s4:StringArray" />
+    <wsdl:part name="domainSeriesIds" type="s4:StringArray" />
   </wsdl:message>
   <wsdl:message name="DistributeRecordingWithDomainIdsHttpPostOut">
     <wsdl:part name="Body" element="tns:boolean" />

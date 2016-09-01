@@ -2409,24 +2409,24 @@ namespace RecordingTaskHandler.WS_CAS {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/DistributeRecordingWithDomainIds", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public bool DistributeRecordingWithDomainIds(string sWSUserName, string sWSPassword, long epgId, long Id, System.DateTime epgStartDate, long[] domainIds) {
+        public bool DistributeRecordingWithDomainIds(string sWSUserName, string sWSPassword, long epgId, long Id, System.DateTime epgStartDate, long[] domainSeriesIds) {
             object[] results = this.Invoke("DistributeRecordingWithDomainIds", new object[] {
                         sWSUserName,
                         sWSPassword,
                         epgId,
                         Id,
                         epgStartDate,
-                        domainIds});
+                        domainSeriesIds});
             return ((bool)(results[0]));
         }
         
         /// <remarks/>
-        public void DistributeRecordingWithDomainIdsAsync(string sWSUserName, string sWSPassword, long epgId, long Id, System.DateTime epgStartDate, long[] domainIds) {
-            this.DistributeRecordingWithDomainIdsAsync(sWSUserName, sWSPassword, epgId, Id, epgStartDate, domainIds, null);
+        public void DistributeRecordingWithDomainIdsAsync(string sWSUserName, string sWSPassword, long epgId, long Id, System.DateTime epgStartDate, long[] domainSeriesIds) {
+            this.DistributeRecordingWithDomainIdsAsync(sWSUserName, sWSPassword, epgId, Id, epgStartDate, domainSeriesIds, null);
         }
         
         /// <remarks/>
-        public void DistributeRecordingWithDomainIdsAsync(string sWSUserName, string sWSPassword, long epgId, long Id, System.DateTime epgStartDate, long[] domainIds, object userState) {
+        public void DistributeRecordingWithDomainIdsAsync(string sWSUserName, string sWSPassword, long epgId, long Id, System.DateTime epgStartDate, long[] domainSeriesIds, object userState) {
             if ((this.DistributeRecordingWithDomainIdsOperationCompleted == null)) {
                 this.DistributeRecordingWithDomainIdsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDistributeRecordingWithDomainIdsOperationCompleted);
             }
@@ -2436,7 +2436,7 @@ namespace RecordingTaskHandler.WS_CAS {
                         epgId,
                         Id,
                         epgStartDate,
-                        domainIds}, this.DistributeRecordingWithDomainIdsOperationCompleted, userState);
+                        domainSeriesIds}, this.DistributeRecordingWithDomainIdsOperationCompleted, userState);
         }
         
         private void OnDistributeRecordingWithDomainIdsOperationCompleted(object arg) {

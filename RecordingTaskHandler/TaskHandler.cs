@@ -134,11 +134,11 @@ namespace RecordingTaskHandler
                             if (seriesAndSeasonNumber != null && !string.IsNullOrEmpty(seriesAndSeasonNumber.key) && int.TryParse(seriesAndSeasonNumber.value, out seasonNumber))
                             {
                                 long maxDomainSeriesId = 0;
-                                HashSet<long> domainIds = RecordingsDAL.GetSeriesFollowingDomainsIds(request.GroupID, seriesAndSeasonNumber.key, seasonNumber, ref maxDomainSeriesId);
-                                while (domainIds != null && domainIds.Count > 0 && maxDomainSeriesId > -1)
+                                HashSet<long> domainSeriesIds = RecordingsDAL.GetSeriesFollowingDomainsIds(request.GroupID, seriesAndSeasonNumber.key, seasonNumber, ref maxDomainSeriesId);
+                                while (domainSeriesIds != null && domainSeriesIds.Count > 0 && maxDomainSeriesId > -1)
                                 {
-                                    cas.DistributeRecordingWithDomainIdsAsync(username, password, request.ProgramId, request.RecordingId, request.EpgStartDate, domainIds.ToArray());
-                                    domainIds = RecordingsDAL.GetSeriesFollowingDomainsIds(request.GroupID, seriesAndSeasonNumber.key, seasonNumber, ref maxDomainSeriesId);
+                                    cas.DistributeRecordingWithDomainIdsAsync(username, password, request.ProgramId, request.RecordingId, request.EpgStartDate, domainSeriesIds.ToArray());
+                                    domainSeriesIds = RecordingsDAL.GetSeriesFollowingDomainsIds(request.GroupID, seriesAndSeasonNumber.key, seasonNumber, ref maxDomainSeriesId);
                                 }
                                 success = true;
                             }
