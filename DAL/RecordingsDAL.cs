@@ -683,7 +683,7 @@ namespace DAL
             {
                 foreach (DataRow dr in dt.Rows)
                 {
-                    long domainId = ODBCWrapper.Utils.GetLongSafeVal(dr, "DOMAIN_ID", 0);
+                    long domainId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
                     if (domainId > 0 && !domainIds.Contains(domainId))
                     {
                         domainIds.Add(domainId);
