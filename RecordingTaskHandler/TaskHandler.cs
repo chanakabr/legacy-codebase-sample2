@@ -127,6 +127,7 @@ namespace RecordingTaskHandler
                     }
                     case eRecordingTask.DistributeRecording:
                     {
+                        log.DebugFormat("start distribute for epgId: {0}, recordingId: {1}", request.ProgramId, request.RecordingId);
                         if (shouldDistributeRecordingInBulks)
                         {
                             RecordingTaskHandler.WS_CAS.KeyValuePair seriesAndSeasonNumber = cas.GetSeriesIdAndSeasonNumberByEpgId(username, password, request.ProgramId);
@@ -137,8 +138,9 @@ namespace RecordingTaskHandler
                                 HashSet<long> domainSeriesIds = RecordingsDAL.GetSeriesFollowingDomainsIds(request.GroupID, seriesAndSeasonNumber.key, seasonNumber, ref maxDomainSeriesId);
                                 while (domainSeriesIds != null && domainSeriesIds.Count > 0 && maxDomainSeriesId > -1)
                                 {
+                                    log.DebugFormat("distributing for the following domainSeriesIds: {0}", string.Join(",", domainSeriesIds));
                                     cas.DistributeRecordingWithDomainIdsAsync(username, password, request.ProgramId, request.RecordingId, request.EpgStartDate, domainSeriesIds.ToArray());
-                                    domainSeriesIds = RecordingsDAL.GetSeriesFollowingDomainsIds(request.GroupID, seriesAndSeasonNumber.key, seasonNumber, ref maxDomainSeriesId);
+                                    domainSeriesIds = RecordingsDAL.GetSeriesFollowingDomainsIds(request.GroupID, seriesAndSeasonNumber.key, seasonNumber, ref maxDomainSeriesId);                                    
                                 }
                                 success = true;
                             }
@@ -151,7 +153,9 @@ namespace RecordingTaskHandler
                         {
                             success = cas.DistributeRecording(username, password, request.ProgramId, request.RecordingId, request.EpgStartDate);
                         }
-                        
+
+
+                        log.DebugFormat("finished distributing for epgId: {0}, recordingId: {1}", request.ProgramId, request.RecordingId);
                         break;
                     }
                     case eRecordingTask.CheckRecordingDuplicateCrids:
