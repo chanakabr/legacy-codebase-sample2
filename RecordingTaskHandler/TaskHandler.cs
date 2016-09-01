@@ -13,6 +13,7 @@ using System.Net;
 using System.Web;
 using System.ServiceModel;
 using DAL;
+using System.Threading;
 
 namespace RecordingTaskHandler
 {
@@ -127,7 +128,7 @@ namespace RecordingTaskHandler
                     }
                     case eRecordingTask.DistributeRecording:
                     {
-                        log.DebugFormat("start distribute for epgId: {0}, recordingId: {1}", request.ProgramId, request.RecordingId);
+                        log.DebugFormat("start distribute for epgId: {0}, recordingId: {1}", request.ProgramId, request.RecordingId);                        
                         if (shouldDistributeRecordingInBulks)
                         {
                             RecordingTaskHandler.WS_CAS.KeyValuePair seriesAndSeasonNumber = cas.GetSeriesIdAndSeasonNumberByEpgId(username, password, request.ProgramId);
@@ -139,7 +140,14 @@ namespace RecordingTaskHandler
                                 while (domainSeriesIds != null && domainSeriesIds.Count > 0 && maxDomainSeriesId > -1)
                                 {
                                     log.DebugFormat("distributing for the following domainSeriesIds: {0}", string.Join(",", domainSeriesIds));
-                                    cas.DistributeRecordingWithDomainIdsAsync(username, password, request.ProgramId, request.RecordingId, request.EpgStartDate, domainSeriesIds.ToArray());
+                                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                                    {
+                                        module casAsync = new module();
+                                        casAsync.Url = cas.Url;
+                                        casAsync.Timeout = 300000;
+                                        casAsync.DistributeRecordingWithDomainIdsAsync(username, password, request.ProgramId, request.RecordingId, request.EpgStartDate, domainSeriesIds.ToArray());
+                                    }
+                                    
                                     domainSeriesIds = RecordingsDAL.GetSeriesFollowingDomainsIds(request.GroupID, seriesAndSeasonNumber.key, seasonNumber, ref maxDomainSeriesId);                                    
                                 }
                                 success = true;
@@ -151,7 +159,10 @@ namespace RecordingTaskHandler
                         }
                         else
                         {
-                            success = cas.DistributeRecording(username, password, request.ProgramId, request.RecordingId, request.EpgStartDate);
+                            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                            {
+                                success = cas.DistributeRecording(username, password, request.ProgramId, request.RecordingId, request.EpgStartDate);
+                            }
                         }
 
                         log.DebugFormat("finished distributing for epgId: {0}, recordingId: {1}", request.ProgramId, request.RecordingId);
