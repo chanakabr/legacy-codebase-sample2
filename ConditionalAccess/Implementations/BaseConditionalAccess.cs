@@ -19153,7 +19153,7 @@ namespace ConditionalAccess
             return seriesRecording;
         }
 
-        public bool DistributeRecording(long epgId, long id, DateTime epgStartDate, List<long> domainIds = null)
+        public bool DistributeRecording(long epgId, long id, DateTime epgStartDate, List<long> domainSeriesIds = null)
         {            
             bool result = true;
             Recording recording = Utils.GetRecordingById(id);
@@ -19197,9 +19197,9 @@ namespace ConditionalAccess
             long maxDomainSeriesId = 0;
             DataTable followingDomains = null;
             // batching is done by remote tasks so get followingDomains by domainIds 
-            if (domainIds != null && domainIds.Count > 0)
+            if (domainSeriesIds != null && domainSeriesIds.Count > 0)
             {
-                followingDomains = RecordingsDAL.GetSeriesFollowingDomainsByIds(string.Join(",", domainIds));
+                followingDomains = RecordingsDAL.GetSeriesFollowingDomainsByIds(string.Join(",", domainSeriesIds));
             }
             else
             {
@@ -19248,7 +19248,7 @@ namespace ConditionalAccess
                 System.Threading.Thread.Sleep(10);
 
                 // batching is already done on remote tasks so stop here
-                if (domainIds != null)
+                if (domainSeriesIds != null)
                 {
                     followingDomains = null;
                     break;
