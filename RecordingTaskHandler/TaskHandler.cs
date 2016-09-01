@@ -154,7 +154,6 @@ namespace RecordingTaskHandler
                             success = cas.DistributeRecording(username, password, request.ProgramId, request.RecordingId, request.EpgStartDate);
                         }
 
-
                         log.DebugFormat("finished distributing for epgId: {0}, recordingId: {1}", request.ProgramId, request.RecordingId);
                         break;
                     }
