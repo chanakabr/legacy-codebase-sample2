@@ -622,7 +622,7 @@ namespace Catalog.Request
                     nActionID = 40;
                     int siteGuid = 0;
                     int status = 1;
-                    int.TryParse(this.m_oMediaPlayRequestData.m_sSiteGuid, out siteGuid);                  
+                    int.TryParse(this.m_oMediaPlayRequestData.m_sSiteGuid, out siteGuid);
                     break;
                 }
                 case MediaPlayActions.SWOOSH:

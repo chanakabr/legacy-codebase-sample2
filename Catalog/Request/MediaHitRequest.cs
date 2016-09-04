@@ -245,7 +245,7 @@ namespace Catalog.Request
                 {
                     int siteGuid = 0;
                     int status = 1;
-                    int.TryParse(m_oMediaPlayRequestData.m_sSiteGuid, out siteGuid);                    
+                    int.TryParse(m_oMediaPlayRequestData.m_sSiteGuid, out siteGuid);
                 }
             }
             //if this is not a bit rate change, log for mediahit for statistics
