@@ -158,7 +158,7 @@ namespace ImageResizeHandler
                     Byte[] bytes = dest.ToArray();
 
                     if (bytes != null && bytes.Length > 0)
-                        log.DebugFormat("successfully resized image. source: {0}, dest: {1}, resizeSettings: {2}", source, dest, JsonConvert.SerializeObject(resizeSettings));
+                        log.DebugFormat("successfully resized image. data: {0}, resizeSettings: {1}", data, JsonConvert.SerializeObject(resizeSettings));
 
                     res = Convert.ToBase64String(bytes);
                 }
