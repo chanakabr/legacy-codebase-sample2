@@ -19,8 +19,7 @@ namespace RecordingTaskHandler
 {
     public class TaskHandler : ITaskHandler
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static bool shouldDistributeRecordingInBulks = TVinciShared.WS_Utils.GetTcmBoolValue("ShouldDistributeRecordingInBulks");
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());        
 
         #region ITaskHandler Members
 
@@ -128,8 +127,17 @@ namespace RecordingTaskHandler
                     }
                     case eRecordingTask.DistributeRecording:
                     {
-                        log.DebugFormat("start distribute for epgId: {0}, recordingId: {1}", request.ProgramId, request.RecordingId);                        
-                        if (shouldDistributeRecordingInBulks)
+                        bool shouldDistributeRecordingSynchronously = TVinciShared.WS_Utils.GetTcmBoolValue("ShouldDistributeRecordingSynchronously");
+                        log.DebugFormat("start distribute for epgId: {0}, recordingId: {1}", request.ProgramId, request.RecordingId);
+                        if (shouldDistributeRecordingSynchronously)
+                        {
+                            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                            {
+                                cas.Timeout = 500000;
+                                success = cas.DistributeRecording(username, password, request.ProgramId, request.RecordingId, request.EpgStartDate);
+                            }
+                        }
+                        else
                         {
                             RecordingTaskHandler.WS_CAS.KeyValuePair seriesAndSeasonNumber = cas.GetSeriesIdAndSeasonNumberByEpgId(username, password, request.ProgramId);
                             int seasonNumber = 0;
@@ -144,24 +152,16 @@ namespace RecordingTaskHandler
                                     {
                                         module casAsync = new module();
                                         casAsync.Url = cas.Url;
-                                        casAsync.Timeout = 300000;
                                         casAsync.DistributeRecordingWithDomainIdsAsync(username, password, request.ProgramId, request.RecordingId, request.EpgStartDate, domainSeriesIds.ToArray());
                                     }
-                                    
-                                    domainSeriesIds = RecordingsDAL.GetSeriesFollowingDomainsIds(request.GroupID, seriesAndSeasonNumber.key, seasonNumber, ref maxDomainSeriesId);                                    
+
+                                    domainSeriesIds = RecordingsDAL.GetSeriesFollowingDomainsIds(request.GroupID, seriesAndSeasonNumber.key, seasonNumber, ref maxDomainSeriesId);
                                 }
                                 success = true;
                             }
                             else
                             {
                                 success = false;
-                            }
-                        }
-                        else
-                        {
-                            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                            {
-                                success = cas.DistributeRecording(username, password, request.ProgramId, request.RecordingId, request.EpgStartDate);
                             }
                         }
 
