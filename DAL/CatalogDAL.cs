@@ -526,29 +526,29 @@ namespace Tvinci.Core.DAL
             spNewMediaEoh.ExecuteNonQuery();
         }
 
-        public static void Insert_NewMediaFileVideoQuality(int nWatcherID, int nUserSiteGuid, string sSessionID, int nMediaID, int nMediaFileID, int nAvgMaxBitRate, int nBitRateIndex,
-                                                           int nTotalBitRatesNum, int nLoactionSec, int nBrowser, int nPlatform, int nCountryID, int nStatus, int nGroupID)
-        {
-            ODBCWrapper.StoredProcedure spInsertNewMediaFileVideoQuality = new ODBCWrapper.StoredProcedure("Insert_NewMediaFileVideoQuality");
-            spInsertNewMediaFileVideoQuality.SetConnectionKey("MAIN_CONNECTION_STRING");
+        //public static void Insert_NewMediaFileVideoQuality(int nWatcherID, int nUserSiteGuid, string sSessionID, int nMediaID, int nMediaFileID, int nAvgMaxBitRate, int nBitRateIndex,
+        //                                                   int nTotalBitRatesNum, int nLoactionSec, int nBrowser, int nPlatform, int nCountryID, int nStatus, int nGroupID)
+        //{
+        //    ODBCWrapper.StoredProcedure spInsertNewMediaFileVideoQuality = new ODBCWrapper.StoredProcedure("Insert_NewMediaFileVideoQuality");
+        //    spInsertNewMediaFileVideoQuality.SetConnectionKey("MAIN_CONNECTION_STRING");
 
-            spInsertNewMediaFileVideoQuality.AddParameter("@WatcherID", nWatcherID);
-            spInsertNewMediaFileVideoQuality.AddParameter("@UserSiteGuid", nUserSiteGuid);
-            spInsertNewMediaFileVideoQuality.AddParameter("@SessionID", sSessionID);
-            spInsertNewMediaFileVideoQuality.AddParameter("@MediaID", nMediaID);
-            spInsertNewMediaFileVideoQuality.AddParameter("@MediaFileID", nMediaFileID);
-            spInsertNewMediaFileVideoQuality.AddParameter("@AvgMaxBitRate", nAvgMaxBitRate);
-            spInsertNewMediaFileVideoQuality.AddParameter("@BitRateIndex", nBitRateIndex);
-            spInsertNewMediaFileVideoQuality.AddParameter("@TotalBitRatesNum", nTotalBitRatesNum);
-            spInsertNewMediaFileVideoQuality.AddParameter("@LocationSec", nLoactionSec);
-            spInsertNewMediaFileVideoQuality.AddParameter("@Browser", nBrowser);
-            spInsertNewMediaFileVideoQuality.AddParameter("@Platform", nPlatform);
-            spInsertNewMediaFileVideoQuality.AddParameter("@CountryID", nCountryID);
-            spInsertNewMediaFileVideoQuality.AddParameter("@Status", nStatus);
-            spInsertNewMediaFileVideoQuality.AddParameter("@GroupID", nGroupID);
+        //    spInsertNewMediaFileVideoQuality.AddParameter("@WatcherID", nWatcherID);
+        //    spInsertNewMediaFileVideoQuality.AddParameter("@UserSiteGuid", nUserSiteGuid);
+        //    spInsertNewMediaFileVideoQuality.AddParameter("@SessionID", sSessionID);
+        //    spInsertNewMediaFileVideoQuality.AddParameter("@MediaID", nMediaID);
+        //    spInsertNewMediaFileVideoQuality.AddParameter("@MediaFileID", nMediaFileID);
+        //    spInsertNewMediaFileVideoQuality.AddParameter("@AvgMaxBitRate", nAvgMaxBitRate);
+        //    spInsertNewMediaFileVideoQuality.AddParameter("@BitRateIndex", nBitRateIndex);
+        //    spInsertNewMediaFileVideoQuality.AddParameter("@TotalBitRatesNum", nTotalBitRatesNum);
+        //    spInsertNewMediaFileVideoQuality.AddParameter("@LocationSec", nLoactionSec);
+        //    spInsertNewMediaFileVideoQuality.AddParameter("@Browser", nBrowser);
+        //    spInsertNewMediaFileVideoQuality.AddParameter("@Platform", nPlatform);
+        //    spInsertNewMediaFileVideoQuality.AddParameter("@CountryID", nCountryID);
+        //    spInsertNewMediaFileVideoQuality.AddParameter("@Status", nStatus);
+        //    spInsertNewMediaFileVideoQuality.AddParameter("@GroupID", nGroupID);
 
-            spInsertNewMediaFileVideoQuality.ExecuteNonQuery();
-        }
+        //    spInsertNewMediaFileVideoQuality.ExecuteNonQuery();
+        //}
 
         public static void Insert_NewPlayerErrorMessage(int nGroupID, int nMediaID, int nMediaFileID, int nLoactionSec, int nPlatform, int nSiteUserGuid, string sUDID, string sErrorCode, string sErrorMessage)
         {
