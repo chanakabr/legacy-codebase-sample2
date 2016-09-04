@@ -141,7 +141,7 @@
                               
 								  <tr >  
                                        
-                                    <td style="color:red;">show only first 200 assets !</td>
+                                    <td style="color:red;">show only first 2000 assets !</td>
                                 </tr>
                                 <tr>
 									<td id="page_content">
