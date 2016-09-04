@@ -246,9 +246,6 @@ namespace Catalog.Request
                     int siteGuid = 0;
                     int status = 1;
                     int.TryParse(m_oMediaPlayRequestData.m_sSiteGuid, out siteGuid);
-                    CatalogDAL.Insert_NewMediaFileVideoQuality(nWatcherID, siteGuid, sSessionID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID,
-                                                               m_oMediaPlayRequestData.m_nAvgBitRate, m_oMediaPlayRequestData.m_nCurrentBitRate, m_oMediaPlayRequestData.m_nTotalBitRate,
-                                                               nPlayTime, nBrowser, nPlatform, nCountryID, status, m_nGroupID);
                 }
             }
             //if this is not a bit rate change, log for mediahit for statistics

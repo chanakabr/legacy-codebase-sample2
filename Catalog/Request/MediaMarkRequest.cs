@@ -617,9 +617,6 @@ namespace Catalog.Request
                     int siteGuid = 0;
                     int status = 1;
                     int.TryParse(this.m_oMediaPlayRequestData.m_sSiteGuid, out siteGuid);
-                    CatalogDAL.Insert_NewMediaFileVideoQuality(0, siteGuid, string.Empty, mediaId, this.m_oMediaPlayRequestData.m_nMediaFileID,
-                                                               this.m_oMediaPlayRequestData.m_nAvgBitRate, this.m_oMediaPlayRequestData.m_nCurrentBitRate, this.m_oMediaPlayRequestData.m_nTotalBitRate,
-                                                               0, 0, nPlatform, nCountryID, status, this.m_nGroupID);
                     break;
                 }
                 case MediaPlayActions.SWOOSH:
