@@ -25,7 +25,6 @@ namespace ElasticSearchHandler.IndexBuilders
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-
         #region Data Members
 
         int sizeOfBulk;
@@ -124,16 +123,22 @@ namespace ElasticSearchHandler.IndexBuilders
                 }
 
                 string baseType = this.GetIndexType();
-
-                string sMapping = serializer.CreateEpgMapping(group.m_oEpgGroupSettings.m_lMetasName, group.m_oEpgGroupSettings.m_lTagsName, indexAnalyzer, searchAnalyzer,
-                    baseType, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer);
                 string specificType = GetIndexType(language);
-                bool bMappingRes = api.InsertMapping(newIndexName, specificType, sMapping.ToString());
+                string suffix = null;
 
-                if (language.IsDefault && !bMappingRes)
+                if (!language.IsDefault)
+                {
+                    suffix = language.Code;
+                }
+
+                string mappingString = serializer.CreateEpgMapping(group.m_oEpgGroupSettings.m_lMetasName, group.m_oEpgGroupSettings.m_lTagsName, indexAnalyzer, searchAnalyzer,
+                    baseType, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer, suffix);
+                bool mappingResult = api.InsertMapping(newIndexName, specificType, mappingString.ToString());
+                
+                if (language.IsDefault && !mappingResult)
                     success = false;
 
-                if (!bMappingRes)
+                if (!mappingResult)
                 {
                     log.Error(string.Concat("Could not create mapping of type epg for language ", language.Name));
                 }
@@ -272,9 +277,9 @@ namespace ElasticSearchHandler.IndexBuilders
             }
         }
 
-        protected virtual string SerializeEPGObject(EpgCB epg)
+        protected virtual string SerializeEPGObject(EpgCB epg, string suffix = null)
         {
-            return serializer.SerializeEpgObject(epg);
+            return serializer.SerializeEpgObject(epg, suffix);
         }
 
         protected virtual string GetNewIndexName()
@@ -342,10 +347,12 @@ namespace ElasticSearchHandler.IndexBuilders
 
             // GetLinear Channel Values 
             var programsList = new List<EpgCB>();
+            
             foreach (var programsValues in programs.Values)
             {
                 programsList.AddRange(programsValues.Values);
             }
+
             ElasticSearchTaskUtils.GetLinearChannelValues(programsList, groupId);
 
             // Run on all programs
@@ -353,12 +360,20 @@ namespace ElasticSearchHandler.IndexBuilders
             {
                 foreach (var languageCode in programs[epgID].Keys)
                 {
+                    var language = group.GetLanguage(languageCode);
+                    string suffix = null;
+
+                    if (!language.IsDefault)
+                    {
+                        suffix = language.Code;
+                    }
+
                     EpgCB epg = programs[epgID][languageCode];
 
                     if (epg != null)
                     {
                         // Serialize EPG object to string
-                        string serializedEpg = SerializeEPGObject(epg);
+                        string serializedEpg = SerializeEPGObject(epg, suffix);
                         string epgType = ElasticSearchTaskUtils.GetTanslationType(type, group.GetLanguage(languageCode));
 
                         bulkRequests.Add(new ESBulkRequestObj<ulong>()

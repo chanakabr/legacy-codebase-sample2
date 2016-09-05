@@ -141,13 +141,21 @@ namespace ElasticSearchHandler.Updaters
                         {
                             foreach (int languageId in mediaDictionary[mediaId].Keys)
                             {
+                                var language = group.GetLanguage(languageId);
+                                string suffix = null;
+
+                                if (!language.IsDefault)
+                                {
+                                    suffix = language.Code;
+                                }
+
                                 Media media = mediaDictionary[mediaId][languageId];
 
                                 if (media != null)
                                 {
                                     string serializedMedia;
 
-                                    serializedMedia = esSerializer.SerializeMediaObject(media);
+                                    serializedMedia = esSerializer.SerializeMediaObject(media, suffix);
 
                                     string type = ElasticsearchTasksCommon.Utils.GetTanslationType(MEDIA, group.GetLanguage(languageId));
 

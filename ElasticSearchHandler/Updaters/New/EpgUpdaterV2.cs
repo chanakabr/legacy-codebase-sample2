@@ -182,7 +182,14 @@ namespace ElasticSearchHandler.Updaters
                             // Create bulk request object for each program
                             foreach (EpgCB epg in epgObjects)
                             {
-                                string serializedEpg = SerializeEPG(epg);
+                                string suffix = null;
+
+                                if (!language.IsDefault)
+                                {
+                                    suffix = language.Code;
+                                }
+
+                                string serializedEpg = SerializeEPG(epg, suffix);
                                 bulkRequests.Add(new ESBulkRequestObj<ulong>()
                                 {
                                     docID = GetDocumentId(epg),
@@ -243,9 +250,9 @@ namespace ElasticSearchHandler.Updaters
             return (ulong)epgId;
         }
 
-        protected virtual string SerializeEPG(EpgCB epg)
+        protected virtual string SerializeEPG(EpgCB epg, string suffix = null)
         {
-            return esSerializer.SerializeEpgObject(epg);
+            return esSerializer.SerializeEpgObject(epg, suffix);
         }
 
         protected bool DeleteEpg(List<int> epgIDs)
