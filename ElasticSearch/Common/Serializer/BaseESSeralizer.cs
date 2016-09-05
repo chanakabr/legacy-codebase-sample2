@@ -566,7 +566,8 @@ namespace ElasticSearch.Common
         }
 
         public virtual string CreateEpgMapping(List<string> lMetasNames, List<string> lTags, string indexAnalyzer, string searchAnalyzer,
-                                                string mappingName, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null)
+                                                string mappingName, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null,
+                                                string suffix = null)
         {
             if (lMetasNames == null || lTags == null)
                 return string.Empty;
@@ -830,19 +831,19 @@ namespace ElasticSearch.Common
 
         }
 
-        public virtual string SerializeEpgObject(EpgCB oEpg)
+        public virtual string SerializeEpgObject(EpgCB oEpg, string suffix = null)
         {
             StringBuilder sRecord = new StringBuilder();
             sRecord.Append("{ ");
 
-            SerializeEPGBody(oEpg, sRecord);
+            SerializeEPGBody(oEpg, sRecord, suffix);
 
             sRecord.Append(" }");
 
             return sRecord.ToString();
         }
 
-        protected virtual void SerializeEPGBody(EpgCB oEpg, StringBuilder sRecord)
+        protected virtual void SerializeEPGBody(EpgCB oEpg, StringBuilder sRecord, string suffix = null)
         {
             string name = oEpg.Name;
             string description = oEpg.Description;
@@ -931,14 +932,14 @@ namespace ElasticSearch.Common
 
         }
 
-        public virtual string SerializeRecordingObject(EpgCB oEpg, long recordingId)
+        public virtual string SerializeRecordingObject(EpgCB oEpg, long recordingId, string suffix = null)
         {
             StringBuilder builder = new StringBuilder();
 
             builder.Append("{ ");
             builder.AppendFormat("\"recording_id\": {0},", recordingId);
 
-            SerializeEPGBody(oEpg, builder);
+            SerializeEPGBody(oEpg, builder, suffix);
 
             builder.Append(" }");
 
