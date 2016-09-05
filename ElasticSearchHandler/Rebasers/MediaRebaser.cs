@@ -48,15 +48,22 @@ namespace ElasticSearchHandler
             // Get ALL media in group
             var groupMediasDictionary = ElasticsearchTasksCommon.Utils.GetRebaseMediaInformation(groupId);
 
+            if (groupMediasDictionary == null)
+            {
+                log.ErrorFormat("Rebase index - index - Get_GroupMedias_Rebase for group {0} return null result", groupId);
+
+                return false;
+            }
+            
             // Order all media by their ID
             var groupMedias = groupMediasDictionary.OrderBy(asset => asset.Key).ToList();
 
-            log.DebugFormat("Rebase index - Get_GroupMedias_Rebase return {0} media", groupMedias.Count);
+            log.DebugFormat("Rebase index - Get_GroupMedias_Rebase for group {0} return {1} media", groupId, groupMedias.Count);
 
             int updatedDocuments = 0;
             int deletedDocuments = 0;
 
-            if (groupMedias != null)
+            if (groupMedias != null && groupMedias.Count > 0)
             {
                 // Media that exist in ES but not in DB - with IDs outside of DB's range
                 DeleteEdgeDocuments(languages, indexName, groupMedias);
