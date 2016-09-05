@@ -960,8 +960,6 @@ namespace Catalog
 
             if (searcher != null)
             {
-                SetLanguageDefinition(request.m_nGroupID, request.m_oFilter, searchDefinitions);
-
                 List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems, ref to);
 
                 if (searchResults != null)
@@ -972,28 +970,6 @@ namespace Catalog
 
             return searchResultsList;
         }
-
-        /// <summary>
-        /// Sets the language parameter of a search request
-        /// </summary>
-        /// <param name="request"></param>
-        /// <param name="searchDefinitions"></param>
-        private static void SetLanguageDefinition(int groupId, Filter filter, UnifiedSearchDefinitions searchDefinitions)
-        {
-            LanguageObj objLang = null;
-
-            if (filter == null)
-            {
-                objLang = GetLanguage(groupId, -1);
-            }
-            else
-            {
-                objLang = GetLanguage(groupId, filter.m_nLanguage);
-            }
-
-            searchDefinitions.langauge = objLang;
-        }
-
 
         /// <summary>
         /// Creates a language object for a given group
@@ -1023,7 +999,6 @@ namespace Catalog
 
             return language;
         }
-
         /// <summary>
         /// For a given request, creates the proper definitions that the wrapper will use 
         /// </summary>
@@ -5184,7 +5159,6 @@ namespace Catalog
 
                 if (searcher != null)
                 {
-                    SetLanguageDefinition(request.m_nGroupID, request.m_oFilter, searchDefinitions);
 
                     int to = 0;
                     // The provided response should be filtered according to the Filter defined in the applicable 3rd-party channel settings
@@ -6046,6 +6020,13 @@ namespace Catalog
 
             HashSet<string> searchKeys = GetUnifiedSearchKey(leaf.field, group, out isTagOrMeta);
 
+            string suffix = string.Empty;
+
+            if (definitions.langauge != null && !definitions.langauge.IsDefault)
+            {
+                suffix = string.Format("_{0}", definitions.langauge.Code);
+            }
+
             if (searchKeys.Count > 1)
             {
                 if (isTagOrMeta)
@@ -6057,7 +6038,10 @@ namespace Catalog
                     // "and" operand (if it negative)
                     foreach (var searchKey in searchKeys)
                     {
-                        newList.Add(new BooleanLeaf(searchKey, leaf.value, leaf.valueType, leaf.operand));
+                        // add language suffix (if the language is not the default)
+                        string languageSpecificSearchKey = string.Format("{0}{1}", searchKey, suffix);
+
+                        newList.Add(new BooleanLeaf(languageSpecificSearchKey, leaf.value, leaf.valueType, leaf.operand));
                     }
 
                     eCutType cutType = eCutType.Or;
@@ -6080,10 +6064,17 @@ namespace Catalog
                 // Default - string, until proved otherwise
                 leaf.valueType = typeof(string);
 
-                // If this is a tag or a meta, we can continue happily.
+                // If this is a tag or a meta, we need to add the language suffix
                 // If not, we check if it is one of the "core" fields.
                 // If it is not one of them, an exception will be thrown
-                if (!isTagOrMeta)
+                if (isTagOrMeta)
+                {
+                    // add language suffix (if the language is not the default)
+                    string languageSpecificSearchKey = string.Format("{0}{1}", searchKeyLowered, suffix);
+
+                    leaf.field = languageSpecificSearchKey;
+                }
+                else
                 {
                     // If the filter uses non-default start/end dates, we tell the definitions no to use default start/end date
                     if (searchKeyLowered == "start_date")
@@ -6276,7 +6267,16 @@ namespace Catalog
                     {
                         leaf.valueType = typeof(long);
                     }
-                    else if (!reservedUnifiedSearchStringFields.Contains(searchKeyLowered))
+                    else if (reservedUnifiedSearchStringFields.Contains(searchKeyLowered))
+                    {
+                        if (searchKeyLowered == "name" || searchKeyLowered == "description")
+                        {
+                            // add language suffix (if the language is not the default)
+                            searchKeys.Clear();
+                            searchKeys.Add(string.Format("{0}{1}", searchKeyLowered, suffix));
+                        }
+                    }
+                    else
                     {
                         throw new KalturaException(string.Format("Invalid search key was sent: {0}", originalKey), (int)eResponseStatus.InvalidSearchField);
                     }

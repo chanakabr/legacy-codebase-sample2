@@ -17,18 +17,23 @@ namespace ElasticSearch.Common
         {
         }
 
-        public virtual string SerializeMediaObject(Media media)
+        public virtual string SerializeMediaObject(Media media, string suffix = null)
         {
             StringBuilder recordBuilder = new StringBuilder();
             recordBuilder.Append("{ ");
             recordBuilder.AppendFormat("\"media_id\": {0}, \"group_id\": {1}, \"media_type_id\": {2}, \"wp_type_id\": {3}, \"is_active\": {4}, " +
                 "\"device_rule_id\": {5}, \"like_counter\": {6}, \"views\": {7}, \"rating\": {8}, \"votes\": {9}, \"start_date\": \"{10}\", " +
-                "\"end_date\": \"{11}\", \"final_date\": \"{12}\", \"create_date\": \"{13}\", \"update_date\": \"{14}\", \"name\": \"{15}\", " +
-                "\"description\": \"{16}\", \"cache_date\": \"{17}\", \"geo_block_rule_id\": {18}, ",
+                "\"end_date\": \"{11}\", \"final_date\": \"{12}\", \"create_date\": \"{13}\", \"update_date\": \"{14}\", \"{19}\": \"{15}\", " +
+                "\"{20}\": \"{16}\", \"cache_date\": \"{17}\", \"geo_block_rule_id\": {18}, ",
                 media.m_nMediaID, media.m_nGroupID, media.m_nMediaTypeID, media.m_nWPTypeID, media.m_nIsActive,
                 media.m_nDeviceRuleId, media.m_nLikeCounter, media.m_nViews, media.m_dRating, media.m_nVotes, media.m_sStartDate,
                 media.m_sEndDate, media.m_sFinalEndDate, media.m_sCreateDate, media.m_sUpdateDate, Common.Utils.ReplaceDocumentReservedCharacters(ref media.m_sName),
-                Common.Utils.ReplaceDocumentReservedCharacters(ref media.m_sDescription), DateTime.UtcNow.ToString("yyyyMMddHHmmss"), media.geoBlockRule);
+                Common.Utils.ReplaceDocumentReservedCharacters(ref media.m_sDescription), DateTime.UtcNow.ToString("yyyyMMddHHmmss"), media.geoBlockRule,
+                // {19}
+                AddSuffix("name", suffix),
+                // {20}
+                AddSuffix("description", suffix)
+                );
 
             #region add media file types
 
@@ -96,7 +101,9 @@ namespace ElasticSearch.Common
                         if (!string.IsNullOrWhiteSpace(sMetaValue))
                         {
 
-                            metaNameValues.Add(string.Format(" \"{0}\": \"{1}\"", sMetaName.ToLower(), Common.Utils.ReplaceDocumentReservedCharacters(ref sMetaValue)));
+                            metaNameValues.Add(string.Format(" \"{0}\": \"{1}\"", 
+                                AddSuffix(sMetaName.ToLower(), suffix), 
+                                Common.Utils.ReplaceDocumentReservedCharacters(ref sMetaValue)));
                         }
                     }
                 }
@@ -134,7 +141,9 @@ namespace ElasticSearch.Common
                     if (lTagValues.Count > 0)
                     {
                         string sJoinedTagVals = string.Join(",", lTagValues);
-                        tagNameValues.Add(string.Format(" \"{0}\": [ {1} ]", sTagName.ToLower(), sJoinedTagVals));
+                        tagNameValues.Add(string.Format(" \"{0}\": [ {1} ]",
+                            AddSuffix(sTagName.ToLower(), suffix), 
+                            sJoinedTagVals));
                     }
                 }
                 if (tagNameValues.Count > 0)
@@ -210,7 +219,7 @@ namespace ElasticSearch.Common
         }
 
         public virtual string CreateMediaMapping(Dictionary<int, Dictionary<string, string>> oMetasValuesByGroupId, Dictionary<int, string> oGroupTags,
-            string sIndexAnalyzer, string sSearchAnalyzer, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null)
+            string sIndexAnalyzer, string sSearchAnalyzer, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null, string suffix = null)
         {
             if (oMetasValuesByGroupId == null || oGroupTags == null)
                 return string.Empty;
@@ -934,6 +943,18 @@ namespace ElasticSearch.Common
             builder.Append(" }");
 
             return builder.ToString();
+        }
+
+        protected static string AddSuffix(string text, string suffix)
+        {
+            string result = text;
+
+            if (!string.IsNullOrEmpty(suffix))
+            {
+                result = string.Format("{0}_{1}", result, suffix);
+            }
+
+            return result;
         }
     }
 }
