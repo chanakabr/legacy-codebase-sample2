@@ -849,7 +849,7 @@ namespace ElasticSearch.Common
             string description = oEpg.Description;
 
             sRecord.AppendFormat("\"epg_id\": {0}, \"group_id\": {1}, \"epg_channel_id\": {2}, \"is_active\": {3}, \"start_date\": \"{4}\", \"end_date\": \"{5}\"," +
-                " \"name\": \"{6}\", \"description\": \"{7}\", \"cache_date\": \"{8}\", \"date_routing\": \"{9}\", \"create_date\": \"{10}\", \"update_date\": \"{11}\"," +
+                " \"{14}\": \"{6}\", \"{15}\": \"{7}\", \"cache_date\": \"{8}\", \"date_routing\": \"{9}\", \"create_date\": \"{10}\", \"update_date\": \"{11}\"," +
                 "\"search_end_date\": \"{12}\", \"crid\": \"{13}\",",
                 oEpg.EpgID, oEpg.GroupID, oEpg.ChannelID, (oEpg.isActive) ? 1 : 0, oEpg.StartDate.ToString("yyyyMMddHHmmss"), oEpg.EndDate.ToString("yyyyMMddHHmmss"),
                 Common.Utils.ReplaceDocumentReservedCharacters(ref name), Common.Utils.ReplaceDocumentReservedCharacters(ref description),
@@ -858,7 +858,11 @@ namespace ElasticSearch.Common
                 oEpg.CreateDate.ToString("yyyyMMddHHmmss"),
                 oEpg.UpdateDate.ToString("yyyyMMddHHmmss"),
                 oEpg.SearchEndDate.ToString("yyyyMMddHHmmss"),
-                oEpg.Crid
+                oEpg.Crid,
+                // {14}
+                AddSuffix("name", suffix),
+                // {15}
+                AddSuffix("description", suffix)
                 );
 
             #region add metas
@@ -884,7 +888,9 @@ namespace ElasticSearch.Common
                                 }
                             }
 
-                            metaNameValues.Add(string.Format(" \"{0}\": [ {1} ]", sMetaName.ToLower(), lMetaValues.Aggregate((current, next) => current + "," + next)));
+                            metaNameValues.Add(string.Format(" \"{0}\": [ {1} ]", 
+                                AddSuffix(sMetaName.ToLower(), suffix), 
+                                lMetaValues.Aggregate((current, next) => current + "," + next)));
                         }
                     }
                 }
@@ -918,7 +924,9 @@ namespace ElasticSearch.Common
                                 }
                             }
 
-                            tagNameValues.Add(string.Format(" \"{0}\": [ {1} ]", sTagName.ToLower(), lTagValues.Aggregate((current, next) => current + "," + next)));
+                            tagNameValues.Add(string.Format(" \"{0}\": [ {1} ]",
+                                AddSuffix(sTagName.ToLower(), suffix), 
+                                lTagValues.Aggregate((current, next) => current + "," + next)));
                         }
                     }
                 }
