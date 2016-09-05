@@ -1938,13 +1938,13 @@ namespace TvinciImporter
             }
 
             if (picId == 0)
-                log.ErrorFormat("Failed download pic- EPGSchedID:{0}, channelID:{1}, ratioId{2}, url:{3}", nEPGSchedID, nChannelID, ratioID, sThumb);
+                log.ErrorFormat("Failed download pic- channelID:{0}, ratioId{1}, url:{2}", nChannelID, ratioID, sThumb);
             else
             {
                 if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, "USE_OLD_IMAGE_SERVER", ';'))
-                    log.DebugFormat("Successfully download pic- EPGSchedID:{0}, channelID:{1}, ratioId{2}, url:{3}", nEPGSchedID, nChannelID, ratioID, sThumb);
+                    log.DebugFormat("Successfully download pic- channelID:{0}, ratioId{1}, url:{2}", nChannelID, ratioID, sThumb);
                 else
-                    log.DebugFormat("Successfully processed image -EPGSchedID:{0}, channelID:{1}, ratioId{2}, url:{3}", nEPGSchedID, nChannelID, ratioID, sThumb);
+                    log.DebugFormat("Successfully processed image - channelID:{0}, ratioId{1}, url:{2}", nChannelID, ratioID, sThumb);
             }
 
             return picId;
