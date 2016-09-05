@@ -125,17 +125,19 @@ namespace ElasticSearchHandler.IndexBuilders
                     log.Error(string.Format("could not find analyzer for language ({0}) for mapping. whitespace analyzer will be used instead", language.Code));
                 }
 
-                // Ask serializer to create the mapping definitions string
-                string mapping = serializer.CreateMediaMapping(
-                    group.m_oMetasValuesByGroupId, group.m_oGroupTags, 
-                    indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer);
-                
                 string type = MEDIA;
+                string suffix = null;
 
                 if (!language.IsDefault)
                 {
                     type = string.Concat(MEDIA, "_", language.Code);
+                    suffix = language.Code;
                 }
+
+                // Ask serializer to create the mapping definitions string
+                string mapping = serializer.CreateMediaMapping(
+                    group.m_oMetasValuesByGroupId, group.m_oGroupTags,
+                    indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer, suffix);      
 
                 bool mappingResult = api.InsertMapping(newIndexName, type, mapping.ToString());
 
@@ -177,14 +179,22 @@ namespace ElasticSearchHandler.IndexBuilders
                     // For each language
                     foreach (int languageId in groupMedia.Value.Keys)
                     {
+                        var language = group.GetLanguage(languageId);
+                        string suffix = null;
+
+                        if (!language.IsDefault)
+                        {
+                            suffix = language.Code;
+                        }
+
                         Media media = groupMedia.Value[languageId];
 
                         if (media != null)
                         {
                             // Serialize media and create a bulk request for it
-                            string serializedMedia = serializer.SerializeMediaObject(media);
+                            string serializedMedia = serializer.SerializeMediaObject(media, suffix);
 
-                            string documentType = ElasticSearchTaskUtils.GetTanslationType(MEDIA, group.GetLanguage(languageId));
+                            string documentType = ElasticSearchTaskUtils.GetTanslationType(MEDIA, language);
 
                             bulkList.Add(new ESBulkRequestObj<int>()
                             {
