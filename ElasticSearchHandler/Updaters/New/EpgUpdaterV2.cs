@@ -180,7 +180,7 @@ namespace ElasticSearchHandler.Updaters
                             string alias = GetAlias();
 
                             // Create bulk request object for each program
-                            foreach (EpgCB epg in epgObjects)
+                            foreach (EpgCB epg in currentLanguageEpgs)
                             {
                                 string suffix = null;
 

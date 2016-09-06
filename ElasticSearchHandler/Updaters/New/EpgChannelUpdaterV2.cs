@@ -114,7 +114,6 @@ namespace ElasticSearchHandler.Updaters
 
             try
             {
-
                 EpgUpdaterV1 epgUpdater = new EpgUpdaterV1(this.groupId);
                 epgUpdater.IDs = epgIds;
                 epgUpdater.Action = eAction.Update;
