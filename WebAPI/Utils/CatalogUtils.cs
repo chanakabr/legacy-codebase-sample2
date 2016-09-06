@@ -196,17 +196,17 @@ namespace WebAPI.Utils
             return result;
         }
 
-        private static bool RetriveAssetsFromCache<T>(List<CacheKey> mediaKeys, string cacheKeyPrefix, int language, out List<T> assets, out List<long> missingMediaIds) where T : BaseObject
+        private static bool RetriveAssetsFromCache<T>(List<CacheKey> assetKeys, string cacheKeyPrefix, int language, out List<T> assets, out List<long> missingAssetIds) where T : BaseObject
         {
             bool result = true;
             assets = new List<T>();
-            missingMediaIds = null;
+            missingAssetIds = null;
 
-            if (mediaKeys != null && mediaKeys.Count > 0)
+            if (assetKeys != null && assetKeys.Count > 0)
             {
                 List<BaseObject> cacheResults = null;
 
-                cacheResults = CatalogCacheManager.Cache.GetObjects(mediaKeys, string.Format(CACHE_KEY_FORMAT, MEDIA_CACHE_KEY_PREFIX, language), out missingMediaIds);
+                cacheResults = CatalogCacheManager.Cache.GetObjects(assetKeys, string.Format(CACHE_KEY_FORMAT, cacheKeyPrefix, language), out missingAssetIds);
                 if (cacheResults != null && cacheResults.Count > 0)
                 {
                     foreach (var res in cacheResults)
@@ -215,7 +215,7 @@ namespace WebAPI.Utils
                     }
                 }
 
-                if (missingMediaIds != null && missingMediaIds.Count > 0)
+                if (missingAssetIds != null && missingAssetIds.Count > 0)
                 {
                     result = false;
                 }
