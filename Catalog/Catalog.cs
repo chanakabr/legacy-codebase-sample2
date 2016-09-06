@@ -6072,6 +6072,9 @@ namespace Catalog
                     // add language suffix (if the language is not the default)
                     string languageSpecificSearchKey = string.Format("{0}{1}", searchKeyLowered, suffix);
 
+                    searchKeys.Clear();
+                    searchKeys.Add(languageSpecificSearchKey);
+
                     leaf.field = languageSpecificSearchKey;
                 }
                 else
