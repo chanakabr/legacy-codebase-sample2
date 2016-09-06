@@ -3034,7 +3034,7 @@ namespace Catalog
         /// <param name="epgIds"></param>
         /// <param name="groupId"></param>
         /// <returns></returns>
-        internal static List<ProgramObj> GetEPGProgramInformation(List<long> epgIds, int groupId)
+        internal static List<ProgramObj> GetEPGProgramInformation(List<long> epgIds, int groupId, Filter filter = null)
         {
             List<ProgramObj> epgsInformation = new List<ProgramObj>();
 
@@ -3044,7 +3044,31 @@ namespace Catalog
                 return epgsInformation;
             }
 
-            List<EPGChannelProgrammeObject> basicEpgObjects = GetEpgsByGroupAndIDs(groupId, epgIds.Select(id => (int)id).ToList());
+            List<EPGChannelProgrammeObject> basicEpgObjects = null;
+
+            bool shouldGetDefault = true;
+
+            LanguageObj language = null;
+            if (filter != null)
+            {
+                Group group = GroupsCache.Instance().GetGroup(groupId);
+                language = group.GetLanguage(filter.m_nLanguage);
+
+                if (language != null && !language.IsDefault)
+                {
+                    shouldGetDefault = false;
+                }
+            }
+
+            if (shouldGetDefault)
+            {
+                basicEpgObjects = GetEpgsByGroupAndIDs(groupId, epgIds.Select(id => (int)id).ToList());
+            }
+            else
+            {
+                BaseEpgBL epgBL = EpgBL.Utils.GetInstance(groupId);
+                basicEpgObjects = epgBL.GetEpgCBsWithLanguage(epgIds.Select(id => (ulong)id).ToList(), language.Code);
+            }
 
             if (basicEpgObjects != null && basicEpgObjects.Count > 0)
             {
