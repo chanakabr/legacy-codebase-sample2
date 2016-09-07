@@ -48,14 +48,14 @@ namespace WebAPI.Controllers
             object result;
 
             if (parameter == null)
-                throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidMultirequestToken, "Invalid multirequest token");
+                throw new RequestParserException();
 
             if (parameter.GetType().IsArray)
             {
                 int index;
                 if (!int.TryParse(token, out index))
                 {
-                    throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidMultirequestToken, "Invalid multirequest token");
+                    throw new RequestParserException();
                 }
 
                 result = parameter.GetType().IsArray ? ((object[])parameter)[index] : ((JArray)parameter)[index];
@@ -77,21 +77,21 @@ namespace WebAPI.Controllers
                     break;
                 }
                 if (!found)
-                    throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidMultirequestToken, "Invalid multirequest token");
+                    throw new RequestParserException();
             }
             else if (parameter.GetType() == typeof(Dictionary<string, object>))
             {
                 Dictionary<string, object> dict = (Dictionary<string, object>)parameter;
                 if (!dict.ContainsKey(token))
                 {
-                    throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidMultirequestToken, "Invalid multirequest token");
+                    throw new RequestParserException();
                 }
 
                 result = dict[token];
             }
             else
             {
-                throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidMultirequestToken, "Invalid multirequest token");
+                throw new RequestParserException();
             }
 
             if (tokens.Count > 0)
@@ -111,10 +111,10 @@ namespace WebAPI.Controllers
                 {
                     int index = int.Parse(match.Groups[1].Value) - 1;
                     if (index < 0)
-                        throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidMultirequestToken, "Invalid multirequest token - the response index is not zero based");
+                        throw new RequestParserException(RequestParserException.INDEX_NOT_ZERO_BASED);
 
                     if (index >= responses.Length)
-                        throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidMultirequestToken, "Invalid multirequest token - invalid response index");
+                        throw new RequestParserException(RequestParserException.INVALID_INDEX);
 
                     if (match.Groups[2].Success)
                     {
@@ -183,7 +183,7 @@ namespace WebAPI.Controllers
                 Type controller = asm.GetType(string.Format("WebAPI.Controllers.{0}Controller", request[i].Service), false, true);
                 if (controller == null)
                 {
-                    response = new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidService, "Service doesn't exist");
+                    response = new BadRequestException(BadRequestException.INVALID_SERVICE, request[i].Service);
                 }
                 else
                 {

@@ -62,7 +62,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(pin))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "pin cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "pin");
             }
 
             try
@@ -160,7 +160,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(udid))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "udid cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "udid");
             }
 
             try
@@ -191,7 +191,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(udid))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "udid cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "udid");
             }
 
             try
@@ -224,7 +224,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(udid))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "udid cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "udid");
             }
 
             try
@@ -258,7 +258,7 @@ namespace WebAPI.Controllers
                 var deviceRegistrationStatus = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
                 if (deviceRegistrationStatus != KalturaDeviceRegistrationStatus.registered)
                 {
-                    throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.ServiceForbidden, "Service Forbidden");
+                    throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
                 }
 
                 // call client
@@ -291,7 +291,7 @@ namespace WebAPI.Controllers
                 var deviceRegistrationStatus = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
                 if (deviceRegistrationStatus != KalturaDeviceRegistrationStatus.registered)
                 {
-                    throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.ServiceForbidden, "Service Forbidden");
+                    throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
                 }
 
                 // call client
@@ -325,12 +325,12 @@ namespace WebAPI.Controllers
                 var deviceRegistrationStatus = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
                 if (deviceRegistrationStatus != KalturaDeviceRegistrationStatus.registered)
                 {
-                    throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.ServiceForbidden, "Service Forbidden");
+                    throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
                 }
 
                 if (status == KalturaDeviceStatus.PENDING)
                 {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "status value 'PENDING' cannot be updated");
+                    throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, "status", "KalturaDeviceStatus.PENDING");
                 }
 
                 // call client

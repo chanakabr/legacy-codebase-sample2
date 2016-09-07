@@ -35,7 +35,7 @@ namespace WebAPI.Controllers
             Type controller = asm.GetType(string.Format("WebAPI.Controllers.{0}Controller", serviceName), false, true);
 
             if (controller == null)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidService, "Service doesn't exist");
+                throw new BadRequestException(BadRequestException.INVALID_SERVICE, serviceName);
 
             Dictionary<string, string> oldStandardActions = OldStandardAttribute.getOldMembers(controller);
             string lowerActionName = actionName.ToLower();
@@ -45,7 +45,7 @@ namespace WebAPI.Controllers
             methodInfo = controller.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
             if (methodInfo == null)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidAction, "Action doesn't exist");
+                throw new BadRequestException(BadRequestException.INVALID_ACTION, serviceName, actionName);
             
             classInstance = Activator.CreateInstance(controller, null);
         }
@@ -66,7 +66,7 @@ namespace WebAPI.Controllers
                 return await Action("multirequest", "Do");
             }
 
-            throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error, "No action specified");
+            throw new BadRequestException(BadRequestException.ACTION_NOT_SPECIFIED);
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
@@ -78,7 +78,7 @@ namespace WebAPI.Controllers
                 return await Action("multirequest", "Do");
             }
 
-            throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error, "No action specified");
+            throw new BadRequestException(BadRequestException.ACTION_NOT_SPECIFIED);
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
@@ -109,7 +109,7 @@ namespace WebAPI.Controllers
             }
             catch (TargetParameterCountException ex)
             {
-                throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.InvalidActionParameters, "Mismatch in parameters");
+                throw new BadRequestException(BadRequestException.INVALID_ACTION_PARAMETERS);
             }
             catch (Exception ex)
             {
@@ -120,7 +120,7 @@ namespace WebAPI.Controllers
                     throw ex.InnerException;
                 }
 
-                throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error, "Unable to perform action");
+                throw new InternalServerErrorException();
             }
 
             return response;
@@ -130,7 +130,7 @@ namespace WebAPI.Controllers
         [Route(""), HttpGet]
         public async Task<object> NoRoute()
         {
-            throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error, "No action specified");
+            throw new BadRequestException(BadRequestException.ACTION_NOT_SPECIFIED);
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]

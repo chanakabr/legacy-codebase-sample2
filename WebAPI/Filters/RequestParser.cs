@@ -30,9 +30,28 @@ using System.Threading.Tasks;
 
 namespace WebAPI.Filters
 {
-    public class RequestParserException : ApiException
+    public class RequestParserException : BadRequestException
     {
-        public RequestParserException(int code, string msg) : base(code, msg) { }
+        private static ApiExceptionType INVALID_MULTIREQUEST_TOKEN = new ApiExceptionType(StatusCode.InvalidMultirequestToken, "Invalid multirequest token");
+
+        public static ApiExceptionType ABSTRACT_PARAMETER = new ApiExceptionType(StatusCode.AbstractParameter, "Abstract parameter type [@type@]", "type");
+        public static ApiExceptionType MISSING_PARAMETER = new ApiExceptionType(StatusCode.MissingParameter, StatusCode.InvalidActionParameters, "Missing parameter [@parameter@]", "parameter");
+        public static ApiExceptionType INDEX_NOT_ZERO_BASED = new ApiExceptionType(StatusCode.MultirequestIndexNotZeroBased, StatusCode.InvalidMultirequestToken, "Invalid multirequest token, response index is not zero based");
+        public static ApiExceptionType INVALID_INDEX = new ApiExceptionType(StatusCode.MultirequestInvalidIndex, StatusCode.InvalidMultirequestToken, "Invalid multirequest token, invalid response index");
+
+        public RequestParserException()
+            : this(INVALID_MULTIREQUEST_TOKEN)
+        {
+        }
+
+        public RequestParserException(ApiExceptionType type, params string[] parameters)
+            : base(type, parameters)
+        {
+        }
+
+        public RequestParserException(ApiException ex) : base(ex)
+        {
+        }
     }
 
     public enum RequestType
@@ -108,7 +127,7 @@ namespace WebAPI.Filters
 
             if (controller == null)
             {
-                throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidService, "Service doesn't exist");
+                throw new RequestParserException(RequestParserException.INVALID_SERVICE, serviceName);
             }
 
             Dictionary<string, string> oldStandardActions = OldStandardAttribute.getOldMembers(controller);
@@ -131,7 +150,7 @@ namespace WebAPI.Filters
 
             if (methodInfo == null)
             {
-                throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidAction, "Action doesn't exist");
+                throw new RequestParserException(RequestParserException.INVALID_ACTION, serviceName, actionName);
             }
 
             ApiAuthorizeAttribute authorization = methodInfo.GetCustomAttribute<ApiAuthorizeAttribute>(true);
@@ -525,7 +544,7 @@ namespace WebAPI.Filters
                         continue;
                     }
 
-                    throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidActionParameters, string.Format("Missing parameter {0}", p.Name));
+                    throw new RequestParserException(RequestParserException.MISSING_PARAMETER, p.Name);
                 }
 
                 try
@@ -637,7 +656,7 @@ namespace WebAPI.Filters
                 catch (Exception ex)
                 {
                     log.Error("Invalid parameter format", ex);
-                    throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidActionParameters, string.Format("Invalid parameter format {0}", p.Name));
+                    throw new RequestParserException(RequestParserException.INVALID_ACTION_PARAMETER, p.Name);
                 }
             }
 
@@ -705,7 +724,7 @@ namespace WebAPI.Filters
 
             if (type.IsAbstract)
             {
-                throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.AbstractParameter, "Parameter is abstract");
+                throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, type.Name);
             }
 
             var classProperties = type.GetProperties();
@@ -877,14 +896,14 @@ namespace WebAPI.Filters
 
             if (token == null)
             {
-                throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidKS, "Invalid KS");
+                throw new RequestParserException(RequestParserException.INVALID_KS_FORMAT);
             }
 
             KS ks = KS.CreateKSFromApiToken(token);
 
             if (!ks.IsValid)
             {
-                throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidKS, "Invalid KS");
+                throw new RequestParserException(RequestParserException.INVALID_KS_FORMAT);
             }
 
             ks.SaveOnRequest();
@@ -923,12 +942,12 @@ namespace WebAPI.Filters
             }
             catch (Exception)
             {
-                throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidKS, "Invalid KS format");
+                throw new RequestParserException(RequestParserException.INVALID_KS_FORMAT);
             }
 
             if (ksParts.Length < 3 || ksParts[0] != "v2" || !int.TryParse(ksParts[1], out groupId))
             {
-                throw new RequestParserException((int)WebAPI.Managers.Models.StatusCode.InvalidKS, "Invalid KS format");
+                throw new RequestParserException(RequestParserException.INVALID_KS_FORMAT);
             }
 
             Group group = null;
@@ -939,7 +958,7 @@ namespace WebAPI.Filters
             }
             catch (ApiException ex)
             {
-                throw new RequestParserException((int)ex.Code, ex.Message);
+                throw new RequestParserException(ex);
             }
 
             string adminSecret = group.UserSecret;

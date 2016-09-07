@@ -39,7 +39,7 @@ namespace WebAPI.Controllers
             KalturaSocialResponse response = new KalturaSocialResponse();
 
             if (string.IsNullOrEmpty(token))
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "token cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "token");
 
             try
             {
@@ -48,9 +48,6 @@ namespace WebAPI.Controllers
                 {
                     case KalturaSocialNetwork.facebook:
                         return ClientsManager.SocialClient().FBData(partnerId, token);
-
-                    default:
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Unknown social network");
                 }
             }
             catch (ClientException ex)
@@ -76,7 +73,7 @@ namespace WebAPI.Controllers
             KalturaSocialResponse response = new KalturaSocialResponse();
 
             if (string.IsNullOrEmpty(token))
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "token cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "token");
 
             try
             {
@@ -86,8 +83,6 @@ namespace WebAPI.Controllers
                     case KalturaSocialNetwork.facebook:
                         response = ClientsManager.SocialClient().FBUserData(partnerId, token);
                         break;
-                    default:
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Unknown social network");
                 }
             }
             catch (ClientException ex)
@@ -121,9 +116,6 @@ namespace WebAPI.Controllers
                     case KalturaSocialNetwork.facebook:
                         response = ClientsManager.SocialClient().FBUserDataByUserId(groupId, userId);
                         break;
-
-                    default:
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Unknown social network");
                 }
             }
             catch (ClientException ex)
@@ -152,7 +144,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(token))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "token cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "token");
             }
             try
             {
@@ -162,9 +154,6 @@ namespace WebAPI.Controllers
                     case KalturaSocialNetwork.facebook:
                         response = ClientsManager.SocialClient().FBUserSignin(partnerId, token, udid);
                         break;
-
-                    default:
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Unknown social network");
                 }
             }
             catch (ClientException ex)
@@ -210,7 +199,7 @@ namespace WebAPI.Controllers
             };
 
             if (string.IsNullOrEmpty(token))
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "token cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "token");
 
             try
             {
@@ -219,9 +208,6 @@ namespace WebAPI.Controllers
                 {
                     case KalturaSocialNetwork.facebook:
                         return ClientsManager.SocialClient().FBRegister(partnerId, token, extraParameters, ip);
-
-                    default:
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Unknown social network");
                 }
             }
             catch (ClientException ex)
@@ -266,7 +252,7 @@ namespace WebAPI.Controllers
             };
 
             if (string.IsNullOrEmpty(token))
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "token cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "token");
 
             try
             {
@@ -276,8 +262,6 @@ namespace WebAPI.Controllers
                     case KalturaSocialNetwork.facebook:
                         response = ClientsManager.SocialClient().FBUserRegister(partnerId, token, extraParameters, ip);
                         break;
-                    default:
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Unknown social network");
                 }
             }
             catch (ClientException ex)
@@ -300,7 +284,7 @@ namespace WebAPI.Controllers
         public KalturaSocial Merge(string token, KalturaSocialNetwork type)
         {
             if (string.IsNullOrEmpty(token))
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "token cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "token");
 
             string userId = KS.GetFromRequest().UserId;
             int groupId = KS.GetFromRequest().GroupId;
@@ -312,9 +296,6 @@ namespace WebAPI.Controllers
                 {
                     case KalturaSocialNetwork.facebook:
                         return ClientsManager.SocialClient().FBUserMerge(groupId, userId, token);
-
-                    default:
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Unknown social network");
                 }
             }
             catch (ClientException ex)
@@ -343,7 +324,7 @@ namespace WebAPI.Controllers
             KalturaSocialResponse response = new KalturaSocialResponse();
 
             if (string.IsNullOrEmpty(token))
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "token cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "token");
 
             try
             {
@@ -353,8 +334,6 @@ namespace WebAPI.Controllers
                     case KalturaSocialNetwork.facebook:
                         response = ClientsManager.SocialClient().FBUserMerge(partnerId, token, username, password, social_id);
                         break;
-                    default:
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Unknown social network");
                 }
             }
             catch (ClientException ex)
@@ -385,9 +364,6 @@ namespace WebAPI.Controllers
                 {
                     case KalturaSocialNetwork.facebook:
                         return ClientsManager.SocialClient().FBUserUnmerge(groupId, userId);
-
-                    default:
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Unknown social network");
                 }
             }
             catch (ClientException ex)
@@ -423,8 +399,6 @@ namespace WebAPI.Controllers
                     case KalturaSocialNetwork.facebook:
                         response = ClientsManager.SocialClient().FBUserUnmerge(groupId, token, username, password);
                         break;
-                    default:
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Unknown social network");
                 }
             }
             catch (ClientException ex)
@@ -456,8 +430,6 @@ namespace WebAPI.Controllers
                     case KalturaSocialNetwork.facebook:
                         response = ClientsManager.SocialClient().GetFacebookConfig(partnerId);
                         break;
-                    default:
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Unknown social network");
                 }
             }
             catch (ClientException ex)

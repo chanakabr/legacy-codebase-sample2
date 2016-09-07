@@ -38,6 +38,7 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "pushStartHour")]
         [JsonProperty("pushStartHour")]
         [XmlElement(ElementName = "pushStartHour", IsNullable = true)]
+        [SchemeProperty(MinInteger = 0, MaxInteger = 24)]
         public int? PushStartHour { get; set; }
 
         /// <summary>
@@ -46,6 +47,7 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "pushEndHour")]
         [JsonProperty("pushEndHour")]
         [XmlElement(ElementName = "pushEndHour", IsNullable = true)]
+        [SchemeProperty(MinInteger = 0, MaxInteger = 24)]
         public int? PushEndHour { get; set; }
 
         /// <summary>
@@ -62,6 +64,7 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "messageTTLDays")]
         [JsonProperty("messageTTLDays")]
         [XmlElement(ElementName = "messageTTLDays", IsNullable = true)]
+        [SchemeProperty(MinInteger = 1, MaxInteger = 90)]
         public int? MessageTTLDays { get; set; }
 
         /// <summary>

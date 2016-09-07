@@ -31,7 +31,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(code))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "code cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "code");
             }
         
             try

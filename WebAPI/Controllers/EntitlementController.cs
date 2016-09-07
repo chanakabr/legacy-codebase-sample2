@@ -27,6 +27,7 @@ namespace WebAPI.Controllers
         [OldStandard("assetId", "asset_id")]
         [OldStandard("transactionType", "transaction_type")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [SchemeArgument("assetId", MinInteger = 1)]
         public bool Cancel(int assetId, KalturaTransactionType transactionType)
         {
             bool response = false;
@@ -41,12 +42,7 @@ namespace WebAPI.Controllers
                 // check if the user performing the action is domain master
                 if (domain == 0)
                 {
-                    throw new ForbiddenException();
-                }
-
-                if (assetId == 0)
-                {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id not valid");
+                    throw new ForbiddenException(ForbiddenException.HOUSEHOLD_FORBIDDEN, domain);
                 }
 
                 // call client
@@ -76,6 +72,7 @@ namespace WebAPI.Controllers
         [OldStandard("assetId", "asset_id")]
         [OldStandard("transactionType", "transaction_type")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [SchemeArgument("assetId", MinInteger = 1)]
         public bool ForceCancel(int assetId, KalturaTransactionType transactionType)
         {
             bool response = false;
@@ -90,12 +87,7 @@ namespace WebAPI.Controllers
                 // check if the user performing the action is domain master
                 if (domain == 0)
                 {
-                    throw new ForbiddenException();
-                }
-
-                if (assetId == 0)
-                {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id not valid");
+                    throw new ForbiddenException(ForbiddenException.HOUSEHOLD_FORBIDDEN, domain);
                 }
 
                 // call client
@@ -129,7 +121,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(subscriptionId))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "subscription code not valid");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "subscriptionId");
             }
             try
             {
@@ -139,7 +131,7 @@ namespace WebAPI.Controllers
                 // check if the user performing the action is domain master
                 if (domain == 0)
                 {
-                    throw new ForbiddenException();
+                    throw new ForbiddenException(ForbiddenException.HOUSEHOLD_FORBIDDEN, domain);
                 }
                 // call client
                 ClientsManager.ConditionalAccessClient().CancelSubscriptionRenewal(groupId, (int)domain, subscriptionId);
@@ -163,12 +155,7 @@ namespace WebAPI.Controllers
             List<KalturaEntitlement> response = new List<KalturaEntitlement>();
 
             int groupId = KS.GetFromRequest().GroupId;
-
-            if (filter == null)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter cannot be null");
-            }
-
+            
             try
             {
                 // call client
@@ -184,8 +171,6 @@ namespace WebAPI.Controllers
                             response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.EntitlementType);
                         }
                         break;
-                    default:
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "unknown reference type");
                 }
             }
             catch (ClientException ex)
@@ -209,12 +194,7 @@ namespace WebAPI.Controllers
             List<KalturaEntitlement> response = new List<KalturaEntitlement>();
 
             int groupId = KS.GetFromRequest().GroupId;
-
-            if (filter == null)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter cannot be null");
-            }
-
+            
             try
             {
                 // call client
@@ -232,8 +212,6 @@ namespace WebAPI.Controllers
                                 filter.getIsExpiredEqual(), pager.getPageSize(), pager.getPageIndex(), filter.OrderBy);
                         }
                         break;
-                    default:
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "unknown reference type");
                 }
             }
             catch (ClientException ex)
@@ -259,10 +237,6 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
 
-            if (filter == null)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter cannot be null");
-            }
             if (pager == null)
                 pager = new KalturaFilterPager();
 
@@ -281,8 +255,6 @@ namespace WebAPI.Controllers
                             response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.EntitlementType, true, pager.getPageSize(), pager.getPageIndex());
                         }
                         break;
-                    default:
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "unknown reference type");
                 }
             }
             catch (ClientException ex)

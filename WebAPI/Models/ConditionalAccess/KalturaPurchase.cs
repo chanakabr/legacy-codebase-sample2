@@ -19,6 +19,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "productId")]
         [JsonProperty("productId")]
         [XmlElement(ElementName = "productId")]
+        [SchemeProperty(MinInteger = 1)]
         public int ProductId { get; set; }
 
         /// <summary>
@@ -59,7 +60,8 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "price")]
         [JsonProperty("price")]
         [XmlElement(ElementName = "price")]
-        public double Price { get; set; }
+        [SchemeProperty(MinFloat = 0)]
+        public float Price { get; set; }
 
         /// <summary>
         /// Identifier for a pre-entered payment method. If not provided – the household’s default payment method is used
@@ -67,6 +69,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "paymentMethodId")]
         [JsonProperty("paymentMethodId")]
         [XmlElement(ElementName = "paymentMethodId")]
+        [SchemeProperty(MinInteger = 1)]
         public int? PaymentMethodId { get; set; }
 
         /// <summary>
@@ -89,19 +92,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             // validate purchase token
             if (string.IsNullOrEmpty(Currency))
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "currency cannot be empty");
-
-            //// validate price
-            if (Price < 0)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "price is illegal");
-
-            //// validate product_id
-            if (ProductId <= 0)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "productId is illegal");
-
-            //// validate payment_method_id
-            if (PaymentMethodId.HasValue && PaymentMethodId.Value == 0)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_method_id cannot be 0");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaPurchase.currency");
         }
 
         internal int getPaymentMethodId()
@@ -158,11 +149,11 @@ namespace WebAPI.Models.ConditionalAccess
         {
             // validate purchase token
             if (string.IsNullOrEmpty(ReceiptId))
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "purchase receipt cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaExternalReceipt.receiptId");
 
             // validate payment gateway id
             if (string.IsNullOrEmpty(PaymentGatewayName))
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment gateway type cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaExternalReceipt.paymentGatewayName");
         }
     }
 }

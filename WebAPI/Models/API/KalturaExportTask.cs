@@ -26,7 +26,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        [SchemeProperty(ReadOnly = true)]
+        [SchemeProperty(ReadOnly = true, MinLong = 1)]
         public long? Id { get; set; }
 
         /// <summary>

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Catalog
@@ -17,6 +18,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "idEqual")]
         [JsonProperty("idEqual")]
         [XmlElement(ElementName = "idEqual", IsNullable = true)]
+        [SchemeProperty(MinInteger = 1)]
         public int IdEqual { get; set; }
 
         [DataMember(Name = "kSql")]
@@ -24,19 +26,5 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "kSql", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public string KSql { get; set; }
-
-
-        public KalturaChannelFilter()
-        {            
-        }
-
-        internal override void Validate()
-        {
-            if (IdEqual <= 0)
-            {
-                throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id must be positive");
-            }
-                    
-        }
     }
 }

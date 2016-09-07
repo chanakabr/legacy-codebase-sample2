@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
@@ -51,7 +52,7 @@ namespace WebAPI.Models.ConditionalAccess
                 }
                 else
                 {
-                    throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, string.Format("Filter.AssetIdIn contains invalid id {0}", value));
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaRecordingContextFilter.assetIdIn");
                 }
             }
 

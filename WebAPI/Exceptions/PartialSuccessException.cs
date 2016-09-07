@@ -10,8 +10,9 @@ namespace WebAPI.Exceptions
 {
     public class PartialSuccessException : ApiException
     {
-        public PartialSuccessException() : base((int)StatusCode.Error, "error") { }
-
-        public PartialSuccessException(int code, string msg) : base(code, !string.IsNullOrEmpty(msg) ? msg : "error") { }
+        public PartialSuccessException(ApiExceptionType type, params object[] parameters)
+            : base(type, parameters)
+        {
+        }
     }
 }

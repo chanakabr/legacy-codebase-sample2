@@ -56,6 +56,7 @@ namespace WebAPI.Controllers
         [Route("cancelByEpgId"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [SchemeArgument("epgId", MinLong = 1)]
         public KalturaSeriesRecording CancelByEpgId(long id, long epgId)
         {
             KalturaSeriesRecording response = null;
@@ -64,11 +65,6 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
                 long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
-
-                if (epgId <= 0)
-                {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "epgId must be bigger than 0");
-                }
 
                 // call client                
                 response = ClientsManager.ConditionalAccessClient().CancelSeriesRecord(groupId, userId, domainId, id, epgId);
@@ -91,6 +87,7 @@ namespace WebAPI.Controllers
         [Route("cancelBySeasonNumber"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [SchemeArgument("seasonNumber", MinLong = 1)]
         public KalturaSeriesRecording CancelBySeasonNumber(long id, long seasonNumber)
         {
             KalturaSeriesRecording response = null;
@@ -99,11 +96,6 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
                 long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
-
-                if (seasonNumber <= 0)
-                {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "seasonNumber must be bigger than 0");
-                }
 
                 // call client                
                 response = ClientsManager.ConditionalAccessClient().CancelSeriesRecord(groupId, userId, domainId, id, 0, seasonNumber);
@@ -154,6 +146,7 @@ namespace WebAPI.Controllers
         [Route("deleteBySeasonNumber"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [SchemeArgument("seasonNumber", MinInteger = 1)]
         public KalturaSeriesRecording DeleteBySeasonNumber(long id, int seasonNumber)
         {
             KalturaSeriesRecording response = null;
@@ -162,12 +155,7 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
                 long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
-
-                if (seasonNumber <= 0)
-                {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "seasonNumber must be bigger than 0");
-                }
-
+                
                 // call client                
                 response = ClientsManager.ConditionalAccessClient().DeleteSeriesRecord(groupId, userId, domainId, id, 0, seasonNumber);
             }
@@ -234,7 +222,7 @@ namespace WebAPI.Controllers
                 // validate recording type
                 if (recording.Type == KalturaRecordingType.SINGLE)
                 {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "type of recording can not be \"SINGLE\"");
+                    throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, "KalturaSeriesRecording.type", "KalturaRecordingType.SINGLE");
                 }
 
                 // call client

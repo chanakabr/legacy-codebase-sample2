@@ -38,7 +38,7 @@ namespace WebAPI.Controllers
 
             if (filter.Assets == null || filter.Assets.Count == 0)
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Assets cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaAssetsFilter.assets");
             }
 
             int groupId = KS.GetFromRequest().GroupId;
@@ -110,7 +110,7 @@ namespace WebAPI.Controllers
         {
             if (bookmark.PlayerData == null)
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "bookmark.PlayerData cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaBookmark.playerData");
             }
 
             try

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Catalog
@@ -38,11 +39,6 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "typeIn", IsNullable = true)]
         public string TypeIn { get; set; }
 
-        internal override void Validate()
-        {          
-
-        }
-
         internal List<int> getTypeIn()
         {
             if (string.IsNullOrEmpty(TypeIn))
@@ -59,16 +55,11 @@ namespace WebAPI.Models.Catalog
                 }
                 else
                 {
-                    throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, string.Format("Filter.TypeIn contains invalid id {0}", value));
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaSearchExternalFilter.typeIn");
                 }
             }
 
             return values;
         }
-
-        public KalturaSearchExternalFilter()
-        {
-        }
-
     }
 }

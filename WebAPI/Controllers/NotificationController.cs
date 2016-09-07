@@ -37,7 +37,7 @@ namespace WebAPI.Controllers
             {
                 // validate push token
                 if (string.IsNullOrWhiteSpace(pushToken))
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "push token cannot be empty");
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "pushToken");
 
                 response = ClientsManager.NotificationClient().SetPush(groupId, userId, udid, pushToken);
             }
@@ -99,7 +99,7 @@ namespace WebAPI.Controllers
                 KS.GetFromRequest().ToString();
 
                 if (string.IsNullOrEmpty(identifier))
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id is empty");
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "identifier");
 
                 // validate input
                 switch (type)
@@ -107,12 +107,12 @@ namespace WebAPI.Controllers
                     case KalturaNotificationType.announcement:
                         long announcentId = 0;
                         if (!long.TryParse(identifier, out announcentId))
-                            throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "illegal id");
+                            throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "identifier");
                         break;
 
                     case KalturaNotificationType.system:
                         if (identifier.ToLower() != "login")
-                            throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "illegal id");
+                            throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "identifier");
                         break;
                     default:
                         break;

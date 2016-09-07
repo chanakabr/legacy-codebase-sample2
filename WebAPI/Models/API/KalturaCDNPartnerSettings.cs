@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
@@ -17,6 +18,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "defaultAdapterId")]
         [JsonProperty("defaultAdapterId")]
         [XmlElement(ElementName = "defaultAdapterId", IsNullable = true)]
+        [SchemeProperty(MinInteger = 0)]
         public int? DefaultAdapterId { get; set; }
 
         /// <summary>
@@ -25,6 +27,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "defaultRecordingAdapterId")]
         [JsonProperty("defaultRecordingAdapterId")]
         [XmlElement(ElementName = "defaultRecordingAdapterId", IsNullable = true)]
+        [SchemeProperty(MinInteger = 0)]
         public int? DefaultRecordingAdapterId { get; set; }
 
     }

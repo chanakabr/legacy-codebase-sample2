@@ -36,15 +36,10 @@ namespace WebAPI.Controllers
                 int household_id = 0;
                 string requestUserId = KS.GetFromRequest().UserId;
 
-                // get domain       
-                var domain = ClientsManager.DomainsClient().GetDomainByUser(groupId, requestUserId);
                 if (requestUserId != "0")
-                    household_id = (int) domain.Id;
-        
-                // check if the user performing the action is domain master
-                if (domain.MasterUsers.Where(u => u.Id == masterUserId).FirstOrDefault() == null)
                 {
-                    throw new ForbiddenException();
+                    var domain = ClientsManager.DomainsClient().GetDomainByUser(groupId, requestUserId);
+                    household_id = (int) domain.Id;
                 }
 
                 // call client
@@ -108,8 +103,7 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, 
-                        "If the calling user is not master, one of the parameters: 'householdMasterUsername', 'householdId' must not be empty");
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "householdMasterUsername, householdId");
                 }
 
                 householdUser.IsMaster = householdUser.getIsMaster();

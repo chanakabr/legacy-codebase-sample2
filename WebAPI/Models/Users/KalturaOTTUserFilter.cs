@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Filters;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
@@ -38,7 +39,7 @@ namespace WebAPI.Models.Users
         {
             if (!string.IsNullOrEmpty(UserNameEqual) && !string.IsNullOrEmpty(ExternalIdEqual))
             {
-                throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Only one of userNameEqual or externalIdEqual can be used, not both of them.");
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaOTTUserFilter.userNameEqual", "KalturaOTTUserFilter.externalIdEqual");
             }
         }
 

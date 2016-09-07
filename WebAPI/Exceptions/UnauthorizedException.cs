@@ -8,10 +8,11 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Exceptions
 {
-    public class UnauthorizedException : ApiException
+    public class UnauthorizedException : BadRequestException
     {
-        public UnauthorizedException() : base((int)StatusCode.Unauthorized, "unauthorized") { }
-
-        public UnauthorizedException(int code, string msg) : base(code, !string.IsNullOrEmpty(msg) ? msg : "unauthorized") { }
+        public UnauthorizedException(ApiExceptionType type, params string[] parameters)
+            : base(type, parameters)
+        {
+        }
     }
 }

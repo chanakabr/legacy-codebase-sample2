@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
@@ -47,12 +48,12 @@ namespace WebAPI.Models.Catalog
         {
             if (string.IsNullOrEmpty(AssetIdIn))
             {
-                throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Filter.AssetIdIn cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaAssetStatisticsQuery.assetIdIn");
             }
 
             if (AssetTypeEqual == KalturaAssetType.recording)
             {
-                throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Filter.AssetTypeEqual = 'recording' is not supported");
+                throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, "KalturaAssetStatisticsQuery.assetTypeEqual", "KalturaAssetType.recording");
             }
         }
 
@@ -72,7 +73,7 @@ namespace WebAPI.Models.Catalog
                 }
                 else
                 {
-                    throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, string.Format("Filter.AssetIdIn contains invalid id {0}", value));
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetStatisticsQuery.assetIdIn");
                 }
             }
 

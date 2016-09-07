@@ -32,10 +32,6 @@ namespace WebAPI.Controllers
         {
             KalturaAssetCommentListResponse response = null;
            
-            if (filter.AssetIdEqual <= 0)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id cannot have zero or less value");
-            }
             if (pager == null)
                 pager = new KalturaFilterPager();
 
@@ -53,7 +49,7 @@ namespace WebAPI.Controllers
                 // if no response - return not found status 
                 if (response == null || response.Objects == null || response.Objects.Count == 0)
                 {
-                    throw new NotFoundException();
+                    throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset-Comment");
                 }               
             }
 
@@ -83,15 +79,9 @@ namespace WebAPI.Controllers
                 long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);     
                 string udid = KSUtils.ExtractKSPayload().UDID;
                 string language = Utils.Utils.GetLanguageFromRequest();
-
-                int assetId = 0;
-                if (!int.TryParse(comment.AssetId, out assetId) || assetId <= 0)
-                {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Invalid assetId");
-                }
-
+                
                 // call client
-                response = ClientsManager.CatalogClient().AddAssetComment(groupId, assetId, comment.AssetType, userId, (int)domainId, comment.Writer,
+                response = ClientsManager.CatalogClient().AddAssetComment(groupId, comment.AssetId, comment.AssetType, userId, (int)domainId, comment.Writer,
                                                                           comment.Header, comment.SubHeader, comment.Text, udid, language);
             }
             catch (ClientException ex)

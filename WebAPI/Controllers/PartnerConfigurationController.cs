@@ -36,11 +36,6 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
-            if (configuration == null)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "configuration cannot be null");
-            }
-
             int groupId = KS.GetFromRequest().GroupId;
 
             try
@@ -53,7 +48,7 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Not implemented");
+                    throw new InternalServerErrorException();
                 }
             }
             catch (ClientException ex)

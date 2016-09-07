@@ -34,12 +34,12 @@ namespace WebAPI.Controllers
             {
                 if (string.IsNullOrEmpty(message_template.Message))
                 {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "message is empty");
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaMessageTemplate.message");
                 }
 
                 if (string.IsNullOrEmpty(message_template.DateFormat))
                 {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "date_format is empty");
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaMessageTemplate.dateFormat");
                 }
 
                 // call client
@@ -77,12 +77,12 @@ namespace WebAPI.Controllers
 
                 if (string.IsNullOrEmpty(template.Message))
                 {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "message is empty");
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaMessageTemplate.message");
                 }
 
                 if (string.IsNullOrEmpty(template.DateFormat))
                 {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "date_format is empty");
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaMessageTemplate.dateFormat");
                 }
 
                 // call client
