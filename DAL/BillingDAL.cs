@@ -2321,5 +2321,48 @@ namespace DAL
             DataSet ds = sp.ExecuteDataSet();
             return ds;
         }
+
+        public static HouseholdPaymentMethod AddPaymentGatewayHouseholdPaymentMethod(int groupID, int householdId, int paymentGatewayId, int paymentMethodId, string paymentMethodExternalId, string paymentDetails)
+        {
+            HouseholdPaymentMethod householdPatmentMethod = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("AddPaymentGatewayHouseholdPaymentMethod");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupID);
+                sp.AddParameter("@paymentGatewayId", paymentGatewayId);
+                sp.AddParameter("@householdId", householdId);
+                sp.AddParameter("@paymentMethodId", paymentMethodId);
+                sp.AddParameter("@paymentMethodExternalId", paymentMethodExternalId);
+                sp.AddParameter("@paymentDetails", paymentDetails);
+                
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    if (ds.Tables[0].Rows.Count > 0)
+                    {
+                        DataRow row = ds.Tables[0].Rows[0];
+                        householdPatmentMethod = new HouseholdPaymentMethod()
+                        {
+                            ID = ODBCWrapper.Utils.GetIntSafeVal(row, "ID"),
+                            ExternalId = ODBCWrapper.Utils.GetSafeStr(row, "NAME"),
+                            Details = ODBCWrapper.Utils.GetSafeStr(row, "PAYMENT_DETAILS"),
+                            PaymentGatewayId = paymentGatewayId,
+                            PaymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(row, "PAYMENT_METHOD_ID"),
+                            Selected = false
+                        };
+                    }
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed calling to AddPaymentGatewayHouseholdPaymentMethod. GID:{0},PGID:{1}. Household:{2}. Exception: {3}", groupID, paymentGatewayId, householdId, ex);
+            }
+            return householdPatmentMethod;
+        }
     }
 }
