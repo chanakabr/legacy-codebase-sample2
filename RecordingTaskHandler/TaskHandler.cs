@@ -127,8 +127,7 @@ namespace RecordingTaskHandler
                     }
                     case eRecordingTask.DistributeRecording:
                     {
-                        bool shouldDistributeRecordingSynchronously = TVinciShared.WS_Utils.GetTcmBoolValue("ShouldDistributeRecordingSynchronously");
-                        log.DebugFormat("start distribute for epgId: {0}, recordingId: {1}", request.ProgramId, request.RecordingId);
+                        bool shouldDistributeRecordingSynchronously = TVinciShared.WS_Utils.GetTcmBoolValue("ShouldDistributeRecordingSynchronously");                        
                         if (shouldDistributeRecordingSynchronously)
                         {
                             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -146,8 +145,7 @@ namespace RecordingTaskHandler
                                 long maxDomainSeriesId = 0;
                                 HashSet<long> domainSeriesIds = RecordingsDAL.GetSeriesFollowingDomainsIds(request.GroupID, seriesAndSeasonNumber.key, seasonNumber, ref maxDomainSeriesId);
                                 while (domainSeriesIds != null && domainSeriesIds.Count > 0 && maxDomainSeriesId > -1)
-                                {
-                                    log.DebugFormat("distributing for the following domainSeriesIds: {0}", string.Join(",", domainSeriesIds));
+                                {                                    
                                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                                     {
                                         module casAsync = new module();
@@ -164,8 +162,7 @@ namespace RecordingTaskHandler
                                 success = false;
                             }
                         }
-
-                        log.DebugFormat("finished distributing for epgId: {0}, recordingId: {1}", request.ProgramId, request.RecordingId);
+                        
                         break;
                     }
                     case eRecordingTask.CheckRecordingDuplicateCrids:
