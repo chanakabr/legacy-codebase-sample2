@@ -21,6 +21,16 @@ namespace WebAPI.Models.Billing
         [SchemeProperty(ReadOnly = true)]
         public int? Id { get; set; }
 
+        // TODO: make sure write only works (jil formater)
+        /// <summary>
+        /// External identifier for the household payment method
+        /// </summary>
+        [DataMember(Name = "externalId")]
+        [JsonProperty("externalId")]
+        [XmlElement(ElementName = "externalId")]
+        [SchemeProperty(WriteOnly = true)]
+        public string ExternalId { get; set; }
+
         /// <summary>
         /// Payment-gateway identifier
         /// </summary>
@@ -30,11 +40,38 @@ namespace WebAPI.Models.Billing
         public int? PaymentGatewayId { get; set; }
 
         /// <summary>
+        /// Description of the payment method details
+        /// </summary>
+        [DataMember(Name = "details")]
+        [JsonProperty("details")]
+        [XmlElement(ElementName = "details")]
+        public string Details { get; set; }
+
+
+        /// <summary>
+        /// indicates whether the payment method is set as default for the household
+        /// </summary>
+        [DataMember(Name = "isDefault")]
+        [JsonProperty("isDefault")]
+        [XmlElement(ElementName = "isDefault")]
+        [SchemeProperty(ReadOnly = true)]
+        public bool? IsDefault { get; set; }
+
+        /// <summary>
+        /// Payment method profile identifier
+        /// </summary>
+        [DataMember(Name = "paymentMethodProfileId")]
+        [JsonProperty("paymentMethodProfileId")]
+        [XmlElement(ElementName = "paymentMethodProfileId")]
+        public int PaymentMethodProfileId { get; set; }
+
+        /// <summary>
         /// Payment method name
         /// </summary>
         [DataMember(Name = "name")]
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
+        [Obsolete]
         public string Name { get; set; }
 
         /// <summary>
@@ -43,16 +80,9 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "allowMultiInstance")]
         [JsonProperty("allowMultiInstance")]
         [XmlElement(ElementName = "allowMultiInstance")]
+        [Obsolete]
         public bool? AllowMultiInstance { get; set; }
 
-        /// <summary>
-        /// Payment method details
-        /// </summary>
-        [DataMember(Name = "details")]
-        [JsonProperty("details")]
-        [XmlElement(ElementName = "details")]
-        [Obsolete]
-        public string Details { get; set; }
 
         /// <summary>
         /// Selected payment method 

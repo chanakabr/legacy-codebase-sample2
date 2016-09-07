@@ -230,5 +230,37 @@ namespace WebAPI.Controllers
             return response;
 
         }
+
+        /// <summary>
+        /// Add a new payment method for household
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:  Payment gateway not set for household = 6007, Payment gateway not valid = 6043, Payment method not set for household = 6048,
+        /// Error saving payment gateway household payment method = 6052, Payment gateway not support payment method = 6056
+        /// </remarks>
+        /// <param name="householdPaymentMethod">Household payment method</param> 
+        /// <returns></returns>
+        [Route("add"), HttpPost]
+        [ApiAuthorize]
+        public KalturaHouseholdPaymentMethod Add(KalturaHouseholdPaymentMethod householdPaymentMethod)
+        {
+            KalturaHouseholdPaymentMethod response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            string userID = KS.GetFromRequest().UserId;
+            long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+            try
+            {
+                // call client
+                response = ClientsManager.BillingClient().AddPaymentGatewayPaymentMethodToHousehold(groupId, domainId, householdPaymentMethod);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }

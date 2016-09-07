@@ -176,8 +176,17 @@ namespace WebAPI.Clients
             List<KalturaHouseholdPaymentMethod> householdPaymentMethods;
             foreach (PaymentGatewaySelectedBy paymentGateway in response.PaymentGateways)
             {
-                householdPaymentMethods = Mapper.Map<List<KalturaHouseholdPaymentMethod>>(paymentGateway.PaymentMethods);
-                list.AddRange(householdPaymentMethods);
+                foreach (var paymentMethod in paymentGateway.PaymentMethods)
+                {
+                    householdPaymentMethods = Mapper.Map<List<KalturaHouseholdPaymentMethod>>(paymentMethod.HouseHoldPaymentMethods);
+                    foreach (var hpm in householdPaymentMethods)
+                    {
+                        hpm.PaymentMethodProfileId = paymentMethod.PaymentMethod.ID;
+                        hpm.PaymentGatewayId = paymentGateway.ID;
+                    }
+
+                    list.AddRange(householdPaymentMethods);
+                }
             }
 
             return list;
@@ -942,6 +951,42 @@ namespace WebAPI.Clients
             configuration = Mapper.Map<WebAPI.Models.Billing.KalturaPaymentGatewayConfiguration>(response);
 
             return configuration;
+        }
+
+        internal KalturaHouseholdPaymentMethod AddPaymentGatewayPaymentMethodToHousehold(int groupId, long householdId, KalturaHouseholdPaymentMethod householdPaymentMethod)
+        {
+            Models.Billing.KalturaHouseholdPaymentMethod householdPaymentMethodResponse = null;
+            WebAPI.Billing.HouseholdPaymentMethodResponse response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                WebAPI.Billing.HouseholdPaymentMethod wsHouseholdPaymentMethod = Mapper.Map<HouseholdPaymentMethod>(householdPaymentMethod);;
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Billing.AddPaymentGatewayPaymentMethodToHousehold(group.BillingCredentials.Username, group.BillingCredentials.Password, wsHouseholdPaymentMethod, (int)householdId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while AddPaymentGatewayPaymentMethodToHousehold.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            householdPaymentMethodResponse = Mapper.Map<WebAPI.Models.Billing.KalturaHouseholdPaymentMethod>(response.PaymentMethod);
+
+            return householdPaymentMethodResponse;
         }
     }
 }

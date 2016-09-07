@@ -708,6 +708,9 @@
     <Content Include="Web References\Api\ScheduledTaskLastRunDetails.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Billing\HouseholdPaymentMethodResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Billing\module.disco" />
     <None Include="Web References\Billing\module.wsdl" />
     <Content Include="Web References\Billing\PaymentGatewayChargeIDResponse.datasource">

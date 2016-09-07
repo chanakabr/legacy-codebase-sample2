@@ -126,7 +126,21 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<HouseholdPaymentMethod, WebAPI.Models.Billing.KalturaHouseholdPaymentMethod>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
             .ForMember(dest => dest.Details, opt => opt.MapFrom(src => src.Details))
-            .ForMember(dest => dest.Selected, opt => opt.MapFrom(src => src.Selected));
+            .ForMember(dest => dest.Selected, opt => opt.MapFrom(src => src.Selected))
+            .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.Selected))
+            .ForMember(dest => dest.PaymentGatewayId, opt => opt.MapFrom(src => src.PaymentGatewayId))
+            .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
+            .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.Selected))
+            .ForMember(dest => dest.PaymentGatewayId, opt => opt.MapFrom(src => src.PaymentGatewayId))
+            .ForMember(dest => dest.PaymentMethodProfileId, opt => opt.MapFrom(src => src.PaymentMethodId));
+
+            Mapper.CreateMap<KalturaHouseholdPaymentMethod, HouseholdPaymentMethod>()
+            .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Details, opt => opt.MapFrom(src => src.Details))
+            .ForMember(dest => dest.Selected, opt => opt.MapFrom(src => src.Selected))
+            .ForMember(dest => dest.PaymentMethodId, opt => opt.MapFrom(src => src.PaymentMethodProfileId))
+            .ForMember(dest => dest.PaymentGatewayId, opt => opt.MapFrom(src => src.PaymentGatewayId))
+            .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId));
 
             Mapper.CreateMap<KalturaPaymentMethod, PaymentMethod>()
            .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
