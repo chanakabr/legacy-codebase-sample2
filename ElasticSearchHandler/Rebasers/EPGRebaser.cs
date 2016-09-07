@@ -57,7 +57,20 @@ namespace ElasticSearchHandler
 
             if (groupEpgs != null)
             {
-                Dictionary<ulong, EpgCB> dictionary = groupEpgs.ToDictionary<EpgCB, ulong>(epg => epg.EpgID);
+                Dictionary<ulong, EpgCB> dictionary = null;
+                Dictionary<ulong, Dictionary<string, EpgCB>> epgDictionary = new Dictionary<ulong, Dictionary<string, EpgCB>>();
+
+                foreach (var epg in groupEpgs)
+                {
+                    if (!epgDictionary.ContainsKey(epg.EpgID))
+                    {
+                        epgDictionary.Add(epg.EpgID, new Dictionary<string, EpgCB>());
+                    }
+
+                    epgDictionary[epg.EpgID][epg.Language] = epg;
+                }
+                
+                //groupEpgs.ToDictionary<EpgCB, ulong>(epg => epg.EpgID);
                 groupEpgs = groupEpgs.OrderBy(epg => epg.EpgID).ToList();
 
                 bool isDone = false;
@@ -85,8 +98,17 @@ namespace ElasticSearchHandler
 
                     HashSet<ulong> allIdsFromDB = new HashSet<ulong>();
 
+                    bool isFirstRun = firstIndex == 0;
+
+                    int skip = 1;
+
+                    if (isFirstRun)
+                    {
+                        skip = 0;
+                    }
+                        
                     // Create a list with all the IDs that were found in Database
-                    for (int i = firstIndex; i < lastIndex; i++)
+                    for (int i = firstIndex + skip; i < lastIndex; i++)
                     {
                         ulong currentId = groupEpgs[i].EpgID;
 
@@ -109,10 +131,9 @@ namespace ElasticSearchHandler
                         };
 
                         ulong firstEpgId = groupEpgs[firstIndex].EpgID;
-                        ulong lastEpgId = groupEpgs[lastIndex].EpgID;
-                        string documentType = ElasticSearchTaskUtils.GetTanslationType(EPG, group.GetLanguage(languageId));
+                        ulong lastEpgId = groupEpgs[lastIndex - 1].EpgID;
+                        string documentType = ElasticSearchTaskUtils.GetTanslationType(EPG, group.GetLanguage(languageId)).ToLower();
 
-                        bool isFirstRun = firstIndex == 0;
                         List<ElasticSearchApi.ESAssetDocument> searchResults =
                             GetRangedDocuments(indexName, firstEpgId.ToString(), lastEpgId.ToString(), "epg_id", documentType, isFirstRun, allIdsFromDB.Count);
 
@@ -137,10 +158,10 @@ namespace ElasticSearchHandler
                                 // assets that will eventually remain in this list are assets that exist in DB and not in ES
                                 allIdsFromDB.Remove(assetId);
 
-                                if (dictionary.ContainsKey(assetId))
+                                if (epgDictionary.ContainsKey(assetId))
                                 {
-                                    DateTime updateDateDB = dictionary[assetId].UpdateDate;
-                                    bool isDBActive = dictionary[assetId].isActive;
+                                    DateTime updateDateDB = epgDictionary[assetId][language.Code].UpdateDate;
+                                    bool isDBActive = epgDictionary[assetId][language.Code].isActive;
 
                                     // Compare the dates - if the DB was updated after the ES was updated, this means we need to update ES
                                     if ((updateDateDB.Subtract(updateDateES) > minimumTimeSpan) ||

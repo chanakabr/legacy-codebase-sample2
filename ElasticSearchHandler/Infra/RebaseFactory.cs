@@ -18,12 +18,17 @@ namespace ElasticSearchHandler
                 case ApiObjects.eObjectType.Unknown:
                 break;
                 case ApiObjects.eObjectType.Media:
-                rebaser = new MediaRebaser(groupId);
+                {
+                    rebaser = new MediaRebaser(groupId);
+                }
                 break;
                 case ApiObjects.eObjectType.Channel:
                 break;
                 case ApiObjects.eObjectType.EPG:
-                break;
+                {
+                    rebaser = new EPGRebaser(groupId);
+                    break;
+                }
                 case ApiObjects.eObjectType.EpgChannel:
                 break;
                 case ApiObjects.eObjectType.Recording:
