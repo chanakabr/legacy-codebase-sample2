@@ -80,13 +80,32 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
         int nGroupID = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
 
         int channelID = int.Parse(Session["epg_channel_id"].ToString());
+        DataTable dt = null;
+        List<int> epgIds = new List<int>();
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+        selectQuery += " SELECT ID ";
+        selectQuery += " FROM epg_channels_schedule with (nolock) ";
+        selectQuery += " where ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("epg_channel_id", "=", channelID);
+        selectQuery += " and ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", ">=", tStart.AddDays(-1));
+        selectQuery += " and ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "<=", tEnd);
+
+        if (selectQuery.Execute("query", true) != null)
+        {
+            dt = selectQuery.Table("query");
+            List<string> tempEpgIds = dt.AsEnumerable().Select(s => s.Field<long>("ID").ToString()).ToList<string>();
+            if (tempEpgIds != null && tempEpgIds.Count > 0)
+                epgIds = tempEpgIds.Select(int.Parse).ToList();
+
+        }
         List<int> channelIDs = new List<int>() { channelID };
         TvinciEpgBL oEpgBL = new TvinciEpgBL(nGroupID);
-        Dictionary<int, List<EPGChannelProgrammeObject>> dEpg = oEpgBL.GetMultiChannelProgramsDic(0, 0, channelIDs, tStart, tEnd).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-        if (dEpg != null && dEpg.ContainsKey(channelID))
-            theTable.SetData(dEpg[channelID]);
+        List<EPGChannelProgrammeObject> Epgs = oEpgBL.GetEpgs(epgIds);
+        theTable.SetData(Epgs);
 
-        theTable.AddField("DOW");
         theTable.AddField("Name");
         theTable.AddImageField("Pic");
         theTable.AddField("Description");
