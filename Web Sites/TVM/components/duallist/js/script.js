@@ -10,16 +10,16 @@ function initDualList(data)
     {
         var first = {
             Title: data.FirstListTitle,
-            WithOrderByButtons: data.FirstListWithOrderByButtons,
+            WithOrderByButtons: data.FirstListWithOrderByButtons != null ? data.FirstListWithOrderByButtons : false,
             data: getListData(data.Data, true)
         };
         var second = {
             Title: data.SecondListTitle,
-            WithOrderByButtons: data.SecondListWithOrderByButtons,
+            WithOrderByButtons: data.SecondListWithOrderByButtons != null ? data.SecondListWithOrderByButtons : false,
             data: getListData(data.Data, false)
         };
         window.components = window.components || {};
-        window.components.dualList = new DualList(first, second, document.getElementById('DualListPH'), data.pageName, data.withCalendar, data.withUpDownButton);
+        window.components.dualList = new DualList(first, second, document.getElementById('DualListPH'), data.pageName, data.withCalendar);
         $('.has-placeholder').placeholder();
     }
 }
@@ -31,16 +31,16 @@ function initMultipleLists(dataLists) {
         var currentDualList = dataLists[i];
         var first = {
             Title: currentDualList.FirstListTitle,
-            WithOrderByButtons: data.FirstListWithOrderByButtons,
+            WithOrderByButtons: currentDualList.FirstListWithOrderByButtons != null ? currentDualList.FirstListWithOrderByButtons : false,
             data: getListData(currentDualList.Data, true)
         };
         var second = {
             Title: currentDualList.SecondListTitle,
-            WithOrderByButtons: data.SecondListWithOrderByButtons,
+            WithOrderByButtons: currentDualList.SecondListWithOrderByButtons != null ? currentDualList.SecondListWithOrderByButtons : false,
             data: getListData(currentDualList.Data, false)
         };
         window.components = window.components || {};
-        window.components.dualList = new DualList(first, second, document.getElementById(currentDualList.name), currentDualList.pageName, currentDualList.withCalendar, currentDualList.withUpDownButton);
+        window.components.dualList = new DualList(first, second, document.getElementById(currentDualList.name), currentDualList.pageName, currentDualList.withCalendar);
         $('.has-placeholder').placeholder();
     }
 }
