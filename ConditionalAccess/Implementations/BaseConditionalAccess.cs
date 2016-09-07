@@ -19237,10 +19237,6 @@ namespace ConditionalAccess
                             {
                                 log.DebugFormat("successfully distributed recording for domainId = {0}, epgId = {1}, new recordingId = {2}", domainId, epgId, userRecording.Id);
                             }
-                            else
-                            {
-                                log.WarnFormat("failed to distribute recording for domainId = {0}, epgId = {1}, recording status message: {2}", domainId, epgId, userRecording.Status.Message);
-                            }
                         }
                     }
                 });
