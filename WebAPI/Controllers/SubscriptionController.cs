@@ -92,14 +92,9 @@ namespace WebAPI.Controllers
             string udid = KSUtils.ExtractKSPayload().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
 
-            if (filter == null)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter cannot be empty");
-            }
-
             if (filter.Ids == null || filter.Ids.Count() == 0)
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter ids cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaSubscriptionsFilter.ids");
             }
 
             try

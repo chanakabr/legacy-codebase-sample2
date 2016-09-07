@@ -26,17 +26,13 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("get"), HttpPost]
         [ApiAuthorize]
+        [SchemeArgument("id", MinInteger = 1)]
         public KalturaChannel Get(int id)
         {
             KalturaChannel response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-
-            if (id <= 0)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal channel ID");
-            }
-
+            
             try
             {
                 string userID = KS.GetFromRequest().UserId;
@@ -47,7 +43,7 @@ namespace WebAPI.Controllers
                 // if no response - return not found status 
                 if (response == null || response.Id == 0)
                 {
-                    throw new NotFoundException();
+                    throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Channel");
                 }
             }
             catch (ClientException ex)

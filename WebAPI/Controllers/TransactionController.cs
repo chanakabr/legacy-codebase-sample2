@@ -77,6 +77,9 @@ namespace WebAPI.Controllers
         [Route("purchaseOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
+        [SchemeArgument("price", MinFloat = 0)]
+        [SchemeArgument("product_id", MinInteger = 1)]
+        [SchemeArgument("payment_method_id", MinInteger = 1)]
         public KalturaTransaction PurchaseOldStandard(double price, string currency, int product_id, KalturaTransactionType product_type, int content_id = 0, string coupon = null, int payment_gateway_id = 0,
             int? payment_method_id = null)
         {
@@ -87,24 +90,13 @@ namespace WebAPI.Controllers
 
             // validate purchase token
             if (string.IsNullOrEmpty(currency))
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "currency cannot be empty");
-
-            //// validate price
-            if (price < 0)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "price is illegal");
-
-            //// validate product_id
-            if (product_id <= 0)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "product_id is illegal");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "currency");
 
             //// validate payment_method_id
             if (!payment_method_id.HasValue)
             {
                 payment_method_id = 0;
             }
-            else if (payment_method_id.HasValue && payment_method_id.Value == 0)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_method_id cannot be 0");
-
 
             if (coupon == null)
             {
@@ -244,11 +236,11 @@ namespace WebAPI.Controllers
 
             // validate purchase token
             if (string.IsNullOrEmpty(purchase_receipt))
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "purchase receipt cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "purchase_receipt");
 
             // validate payment gateway id
             if (string.IsNullOrEmpty(payment_gateway_name))
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment gateway type cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "payment_gateway_name");
 
             try
             {
@@ -276,6 +268,7 @@ namespace WebAPI.Controllers
         [OldStandard("assetId", "asset_id")]
         [OldStandard("transactionType", "transaction_type")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [SchemeArgument("assetId", MinInteger = 1)]
         public bool SetWaiver(int assetId, KalturaTransactionType transactionType)
         {
             bool response = false;
@@ -290,12 +283,7 @@ namespace WebAPI.Controllers
                 // check if the user performing the action is domain master
                 if (domain == 0)
                 {
-                    throw new ForbiddenException();
-                }
-
-                if (assetId == 0)
-                {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id not valid");
+                    throw new ForbiddenException(ForbiddenException.HOUSEHOLD_FORBIDDEN, domain);
                 }
 
                 // call client

@@ -38,11 +38,11 @@ namespace WebAPI.Managers.Scheme
 
             if (isA(requiresPermission, RequestType.WRITE) && ReadOnly && !OldStandardAttribute.isCurrentRequestOldVersion())
             {
-                throw new BadRequestException((int)StatusCode.InvalidActionParameters, string.Format("Object property {0} is read only.", name));
+                throw new BadRequestException(BadRequestException.ARGUMENT_IS_READONLY, name);
             }
 
             if (isA(requiresPermission, RequestType.UPDATE) && InsertOnly)
-                throw new BadRequestException((int)StatusCode.InvalidActionParameters, string.Format("Object property {0} is insert only.", name));
+                throw new BadRequestException(BadRequestException.ARGUMENT_IS_INSERTONLY, name);
 
             if (RequiresPermission > 0)
             {

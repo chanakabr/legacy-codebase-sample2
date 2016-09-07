@@ -59,41 +59,6 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
-                // validate paddingBeforeProgramStarts
-                if (settings.PaddingBeforeProgramStarts.HasValue && settings.PaddingBeforeProgramStarts.Value < 0)
-                {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "paddingBeforeProgramStarts can not be negative");
-                }
-
-                // validate paddingAfterProgramEnds
-                if (settings.PaddingAfterProgramEnds.HasValue && settings.PaddingAfterProgramEnds.Value < 0)
-                {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "paddingAfterProgramEnds can not be negative");
-                }
-
-                // validate protectionPeriod
-                if (settings.ProtectionPeriod.HasValue && settings.ProtectionPeriod.Value <= 0)
-                {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "protectionPeriod must be above 0");
-                }
-
-                // validate recordingLifetimePeriod
-                if (settings.RecordingLifetimePeriod.HasValue && settings.RecordingLifetimePeriod.Value <= 0)
-                {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "recordingLifetimePeriod must be above 0");
-                }
-
-                // validate cleanupNoticePeriod
-                if (settings.CleanupNoticePeroid.HasValue && settings.CleanupNoticePeroid.Value <= 0)
-                {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "cleanupNoticePeroid must be above 0");
-                }
-
-                // validate protectionQuotaPercentage
-                if (settings.ProtectionQuotaPercentage.HasValue && (settings.ProtectionQuotaPercentage.Value < 10 || settings.ProtectionQuotaPercentage.Value > 100))
-                {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "protectionQuotaPercentage must be between 10 and 100");
-                }
 
                 // call client
                 response = ClientsManager.ApiClient().UpdateTimeShiftedTvPartnerSettings(groupId, settings);

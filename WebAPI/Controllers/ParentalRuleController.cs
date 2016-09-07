@@ -38,11 +38,6 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
 
-            if (filter == null)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter cannot be null");
-            }
-
             try
             {
                 if (filter.By == KalturaEntityReferenceBy.user)
@@ -83,11 +78,6 @@ namespace WebAPI.Controllers
             List<KalturaParentalRule> response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-
-            if (filter == null)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter cannot be null");
-            }
 
             try
             {

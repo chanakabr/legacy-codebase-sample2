@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Catalog
@@ -28,6 +29,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("kSql")]
         [XmlElement(ElementName = "kSql", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        [SchemeProperty(MaxLength = 1024)]
         public string KSql { get; set; }
 
         /// <summary>
@@ -48,10 +50,6 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "idIn", IsNullable = true)]
         public string IdIn { get; set; }
 
-        public KalturaSearchAssetFilter()
-        {
-        }
-
         internal List<int> getTypeIn()
         {
             if (string.IsNullOrEmpty(TypeIn))
@@ -68,7 +66,7 @@ namespace WebAPI.Models.Catalog
                 }
                 else
                 {
-                    throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, string.Format("Filter.TypeIn contains invalid id {0}", value));
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaSearchAssetFilter.typeIn");
                 }
             }
 
@@ -91,7 +89,7 @@ namespace WebAPI.Models.Catalog
                 }
                 else
                 {
-                    throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, string.Format("Filter.EpgChannelIdIn contains invalid id {0}", value));
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaSearchAssetFilter.idIn");
                 }
             }
 
@@ -102,13 +100,8 @@ namespace WebAPI.Models.Catalog
         {
             if (!string.IsNullOrEmpty(IdIn))
             {
-                throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, string.Format("Filter.EpgChannelIdIn cannot be used together with filter.RelatedMediaIdEqual"));
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaSearchAssetFilter.idIn");
             }
-            if (!string.IsNullOrEmpty(this.KSql) && this.KSql.Length > 1024)
-            {
-                throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "too long filter");
-            }
-
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -109,7 +110,7 @@ namespace WebAPI.Models.Catalog
                 }
                 else
                 {
-                    throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, string.Format("Filter.TypeIn contains invalid id {0}", value));
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetHistoryFilter.typeIn");
                 }
             }
 

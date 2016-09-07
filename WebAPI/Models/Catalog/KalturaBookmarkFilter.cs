@@ -59,12 +59,12 @@ namespace WebAPI.Models.Catalog
 
             if (string.IsNullOrEmpty(AssetIdIn))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter.AssetIdIn cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaBookmarkFilter.assetIdIn");
             }
 
             if (!AssetTypeEqual.HasValue)
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter.AssetTypeEqual cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaBookmarkFilter.assetTypeEqual");
             }
         }
 

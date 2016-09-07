@@ -61,7 +61,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(pinCode))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "pin cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "pinCode");
             }
 
             try

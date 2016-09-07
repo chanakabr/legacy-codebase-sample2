@@ -120,7 +120,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(filter.Identifier))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "identifier cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaIdentifierTypeFilter.identifier");
             }
 
             if (with == null)
@@ -324,17 +324,17 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(payment_gateway_id))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_gateway_id cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "payment_gateway_id");
             }
 
             if (string.IsNullOrEmpty(payment_method_name))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_method_name cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "payment_method_name");
             }
 
             if (string.IsNullOrEmpty(payment_method_external_id))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_method_external_id cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "payment_method_external_id");
             }
 
             int groupId = KS.GetFromRequest().GroupId;
@@ -405,7 +405,7 @@ namespace WebAPI.Controllers
             // no household to update - return forbidden
             if (householdId == 0)
             {
-                throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.ServiceForbidden, "Service Forbidden");
+                throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
             }
 
             try
@@ -446,7 +446,7 @@ namespace WebAPI.Controllers
             // no household to update - return forbidden
             if (householdId == 0)
             {
-                throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.ServiceForbidden, "Service Forbidden");
+                throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
             }
 
             try
@@ -510,7 +510,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(filter.Identifier))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "identifier cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaIdentifierTypeFilter.identifier");
             }
 
             try

@@ -49,7 +49,7 @@ namespace WebAPI.Models.Billing
         {
             if (!PaymentGatewayIdEqual.HasValue || PaymentGatewayIdEqual.Value <= 0)
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter.PaymentGatewayIdEqual cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaPaymentMethodProfileFilter.paymentGatewayIdEqual");
             }
         }
     }

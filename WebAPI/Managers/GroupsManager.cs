@@ -43,7 +43,7 @@ namespace WebAPI.ClientManagers
             catch (Exception ex)
             {
                 log.Error("Error while initiating groups manager", ex);
-                throw new InternalServerErrorException((int)StatusCode.MissingConfiguration, "Groups cache configuration missing");
+                throw new InternalServerErrorException(InternalServerErrorException.MISSING_CONFIGURATION, "Groups cache");
             }
         }
 
@@ -81,7 +81,7 @@ namespace WebAPI.ClientManagers
                     catch (Exception ex)
                     {
                         log.ErrorFormat("Error while trying to get group from cache. group key: {0}, group ID: {1}, exception: {2}", groupKey, groupId, ex);
-                        throw new InternalServerErrorException((int)StatusCode.MissingConfiguration, "Partner configuration not found");
+                        throw new InternalServerErrorException(InternalServerErrorException.MISSING_CONFIGURATION, "Partner");
                     }
                     finally
                     {
@@ -114,7 +114,7 @@ namespace WebAPI.ClientManagers
                 catch (Exception ex)
                 {
                     log.ErrorFormat("Error while trying to get group from cache. group key: {0}, group ID: {1}, exception {2}", groupKey, groupId, ex);
-                    throw new InternalServerErrorException((int)StatusCode.MissingConfiguration, "Partner configuration not found");
+                    throw new InternalServerErrorException(InternalServerErrorException.MISSING_CONFIGURATION, "Partner");
                 }
                 finally
                 {

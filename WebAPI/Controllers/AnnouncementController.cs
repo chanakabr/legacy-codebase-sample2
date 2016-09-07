@@ -40,19 +40,12 @@ namespace WebAPI.Controllers
         {
             try
             {
-                // validate announcement is not empty
-                if (announcement == null)
-                {
-                    log.Error("announcement object is empty");
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "announcement object is empty");
-                }
-
                 // validate announcement start date
                 if (announcement.getStartTime() > 0 &&
                     announcement.StartTime < Utils.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow))
                 {
                     log.ErrorFormat("start time have passed. given time: {0}", Utils.Utils.UnixTimeStampToDateTime((long)announcement.StartTime));
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "start time have passed");
+                    throw new BadRequestException(BadRequestException.TIME_ARGUMENT_IN_PAST, "KalturaAnnouncement.startTime");
                 }
 
                 int groupId = KS.GetFromRequest().GroupId;
@@ -83,19 +76,12 @@ namespace WebAPI.Controllers
         {
             try
             {
-                // validate announcement is not empty
-                if (announcement == null)
-                {
-                    log.Error("announcement object is empty");
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "announcement object is empty");
-                }
-
                 // validate announcement start date
                 if (announcement.getStartTime() > 0 &&
                     announcement.StartTime < Utils.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow))
                 {
                     log.ErrorFormat("start time have passed. given time: {0}", Utils.Utils.UnixTimeStampToDateTime((long)announcement.StartTime));
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "start time have passed");
+                    throw new BadRequestException(BadRequestException.TIME_ARGUMENT_IN_PAST, "KalturaAnnouncement.startTime");
                 }
 
                 int groupId = KS.GetFromRequest().GroupId;
@@ -128,19 +114,12 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
 
-                // validate announcement is not empty
-                if (announcement == null)
-                {
-                    log.Error("announcement object is empty");
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "announcement object is empty");
-                }
-
                 // validate announcement start date
                 if (announcement.getStartTime() > 0 &&
                     announcement.StartTime < Utils.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow))
                 {
                     log.ErrorFormat("start time have passed. given time: {0}", Utils.Utils.UnixTimeStampToDateTime((long)announcement.StartTime));
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "start time have passed");
+                    throw new BadRequestException(BadRequestException.TIME_ARGUMENT_IN_PAST, "KalturaAnnouncement.startTime");
                 }
 
                 return ClientsManager.NotificationClient().UpdateAnnouncement(groupId, announcementId, announcement);
@@ -171,20 +150,13 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
-
-                // validate announcement is not empty
-                if (announcement == null)
-                {
-                    log.Error("announcement object is empty");
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "announcement object is empty");
-                }
-
+                
                 // validate announcement start date
                 if (announcement.getStartTime() > 0 &&
                     announcement.StartTime < Utils.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow))
                 {
                     log.ErrorFormat("start time have passed. given time: {0}", Utils.Utils.UnixTimeStampToDateTime((long)announcement.StartTime));
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "start time have passed");
+                    throw new BadRequestException(BadRequestException.TIME_ARGUMENT_IN_PAST, "KalturaAnnouncement.startTime");
                 }
 
                 ClientsManager.NotificationClient().UpdateAnnouncement(groupId, announcement.Id.Value, announcement);

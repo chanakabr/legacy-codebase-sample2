@@ -5,6 +5,8 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
+using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Catalog
 {
@@ -16,6 +18,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "idEqual")]
         [JsonProperty("idEqual")]
         [XmlElement(ElementName = "idEqual", IsNullable = true)]
+        [SchemeProperty(MinInteger = 1)]
         public int IdEqual { get; set; }
 
         /// <summary>
@@ -53,25 +56,11 @@ namespace WebAPI.Models.Catalog
                 }
                 else
                 {
-                    throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, string.Format("Filter.TypeIn contains invalid id {0}", value));
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaBundleFilter.typeIn");
                 }
             }
 
             return values;
         }
-
-        public KalturaBundleFilter()
-        {            
-        }
-
-        internal override void Validate()
-        {
-            if (IdEqual <= 0)
-            {
-                throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id must be positive");
-            }
-                    
-        }
-
     }
 }

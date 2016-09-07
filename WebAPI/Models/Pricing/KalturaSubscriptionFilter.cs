@@ -46,12 +46,12 @@ namespace WebAPI.Models.Pricing
         {
             if (string.IsNullOrEmpty(SubscriptionIdIn) && !MediaFileIdEqual.HasValue)
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "subscriptionIdIn or mediaFileIdEqual must be filtered");
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "KalturaSubscriptionFilter.subscriptionIdIn, KalturaSubscriptionFilter.mediaFileIdEqual");
             }
 
             if (!string.IsNullOrEmpty(SubscriptionIdIn) && MediaFileIdEqual.HasValue)
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "only one of subscriptionIdIn and mediaFileIdEqual can be filtered, but not both");
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.subscriptionIdIn", "KalturaSubscriptionFilter.mediaFileIdEqual");
             }
         }
 

@@ -39,12 +39,7 @@ namespace WebAPI.Controllers
 
             if (with == null)
                 with = new List<KalturaCatalogWithHolder>();
-
-            if (filter == null)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter cannot be null");
-            }
-
+            
             try
             {
                 string userID = KS.GetFromRequest().UserId;
@@ -58,7 +53,7 @@ namespace WebAPI.Controllers
 
                 // if no response - return not found status 
                 if (response == null || response.Count == 0)
-                    throw new NotFoundException();
+                    throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "EPG-Channel");
             }
             catch (ClientException ex)
             {

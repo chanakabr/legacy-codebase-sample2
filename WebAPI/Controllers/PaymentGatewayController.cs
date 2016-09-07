@@ -132,19 +132,12 @@ namespace WebAPI.Controllers
         /// <param name="payment_method_id">Payment method Identifier</param> 
         [Route("setPaymentMethod"), HttpPost]
         [ApiAuthorize]
+        [SchemeArgument("payment_gateway_id", MinInteger = 1)]
+        [SchemeArgument("payment_method_id", MinInteger = 1)]
         public bool SetPaymentMethod(int payment_gateway_id, int payment_method_id)
         {
             bool response = false;
 
-            if (payment_gateway_id <= 0)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_gateway_id not valid");
-            }
-
-            if (payment_method_id <= 0)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_method_id not valid");
-            }
 
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -179,14 +172,11 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("removePaymentMethod"), HttpPost]
         [ApiAuthorize]
+        [SchemeArgument("payment_gateway_id", MinInteger = 1)]
+        [SchemeArgument("payment_method_id", MinInteger = 1)]
         public bool RemovePaymentMethod(int payment_gateway_id, int payment_method_id)
         {
             bool response = false;
-
-            if (payment_method_id <= 0)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_method_id not valid");
-            }
 
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -221,14 +211,11 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("forceRemovePaymentMethod"), HttpPost]
         [ApiAuthorize]
+        [SchemeArgument("payment_gateway_id", MinInteger = 1)]
+        [SchemeArgument("payment_method_id", MinInteger = 1)]
         public bool ForceRemovePaymentMethod(int payment_gateway_id, int payment_method_id)
         {
             bool response = false;
-
-            if (payment_method_id <= 0)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_method_id not valid");
-            }
 
             int groupId = KS.GetFromRequest().GroupId;
 

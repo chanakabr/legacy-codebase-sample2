@@ -35,7 +35,7 @@ namespace WebAPI.Controllers
 
              if (string.IsNullOrEmpty(id))
              {
-                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "fileId cannot be empty");
+                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "id");
              }
 
              try
@@ -49,7 +49,7 @@ namespace WebAPI.Controllers
                  // if no response - return not found status 
                  if (response == null)
                  {
-                     throw new NotFoundException();
+                     throw new NotFoundException(NotFoundException.OBJECT_ID_NOT_FOUND, "Asset-File", id);
                  }
              }
              catch (ClientException ex)

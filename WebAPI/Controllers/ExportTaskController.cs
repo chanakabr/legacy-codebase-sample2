@@ -65,17 +65,13 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("update"), HttpPost]
         [ApiAuthorize]
+        [SchemeArgument("id", MinLong = 1)]
         public KalturaExportTask Update(long id, KalturaExportTask task)
         {
             KalturaExportTask response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-
-            if (task.Id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "task id must be supplied");
-            }
-
+            
             try
             {
                 response = ClientsManager.ApiClient().UpdateBulkExportTask(groupId, id, task.Alias, task.Name, task.DataType, task.Filter, task.ExportType, task.getFrequency(), task.NotificationUrl,
@@ -104,11 +100,6 @@ namespace WebAPI.Controllers
         public bool UpdateOldStandard(KalturaExportTask task)
         {
             int groupId = KS.GetFromRequest().GroupId;
-
-            if (task.Id == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "task id must be supplied");
-            }
 
             try
             {

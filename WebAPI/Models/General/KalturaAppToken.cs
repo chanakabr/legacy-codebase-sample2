@@ -38,6 +38,7 @@ namespace WebAPI.Models.General
         [DataMember(Name = "partnerId")]
         [JsonProperty("partnerId")]
         [XmlElement(ElementName = "partnerId")]
+        [SchemeProperty(ReadOnly = true)]
         public int? PartnerId { get; set; }
 
         /// <summary>

@@ -169,7 +169,7 @@ namespace WebAPI.Utils
             }
             catch
             {
-                throw new BadRequestException((int)StatusCode.BadRequest, "One or more parameters have invalid structure");
+                throw new BadRequestException();
             }
         }
 

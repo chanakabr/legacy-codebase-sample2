@@ -104,10 +104,10 @@ namespace WebAPI.Managers
             KS ks = KS.GetFromRequest();
 
             if (ks == null)
-                throw new UnauthorizedException((int)StatusCode.ServiceForbidden, "Service Forbidden");
+                throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
 
             if (!ks.IsValid && !silent)
-                throw new UnauthorizedException((int)StatusCode.ExpiredKS, "Expired KS");
+                throw new UnauthorizedException(UnauthorizedException.KS_EXPIRED);
 
             return ks;
         }
@@ -141,13 +141,13 @@ namespace WebAPI.Managers
 
             // no roles found for the user
             if (roleIds == null || roleIds.Count == 0)
-                throw new UnauthorizedException((int)StatusCode.ServiceForbidden, "Service Forbidden");
+                throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
 
             string allowedUsersGroup = null;
 
             // user not permitted
             if (!IsActionPermittedForRoles(ks.GroupId, service, action, roleIds, out allowedUsersGroup))
-                throw new UnauthorizedException((int)StatusCode.ServiceForbidden, "Service Forbidden");
+                throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
 
             // allowed group users (additional user_id) handling:
             // get user_id additional parameter
@@ -170,7 +170,7 @@ namespace WebAPI.Managers
                 }
                 else
                 {
-                    throw new UnauthorizedException((int)StatusCode.ServiceForbidden, "Service forbidden for additional user");
+                    throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
                 }
             }
         }
@@ -190,14 +190,14 @@ namespace WebAPI.Managers
 
             // no roles found for the user
             if (roleIds == null || roleIds.Count == 0)
-                throw new UnauthorizedException((int)StatusCode.ServiceForbidden, string.Format("Action {2} is forbidden for property {0}.{1}", type, property, action));
+                throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN, Enum.GetName(typeof(RequestType), action), type, property);
 
             string allowedUsersGroup = null;
 
             // user not permitted
             string actionName = Enum.GetName(typeof(RequestType), action);
             if (!IsPropertyPermittedForRoles(ks.GroupId, type, property, actionName, roleIds, out allowedUsersGroup))
-                throw new UnauthorizedException((int)StatusCode.ServiceForbidden, string.Format("Action {2} is forbidden for property {0}.{1}", type, property, action));
+                throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN, Enum.GetName(typeof(RequestType), action), type, property);
         }
 
         /// <summary>
@@ -215,13 +215,13 @@ namespace WebAPI.Managers
 
             // no roles found for the user
             if (roleIds == null || roleIds.Count == 0)
-                throw new UnauthorizedException((int)StatusCode.ServiceForbidden, string.Format("Argument {0} in action {1}.{2} is forbidden", argument, service, action));
+                throw new UnauthorizedException(UnauthorizedException.ACTION_ARGUMENT_FORBIDDEN, argument, service, action);
 
             string allowedUsersGroup = null;
 
             // user not permitted
             if (!IsArgumentPermittedForRoles(ks.GroupId, service, action, argument, roleIds, out allowedUsersGroup))
-                throw new UnauthorizedException((int)StatusCode.ServiceForbidden, string.Format("Argument {0} in action {1}.{2} is forbidden", argument, service, action));
+                throw new UnauthorizedException(UnauthorizedException.ACTION_ARGUMENT_FORBIDDEN, argument, service, action);
         }
 
         private static bool IsPermittedForRoles(int groupId, string objectPropertyKey, List<long> roleIds, out string usersGroup)

@@ -48,7 +48,7 @@ namespace WebAPI.Models.General
                 }
                 else if (value < 1)
                 {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidPaging, "page size cannot be < 1"); 
+                    throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, "KalturaFilterPager.pageSize", "1");
                 }
                 else
                 {
@@ -80,7 +80,7 @@ namespace WebAPI.Models.General
                 
                 if (value <= 0)
                 {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidPaging, "page index cannot be <= 0");
+                    throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, "KalturaFilterPager.pageIndex", "1");
                 }
                 pageIndex = (int)value;
             }

@@ -55,7 +55,7 @@ namespace WebAPI.Controllers
             }
             else if (pager.PageSize < 5)
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "page_size range can be between 5 and 50");
+                throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, "KalturaAssetHistoryFilter.pageSize", "5");
             }
 
             if (filter == null)
@@ -120,7 +120,7 @@ namespace WebAPI.Controllers
             }
             else if (pager.PageSize < 5)
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "page_size range can be between 5 and 50");
+                throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, "KalturaFilterPager.pageSize", "5");
             }
 
             if (filter == null)

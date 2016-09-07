@@ -25,7 +25,7 @@ namespace WebAPI.Models.ConditionalAccess
         {
             if (string.IsNullOrEmpty(AssetId))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "assetId cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaLicensedUrlBaseRequest.assetId");
             }
         }
     }

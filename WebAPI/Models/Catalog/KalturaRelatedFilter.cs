@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Catalog
@@ -28,6 +29,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("kSql")]
         [XmlElement(ElementName = "kSql", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        [SchemeProperty(MaxLength = 1024)]
         public string KSql { get; set; }
 
         /// <summary>
@@ -36,7 +38,8 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "idEqual")]
         [JsonProperty("idEqual")]
         [XmlElement(ElementName = "idEqual", IsNullable = true)]
-        public string IdEqual { get; set; }
+        [SchemeProperty(MinInteger = 1)]
+        public int? IdEqual { get; set; }
 
         /// <summary>
         /// Comma separated list of asset types to search within. 
@@ -48,25 +51,11 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "typeIn", IsNullable = true)]
         public string TypeIn { get; set; }
 
-        public KalturaRelatedFilter()
-        {
-        }
-
-        private int mediaId { get; set; }
-
         public int getMediaId()
         {
-            if (mediaId == 0)
-            {
-                int parsed = 0;
-                if (!int.TryParse(IdEqual, out parsed))
-                {
-                    throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "assetId must be a number");
-                }
-                mediaId = parsed;
-            }
-            return mediaId;
+            return IdEqual.Value;
         }
+
         internal List<int> getTypeIn()
         {
             if (string.IsNullOrEmpty(TypeIn))
@@ -83,7 +72,7 @@ namespace WebAPI.Models.Catalog
                 }
                 else
                 {
-                    throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, string.Format("Filter.TypeIn contains invalid id {0}", value));
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaRelatedFilter.typeIn");
                 }
             }
 
@@ -92,21 +81,10 @@ namespace WebAPI.Models.Catalog
         
         internal override void Validate()
         {
-            if (!string.IsNullOrEmpty(IdEqual))
+            if (!IdEqual.HasValue)
             {
-                throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, string.Format("Filter.RelatedMediaIdEqual cannot be used together with filter.RelatedMediaIdEqual"));
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaRelatedFilter.IdEqual");
             }
-            int parsed = 0;
-            if (!int.TryParse(IdEqual, out parsed))
-            {
-                throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "related media id must be numeric");
-            }
-            mediaId = parsed;
-            if (!string.IsNullOrEmpty(this.KSql) && this.KSql.Length > 1024)
-            {
-                throw new WebAPI.Exceptions.BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "too long filter");
-            }
-
         }
     }
 }

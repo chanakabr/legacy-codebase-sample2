@@ -33,12 +33,12 @@ namespace WebAPI.Controllers
 
             if (userAssetsListItem.ListType == KalturaUserAssetsListType.all || userAssetsListItem.Type == KalturaUserAssetsListItemType.all)
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "type and listType cannot be empty or all");
+                throw new BadRequestException(BadRequestException.LIST_TYPE_CANNOT_BE_EMPTY_OR_ALL, "KalturaUserAssetsListItem.listType");
             }
 
             if (string.IsNullOrEmpty(userAssetsListItem.Id))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaUserAssetsListItem.id");
             }
 
             try
@@ -103,7 +103,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(userAssetsListItem.Id))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaUserAssetsListItem.id");
             }
 
             try
@@ -138,7 +138,7 @@ namespace WebAPI.Controllers
 
             if (listType == KalturaUserAssetsListType.all)
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "type and listType cannot be empty or all");
+                throw new BadRequestException(BadRequestException.LIST_TYPE_CANNOT_BE_EMPTY_OR_ALL, "listType");
             }
 
             try
@@ -172,12 +172,12 @@ namespace WebAPI.Controllers
 
             if (userAssetsListItem.ListType == KalturaUserAssetsListType.all || userAssetsListItem.Type == KalturaUserAssetsListItemType.all)
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "type and listType cannot be empty or all");
+                throw new BadRequestException(BadRequestException.LIST_TYPE_CANNOT_BE_EMPTY_OR_ALL, "KalturaUserAssetsListItem.listType");
             }
 
             if (string.IsNullOrEmpty(userAssetsListItem.Id))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaUserAssetsListItem.id");
             }
 
             try
