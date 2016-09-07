@@ -17,18 +17,23 @@ namespace ElasticSearch.Common
         {
         }
 
-        public virtual string SerializeMediaObject(Media media)
+        public virtual string SerializeMediaObject(Media media, string suffix = null)
         {
             StringBuilder recordBuilder = new StringBuilder();
             recordBuilder.Append("{ ");
             recordBuilder.AppendFormat("\"media_id\": {0}, \"group_id\": {1}, \"media_type_id\": {2}, \"wp_type_id\": {3}, \"is_active\": {4}, " +
                 "\"device_rule_id\": {5}, \"like_counter\": {6}, \"views\": {7}, \"rating\": {8}, \"votes\": {9}, \"start_date\": \"{10}\", " +
-                "\"end_date\": \"{11}\", \"final_date\": \"{12}\", \"create_date\": \"{13}\", \"update_date\": \"{14}\", \"name\": \"{15}\", " +
-                "\"description\": \"{16}\", \"cache_date\": \"{17}\", \"geo_block_rule_id\": {18}, ",
+                "\"end_date\": \"{11}\", \"final_date\": \"{12}\", \"create_date\": \"{13}\", \"update_date\": \"{14}\", \"{19}\": \"{15}\", " +
+                "\"{20}\": \"{16}\", \"cache_date\": \"{17}\", \"geo_block_rule_id\": {18}, ",
                 media.m_nMediaID, media.m_nGroupID, media.m_nMediaTypeID, media.m_nWPTypeID, media.m_nIsActive,
                 media.m_nDeviceRuleId, media.m_nLikeCounter, media.m_nViews, media.m_dRating, media.m_nVotes, media.m_sStartDate,
                 media.m_sEndDate, media.m_sFinalEndDate, media.m_sCreateDate, media.m_sUpdateDate, Common.Utils.ReplaceDocumentReservedCharacters(ref media.m_sName),
-                Common.Utils.ReplaceDocumentReservedCharacters(ref media.m_sDescription), DateTime.UtcNow.ToString("yyyyMMddHHmmss"), media.geoBlockRule);
+                Common.Utils.ReplaceDocumentReservedCharacters(ref media.m_sDescription), DateTime.UtcNow.ToString("yyyyMMddHHmmss"), media.geoBlockRule,
+                // {19}
+                AddSuffix("name", suffix),
+                // {20}
+                AddSuffix("description", suffix)
+                );
 
             #region add media file types
 
@@ -96,7 +101,9 @@ namespace ElasticSearch.Common
                         if (!string.IsNullOrWhiteSpace(sMetaValue))
                         {
 
-                            metaNameValues.Add(string.Format(" \"{0}\": \"{1}\"", sMetaName.ToLower(), Common.Utils.ReplaceDocumentReservedCharacters(ref sMetaValue)));
+                            metaNameValues.Add(string.Format(" \"{0}\": \"{1}\"", 
+                                AddSuffix(sMetaName.ToLower(), suffix), 
+                                Common.Utils.ReplaceDocumentReservedCharacters(ref sMetaValue)));
                         }
                     }
                 }
@@ -134,7 +141,9 @@ namespace ElasticSearch.Common
                     if (lTagValues.Count > 0)
                     {
                         string sJoinedTagVals = string.Join(",", lTagValues);
-                        tagNameValues.Add(string.Format(" \"{0}\": [ {1} ]", sTagName.ToLower(), sJoinedTagVals));
+                        tagNameValues.Add(string.Format(" \"{0}\": [ {1} ]",
+                            AddSuffix(sTagName.ToLower(), suffix), 
+                            sJoinedTagVals));
                     }
                 }
                 if (tagNameValues.Count > 0)
@@ -210,7 +219,7 @@ namespace ElasticSearch.Common
         }
 
         public virtual string CreateMediaMapping(Dictionary<int, Dictionary<string, string>> oMetasValuesByGroupId, Dictionary<int, string> oGroupTags,
-            string sIndexAnalyzer, string sSearchAnalyzer, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null)
+            string sIndexAnalyzer, string sSearchAnalyzer, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null, string suffix = null)
         {
             if (oMetasValuesByGroupId == null || oGroupTags == null)
                 return string.Empty;
@@ -557,7 +566,8 @@ namespace ElasticSearch.Common
         }
 
         public virtual string CreateEpgMapping(List<string> lMetasNames, List<string> lTags, string indexAnalyzer, string searchAnalyzer,
-                                                string mappingName, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null)
+                                                string mappingName, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null,
+                                                string suffix = null)
         {
             if (lMetasNames == null || lTags == null)
                 return string.Empty;
@@ -821,25 +831,25 @@ namespace ElasticSearch.Common
 
         }
 
-        public virtual string SerializeEpgObject(EpgCB oEpg)
+        public virtual string SerializeEpgObject(EpgCB oEpg, string suffix = null)
         {
             StringBuilder sRecord = new StringBuilder();
             sRecord.Append("{ ");
 
-            SerializeEPGBody(oEpg, sRecord);
+            SerializeEPGBody(oEpg, sRecord, suffix);
 
             sRecord.Append(" }");
 
             return sRecord.ToString();
         }
 
-        protected virtual void SerializeEPGBody(EpgCB oEpg, StringBuilder sRecord)
+        protected virtual void SerializeEPGBody(EpgCB oEpg, StringBuilder sRecord, string suffix = null)
         {
             string name = oEpg.Name;
             string description = oEpg.Description;
 
             sRecord.AppendFormat("\"epg_id\": {0}, \"group_id\": {1}, \"epg_channel_id\": {2}, \"is_active\": {3}, \"start_date\": \"{4}\", \"end_date\": \"{5}\"," +
-                " \"name\": \"{6}\", \"description\": \"{7}\", \"cache_date\": \"{8}\", \"date_routing\": \"{9}\", \"create_date\": \"{10}\", \"update_date\": \"{11}\"," +
+                " \"{14}\": \"{6}\", \"{15}\": \"{7}\", \"cache_date\": \"{8}\", \"date_routing\": \"{9}\", \"create_date\": \"{10}\", \"update_date\": \"{11}\"," +
                 "\"search_end_date\": \"{12}\", \"crid\": \"{13}\",",
                 oEpg.EpgID, oEpg.GroupID, oEpg.ChannelID, (oEpg.isActive) ? 1 : 0, oEpg.StartDate.ToString("yyyyMMddHHmmss"), oEpg.EndDate.ToString("yyyyMMddHHmmss"),
                 Common.Utils.ReplaceDocumentReservedCharacters(ref name), Common.Utils.ReplaceDocumentReservedCharacters(ref description),
@@ -848,7 +858,11 @@ namespace ElasticSearch.Common
                 oEpg.CreateDate.ToString("yyyyMMddHHmmss"),
                 oEpg.UpdateDate.ToString("yyyyMMddHHmmss"),
                 oEpg.SearchEndDate.ToString("yyyyMMddHHmmss"),
-                oEpg.Crid
+                oEpg.Crid,
+                // {14}
+                AddSuffix("name", suffix),
+                // {15}
+                AddSuffix("description", suffix)
                 );
 
             #region add metas
@@ -874,7 +888,9 @@ namespace ElasticSearch.Common
                                 }
                             }
 
-                            metaNameValues.Add(string.Format(" \"{0}\": [ {1} ]", sMetaName.ToLower(), lMetaValues.Aggregate((current, next) => current + "," + next)));
+                            metaNameValues.Add(string.Format(" \"{0}\": [ {1} ]", 
+                                AddSuffix(sMetaName.ToLower(), suffix), 
+                                lMetaValues.Aggregate((current, next) => current + "," + next)));
                         }
                     }
                 }
@@ -908,7 +924,9 @@ namespace ElasticSearch.Common
                                 }
                             }
 
-                            tagNameValues.Add(string.Format(" \"{0}\": [ {1} ]", sTagName.ToLower(), lTagValues.Aggregate((current, next) => current + "," + next)));
+                            tagNameValues.Add(string.Format(" \"{0}\": [ {1} ]",
+                                AddSuffix(sTagName.ToLower(), suffix), 
+                                lTagValues.Aggregate((current, next) => current + "," + next)));
                         }
                     }
                 }
@@ -922,18 +940,30 @@ namespace ElasticSearch.Common
 
         }
 
-        public virtual string SerializeRecordingObject(EpgCB oEpg, long recordingId)
+        public virtual string SerializeRecordingObject(EpgCB oEpg, long recordingId, string suffix = null)
         {
             StringBuilder builder = new StringBuilder();
 
             builder.Append("{ ");
             builder.AppendFormat("\"recording_id\": {0},", recordingId);
 
-            SerializeEPGBody(oEpg, builder);
+            SerializeEPGBody(oEpg, builder, suffix);
 
             builder.Append(" }");
 
             return builder.ToString();
+        }
+
+        protected static string AddSuffix(string text, string suffix)
+        {
+            string result = text;
+
+            if (!string.IsNullOrEmpty(suffix))
+            {
+                result = string.Format("{0}_{1}", result, suffix);
+            }
+
+            return result;
         }
     }
 }

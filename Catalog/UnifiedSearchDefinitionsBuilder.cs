@@ -11,6 +11,7 @@ using TVinciShared;
 using ApiObjects.Response;
 using KLogMonitor;
 using System.Reflection;
+using ApiObjects;
 
 namespace Catalog
 {
@@ -36,6 +37,8 @@ namespace Catalog
 
             try
             {
+                SetLanguageDefinition(request.m_nGroupID, request.m_oFilter, definitions);
+
                 CatalogCache catalogCache = CatalogCache.Instance();
                 int parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
 
@@ -87,7 +90,7 @@ namespace Catalog
                 definitions.groupId = request.m_nGroupID;
                 definitions.permittedWatchRules = Catalog.GetPermittedWatchRules(request.m_nGroupID);
                 definitions.filterPhrase = request.filterTree;
-                definitions.exectGroupId = request.exectGroupId;
+                definitions.exactGroupId = request.exactGroupId;
 
                 #endregion
 
@@ -376,5 +379,54 @@ namespace Catalog
 
         #endregion
 
+        /// <summary>
+        /// Sets the language parameter of a search request
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="searchDefinitions"></param>
+        private static void SetLanguageDefinition(int groupId, Filter filter, UnifiedSearchDefinitions searchDefinitions)
+        {
+            LanguageObj objLang = null;
+
+            if (filter == null)
+            {
+                objLang = GetLanguage(groupId, -1);
+            }
+            else
+            {
+                objLang = GetLanguage(groupId, filter.m_nLanguage);
+            }
+
+            searchDefinitions.langauge = objLang;
+        }
+
+        /// <summary>
+        /// Creates a language object for a given group
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="searchDefinitions"></param>
+        private static LanguageObj GetLanguage(int groupId, int languageId)
+        {
+            LanguageObj language = null;
+
+            GroupManager groupManager = new GroupManager();
+            CatalogCache catalogCache = CatalogCache.Instance();
+            int parentGroupId = catalogCache.GetParentGroup(groupId);
+            Group groupInCache = groupManager.GetGroup(parentGroupId);
+
+            if (groupInCache != null)
+            {
+                if (languageId <= 0)
+                {
+                    language = groupInCache.GetGroupDefaultLanguage();
+                }
+                else
+                {
+                    language = groupInCache.GetLanguage(languageId);
+                }
+            }
+
+            return language;
+        }
     }
 }

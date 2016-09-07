@@ -77,7 +77,7 @@ namespace Catalog.Request
                 CheckRequestValidness();
                 CheckSignature(this);
 
-                response.epgList = Catalog.GetEPGProgramInformation(epgIds, this.m_nGroupID);
+                response.epgList = Catalog.GetEPGProgramInformation(epgIds, this.m_nGroupID, this.m_oFilter);
 
                 if (mediaIds != null && mediaIds.Count > 0)
                 {
