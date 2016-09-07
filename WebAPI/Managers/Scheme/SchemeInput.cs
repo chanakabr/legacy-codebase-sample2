@@ -51,7 +51,7 @@ namespace WebAPI.Managers.Scheme
                     }
                     catch (ArgumentException e)
                     {
-                        throw new BadRequestException((int)StatusCode.InvalidActionParameters, string.Format("Object property {0} values must be of type {1}.", name, DynamicType.Name));
+                        throw new BadRequestException(BadRequestException.ARGUMENT_STRING_SHOULD_BE_ENUM, name, DynamicType.Name);
                     }
                 }
 
@@ -59,56 +59,56 @@ namespace WebAPI.Managers.Scheme
                 {
                     string sValue = (string)Convert.ChangeType(value, typeof(string));
                     if (sValue.Length > MaxLength)
-                        throw new BadRequestException((int)StatusCode.InvalidActionParameters, string.Format("Object property {0} maximum length is {1}.", name, MaxLength));
+                        throw new BadRequestException(BadRequestException.ARGUMENT_MAX_LENGTH_CROSSED, name, MaxLength.ToString());
                 }
 
                 if (MinLength >= 0)
                 {
                     string sValue = (string)Convert.ChangeType(value, typeof(string));
                     if (sValue.Length < MinLength)
-                        throw new BadRequestException((int)StatusCode.InvalidActionParameters, string.Format("Object property {0} minimum length is {1}.", name, MinLength));
+                        throw new BadRequestException(BadRequestException.ARGUMENT_MIN_LENGTH_CROSSED, name, MinLength.ToString());
                 }
 
                 if (MaxInteger < int.MaxValue)
                 {
                     int iValue = (int)Convert.ChangeType(value, typeof(int));
-                    if (iValue > MaxLength)
-                        throw new BadRequestException((int)StatusCode.InvalidActionParameters, string.Format("Object property {0} maximum value is {1}.", name, MaxInteger));
+                    if (iValue > MaxInteger)
+                        throw new BadRequestException(BadRequestException.ARGUMENT_MAX_VALUE_CROSSED, name, MaxInteger.ToString());
                 }
 
                 if (MinInteger > int.MinValue)
                 {
                     long lValue = (long)Convert.ChangeType(value, typeof(long));
-                    if (lValue < MinLength)
-                        throw new BadRequestException((int)StatusCode.InvalidActionParameters, string.Format("Object property {0} minimum value is {1}.", name, MinInteger));
+                    if (lValue < MinInteger)
+                        throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, name, MinInteger.ToString());
                 }
 
                 if (MaxLong < long.MaxValue)
                 {
                     long lValue = (long)Convert.ChangeType(value, typeof(long));
-                    if (lValue > MaxLength)
-                        throw new BadRequestException((int)StatusCode.InvalidActionParameters, string.Format("Object property {0} maximum value is {1}.", name, MaxLong));
+                    if (lValue > MaxLong)
+                        throw new BadRequestException(BadRequestException.ARGUMENT_MAX_VALUE_CROSSED, name, MaxLong.ToString());
                 }
 
                 if (MinLong > long.MinValue)
                 {
                     int lValue = (int)Convert.ChangeType(value, typeof(int));
-                    if (lValue < MinLength)
-                        throw new BadRequestException((int)StatusCode.InvalidActionParameters, string.Format("Object property {0} minimum value is {1}.", name, MinLong));
+                    if (lValue < MinLong)
+                        throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, name, MinLong.ToString());
                 }
 
                 if (MaxFloat < float.MaxValue)
                 {
                     float fValue = (float)Convert.ChangeType(value, typeof(float));
-                    if (fValue > MaxLength)
-                        throw new BadRequestException((int)StatusCode.InvalidActionParameters, string.Format("Object property {0} maximum value is {1}.", name, MaxFloat));
+                    if (fValue > MaxFloat)
+                        throw new BadRequestException(BadRequestException.ARGUMENT_MAX_VALUE_CROSSED, name, MaxFloat.ToString());
                 }
 
                 if (MinFloat > float.MinValue)
                 {
                     float fValue = (float)Convert.ChangeType(value, typeof(float));
-                    if (fValue < MinLength)
-                        throw new BadRequestException((int)StatusCode.InvalidActionParameters, string.Format("Object property {0} minimum value is {1}.", name, MinFloat));
+                    if (fValue < MinFloat)
+                        throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, name, MinFloat.ToString());
                 }
             }
         }

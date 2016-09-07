@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 namespace WebAPI.Models.Catalog
 {
@@ -16,6 +17,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "assetIdEqual")]
         [JsonProperty("assetIdEqual")]
         [XmlElement(ElementName = "assetIdEqual", IsNullable = true)]
+        [SchemeProperty(MinInteger = 1)]
         public int AssetIdEqual { get; set; }
 
          /// <summary>

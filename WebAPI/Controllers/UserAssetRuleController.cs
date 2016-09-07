@@ -35,20 +35,14 @@ namespace WebAPI.Controllers
             int groupId = KS.GetFromRequest().GroupId;
             string udid = KSUtils.ExtractKSPayload().UDID;
 
-            // parameters validation
-            if (filter == null)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter cannot be null");
-            }
-
             if (filter.AssetId == 0)
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaGenericRuleFilter.assetId");
             }
 
             if (!filter.AssetType.HasValue || !Enum.IsDefined(typeof(AssetType), filter.AssetType))
             {
-                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_type value is not defined");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaGenericRuleFilter.assetType");
             }
             try
             {
@@ -88,21 +82,15 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
             string udid = KSUtils.ExtractKSPayload().UDID;
-
-            // parameters validation
-            if (filter == null)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter cannot be null");
-            }
-
+            
             if (filter.AssetIdEqual == 0)
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaUserAssetRuleFilter.assetIdEqual");
             }
 
             if (!filter.AssetTypeEqual.HasValue || !Enum.IsDefined(typeof(AssetType), filter.AssetTypeEqual))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_type value is not defined");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaUserAssetRuleFilter.assetTypeEqual");
             }
             try
             {

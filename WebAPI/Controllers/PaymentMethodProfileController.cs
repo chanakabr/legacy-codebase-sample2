@@ -65,7 +65,7 @@ namespace WebAPI.Controllers
 
             if (payment_gateway_id <= 0)
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_gateway_id cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "payment_gateway_id");
             }
 
             int groupId = KS.GetFromRequest().GroupId;

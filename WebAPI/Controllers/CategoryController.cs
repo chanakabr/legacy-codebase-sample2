@@ -7,6 +7,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Utils;
 
@@ -15,17 +16,13 @@ namespace WebAPI.Controllers
     public class BaseCategoryController : ApiController
     {
         [NonAction]
+        [SchemeArgument("id", MinInteger = 1)]
         public virtual KalturaOTTCategory Get(int id)
         {
             KalturaOTTCategory response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-
-            if (id <= 0)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Category ID is illegal");
-            }
-
+            
             try
             {
                 string userID = KS.GetFromRequest().UserId;
@@ -37,7 +34,7 @@ namespace WebAPI.Controllers
                 // if no response - return not found status 
                 if (response == null || response.Id == 0)
                 {
-                    throw new NotFoundException();
+                    throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "OTT-Category");
                 }
             }
             catch (ClientException ex)

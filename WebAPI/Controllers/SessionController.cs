@@ -50,25 +50,15 @@ namespace WebAPI.Controllers
                 }
                 catch (Exception)
                 {
-                    throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.InvalidKS, "Invalid KS format");
+                    throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
                 }
 
                 if (ksParts.Length < 3 || ksParts[0] != "v2" || !int.TryParse(ksParts[1], out groupId))
                 {
-                    throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.InvalidKS, "Invalid KS format");
+                    throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
                 }
 
-                Group group = null;
-                try
-                {
-                    // get group secret
-                    group = GroupsManager.GetGroup(groupId);
-                }
-                catch (ApiException ex)
-                {
-                    throw new InternalServerErrorException((int)ex.Code, ex.Message);
-                }
-
+                Group group = GroupsManager.GetGroup(groupId);
                 string adminSecret = group.UserSecret;
 
                 // build KS
@@ -122,25 +112,15 @@ namespace WebAPI.Controllers
                 }
                 catch (Exception)
                 {
-                    throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.InvalidKS, "Invalid KS format");
+                    throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
                 }
 
                 if (ksParts.Length < 3 || ksParts[0] != "v2" || !int.TryParse(ksParts[1], out groupId))
                 {
-                    throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.InvalidKS, "Invalid KS format");
+                    throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
                 }
 
-                Group group = null;
-                try
-                {
-                    // get group secret
-                    group = GroupsManager.GetGroup(groupId);
-                }
-                catch (ApiException ex)
-                {
-                    throw new InternalServerErrorException((int)ex.Code, ex.Message);
-                }
-
+                Group group = GroupsManager.GetGroup(groupId);
                 string adminSecret = group.UserSecret;
 
                 // build KS
@@ -177,17 +157,17 @@ namespace WebAPI.Controllers
             Group group = GroupsManager.GetGroup(groupId);
             if (!group.IsSwitchingUsersAllowed)
             {
-                throw new ForbiddenException((int)WebAPI.Managers.Models.StatusCode.SwitchingUsersIsNotAllowedForPartner, "Switching users is not allowed for partner");
+                throw new ForbiddenException(ForbiddenException.SWITCH_USER_NOT_ALLOWED_FOR_PARTNER);
             }
 
             if (string.IsNullOrEmpty(userIdToSwitch))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "userIdToSwitch cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "userIdToSwitch");
             }
 
             if (!AuthorizationManager.IsUserInHousehold(userIdToSwitch, groupId))
             {
-                throw new ForbiddenException((int)WebAPI.Managers.Models.StatusCode.ServiceForbidden, "userIdToSwitch is not in household");
+                throw new NotFoundException(NotFoundException.OBJECT_ID_NOT_FOUND, "OTT-User", userIdToSwitch);
             }
 
             string udid = KSUtils.ExtractKSPayload().UDID;

@@ -62,14 +62,10 @@ namespace WebAPI.Controllers
         [Route("setAsDefault"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [SchemeArgument("paymentMethodId", MinInteger = 1)]
         public bool SetAsDefault(int paymentGatewayId, int paymentMethodId)
         {
             bool response = false;
-
-            if (paymentMethodId <= 0)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_method_id not valid");
-            }
 
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -105,15 +101,11 @@ namespace WebAPI.Controllers
         [Route("remove"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [SchemeArgument("paymentMethodId", MinInteger = 1)]
         public bool Remove(int paymentGatewayId, int paymentMethodId)
         {
             bool response = false;
-
-            if (paymentMethodId <= 0)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_method_id not valid");
-            }
-
+            
             int groupId = KS.GetFromRequest().GroupId;
 
             try
@@ -148,14 +140,10 @@ namespace WebAPI.Controllers
         [Route("forceRemove"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [SchemeArgument("paymentMethodId", MinInteger = 1)]
         public bool ForceRemove(int paymentGatewayId, int paymentMethodId)
         {
             bool response = false;
-
-            if (paymentMethodId <= 0)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_method_id not valid");
-            }
 
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -199,17 +187,17 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(paymentGatewayId))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_gateway_id cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "paymentMethodId");
             }
 
             if (string.IsNullOrEmpty(paymentMethodName))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_method_name cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "paymentMethodName");
             }
 
             if (string.IsNullOrEmpty(paymentMethodExternalId))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_method_external_id cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "paymentMethodExternalId");
             }
 
             int groupId = KS.GetFromRequest().GroupId;

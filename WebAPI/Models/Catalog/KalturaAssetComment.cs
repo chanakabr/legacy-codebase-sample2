@@ -30,7 +30,8 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "assetId")]
         [JsonProperty(PropertyName = "assetId")]
         [XmlElement(ElementName = "assetId")]
-        public string AssetId { get; set; }
+        [SchemeProperty(MinInteger = 1)]
+        public int AssetId { get; set; }
 
         /// <summary>
         /// Asset Type

@@ -7,6 +7,7 @@ using System.Net.Http.Formatting;
 using System.Web;
 using System.Web.Http;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Exceptions
@@ -15,6 +16,41 @@ namespace WebAPI.Exceptions
     {
         public int Code { get; set; }
         new public string Message { get; set; }
+
+        public class ApiExceptionType
+        {
+            public StatusCode? obsoleteStatusCode = null;
+            public StatusCode statusCode;
+            public string message;
+            public string[] parameters;
+
+            public ApiExceptionType(StatusCode obsoleteStatusCode, StatusCode statusCode, string message, params string[] parameters) : this(statusCode, message, parameters)
+            {
+                this.obsoleteStatusCode = obsoleteStatusCode;
+            }
+
+            public ApiExceptionType(StatusCode statusCode, string message, params string[] parameters)
+            {
+                this.statusCode = statusCode;
+                this.message = message;
+                this.parameters = parameters;
+            }
+
+            public string Format(params object[] values)
+            {
+                if (parameters.Length == 0)
+                    return message;
+
+                string ret = message;
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    ret.Replace(string.Format("@%s@", parameters[i]), values[i].ToString());
+                }
+
+                return ret;
+            }
+        }
+
         public class ExceptionPayload
         {
             public ExceptionPayload() 
@@ -25,20 +61,35 @@ namespace WebAPI.Exceptions
             public HttpError error { get; set; }
         }
 
-        protected ApiException(int code, string msg)
+        public ApiException(ClientException ex)
+            : this(ex.Code, ex.Message)
+        {
+        }
+
+        protected ApiException(ApiException ex)
+            : this(ex.Code, ex.Message)
+        {
+        }
+
+        protected ApiException(ApiExceptionType type, params object[] parameters)
+            : this((int)(OldStandardAttribute.isCurrentRequestOldVersion() ? type.obsoleteStatusCode : type.statusCode), type.Format(parameters))
+        {
+        }
+
+        private ApiException(int code, string message)
             : base(new HttpResponseMessage()
             {
                 StatusCode = HttpStatusCode.OK,
                 Content = new ObjectContent(typeof(ExceptionPayload), new ExceptionPayload()
                 {
-                    error = new HttpError(new Exception(msg), true),
-                    code = code                    
+                    error = new HttpError(new Exception(message), true),
+                    code = code
                 },
                 new JsonMediaTypeFormatter())
             })
         {
             Code = code;
-            Message = msg;
+            Message = message;
         }
     }
 }

@@ -59,28 +59,28 @@ namespace WebAPI.Controllers
                         {
                             if (!streamType.HasValue)
                             {
-                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "stream_type cannot be null for epg");
+                                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "streamType");
                             }
                             if (!startDate.HasValue)
                             {
-                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "start_date cannot be null for epg");
+                                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "startDate");
                             }
                             if (string.IsNullOrEmpty(assetId))
                             {
-                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id cannot be empty for epg");
+                                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "assetId");
                             }
                             int epgId = 0;
                             if (!int.TryParse(assetId, out epgId))
                             {
-                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id must be a number for epg");
+                                throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "assetId");
                             }
                             response = ClientsManager.ConditionalAccessClient().GetEPGLicensedLink(groupId, userId, udid, epgId, contentId, baseUrl, startDate.Value, streamType.Value);
                         }
                         break;
                     case KalturaAssetType.recording:
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Not implemented");
+                        throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, "assetType", "KalturaAssetType.recording");
                     default:
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Not implemented");
+                        throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, "assetType", "KalturaAssetType." + assetType.ToString());
                 }
             }
 
@@ -127,7 +127,7 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Not implemented");
+                    throw new InternalServerErrorException();
                 }
                 
             }

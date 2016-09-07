@@ -147,11 +147,6 @@ namespace WebAPI.Controllers
                     filter = new KalturaRecordingFilter() { StatusIn = string.Empty };
                     
                 }
-                
-                if (!string.IsNullOrEmpty(filter.FilterExpression) && filter.FilterExpression.Length > 1024)
-                {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter too long");
-                }
 
                 // call client                
                 response = ClientsManager.ConditionalAccessClient().SearchRecordings(groupId, userId, domainId, filter.ConvertStatusIn(), filter.FilterExpression,

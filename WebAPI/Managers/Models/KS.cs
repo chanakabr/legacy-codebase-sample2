@@ -159,7 +159,7 @@ namespace WebAPI.Managers.Models
 
             if (System.Text.Encoding.ASCII.GetString(hash) != System.Text.Encoding.ASCII.GetString(Utils.EncryptionUtils.HashSHA1(fieldsWithRandom)))
             {
-                throw new UnauthorizedException((int)StatusCode.InvalidKS, "Wrong KS format");
+                throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
             }
 
             //parse fields
@@ -168,7 +168,7 @@ namespace WebAPI.Managers.Models
 
             if (fields == null || fields.Length < 3)
             {
-                throw new UnauthorizedException((int)StatusCode.InvalidKS, "Invalid KS");
+                throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
             }
 
             if (!fieldsString.StartsWith("&_"))
@@ -185,7 +185,7 @@ namespace WebAPI.Managers.Models
                 string[] pair = fields[i].Split('=');
                 if (pair == null || pair.Length != 2)
                 {
-                    throw new UnauthorizedException((int)StatusCode.InvalidKS, "Invalid KS");
+                    throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
                 }
 
                 switch (pair[0])
@@ -210,7 +210,7 @@ namespace WebAPI.Managers.Models
                         }
                         break;
                     default:
-                        throw new UnauthorizedException((int)StatusCode.InvalidKS, "Invalid KS");
+                        throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
                 }
             }
 

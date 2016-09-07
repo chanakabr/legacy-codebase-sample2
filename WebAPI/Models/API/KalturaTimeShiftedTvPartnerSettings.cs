@@ -98,6 +98,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "paddingBeforeProgramStarts")]
         [JsonProperty("paddingBeforeProgramStarts")]
         [XmlElement(ElementName = "paddingBeforeProgramStarts", IsNullable = true)]
+        [SchemeProperty(MinLong = 0)]
         public long? PaddingBeforeProgramStarts { get; set; }
 
         /// <summary>
@@ -106,6 +107,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "paddingAfterProgramEnds")]
         [JsonProperty("paddingAfterProgramEnds")]
         [XmlElement(ElementName = "paddingAfterProgramEnds", IsNullable = true)]
+        [SchemeProperty(MinLong = 0)]
         public long? PaddingAfterProgramEnds { get; set; }
 
         /// <summary>
@@ -114,6 +116,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "protectionPeriod")]
         [JsonProperty("protectionPeriod")]
         [XmlElement(ElementName = "protectionPeriod", IsNullable = true)]
+        [SchemeProperty(MinInteger = 0)]
         public int? ProtectionPeriod { get; set; }
 
         /// <summary>
@@ -122,6 +125,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "protectionQuotaPercentage")]
         [JsonProperty("protectionQuotaPercentage")]
         [XmlElement(ElementName = "protectionQuotaPercentage", IsNullable = true)]
+        [SchemeProperty(MinInteger = 10, MaxInteger = 100)]
         public int? ProtectionQuotaPercentage { get; set; }
 
         /// <summary>
@@ -130,6 +134,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "recordingLifetimePeriod")]
         [JsonProperty("recordingLifetimePeriod")]
         [XmlElement(ElementName = "recordingLifetimePeriod", IsNullable = true)]
+        [SchemeProperty(MinInteger = 0)]
         public int? RecordingLifetimePeriod { get; set; }
 
         /// <summary>
@@ -138,6 +143,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "cleanupNoticePeroid")]
         [JsonProperty("cleanupNoticePeroid")]
         [XmlElement(ElementName = "cleanupNoticePeroid", IsNullable = true)]
+        [SchemeProperty(MinInteger = 0)]
         public int? CleanupNoticePeroid { get; set; }
 
         /// <summary>

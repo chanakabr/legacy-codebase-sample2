@@ -34,7 +34,7 @@ namespace WebAPI.Controllers
             // parameters validation
             if (string.IsNullOrEmpty(id))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "id");
             }
 
             try

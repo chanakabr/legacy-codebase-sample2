@@ -78,12 +78,12 @@ namespace WebAPI.Controllers
             // parameters validation
             if (media_type.Trim().Length == 0)
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_id cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "media_id");
             }
 
             if (media_type.Trim().Length == 0)
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_type cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "media_type");
             }
 
             try
@@ -146,7 +146,7 @@ namespace WebAPI.Controllers
             // parameters validation
             if (media_ids == null || media_ids.Count == 0)
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_id cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "media_ids");
             }
 
             try

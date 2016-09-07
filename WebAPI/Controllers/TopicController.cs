@@ -25,16 +25,11 @@ namespace WebAPI.Controllers
         /// <param name="id">topic id</param>        
         [Route("get"), HttpPost]
         [ApiAuthorize]
+        [SchemeArgument("id", MinInteger = 1)]
         public KalturaTopic Get(int id)
         {
             KalturaTopic response = null;
-
-            // parameters validation
-            if (id <= 0)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Topic id is illegal");
-            }
-
+            
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;

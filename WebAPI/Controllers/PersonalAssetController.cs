@@ -75,9 +75,7 @@ namespace WebAPI.Controllers
 
                     if (assetIdToPersonalAsset.ContainsKey(dictionaryKey))
                     {
-                        throw new BadRequestException(
-                            (int)WebAPI.Managers.Models.StatusCode.BadRequest, 
-                            string.Format("Duplicate asset: Id = {0} type = {1}", asset.Id, asset.Type));
+                        throw new BadRequestException(BadRequestException.DUPLICATE_ASSET, asset.Id.ToString(), asset.Type.ToString());
                     }
                     else
                     {
@@ -88,11 +86,11 @@ namespace WebAPI.Controllers
                     if (asset.FileIds != null)
                     {
                         // Run on all file IDs and map them to response asset
-                        foreach (var file in asset.FileIds)
+                        foreach (long file in asset.FileIds)
                         {
                             if (fileToPersonalAsset.ContainsKey(file))
                             {
-                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, string.Format("Duplicate file Id: {0}", file));
+                                throw new BadRequestException(BadRequestException.DUPLICATE_FILE, file.ToString());
                             }
                             else
                             {

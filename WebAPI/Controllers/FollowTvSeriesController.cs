@@ -91,15 +91,13 @@ namespace WebAPI.Controllers
         [Route("delete"), HttpPost]
         [ApiAuthorize]
         [OldStandard("assetId", "asset_id")]
+        [SchemeArgument("assetId", MinInteger = 1)]
         public bool Delete(int assetId)
         {
             bool response = false;
 
             int groupId = KS.GetFromRequest().GroupId;
             string userID = KS.GetFromRequest().UserId;
-
-            if (assetId <= 0)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal asset ID");
 
             try
             {
@@ -126,9 +124,6 @@ namespace WebAPI.Controllers
             int groupId = KS.GetFromRequest().GroupId;
             string userID = KS.GetFromRequest().UserId;
 
-            if (followTvSeries.AssetId <= 0)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal asset ID");
-
             try
             {
                 return ClientsManager.NotificationClient().AddUserTvSeriesFollow(groupId, userID, followTvSeries.AssetId);
@@ -150,13 +145,11 @@ namespace WebAPI.Controllers
         [Route("addOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
+        [SchemeArgument("assetId", MinInteger = 1)]
         public bool AddOldStandard(int asset_id)
         {
             int groupId = KS.GetFromRequest().GroupId;
             string userID = KS.GetFromRequest().UserId;
-
-            if (asset_id <= 0)
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal asset ID");
 
             try
             {

@@ -35,14 +35,9 @@ namespace WebAPI.Controllers
             string udid = KSUtils.ExtractKSPayload().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
             
-            if (filter == null)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter cannot be empty");
-            }
-
             if ((filter.SubscriptionIdIn == null || filter.SubscriptionIdIn.Count() == 0) && (filter.FileIdIn == null || filter.FileIdIn.Count() == 0))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "at least one of subscriptions_ids and files_ids must not be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "KalturaProductPriceFilter.subscriptionIdIn, KalturaProductPriceFilter.fileIdIn");
             }
             try
             {

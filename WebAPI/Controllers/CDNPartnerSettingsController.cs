@@ -52,14 +52,7 @@ namespace WebAPI.Controllers
         public KalturaCDNPartnerSettings Update(KalturaCDNPartnerSettings settings)
         {
             KalturaCDNPartnerSettings response = null;
-
-            if (settings != null &&
-                ((settings.DefaultAdapterId.HasValue && settings.DefaultAdapterId < 0) || 
-                (settings.DefaultRecordingAdapterId.HasValue && settings.DefaultRecordingAdapterId < 0)))
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "default adapters' IDs cannot be negative");
-            }
-
+            
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;

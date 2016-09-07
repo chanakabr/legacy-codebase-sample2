@@ -36,7 +36,7 @@ namespace WebAPI.Managers
             if (string.IsNullOrEmpty(refreshToken))
             {
                 log.ErrorFormat("RefreshSession: Bad request refresh token is empty");
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "refresh token cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "refreshToken");
             }
 
             // get group configurations
@@ -49,14 +49,14 @@ namespace WebAPI.Managers
             if (token == null)
             {
                 log.ErrorFormat("RefreshSession: refreshToken expired");
-                throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.InvalidRefreshToken, "invalid refresh token");
+                throw new UnauthorizedException(UnauthorizedException.INVALID_REFRESH_TOKEN);
             }
 
             // validate expired ks
             if (ks.ToString() != token.KS)
             {
                 log.ErrorFormat("RefreshSession: invalid ks");
-                throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.InvalidKS, "invalid ks");
+                throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
             }
 
             string userId = token.UserId;
@@ -73,7 +73,7 @@ namespace WebAPI.Managers
             if (!cbManager.SetWithVersion(tokenKey, token, version, (uint)(token.RefreshTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)), true))
             {
                 log.ErrorFormat("RefreshSession: Failed to store refreshed token");
-                throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error, "failed to refresh token");
+                throw new UnauthorizedException(UnauthorizedException.REFRESH_TOKEN_FAILED);
             }
 
             return new KalturaLoginSession()
@@ -88,7 +88,7 @@ namespace WebAPI.Managers
             if (string.IsNullOrEmpty(userId))
             {
                 log.ErrorFormat("GenerateSession: userId is missing");
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "refresh token cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "userId");
             }
 
             // get group configurations
@@ -103,7 +103,7 @@ namespace WebAPI.Managers
             if (!cbManager.Add(tokenKey, token, (uint)(token.RefreshTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)), true))
             {
                 log.ErrorFormat("GenerateSession: Failed to store refreshed token");
-                throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error, "failed to save session");
+                throw new InternalServerErrorException();
             }
 
             return new KalturaLoginSession()
@@ -120,7 +120,7 @@ namespace WebAPI.Managers
             if (groupConfig == null)
             {
                 log.ErrorFormat("GetGroupConfiguration: group configuration was not found for groupId = {0}", groupId);
-                throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.MissingConfiguration, "missing configuration for partner");
+                throw new InternalServerErrorException(InternalServerErrorException.MISSING_CONFIGURATION, "Partner");
             }
 
             return groupConfig;
@@ -146,7 +146,7 @@ namespace WebAPI.Managers
             if (usersResponse == null || usersResponse.Count == 0)
             {
                 log.ErrorFormat("RefreshAccessToken: user not found. siteGuid = {0}", userId);
-                throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.Unauthorized, "user not found");
+                throw new NotFoundException(NotFoundException.OBJECT_ID_NOT_FOUND, "User", userId);
             }
 
             // validate user
@@ -154,15 +154,7 @@ namespace WebAPI.Managers
             if (user == null || (user.UserState != KalturaUserState.ok && user.UserState != KalturaUserState.user_with_no_household))
             {
                 log.ErrorFormat("RefreshAccessToken: user not valid. userId= {0}", userId);
-                throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.Unauthorized, "user not valid");
-            }
-        }
-
-        internal static void CheckAdditionalUserId(string householdUserId, int groupId)
-        {
-            if (!IsUserInHousehold(householdUserId, groupId))
-            {
-                throw new ForbiddenException((int)WebAPI.Managers.Models.StatusCode.ServiceForbidden, "additional user is not in household");
+                throw new UnauthorizedException(UnauthorizedException.INVALID_USER, userId);
             }
         }
 
@@ -229,14 +221,14 @@ namespace WebAPI.Managers
             if (appToken == null)
             {
                 log.ErrorFormat("StartSessionWithAppToken: failed to get AppToken from CB, key = {0}", appTokenCbKey);
-                throw new InternalServerErrorException((int)StatusCode.InvalidAppToken, "Invalid application token");
+                throw new NotFoundException(NotFoundException.OBJECT_ID_NOT_FOUND, "application-token", id);
             }
 
             // 2. check token status
             if (appToken.Status != KalturaAppTokenStatus.ACTIVE)
             {
                 log.ErrorFormat("StartSessionWithAppToken: AppToken is not active, id = {0}", id);
-                throw new InternalServerErrorException((int)StatusCode.NotActiveAppToken, "application token is not active");
+                throw new ForbiddenException(ForbiddenException.NOT_ACTIVE_APP_TOKEN, id);
             }
 
             // 3. calc token hash - (ks + token) hash using the hash type 
@@ -246,7 +238,7 @@ namespace WebAPI.Managers
             if (cbTokenHash != tokenHash)
             {
                 log.ErrorFormat("StartSessionWithAppToken: token hash is not valid, id = {0}", id);
-                throw new InternalServerErrorException((int)StatusCode.InvalidAppTokenHash, "application token hash is not valid");
+                throw new ForbiddenException(ForbiddenException.INVALID_APP_TOKEN_HASH);
             }
 
             // 5. get token expiration:
@@ -258,7 +250,7 @@ namespace WebAPI.Managers
             if (sessionDuration < 0)
             {
                 log.ErrorFormat("StartSessionWithAppToken: AppToken expired, id = {0}", id);
-                throw new InternalServerErrorException((int)StatusCode.ExpiredAppToken, "application token is expired");
+                throw new ForbiddenException(ForbiddenException.APP_TOKEN_EXPIRED);
             }
 
             // if expiry was supplied - take the minimum
@@ -308,15 +300,12 @@ namespace WebAPI.Managers
         internal static KalturaAppToken AddAppToken(KalturaAppToken appToken, int groupId)
         {
             // validate partner id
-            if (appToken.PartnerId == 0)
-            {
-                throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.PartnerInvalid, "partner identifier cannot be 0");
-            }
+            appToken.PartnerId = groupId;
 
             // we currently not support app token without user
             if (string.IsNullOrEmpty(appToken.SessionUserId))
             {
-                throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.UserIDInvalid, "user identifier cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaAppToken.SessionUserId");
             }
 
             // 1. generate id for the appToken
@@ -326,7 +315,7 @@ namespace WebAPI.Managers
             if (string.IsNullOrEmpty(group.AppTokenKeyFormat) || group.AppTokenSessionMaxDurationSeconds == 0 || group.AppTokenMaxExpirySeconds == 0)
             {
                 log.ErrorFormat("AddAppToken: missing configuration parameters for partner id = {0}", groupId);
-                throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.MissingConfiguration, "missing configuration parameters for partner");
+                throw new InternalServerErrorException(InternalServerErrorException.MISSING_CONFIGURATION, "Partner");
             }
 
             string appTokenCbKey = string.Format(group.AppTokenKeyFormat, appToken.Id);
@@ -367,7 +356,7 @@ namespace WebAPI.Managers
             if (!cbManager.Add(appTokenCbKey, cbAppToken, (uint)appTokenExpiryInSeconds, true))
             {
                 log.ErrorFormat("GenerateSession: Failed to store refreshed token");
-                throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error, "failed to save application token");
+                throw new InternalServerErrorException();
             }
 
             return appToken;
@@ -384,7 +373,7 @@ namespace WebAPI.Managers
             if (cbAppToken == null)
             {
                 log.ErrorFormat("GetAppToken: failed to get AppToken from CB, key = {0}", appTokenCbKey);
-                throw new InternalServerErrorException((int)StatusCode.InvalidAppToken, "Invalid application token");
+                throw new NotFoundException(NotFoundException.OBJECT_ID_NOT_FOUND, "Application-token", id);
             }
 
             response = new KalturaAppToken(cbAppToken);
@@ -403,14 +392,14 @@ namespace WebAPI.Managers
             if (appToken == null)
             {
                 log.ErrorFormat("GetAppToken: failed to get AppToken from CB, key = {0}", appTokenCbKey);
-                throw new InternalServerErrorException((int)StatusCode.InvalidAppToken, "Invalid application token");
+                throw new NotFoundException(NotFoundException.OBJECT_ID_NOT_FOUND, "Application-token", id);
             }
 
             response = cbManager.Remove(appTokenCbKey);
             if (!response)
             {
                 log.ErrorFormat("DeleteAppToken: failed to get AppToken from CB, key = {0}", appTokenCbKey);
-                throw new InternalServerErrorException((int)StatusCode.Error, "failed to delete application token");
+                throw new InternalServerErrorException();
             }
 
             return response;

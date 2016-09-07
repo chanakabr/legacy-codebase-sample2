@@ -11,8 +11,12 @@ namespace WebAPI.Exceptions
 {
     public class NotFoundException : ApiException
     {
-        public NotFoundException() : base((int)StatusCode.NotFound, "not found") { }
+        public static ApiExceptionType OBJECT_NOT_FOUND = new ApiExceptionType(StatusCode.NotFound, "@objectType@ not found", "objectType");
+        public static ApiExceptionType OBJECT_ID_NOT_FOUND = new ApiExceptionType(StatusCode.NotFound, "@objectType@ id [@id@] not found", "objectType", "id");
 
-        public NotFoundException(int code, string msg) : base(code, !string.IsNullOrEmpty(msg) ? msg : "not found") { }
+        public NotFoundException(ApiExceptionType type, params string[] parameters)
+            : base(type, parameters)
+        {
+        }
     }
 }

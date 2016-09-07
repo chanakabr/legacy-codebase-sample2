@@ -64,7 +64,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(pin))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "pin cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "pin");
             }
 
             try
@@ -102,7 +102,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "username or password empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "username");
             }
             try
             {
@@ -139,7 +139,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(refreshToken))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "refresh_token cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "refreshToken");
             }
             try
             {
@@ -176,7 +176,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(token))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "token cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "token");
             }
             try
             {
@@ -211,14 +211,9 @@ namespace WebAPI.Controllers
         {
             KalturaOTTUser response = null;
 
-            if (user == null)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user_date cannot be null");
-            }
-
             if (string.IsNullOrEmpty(user.Username) || string.IsNullOrEmpty(password))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "username and password cannot be empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "password");
             }
             try
             {
@@ -250,7 +245,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(username))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user name is empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "username");
             }
             try
             {
@@ -285,7 +280,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(token))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "token is empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "token");
             }
             try
             {
@@ -321,7 +316,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user name is empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "username");
             }
             try
             {
@@ -354,7 +349,7 @@ namespace WebAPI.Controllers
 
             if (string.IsNullOrEmpty(token))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "token is empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "token");
             }
             try
             {
@@ -392,9 +387,17 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
 
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(oldPassword) || string.IsNullOrEmpty(newPassword))
+            if (string.IsNullOrEmpty(username))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user name or password is empty");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "username");
+            }
+            if (string.IsNullOrEmpty(oldPassword))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "oldPassword");
+            }
+            if (string.IsNullOrEmpty(newPassword))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "newPassword");
             }
             try
             {
@@ -495,12 +498,7 @@ namespace WebAPI.Controllers
             KalturaOTTUser response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-
-            if (user == null)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user cannot be empty");
-            }
-
+            
             try
             {
                 // call client
@@ -676,7 +674,7 @@ namespace WebAPI.Controllers
 
                 if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(iv))
                 {
-                    throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.MissingConfiguration, "Configuration for encryption was not found");
+                    throw new InternalServerErrorException(InternalServerErrorException.MISSING_CONFIGURATION, "Encryption");
                 }
 
                 response = new KalturaStringValue()

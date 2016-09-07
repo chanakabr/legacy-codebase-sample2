@@ -38,7 +38,7 @@ namespace WebAPI.Models.ConditionalAccess
                 int parsed = 0;
                 if (!int.TryParse(AssetId, out parsed))
                 {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "assetId must be a number");
+                    throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "KalturaLicensedUrlEpgRequest.assetId");
                 }
                 epgId = parsed;
             }
@@ -52,7 +52,7 @@ namespace WebAPI.Models.ConditionalAccess
             int parsed = 0;
             if (!int.TryParse(AssetId, out parsed))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "assetId must be a number");
+                throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "KalturaLicensedUrlEpgRequest.assetId");
             }
             epgId = parsed;
         }
