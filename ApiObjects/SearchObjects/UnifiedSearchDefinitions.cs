@@ -294,6 +294,7 @@ namespace ApiObjects.SearchObjects
             get;
             set;
         }
+
         #endregion
 
         #region Ctor
