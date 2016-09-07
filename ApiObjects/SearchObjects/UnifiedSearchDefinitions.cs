@@ -289,7 +289,7 @@ namespace ApiObjects.SearchObjects
 
         [JsonProperty()]
         [DataMember]
-        public int exectGroupId
+        public int exactGroupId
         {
             get;
             set;
@@ -305,7 +305,7 @@ namespace ApiObjects.SearchObjects
             pageSize = 0;
             from = 0;
             groupId = 0;
-            exectGroupId = 0;
+            exactGroupId = 0;
             epgDaysOffest = 0;
 
             shouldSearchEpg = false;

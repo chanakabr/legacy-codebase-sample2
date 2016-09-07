@@ -62,9 +62,11 @@ namespace Catalog.Request
         [DataMember]
         public bool shouldDateSearchesApplyToAllTypes;
 
-        //exectGroupId - add new GroupID to Search assets ONLY in specific group 
+        /// <summary>
+        /// add new GroupID to Search assets ONLY in specific group 
+        /// </summary>
         [DataMember]
-        public int exectGroupId;
+        public int exactGroupId;
 
         /// <summary>
         /// Defines if search will be used deviceRule
@@ -106,7 +108,7 @@ namespace Catalog.Request
             this.filterQuery = filterQuery;
             this.nameAndDescription = nameAndDescription;
             this.shouldIgnoreDeviceRuleID = false;
-            this.exectGroupId = 0;
+            this.exactGroupId = 0;
         }
 
         #endregion

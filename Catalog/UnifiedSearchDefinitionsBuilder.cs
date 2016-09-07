@@ -90,7 +90,7 @@ namespace Catalog
                 definitions.groupId = request.m_nGroupID;
                 definitions.permittedWatchRules = Catalog.GetPermittedWatchRules(request.m_nGroupID);
                 definitions.filterPhrase = request.filterTree;
-                definitions.exectGroupId = request.exectGroupId;
+                definitions.exactGroupId = request.exactGroupId;
 
                 #endregion
 

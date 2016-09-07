@@ -324,12 +324,12 @@ namespace ElasticSearch.Searcher
                 globalFilter.AddChild(isActiveTerm);
             }
 
-            if (this.SearchDefinitions.exectGroupId != 0)
+            if (this.SearchDefinitions.exactGroupId != 0)
             {
                 ESTerm exectGroupTerm = new ESTerm(true)
                 {
                     Key = "group_id",
-                    Value = this.SearchDefinitions.exectGroupId.ToString()
+                    Value = this.SearchDefinitions.exactGroupId.ToString()
                 };
                 globalFilter.AddChild(exectGroupTerm);
             }
