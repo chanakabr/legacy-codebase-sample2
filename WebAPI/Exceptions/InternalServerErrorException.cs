@@ -20,7 +20,7 @@ namespace WebAPI.Exceptions
         {
         }
 
-        public InternalServerErrorException(ApiExceptionType type, params string[] parameters)
+        public InternalServerErrorException(ApiExceptionType type, params object[] parameters)
             : base(type, parameters)
         {
         }

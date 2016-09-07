@@ -42,9 +42,13 @@ namespace WebAPI.Exceptions
                     return message;
 
                 string ret = message;
+                string token;
+                string value;
                 for (int i = 0; i < parameters.Length; i++)
                 {
-                    ret.Replace(string.Format("@%s@", parameters[i]), values[i].ToString());
+                    token = string.Format("@{0}@", parameters[i]);
+                    value = values[i].ToString();
+                    ret = ret.Replace(token, value);
                 }
 
                 return ret;

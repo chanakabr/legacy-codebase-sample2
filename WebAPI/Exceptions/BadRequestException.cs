@@ -55,7 +55,7 @@ namespace WebAPI.Exceptions
         {
         }
 
-        public BadRequestException(ApiExceptionType type, params string[] parameters)
+        public BadRequestException(ApiExceptionType type, params object[] parameters)
             : base(type, parameters)
         {
         }
