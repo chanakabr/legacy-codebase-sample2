@@ -57,8 +57,9 @@ namespace ElasticSearchHandler
 
             if (groupEpgs != null)
             {
-                Dictionary<ulong, EpgCB> dictionary = null;
                 Dictionary<ulong, Dictionary<string, EpgCB>> epgDictionary = new Dictionary<ulong, Dictionary<string, EpgCB>>();
+
+                string defaultLanguageCode = group.GetGroupDefaultLanguage().Code;
 
                 foreach (var epg in groupEpgs)
                 {
@@ -67,7 +68,14 @@ namespace ElasticSearchHandler
                         epgDictionary.Add(epg.EpgID, new Dictionary<string, EpgCB>());
                     }
 
-                    epgDictionary[epg.EpgID][epg.Language] = epg;
+                    string languageCode = epg.Language;
+
+                    if (string.IsNullOrEmpty(languageCode))
+                    {
+                        languageCode = defaultLanguageCode;
+                    }
+
+                    epgDictionary[epg.EpgID][languageCode] = epg;
                 }
                 
                 //groupEpgs.ToDictionary<EpgCB, ulong>(epg => epg.EpgID);
