@@ -17134,7 +17134,7 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                if (!isSingleRecording && (!accountSettings.IsSeriesRecordingEnabled.HasValue || !accountSettings.IsSeriesRecordingEnabled.Value))
+                if (recordingType == RecordingType.Series && (!accountSettings.IsSeriesRecordingEnabled.HasValue || !accountSettings.IsSeriesRecordingEnabled.Value))
                 {
                     log.DebugFormat("account series recordings not enabled, DomainID: {0}, UserID: {1}", domainID, userID);
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AccountSeriesRecordingNotEnabled, eResponseStatus.AccountSeriesRecordingNotEnabled.ToString());
