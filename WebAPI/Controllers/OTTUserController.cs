@@ -701,7 +701,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaOTTUserListResponse List(KalturaOTTUserFilter filter)
+        public KalturaOTTUserListResponse List(KalturaOTTUserFilter filter = null)
         {
             KalturaOTTUserListResponse response = null;
 
