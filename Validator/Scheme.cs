@@ -17,6 +17,7 @@ using System.Xml.Serialization;
 using WebAPI.Utils;
 using WebAPI.Managers.Scheme;
 using WebAPI.Filters;
+using WebAPI.Exceptions;
 
 namespace Validator.Managers.Scheme
 {
@@ -32,6 +33,8 @@ namespace Validator.Managers.Scheme
         private List<Type> types;
         private Dictionary<string, Type> loadedTypes = new Dictionary<string, Type>();
         private IEnumerable<Type> controllers;
+        private IEnumerable<Type> exceptions;
+        private Dictionary<int, ApiException.ExceptionType> errors = new Dictionary<int, ApiException.ExceptionType>();
 
         public Scheme(bool loadAll)
         {
@@ -64,6 +67,12 @@ namespace Validator.Managers.Scheme
         private void Load(bool loadAll)
         {
             controllers = assembly.GetTypes().Where(myType => myType.IsClass && myType.IsSubclassOf(typeof(ApiController)));
+            exceptions = assembly.GetTypes().Where(myType => myType.IsClass && (myType.IsSubclassOf(typeof(ApiException)) || myType == typeof(ApiException)));
+
+            foreach (Type exception in exceptions.OrderBy(exception => exception.Name))
+            {
+                loadErrors(exception);
+            }
 
             foreach (Type controller in controllers)
             {
@@ -127,6 +136,29 @@ namespace Validator.Managers.Scheme
                 sortedTypes.Insert(0, loadedTypes.Values.Where(myType => myType.Name == field.Name).First());
             }
             types = sortedTypes;
+        }
+
+        private void loadErrors(Type exception)
+        {
+            FieldInfo[] fields = exception.GetFields();
+            foreach (FieldInfo field in fields)
+            {
+                if (field.FieldType.IsSubclassOf(typeof(ApiException.ExceptionType)))
+                {
+                    ApiException.ExceptionType type = (ApiException.ExceptionType)field.GetValue(null);
+
+                    if (type.GetType() == typeof(ApiException.ApiExceptionType))
+                    {
+                        ApiException.ApiExceptionType exceptionType = type as ApiException.ApiExceptionType;
+                        errors.Add((int)exceptionType.statusCode, type);
+                    }
+                    else if (type.GetType() == typeof(ApiException.ClientExceptionType))
+                    {
+                        ApiException.ClientExceptionType exceptionType = type as ApiException.ClientExceptionType;
+                        errors.Add((int)exceptionType.statusCode, type);
+                    }
+                }
+            }
         }
 
         private void LoadType(Type type, bool loadAll)
@@ -279,6 +311,8 @@ namespace Validator.Managers.Scheme
                     valid = false;
             }
 
+            SchemeManager.ValidateErrors(exceptions, false);
+
             return valid;
         }
 
@@ -350,6 +384,17 @@ namespace Validator.Managers.Scheme
             }
             writer.WriteEndElement(); // services
 
+
+            // errors
+            if (SchemeManager.ValidateErrors(exceptions, true))
+            {
+                writer.WriteStartElement("errors");
+                foreach (Type exception in exceptions.OrderBy(exception => exception.Name))
+                {
+                    writeErrors(exception);
+                }
+                writer.WriteEndElement(); // errors
+            }
 
 
             //Config section
@@ -433,6 +478,42 @@ namespace Validator.Managers.Scheme
             return topologicalSorter.Sort();
         }
 
+        private void writeErrors(Type exception)
+        {
+            FieldInfo[] fields = exception.GetFields();
+            foreach (FieldInfo field in fields)
+            {
+                if (field.FieldType.IsSubclassOf(typeof(ApiException.ExceptionType)))
+                {
+                    ApiException.ExceptionType type = (ApiException.ExceptionType)field.GetValue(null);
+                    writer.WriteStartElement("error");
+
+                    if (type.GetType() == typeof(ApiException.ApiExceptionType))
+                    {
+                        ApiException.ApiExceptionType exceptionType = type as ApiException.ApiExceptionType;
+                        writer.WriteAttributeString("name", exceptionType.statusCode.ToString());
+                        writer.WriteAttributeString("code", exceptionType.statusCode.GetHashCode().ToString());
+                        writer.WriteAttributeString("message", exceptionType.message);
+
+                        foreach (string parameter in exceptionType.parameters)
+                        {
+                            writer.WriteStartElement("parameter");
+                            writer.WriteAttributeString("name", parameter);
+                            writer.WriteEndElement(); // parameter
+                        }
+                    }
+                    else if (type.GetType() == typeof(ApiException.ClientExceptionType))
+                    {
+                        ApiException.ClientExceptionType exceptionType = type as ApiException.ClientExceptionType;
+                        writer.WriteAttributeString("name", exceptionType.statusCode.ToString());
+                        writer.WriteAttributeString("code", exceptionType.statusCode.GetHashCode().ToString());
+                    }
+
+                    writer.WriteEndElement(); // error
+                }
+            }
+        }
+
         private void writeService(Type controller)
         {
             var serviceId = SchemeManager.getServiceId(controller);
@@ -498,6 +579,23 @@ namespace Validator.Managers.Scheme
             if (action.ReturnType != typeof(void))
                 appendType(action.ReturnType);
             writer.WriteEndElement(); // result
+
+            IEnumerable<ThrowsAttribute> actionErrors = action.GetCustomAttributes<ThrowsAttribute>(false);
+            foreach (ThrowsAttribute error in actionErrors)
+            {
+                writer.WriteStartElement("throws");
+                if (error.ApiCode.HasValue && errors.ContainsKey((int)error.ApiCode.Value))
+                {
+                    ApiException.ApiExceptionType exceptionType = errors[(int)error.ApiCode.Value] as ApiException.ApiExceptionType;
+                    writer.WriteAttributeString("name", exceptionType.statusCode.ToString());
+                }
+                else if (error.ClientCode.HasValue && errors.ContainsKey((int)error.ClientCode.Value))
+                {
+                    ApiException.ClientExceptionType exceptionType = errors[(int)error.ClientCode.Value] as ApiException.ClientExceptionType;
+                    writer.WriteAttributeString("name", exceptionType.statusCode.ToString());
+                }
+                writer.WriteEndElement(); // throws
+            }
 
             writer.WriteEndElement(); // action
         }
