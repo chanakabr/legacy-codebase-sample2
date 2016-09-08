@@ -77,7 +77,8 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
         DateTime tEnd = DateUtils.GetDateFromStr(endD + "/" + endM + "/" + endY);
 
         //get epg programs from CB
-        int groupId = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
+        int groupId = LoginManager.GetLoginGroupID();
+        int parentGroupId = DAL.UtilsDal.GetParentGroupID(groupId);
         int channelID = int.Parse(Session["epg_channel_id"].ToString());
 
         List<int> epgIds = new List<int>();
@@ -89,6 +90,8 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
         selectQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", ">=", tStart.AddDays(-1));
         selectQuery += "and";
         selectQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "<=", tEnd);
+        selectQuery += "and";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupId);
        
         if (selectQuery.Execute("query", true) != null)
         {
@@ -101,7 +104,7 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
         selectQuery.Finish();
         selectQuery = null;
 
-        TvinciEpgBL oEpgBL = new TvinciEpgBL(groupId);
+        TvinciEpgBL oEpgBL = new TvinciEpgBL(parentGroupId);
         List<EPGChannelProgrammeObject> Epgs = oEpgBL.GetEpgs(epgIds);
         theTable.SetData(Epgs);
 
