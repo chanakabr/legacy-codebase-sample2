@@ -117,5 +117,7 @@ namespace WebAPI.Managers.Models
         ActionArgumentForbidden = 500052,
         MissingParameter = 500053,
         InvalidActionParameter = 500054,
+        ObjectIdNotFound = 500055,
+        ArgumentsCannotBeEmpty = 500056,
     }
 }

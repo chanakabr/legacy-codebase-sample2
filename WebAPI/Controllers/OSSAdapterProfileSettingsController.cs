@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -6,6 +7,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Models.Billing;
 using WebAPI.Models.General;
@@ -58,6 +60,10 @@ namespace WebAPI.Controllers
         ///</param>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.OSSAdapterIdentifierRequired)]
+        [Throws(eResponseStatus.OSSAdapterNotExist)]
+        [Throws(eResponseStatus.OSSAdapterParamsRequired)]
+        [Throws(eResponseStatus.ConflictedParams)]
         public bool Delete(int oss_adapter_id, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;
@@ -91,6 +97,10 @@ namespace WebAPI.Controllers
         ///</param>
         [Route("add"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.OSSAdapterIdentifierRequired)]
+        [Throws(eResponseStatus.OSSAdapterNotExist)]
+        [Throws(eResponseStatus.OSSAdapterParamsRequired)]
+        [Throws(eResponseStatus.ConflictedParams)]
         public bool Add(int oss_adapter_id, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;
@@ -124,6 +134,10 @@ namespace WebAPI.Controllers
         ///</param>
         [Route("update"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.OSSAdapterIdentifierRequired)]
+        [Throws(eResponseStatus.OSSAdapterNotExist)]
+        [Throws(eResponseStatus.OSSAdapterParamsRequired)]
+        [Throws(eResponseStatus.ConflictedParams)]
         public bool Update(int oss_adapter_id, SerializableDictionary<string, KalturaStringValue> settings)
         {
             bool response = false;

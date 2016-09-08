@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
@@ -28,6 +29,10 @@ namespace WebAPI.Controllers
         [OldStandard("transactionType", "transaction_type")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("assetId", MinInteger = 1)]
+        [Throws(eResponseStatus.DomainSuspended)]
+        [Throws(eResponseStatus.InvalidPurchase)]
+        [Throws(eResponseStatus.CancelationWindowPeriodExpired)]
+        [Throws(eResponseStatus.ContentAlreadyConsumed)]
         public bool Cancel(int assetId, KalturaTransactionType transactionType)
         {
             bool response = false;
@@ -73,6 +78,8 @@ namespace WebAPI.Controllers
         [OldStandard("transactionType", "transaction_type")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("assetId", MinInteger = 1)]
+        [Throws(eResponseStatus.DomainSuspended)]
+        [Throws(eResponseStatus.InvalidPurchase)]
         public bool ForceCancel(int assetId, KalturaTransactionType transactionType)
         {
             bool response = false;
@@ -115,6 +122,9 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [OldStandard("subscriptionId", "subscription_id")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.DomainSuspended)]
+        [Throws(eResponseStatus.InvalidPurchase)]
+        [Throws(eResponseStatus.SubscriptionNotRenewable)]
         public void CancelRenewal(string subscriptionId)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -283,6 +293,16 @@ namespace WebAPI.Controllers
         [OldStandard("productType", "product_type")]
         [OldStandard("contentId", "content_id")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UnableToPurchasePPVPurchased)]
+        [Throws(eResponseStatus.UnableToPurchaseFree)]
+        [Throws(eResponseStatus.UnableToPurchaseForPurchaseSubscriptionOnly)]
+        [Throws(eResponseStatus.UnableToPurchaseSubscriptionPurchased)]
+        [Throws(eResponseStatus.NotForPurchase)]
+        [Throws(eResponseStatus.UnableToPurchaseCollectionPurchased)]
+        [Throws(eResponseStatus.UnKnownPPVModule)]
         public bool Grant(int productId, KalturaTransactionType productType, bool history, int contentId = 0)
         {
             bool response = false;
@@ -332,6 +352,11 @@ namespace WebAPI.Controllers
         [OldStandard("encryptedCvv", "encrypted_cvv")]
         [OldStandard("fileId", "file_id")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.IncorrectPrice)]
+        [Throws(eResponseStatus.UnKnownPPVModule)]
+        [Throws(eResponseStatus.ExpiredCard)]
+        [Throws(eResponseStatus.CellularPermissionsError)]
+        [Throws(eResponseStatus.UnKnownBillingProvider)]
         public KalturaBillingResponse Buy(string itemId, bool isSubscription, double price, string currency, string couponCode, string extraParams,
             string encryptedCvv, int fileId = 0, string udid = null)
         {
@@ -373,6 +398,10 @@ namespace WebAPI.Controllers
         [Route("externalReconcile"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.ReconciliationFrequencyLimitation)]
+        [Throws(eResponseStatus.AdapterAppFailure)]
         public bool ExternalReconcile()
         {
             bool response = false;

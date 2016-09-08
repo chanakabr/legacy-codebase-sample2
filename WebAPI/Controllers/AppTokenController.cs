@@ -48,7 +48,6 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">Application token identifier</param>
         /// <remarks>
-        /// Possible status codes: 50020 = Invalid Application token
         /// </remarks>
         /// <returns></returns>
         [Route("get"), HttpPost]
@@ -76,7 +75,6 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">Application token identifier</param>
         /// <remarks>
-        /// Possible status codes: 50020 = Invalid Application token
         /// </remarks>
         /// <returns></returns>
         [Route("delete"), HttpPost]
@@ -109,12 +107,15 @@ namespace WebAPI.Controllers
         /// <param name="expiry">session expiry (in seconds), could be overwritten by shorter expiry of the application token and the session-expiry that defined on the application token</param>
         /// <param name="udid"></param>
         /// <remarks>
-        /// Possible status codes: 50020 = Invalid Application token, 50022 = Invalid application token hash, 50023 = Not active application token
+        /// Possible status codes: 50022 = Invalid application token hash, 50023 = Not active application token
         /// </remarks>
         /// <returns></returns>
         [Route("startSession"), HttpPost]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [ApiAuthorize]
+        [Throws(WebAPI.Managers.Models.StatusCode.InvalidAppTokenHash)]
+        [Throws(WebAPI.Managers.Models.StatusCode.NotActiveAppToken)]
+        [Throws(WebAPI.Managers.Models.StatusCode.ExpiredAppToken)]
         public KalturaSessionInfo StartSession(string id, string tokenHash, string userId = null, KalturaSessionType? type = null, int? expiry = null, string udid = null)
         {
             KalturaSessionInfo response = null;

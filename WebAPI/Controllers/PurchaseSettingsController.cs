@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -32,6 +33,10 @@ namespace WebAPI.Controllers
         [Route("get"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserSuspended)]
         public KalturaPurchaseSettings Get(KalturaEntityReferenceBy by)
         {
             KalturaPurchaseSettings purchaseResponse = null;
@@ -119,6 +124,11 @@ namespace WebAPI.Controllers
         [Route("update"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.PurchaseSettingsTypeInvalid)]
         public KalturaPurchaseSettings Update(KalturaEntityReferenceBy entityReference, KalturaPurchaseSettings settings)
         {
             KalturaPurchaseSettings response = null;

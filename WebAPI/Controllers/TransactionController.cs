@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -33,6 +34,28 @@ namespace WebAPI.Controllers
         [Route("purchase"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.InvalidUser)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.CouponNotValid)]
+        [Throws(eResponseStatus.UnableToPurchasePPVPurchased)]
+        [Throws(eResponseStatus.UnableToPurchaseFree)]
+        [Throws(eResponseStatus.UnableToPurchaseForPurchaseSubscriptionOnly)]
+        [Throws(eResponseStatus.UnableToPurchaseSubscriptionPurchased)]
+        [Throws(eResponseStatus.NotForPurchase)]
+        [Throws(eResponseStatus.UnableToPurchaseCollectionPurchased)]
+        [Throws(eResponseStatus.AdapterUrlRequired)]
+        [Throws(eResponseStatus.IncorrectPrice)]
+        [Throws(eResponseStatus.UnKnownPPVModule)]
+        [Throws(eResponseStatus.PaymentGatewayNotSetForHousehold)]
+        [Throws(eResponseStatus.PaymentGatewayNotExist)]
+        [Throws(eResponseStatus.PaymentGatewayChargeIdRequired)]
+        [Throws(eResponseStatus.NoConfigurationFound)]
+        [Throws(eResponseStatus.SignatureMismatch)]
+        [Throws(eResponseStatus.UnknownTransactionState)]
+        [Throws(eResponseStatus.PaymentMethodNotSetForHousehold)]
+        [Throws(eResponseStatus.PaymentMethodNotExist)]
         public KalturaTransaction Purchase(KalturaPurchase purchase)
         {
             KalturaTransaction response = new KalturaTransaction();

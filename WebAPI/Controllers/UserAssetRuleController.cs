@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -76,6 +77,11 @@ namespace WebAPI.Controllers
         /// <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.DomainNotExists)]
         public KalturaUserAssetRuleListResponse List(KalturaUserAssetRuleFilter filter)
         {
             List<KalturaUserAssetRule> response = null;

@@ -1,4 +1,5 @@
-﻿using KLogMonitor;
+﻿using ApiObjects.Response;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,6 +42,7 @@ namespace WebAPI.Controllers
         [Route("listOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
+        [Throws(WebAPI.Managers.Models.StatusCode.NotFound)]
         public KalturaAssetInfoListResponse ListOldStandard(KalturaAssetInfoFilter filter, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
             KalturaFilterPager pager = null)
         {
@@ -248,6 +250,7 @@ namespace WebAPI.Controllers
         [Route("get"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(WebAPI.Managers.Models.StatusCode.NotFound)]
         public KalturaAsset Get(string id, KalturaAssetReferenceType assetReferenceType)
         {
             KalturaAsset response = null;
@@ -343,6 +346,7 @@ namespace WebAPI.Controllers
         [Route("getOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
+        [Throws(WebAPI.Managers.Models.StatusCode.NotFound)]
         public KalturaAssetInfo GetOldStandard(string id, KalturaAssetReferenceType type, List<KalturaCatalogWithHolder> with = null)
         {
             KalturaAssetInfo response = null;
@@ -457,6 +461,10 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Obsolete]
         [SchemeArgument("filter", MaxLength = 1024)]
+        [Throws(eResponseStatus.BadSearchRequest)]
+        [Throws(eResponseStatus.IndexMissing)]
+        [Throws(eResponseStatus.SyntaxError)]
+        [Throws(eResponseStatus.InvalidSearchField)]
         public KalturaAssetInfoListResponse Search(KalturaOrder? order_by, List<KalturaIntegerValue> filter_types = null, string filter = null,
             List<KalturaCatalogWithHolder> with = null, KalturaFilterPager pager = null, string request_id = null)
         {
@@ -507,6 +515,7 @@ namespace WebAPI.Controllers
         [Route("autocomplete"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
+        [Throws(eResponseStatus.IndexMissing)]
         public KalturaSlimAssetInfoWrapper Autocomplete(string query, List<KalturaCatalogWithHolder> with = null, List<KalturaIntegerValue> filter_types = null,
             KalturaOrder? order_by = null, int? size = null)
         {
@@ -706,6 +715,11 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Obsolete]
         [SchemeArgument("id", MinInteger = 1)]
+        [Throws(eResponseStatus.BadSearchRequest)]
+        [Throws(eResponseStatus.IndexMissing)]
+        [Throws(eResponseStatus.SyntaxError)]
+        [Throws(eResponseStatus.InvalidSearchField)]
+        [Throws(eResponseStatus.ObjectNotExist)]
         public KalturaAssetInfoListResponse Channel(int id, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
             KalturaFilterPager pager = null, string filter_query = null)
         {
@@ -757,6 +771,15 @@ namespace WebAPI.Controllers
         [Obsolete]
         [SchemeArgument("id", MinInteger = 1)]
         [SchemeArgument("utc_offset", MinFloat = -12, MaxFloat = 12)]
+        [Throws(eResponseStatus.ExternalChannelHasNoRecommendationEngine)]
+        [Throws(eResponseStatus.AdapterAppFailure)]
+        [Throws(eResponseStatus.AdapterUrlRequired)]
+        [Throws(eResponseStatus.BadSearchRequest)]
+        [Throws(eResponseStatus.IndexMissing)]
+        [Throws(eResponseStatus.SyntaxError)]
+        [Throws(eResponseStatus.InvalidSearchField)]
+        [Throws(eResponseStatus.RecommendationEngineNotExist)]
+        [Throws(eResponseStatus.ExternalChannelNotExist)]
         public KalturaAssetInfoListResponse ExternalChannel(int id, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
             KalturaFilterPager pager = null, float? utc_offset = null, string free_param = null)
         {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -90,6 +91,7 @@ namespace WebAPI.Controllers
         /// <param name="profile">Payment Gateway profile</param> 
         [Route("add"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.PaymentGatewayParamsRequired)]
         public KalturaPaymentGatewayProfile Add(KalturaPaymentGatewayProfile profile)
         {
             KalturaPaymentGatewayProfile response = null;
@@ -124,6 +126,7 @@ namespace WebAPI.Controllers
         [Route("addOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
+        [Throws(eResponseStatus.PaymentGatewayParamsRequired)]
         public bool AddOldStandard(int payment_gateway_id, SerializableDictionary<string, KalturaStringValue> settings)
         {
             int groupId = KS.GetFromRequest().GroupId;

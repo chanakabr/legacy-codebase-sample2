@@ -13,6 +13,7 @@ using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Models.Notifications;
 using WebAPI.Utils;
+using ApiObjects.Response;
 
 namespace WebAPI.Controllers
 {
@@ -36,6 +37,11 @@ namespace WebAPI.Controllers
         /// AnnouncementInvalidTimezone = 8008, FeatureDisabled = 8009</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
+        [Throws(WebAPI.Managers.Models.StatusCode.TimeInPast)]
+        [Throws(eResponseStatus.AnnouncementMessageTooLong)]
+        [Throws(eResponseStatus.AnnouncementMessageIsEmpty)]
+        [Throws(eResponseStatus.AnnouncementInvalidTimezone)]
+        [Throws(eResponseStatus.FeatureDisabled)]
         public KalturaAnnouncement Add(KalturaAnnouncement announcement)
         {
             try
@@ -72,6 +78,11 @@ namespace WebAPI.Controllers
         [Route("addOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
+        [Throws(WebAPI.Managers.Models.StatusCode.TimeInPast)]
+        [Throws(eResponseStatus.AnnouncementMessageTooLong)]
+        [Throws(eResponseStatus.AnnouncementMessageIsEmpty)]
+        [Throws(eResponseStatus.AnnouncementInvalidTimezone)]
+        [Throws(eResponseStatus.FeatureDisabled)]
         public bool AddOldStandard(KalturaAnnouncement announcement)
         {
             try
@@ -108,6 +119,13 @@ namespace WebAPI.Controllers
         /// AnnouncementUpdateNotAllowed = 8007, AnnouncementInvalidTimezone = 8008, FeatureDisabled = 8009</remarks>
         [Route("update"), HttpPost]
         [ApiAuthorize]
+        [Throws(WebAPI.Managers.Models.StatusCode.TimeInPast)]
+        [Throws(eResponseStatus.AnnouncementMessageTooLong)]
+        [Throws(eResponseStatus.AnnouncementMessageIsEmpty)]
+        [Throws(eResponseStatus.AnnouncementNotFound)]
+        [Throws(eResponseStatus.AnnouncementUpdateNotAllowed)]
+        [Throws(eResponseStatus.AnnouncementInvalidTimezone)]
+        [Throws(eResponseStatus.FeatureDisabled)]
         public KalturaAnnouncement Update(int announcementId, KalturaAnnouncement announcement)
         {
             try
@@ -145,6 +163,13 @@ namespace WebAPI.Controllers
         [Route("updateOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
+        [Throws(WebAPI.Managers.Models.StatusCode.TimeInPast)]
+        [Throws(eResponseStatus.AnnouncementMessageTooLong)]
+        [Throws(eResponseStatus.AnnouncementMessageIsEmpty)]
+        [Throws(eResponseStatus.AnnouncementNotFound)]
+        [Throws(eResponseStatus.AnnouncementUpdateNotAllowed)]
+        [Throws(eResponseStatus.AnnouncementInvalidTimezone)]
+        [Throws(eResponseStatus.FeatureDisabled)]
         public bool UpdateOldStandard(KalturaAnnouncement announcement)
         {
             try
@@ -180,6 +205,9 @@ namespace WebAPI.Controllers
         [Route("updateStatus"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.AnnouncementNotFound)]
+        [Throws(eResponseStatus.AnnouncementUpdateNotAllowed)]
+        [Throws(eResponseStatus.FeatureDisabled)]
         public bool UpdateStatus(long id, bool status)
         {
             bool response = false;
@@ -206,6 +234,8 @@ namespace WebAPI.Controllers
         /// <remarks>AnnouncementNotFound = 8006, FeatureDisabled = 8009</remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.AnnouncementNotFound)]
+        [Throws(eResponseStatus.FeatureDisabled)]
         public bool Delete(long id)
         {
             bool response = false;
@@ -232,6 +262,8 @@ namespace WebAPI.Controllers
         [Route("enableSystemAnnouncements"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.FeatureDisabled)]
+        [Throws(eResponseStatus.FailCreateAnnouncement)]
         public bool EnableSystemAnnouncements()
         {
             bool response = false;
@@ -259,6 +291,7 @@ namespace WebAPI.Controllers
         /// <remarks>FeatureDisabled = 8009</remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.FeatureDisabled)]
         public KalturaAnnouncementListResponse List(KalturaAnnouncementFilter filter, KalturaFilterPager pager = null)
         {
             KalturaAnnouncementListResponse response = null;
@@ -289,6 +322,7 @@ namespace WebAPI.Controllers
         [Route("listOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
+        [Throws(eResponseStatus.FeatureDisabled)]
         public KalturaMessageAnnouncementListResponse ListOldStandard(KalturaFilterPager pager = null)
         {
             KalturaMessageAnnouncementListResponse response = null;

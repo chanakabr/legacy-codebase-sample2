@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -65,6 +66,7 @@ namespace WebAPI.Controllers
         [Route("get"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(eResponseStatus.ItemNotFound)]
         public KalturaUserAssetsListItem Get(string assetId, KalturaUserAssetsListType listType, KalturaUserAssetsListItemType itemType)
         {
             KalturaUserAssetsListItem response = null;
@@ -94,6 +96,7 @@ namespace WebAPI.Controllers
         [Route("getOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
+        [Throws(eResponseStatus.ItemNotFound)]
         public KalturaUserAssetsListItem GetOldStandard(KalturaUserAssetsListItem userAssetsListItem)
         {
             KalturaUserAssetsListItem response = null;
@@ -129,6 +132,7 @@ namespace WebAPI.Controllers
         [Route("delete"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(eResponseStatus.ItemNotFound)]
         public bool Delete(string assetId, KalturaUserAssetsListType listType)
         {
             bool response = false;
@@ -163,6 +167,7 @@ namespace WebAPI.Controllers
         [Route("deleteOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
+        [Throws(eResponseStatus.ItemNotFound)]
         public bool DeleteOldStandard(KalturaUserAssetsListItem userAssetsListItem)
         {
             bool response = false;

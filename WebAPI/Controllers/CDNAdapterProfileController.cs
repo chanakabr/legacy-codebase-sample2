@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -52,6 +53,8 @@ namespace WebAPI.Controllers
         [Route("delete"), HttpPost]
         [ApiAuthorize]
         [OldStandard("adapterId", "adapter_id")]
+        [Throws(eResponseStatus.AdapterNotExists)]
+        [Throws(eResponseStatus.AdapterIdentifierRequired)]
         public bool Delete(int adapterId)
         {
             bool response = false;
@@ -81,6 +84,10 @@ namespace WebAPI.Controllers
         /// <param name="adapter">CDN adapter object</param>
         [Route("add"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.NameRequired)]
+        [Throws(eResponseStatus.AdapterUrlRequired)]
+        [Throws(eResponseStatus.AliasMustBeUnique)]
+        [Throws(eResponseStatus.AliasRequired)]
         public KalturaCDNAdapterProfile Add(KalturaCDNAdapterProfile adapter)
         {
             KalturaCDNAdapterProfile response = null;
@@ -110,6 +117,12 @@ namespace WebAPI.Controllers
         /// <param name="adapter">CDN adapter Object</param>       
         [Route("update"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.AdapterNotExists)]
+        [Throws(eResponseStatus.AdapterIdentifierRequired)]
+        [Throws(eResponseStatus.NameRequired)]
+        [Throws(eResponseStatus.AdapterUrlRequired)]
+        [Throws(eResponseStatus.AliasMustBeUnique)]
+        [Throws(eResponseStatus.AliasRequired)]
         public KalturaCDNAdapterProfile Update(int adapterId, KalturaCDNAdapterProfile adapter)
         {
             KalturaCDNAdapterProfile response = null;
@@ -140,6 +153,8 @@ namespace WebAPI.Controllers
         [Route("generateSharedSecret"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.AdapterNotExists)]
+        [Throws(eResponseStatus.AdapterIdentifierRequired)]
         public KalturaCDNAdapterProfile GenerateSharedSecret(int adapterId)
         {
             KalturaCDNAdapterProfile response = null;

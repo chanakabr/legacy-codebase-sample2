@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -34,6 +35,8 @@ namespace WebAPI.Controllers
         [Route("getByToken"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.Conflict)]
+        [Throws(eResponseStatus.MinFriendsLimitation)]
         public KalturaSocial GetByToken(int partnerId, string token, KalturaSocialNetwork type)
         {
             KalturaSocialResponse response = new KalturaSocialResponse();
@@ -68,6 +71,8 @@ namespace WebAPI.Controllers
         [Route("getByTokenOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
+        [Throws(eResponseStatus.Conflict)]
+        [Throws(eResponseStatus.MinFriendsLimitation)]
         public KalturaSocialResponse GetByTokenOldStandard(int partnerId, string token, KalturaSocialNetwork type)
         {
             KalturaSocialResponse response = new KalturaSocialResponse();
@@ -138,6 +143,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("login"), HttpPost]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
         public KalturaLoginResponse Login(int partnerId, string token, KalturaSocialNetwork type, string udid = null)
         {
             KalturaOTTUser response = null;
@@ -179,6 +185,8 @@ namespace WebAPI.Controllers
         [Route("register"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.Conflict)]
+        [Throws(eResponseStatus.MinFriendsLimitation)]
         public KalturaSocial Register(int partnerId, string token, KalturaSocialNetwork type)
         {
             string ip = Utils.Utils.GetClientIP();
@@ -230,6 +238,8 @@ namespace WebAPI.Controllers
         [Route("registerOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
+        [Throws(eResponseStatus.Conflict)]
+        [Throws(eResponseStatus.MinFriendsLimitation)]
         public KalturaSocialResponse RegisterOldStandard(int partnerId, string token, bool should_create_domain, bool subscribe_newsletter, KalturaSocialNetwork type)
         {
             KalturaSocialResponse response = new KalturaSocialResponse();
@@ -281,6 +291,9 @@ namespace WebAPI.Controllers
         [Route("merge"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.WrongPasswordOrUserName)]
+        [Throws(eResponseStatus.Conflict)]
+        [Throws(eResponseStatus.MinFriendsLimitation)]
         public KalturaSocial Merge(string token, KalturaSocialNetwork type)
         {
             if (string.IsNullOrEmpty(token))
@@ -319,6 +332,9 @@ namespace WebAPI.Controllers
         [Route("mergeOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
+        [Throws(eResponseStatus.WrongPasswordOrUserName)]
+        [Throws(eResponseStatus.Conflict)]
+        [Throws(eResponseStatus.MinFriendsLimitation)]
         public KalturaSocialResponse MergeOldStandard(int partnerId, string token, string username, string password, string social_id, KalturaSocialNetwork type)
         {
             KalturaSocialResponse response = new KalturaSocialResponse();
@@ -352,6 +368,9 @@ namespace WebAPI.Controllers
         [Route("unmerge"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.WrongPasswordOrUserName)]
+        [Throws(eResponseStatus.Conflict)]
+        [Throws(eResponseStatus.MinFriendsLimitation)]
         public KalturaSocial Unmerge(KalturaSocialNetwork type)
         {
             string userId = KS.GetFromRequest().UserId;
@@ -385,6 +404,9 @@ namespace WebAPI.Controllers
         [Route("unmergeOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
+        [Throws(eResponseStatus.WrongPasswordOrUserName)]
+        [Throws(eResponseStatus.Conflict)]
+        [Throws(eResponseStatus.MinFriendsLimitation)]
         public KalturaSocialResponse UnmergeOldStandard(string token, string username, string password, KalturaSocialNetwork type)
         {
             KalturaSocialResponse response = new KalturaSocialResponse();
