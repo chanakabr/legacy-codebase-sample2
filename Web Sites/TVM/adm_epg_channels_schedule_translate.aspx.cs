@@ -213,7 +213,6 @@ public partial class adm_epg_channels_schedule_translate : System.Web.UI.Page
             }
         }
         string sRet = "adm_epg_channels_schedule.aspx?search_save=1&epg_channel_id=" + Session["epg_channel_id"].ToString();
-        //string sRet = "adm_epg_channels.aspx?search_save=1";
         DBRecordWebEditor theRecord = new DBRecordWebEditor("epg_channels_schedule_translate", "adm_table_pager", sRet, "", "ID", t, sRet, "epg_channels_schedule_id");     
 
         if (t == null)
