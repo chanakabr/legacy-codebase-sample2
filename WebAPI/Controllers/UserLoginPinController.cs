@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -24,6 +25,8 @@ namespace WebAPI.Controllers
         [Route("add"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserSuspended)]
         public KalturaUserLoginPin Add(string secret = null)
         {
             KalturaUserLoginPin response = null;
@@ -54,6 +57,10 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [OldStandard("pinCode", "pin_code")]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(eResponseStatus.MissingSecurityParameter)]
+        [Throws(eResponseStatus.LoginViaPinNotAllowed)]
+        [Throws(eResponseStatus.PinNotInTheRightLength)]
+        [Throws(eResponseStatus.PinAlreadyExists)]
         public KalturaUserLoginPin Update(string pinCode, string secret = null)
         {
             KalturaUserLoginPin res = null;

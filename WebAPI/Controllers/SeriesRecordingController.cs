@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -27,6 +28,13 @@ namespace WebAPI.Controllers
         [Route("cancel"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.RecordingNotFound)]
+        [Throws(eResponseStatus.RecordingStatusNotValid)]
+        [Throws(eResponseStatus.SeriesRecordingNotFound)]
         public KalturaSeriesRecording Cancel(long id)//, long epgId, long seasonNumber
         {
             KalturaSeriesRecording response = null;
@@ -57,6 +65,14 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("epgId", MinLong = 1)]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.RecordingNotFound)]
+        [Throws(eResponseStatus.RecordingStatusNotValid)]
+        [Throws(eResponseStatus.SeriesRecordingNotFound)]
+        [Throws(eResponseStatus.EpgIdNotPartOfSeries)]
         public KalturaSeriesRecording CancelByEpgId(long id, long epgId)
         {
             KalturaSeriesRecording response = null;
@@ -88,6 +104,14 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("seasonNumber", MinLong = 1)]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.RecordingNotFound)]
+        [Throws(eResponseStatus.RecordingStatusNotValid)]
+        [Throws(eResponseStatus.SeriesRecordingNotFound)]
+        [Throws(eResponseStatus.SeasonNumberNotMatch)]
         public KalturaSeriesRecording CancelBySeasonNumber(long id, long seasonNumber)
         {
             KalturaSeriesRecording response = null;
@@ -117,6 +141,13 @@ namespace WebAPI.Controllers
         /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048 </remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.RecordingNotFound)]
+        [Throws(eResponseStatus.RecordingStatusNotValid)]
+        [Throws(eResponseStatus.SeriesRecordingNotFound)]
         public KalturaSeriesRecording Delete(long id)
         {
             KalturaSeriesRecording response = null;
@@ -147,6 +178,14 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("seasonNumber", MinInteger = 1)]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.RecordingNotFound)]
+        [Throws(eResponseStatus.RecordingStatusNotValid)]
+        [Throws(eResponseStatus.SeriesRecordingNotFound)]
+        [Throws(eResponseStatus.SeasonNumberNotMatch)]
         public KalturaSeriesRecording DeleteBySeasonNumber(long id, int seasonNumber)
         {
             KalturaSeriesRecording response = null;
@@ -173,7 +212,11 @@ namespace WebAPI.Controllers
            /// <returns></returns>
            /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024</remarks>
            [Route("list"), HttpPost]
-           [ApiAuthorize]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
            public KalturaSeriesRecordingListResponse List(KalturaSeriesRecordingFilter filter = null)
            {
                KalturaSeriesRecordingListResponse response = null;
@@ -210,6 +253,17 @@ namespace WebAPI.Controllers
         /// AccountSeriesRecordingNotEnabled = 3046, AlreadyRecordedAsSeriesOrSeason = 3047, InvalidAssetId = 4024</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.ServiceNotAllowed)]
+        [Throws(eResponseStatus.NotEntitled)]
+        [Throws(eResponseStatus.AccountCdvrNotEnabled)]
+        [Throws(eResponseStatus.ProgramCdvrNotEnabled)]
+        [Throws(eResponseStatus.AccountSeriesRecordingNotEnabled)]
+        [Throws(eResponseStatus.AlreadyRecordedAsSeriesOrSeason)]
+        [Throws(eResponseStatus.InvalidAssetId)]
         public KalturaSeriesRecording Add(KalturaSeriesRecording recording)
         {
             KalturaSeriesRecording response = null;

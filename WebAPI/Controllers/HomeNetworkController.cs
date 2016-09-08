@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -31,6 +32,9 @@ namespace WebAPI.Controllers
         [Route("add"), HttpPost]
         [ApiAuthorize]
         [OldStandard("homeNetwork", "home_network")]
+        [Throws(eResponseStatus.HomeNetworkAlreadyExists)]
+        [Throws(eResponseStatus.HomeNetworkLimitation)]
+        [Throws(eResponseStatus.ExternalIdentifierRequired)]
         public KalturaHomeNetwork Add(KalturaHomeNetwork homeNetwork)
         {
             KalturaHomeNetwork response = null;
@@ -117,6 +121,8 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("update"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.HomeNetworkDoesNotExist)]
+        [Throws(eResponseStatus.ExternalIdentifierRequired)]
         public KalturaHomeNetwork Update(string externalId, KalturaHomeNetwork homeNetwork)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -146,6 +152,8 @@ namespace WebAPI.Controllers
         [Route("updateOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
+        [Throws(eResponseStatus.HomeNetworkDoesNotExist)]
+        [Throws(eResponseStatus.ExternalIdentifierRequired)]
         public bool UpdateOldStandard(KalturaHomeNetwork home_network)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -175,6 +183,9 @@ namespace WebAPI.Controllers
         [Route("delete"), HttpPost]
         [ApiAuthorize]
         [OldStandard("externalId", "external_id")]
+        [Throws(eResponseStatus.HomeNetworkDoesNotExist)]
+        [Throws(eResponseStatus.HomeNetworkFrequency)]
+        [Throws(eResponseStatus.ExternalIdentifierRequired)]
         public bool Delete(string externalId)
         {
             bool response = false;

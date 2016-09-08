@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -32,6 +33,10 @@ namespace WebAPI.Controllers
         [Route("listOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
+        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserSuspended)]
         public KalturaParentalRuleListResponse ListOldStandard(KalturaRuleFilter filter)
         {
             List<KalturaParentalRule> response = null;
@@ -73,6 +78,10 @@ namespace WebAPI.Controllers
         /// <returns>List of parental rules applied to the user</returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserSuspended)]
         public KalturaParentalRuleListResponse List(KalturaParentalRuleFilter filter)
         {
             List<KalturaParentalRule> response = null;
@@ -119,6 +128,11 @@ namespace WebAPI.Controllers
         [OldStandard("entityReference", "by")]
         [OldStandard("ruleId", "rule_id")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.RuleNotExists)]
         public bool Enable(long ruleId, KalturaEntityReferenceBy entityReference)
         {
             bool success = false;
@@ -162,6 +176,12 @@ namespace WebAPI.Controllers
         [OldStandard("entityReference", "by")]
         [OldStandard("ruleId", "rule_id")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.RuleNotExists)]
+        [Throws(eResponseStatus.UserParentalRuleNotExists)]
         public bool Disable(long ruleId, KalturaEntityReferenceBy entityReference)
         {
             bool success = false;
@@ -205,6 +225,10 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [OldStandard("entityReference", "by")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserSuspended)]
         public bool DisableDefault(KalturaEntityReferenceBy entityReference)
         {
             bool success = false;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -24,6 +25,7 @@ namespace WebAPI.Controllers
         [Route("get"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(eResponseStatus.TimeShiftedTvPartnerSettingsNotFound)]
         public KalturaTimeShiftedTvPartnerSettings Get()
         {
             KalturaTimeShiftedTvPartnerSettings response = null;
@@ -51,6 +53,8 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
+        [Throws(eResponseStatus.TimeShiftedTvPartnerSettingsNotSent)]
+        [Throws(eResponseStatus.TimeShiftedTvPartnerSettingsNegativeBufferSent)]
         public bool Update(KalturaTimeShiftedTvPartnerSettings settings)
         {
             bool response = false;

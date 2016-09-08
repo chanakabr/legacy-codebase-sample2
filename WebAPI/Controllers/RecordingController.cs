@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -25,6 +26,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: BadRequest = 500003, RecordingNotFound = 3039</remarks>     
         [Route("get"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.RecordingNotFound)]
         public KalturaRecording Get(long id)
         {
             KalturaRecording response = null;
@@ -99,6 +101,22 @@ namespace WebAPI.Controllers
         /// ExceededQuota = 3042, AccountSeriesRecordingNotEnabled = 3046, AlreadyRecordedAsSeriesOrSeason = 3047, InvalidAssetId = 4024</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.ServiceNotAllowed)]
+        [Throws(eResponseStatus.NotEntitled)]
+        [Throws(eResponseStatus.AccountCdvrNotEnabled)]
+        [Throws(eResponseStatus.AccountCatchUpNotEnabled)]
+        [Throws(eResponseStatus.ProgramCdvrNotEnabled)]
+        [Throws(eResponseStatus.ProgramCatchUpNotEnabled)]
+        [Throws(eResponseStatus.CatchUpBufferLimitation)]
+        [Throws(eResponseStatus.ProgramNotInRecordingScheduleWindow)]
+        [Throws(eResponseStatus.ExceededQuota)]
+        [Throws(eResponseStatus.AccountSeriesRecordingNotEnabled)]
+        [Throws(eResponseStatus.AlreadyRecordedAsSeriesOrSeason)]
+        [Throws(eResponseStatus.InvalidAssetId)]
         public KalturaRecording Add(KalturaRecording recording)
         {
             KalturaRecording response = null;
@@ -127,6 +145,10 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024</remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
         public KalturaRecordingListResponse List(KalturaRecordingFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaRecordingListResponse response = null;
@@ -170,6 +192,12 @@ namespace WebAPI.Controllers
         [Route("cancel"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.RecordingNotFound)]
+        [Throws(eResponseStatus.RecordingStatusNotValid)]
         public KalturaRecording Cancel(long id)
         {
             KalturaRecording response = null;
@@ -198,6 +226,12 @@ namespace WebAPI.Controllers
         /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043 </remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.RecordingNotFound)]
+        [Throws(eResponseStatus.RecordingStatusNotValid)]
         public KalturaRecording Delete(long id)
         {
             KalturaRecording response = null;
@@ -227,6 +261,14 @@ namespace WebAPI.Controllers
         [Route("protect"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.RecordingNotFound)]
+        [Throws(eResponseStatus.RecordingStatusNotValid)]
+        [Throws(eResponseStatus.ExceededProtectionQuota)]
+        [Throws(eResponseStatus.AccountProtectRecordNotEnabled)]
         public KalturaRecording Protect(long id)
         {
             KalturaRecording response = null;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
@@ -58,6 +59,23 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("loginWithPin"), HttpPost]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.WrongPasswordOrUserName)]
+        [Throws(eResponseStatus.PinNotExists)]
+        [Throws(eResponseStatus.PinExpired)]
+        [Throws(eResponseStatus.NoValidPin)]
+        [Throws(eResponseStatus.SecretIsWrong)]
+        [Throws(eResponseStatus.LoginViaPinNotAllowed)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.InsideLockTime)]
+        [Throws(eResponseStatus.UserNotActivated)]
+        [Throws(eResponseStatus.UserAllreadyLoggedIn)]
+        [Throws(eResponseStatus.UserDoubleLogIn)]
+        [Throws(eResponseStatus.DeviceNotRegistered)]
+        [Throws(eResponseStatus.ErrorOnInitUser)]
+        [Throws(eResponseStatus.UserNotMasterApproved)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
         public KalturaLoginResponse LoginWithPin(int partnerId, string pin, string udid = null, string secret = null)
         {
             KalturaOTTUser response = null;
@@ -95,6 +113,17 @@ namespace WebAPI.Controllers
         [Route("login"), HttpPost]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [OldStandard("extraParams", "extra_params")]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.WrongPasswordOrUserName)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.InsideLockTime)]
+        [Throws(eResponseStatus.UserNotActivated)]
+        [Throws(eResponseStatus.UserAllreadyLoggedIn)]
+        [Throws(eResponseStatus.UserDoubleLogIn)]
+        [Throws(eResponseStatus.DeviceNotRegistered)]
+        [Throws(eResponseStatus.ErrorOnInitUser)]
+        [Throws(eResponseStatus.UserNotMasterApproved)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
         public KalturaLoginResponse Login(int partnerId, string username = null, string password = null, SerializableDictionary<string, KalturaStringValue> extraParams = null,
             string udid = null)
         {
@@ -170,6 +199,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("facebookLogin"), HttpPost]
         [Obsolete]
+        [Throws(eResponseStatus.UserDoesNotExist)]
         public KalturaLoginResponse FacebookLogin(int partnerId, string token, string udid = null)
         {
             KalturaOTTUser response = null;
@@ -207,6 +237,8 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("register"), HttpPost]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.WrongPasswordOrUserName)]
+        [Throws(eResponseStatus.UserExists)]
         public KalturaOTTUser Register(int partnerId, KalturaOTTUser user, string password)
         {
             KalturaOTTUser response = null;
@@ -274,6 +306,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: User does not exist = 2000</remarks>
         [Route("setInitialPassword"), HttpPost]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
         public KalturaOTTUser setInitialPassword(int partnerId, string token, string password)
         {
             KalturaOTTUser response = null;
@@ -310,6 +343,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: User does not exist = 2000</remarks>
         [Route("setPassword"), HttpPost]
         [Obsolete("Please use setInitialPassword instead")]
+        [Throws(eResponseStatus.UserDoesNotExist)]
         public bool setPassword(int partnerId, string username, string password)
         {
             bool response = false;
@@ -343,6 +377,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: 2000 = User does not exist</remarks>
         [Route("validateToken"), HttpPost]
         [Obsolete("Please use setInitialPassword instead")]
+        [Throws(eResponseStatus.UserDoesNotExist)]
         public KalturaOTTUser validateToken(int partnerId, string token)
         {
             KalturaOTTUser response = null;
@@ -376,6 +411,10 @@ namespace WebAPI.Controllers
         /// <param name="oldPassword">old password</param>
         /// <param name="newPassword">new password</param>
         /// <remarks>Possible status codes: Wrong username or password = 1011, User does not exist = 2000, Inside lock time = 2015, User already logged in = 2017</remarks>
+        [Throws(eResponseStatus.WrongPasswordOrUserName)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.InsideLockTime)]
+        [Throws(eResponseStatus.UserAllreadyLoggedIn)]
         [Route("updateLoginData"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
@@ -493,6 +532,8 @@ namespace WebAPI.Controllers
         [Route("update"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
         public KalturaOTTUser Update(KalturaOTTUser user)
         {
             KalturaOTTUser response = null;
@@ -555,6 +596,11 @@ namespace WebAPI.Controllers
         [Route("delete"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(eResponseStatus.DomainSuspended)]
+        [Throws(eResponseStatus.LimitationPeriod)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.DefaultUserCannotBeDeleted)]
+        [Throws(eResponseStatus.ExclusiveMasterUserCannotBeDeleted)]
         public bool Delete()
         {
             bool response = false;
@@ -699,6 +745,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.UserDoesNotExist)]
         public KalturaOTTUserListResponse List(KalturaOTTUserFilter filter = null)
         {
             KalturaOTTUserListResponse response = null;

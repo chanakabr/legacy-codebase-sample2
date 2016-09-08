@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -39,6 +40,15 @@ namespace WebAPI.Controllers
         [OldStandard("streamType", "stream_type")]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Obsolete]
+        [Throws(eResponseStatus.DeviceNotInDomain)]
+        [Throws(eResponseStatus.InvalidBaseLink)]
+        [Throws(eResponseStatus.MediaConcurrencyLimitation)]
+        [Throws(eResponseStatus.ConcurrencyLimitation)]
+        [Throws(eResponseStatus.DeviceTypeNotAllowed)]
+        [Throws(eResponseStatus.DomainSuspended)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.ServiceNotAllowed)]
+        [Throws(eResponseStatus.NotEntitled)]
         public KalturaLicensedUrl GetOldStandard(KalturaAssetType assetType, int contentId, string baseUrl, string assetId = null, long? startDate = null, KalturaStreamType? streamType = null)
         {
             KalturaLicensedUrl response = null;
@@ -92,9 +102,26 @@ namespace WebAPI.Controllers
             return response;
         }
 
+        /// <summary>
+        /// Get the URL for playing an asset - EPG or media (not available for recording for now).
+        /// </summary>
         [Route("get"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(eResponseStatus.DeviceNotInDomain)]
+        [Throws(eResponseStatus.InvalidBaseLink)]
+        [Throws(eResponseStatus.MediaConcurrencyLimitation)]
+        [Throws(eResponseStatus.ConcurrencyLimitation)]
+        [Throws(eResponseStatus.DeviceTypeNotAllowed)]
+        [Throws(eResponseStatus.DomainSuspended)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.ServiceNotAllowed)]
+        [Throws(eResponseStatus.NotEntitled)]
+        [Throws(eResponseStatus.RecordingNotFound)]
+        [Throws(eResponseStatus.RecordingStatusNotValid)]
+        [Throws(eResponseStatus.ProgramDoesntExist)]
+        [Throws(eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel)]
+        [Throws(eResponseStatus.RecordingPlaybackNotAllowedForNotEntitledEpgChannel)]
         public KalturaLicensedUrl Get(KalturaLicensedUrlBaseRequest request)
         {
             KalturaLicensedUrl response = null;

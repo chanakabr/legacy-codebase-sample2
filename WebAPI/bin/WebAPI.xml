@@ -105,7 +105,6 @@
             </summary>
             <param name="id">Application token identifier</param>
             <remarks>
-            Possible status codes: 50020 = Invalid Application token
             </remarks>
             <returns></returns>
         </member>
@@ -115,7 +114,6 @@
             </summary>
             <param name="id">Application token identifier</param>
             <remarks>
-            Possible status codes: 50020 = Invalid Application token
             </remarks>
             <returns></returns>
         </member>
@@ -130,7 +128,7 @@
             <param name="expiry">session expiry (in seconds), could be overwritten by shorter expiry of the application token and the session-expiry that defined on the application token</param>
             <param name="udid"></param>
             <remarks>
-            Possible status codes: 50020 = Invalid Application token, 50022 = Invalid application token hash, 50023 = Not active application token
+            Possible status codes: 50022 = Invalid application token hash, 50023 = Not active application token
             </remarks>
             <returns></returns>
         </member>
@@ -266,7 +264,7 @@
             BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, Channel does not exist = 4018
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.AssetController.ExternalChannel(System.Int32,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.Nullable{WebAPI.Models.Catalog.KalturaOrder},WebAPI.Models.General.KalturaFilterPager,System.String,System.String)">
+        <member name="M:WebAPI.Controllers.AssetController.ExternalChannel(System.Int32,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.Nullable{WebAPI.Models.Catalog.KalturaOrder},WebAPI.Models.General.KalturaFilterPager,System.Nullable{System.Single},System.String)">
             <summary>
             Returns assets as defined by an external channel (3rd party recommendations)
             </summary>
@@ -873,6 +871,11 @@
             <param name="streamType">The stream type to get the URL for - relevant only for asset_type = 'epg'</param>
             <remarks>Possible status codes: Device not in household = 1003, Invalid base URL = 3004, Media concurrency limitation = 4000, Concurrency limitation = 4001, 
             Device type not allowed = 1002, Household suspended = 1009, User suspended = 2001, Service not allowed = 3003, Not entitled = 3032</remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.LicensedUrlController.Get(WebAPI.Models.ConditionalAccess.KalturaLicensedUrlBaseRequest)">
+            <summary>
+            Get the URL for playing an asset - EPG or media (not available for recording for now).
+            </summary>
         </member>
         <member name="M:WebAPI.Controllers.HomeNetworkController.Add(WebAPI.Models.Domains.KalturaHomeNetwork)">
             <summary>
@@ -2292,7 +2295,7 @@
             </summary>
             <remarks>
             Possible status codes:  
-            Payment method not set for household = 6048, PaymentMethodIsUsedByHousehold = 3041, Error removing payment gateway household payment method = 6057,
+            Payment method not set for household = 6048, PaymentMethodIsUsedByHousehold = 3041, 
             PaymentGatewayNotExist = 6008, PaymentGatewayNotSetForHousehold = 6007,
             </remarks>
             <param name="payment_gateway_id">Payment Gateway Identifier</param> 
@@ -2305,7 +2308,7 @@
             </summary>
             <remarks>
             Possible status codes:  
-            Payment method not set for household = 6048, Error removing payment gateway household payment method = 6057,
+            Payment method not set for household = 6048
             PaymentGatewayNotExist = 6008, PaymentGatewayNotSetForHousehold = 6007
             </remarks>
             <param name="payment_gateway_id">Payment Gateway Identifier</param> 
@@ -2823,6 +2826,18 @@
             Retrieving user roles by identifiers, if filter is empty, returns all partner roles
             </summary>
             <remarks></remarks>
+        </member>
+        <member name="F:ApiObjects.Response.eResponseStatus.NoMediaRelatedToFile">
+            
+        </member>
+        <member name="F:ApiObjects.Response.eResponseStatus.NoProductID">
+            
+        </member>
+        <member name="F:WebAPI.Exceptions.ApiException.NO_MEDIA_RELATED_TO_FILE">
+            
+        </member>
+        <member name="F:WebAPI.Exceptions.ApiException.NO_PRODUCT_ID">
+            
         </member>
         <member name="M:WebAPI.Managers.Models.AppToken.CalcHash">
             <summary>
@@ -7110,7 +7125,7 @@
         </member>
         <member name="P:WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings.ProtectionQuotaPercentage">
             <summary>
-            Indicates how long (in seconds) after the program ends the recording will end
+            Indicates how many percent of the quota can be used for protection
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings.RecordingLifetimePeriod">
@@ -7125,7 +7140,7 @@
         </member>
         <member name="P:WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings.SeriesRecordingEnabled">
             <summary>
-            The time in days before the recording lifetime is due from which the client should be able to warn user about deletion.
+            Is recording of series enabled
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings.NonEntitledChannelPlaybackEnabled">
@@ -7178,14 +7193,14 @@
             OTT User filter
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaOTTUserFilter.UserByEqual">
+        <member name="P:WebAPI.Models.Users.KalturaOTTUserFilter.UserNameEqual">
              <summary>
-            User Filter By
+            User Name
              </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaOTTUserFilter.ValueEqual">
+        <member name="P:WebAPI.Models.Users.KalturaOTTUserFilter.ExternalIdEqual">
             <summary>
-            The User identifiers
+            External Id
             </summary>
         </member>
         <member name="T:WebAPI.Models.Users.KalturaSession">
@@ -15195,7 +15210,7 @@
         </member>
         <member name="M:WebAPI.Controllers.OttUserController.List(WebAPI.Models.Users.KalturaOTTUserFilter)">
             <summary>
-            Retrieve user by external identifier or username 
+            Retrieve user by external identifier or username or if filter is null all user in the master or the user itself
             </summary>
             <param name="filter">Filter request</param>
             <remarks>Possible status codes: 

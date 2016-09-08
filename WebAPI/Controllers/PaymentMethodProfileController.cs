@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
@@ -27,6 +28,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.PaymentGatewayNotExist)]
         public KalturaPaymentMethodProfileListResponse List(KalturaPaymentMethodProfileFilter filter)
         {
             List<KalturaPaymentMethodProfile> list = null;
@@ -59,6 +61,7 @@ namespace WebAPI.Controllers
         [Route("listOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
+        [Throws(eResponseStatus.PaymentGatewayNotExist)]
         public List<KalturaPaymentMethodProfile> ListOldStandard(int payment_gateway_id)
         {
             List<KalturaPaymentMethodProfile> response = null;
@@ -93,6 +96,9 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.PaymentGatewayIdRequired)]
+        [Throws(eResponseStatus.PaymentGatewayNotExist)]
+        [Throws(eResponseStatus.PaymentMethodNameRequired)]
         public KalturaPaymentMethodProfile Add(KalturaPaymentMethodProfile paymentMethod)
         {
             KalturaPaymentMethodProfile response = null;
@@ -124,6 +130,9 @@ namespace WebAPI.Controllers
         [Route("addOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
+        [Throws(eResponseStatus.PaymentGatewayIdRequired)]
+        [Throws(eResponseStatus.PaymentGatewayNotExist)]
+        [Throws(eResponseStatus.PaymentMethodNameRequired)]
         public KalturaPaymentMethodProfile AddOldStandard(int payment_gateway_id, KalturaPaymentMethodProfile payment_method)
         {
             KalturaPaymentMethodProfile response = null;
@@ -154,6 +163,10 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("update"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.PaymentGatewayIdRequired)]
+        [Throws(eResponseStatus.PaymentGatewayNotExist)]
+        [Throws(eResponseStatus.PaymentMethodNotExist)]
+        [Throws(eResponseStatus.PaymentMethodIdRequired)]
         public KalturaPaymentMethodProfile Update(int paymentMethodId, KalturaPaymentMethodProfile paymentMethod)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -185,6 +198,10 @@ namespace WebAPI.Controllers
         [OldStandard("paymentGatewayId", "payment_gateway_id")]
         [OldStandard("paymentMethod", "payment_method")]
         [Obsolete]
+        [Throws(eResponseStatus.PaymentGatewayIdRequired)]
+        [Throws(eResponseStatus.PaymentGatewayNotExist)]
+        [Throws(eResponseStatus.PaymentMethodNotExist)]
+        [Throws(eResponseStatus.PaymentMethodIdRequired)]
         public bool UpdateOldStandard(int paymentGatewayId, KalturaPaymentMethodProfile paymentMethod)
         {
             bool response = false;
@@ -214,6 +231,10 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.PaymentGatewayIdRequired)]
+        [Throws(eResponseStatus.PaymentGatewayNotExist)]
+        [Throws(eResponseStatus.PaymentMethodNotExist)]
+        [Throws(eResponseStatus.PaymentMethodIdRequired)]
         public bool Delete(int paymentMethodId)
         {
             bool response = false;
@@ -245,6 +266,10 @@ namespace WebAPI.Controllers
         [Route("deleteOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
+        [Throws(eResponseStatus.PaymentGatewayIdRequired)]
+        [Throws(eResponseStatus.PaymentGatewayNotExist)]
+        [Throws(eResponseStatus.PaymentMethodNotExist)]
+        [Throws(eResponseStatus.PaymentMethodIdRequired)]
         public bool DeleteOldStandard(int payment_gateway_id, int payment_method_id)
         {
             bool response = false;

@@ -1167,6 +1167,7 @@
     <Compile Include="Controllers\ParentalRuleController.cs" />
     <Compile Include="Controllers\TransactionHistoryController.cs" />
     <Compile Include="Controllers\UserRoleController.cs" />
+    <Compile Include="Exceptions\EnumResponseStatus.cs" />
     <Compile Include="Exceptions\PartialSuccessException.cs" />
     <Compile Include="Filters\RequestParser.cs" />
     <Compile Include="Exceptions\NotFoundException.cs" />
@@ -1176,6 +1177,7 @@
     <Compile Include="Managers\Models\AppToken.cs" />
     <Compile Include="Managers\Models\KSUtils.cs" />
     <Compile Include="Managers\RolesManager.cs" />
+    <Compile Include="Managers\Scheme\Throws.cs" />
     <Compile Include="Managers\Scheme\SchemeArgument.cs" />
     <Compile Include="Managers\Scheme\SchemeInput.cs" />
     <Compile Include="Managers\Scheme\SchemeProperty.cs" />

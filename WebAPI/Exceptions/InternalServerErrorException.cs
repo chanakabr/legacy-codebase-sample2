@@ -11,7 +11,7 @@ namespace WebAPI.Exceptions
 {
     public class InternalServerErrorException : ApiException
     {
-        private static ApiExceptionType INTERNAL_SERVER_ERROR = new ApiExceptionType(StatusCode.Error, "error");
+        public static ApiExceptionType INTERNAL_SERVER_ERROR = new ApiExceptionType(StatusCode.Error, "error");
 
         public static ApiExceptionType MISSING_CONFIGURATION = new ApiExceptionType(StatusCode.MissingConfiguration, "Missing configuration [@configuration@]", "configuration");
 

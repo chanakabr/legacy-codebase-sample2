@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -92,6 +93,9 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [OldStandard("assetId", "asset_id")]
         [SchemeArgument("assetId", MinInteger = 1)]
+        [Throws(eResponseStatus.UserNotFollowing)]
+        [Throws(eResponseStatus.InvalidAssetId)]
+        [Throws(eResponseStatus.AnnouncementNotFound)]
         public bool Delete(int assetId)
         {
             bool response = false;
@@ -119,6 +123,8 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("add"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.UserAlreadyFollowing)]
+        [Throws(eResponseStatus.InvalidAssetId)]
         public KalturaFollowTvSeries Add(KalturaFollowTvSeries followTvSeries)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -146,6 +152,8 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Obsolete]
         [SchemeArgument("assetId", MinInteger = 1)]
+        [Throws(eResponseStatus.UserAlreadyFollowing)]
+        [Throws(eResponseStatus.InvalidAssetId)]
         public bool AddOldStandard(int asset_id)
         {
             int groupId = KS.GetFromRequest().GroupId;

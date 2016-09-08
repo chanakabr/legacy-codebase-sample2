@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -67,6 +68,8 @@ namespace WebAPI.Controllers
         [Route("delete"), HttpPost]
         [ApiAuthorize]
         [OldStandard("channelId", "channel_id")]
+        [Throws(eResponseStatus.IdentifierRequired)]
+        [Throws(eResponseStatus.ObjectNotExist)]
         public bool Delete(int channelId)
         {
             bool response = false;
@@ -97,6 +100,8 @@ namespace WebAPI.Controllers
         /// <param name="channel">KSQL channel Object</param>
         [Route("add"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.NoObjectToInsert)]
+        [Throws(eResponseStatus.NameRequired)]
         public KalturaChannel Add(KalturaChannel channel)
         {
             KalturaChannel response = null;
@@ -129,6 +134,9 @@ namespace WebAPI.Controllers
         /// <param name="channel">KSQL channel Object</param>       
         [Route("update"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.ObjectNotExist)]
+        [Throws(eResponseStatus.NoObjectToInsert)]
+        [Throws(eResponseStatus.NameRequired)]
         public KalturaChannel Update(int channelId, KalturaChannel channel)
         {
             KalturaChannel response = null;
@@ -161,6 +169,8 @@ namespace WebAPI.Controllers
         [Route("addOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
+        [Throws(eResponseStatus.NoObjectToInsert)]
+        [Throws(eResponseStatus.NameRequired)]
         public KalturaChannelProfile AddOldStandard(KalturaChannelProfile channel)
         {
             KalturaChannelProfile response = null;
@@ -193,6 +203,9 @@ namespace WebAPI.Controllers
         [Route("updateOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
+        [Throws(eResponseStatus.ObjectNotExist)]
+        [Throws(eResponseStatus.NoObjectToInsert)]
+        [Throws(eResponseStatus.NameRequired)]
         public KalturaChannelProfile UpdateOldStandard(KalturaChannelProfile channel)
         {
             KalturaChannelProfile response = null;
