@@ -229,6 +229,10 @@ public partial class adm_epg_channels_schedule_translate : System.Web.UI.Page
         if (epgs != null && epgs.Count > 0)
         {
             epg = epgs.Where(x => x.Language == language).FirstOrDefault();
+            if (epg == null)
+            {
+                epg = new EpgCB();
+            }
         }
 
         DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 128);
