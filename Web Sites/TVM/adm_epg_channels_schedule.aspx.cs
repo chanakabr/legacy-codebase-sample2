@@ -89,8 +89,7 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
         selectQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", ">=", tStart.AddDays(-1));
         selectQuery += "and";
         selectQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "<=", tEnd);
-        selectQuery += "and";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupId);
+       
         if (selectQuery.Execute("query", true) != null)
         {
             int count = selectQuery.Table("query").DefaultView.Count;
