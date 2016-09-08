@@ -91,8 +91,14 @@ namespace ElasticSearchHandler
                         lastIndex = firstIndex + sizeOfBulk;
                     }
 
+                    int firstMediaId = 0;
+                    int lastMediaId = 0;
+                    
                     try
                     {
+                        firstMediaId = groupMedias[firstIndex].Key;
+                        lastMediaId = groupMedias[lastIndex - 1].Key;
+                        
                         HashSet<int> allIdsFromDB = new HashSet<int>();
 
                         bool isFirstRun = firstIndex == 0;
@@ -119,8 +125,6 @@ namespace ElasticSearchHandler
                         // For each language
                         foreach (var language in languages)
                         {
-                            int firstMediaId = groupMedias[firstIndex].Key;
-                            int lastMediaId = groupMedias[lastIndex - 1].Key;
                             string documentType = ElasticSearchTaskUtils.GetTanslationType(MEDIA, language);
 
                             List<ElasticSearchApi.ESAssetDocument> searchResults =
@@ -193,8 +197,8 @@ namespace ElasticSearchHandler
                     catch (Exception ex)
                     {
                         log.ErrorFormat(
-                            "Rebase media index of group {0} failed in bulk between INDEXES {1} and {2}. error = {3}", 
-                            groupId, firstIndex, lastIndex, ex);
+                            "Rebase media index of group {0} failed in bulk between INDEXES {1} (ID = {3}) and {2} (ID = {4}). error = {3}",
+                            groupId, firstIndex, lastIndex, ex, firstMediaId, lastMediaId);
                     }
 
                     // move on to the new index

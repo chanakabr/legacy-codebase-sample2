@@ -103,18 +103,27 @@ namespace ElasticSearchHandler
             // Perform search: id ≥ first_id AND id ≤ last_id
             string searchResultString = api.Search(indexName, documentType, ref queryString);
 
-            // Parse results to workable list
-            int totalItems = 0;
-            List<string> extraField = new List<string>() { "is_active" };
-
-            List<ElasticSearchApi.ESAssetDocument> searchResults =
-                Catalog.ElasticsearchWrapper.DecodeAssetSearchJsonObject(searchResultString, ref totalItems, extraField);
+            List<ElasticSearchApi.ESAssetDocument> searchResults = new List<ElasticSearchApi.ESAssetDocument>();
 
             int count = 0;
 
-            if (searchResults != null)
+            if (!string.IsNullOrEmpty(searchResultString))
             {
-                count = searchResults.Count;
+                // Parse results to workable list
+                int totalItems = 0;
+                List<string> extraField = new List<string>() { "is_active" };
+
+                searchResults = Catalog.ElasticsearchWrapper.DecodeAssetSearchJsonObject(searchResultString, ref totalItems, extraField);
+
+
+                if (searchResults != null)
+                {
+                    count = searchResults.Count;
+                }
+                else
+                {
+                    searchResults = new List<ElasticSearchApi.ESAssetDocument>();
+                }
             }
 
             log.DebugFormat("Get ranged documents for index {0}, first ID = {1}, last ID = {2}, bulk size = {3}, search result count = {4}",
