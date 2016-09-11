@@ -908,7 +908,7 @@ namespace WebAPI.Clients
 
             if (mediaIdsResponse.m_nMediaIds != null && mediaIdsResponse.m_nMediaIds.Count > 0)
             {
-                result.Objects = Mapper.Map<List<KalturaAsset>>(mediaIdsResponse.m_lObj);
+                result.Objects = CatalogUtils.GetMediaByIds(CatalogClientModule, mediaIdsResponse.m_nMediaIds, request, CacheDuration);
                 result.TotalCount = mediaIdsResponse.m_nTotalItems;
             }
 

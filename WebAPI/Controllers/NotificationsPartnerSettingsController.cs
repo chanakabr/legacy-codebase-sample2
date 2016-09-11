@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -86,6 +87,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
+        [Throws(eResponseStatus.PushNotificationFalse)]
         public bool Update(KalturaNotificationsPartnerSettings settings)
         {
             bool response = false;
@@ -115,6 +117,7 @@ namespace WebAPI.Controllers
         [Route("updateOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
+        [Throws(eResponseStatus.PushNotificationFalse)]
         public bool UpdateOldStandard(KalturaPartnerNotificationSettings settings)
         {
             bool response = false;

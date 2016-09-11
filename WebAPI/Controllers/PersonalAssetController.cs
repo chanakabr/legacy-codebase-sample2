@@ -12,6 +12,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.Pricing;
 using WebAPI.Utils;
@@ -33,6 +34,8 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]
+        [Throws(WebAPI.Managers.Models.StatusCode.DuplicateAsset)]
+        [Throws(WebAPI.Managers.Models.StatusCode.DuplicateFile)]
         public KalturaPersonalAssetListResponse List(List<KalturaPersonalAssetRequest> assets, List<KalturaPersonalAssetWithHolder> with)
         {
             KalturaPersonalAssetListResponse response = null;

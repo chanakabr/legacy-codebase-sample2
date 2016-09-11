@@ -13,6 +13,8 @@ using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using WebAPI.Managers.Scheme;
 using System.Runtime.CompilerServices;
+using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 
 namespace Validator.Managers.Scheme
 {
@@ -98,6 +100,36 @@ namespace Validator.Managers.Scheme
         {
             Scheme validator = new Scheme(true);
             return validator.validate();
+        }
+
+        public static bool ValidateErrors(IEnumerable<Type> exceptions, bool strict)
+        {
+            bool valid = true;
+
+            Dictionary<StatusCode, string> codes = new Dictionary<StatusCode, string>();
+            foreach (Type exception in exceptions.OrderBy(exception => exception.Name))
+            {
+                FieldInfo[] fields = exception.GetFields();
+                foreach (FieldInfo field in fields)
+                {
+                    if (field.FieldType == typeof(ApiException.ApiExceptionType))
+                    {
+                        ApiException.ApiExceptionType type = (ApiException.ApiExceptionType)field.GetValue(null);
+                        string error = string.Format("{0}.{1}", exception.Name, field.Name);
+                        if (codes.ContainsKey(type.statusCode))
+                        {
+                            logError("Error", exception, string.Format("Error code {0} appears both in error {1} and error {2}", type.statusCode, error, codes[type.statusCode]));
+                            valid = false;
+                        }
+                        else
+                        {
+                            codes.Add(type.statusCode, error);
+                        }
+                    }
+                }
+            }
+
+            return valid;
         }
 
         public static bool Validate(Type type, bool strict)

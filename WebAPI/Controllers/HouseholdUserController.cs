@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using ApiObjects.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +27,13 @@ namespace WebAPI.Controllers
         [Route("delete"), HttpPost]
         [ApiAuthorize]
         [OldStandard("userId", "user_id_to_delete")]
+        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.LimitationPeriod)]
+        [Throws(eResponseStatus.UserNotExistsInDomain)]
+        [Throws(eResponseStatus.InvalidUser)]
+        [Throws(eResponseStatus.DomainSuspended)]
+        [Throws(eResponseStatus.NoUsersInDomain)]
+        [Throws(eResponseStatus.UserNotAllowed)]
         public bool Delete(string userId)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -64,6 +71,15 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.DomainSuspended)]
+        [Throws(eResponseStatus.InvalidUser)]
+        [Throws(eResponseStatus.UserAlreadyInDomain)]
+        [Throws(eResponseStatus.UserNotAllowed)]
+        [Throws(eResponseStatus.ActionUserNotMaster)]
+        [Throws(eResponseStatus.NoUsersInDomain)]
+        [Throws(eResponseStatus.UserExistsInOtherDomains)]
+        [Throws(eResponseStatus.ExceededUserLimit)]
+        [Throws(eResponseStatus.RequestFailed)]
         public KalturaHouseholdUser Add(KalturaHouseholdUser householdUser)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -128,6 +144,8 @@ namespace WebAPI.Controllers
         [Route("addOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
+        [Throws(eResponseStatus.DomainSuspended)]
+        [Throws(eResponseStatus.UserAlreadyInDomain)]
         public bool AddOldStandard(string user_id_to_add, bool is_master = false)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -160,6 +178,9 @@ namespace WebAPI.Controllers
         [Route("addByOperator"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
+        [Throws(eResponseStatus.DomainSuspended)]
+        [Throws(eResponseStatus.InvalidUser)]
+        [Throws(eResponseStatus.UserAlreadyInDomain)]
         public bool AddByOperator(string user_id_to_add, int household_id, bool is_master = false)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -193,6 +214,8 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.HouseholdUserFailed)]
         public KalturaHouseholdUserListResponse List(KalturaHouseholdUserFilter filter)
         {
             KalturaHouseholdUserListResponse response = new KalturaHouseholdUserListResponse(); 

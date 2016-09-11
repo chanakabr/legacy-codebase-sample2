@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -24,6 +25,7 @@ namespace WebAPI.Controllers
         [Route("get"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(eResponseStatus.CDNPartnerSettingsNotFound)]
         public KalturaCDNPartnerSettings Get()
         {
             KalturaCDNPartnerSettings response = null;
@@ -49,6 +51,7 @@ namespace WebAPI.Controllers
         [Route("update"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(eResponseStatus.CDNPartnerSettingsNotFound)]
         public KalturaCDNPartnerSettings Update(KalturaCDNPartnerSettings settings)
         {
             KalturaCDNPartnerSettings response = null;

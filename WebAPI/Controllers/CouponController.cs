@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -7,6 +8,7 @@ using System.Web.Http.Description;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Pricing;
 using WebAPI.Utils;
 
@@ -23,6 +25,7 @@ namespace WebAPI.Controllers
         /// <param name="code">Coupon code</param>
         [Route("get"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.CouponNotValid)]
         public KalturaCoupon Get(string code)
         {
             KalturaCoupon coupon = null;

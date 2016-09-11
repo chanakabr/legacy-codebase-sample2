@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -28,6 +29,7 @@ namespace WebAPI.Controllers
         [Route("getCountry"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.CountryNotFound)]
         public KalturaCountry GetCountry(string ip = null)
         {
             KalturaCountry response = null;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -82,6 +83,7 @@ namespace WebAPI.Controllers
         [Route("delete"), HttpPost]
         [ApiAuthorize]
         [OldStandard("adapterId", "adapter_id")]
+        [Throws(eResponseStatus.AdapterNotExists)]
         public bool Delete(int adapterId)
         {
             bool response = false;
@@ -111,6 +113,10 @@ namespace WebAPI.Controllers
         /// <param name="adapter">C-DVR adapter object</param>
         [Route("add"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.NameRequired)]
+        [Throws(eResponseStatus.AdapterUrlRequired)]
+        [Throws(eResponseStatus.ExternalIdentifierRequired)]
+        [Throws(eResponseStatus.ExternalIdentifierMustBeUnique)]
         public KalturaCDVRAdapterProfile Add(KalturaCDVRAdapterProfile adapter)
         {
             KalturaCDVRAdapterProfile response = null;
@@ -141,6 +147,11 @@ namespace WebAPI.Controllers
         /// <param name="adapter">C-DVR adapter Object</param>       
         [Route("update"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.NameRequired)]
+        [Throws(eResponseStatus.AdapterIdentifierRequired)]
+        [Throws(eResponseStatus.AdapterUrlRequired)]
+        [Throws(eResponseStatus.ExternalIdentifierRequired)]
+        [Throws(eResponseStatus.AdapterNotExists)]
         public KalturaCDVRAdapterProfile Update(int adapterId, KalturaCDVRAdapterProfile adapter)
         {
             KalturaCDVRAdapterProfile response = null;
@@ -172,6 +183,11 @@ namespace WebAPI.Controllers
         [Route("updateOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
+        [Throws(eResponseStatus.NameRequired)]
+        [Throws(eResponseStatus.AdapterIdentifierRequired)]
+        [Throws(eResponseStatus.AdapterUrlRequired)]
+        [Throws(eResponseStatus.ExternalIdentifierRequired)]
+        [Throws(eResponseStatus.AdapterNotExists)]
         public KalturaCDVRAdapterProfile UpdateOldStandard(KalturaCDVRAdapterProfile adapter)
         {
             KalturaCDVRAdapterProfile response = null;
@@ -203,6 +219,8 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [OldStandard("adapterId", "adapter_id")]
+        [Throws(eResponseStatus.AdapterIdentifierRequired)]
+        [Throws(eResponseStatus.AdapterNotExists)]
         public KalturaCDVRAdapterProfile GenerateSharedSecret(int adapterId)
         {
             KalturaCDVRAdapterProfile response = null;
@@ -221,7 +239,5 @@ namespace WebAPI.Controllers
 
             return response;
         }
-
-
     }
 }

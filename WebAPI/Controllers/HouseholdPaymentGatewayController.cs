@@ -1,4 +1,5 @@
-﻿using KLogMonitor;
+﻿using ApiObjects.Response;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,6 +29,7 @@ namespace WebAPI.Controllers
         /// </remarks>        
         [Route("list"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.UserSuspended)]
         public KalturaHouseholdPaymentGatewayListResponse List()
         {
             List<KalturaHouseholdPaymentGateway> list = null;
@@ -63,6 +65,11 @@ namespace WebAPI.Controllers
         [Route("setChargeID"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.PaymentGatewayNotExist)]
+        [Throws(eResponseStatus.PaymentGatewayChargeIdRequired)]
+        [Throws(eResponseStatus.ExternalIdentifierRequired)]
+        [Throws(eResponseStatus.ErrorSavingPaymentGatewayHousehold)]
+        [Throws(eResponseStatus.ChargeIdAlreadySetToHouseholdPaymentGateway)]
         public bool SetChargeID(string paymentGatewayExternalId, string chargeId)
         {
             bool response = false;
@@ -96,6 +103,9 @@ namespace WebAPI.Controllers
         [Route("getChargeID"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.PaymentGatewayNotExist)]
+        [Throws(eResponseStatus.ExternalIdentifierRequired)]
+        [Throws(eResponseStatus.ChargeIdNotSetToHousehold)]
         public string GetChargeID(string paymentGatewayExternalId)
         {
             string chargeId = string.Empty;
@@ -130,6 +140,12 @@ namespace WebAPI.Controllers
         [Route("set"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.PaymentGatewayIdRequired)]
+        [Throws(eResponseStatus.ErrorSavingPaymentGatewayHousehold)]
+        [Throws(eResponseStatus.HouseholdAlreadySetToPaymentGateway)]
+        [Throws(eResponseStatus.PaymentGatewaySelectionIsDisabled)]
+        [Throws(eResponseStatus.PaymentGatewayNotValid)]
         public bool Enable(int paymentGatewayId)
         {
             bool response = false;
@@ -165,7 +181,12 @@ namespace WebAPI.Controllers
         /// <param name="paymentGatewayId">Payment Gateway Identifier</param>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        [ValidationException( SchemeValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.PaymentGatewayIdRequired)]
+        [Throws(eResponseStatus.PaymentGatewayNotExist)]
+        [Throws(eResponseStatus.HouseholdNotSetToPaymentGateway)]
+        [Throws(eResponseStatus.PaymentGatewaySelectionIsDisabled)]
         public bool Disable(int paymentGatewayId)
         {
             bool response = false;
@@ -204,6 +225,8 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [OldStandard("extraParameters", "extra_parameters")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.PaymentGatewayNotExist)]
+        [Throws(eResponseStatus.SignatureMismatch)]
         public Models.Billing.KalturaPaymentGatewayConfiguration Invoke(int paymentGatewayId, string intent, List<KalturaKeyValue> extraParameters)
         {
             Models.Billing.KalturaPaymentGatewayConfiguration response = null;

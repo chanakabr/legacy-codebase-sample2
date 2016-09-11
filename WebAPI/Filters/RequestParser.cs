@@ -32,7 +32,7 @@ namespace WebAPI.Filters
 {
     public class RequestParserException : BadRequestException
     {
-        private static ApiExceptionType INVALID_MULTIREQUEST_TOKEN = new ApiExceptionType(StatusCode.InvalidMultirequestToken, "Invalid multirequest token");
+        public static ApiExceptionType INVALID_MULTIREQUEST_TOKEN = new ApiExceptionType(StatusCode.InvalidMultirequestToken, "Invalid multirequest token");
 
         public static ApiExceptionType ABSTRACT_PARAMETER = new ApiExceptionType(StatusCode.AbstractParameter, "Abstract parameter type [@type@]", "type");
         public static ApiExceptionType MISSING_PARAMETER = new ApiExceptionType(StatusCode.MissingParameter, StatusCode.InvalidActionParameters, "Missing parameter [@parameter@]", "parameter");

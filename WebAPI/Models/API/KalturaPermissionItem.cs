@@ -10,6 +10,9 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
+    [XmlInclude(typeof(KalturaApiActionPermissionItem))]
+    [XmlInclude(typeof(KalturaApiArgumentPermissionItem))]
+    [XmlInclude(typeof(KalturaApiParameterPermissionItem))]
     public class KalturaPermissionItem : KalturaOTTObject
     {
         /// <summary>

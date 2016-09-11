@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -55,6 +56,9 @@ namespace WebAPI.Controllers
         [Route("delete"), HttpPost]
         [ApiAuthorize]
         [OldStandard("ossAdapterId", "oss_adapter_id")]
+        [Throws(eResponseStatus.OSSAdapterIdentifierRequired)]
+        [Throws(eResponseStatus.OSSAdapterNotExist)]
+        [Throws(eResponseStatus.ActionIsNotAllowed)]
         public bool Delete(int ossAdapterId)
         {
             bool response = false;
@@ -85,6 +89,11 @@ namespace WebAPI.Controllers
         [Route("add"), HttpPost]
         [ApiAuthorize]
         [OldStandard("ossAdapter", "oss_adapter")]
+        [Throws(eResponseStatus.NoOSSAdapterToInsert)]
+        [Throws(eResponseStatus.NameRequired)]
+        [Throws(eResponseStatus.AdapterUrlRequired)]
+        [Throws(eResponseStatus.ExternalIdentifierRequired)]
+        [Throws(eResponseStatus.ExternalIdentifierMustBeUnique)]
         public KalturaOSSAdapterProfile Add(KalturaOSSAdapterProfile ossAdapter)
         {
             KalturaOSSAdapterProfile response = null;
@@ -115,6 +124,11 @@ namespace WebAPI.Controllers
         /// <param name="ossAdapter">OSS adapter Object</param>       
         [Route("update"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.OSSAdapterIdentifierRequired)]
+        [Throws(eResponseStatus.NoOSSAdapterToUpdate)]
+        [Throws(eResponseStatus.NameRequired)]
+        [Throws(eResponseStatus.AdapterUrlRequired)]
+        [Throws(eResponseStatus.ExternalIdentifierRequired)]
         public KalturaOSSAdapterProfile Update(int ossAdapterId, KalturaOSSAdapterProfile ossAdapter)
         {
             KalturaOSSAdapterProfile response = null;
@@ -146,6 +160,11 @@ namespace WebAPI.Controllers
         [Route("updateOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
+        [Throws(eResponseStatus.OSSAdapterIdentifierRequired)]
+        [Throws(eResponseStatus.NoOSSAdapterToUpdate)]
+        [Throws(eResponseStatus.NameRequired)]
+        [Throws(eResponseStatus.AdapterUrlRequired)]
+        [Throws(eResponseStatus.ExternalIdentifierRequired)]
         public KalturaOSSAdapterProfile UpdateOldStandard(KalturaOSSAdapterProfile oss_adapter)
         {
             KalturaOSSAdapterProfile response = null;
@@ -177,6 +196,8 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [OldStandard("ossAdapterId", "oss_adapter_id")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.OSSAdapterIdentifierRequired)]
+        [Throws(eResponseStatus.OSSAdapterNotExist)]
         public KalturaOSSAdapterProfile GenerateSharedSecret(int ossAdapterId)
         {
             KalturaOSSAdapterProfile response = null;

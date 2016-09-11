@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -32,6 +33,9 @@ namespace WebAPI.Controllers
         [Route("listOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
+        [Throws(eResponseStatus.UserNotExistsInDomain)]
+        [Throws(eResponseStatus.InvalidUser)]
+        [Throws(eResponseStatus.InvalidAssetType)]
         public KalturaAssetsBookmarksResponse ListOldStandard(KalturaAssetsFilter filter)
         {
             KalturaAssetsBookmarksResponse response = null;
@@ -71,6 +75,9 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.UserNotExistsInDomain)]
+        [Throws(eResponseStatus.InvalidUser)]
+        [Throws(eResponseStatus.InvalidAssetType)]
         public KalturaBookmarkListResponse List(KalturaBookmarkFilter filter)
         {
             KalturaBookmarkListResponse response = null;
@@ -106,6 +113,11 @@ namespace WebAPI.Controllers
         [Route("add"), HttpPost]
         [ApiAuthorize(true)]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
+        [Throws(eResponseStatus.ConcurrencyLimitation)]
+        [Throws(eResponseStatus.InvalidAssetType)]
+        [Throws(eResponseStatus.ProgramDoesntExist)]
+        [Throws(eResponseStatus.ActionNotRecognized)]
+        [Throws(eResponseStatus.InvalidAssetId)]
         public bool Add(KalturaBookmark bookmark)
         {
             if (bookmark.PlayerData == null)
@@ -143,6 +155,11 @@ namespace WebAPI.Controllers
         [Route("addOldStandard"), HttpPost]
         [ApiAuthorize(true)]
         [Obsolete]
+        [Throws(eResponseStatus.ConcurrencyLimitation)]
+        [Throws(eResponseStatus.InvalidAssetType)]
+        [Throws(eResponseStatus.ProgramDoesntExist)]
+        [Throws(eResponseStatus.ActionNotRecognized)]
+        [Throws(eResponseStatus.InvalidAssetId)]
         public bool AddOldStandard(string asset_id, KalturaAssetType asset_type, long file_id, KalturaPlayerAssetData player_asset_data)
         {
             try

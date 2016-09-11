@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -27,6 +28,7 @@ namespace WebAPI.Controllers
         /// <param name="id">message id</param>        
         [Route("get"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.UserInboxMessagesNotExist)]
         public KalturaInboxMessage Get(string id)
         {
             KalturaInboxMessage response = null;
@@ -62,6 +64,8 @@ namespace WebAPI.Controllers
         /// <param name="pager">Page size and index</param>        
         [Route("list"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.MessageIdentifierRequired)]
+        [Throws(eResponseStatus.UserInboxMessagesNotExist)]
         public KalturaInboxMessageListResponse List(KalturaInboxMessageFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaInboxMessageListResponse response = null;
