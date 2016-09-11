@@ -436,7 +436,7 @@ namespace WebAPI.Utils
             return result;
         }
 
-        private static List<KalturaAsset> GetMediaByIds(IserviceClient client, List<SearchResult> mediaIds, BaseRequest request, int cacheDuration)
+        internal static List<KalturaAsset> GetMediaByIds(IserviceClient client, List<SearchResult> mediaIds, BaseRequest request, int cacheDuration)
         {
             List<KalturaAsset> result = null;
 
@@ -449,8 +449,7 @@ namespace WebAPI.Utils
             }).ToList();
 
             // get assets from catalog/cache
-            List<KalturaAsset> assetsInfo = CatalogUtils.GetAssets(client, assetsBaseDataList, request, cacheDuration);
-
+            result = CatalogUtils.GetAssets(client, assetsBaseDataList, request, cacheDuration);
             return result;
         }
 
