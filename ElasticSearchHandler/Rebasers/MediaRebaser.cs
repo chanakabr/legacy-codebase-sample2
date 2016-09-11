@@ -54,20 +54,31 @@ namespace ElasticSearchHandler
 
                 return false;
             }
-            
+
             // Order all media by their ID
             var groupMedias = groupMediasDictionary.OrderBy(asset => asset.Key).ToList();
 
-            log.DebugFormat("Rebase index - Get_GroupMedias_Rebase for group {0} return {1} media", groupId, groupMedias.Count);
+            if (groupMedias.Count > 0)
+            {
+                log.DebugFormat("Rebase index - Get_GroupMedias_Rebase for group {0} return {1} media", groupId, groupMedias.Count);
+            }
+            // If we got 0 media we don't have anything to do. We will write this as a warning, but we will not fail the run.
+            else
+            {
+                log.WarnFormat("Rebase index - Get_GroupMedias_Rebase for group {0} return {1} media", groupId, groupMedias.Count);
+
+                return true;
+            }
 
             int updatedDocuments = 0;
             int deletedDocuments = 0;
+            int insertedDocuments = 0;
 
             if (groupMedias != null && groupMedias.Count > 0)
             {
                 // Media that exist in ES but not in DB - with IDs outside of DB's range
                 DeleteEdgeDocuments(languages, indexName, groupMedias);
-                
+
                 bool isDone = false;
                 int firstIndex = 0;
                 int lastIndex = 0;
@@ -93,12 +104,12 @@ namespace ElasticSearchHandler
 
                     int firstMediaId = 0;
                     int lastMediaId = 0;
-                    
+
                     try
                     {
                         firstMediaId = groupMedias[firstIndex].Key;
                         lastMediaId = groupMedias[lastIndex - 1].Key;
-                        
+
                         HashSet<int> allIdsFromDB = new HashSet<int>();
 
                         bool isFirstRun = firstIndex == 0;
@@ -109,7 +120,7 @@ namespace ElasticSearchHandler
                         {
                             skip = 0;
                         }
-                        
+
                         // Create a list with all the IDs that were found in Database
                         for (int i = firstIndex + skip; i < lastIndex; i++)
                         {
@@ -188,7 +199,7 @@ namespace ElasticSearchHandler
                             foreach (var assetId in allIdsFromDB)
                             {
                                 assetsToUpdate.Add(assetId);
-                                updatedDocuments++;
+                                insertedDocuments++;
                             }
                         }
 
@@ -206,7 +217,9 @@ namespace ElasticSearchHandler
                 }
             }
 
-            log.DebugFormat("Rebase media index of group {0} finished. Updated documents = {1}, deleted documents = {2}", groupId, updatedDocuments, deletedDocuments);
+            log.DebugFormat(
+                "Rebase media index of group {0} finished. Updated documents = {1}, deleted documents = {2}, inserted documents = {3}", 
+                groupId, updatedDocuments, deletedDocuments, insertedDocuments);
 
             return result;
         }
