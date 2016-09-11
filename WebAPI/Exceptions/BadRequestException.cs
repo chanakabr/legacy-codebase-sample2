@@ -46,7 +46,7 @@ namespace WebAPI.Exceptions
 
         public static ApiExceptionType MEDIA_IDS_MUST_BE_NUMERIC = new ApiExceptionType(StatusCode.MediaIdsMustBeNumeric, StatusCode.BadRequest, "Media ids must be numeric");
         public static ApiExceptionType EPG_INTERNAL_IDS_MUST_BE_NUMERIC = new ApiExceptionType(StatusCode.EpgInternalIdsMustBeNumeric, StatusCode.BadRequest, "EPG internal ids must be numeric");
-        public static ApiExceptionType LIST_TYPE_CANNOT_BE_EMPTY_OR_ALL = new ApiExceptionType(StatusCode.ListTypeCannotBeEmptyOrAll, StatusCode.BadRequest, "Argument [@arguments@] cannot be empty or all", "argument");
+        public static ApiExceptionType LIST_TYPE_CANNOT_BE_EMPTY_OR_ALL = new ApiExceptionType(StatusCode.ListTypeCannotBeEmptyOrAll, StatusCode.BadRequest, "Argument [@argument@] cannot be empty or all", "argument");
         public static ApiExceptionType DUPLICATE_ASSET = new ApiExceptionType(StatusCode.DuplicateAsset, StatusCode.BadRequest, "Duplicate asset: id [@id@] type = [@type@]", "id", "type");
         public static ApiExceptionType DUPLICATE_FILE = new ApiExceptionType(StatusCode.DuplicateFile, StatusCode.BadRequest, "Duplicate file: id [@id@]", "id");
 
