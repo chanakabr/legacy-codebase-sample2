@@ -183,21 +183,6 @@ namespace ElasticSearchHandler
                             }
                         }
 
-                        // create a request for each deleted asset
-                        foreach (var currentAsset in assetsToDelete)
-                        {
-                            ESBulkRequestObj<ulong> currentRequest = new ESBulkRequestObj<ulong>()
-                            {
-                                docID = currentAsset,
-                                document = string.Empty,
-                                index = indexName,
-                                Operation = eOperation.delete,
-                                type = documentType
-                            };
-
-                            bulkRequests.Add(currentRequest);
-                        }
-
                         // create a request for each new asset
                         // assets that were left in this list are assets that exist in DB and not in ES
                         foreach (var assetId in allIdsFromDB)
@@ -208,8 +193,9 @@ namespace ElasticSearchHandler
                     }
 
                     var assetsToUpdateList = assetsToUpdate.Select(i => (int)i).ToList();
+                    var assetsToDeleteList = assetsToDelete.Select(i => (int)i).ToList();
 
-                    IssueUpdatesAndDeletes(bulkRequests, assetsToUpdateList);
+                    IssueUpdatesAndDeletes(assetsToDeleteList, assetsToUpdateList);
 
                     // move on to the new index
                     firstIndex = lastIndex - 1;

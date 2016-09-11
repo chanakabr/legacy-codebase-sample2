@@ -148,5 +148,23 @@ namespace ElasticSearchHandler
                 updater.Start();
             }
         }
+
+        protected void IssueUpdatesAndDeletes(List<int> assetsToDelete, List<int> assetsToUpdate)
+        {
+            // Call updater for the assets that needs to be deleted
+            if (assetsToDelete != null && assetsToDelete.Count > 0)
+            {
+                updater.Action = ApiObjects.eAction.Delete;
+                updater.IDs = assetsToDelete;
+                updater.Start();
+            }
+            // Call updater for the assets that needs an update
+            if (assetsToUpdate != null && assetsToUpdate.Count > 0)
+            {
+                updater.Action = ApiObjects.eAction.Update;
+                updater.IDs = assetsToUpdate;
+                updater.Start();
+            }
+        }
     }
 }
