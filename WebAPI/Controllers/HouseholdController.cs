@@ -185,6 +185,16 @@ namespace WebAPI.Controllers
         {
             KalturaHousehold response = null;
 
+            if (string.IsNullOrEmpty(household.Name))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaHousehold.name");
+            }
+
+            if (string.IsNullOrEmpty(household.Description))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaHousehold.description");
+            }
+
             int groupId = KS.GetFromRequest().GroupId;
             string userId = KS.GetFromRequest().UserId;
 
