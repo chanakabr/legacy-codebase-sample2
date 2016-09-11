@@ -28,7 +28,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "externalId")]
         [JsonProperty("externalId")]
         [XmlElement(ElementName = "externalId")]
-        [SchemeProperty(WriteOnly = true)]
+        [SchemeProperty(InsertOnly = true)]
         public string ExternalId { get; set; }
 
         /// <summary>

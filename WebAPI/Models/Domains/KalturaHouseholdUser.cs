@@ -13,7 +13,22 @@ using WebAPI.Models.Users;
 namespace WebAPI.Models.Domains
 {
     /// <summary>
-    /// Household details
+    /// Household users list
+    /// </summary>
+    public class KalturaHouseholdUserListResponse : KalturaListResponse
+    {
+        /// <summary>
+        /// Household users
+        /// </summary>
+        [DataMember(Name = "objects")]
+        [JsonProperty(PropertyName = "objects")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaHouseholdUser> Objects { get; set; }
+    }
+
+    /// <summary>
+    /// Household user 
     /// </summary>
     public class KalturaHouseholdUser : KalturaOTTObject
     {

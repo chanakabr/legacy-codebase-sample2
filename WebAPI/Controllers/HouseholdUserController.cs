@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AutoMapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -181,6 +182,43 @@ namespace WebAPI.Controllers
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Adds a user to household       
+        /// </summary>                
+        /// <param name="filter">Household user filter</param>
+        /// <remarks>Possible status codes: 
+        /// Household does not exist = 1006, Household user failed = 1007  
+        /// </remarks>
+        [Route("list"), HttpPost]
+        [ApiAuthorize]
+        public KalturaHouseholdUserListResponse List(KalturaHouseholdUserFilter filter)
+        {
+            KalturaHouseholdUserListResponse response = new KalturaHouseholdUserListResponse(); 
+            int groupId = KS.GetFromRequest().GroupId;
+            try
+            {
+                KalturaHousehold household = null;
+                if (filter != null && !filter.HouseholdIdEqual.HasValue && filter.HouseholdIdEqual.Value > 0)
+                {
+                    household = ClientsManager.DomainsClient().GetDomainInfo(groupId, filter.HouseholdIdEqual.Value);
+                }
+                else
+                {
+                    household = HouseholdUtils.GetHouseholdFromRequest();
+                }
+
+                response.Objects = ClientsManager.DomainsClient().GetHouseholdUsers(groupId, household);
+                response.TotalCount = response.Objects.Count;
+                
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
         }
     }
 }

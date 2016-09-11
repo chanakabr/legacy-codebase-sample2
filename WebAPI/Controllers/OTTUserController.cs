@@ -743,7 +743,15 @@ namespace WebAPI.Controllers
                 else if (!string.IsNullOrEmpty(filter.UserNameEqual))
                 {
                     response = ClientsManager.UsersClient().GetUserByName(groupId, filter.UserNameEqual);
-                }                     
+                }
+                else if (!string.IsNullOrEmpty(filter.IdIn))
+                {
+                    response.Users = ClientsManager.UsersClient().GetUsersData(groupId, filter.GetIdIn());
+                    if (response.Users != null)
+                    {
+                        response.TotalCount = response.Users.Count();
+                    }
+                }      
             }
             catch (ClientException ex)
             {

@@ -1107,6 +1107,66 @@ namespace WebAPI.Clients
 
             return household;
         }
+
+        internal List<KalturaHouseholdUser> GetHouseholdUsers(int groupId, KalturaHousehold household)
+        {
+            Dictionary<string, KalturaHouseholdUser> response = new Dictionary<string, KalturaHouseholdUser>();
+            KalturaHouseholdUser householdUser = null;
+
+            foreach (var user in household.MasterUsers)
+            {
+                householdUser = new KalturaHouseholdUser()
+                {
+                    HouseholdId = (int)household.Id,
+                    Status = KalturaHouseholdUserStatus.OK,
+                    UserId = user.Id,
+                    IsMaster = true
+                };
+
+                response.Add(householdUser.UserId, householdUser);
+            }
+
+            foreach (var user in household.Users)
+            {
+                householdUser = new KalturaHouseholdUser()
+                {
+                    HouseholdId = (int)household.Id,
+                    Status = KalturaHouseholdUserStatus.OK,
+                    UserId = user.Id,
+                };
+
+                response.Add(householdUser.UserId, householdUser);
+            }
+
+            foreach (var user in household.PendingUsers)
+            {
+                householdUser = new KalturaHouseholdUser()
+                {
+                    HouseholdId = (int)household.Id,
+                    Status = KalturaHouseholdUserStatus.PENDING,
+                    UserId = user.Id,
+                };
+
+                response.Add(householdUser.UserId, householdUser);
+            }
+
+            foreach (var user in household.DefaultUsers)
+            {
+                if (!response.ContainsKey(user.Id))
+                {
+                    householdUser = new KalturaHouseholdUser()
+                    {
+                        HouseholdId = (int)household.Id,
+                        Status = KalturaHouseholdUserStatus.OK,
+                        UserId = user.Id
+                    };
+
+                    response.Add(householdUser.UserId, householdUser);
+                }
+            }
+
+            return response.Values.ToList();
+        }
     }
 }
 

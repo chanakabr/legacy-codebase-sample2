@@ -1307,6 +1307,7 @@
     <Compile Include="Models\ConditionalAccess\KalturaBillingTransactionListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaEntitlementsFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPricesFilter.cs" />
+    <Compile Include="Models\Domains\KalturaHouseholdUserFilter.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdUserStatus.cs" />
     <Compile Include="Models\Domains\KalturaDeviceStatus.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdUser.cs" />

@@ -443,13 +443,12 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    List<string> siteGuids = usersIds.Select(x => x.ToString()).ToList();
-                    response = Users.GetUsers(group.UsersCredentials.Username, group.UsersCredentials.Password, siteGuids.ToArray(), Utils.Utils.GetClientIP());
+                    response = Users.GetUsers(group.UsersCredentials.Username, group.UsersCredentials.Password, usersIds.ToArray(), Utils.Utils.GetClientIP());
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while SignUp.  exception: {0}, ", ex);
+                log.ErrorFormat("Error while GetUsersData. exception: {0}, ", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1177,6 +1176,8 @@ namespace WebAPI.Clients
 
             return listUser;
         }
+
+        
     }
 }
 
