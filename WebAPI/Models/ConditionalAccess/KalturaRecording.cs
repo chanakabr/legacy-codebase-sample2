@@ -21,7 +21,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("id")]
         [XmlElement(ElementName = "id", IsNullable = true)]
         [SchemeProperty(ReadOnly = true)]
-        public long Id { get; set; }
+        public long? Id { get; set; }
 
         /// <summary>
         /// Recording state: scheduled/recording/recorded/canceled/failed/does_not_exists/deleted
