@@ -216,14 +216,14 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.HouseholdUserFailed)]
-        public KalturaHouseholdUserListResponse List(KalturaHouseholdUserFilter filter)
+        public KalturaHouseholdUserListResponse List(KalturaHouseholdUserFilter filter = null)
         {
             KalturaHouseholdUserListResponse response = new KalturaHouseholdUserListResponse(); 
             int groupId = KS.GetFromRequest().GroupId;
             try
             {
                 KalturaHousehold household = null;
-                if (filter != null && !filter.HouseholdIdEqual.HasValue && filter.HouseholdIdEqual.Value > 0)
+                if (filter != null && filter.HouseholdIdEqual.HasValue && filter.HouseholdIdEqual.Value > 0)
                 {
                     household = ClientsManager.DomainsClient().GetDomainInfo(groupId, filter.HouseholdIdEqual.Value);
                 }
