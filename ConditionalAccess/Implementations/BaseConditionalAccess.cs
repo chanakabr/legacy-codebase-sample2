@@ -17134,7 +17134,7 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                if (!isSingleRecording && (!accountSettings.IsSeriesRecordingEnabled.HasValue || !accountSettings.IsSeriesRecordingEnabled.Value))
+                if (recordingType == RecordingType.Series && (!accountSettings.IsSeriesRecordingEnabled.HasValue || !accountSettings.IsSeriesRecordingEnabled.Value))
                 {
                     log.DebugFormat("account series recordings not enabled, DomainID: {0}, UserID: {1}", domainID, userID);
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AccountSeriesRecordingNotEnabled, eResponseStatus.AccountSeriesRecordingNotEnabled.ToString());
@@ -19236,10 +19236,6 @@ namespace ConditionalAccess
                             if (userRecording != null && userRecording.Status != null && userRecording.Status.Code == (int)eResponseStatus.OK && userRecording.Id > 0)
                             {
                                 log.DebugFormat("successfully distributed recording for domainId = {0}, epgId = {1}, new recordingId = {2}", domainId, epgId, userRecording.Id);
-                            }
-                            else
-                            {
-                                log.WarnFormat("failed to distribute recording for domainId = {0}, epgId = {1}, recording status message: {2}", domainId, epgId, userRecording.Status.Message);
                             }
                         }
                     }

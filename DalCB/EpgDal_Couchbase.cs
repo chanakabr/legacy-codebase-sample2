@@ -303,8 +303,8 @@ namespace DalCB
         public List<EpgCB> GetGroupPrograms(int nPageSize, int nStartIndex)
         {
             List<EpgCB> lRes = new List<EpgCB>();
-            List<object> startKey = new List<object>() { m_nGroupID };
-            List<object> endKey = new List<object>() { m_nGroupID, sEndMaxValue };
+            var startKey = new List<object>() { m_nGroupID, null }.ToArray();
+            var endKey = new List<object>() { m_nGroupID, "\uefff" }.ToArray();
 
             try
             {

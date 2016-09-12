@@ -24,6 +24,13 @@ namespace ApiObjects.Billing
         public PaymentMethod PaymentMethod { get; set; }
     }
 
+    public class HouseholdPaymentMethodResponse
+    {
+        public ApiObjects.Response.Status Status { get; set; }
+
+        public HouseholdPaymentMethod PaymentMethod { get; set; }
+    }
+
     public class PaymentGatwayPaymentMethods
     {
         public PaymentMethod PaymentMethod  { get; set; }
@@ -33,7 +40,10 @@ namespace ApiObjects.Billing
     public class HouseholdPaymentMethod
     {
         public int ID { get; set; }
+        public string ExternalId { get; set; }
         public string Details { get; set; }
         public bool Selected { get; set; }
+        public int PaymentGatewayId { get; set; }
+        public int PaymentMethodId { get; set; }
     }
 }

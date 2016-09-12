@@ -1,7 +1,7 @@
-using System;
-using System.Data.SqlClient;
-using System.Data;
 using KLogMonitor;
+using System;
+using System.Data;
+using System.Data.SqlClient;
 using System.Reflection;
 
 namespace ODBCWrapper
@@ -40,13 +40,14 @@ namespace ODBCWrapper
         /// </summary>
         /// <param name="sTableName"></param>
         /// <param name="dtData"></param>
-        public void InsertBulk(string sTableName, DataTable dtData)
+        public void InsertBulk(string sTableName, DataTable dtData, SqlBulkCopyOptions sqlBulkCopyOptions = SqlBulkCopyOptions.Default)
         {
             if (dtData != null && dtData.Rows.Count > 0)
             {
                 int numRows = dtData.Rows.Count;
                 string connString = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
-                SqlBulkCopy bulkCopy = new SqlBulkCopy(connString)
+
+                SqlBulkCopy bulkCopy = new SqlBulkCopy(connString, sqlBulkCopyOptions)
                 {
                     DestinationTableName = sTableName,
                     BatchSize = numRows,
@@ -122,11 +123,11 @@ namespace ODBCWrapper
             return true;
         }
 
-        public long ExecuteAndGetId()
+        public int ExecuteAndGetId()
         {
             string oraStr = m_sOraStr.ToString();
 
-            long id = -1;
+            int id = -1;
             m_sOraStr = new System.Text.StringBuilder(oraStr);
             m_sOraStr.Append(sInsertStructure);
             m_sOraStr.Append(") ");
@@ -134,7 +135,7 @@ namespace ODBCWrapper
             m_sOraStr.Append("output INSERTED.ID ");
             m_sOraStr.Append("VALUES ");
             m_sOraStr.Append(sInsertValues);
-            m_sOraStr.Append(")");
+            m_sOraStr.Append(")");            
             oraStr = m_sOraStr.ToString();
             int_Execute();
             string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
@@ -155,7 +156,7 @@ namespace ODBCWrapper
 
                     using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString() })
                     {
-                        id = (long)command.ExecuteScalar();
+                        id = (int)command.ExecuteScalar();
                     }
                 }
                 catch (Exception ex)
