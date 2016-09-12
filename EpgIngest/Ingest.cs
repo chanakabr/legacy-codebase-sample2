@@ -391,7 +391,6 @@ namespace EpgIngest
                             }
                         }
                     }
-
                 }
                 catch (Exception ex)
                 {
