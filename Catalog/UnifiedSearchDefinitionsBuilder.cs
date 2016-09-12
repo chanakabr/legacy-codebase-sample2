@@ -226,6 +226,30 @@ namespace Catalog
 
                 #endregion
 
+                #region Get Recordings
+
+                if (definitions.shouldSearchRecordings)
+                {
+                    List<string> recordings = GetUserRecordings(definitions, request.m_sSiteGuid, request.m_nGroupID, (long)request.domainId);
+
+                    // If there are previous specific assets - we narrow down the list to contain only the user's recordings
+                    if (definitions.specificAssets.ContainsKey(eAssetTypes.NPVR))
+                    {
+                        var currentRecordings = definitions.specificAssets[eAssetTypes.NPVR];
+
+                        var newRecordings = currentRecordings.Intersect(recordings).ToList();
+
+                        definitions.specificAssets[eAssetTypes.NPVR] = newRecordings;
+                    }
+                    // Otherwise we are happy with the list we got from conditional access
+                    else
+                    {
+                        definitions.specificAssets.Add(eAssetTypes.NPVR, recordings);
+                    }
+                }
+
+                #endregion
+
                 #region Excluded CRIDs
 
                 if (request.excludedCrids != null && request.excludedCrids.Count > 0)
@@ -261,6 +285,59 @@ namespace Catalog
             }
 
             return definitions;
+        }
+
+        private List<string> GetUserRecordings(UnifiedSearchDefinitions definitions, string siteGuid, int groupId, long domainId)
+        {
+            List<string> result = new List<string>();
+
+            string userName = string.Empty;
+            string password = string.Empty;
+
+            //get username + password from wsCache
+            Credentials credentials =
+                TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, groupId, ApiObjects.eWSModules.CONDITIONALACCESS);
+
+            if (credentials != null)
+            {
+                userName = credentials.m_sUsername;
+                password = credentials.m_sPassword;
+            }
+
+            // validate user name and password length
+            if (userName.Length == 0 || password.Length == 0)
+            {
+                throw new Exception(string.Format(
+                    "No WS_CAS login parameters were extracted from DB. userId={0}, groupid={1}",
+                    siteGuid, groupId));
+            }
+
+            // Initialize web service
+            using (ws_cas.module cas = new ws_cas.module())
+            {
+                string url = Utils.GetWSURL("ws_cas");
+                cas.Url = url;
+
+                var casResponse = cas.GetDomainRecordingsMapping(userName, password, domainId);
+
+                if (casResponse == null)
+                {
+                    throw new Exception("WS_CAS GetDomainRecordingsMapping returned invalid response");
+                }
+
+                Dictionary<string, string> recordingsToDomainRecordingsMapping = new Dictionary<string,string>();
+
+                foreach (var recording in casResponse)
+                {
+                    recordingsToDomainRecordingsMapping.Add(recording.value, recording.key);
+                    result.Add(recording.value);
+                }
+
+                definitions.recordingsToDomainRecordingsMapping = recordingsToDomainRecordingsMapping;
+
+            }
+
+            return result;
         }
 
         public static void BuildEntitlementSearchDefinitions(UnifiedSearchDefinitions definitions,
