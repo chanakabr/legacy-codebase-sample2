@@ -1115,6 +1115,9 @@ namespace WebAPI.Clients
 
             foreach (var user in household.MasterUsers)
             {
+                if (response.ContainsKey(user.Id))
+                    continue;
+
                 householdUser = new KalturaHouseholdUser()
                 {
                     HouseholdId = (int)household.Id,
@@ -1128,6 +1131,9 @@ namespace WebAPI.Clients
 
             foreach (var user in household.Users)
             {
+                if (response.ContainsKey(user.Id))
+                    continue;
+
                 householdUser = new KalturaHouseholdUser()
                 {
                     HouseholdId = (int)household.Id,
@@ -1140,6 +1146,9 @@ namespace WebAPI.Clients
 
             foreach (var user in household.PendingUsers)
             {
+                if (response.ContainsKey(user.Id))
+                    continue;
+
                 householdUser = new KalturaHouseholdUser()
                 {
                     HouseholdId = (int)household.Id,
@@ -1152,6 +1161,9 @@ namespace WebAPI.Clients
 
             foreach (var user in household.DefaultUsers)
             {
+                if (response.ContainsKey(user.Id))
+                    continue;
+
                 if (!response.ContainsKey(user.Id))
                 {
                     householdUser = new KalturaHouseholdUser()

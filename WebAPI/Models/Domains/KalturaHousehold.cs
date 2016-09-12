@@ -149,7 +149,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("state")]
         [XmlElement(ElementName = "state", IsNullable = true)]
         [SchemeProperty(ReadOnly = true)]
-        public KalturaHouseholdState State { get; set; }
+        public KalturaHouseholdState? State { get; set; }
 
         /// <summary>
         /// Is household frequency enabled
@@ -181,7 +181,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "restriction")]
         [JsonProperty("restriction")]
         [XmlElement(ElementName = "restriction", IsNullable = true)]
-        public KalturaHouseholdRestriction Restriction { get; set; }
+        public KalturaHouseholdRestriction? Restriction { get; set; }
 
         /// <summary>
         /// Household device families
