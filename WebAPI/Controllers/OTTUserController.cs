@@ -769,13 +769,14 @@ namespace WebAPI.Controllers
 
                     if (HouseholdUtils.IsUserMaster())
                     {
-                        householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId);
+                        householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId).Distinct().ToList();
                     }
                     else
                     {
                         string userId = KS.GetFromRequest().UserId;
                         householdUserIds.Add(userId);
                     }
+
                     response = new KalturaOTTUserListResponse();
                     response.Users = ClientsManager.UsersClient().GetUsersData(groupId, householdUserIds);
                     if (response.Users != null)
