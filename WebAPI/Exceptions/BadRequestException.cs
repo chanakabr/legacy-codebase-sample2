@@ -13,6 +13,7 @@ namespace WebAPI.Exceptions
     {
         public static ApiExceptionType BAD_REQUEST = new ApiExceptionType(StatusCode.BadRequest, "Bad request");
 
+        public static ApiExceptionType INVALID_VERSION = new ApiExceptionType(StatusCode.InvalidVersion, "Invalid version [@version@]", "version");
         public static ApiExceptionType SERVICE_FORBIDDEN = new ApiExceptionType(StatusCode.ServiceForbidden, "Service Forbidden");
         public static ApiExceptionType PROPERTY_ACTION_FORBIDDEN = new ApiExceptionType(StatusCode.PropertyActionForbidden, StatusCode.ServiceForbidden, "Action [@action@] is forbidden for property [@type@].[@property@]", "action", "type", "property");
         public static ApiExceptionType ACTION_ARGUMENT_FORBIDDEN = new ApiExceptionType(StatusCode.ActionArgumentForbidden, StatusCode.ServiceForbidden, "Argument [@argument@] in action [@service@].[@action@] is forbidden", "argument", "service", "action");
@@ -20,7 +21,7 @@ namespace WebAPI.Exceptions
         public static ApiExceptionType KS_EXPIRED = new ApiExceptionType(StatusCode.ExpiredKS, "KS expired");
         public static ApiExceptionType INVALID_REFRESH_TOKEN = new ApiExceptionType(StatusCode.InvalidRefreshToken, "Invalid refresh token");
         public static ApiExceptionType REFRESH_TOKEN_FAILED = new ApiExceptionType(StatusCode.RefreshTokenFailed, StatusCode.Error, "Refresh token failed");
-        public static ApiExceptionType INVALID_USER = new ApiExceptionType(StatusCode.InvalidUser, StatusCode.Unauthorized, "Invalid user [@id@]", "id");
+        public static ApiExceptionType INVALID_USER_ID = new ApiExceptionType(StatusCode.InvalidUser, StatusCode.Unauthorized, "Invalid user [@id@]", "id");
 
         public static ApiExceptionType INVALID_SERVICE = new ApiExceptionType(StatusCode.InvalidService, "Service [@service@] not found", "service");
         public static ApiExceptionType INVALID_ACTION = new ApiExceptionType(StatusCode.InvalidAction, "Action [@service@.@action@] not found", "service", "action");

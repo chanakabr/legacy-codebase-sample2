@@ -119,5 +119,6 @@ namespace WebAPI.Managers.Models
         InvalidActionParameter = 500054,
         ObjectIdNotFound = 500055,
         ArgumentsCannotBeEmpty = 500056,
+        InvalidVersion = 500057,
     }
 }

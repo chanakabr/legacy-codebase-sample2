@@ -44,7 +44,7 @@ namespace WebAPI.Filters
         {
         }
 
-        public RequestParserException(ApiExceptionType type, params string[] parameters)
+        public RequestParserException(ApiExceptionType type, params object[] parameters)
             : base(type, parameters)
         {
         }
@@ -369,7 +369,11 @@ namespace WebAPI.Filters
                             if (reqParams["apiVersion"] != null)
                             {
                                 //For logging and to parse old standard
-                                HttpContext.Current.Items[REQUEST_VERSION] = (string) reqParams["apiVersion"];
+                                Version version;
+                                if (!Version.TryParse((string)reqParams["apiVersion"], out version))
+                                    throw new RequestParserException(RequestParserException.INVALID_VERSION, reqParams["apiVersion"]);
+
+                                HttpContext.Current.Items[REQUEST_VERSION] = version;
                             }
 
                             Dictionary<string, object> requestParams = reqParams.ToObject<Dictionary<string, object>>();
@@ -448,8 +452,11 @@ namespace WebAPI.Filters
 
                 if (tokens["apiVersion"] != null)
                 {
-                    //For logging and to parse old standard
-                    HttpContext.Current.Items[REQUEST_VERSION] = tokens["apiVersion"];
+                    Version version;
+                    if (!Version.TryParse(tokens["apiVersion"], out version))
+                        throw new RequestParserException(RequestParserException.INVALID_VERSION, tokens["apiVersion"]);
+
+                    HttpContext.Current.Items[REQUEST_VERSION] = version;
                 }
 
                 try
