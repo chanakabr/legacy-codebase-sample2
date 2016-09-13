@@ -34,7 +34,7 @@ public partial class adm_epg_channels_schedule_translate : System.Web.UI.Page
         {
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString().Trim() == "1")
             {
-                Int32 nID = DBManipulator.DoTheWork();
+                //Int32 nID = DBManipulator.DoTheWork();
                 return;
             }
             Int32 nMenuID = 0;
