@@ -1365,11 +1365,13 @@ namespace Catalog
 
                         foreach (ElasticSearchApi.ESAssetDocument doc in assetsDocumentsDecoded)
                         {
+                            string assetId = doc.asset_id.ToString();
+
                             if (unifiedSearchDefinitions.shouldReturnExtendedSearchResult)
                             {
                                 var result = new ExtendedSearchResult()
                                     {
-                                        AssetId = doc.asset_id.ToString(),
+                                        AssetId = assetId,
                                         m_dUpdateDate = doc.update_date,
                                         AssetType = UnifiedSearchResult.ParseType(doc.type),
                                         EndDate = doc.end_date,
@@ -1396,7 +1398,7 @@ namespace Catalog
                             {
                                 searchResultsList.Add(new UnifiedSearchResult()
                                 {
-                                    AssetId = doc.asset_id.ToString(),
+                                    AssetId = assetId,
                                     m_dUpdateDate = doc.update_date,
                                     AssetType = UnifiedSearchResult.ParseType(doc.type)
                                 });
@@ -1481,6 +1483,26 @@ namespace Catalog
                         }
                     }
 
+                    // After we searched for recordings, we need to replace their ID (recording ID) with the personal ID (domain recording)
+                    if (unifiedSearchDefinitions.recordingsToDomainRecordingsMapping != null)
+                    {
+                        var recordingsMapping = unifiedSearchDefinitions.recordingsToDomainRecordingsMapping;
+
+                        // For each asset we found in search
+                        foreach (var item in searchResultsList)
+                        {
+                            // Only for type recording
+                            if (item.AssetType == eAssetTypes.NPVR)
+                            {
+                                // If there is a mapping (there should be, and if not... oops)
+                                if (recordingsMapping.ContainsKey(item.AssetId))
+                                {
+                                    // Replace ID
+                                    item.AssetId = recordingsMapping[item.AssetId];
+                                }
+                            }
+                        }
+                    }
 
                     #endregion
                 }

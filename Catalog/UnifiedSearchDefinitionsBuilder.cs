@@ -232,6 +232,11 @@ namespace Catalog
                 {
                     List<string> recordings = GetUserRecordings(definitions, request.m_sSiteGuid, request.m_nGroupID, (long)request.domainId);
 
+                    if (definitions.specificAssets == null)
+                    {
+                        definitions.specificAssets = new Dictionary<eAssetTypes, List<string>>();
+                    }
+
                     // If there are previous specific assets - we narrow down the list to contain only the user's recordings
                     if (definitions.specificAssets.ContainsKey(eAssetTypes.NPVR))
                     {
