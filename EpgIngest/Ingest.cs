@@ -197,6 +197,7 @@ namespace EpgIngest
             //update log topic with kaltura channelID
             OperationContext.Current.IncomingMessageProperties[Constants.TOPIC] = string.Format("save channel programs for kalturaChannelID:{0}", kalturaChannelID);
 
+            var languages = GroupsCacheManager.GroupsCache.Instance().GetGroup(m_Channels.groupid).GetLangauges();
 
             #region each program  create CB objects
 
@@ -346,6 +347,8 @@ namespace EpgIngest
                     }
                     #endregion
 
+                    EpgCB mainLanguageEpgCB = null;
+
                     #region Tags and Metas
                     foreach (KeyValuePair<string, EpgCB> epg in dEpgCbTranslate)
                     {
@@ -361,8 +364,33 @@ namespace EpgIngest
                         {
                             dEpg.Add(epg.Value.EpgIdentifier, new List<KeyValuePair<string, EpgCB>>() { epg });
                         }
+
+                        if (epg.Value.Language.ToLower() == m_Channels.mainlang)
+                        {
+                            mainLanguageEpgCB = epg.Value;
+                        }
                     }
                     #endregion
+
+                    // Complete all languages that do not exist with copies of the main language
+                    foreach (var currentLanguage in languages)
+                    {
+                        if (!dEpgCbTranslate.ContainsKey(currentLanguage.Code))
+                        {
+                            var cloneEpg = new EpgCB(mainLanguageEpgCB);
+                            var clonePair = new KeyValuePair<string, EpgCB>(currentLanguage.Code, cloneEpg);
+                            dEpgCbTranslate.Add(currentLanguage.Code, cloneEpg);
+
+                            if (dEpg.ContainsKey(mainLanguageEpgCB.EpgIdentifier))
+                            {
+                                dEpg[mainLanguageEpgCB.EpgIdentifier].Add(clonePair);
+                            }
+                            else
+                            {
+                                dEpg.Add(mainLanguageEpgCB.EpgIdentifier, new List<KeyValuePair<string, EpgCB>>() { clonePair });
+                            }
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {

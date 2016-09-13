@@ -9,7 +9,7 @@ namespace ApiObjects.TimeShiftedTv
 {
     public class SeriesResponse
     {
-         public ApiObjects.Response.Status Status { get; set; }
+        public ApiObjects.Response.Status Status { get; set; }
 
         public List<SeriesRecording> SeriesRecordings { get; set; }
 
