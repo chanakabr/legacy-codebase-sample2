@@ -35,7 +35,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("filterExpression")]
         [XmlElement(ElementName = "filterExpression", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        [SchemeProperty(MaxLength = 1024)]
+        [SchemeProperty(MaxLength = 2048)]
         public string FilterExpression { get; set; }
 
         public override KalturaRecordingOrderBy GetDefaultOrderByValue()

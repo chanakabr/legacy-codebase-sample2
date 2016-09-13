@@ -668,6 +668,9 @@
     <Content Include="Web References\Api\EPGChannelProgrammeObject1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Api\DeviceFamilyResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Api\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
@@ -1102,6 +1105,8 @@
     <Compile Include="Controllers\CDNAdapterProfileController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
     <Compile Include="Controllers\CDNPartnerSettingsController.cs" />
+    <Compile Include="Controllers\DeviceFamilyController.cs" />
+    <Compile Include="Models\API\KalturaDeviceFamilyListResponse.cs" />
     <Compile Include="Controllers\RegionController.cs" />
     <Compile Include="Controllers\AssetCommentController.cs" />
     <Compile Include="Controllers\HouseholdPaymentMethodController.cs" />
