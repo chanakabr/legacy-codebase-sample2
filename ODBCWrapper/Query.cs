@@ -20,6 +20,7 @@ namespace ODBCWrapper
         private Int32 m_nTop;
         protected Int32 m_nLockTimeOut;
         protected string m_sConnectionKey;
+        protected string dbName;
         protected bool m_bIsWritable;
         static public Int32 GetSequence(string sSeqName)
         {
@@ -94,9 +95,11 @@ namespace ODBCWrapper
             m_bIsWritable = bIsWritable;
         }
 
-        public void SetConnectionKey(string sKey)
+        public void SetConnectionKey(string sKey, string databaseName = null)
         {
             m_sConnectionKey = sKey;
+            if (!string.IsNullOrEmpty(databaseName))
+                dbName = databaseName;
         }
 
         protected Query(ref Connection conn)
