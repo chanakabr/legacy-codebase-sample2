@@ -32,15 +32,18 @@ public partial class adm_epg_channels_schedule_translate : System.Web.UI.Page
             return;
         if (!IsPostBack)
         {
+            Int32 nMenuID = 0;
+            m_sMenu = TVinciShared.Menu.GetMainMenu(6, true, ref nMenuID);
+            m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 3, true);
+
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString().Trim() == "1")
             {
                 //Int32 nID = DBManipulator.DoTheWork();
                 return;
             }
-            Int32 nMenuID = 0;
+           
 
-            m_sMenu = TVinciShared.Menu.GetMainMenu(6, true, ref nMenuID);
-            m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 3, true);
+           
             if (Request.QueryString["epg_channels_schedule_id"] != null &&
                 Request.QueryString["epg_channels_schedule_id"].ToString() != "")
             {
@@ -212,7 +215,7 @@ public partial class adm_epg_channels_schedule_translate : System.Web.UI.Page
                 selectQuery = null;
             }
         }
-        string sRet = "adm_epg_channels_schedule.aspx?search_save=1&epg_channel_id=" + Session["epg_channel_id"].ToString();
+        string sRet = "adm_epg_channels_schedule.aspx?search_save=1&epg_channel_id=" + Session["epg_channel_id"].ToString();                       
         DBRecordWebEditor theRecord = new DBRecordWebEditor("epg_channels_schedule_translate", "adm_table_pager", sRet, "", "ID", t, sRet, "epg_channels_schedule_id");     
 
         if (t == null)
@@ -325,7 +328,7 @@ public partial class adm_epg_channels_schedule_translate : System.Web.UI.Page
         dr_epg_channel_id.SetValue(Session["epg_channel_id"].ToString());
         theRecord.AddRecord(dr_epg_channel_id);
 
-        string sTableNew = theRecord.GetTableHTMLCB("adm_epg_channels_schedule_new.aspx?submited=1", false, epg);
+        string sTableNew = theRecord.GetTableHTMLCB("adm_epg_channels_schedule_translate.aspx?submited=1", false, epg);
 
         return sTableNew;
     }
