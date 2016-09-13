@@ -15,10 +15,16 @@ using WebAPI.Models.General;
 namespace WebAPI.Managers
 {
     public class RolesManager
-    {
-        private const long ANONYMOUS_ROLE_ID = 0;
+    {       
         private const string PARTNER_WILDCARD = "partner*";
         private const string HOUSEHOLD_WILDCARD = "household*";
+
+        public const long ANONYMOUS_ROLE_ID = 0;
+        public const long USER_ROLE_ID = 1;
+        public const long MASTER_ROLE_ID = 2;
+        public const long OPERATOR_ROLE_ID = 3;
+        public const long MANAGER_ROLE_ID = 4;
+        public const long ADMINISTRATOR_ROLE_ID = 5;
 
         /// <summary>
         /// Builds a dictionary representing the schema of roles, permissions and action permission items for the group.
@@ -112,7 +118,7 @@ namespace WebAPI.Managers
             return ks;
         }
 
-        private static List<long> getRoleIds(KS ks)
+        public static List<long> GetRoleIds(KS ks)
         {
             List<long> roleIds = new List<long>() { RolesManager.ANONYMOUS_ROLE_ID };
 
@@ -137,7 +143,7 @@ namespace WebAPI.Managers
         internal static void ValidateActionPermitted(string service, string action, bool silent = false)
         {
             KS ks = getKS(silent);
-            List<long> roleIds = getRoleIds(ks);
+            List<long> roleIds = GetRoleIds(ks);
 
             // no roles found for the user
             if (roleIds == null || roleIds.Count == 0)
@@ -186,7 +192,7 @@ namespace WebAPI.Managers
         internal static void ValidatePropertyPermitted(string type, string property, RequestType action, bool silent = false)
         {
             KS ks = getKS(silent);
-            List<long> roleIds = getRoleIds(ks);
+            List<long> roleIds = GetRoleIds(ks);
 
             // no roles found for the user
             if (roleIds == null || roleIds.Count == 0)
@@ -211,7 +217,7 @@ namespace WebAPI.Managers
         internal static void ValidateArgumentPermitted(string service, string action, string argument, bool silent = false)
         {
             KS ks = getKS(silent);
-            List<long> roleIds = getRoleIds(ks);
+            List<long> roleIds = GetRoleIds(ks);
 
             // no roles found for the user
             if (roleIds == null || roleIds.Count == 0)
