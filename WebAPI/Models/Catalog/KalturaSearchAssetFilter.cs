@@ -23,13 +23,13 @@ namespace WebAPI.Models.Catalog
         /// entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
         /// Comparison operators: for numerical fields =, >, >=, <, <=, : (in). For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or. 
         /// Search values are limited to 20 characters each.
-        /// (maximum length of entire filter is 1024 characters)]]>
+        /// (maximum length of entire filter is 2048 characters)]]>
         /// </summary>
         [DataMember(Name = "kSql")]
         [JsonProperty("kSql")]
         [XmlElement(ElementName = "kSql", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        [SchemeProperty(MaxLength = 1024)]
+        [SchemeProperty(MaxLength = 2048)]
         public string KSql { get; set; }
 
         /// <summary>

@@ -449,7 +449,7 @@ namespace WebAPI.Controllers
         /// entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
         /// Comparison operators: for numerical fields =, >, >=, <, <=. For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or. 
         /// Search values are limited to 20 characters each.
-        /// (maximum length of entire filter is 1024 characters)]]></param>
+        /// (maximum length of entire filter is 2048 characters)]]></param>
         /// <param name="order_by">Required sort option to apply for the identified assets. If omitted – will use relevancy.
         /// Possible values: relevancy, a_to_z, z_to_a, views, ratings, votes, newest.</param>
         /// <param name="with"> Additional data to return per asset, formatted as a comma-separated array. 
@@ -460,7 +460,7 @@ namespace WebAPI.Controllers
         [Route("search"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
-        [SchemeArgument("filter", MaxLength = 1024)]
+        [SchemeArgument("filter", MaxLength = 2048)]
         [Throws(eResponseStatus.BadSearchRequest)]
         [Throws(eResponseStatus.IndexMissing)]
         [Throws(eResponseStatus.SyntaxError)]
@@ -707,7 +707,7 @@ namespace WebAPI.Controllers
         /// Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date.
         /// Comparison operators: for numerical fields =, >, >=, <, <=. For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or. 
         /// Search values are limited to 20 characters each.
-        /// (maximum length of entire filter is 1024 characters)]]></param>
+        /// (maximum length of entire filter is 2048 characters)]]></param>
         /// <remarks>Possible status codes: 
         /// BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, Channel does not exist = 4018
         /// </remarks>
