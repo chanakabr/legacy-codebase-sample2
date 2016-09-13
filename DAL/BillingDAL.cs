@@ -2364,5 +2364,41 @@ namespace DAL
             }
             return householdPatmentMethod;
         }
+
+        public static PaymentGatewayHouseholdPaymentMethod GetPaymentGatewayHouseholdByPaymentGatewayId(int groupID, int paymentGatewayId, int householdId,
+            int paymentMethodId, string paymentMethodExternalId)
+        {
+            PaymentGatewayHouseholdPaymentMethod pghhpm = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentGatewayHouseholdByPaymentGatewayId");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupID);
+                sp.AddParameter("@paymentGatewayId", paymentGatewayId);
+                sp.AddParameter("@householdId", householdId);
+                sp.AddParameter("@paymentMethodId", paymentMethodId);
+                sp.AddParameter("@paymentMethodExternalId", paymentMethodExternalId);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    pghhpm = new PaymentGatewayHouseholdPaymentMethod();
+
+                    pghhpm.PaymentGatewayId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "PAYMENT_GATEWAY_ID");
+                    pghhpm.PaymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "PAYMENT_METHOD_ID");
+                    pghhpm.HouseholdId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "HOUSEHOLD_ID");
+                    pghhpm.PaymentMethodExternalId = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "PAYMENT_METHOD_EXTERNAL_ID");
+                    pghhpm.PaymentDetails = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "PAYMENT_METHOD_DETAILS");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetPaymentGatewayHouseholdByPaymentGatewayId household: {0}, payment gateway: {1}, error {2}", householdId, paymentGatewayId, ex);
+            }
+
+            return pghhpm;
+        }
     }
 }
