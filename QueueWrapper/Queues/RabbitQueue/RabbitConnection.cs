@@ -171,7 +171,7 @@ namespace QueueWrapper
                         // If failed, retry until we reach limit - with a new connection
                         catch (OperationInterruptedException ex)
                         {
-                            log.ErrorFormat("Failed publishing message to rabbit. Message = {0}, EX = {1}", message, ex);
+                            log.ErrorFormat("Failed publishing message to rabbit on m_Connection.CreateModel(). Message = {0}, EX = {1}", message, ex);
                             ClearConnection();
                             IncreaseFailCounter();
                             return Publish(configuration, message);
@@ -209,16 +209,14 @@ namespace QueueWrapper
                     }
                     catch (OperationInterruptedException ex)
                     {
-                        log.ErrorFormat("Failed publishing message to rabbit. Message = {0}, EX = {1}", message, ex);
-                        string msg = ex.Message;
+                        log.ErrorFormat("OperationInterruptedException - Failed publishing message to rabbit. Message = {0}, EX = {1}", ex.Message, ex);                        
                         ClearConnection();
                         return Publish(configuration, message);
                     }
                     catch (Exception ex)
                     {
-                        log.ErrorFormat("Failed publishing message to rabbit. Message = {0}, EX = {1}", message, ex);
-                        IncreaseFailCounter();
-                        string msg = ex.Message;
+                        log.ErrorFormat("Failed publishing message to rabbit. Message = {0}, EX = {1}", ex.Message, ex);
+                        IncreaseFailCounter();                        
                     }
                 }
                 else
@@ -231,6 +229,8 @@ namespace QueueWrapper
                     }
 
                     log.ErrorFormat("RabbitConnection: No instance/connection to host {0}", host);
+                    IncreaseFailCounter();
+                    return Publish(configuration, message);
                 }
             }
 
