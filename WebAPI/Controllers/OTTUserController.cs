@@ -702,7 +702,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Resend the activation token to a user
+        /// Returns the identifier of the user encrypted with SHA1 using configured key
         /// </summary>
         /// <returns></returns>
         [Route("getEncryptedUserId"), HttpPost]

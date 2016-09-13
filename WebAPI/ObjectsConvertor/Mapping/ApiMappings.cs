@@ -403,6 +403,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.RegionalChannels, opt => opt.MapFrom(src => src.linearChannels));
             
             #endregion
+
+            #region DeviceFamily
+
+            //TimeShiftedTvPartnerSettings to KalturaTimeShiftedTvPartnerSettings
+            Mapper.CreateMap<DeviceFamily, WebAPI.Models.Domains.KalturaDeviceFamily>()              
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+
+            #endregion
         }
 
         private static KalturaApiParameterPermissionItemAction ConvertApiParameterPermissionItemAction(string action)

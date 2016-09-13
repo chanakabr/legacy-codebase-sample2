@@ -154,7 +154,7 @@ namespace WebAPI.Managers
             if (user == null || (user.UserState != KalturaUserState.ok && user.UserState != KalturaUserState.user_with_no_household))
             {
                 log.ErrorFormat("RefreshAccessToken: user not valid. userId= {0}", userId);
-                throw new UnauthorizedException(UnauthorizedException.INVALID_USER, userId);
+                throw new UnauthorizedException(UnauthorizedException.INVALID_USER_ID, userId);
             }
         }
 

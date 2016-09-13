@@ -18,6 +18,7 @@ using System.Net;
 using System.Web;
 using System.ServiceModel;
 using WebAPI.Models.Catalog;
+using WebAPI.Models.Domains;
 
 namespace WebAPI.Clients
 {
@@ -2897,7 +2898,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling conditional access service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2934,7 +2935,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling conditional access service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2970,7 +2971,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling conditional access service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3008,7 +3009,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling conditional access service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3043,7 +3044,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling conditional access service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3078,7 +3079,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling conditional access service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3114,7 +3115,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling conditional access service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3151,7 +3152,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling conditional access service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3168,6 +3169,40 @@ namespace WebAPI.Clients
             regions = AutoMapper.Mapper.Map<List<KalturaRegion>>(response.Regions);
 
             return new KalturaRegionListResponse() { Regions = regions, TotalCount = regions != null ? regions.Count : 0 };
+        }
+
+        internal KalturaDeviceFamilyListResponse GetDeviceFamilyList(int groupId)
+        {          
+            Group group = GroupsManager.GetGroup(groupId);
+            KalturaDeviceFamilyListResponse result = new KalturaDeviceFamilyListResponse() { TotalCount = 0 };
+            DeviceFamilyResponse response = null;            
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GetDeviceFamilyList(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            result.Objects = AutoMapper.Mapper.Map<List<KalturaDeviceFamily>>(response.DeviceFamilies);
+            result.TotalCount = response.TotalItems;
+
+            return result;
         }
     }
 }

@@ -40,6 +40,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "deviceLimit")]
         [JsonProperty("deviceLimit")]
         [XmlElement(ElementName = "deviceLimit")]
+        [Obsolete]
         public int? DeviceLimit { get; set; }
 
         /// <summary>
@@ -48,6 +49,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "concurrentLimit")]
         [JsonProperty("concurrentLimit")]
         [XmlElement(ElementName = "concurrentLimit")]
+        [Obsolete]
         public int? ConcurrentLimit { get; set; }
     }
 
@@ -55,7 +57,6 @@ namespace WebAPI.Models.Domains
     /// <summary>
     /// Device family details
     /// </summary>
-    [Obsolete]
     public class KalturaDeviceFamily : KalturaDeviceFamilyBase
     {
         /// <summary>
@@ -65,6 +66,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("devices")]
         [XmlArray(ElementName = "devices", IsNullable = true)]
         [XmlArrayItem("item")]
+        [Obsolete]
         public List<KalturaDevice> Devices { get; set; }
     }
 
@@ -80,5 +82,21 @@ namespace WebAPI.Models.Domains
         [JsonProperty("frequency")]
         [XmlElement(ElementName = "frequency")]
         public int? Frequency { get; set; }
+
+        /// <summary>
+        /// Max number of devices allowed for this family
+        /// </summary>
+        [DataMember(Name = "deviceLimit")]
+        [JsonProperty("deviceLimit")]
+        [XmlElement(ElementName = "deviceLimit")]
+        public int? DeviceLimit { get; set; }
+
+        /// <summary>
+        /// Max number of streams allowed for this family
+        /// </summary>
+        [DataMember(Name = "concurrentLimit")]
+        [JsonProperty("concurrentLimit")]
+        [XmlElement(ElementName = "concurrentLimit")]
+        public int? ConcurrentLimit { get; set; }
     }
 }
