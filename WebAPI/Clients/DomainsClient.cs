@@ -1179,6 +1179,27 @@ namespace WebAPI.Clients
 
             return response.Values.ToList();
         }
+
+        internal KalturaHouseholdDeviceListResponse GetHouseholdDevices(int groupId, KalturaHousehold household, List<long> deviceFamilyIds)
+        {
+            KalturaHouseholdDeviceListResponse response = new KalturaHouseholdDeviceListResponse() { TotalCount = 0, Objects = new List<KalturaHouseholdDevice>() };
+            foreach (KalturaDeviceFamily family in household.DeviceFamilies)
+            {
+                if (deviceFamilyIds == null || deviceFamilyIds.Contains(family.Id.Value))
+                {
+                    List<KalturaDevice> familyDevices = family.Devices;
+                    foreach (KalturaDevice device in familyDevices)
+                    {
+                        KalturaHouseholdDevice householdDevice = (KalturaHouseholdDevice)device;
+                        response.Objects.Add(householdDevice);
+                        response.TotalCount++;
+                    }
+                }
+            }
+
+            return response;
+        }
+
     }
 }
 

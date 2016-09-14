@@ -1106,6 +1106,7 @@
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
     <Compile Include="Controllers\CDNPartnerSettingsController.cs" />
     <Compile Include="Controllers\DeviceFamilyController.cs" />
+    <Compile Include="Models\Domains\KalturaHouseholdDeviceFilter.cs" />
     <Compile Include="Models\API\KalturaDeviceFamilyListResponse.cs" />
     <Compile Include="Controllers\RegionController.cs" />
     <Compile Include="Controllers\AssetCommentController.cs" />
@@ -1314,6 +1315,7 @@
     <Compile Include="Models\ConditionalAccess\KalturaBillingTransactionListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaEntitlementsFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPricesFilter.cs" />
+    <Compile Include="Models\Domains\KalturaHouseholdDeviceListResponse.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdUserFilter.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdUserStatus.cs" />
     <Compile Include="Models\Domains\KalturaDeviceStatus.cs" />
