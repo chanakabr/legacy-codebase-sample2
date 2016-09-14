@@ -35,7 +35,7 @@ namespace ODBCWrapper
         static public string GetConnectionString(string dbName, string sKey, bool bIsWritable)
         {
             // get connString 
-            string connString = GetConnectionStringByKey(sKey, bIsWritable);
+            string connString = GetConnectionString(sKey, bIsWritable);
 
             if (connString.ToLower().Contains(DB_NAME_CONNECTION_STRING_TEMAPLTE) && !string.IsNullOrEmpty(dbName))
                 connString = Regex.Replace(connString, DB_NAME_CONNECTION_STRING_TEMAPLTE, dbName, RegexOptions.IgnoreCase);
