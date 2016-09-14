@@ -168,6 +168,7 @@ namespace WebAPI.Models.Users
         [JsonProperty("suspentionState")]
         [XmlElement(ElementName = "suspentionState")]
         [SchemeProperty(ReadOnly = true)]
+        [Obsolete]
         public KalturaHouseholdSuspentionState SuspentionState { get; set; }
 
 
