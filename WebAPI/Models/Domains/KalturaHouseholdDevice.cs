@@ -86,6 +86,15 @@ namespace WebAPI.Models.Domains
         [SchemeProperty(ReadOnly = true)]
         public KalturaDeviceStatus? Status { get; set; }
 
+        /// <summary>
+        /// Device family id
+        /// </summary>
+        [DataMember(Name = "deviceFamilyId")]
+        [JsonProperty("deviceFamilyId")]
+        [XmlElement(ElementName = "deviceFamilyId", IsNullable = true)]        
+        [SchemeProperty(ReadOnly = true)]
+        public long DeviceFamilyId { get; set; }
+
         internal int getBrandId()
         {
             return BrandId.HasValue ? (int)BrandId : 0;

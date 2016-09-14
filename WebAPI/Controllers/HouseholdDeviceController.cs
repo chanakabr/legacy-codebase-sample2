@@ -364,5 +364,47 @@ namespace WebAPI.Controllers
             }
             return false;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns><remarks>Possible status codes: 
+        /// </remarks>
+        [Route("list"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.DeviceNotExists)]
+        public KalturaHouseholdDeviceListResponse List(KalturaHouseholdDeviceFilter filter = null)
+        {
+            KalturaHouseholdDeviceListResponse response = null;
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                KalturaHousehold household = null;
+                if (filter != null && filter.HouseholdIdEqual.HasValue && filter.HouseholdIdEqual.Value > 0)
+                {
+                    household = ClientsManager.DomainsClient().GetDomainInfo(groupId, filter.HouseholdIdEqual.Value);
+                }
+                else
+                {
+                    household = HouseholdUtils.GetHouseholdFromRequest();
+                }
+
+                if (household == null)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "householdIdEqual");
+                }
+
+                // call client
+                response = ClientsManager.DomainsClient().GetHouseholdDevices(groupId, household, filter.ConvertDeviceFamilyIdIn());
+                                
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }
