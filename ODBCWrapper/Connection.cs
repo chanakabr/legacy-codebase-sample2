@@ -32,13 +32,13 @@ namespace ODBCWrapper
             m_sConnectionStr = "";
         }
 
-        internal static string GetConnectionString(string dbName, string sKey, bool bIsWritable)
+        static public string GetConnectionString(string dbName, string sKey, bool bIsWritable)
         {
             // get connString 
             string connString = GetConnectionStringByKey(sKey, bIsWritable);
-            
+
             if (connString.ToLower().Contains(DB_NAME_CONNECTION_STRING_TEMAPLTE) && !string.IsNullOrEmpty(dbName))
-                connString = connString.Replace(DB_NAME_CONNECTION_STRING_TEMAPLTE, dbName);
+                connString = Regex.Replace(connString, DB_NAME_CONNECTION_STRING_TEMAPLTE, dbName, RegexOptions.IgnoreCase);
 
             return connString;
         }
@@ -356,6 +356,6 @@ namespace ODBCWrapper
             return con;
         }
 
-        
+
     }
 }
