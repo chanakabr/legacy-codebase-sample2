@@ -762,7 +762,7 @@ namespace WebAPI.Controllers
             {
 
                 // call client
-                if (filter == null || (string.IsNullOrEmpty(filter.ExternalIdEqual) && string.IsNullOrEmpty(filter.UserNameEqual)))
+                if (filter == null || (string.IsNullOrEmpty(filter.ExternalIdEqual) && string.IsNullOrEmpty(filter.UserNameEqual) && string.IsNullOrEmpty(filter.IdIn)))
                 {
                     // get all users of the master / itself                    
 
@@ -821,6 +821,7 @@ namespace WebAPI.Controllers
                         throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN, Enum.GetName(typeof(WebAPI.Filters.RequestType), WebAPI.Filters.RequestType.READ), 
                             "KalturaOTTUserFilter", "idIn");
                     }
+                    response = new KalturaOTTUserListResponse();
                     response.Users = ClientsManager.UsersClient().GetUsersData(groupId, usersToGet);
                     if (response.Users != null)
                     {
