@@ -162,13 +162,23 @@ namespace WebAPI.Models.Users
         public bool? IsHouseholdMaster { get; set; }
 
         /// <summary>
-        /// Suspention state
+        /// Suspension state
         /// </summary>
         [DataMember(Name = "suspentionState")]
         [JsonProperty("suspentionState")]
         [XmlElement(ElementName = "suspentionState")]
         [SchemeProperty(ReadOnly = true)]
         public KalturaHouseholdSuspentionState SuspentionState { get; set; }
+
+
+        /// <summary>
+        /// Suspension state
+        /// </summary>
+        [DataMember(Name = "suspensionState")]
+        [JsonProperty("suspensionState")]
+        [XmlElement(ElementName = "suspensionState")]
+        [SchemeProperty(ReadOnly = true)]
+        public KalturaHouseholdSuspensionState SuspensionState { get; set; }
 
         /// <summary>
         /// User state

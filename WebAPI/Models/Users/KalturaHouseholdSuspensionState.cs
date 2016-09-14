@@ -5,10 +5,9 @@ using System.Web;
 
 namespace WebAPI.Models.Users
 {
-    [Obsolete]
-    public enum KalturaHouseholdSuspentionState
+    public enum KalturaHouseholdSuspensionState
     {
-        not_suspended = 0,
-        suspended = 1
+        NOT_SUSPENDED = 0,
+        SUSPENDED = 1
     }
 }
