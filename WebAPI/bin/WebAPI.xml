@@ -539,8 +539,7 @@
             </summary>
             <remarks>
             Possible status codes:  
-            Payment method not set for household = 6048, PaymentMethodIsUsedByHousehold = 3041, Error removing payment gateway household payment method = 6057,
-            PaymentGatewayNotExist = 6008, PaymentGatewayNotSetForHousehold = 6007,
+            Payment method not set for household = 6048, PaymentMethodIsUsedByHousehold = 3041, PaymentGatewayNotExist = 6008, PaymentGatewayNotSetForHousehold = 6007,
             </remarks>
             <param name="paymentGatewayId">Payment Gateway Identifier</param> 
             <param name="paymentMethodId">Payment method Identifier</param>
@@ -552,8 +551,7 @@
             </summary>
             <remarks>
             Possible status codes:  
-            Payment method not set for household = 6048, Error removing payment gateway household payment method = 6057,
-            PaymentGatewayNotExist = 6008, PaymentGatewayNotSetForHousehold = 6007
+            Payment method not set for household = 6048, PaymentGatewayNotExist = 6008, PaymentGatewayNotSetForHousehold = 6007
             </remarks>
             <param name="paymentGatewayId">Payment Gateway Identifier</param> 
             <param name="paymentMethodId">Payment method Identifier</param>
