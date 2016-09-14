@@ -19635,14 +19635,14 @@ namespace ConditionalAccess
             return new ApiObjects.KeyValuePair(seriesId, epgSeasonNumber.ToString());
         }
 
-        public ApiObjects.KeyValuePair[] GetDomainRecordingsMapping(int groupID, long domainId)
+        public SearchableRecording[] GetDomainSearchableRecordings(int groupID, long domainId)
         {
-            ApiObjects.KeyValuePair[] result = null;
+            SearchableRecording[] result = null;
             List<TstvRecordingStatus> recordingStatuses = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recorded };
             Dictionary<long, Recording> DomainRecordingIdToRecordingMap = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, domainId, recordingStatuses);
             if (DomainRecordingIdToRecordingMap != null && DomainRecordingIdToRecordingMap.Count > 0)
             {
-                result = DomainRecordingIdToRecordingMap.Select(x => new ApiObjects.KeyValuePair(x.Key.ToString(), x.Value.Id.ToString())).ToArray();  
+                result = DomainRecordingIdToRecordingMap.Select(x => new SearchableRecording(x.Key, x.Value.Id, x.Value.EpgId)).ToArray();
             }
 
             return result;
