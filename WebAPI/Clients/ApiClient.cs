@@ -19,6 +19,7 @@ using System.Web;
 using System.ServiceModel;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.Domains;
+using WebAPI.Models.Users;
 
 namespace WebAPI.Clients
 {
@@ -3201,6 +3202,40 @@ namespace WebAPI.Clients
 
             result.Objects = AutoMapper.Mapper.Map<List<KalturaDeviceFamily>>(response.DeviceFamilies);
             result.TotalCount = response.TotalItems;
+
+            return result;
+        }
+
+        internal KalturaCountryListResponse GetCountryList(int groupId, List<int> countryIds)
+        {
+            Group group = GroupsManager.GetGroup(groupId);
+            KalturaCountryListResponse result = new KalturaCountryListResponse() { TotalCount = 0 };
+            CountryResponse response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GetCountryList(group.ApiCredentials.Username, group.ApiCredentials.Password, countryIds.ToArray());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            result.Objects = AutoMapper.Mapper.Map<List<KalturaCountry>>(response.Countries);
+            result.TotalCount = response.Countries.Count();
 
             return result;
         }

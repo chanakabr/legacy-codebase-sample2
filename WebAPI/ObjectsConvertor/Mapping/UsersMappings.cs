@@ -61,6 +61,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sAddress))
                 .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sCity))
                 .ForMember(dest => dest.Country, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_Country))
+                .ForMember(dest => dest.CountryId, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_Country != null ? src.m_user.m_oBasicData.m_Country.m_nObjecrtID : 0))
                 .ForMember(dest => dest.Zip, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sZip))
                 .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sPhone))
                 .ForMember(dest => dest.FacebookId, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sFacebookID))
@@ -85,6 +86,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.m_oBasicData.m_sAddress))
                 .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.m_oBasicData.m_sCity))
                 .ForMember(dest => dest.Country, opt => opt.MapFrom(src => src.m_oBasicData.m_Country))
+                .ForMember(dest => dest.CountryId, opt => opt.MapFrom(src => src.m_oBasicData.m_Country != null ? src.m_oBasicData.m_Country.m_nObjecrtID : 0))
                 .ForMember(dest => dest.Zip, opt => opt.MapFrom(src => src.m_oBasicData.m_sZip))
                 .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.m_oBasicData.m_sPhone))
                 .ForMember(dest => dest.FacebookId, opt => opt.MapFrom(src => src.m_oBasicData.m_sFacebookID))
@@ -115,7 +117,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.m_sAddress, opt => opt.MapFrom(src => src.Address))
                 .ForMember(dest => dest.m_sAffiliateCode, opt => opt.MapFrom(src => src.AffiliateCode))
                 .ForMember(dest => dest.m_sCity, opt => opt.MapFrom(src => src.City))
-                .ForMember(dest => dest.m_Country, opt => opt.MapFrom(src => src.Country))
+                .ForMember(dest => dest.m_Country, opt => opt.MapFrom(src => ConvertContry(src.Country, src.CountryId)))
                 .ForMember(dest => dest.m_sEmail, opt => opt.MapFrom(src => src.Email))
                 .ForMember(dest => dest.m_CoGuid, opt => opt.MapFrom(src => src.ExternalId))
                 .ForMember(dest => dest.m_sFacebookID, opt => opt.MapFrom(src => src.FacebookId))
@@ -173,6 +175,24 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ItemType, opt => opt.MapFrom(src => ConvertUserAssetsListItemType(src.Type)))
                 .ForMember(dest => dest.ListType, opt => opt.MapFrom(src => ConvertUserAssetsListType(src.ListType)))
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
+
+            // Country
+            Mapper.CreateMap<int, Users.Country>()
+                .ForMember(dest => dest.m_nObjecrtID, opt => opt.MapFrom(src => src));
+        }
+
+        private static Users.Country ConvertContry(KalturaCountry country, int? countryId)
+        {
+            Users.Country response = new Users.Country();
+            if (countryId.HasValue && countryId.Value > 0)
+            {
+                response.m_nObjecrtID = countryId.Value;
+            }
+            else if (country != null)
+            {
+                response.m_nObjecrtID = country.Id;
+            }
+            return response;
         }
 
         // ListType to KalturaUserAssetsListType

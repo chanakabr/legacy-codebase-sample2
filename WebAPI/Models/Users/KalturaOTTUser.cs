@@ -66,7 +66,16 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "country")]
         [JsonProperty("country")]
         [XmlElement(ElementName = "country", IsNullable = true)]
+        [Obsolete]
         public KalturaCountry Country { get; set; }
+
+        /// <summary>
+        /// Country identifier
+        /// </summary>
+        [DataMember(Name = "countryId")]
+        [JsonProperty("countryId")]
+        [XmlElement(ElementName = "countryId", IsNullable = true)]
+        public int? CountryId { get; set; }
 
         /// <summary>
         /// Zip code

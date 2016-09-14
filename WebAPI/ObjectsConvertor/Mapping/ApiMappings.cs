@@ -412,6 +412,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
             #endregion
+
+            #region DeviceFamily
+            Mapper.CreateMap<Country, WebAPI.Models.Users.KalturaCountry>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code));
+            #endregion
         }
 
         private static KalturaApiParameterPermissionItemAction ConvertApiParameterPermissionItemAction(string action)
