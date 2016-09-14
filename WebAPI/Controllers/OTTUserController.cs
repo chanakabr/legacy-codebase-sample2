@@ -768,7 +768,7 @@ namespace WebAPI.Controllers
 
                     List<string> householdUserIds = new List<string>();
 
-                    if (HouseholdUtils.IsUserMaster())
+                    if (HouseholdUtils.GetHouseholdFromRequest() != null)
                     {
                         householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId).Distinct().ToList();
                     }
