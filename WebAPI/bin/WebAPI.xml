@@ -7320,19 +7320,19 @@
             OTT User filter
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaOTTUserFilter.UserNameEqual">
-             <summary>
-            User Name
-             </summary>
+        <member name="P:WebAPI.Models.Users.KalturaOTTUserFilter.UsernameEqual">
+            <summary>
+            Username
+            </summary>
         </member>
         <member name="P:WebAPI.Models.Users.KalturaOTTUserFilter.ExternalIdEqual">
             <summary>
-            External Id
+            User external identifier
             </summary>
         </member>
         <member name="P:WebAPI.Models.Users.KalturaOTTUserFilter.IdIn">
             <summary>
-            External Id
+            List of user identifiers separated by ','
             </summary>
         </member>
         <member name="T:WebAPI.Models.Users.KalturaSession">

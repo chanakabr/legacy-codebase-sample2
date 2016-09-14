@@ -762,7 +762,7 @@ namespace WebAPI.Controllers
             {
 
                 // call client
-                if (filter == null || (string.IsNullOrEmpty(filter.ExternalIdEqual) && string.IsNullOrEmpty(filter.UserNameEqual) && string.IsNullOrEmpty(filter.IdIn)))
+                if (filter == null || (string.IsNullOrEmpty(filter.ExternalIdEqual) && string.IsNullOrEmpty(filter.UsernameEqual) && string.IsNullOrEmpty(filter.IdIn)))
                 {
                     // get all users of the master / itself                    
 
@@ -789,9 +789,9 @@ namespace WebAPI.Controllers
                 {
                     response = ClientsManager.UsersClient().GetUserByExternalID(groupId, filter.ExternalIdEqual);
                 }
-                else if (!string.IsNullOrEmpty(filter.UserNameEqual))
+                else if (!string.IsNullOrEmpty(filter.UsernameEqual))
                 {
-                    response = ClientsManager.UsersClient().GetUserByName(groupId, filter.UserNameEqual);
+                    response = ClientsManager.UsersClient().GetUserByName(groupId, filter.UsernameEqual);
                 }
                 // user or master
                 else if (!string.IsNullOrEmpty(filter.IdIn))
