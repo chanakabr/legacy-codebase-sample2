@@ -115,6 +115,7 @@
     <Compile Include="CDVRAdapter\CDVRAdapterResponse.cs" />
     <Compile Include="CDVRAdapter\CDVRAdapterResponseList.cs" />
     <Compile Include="CDVRAdapter\CDVRAdapterSettings.cs" />
+    <Compile Include="CountryResponse.cs" />
     <Compile Include="DeviceFamily.cs" />
     <Compile Include="DeviceFamilyResponse.cs" />
     <Compile Include="DevicePinResponse.cs" />
