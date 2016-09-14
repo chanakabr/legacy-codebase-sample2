@@ -805,7 +805,7 @@ namespace WebAPI.Controllers
                         var householdUsers = HouseholdUtils.GetHouseholdUserIds(groupId);
                         foreach (var userId in filter.GetIdIn())
 	                    {
-		                     if (householdUsers.Contains("userId"))
+		                     if (householdUsers.Contains(userId))
                              {
                                  usersToGet.Add(userId);
                              }
