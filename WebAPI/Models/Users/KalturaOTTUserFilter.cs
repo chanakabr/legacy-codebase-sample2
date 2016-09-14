@@ -72,13 +72,13 @@ namespace WebAPI.Models.Users
         }
         public override KalturaOTTUserOrderBy GetDefaultOrderByValue()
         {
-            return KalturaOTTUserOrderBy.ID_ASC;
+            return KalturaOTTUserOrderBy.NONE;
         }
     }
 
 
     public enum KalturaOTTUserOrderBy
     {
-        ID_ASC   
+        NONE   
     }
 }
