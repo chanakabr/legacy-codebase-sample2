@@ -22,7 +22,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Brand, opt => opt.MapFrom(src => src.m_deviceBrand))
                 .ForMember(dest => dest.BrandId, opt => opt.MapFrom(src => src.m_deviceBrandID))
                 .ForMember(dest => dest.ActivatedOn, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_activationDate)))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertDeviceState(src.m_state)))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertDeviceStatus(src.m_state)))
                 .ForMember(dest => dest.State, opt => opt.MapFrom(src => ConvertDeviceState(src.m_state)))
                 .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.m_domainID));
 
@@ -32,7 +32,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Brand, opt => opt.MapFrom(src => src.m_deviceBrand))
                 .ForMember(dest => dest.BrandId, opt => opt.MapFrom(src => src.m_deviceBrandID))
                 .ForMember(dest => dest.ActivatedOn, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_activationDate)))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertDeviceState(src.m_state)))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertDeviceStatus(src.m_state)))
                 .ForMember(dest => dest.State, opt => opt.MapFrom(src => ConvertDeviceState(src.m_state)))
                 .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.m_domainID));
 
@@ -145,7 +145,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
             return result;
         }
 
-        private static KalturaDeviceState ConvertDeviceState(WebAPI.Domains.DeviceState type)
+        private static KalturaDeviceState? ConvertDeviceState(WebAPI.Domains.DeviceState type)
         {
             KalturaDeviceState result;
             switch (type)
@@ -158,6 +158,26 @@ namespace WebAPI.Mapping.ObjectsConvertor
                     break;
                 case WebAPI.Domains.DeviceState.UnActivated:
                     result = KalturaDeviceState.not_activated;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown device state");
+            }
+            return result;
+        }
+
+        private static KalturaDeviceStatus? ConvertDeviceStatus(WebAPI.Domains.DeviceState type)
+        {
+            KalturaDeviceStatus result;
+            switch (type)
+            {
+                case WebAPI.Domains.DeviceState.Activated:
+                    result = KalturaDeviceStatus.ACTIVATED;
+                    break;
+                case WebAPI.Domains.DeviceState.Pending:
+                    result = KalturaDeviceStatus.PENDING;
+                    break;
+                case WebAPI.Domains.DeviceState.UnActivated:
+                    result = KalturaDeviceStatus.NOT_ACTIVATED;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown device state");

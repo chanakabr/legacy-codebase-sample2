@@ -15,6 +15,7 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
+using WebAPI.Models.Domains;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
@@ -792,9 +793,35 @@ namespace WebAPI.Controllers
                 {
                     response = ClientsManager.UsersClient().GetUserByName(groupId, filter.UserNameEqual);
                 }
+                // user or master
                 else if (!string.IsNullOrEmpty(filter.IdIn))
                 {
-                    response.Users = ClientsManager.UsersClient().GetUsersData(groupId, filter.GetIdIn());
+                    List<string> usersToGet = null;
+                    KalturaHousehold household = HouseholdUtils.GetHouseholdFromRequest();
+                    var userRoles = RolesManager.GetRoleIds(KS.GetFromRequest());
+                    if (household != null && userRoles.Where(ur => ur > RolesManager.MASTER_ROLE_ID).Count() == 0)
+                    {
+                        usersToGet = new List<string>();
+                        var householdUsers = HouseholdUtils.GetHouseholdUserIds(groupId);
+                        foreach (var userId in filter.GetIdIn())
+	                    {
+		                     if (householdUsers.Contains("userId"))
+                             {
+                                 usersToGet.Add(userId);
+                             }
+                        }
+                    }
+                    // operator +
+                    else if (userRoles.Where(ur => ur > RolesManager.MASTER_ROLE_ID).Count() > 0)
+                    {
+                        usersToGet = filter.GetIdIn();
+                    }
+                    else
+                    {
+                        throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN, Enum.GetName(typeof(WebAPI.Filters.RequestType), WebAPI.Filters.RequestType.READ), 
+                            "KalturaOTTUserFilter", "idIn");
+                    }
+                    response.Users = ClientsManager.UsersClient().GetUsersData(groupId, usersToGet);
                     if (response.Users != null)
                     {
                         response.TotalCount = response.Users.Count();

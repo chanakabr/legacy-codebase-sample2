@@ -75,7 +75,7 @@ namespace WebAPI.Models.Domains
         [XmlElement(ElementName = "state", IsNullable = true)]
         [Obsolete]
         [SchemeProperty(ReadOnly = true)]
-        public KalturaDeviceState State { get; set; }
+        public KalturaDeviceState? State { get; set; }
 
         /// <summary>
         /// Device state
@@ -84,7 +84,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("status")]
         [XmlElement(ElementName = "status", IsNullable = true)]
         [SchemeProperty(ReadOnly = true)]
-        public KalturaDeviceStatus Status { get; set; }
+        public KalturaDeviceStatus? Status { get; set; }
 
         /// <summary>
         /// Device family id
