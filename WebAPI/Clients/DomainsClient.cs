@@ -1162,15 +1162,17 @@ namespace WebAPI.Clients
             foreach (var user in household.DefaultUsers)
             {
                 if (response.ContainsKey(user.Id))
-                    continue;
-
-                if (!response.ContainsKey(user.Id))
+                {
+                    response[user.Id].IsDefault = true;
+                }
+                else
                 {
                     householdUser = new KalturaHouseholdUser()
                     {
                         HouseholdId = (int)household.Id,
                         Status = KalturaHouseholdUserStatus.OK,
-                        UserId = user.Id
+                        UserId = user.Id,
+                        IsDefault = true
                     };
 
                     response.Add(householdUser.UserId, householdUser);

@@ -5243,6 +5243,11 @@
             The status of the user in the household 
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdUser.IsDefault">
+            <summary>
+            True if the user is a default user
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Domains.KalturaHouseholdLimitations">
             <summary>
             Household limitations details 
