@@ -1191,6 +1191,7 @@ namespace WebAPI.Clients
                     foreach (KalturaDevice device in familyDevices)
                     {
                         KalturaHouseholdDevice householdDevice = (KalturaHouseholdDevice)device;
+                        householdDevice.DeviceFamilyId = family.Id;
                         response.Objects.Add(householdDevice);
                         response.TotalCount++;
                     }

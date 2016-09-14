@@ -93,7 +93,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("deviceFamilyId")]
         [XmlElement(ElementName = "deviceFamilyId", IsNullable = true)]        
         [SchemeProperty(ReadOnly = true)]
-        public long DeviceFamilyId { get; set; }
+        public long? DeviceFamilyId { get; set; }
 
         internal int getBrandId()
         {
