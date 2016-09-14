@@ -1401,10 +1401,12 @@ namespace Catalog
                                 if (assetType == eAssetTypes.NPVR)
                                 {
                                     // After we searched for recordings, we need to replace their ID (recording ID) with the personal ID (domain recording)
-                                    if (unifiedSearchDefinitions.recordingsToDomainRecordingsMapping != null)
+                                    if (unifiedSearchDefinitions.recordingsToDomainRecordingsMapping != null &&
+                                        unifiedSearchDefinitions.recordingsToEpgMapping != null)
                                     {
                                         var recordingsMapping = unifiedSearchDefinitions.recordingsToDomainRecordingsMapping;
-                                        
+                                        var epgMapping = unifiedSearchDefinitions.recordingsToEpgMapping;
+
                                         string recordingId = assetId;
                                         string domainRecordingId = string.Empty;
 
@@ -1414,11 +1416,18 @@ namespace Catalog
                                             domainRecordingId = recordingsMapping[recordingId];
                                         }
 
+                                        string epgId = string.Empty;
+
+                                        if (epgMapping.ContainsKey(recordingId))
+                                        {
+                                            epgId = epgMapping[recordingId];
+                                        }
+
                                         searchResultsList.Add(new RecordingSearchResult()
                                         {
                                             AssetId = domainRecordingId,
                                             AssetType = eAssetTypes.NPVR,
-                                            EpgId = string.Empty
+                                            EpgId = epgId
                                         });
                                     }
                                 }

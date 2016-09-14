@@ -340,6 +340,9 @@ namespace Catalog
 
                 definitions.recordingsToDomainRecordingsMapping = recordingsToDomainRecordingsMapping;
 
+                var recordingsToEpgMapping = new Dictionary<string, string>();
+
+                definitions.recordingsToEpgMapping = recordingsToEpgMapping;
             }
 
             return result;

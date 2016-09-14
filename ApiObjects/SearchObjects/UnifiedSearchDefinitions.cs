@@ -303,6 +303,14 @@ namespace ApiObjects.SearchObjects
             set;
         }
 
+        [JsonProperty()]
+        [DataMember]
+        public Dictionary<string, string> recordingsToEpgMapping
+        {
+            get;
+            set;
+        }
+
         #endregion
 
         #region Ctor
