@@ -16,6 +16,7 @@ namespace ODBCWrapper
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static List<string> db_Slaves = (!string.IsNullOrEmpty(TCMClient.Settings.Instance.GetValue<string>("DB_Slaves_IPs"))) ? TCMClient.Settings.Instance.GetValue<string>("DB_Slaves_List").Split(':').ToList<string>() : null;
         public static bool m_bIsWritable;
+        private const string DB_NAME_CONNECTION_STRING_TEMAPLTE = "{dbname}";
 
         public Connection()
         {
@@ -29,6 +30,17 @@ namespace ODBCWrapper
         static public void ClearConnection()
         {
             m_sConnectionStr = "";
+        }
+
+        static public string GetConnectionString(string dbName, string sKey, bool bIsWritable)
+        {
+            // get connString 
+            string connString = GetConnectionString(sKey, bIsWritable);
+
+            if (connString.ToLower().Contains(DB_NAME_CONNECTION_STRING_TEMAPLTE) && !string.IsNullOrEmpty(dbName))
+                connString = Regex.Replace(connString, DB_NAME_CONNECTION_STRING_TEMAPLTE, dbName, RegexOptions.IgnoreCase);
+
+            return connString;
         }
 
         //TODO : add connection string for WRITABLE 
@@ -343,5 +355,7 @@ namespace ODBCWrapper
 
             return con;
         }
+
+
     }
 }

@@ -3904,5 +3904,17 @@ namespace DAL
             return dt;
 
         }
+
+        public static DataTable GetCountries(int groupId, List<int> countryIds)
+        {
+            DataTable dt = null;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetCountries");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddIDListParameter("@countryIds", countryIds, "ID");
+            dt = sp.Execute();
+
+            return dt;
+        }
     }
 }

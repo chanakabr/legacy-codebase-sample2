@@ -45,7 +45,7 @@ namespace ODBCWrapper
             if (dtData != null && dtData.Rows.Count > 0)
             {
                 int numRows = dtData.Rows.Count;
-                string connString = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
+                string connString = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
 
                 SqlBulkCopy bulkCopy = new SqlBulkCopy(connString, sqlBulkCopyOptions)
                 {
@@ -93,7 +93,7 @@ namespace ODBCWrapper
             m_sOraStr.Append(")");
             oraStr = m_sOraStr.ToString();
             int_Execute();
-            string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
+            string sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
             if (sConn == "")
             {
                 log.ErrorFormat("Empty connection string. could not run query. m_sOraStr: {0}", m_sOraStr != null ? m_sOraStr.ToString() : string.Empty);
@@ -138,7 +138,7 @@ namespace ODBCWrapper
             m_sOraStr.Append(")");            
             oraStr = m_sOraStr.ToString();
             int_Execute();
-            string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
+            string sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
             if (sConn == "")
             {
                 log.ErrorFormat("Empty connection string. could not run query. m_sOraStr: {0}", m_sOraStr != null ? m_sOraStr.ToString() : string.Empty);

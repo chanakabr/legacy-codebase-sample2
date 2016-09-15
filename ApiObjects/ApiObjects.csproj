@@ -115,6 +115,7 @@
     <Compile Include="CDVRAdapter\CDVRAdapterResponse.cs" />
     <Compile Include="CDVRAdapter\CDVRAdapterResponseList.cs" />
     <Compile Include="CDVRAdapter\CDVRAdapterSettings.cs" />
+    <Compile Include="CountryResponse.cs" />
     <Compile Include="DeviceFamily.cs" />
     <Compile Include="DeviceFamilyResponse.cs" />
     <Compile Include="DevicePinResponse.cs" />
@@ -377,6 +378,7 @@
     <Compile Include="TimeShiftedTv\DomainQuotaResponse.cs" />
     <Compile Include="TimeShiftedTv\DomainSeriesRecording.cs" />
     <Compile Include="TimeShiftedTv\QuotaManagementModel.cs" />
+    <Compile Include="TimeShiftedTv\SearchableRecording.cs" />
     <Compile Include="TimeShiftedTv\UserRecording.cs" />
     <Compile Include="TimeShiftedTv\RecordingCB.cs" />
     <Compile Include="TimeShiftedTv\RecordingResponse.cs" />
