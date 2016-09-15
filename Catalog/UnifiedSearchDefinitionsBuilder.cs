@@ -341,8 +341,6 @@ namespace Catalog
                 }
 
                 definitions.recordingsToDomainRecordingsMapping = recordingsToDomainRecordingsMapping;
-
-
                 definitions.recordingsToEpgMapping = recordingsToEpgMapping;
             }
 
