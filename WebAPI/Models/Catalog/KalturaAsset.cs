@@ -203,4 +203,23 @@ namespace WebAPI.Models.Catalog
         public bool? EnableRecordingPlaybackNonExistingChannel { get; set; }
         
     }
+
+    /// <summary>
+    /// Recording-asset info
+    /// </summary>
+    [Serializable]
+    public class KalturaRecordingAsset : KalturaProgramAsset
+    {
+        /// <summary>
+        /// Recording identifier
+        /// </summary>
+        [DataMember(Name = "recordingId")]
+        [JsonProperty(PropertyName = "recordingId")]
+        [XmlElement(ElementName = "recordingId")]
+        public string RecordingId
+        {
+            get;
+            set;
+        }
+    }
 }
