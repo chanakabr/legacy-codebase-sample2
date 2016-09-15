@@ -237,19 +237,28 @@ namespace Catalog
                         definitions.specificAssets = new Dictionary<eAssetTypes, List<string>>();
                     }
 
-                    // If there are previous specific assets - we narrow down the list to contain only the user's recordings
-                    if (definitions.specificAssets.ContainsKey(eAssetTypes.NPVR))
+                    // If user has at least one recording
+                    if (recordings != null && recordings.Count > 0)
                     {
-                        var currentRecordings = definitions.specificAssets[eAssetTypes.NPVR];
+                        // If there are previous specific assets - we narrow down the list to contain only the user's recordings
+                        if (definitions.specificAssets.ContainsKey(eAssetTypes.NPVR))
+                        {
+                            var currentRecordings = definitions.specificAssets[eAssetTypes.NPVR];
 
-                        var newRecordings = currentRecordings.Intersect(recordings).ToList();
+                            var newRecordings = currentRecordings.Intersect(recordings).ToList();
 
-                        definitions.specificAssets[eAssetTypes.NPVR] = newRecordings;
+                            definitions.specificAssets[eAssetTypes.NPVR] = newRecordings;
+                        }
+                        // Otherwise we are happy with the list we got from conditional access
+                        else
+                        {
+                            definitions.specificAssets.Add(eAssetTypes.NPVR, recordings);
+                        }
                     }
-                    // Otherwise we are happy with the list we got from conditional access
                     else
                     {
-                        definitions.specificAssets.Add(eAssetTypes.NPVR, recordings);
+                        // if not, create a new list which symbols no assets at all.
+                        definitions.specificAssets[eAssetTypes.NPVR] = new List<string>() { "0" };
                     }
                 }
 
