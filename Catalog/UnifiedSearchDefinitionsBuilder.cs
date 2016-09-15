@@ -323,24 +323,25 @@ namespace Catalog
                 string url = Utils.GetWSURL("ws_cas");
                 cas.Url = url;
 
-                var casResponse = cas.GetDomainRecordingsMapping(userName, password, domainId);
+                var casResponse = cas.GetDomainSearchableRecordings(userName, password, domainId);
 
                 if (casResponse == null)
                 {
                     throw new Exception("WS_CAS GetDomainRecordingsMapping returned invalid response");
                 }
 
-                Dictionary<string, string> recordingsToDomainRecordingsMapping = new Dictionary<string,string>();
+                var recordingsToDomainRecordingsMapping = new Dictionary<string,string>();
+                var recordingsToEpgMapping = new Dictionary<string, string>();
 
                 foreach (var recording in casResponse)
                 {
-                    recordingsToDomainRecordingsMapping.Add(recording.value, recording.key);
-                    result.Add(recording.value);
+                    recordingsToDomainRecordingsMapping.Add(recording.RecordingId.ToString(), recording.DomainRecordingId.ToString());
+                    recordingsToEpgMapping.Add(recording.RecordingId.ToString(), recording.EpgId.ToString());
+                    result.Add(recording.RecordingId.ToString());
                 }
 
                 definitions.recordingsToDomainRecordingsMapping = recordingsToDomainRecordingsMapping;
 
-                var recordingsToEpgMapping = new Dictionary<string, string>();
 
                 definitions.recordingsToEpgMapping = recordingsToEpgMapping;
             }

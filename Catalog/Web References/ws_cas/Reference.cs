@@ -123,7 +123,7 @@ namespace Catalog.ws_cas {
         
         private System.Threading.SendOrPostCallback GetSeriesIdAndSeasonNumberByEpgIdOperationCompleted;
         
-        private System.Threading.SendOrPostCallback GetDomainRecordingsMappingOperationCompleted;
+        private System.Threading.SendOrPostCallback GetDomainSearchableRecordingsOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetUserPermittedItemsOperationCompleted;
         
@@ -474,7 +474,7 @@ namespace Catalog.ws_cas {
         public event GetSeriesIdAndSeasonNumberByEpgIdCompletedEventHandler GetSeriesIdAndSeasonNumberByEpgIdCompleted;
         
         /// <remarks/>
-        public event GetDomainRecordingsMappingCompletedEventHandler GetDomainRecordingsMappingCompleted;
+        public event GetDomainSearchableRecordingsCompletedEventHandler GetDomainSearchableRecordingsCompleted;
         
         /// <remarks/>
         public event GetUserPermittedItemsCompletedEventHandler GetUserPermittedItemsCompleted;
@@ -2485,35 +2485,35 @@ namespace Catalog.ws_cas {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetDomainRecordingsMapping", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public KeyValuePair[] GetDomainRecordingsMapping(string sWSUserName, string sWSPassword, long domainId) {
-            object[] results = this.Invoke("GetDomainRecordingsMapping", new object[] {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetDomainSearchableRecordings", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public SearchableRecording[] GetDomainSearchableRecordings(string sWSUserName, string sWSPassword, long domainId) {
+            object[] results = this.Invoke("GetDomainSearchableRecordings", new object[] {
                         sWSUserName,
                         sWSPassword,
                         domainId});
-            return ((KeyValuePair[])(results[0]));
+            return ((SearchableRecording[])(results[0]));
         }
         
         /// <remarks/>
-        public void GetDomainRecordingsMappingAsync(string sWSUserName, string sWSPassword, long domainId) {
-            this.GetDomainRecordingsMappingAsync(sWSUserName, sWSPassword, domainId, null);
+        public void GetDomainSearchableRecordingsAsync(string sWSUserName, string sWSPassword, long domainId) {
+            this.GetDomainSearchableRecordingsAsync(sWSUserName, sWSPassword, domainId, null);
         }
         
         /// <remarks/>
-        public void GetDomainRecordingsMappingAsync(string sWSUserName, string sWSPassword, long domainId, object userState) {
-            if ((this.GetDomainRecordingsMappingOperationCompleted == null)) {
-                this.GetDomainRecordingsMappingOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetDomainRecordingsMappingOperationCompleted);
+        public void GetDomainSearchableRecordingsAsync(string sWSUserName, string sWSPassword, long domainId, object userState) {
+            if ((this.GetDomainSearchableRecordingsOperationCompleted == null)) {
+                this.GetDomainSearchableRecordingsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetDomainSearchableRecordingsOperationCompleted);
             }
-            this.InvokeAsync("GetDomainRecordingsMapping", new object[] {
+            this.InvokeAsync("GetDomainSearchableRecordings", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        domainId}, this.GetDomainRecordingsMappingOperationCompleted, userState);
+                        domainId}, this.GetDomainSearchableRecordingsOperationCompleted, userState);
         }
         
-        private void OnGetDomainRecordingsMappingOperationCompleted(object arg) {
-            if ((this.GetDomainRecordingsMappingCompleted != null)) {
+        private void OnGetDomainSearchableRecordingsOperationCompleted(object arg) {
+            if ((this.GetDomainSearchableRecordingsCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetDomainRecordingsMappingCompleted(this, new GetDomainRecordingsMappingCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+                this.GetDomainSearchableRecordingsCompleted(this, new GetDomainSearchableRecordingsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -10809,6 +10809,51 @@ namespace Catalog.ws_cas {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class SearchableRecording {
+        
+        private long domainRecordingIdField;
+        
+        private long recordingIdField;
+        
+        private long epgIdField;
+        
+        /// <remarks/>
+        public long DomainRecordingId {
+            get {
+                return this.domainRecordingIdField;
+            }
+            set {
+                this.domainRecordingIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long RecordingId {
+            get {
+                return this.recordingIdField;
+            }
+            set {
+                this.recordingIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long EpgId {
+            get {
+                return this.epgIdField;
+            }
+            set {
+                this.epgIdField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class LicensedLinkResponse {
         
         private string mainUrlField;
@@ -13721,26 +13766,26 @@ namespace Catalog.ws_cas {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void GetDomainRecordingsMappingCompletedEventHandler(object sender, GetDomainRecordingsMappingCompletedEventArgs e);
+    public delegate void GetDomainSearchableRecordingsCompletedEventHandler(object sender, GetDomainSearchableRecordingsCompletedEventArgs e);
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetDomainRecordingsMappingCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+    public partial class GetDomainSearchableRecordingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
         
         private object[] results;
         
-        internal GetDomainRecordingsMappingCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+        internal GetDomainSearchableRecordingsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }
         
         /// <remarks/>
-        public KeyValuePair[] Result {
+        public SearchableRecording[] Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((KeyValuePair[])(this.results[0]));
+                return ((SearchableRecording[])(this.results[0]));
             }
         }
     }

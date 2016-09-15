@@ -1242,7 +1242,7 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="GetDomainRecordingsMapping">
+      <s:element name="GetDomainSearchableRecordings">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
@@ -1251,13 +1251,25 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="GetDomainRecordingsMappingResponse">
+      <s:element name="GetDomainSearchableRecordingsResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetDomainRecordingsMappingResult" type="tns:ArrayOfKeyValuePair" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetDomainSearchableRecordingsResult" type="tns:ArrayOfSearchableRecording" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="ArrayOfSearchableRecording">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="SearchableRecording" nillable="true" type="tns:SearchableRecording" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="SearchableRecording">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="DomainRecordingId" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="RecordingId" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="EpgId" type="s:long" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="GetUserPermittedItems">
         <s:complexType>
           <s:sequence>
@@ -3629,7 +3641,7 @@
       <s:element name="DomainQuotaResponse" nillable="true" type="tns:DomainQuotaResponse" />
       <s:element name="LicensedLinkResponse" nillable="true" type="tns:LicensedLinkResponse" />
       <s:element name="KeyValuePair" nillable="true" type="tns:KeyValuePair" />
-      <s:element name="ArrayOfKeyValuePair" nillable="true" type="tns:ArrayOfKeyValuePair" />
+      <s:element name="ArrayOfSearchableRecording" nillable="true" type="tns:ArrayOfSearchableRecording" />
       <s:element name="ArrayOfPermittedMediaContainer" nillable="true" type="tns:ArrayOfPermittedMediaContainer" />
       <s:element name="PermittedMediaContainerResponse" nillable="true" type="tns:PermittedMediaContainerResponse" />
       <s:element name="UserCAStatus" type="tns:UserCAStatus" />
@@ -4213,11 +4225,11 @@
   <wsdl:message name="GetSeriesIdAndSeasonNumberByEpgIdSoapOut">
     <wsdl:part name="parameters" element="tns:GetSeriesIdAndSeasonNumberByEpgIdResponse" />
   </wsdl:message>
-  <wsdl:message name="GetDomainRecordingsMappingSoapIn">
-    <wsdl:part name="parameters" element="tns:GetDomainRecordingsMapping" />
+  <wsdl:message name="GetDomainSearchableRecordingsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetDomainSearchableRecordings" />
   </wsdl:message>
-  <wsdl:message name="GetDomainRecordingsMappingSoapOut">
-    <wsdl:part name="parameters" element="tns:GetDomainRecordingsMappingResponse" />
+  <wsdl:message name="GetDomainSearchableRecordingsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetDomainSearchableRecordingsResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsSoapIn">
     <wsdl:part name="parameters" element="tns:GetUserPermittedItems" />
@@ -5130,13 +5142,13 @@
   <wsdl:message name="GetSeriesIdAndSeasonNumberByEpgIdHttpPostOut">
     <wsdl:part name="Body" element="tns:KeyValuePair" />
   </wsdl:message>
-  <wsdl:message name="GetDomainRecordingsMappingHttpPostIn">
+  <wsdl:message name="GetDomainSearchableRecordingsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="domainId" type="s:string" />
   </wsdl:message>
-  <wsdl:message name="GetDomainRecordingsMappingHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfKeyValuePair" />
+  <wsdl:message name="GetDomainSearchableRecordingsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfSearchableRecording" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -6399,9 +6411,9 @@
       <wsdl:input message="tns:GetSeriesIdAndSeasonNumberByEpgIdSoapIn" />
       <wsdl:output message="tns:GetSeriesIdAndSeasonNumberByEpgIdSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="GetDomainRecordingsMapping">
-      <wsdl:input message="tns:GetDomainRecordingsMappingSoapIn" />
-      <wsdl:output message="tns:GetDomainRecordingsMappingSoapOut" />
+    <wsdl:operation name="GetDomainSearchableRecordings">
+      <wsdl:input message="tns:GetDomainSearchableRecordingsSoapIn" />
+      <wsdl:output message="tns:GetDomainSearchableRecordingsSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsSoapIn" />
@@ -6909,9 +6921,9 @@
       <wsdl:input message="tns:GetSeriesIdAndSeasonNumberByEpgIdHttpPostIn" />
       <wsdl:output message="tns:GetSeriesIdAndSeasonNumberByEpgIdHttpPostOut" />
     </wsdl:operation>
-    <wsdl:operation name="GetDomainRecordingsMapping">
-      <wsdl:input message="tns:GetDomainRecordingsMappingHttpPostIn" />
-      <wsdl:output message="tns:GetDomainRecordingsMappingHttpPostOut" />
+    <wsdl:operation name="GetDomainSearchableRecordings">
+      <wsdl:input message="tns:GetDomainSearchableRecordingsHttpPostIn" />
+      <wsdl:output message="tns:GetDomainSearchableRecordingsHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsHttpPostIn" />
@@ -7650,8 +7662,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetDomainRecordingsMapping">
-      <soap:operation soapAction="http://ca.tvinci.com/GetDomainRecordingsMapping" style="document" />
+    <wsdl:operation name="GetDomainSearchableRecordings">
+      <soap:operation soapAction="http://ca.tvinci.com/GetDomainSearchableRecordings" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -8850,8 +8862,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetDomainRecordingsMapping">
-      <soap12:operation soapAction="http://ca.tvinci.com/GetDomainRecordingsMapping" style="document" />
+    <wsdl:operation name="GetDomainSearchableRecordings">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetDomainSearchableRecordings" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -9996,8 +10008,8 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetDomainRecordingsMapping">
-      <http:operation location="/GetDomainRecordingsMapping" />
+    <wsdl:operation name="GetDomainSearchableRecordings">
+      <http:operation location="/GetDomainSearchableRecordings" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
