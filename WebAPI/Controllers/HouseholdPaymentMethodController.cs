@@ -1,4 +1,5 @@
-﻿using KLogMonitor;
+﻿using ApiObjects.Response;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +28,7 @@ namespace WebAPI.Controllers
         /// </remarks>        
         [Route("list"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.UserSuspended)]
         public KalturaHouseholdPaymentMethodListResponse List()
         {
             List<KalturaHouseholdPaymentMethod> list = null;
@@ -63,6 +65,11 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("paymentMethodId", MinInteger = 1)]
+        [Throws(eResponseStatus.PaymentGatewayNotSetForHousehold)]
+        [Throws(eResponseStatus.PaymentGatewayNotValid)]
+        [Throws(eResponseStatus.PaymentMethodNotSetForHousehold)]
+        [Throws(eResponseStatus.ErrorSavingPaymentGatewayHouseholdPaymentMethod)]
+        [Throws(eResponseStatus.PaymentGatewayNotSupportPaymentMethod)]
         public bool SetAsDefault(int paymentGatewayId, int paymentMethodId)
         {
             bool response = false;
@@ -92,8 +99,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:  
-        /// Payment method not set for household = 6048, PaymentMethodIsUsedByHousehold = 3041, Error removing payment gateway household payment method = 6057,
-        /// PaymentGatewayNotExist = 6008, PaymentGatewayNotSetForHousehold = 6007,
+        /// Payment method not set for household = 6048, PaymentMethodIsUsedByHousehold = 3041, PaymentGatewayNotExist = 6008, PaymentGatewayNotSetForHousehold = 6007,
         /// </remarks>
         /// <param name="paymentGatewayId">Payment Gateway Identifier</param> 
         /// <param name="paymentMethodId">Payment method Identifier</param>
@@ -102,6 +108,10 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("paymentMethodId", MinInteger = 1)]
+        [Throws(eResponseStatus.PaymentMethodNotSetForHousehold)]
+        [Throws(eResponseStatus.PaymentMethodIsUsedByHousehold)]
+        [Throws(eResponseStatus.PaymentGatewayNotExist)]
+        [Throws(eResponseStatus.PaymentGatewayNotSetForHousehold)]
         public bool Remove(int paymentGatewayId, int paymentMethodId)
         {
             bool response = false;
@@ -131,8 +141,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:  
-        /// Payment method not set for household = 6048, Error removing payment gateway household payment method = 6057,
-        /// PaymentGatewayNotExist = 6008, PaymentGatewayNotSetForHousehold = 6007
+        /// Payment method not set for household = 6048, PaymentGatewayNotExist = 6008, PaymentGatewayNotSetForHousehold = 6007
         /// </remarks>
         /// <param name="paymentGatewayId">Payment Gateway Identifier</param> 
         /// <param name="paymentMethodId">Payment method Identifier</param>
@@ -141,6 +150,9 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("paymentMethodId", MinInteger = 1)]
+        [Throws(eResponseStatus.PaymentMethodNotSetForHousehold)]
+        [Throws(eResponseStatus.PaymentGatewayNotExist)]
+        [Throws(eResponseStatus.PaymentGatewayNotSetForHousehold)]
         public bool ForceRemove(int paymentGatewayId, int paymentMethodId)
         {
             bool response = false;
@@ -230,6 +242,11 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("add"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.PaymentMethodNotSetForHousehold)]
+        [Throws(eResponseStatus.PaymentGatewayNotValid)]
+        [Throws(eResponseStatus.PaymentGatewayNotSetForHousehold)]
+        [Throws(eResponseStatus.ErrorSavingPaymentGatewayHouseholdPaymentMethod)]
+        [Throws(eResponseStatus.PaymentGatewayNotSupportPaymentMethod)]
         public KalturaHouseholdPaymentMethod Add(KalturaHouseholdPaymentMethod householdPaymentMethod)
         {
             KalturaHouseholdPaymentMethod response = null;

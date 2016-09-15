@@ -18,16 +18,16 @@ namespace WebAPI.Models.Users
     public class KalturaOTTUserFilter : KalturaFilter<KalturaOTTUserOrderBy>
     {
         /// <summary>
-        ///User Name
+        /// Username
         /// </summary>
-        [DataMember(Name = "userNameEqual")]
-        [JsonProperty("userNameEqual")]
-        [XmlElement(ElementName = "userNameEqual")]
+        [DataMember(Name = "usernameEqual")]
+        [JsonProperty("usernameEqual")]
+        [XmlElement(ElementName = "usernameEqual")]
         [SchemeProperty(RequiresPermission = (int)RequestType.READ)]
-        public string UserNameEqual { get; set; }
+        public string UsernameEqual { get; set; }
 
         /// <summary>
-        /// External Id
+        /// User external identifier
         /// </summary>
         [DataMember(Name = "externalIdEqual")]
         [XmlElement("externalIdEqual", IsNullable = true)]
@@ -36,7 +36,7 @@ namespace WebAPI.Models.Users
         public string ExternalIdEqual { get; set; }
 
         /// <summary>
-        /// External Id
+        /// List of user identifiers separated by ','
         /// </summary>
         [DataMember(Name = "idIn")]
         [XmlElement("idIn", IsNullable = true)]
@@ -46,9 +46,9 @@ namespace WebAPI.Models.Users
 
         internal void Validate()
         {
-            if ((!string.IsNullOrEmpty(UserNameEqual) && !string.IsNullOrEmpty(ExternalIdEqual) && !string.IsNullOrEmpty(IdIn)) ||
-                (!string.IsNullOrEmpty(UserNameEqual) && !string.IsNullOrEmpty(ExternalIdEqual)) ||
-                (!string.IsNullOrEmpty(UserNameEqual) && !string.IsNullOrEmpty(IdIn)) ||
+            if ((!string.IsNullOrEmpty(UsernameEqual) && !string.IsNullOrEmpty(ExternalIdEqual) && !string.IsNullOrEmpty(IdIn)) ||
+                (!string.IsNullOrEmpty(UsernameEqual) && !string.IsNullOrEmpty(ExternalIdEqual)) ||
+                (!string.IsNullOrEmpty(UsernameEqual) && !string.IsNullOrEmpty(IdIn)) ||
                 (!string.IsNullOrEmpty(IdIn) && !string.IsNullOrEmpty(ExternalIdEqual)))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaOTTUserFilter.userNameEqual", "KalturaOTTUserFilter.externalIdEqual");
@@ -72,13 +72,13 @@ namespace WebAPI.Models.Users
         }
         public override KalturaOTTUserOrderBy GetDefaultOrderByValue()
         {
-            return KalturaOTTUserOrderBy.ID_ASC;
+            return KalturaOTTUserOrderBy.NONE;
         }
     }
 
 
     public enum KalturaOTTUserOrderBy
     {
-        ID_ASC   
+        NONE   
     }
 }

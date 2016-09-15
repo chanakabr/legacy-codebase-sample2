@@ -39,6 +39,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "name")]
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
+        [SchemeProperty(ReadOnly = true)]
         public string Name { get; set; }
 
         /// <summary>
@@ -47,6 +48,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "concurrentLimit")]
         [JsonProperty("concurrentLimit")]
         [XmlElement(ElementName = "concurrentLimit")]
+        [SchemeProperty(ReadOnly = true)]
         public int? ConcurrentLimit { get; set; }
 
         /// <summary>
@@ -55,6 +57,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "deviceLimit")]
         [JsonProperty("deviceLimit")]
         [XmlElement(ElementName = "deviceLimit")]
+        [SchemeProperty(ReadOnly = true)]
         public int? DeviceLimit { get; set; }
 
         /// <summary>
@@ -63,6 +66,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "deviceFrequency")]
         [JsonProperty("deviceFrequency")]
         [XmlElement(ElementName = "deviceFrequency")]
+        [SchemeProperty(ReadOnly = true)]
         public int? DeviceFrequency { get; set; }
 
         /// <summary>
@@ -71,6 +75,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "deviceFrequencyDescription")]
         [JsonProperty("deviceFrequencyDescription")]
         [XmlElement(ElementName = "deviceFrequencyDescription")]
+        [SchemeProperty(ReadOnly = true)]
         public string DeviceFrequencyDescription { get; set; }
 
         /// <summary>
@@ -79,6 +84,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "userFrequency")]
         [JsonProperty("userFrequency")]
         [XmlElement(ElementName = "userFrequency")]
+        [SchemeProperty(ReadOnly = true)]
         public int? UserFrequency { get; set; }
 
         /// <summary>
@@ -87,6 +93,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "userFrequencyDescription")]
         [JsonProperty("userFrequencyDescription")]
         [XmlElement(ElementName = "userFrequencyDescription")]
+        [SchemeProperty(ReadOnly = true)]
         public string UserFrequencyDescription { get; set; }
 
         /// <summary>
@@ -95,6 +102,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "npvrQuotaInSeconds")]
         [JsonProperty("npvrQuotaInSeconds")]
         [XmlElement(ElementName = "npvrQuotaInSeconds")]
+        [SchemeProperty(ReadOnly = true)]
         public int? NpvrQuotaInSeconds { get; set; }
 
         /// <summary>
@@ -103,6 +111,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "usersLimit")]
         [JsonProperty("usersLimit")]
         [XmlElement(ElementName = "usersLimit")]
+        [SchemeProperty(ReadOnly = true)]
         public int? UsersLimit { get; set; }
 
         /// <summary>
@@ -112,6 +121,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("deviceFamiliesLimitations")]
         [XmlArray(ElementName = "deviceFamiliesLimitations", IsNullable = true)]
         [XmlArrayItem("item")]
+        [SchemeProperty(ReadOnly = true)]
         public List<KalturaHouseholdDeviceFamilyLimitations> DeviceFamiliesLimitations { get; set; }
 
     }

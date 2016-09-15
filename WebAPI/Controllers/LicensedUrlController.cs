@@ -103,7 +103,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Get the URL for playing an asset - EPG or media (not available for recording for now).
+        /// Get the URL for playing an asset - program, media or recording
         /// </summary>
         [Route("get"), HttpPost]
         [ApiAuthorize]

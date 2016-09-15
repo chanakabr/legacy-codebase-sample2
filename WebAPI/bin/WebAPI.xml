@@ -185,7 +185,7 @@
             entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
             Comparison operators: for numerical fields =, >, >=, <, <=. For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or. 
             Search values are limited to 20 characters each.
-            (maximum length of entire filter is 1024 characters)]]></param>
+            (maximum length of entire filter is 2048 characters)]]></param>
             <param name="order_by">Required sort option to apply for the identified assets. If omitted – will use relevancy.
             Possible values: relevancy, a_to_z, z_to_a, views, ratings, votes, newest.</param>
             <param name="with"> Additional data to return per asset, formatted as a comma-separated array. 
@@ -259,7 +259,7 @@
             Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date.
             Comparison operators: for numerical fields =, >, >=, <, <=. For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or. 
             Search values are limited to 20 characters each.
-            (maximum length of entire filter is 1024 characters)]]></param>
+            (maximum length of entire filter is 2048 characters)]]></param>
             <remarks>Possible status codes: 
             BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, Channel does not exist = 4018
             </remarks>
@@ -421,6 +421,76 @@
             <returns></returns>
             <remarks>Possible status codes: CDN partner settings not found = 5025</remarks>   
         </member>
+        <member name="M:WebAPI.Controllers.CountryController.List(WebAPI.Models.API.KalturaCountryFilter)">
+            <summary>
+            Get the list of countries for the group with option to filter by countries identifiers
+            </summary>
+            <param name="filter">Country filter</param>
+            <remarks></remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.DeviceFamilyController.List">
+            <summary>
+            Return a list of the available device families  series recordings for the household with optional filter by status and KSQL.
+            </summary>
+            <param name="filter">Filter parameters for filtering out the result - support order by only - START_DATE_ASC, START_DATE_DESC, ID_ASC,ID_DESC,SERIES_ID_ASC, SERIES_ID_DESC</param>
+            <returns></returns>
+            <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024</remarks>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaCountryFilter">
+            <summary>
+            Country filter
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaFilter`1">
+            <summary>
+            Base filter
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaOTTObject">
+            <summary>
+            Base class
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaFilter`1.OrderBy">
+            <summary>
+            order by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaCountryFilter.IdIn">
+            <summary>
+            Country identifiers
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaListResponse">
+            <summary>
+            Base list wrapper
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaListResponse.TotalCount">
+            <summary>
+            Total items
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaCountryListResponse.Objects">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDeviceFilter.HouseholdIdEqual">
+            <summary>
+            The identifier of the household
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDeviceFilter.DeviceFamilyIdIn">
+            <summary>
+            Device family Ids
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaDeviceFamilyListResponse.Objects">
+            <summary>
+            
+            </summary>
+        </member>
         <member name="M:WebAPI.Controllers.RegionController.List(WebAPI.Models.API.KalturaRegionFilter)">
             <summary>
             Returns all regions for the partner
@@ -469,8 +539,7 @@
             </summary>
             <remarks>
             Possible status codes:  
-            Payment method not set for household = 6048, PaymentMethodIsUsedByHousehold = 3041, Error removing payment gateway household payment method = 6057,
-            PaymentGatewayNotExist = 6008, PaymentGatewayNotSetForHousehold = 6007,
+            Payment method not set for household = 6048, PaymentMethodIsUsedByHousehold = 3041, PaymentGatewayNotExist = 6008, PaymentGatewayNotSetForHousehold = 6007,
             </remarks>
             <param name="paymentGatewayId">Payment Gateway Identifier</param> 
             <param name="paymentMethodId">Payment method Identifier</param>
@@ -482,8 +551,7 @@
             </summary>
             <remarks>
             Possible status codes:  
-            Payment method not set for household = 6048, Error removing payment gateway household payment method = 6057,
-            PaymentGatewayNotExist = 6008, PaymentGatewayNotSetForHousehold = 6007
+            Payment method not set for household = 6048, PaymentGatewayNotExist = 6008, PaymentGatewayNotSetForHousehold = 6007
             </remarks>
             <param name="paymentGatewayId">Payment Gateway Identifier</param> 
             <param name="paymentMethodId">Payment method Identifier</param>
@@ -502,6 +570,17 @@
             <param name="paymentMethodName"></param>      
             <param name="paymentDetails"></param>      
             <param name="paymentMethodExternalId"></param>        
+        </member>
+        <member name="M:WebAPI.Controllers.HouseholdPaymentMethodController.Add(WebAPI.Models.Billing.KalturaHouseholdPaymentMethod)">
+            <summary>
+            Add a new payment method for household
+            </summary>
+            <remarks>
+            Possible status codes:  Payment gateway not set for household = 6007, Payment gateway not valid = 6043, Payment method not set for household = 6048,
+            Error saving payment gateway household payment method = 6052, Payment gateway not support payment method = 6056
+            </remarks>
+            <param name="householdPaymentMethod">Household payment method</param> 
+            <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.HouseholdPaymentGatewayController.List">
             <summary>
@@ -874,7 +953,7 @@
         </member>
         <member name="M:WebAPI.Controllers.LicensedUrlController.Get(WebAPI.Models.ConditionalAccess.KalturaLicensedUrlBaseRequest)">
             <summary>
-            Get the URL for playing an asset - EPG or media (not available for recording for now).
+            Get the URL for playing an asset - program, media or recording
             </summary>
         </member>
         <member name="M:WebAPI.Controllers.HomeNetworkController.Add(WebAPI.Models.Domains.KalturaHomeNetwork)">
@@ -1808,6 +1887,13 @@
             <remarks>Possible status codes: 
             Limitation period = 1014, Exceeded limit = 1001 </remarks>
         </member>
+        <member name="M:WebAPI.Controllers.HouseholdDeviceController.List(WebAPI.Models.Domains.KalturaHouseholdDeviceFilter)">
+            <summary>
+            
+            </summary>
+            <returns></returns><remarks>Possible status codes: 
+            </remarks>
+        </member>
         <member name="M:WebAPI.Controllers.BookmarkController.ListOldStandard(WebAPI.Models.Catalog.KalturaAssetsFilter)">
             <summary>
             Returns player position record/s for the requested asset and the requesting user. 
@@ -1935,6 +2021,15 @@
             <param name="is_master">True if the new user should be added as master user</param>
             <remarks>Possible status codes: 
             Household suspended = 1009, Invalid user = 1026, User Already In household = 1029
+            </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.HouseholdUserController.List(WebAPI.Models.Domains.KalturaHouseholdUserFilter)">
+            <summary>
+            Adds a user to household       
+            </summary>                
+            <param name="filter">Household user filter</param>
+            <remarks>Possible status codes: 
+            Household does not exist = 1006, Household user failed = 1007  
             </remarks>
         </member>
         <member name="M:WebAPI.Controllers.PriceController.List(WebAPI.Models.ConditionalAccess.KalturaPricesFilter,System.String)">
@@ -2932,21 +3027,6 @@
             <param name="silent">Fail silently</param>
             <returns>True if the method argument is permitted, false otherwise</returns>
         </member>
-        <member name="T:WebAPI.Models.General.KalturaFilter`1">
-            <summary>
-            Base filter
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaOTTObject">
-            <summary>
-            Base class
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaFilter`1.OrderBy">
-            <summary>
-            order by
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.API.KalturaRegionFilter.ExternalIdIn">
             <summary>
             List of comma separated regions external identifiers
@@ -2955,16 +3035,6 @@
         <member name="T:WebAPI.Models.API.KalturaRegionListResponse">
             <summary>
             Regions list
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaListResponse">
-            <summary>
-            Base list wrapper
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaListResponse.TotalCount">
-            <summary>
-            Total items
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaRegionListResponse.Regions">
@@ -3369,8 +3439,8 @@
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaBaseAssetInfo.Type">
             <summary>
-            Identifies the asset type (EPG, Movie, TV Series, etc). 
-            Possible values: 0 – EPG linear programs, or any asset type ID according to the asset types IDs defined in the system.
+            Identifies the asset type (EPG, Recording, Movie, TV Series, etc). 
+            Possible values: 0 – EPG linear programs, 1 - Recording; or any asset type ID according to the asset types IDs defined in the system.
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaBaseAssetInfo.Name">
@@ -3562,7 +3632,7 @@
             entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
             Comparison operators: for numerical fields =, >, >=, <, <=, : (in). For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or. 
             Search values are limited to 20 characters each.
-            (maximum length of entire filter is 1024 characters)]]>
+            (maximum length of entire filter is 2048 characters)]]>
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaRelatedFilter.IdEqual">
@@ -3611,7 +3681,7 @@
             entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
             Comparison operators: for numerical fields =, >, >=, <, <=, : (in). For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or. 
             Search values are limited to 20 characters each.
-            (maximum length of entire filter is 1024 characters)]]>
+            (maximum length of entire filter is 2048 characters)]]>
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaSearchAssetFilter.TypeIn">
@@ -4339,9 +4409,29 @@
             Household payment method identifier (internal)
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Billing.KalturaHouseholdPaymentMethod.ExternalId">
+            <summary>
+            External identifier for the household payment method
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Billing.KalturaHouseholdPaymentMethod.PaymentGatewayId">
             <summary>
             Payment-gateway identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Billing.KalturaHouseholdPaymentMethod.Details">
+            <summary>
+            Description of the payment method details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Billing.KalturaHouseholdPaymentMethod.IsDefault">
+            <summary>
+            indicates whether the payment method is set as default for the household
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Billing.KalturaHouseholdPaymentMethod.PaymentMethodProfileId">
+            <summary>
+            Payment method profile identifier
             </summary>
         </member>
         <member name="P:WebAPI.Models.Billing.KalturaHouseholdPaymentMethod.Name">
@@ -4352,11 +4442,6 @@
         <member name="P:WebAPI.Models.Billing.KalturaHouseholdPaymentMethod.AllowMultiInstance">
             <summary>
             Indicates whether the payment method allow multiple instances 
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Billing.KalturaHouseholdPaymentMethod.Details">
-            <summary>
-            Payment method details
             </summary>
         </member>
         <member name="P:WebAPI.Models.Billing.KalturaHouseholdPaymentMethod.Selected">
@@ -5106,9 +5191,29 @@
             A flag that indicates if only the lowest price of an item should return
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDeviceListResponse.Objects">
+            <summary>
+            Household devices
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdUserFilter.HouseholdIdEqual">
+            <summary>
+            The identifier of the household
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Domains.KalturaHouseholdUserListResponse">
+            <summary>
+            Household users list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdUserListResponse.Objects">
+            <summary>
+            Household users
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Domains.KalturaHouseholdUser">
             <summary>
-            Household details
+            Household user 
             </summary>
         </member>
         <member name="P:WebAPI.Models.Domains.KalturaHouseholdUser.HouseholdId">
@@ -5134,6 +5239,11 @@
         <member name="P:WebAPI.Models.Domains.KalturaHouseholdUser.Status">
             <summary>
             The status of the user in the household 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdUser.IsDefault">
+            <summary>
+            True if the user is a default user
             </summary>
         </member>
         <member name="T:WebAPI.Models.Domains.KalturaHouseholdLimitations">
@@ -6566,6 +6676,11 @@
             Device state
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDevice.DeviceFamilyId">
+            <summary>
+            Device family id
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Domains.KalturaDeviceFamilyBase">
             <summary>
             Device family details
@@ -6609,6 +6724,16 @@
         <member name="P:WebAPI.Models.Domains.KalturaHouseholdDeviceFamilyLimitations.Frequency">
             <summary>
             Allowed device change frequency code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDeviceFamilyLimitations.DeviceLimit">
+            <summary>
+            Max number of devices allowed for this family
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdDeviceFamilyLimitations.ConcurrentLimit">
+            <summary>
+            Max number of streams allowed for this family
             </summary>
         </member>
         <member name="T:WebAPI.Models.Domains.KalturaHousehold">
@@ -7193,14 +7318,19 @@
             OTT User filter
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Users.KalturaOTTUserFilter.UserNameEqual">
-             <summary>
-            User Name
-             </summary>
+        <member name="P:WebAPI.Models.Users.KalturaOTTUserFilter.UsernameEqual">
+            <summary>
+            Username
+            </summary>
         </member>
         <member name="P:WebAPI.Models.Users.KalturaOTTUserFilter.ExternalIdEqual">
             <summary>
-            External Id
+            User external identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaOTTUserFilter.IdIn">
+            <summary>
+            List of user identifiers separated by ','
             </summary>
         </member>
         <member name="T:WebAPI.Models.Users.KalturaSession">
@@ -7839,6 +7969,11 @@
             Country
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Users.KalturaOTTUser.CountryId">
+            <summary>
+            Country identifier
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Users.KalturaOTTUser.Zip">
             <summary>
             Zip code
@@ -7891,7 +8026,12 @@
         </member>
         <member name="P:WebAPI.Models.Users.KalturaOTTUser.SuspentionState">
             <summary>
-            Suspention state
+            Suspension state
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaOTTUser.SuspensionState">
+            <summary>
+            Suspension state
             </summary>
         </member>
         <member name="P:WebAPI.Models.Users.KalturaOTTUser.UserState">
@@ -7973,6 +8113,15 @@
             <remarks/>
         </member>
         <member name="M:WebAPI.Api.API.#ctor">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DeleteBulkExportTask(System.String,System.String,System.Int64,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DeleteBulkExportTaskAsync(System.String,System.String,System.Int64,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DeleteBulkExportTaskAsync(System.String,System.String,System.Int64,System.String,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Api.API.GetBulkExportTasks(System.String,System.String,System.Int64[],System.String[],WebAPI.Api.BulkExportTaskOrderBy)">
@@ -8308,6 +8457,24 @@
         <member name="M:WebAPI.Api.API.UpdateScheduledTaskNextRunIntervalInSecondsAsync(WebAPI.Api.ScheduledTaskType,System.Double,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.Api.API.GetDeviceFamilyList(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetDeviceFamilyListAsync(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetDeviceFamilyListAsync(System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetCountryList(System.String,System.String,System.Int32[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetCountryListAsync(System.String,System.String,System.Int32[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetCountryListAsync(System.String,System.String,System.Int32[],System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.Api.API.TVAPI_GetTvinciGUID(System.String,System.String,WebAPI.Api.InitializationObject)">
             <remarks/>
         </member>
@@ -8551,13 +8718,22 @@
         <member name="M:WebAPI.Api.API.GetChannelsAssetsIDsAsync(System.String,System.String,System.Int32[],System.Int32[],System.Boolean,System.String,System.Boolean,System.Boolean,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.GetChannelAssets(System.String,System.String,System.Int32)">
+        <member name="M:WebAPI.Api.API.GetChannelAssets(System.String,System.String,System.Int32,System.Int32,System.Int32)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.GetChannelAssetsAsync(System.String,System.String,System.Int32)">
+        <member name="M:WebAPI.Api.API.GetChannelAssetsAsync(System.String,System.String,System.Int32,System.Int32,System.Int32)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.GetChannelAssetsAsync(System.String,System.String,System.Int32,System.Object)">
+        <member name="M:WebAPI.Api.API.GetChannelAssetsAsync(System.String,System.String,System.Int32,System.Int32,System.Int32,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SearchAssets(System.String,System.String,System.String,System.Int32,System.Int32,System.Boolean,System.Int32,System.Boolean,System.String,System.String,System.String,System.Int32,System.Int32,System.Boolean)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SearchAssetsAsync(System.String,System.String,System.String,System.Int32,System.Int32,System.Boolean,System.Int32,System.Boolean,System.String,System.String,System.String,System.Int32,System.Int32,System.Boolean)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SearchAssetsAsync(System.String,System.String,System.String,System.Int32,System.Int32,System.Boolean,System.Int32,System.Boolean,System.String,System.String,System.String,System.Int32,System.Int32,System.Boolean,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Api.API.GetAvailableFileTypes(System.String,System.String)">
@@ -9451,16 +9627,10 @@
         <member name="M:WebAPI.Api.API.UpdateBulkExportTaskAsync(System.String,System.String,System.Int64,System.String,System.String,WebAPI.Api.eBulkExportDataType,System.String,WebAPI.Api.eBulkExportExportType,System.Int64,System.String,System.Int32[],System.Nullable{System.Boolean},System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.DeleteBulkExportTask(System.String,System.String,System.Int64,System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.DeleteBulkExportTaskAsync(System.String,System.String,System.Int64,System.String)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.DeleteBulkExportTaskAsync(System.String,System.String,System.Int64,System.String,System.Object)">
-            <remarks/>
-        </member>
         <member name="M:WebAPI.Api.API.CancelAsync(System.Object)">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.DeleteBulkExportTaskCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.Api.API.GetBulkExportTasksCompleted">
@@ -9574,6 +9744,12 @@
         <member name="E:WebAPI.Api.API.UpdateScheduledTaskNextRunIntervalInSecondsCompleted">
             <remarks/>
         </member>
+        <member name="E:WebAPI.Api.API.GetDeviceFamilyListCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.GetCountryListCompleted">
+            <remarks/>
+        </member>
         <member name="E:WebAPI.Api.API.TVAPI_GetTvinciGUIDCompleted">
             <remarks/>
         </member>
@@ -9656,6 +9832,9 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.Api.API.GetChannelAssetsCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.SearchAssetsCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.Api.API.GetAvailableFileTypesCompleted">
@@ -9953,9 +10132,6 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.Api.API.UpdateBulkExportTaskCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.DeleteBulkExportTaskCompleted">
             <remarks/>
         </member>
         <member name="T:WebAPI.Billing.module">
@@ -10504,6 +10680,15 @@
         <member name="M:WebAPI.Billing.module.AddPaymentGatewayHouseholdPaymentMethodAsync(System.String,System.String,System.String,System.Int32,System.String,System.String,System.String,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.Billing.module.AddPaymentGatewayPaymentMethodToHousehold(System.String,System.String,WebAPI.Billing.HouseholdPaymentMethod,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.AddPaymentGatewayPaymentMethodToHouseholdAsync(System.String,System.String,WebAPI.Billing.HouseholdPaymentMethod,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.AddPaymentGatewayPaymentMethodToHouseholdAsync(System.String,System.String,WebAPI.Billing.HouseholdPaymentMethod,System.Int32,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.Billing.module.CancelAsync(System.Object)">
             <remarks/>
         </member>
@@ -10685,6 +10870,9 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.Billing.module.AddPaymentGatewayHouseholdPaymentMethodCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Billing.module.AddPaymentGatewayPaymentMethodToHouseholdCompleted">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.module">
@@ -15204,7 +15392,7 @@
         </member>
         <member name="M:WebAPI.Controllers.OttUserController.GetEncryptedUserId">
             <summary>
-            Resend the activation token to a user
+            Returns the identifier of the user encrypted with SHA1 using configured key
             </summary>
             <returns></returns>
         </member>
@@ -15499,22 +15687,22 @@
             Summary description for Swagger
             </summary>
         </member>
-        <member name="T:WebAPI.Api.BulkExportTaskOrderBy">
+        <member name="T:WebAPI.Api.Status">
             <remarks/>
         </member>
-        <member name="F:WebAPI.Api.BulkExportTaskOrderBy.CreateDateAsc">
+        <member name="P:WebAPI.Api.Status.Code">
             <remarks/>
         </member>
-        <member name="F:WebAPI.Api.BulkExportTaskOrderBy.CreateDateDesc">
+        <member name="P:WebAPI.Api.Status.Message">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Api.BulkExportTasksResponse">
+        <member name="T:WebAPI.Api.BulkExportTaskResponse">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.BulkExportTasksResponse.Tasks">
+        <member name="P:WebAPI.Api.BulkExportTaskResponse.Task">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.BulkExportTasksResponse.Status">
+        <member name="P:WebAPI.Api.BulkExportTaskResponse.Status">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.BulkExportTask">
@@ -15578,24 +15766,6 @@
             <remarks/>
         </member>
         <member name="F:WebAPI.Api.eBulkExportExportType.Incremental">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.BulkExportTaskResponse">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.BulkExportTaskResponse.Task">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.BulkExportTaskResponse.Status">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.Status">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.Status.Code">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.Status.Message">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.ExternalChannelResponseList">
@@ -16132,6 +16302,9 @@
         <member name="P:WebAPI.Api.EPGChannelProgrammeObject1.CREATE_DATE">
             <remarks/>
         </member>
+        <member name="P:WebAPI.Api.EPGChannelProgrammeObject1.CRID">
+            <remarks/>
+        </member>
         <member name="P:WebAPI.Api.EPGChannelProgrammeObject1.DESCRIPTION">
             <remarks/>
         </member>
@@ -16172,9 +16345,6 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.EPGChannelProgrammeObject1.IS_ACTIVE">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.EPGChannelProgrammeObject1.IS_RECORDED">
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.EPGChannelProgrammeObject1.LIKE_COUNTER">
@@ -17665,6 +17835,48 @@
         <member name="P:WebAPI.Api.InitializationObject.m_sAdminToken">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Api.Country">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.Country.Id">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.Country.Name">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.Country.Code">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.CountryResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CountryResponse.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CountryResponse.Countries">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.DeviceFamily">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.DeviceFamily.Id">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.DeviceFamily.Name">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.DeviceFamilyResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.DeviceFamilyResponse.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.DeviceFamilyResponse.DeviceFamilies">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.DeviceFamilyResponse.TotalItems">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Api.ScheduledTaskLastRunDetails">
             <remarks/>
         </member>
@@ -18073,18 +18285,6 @@
         <member name="P:WebAPI.Api.ApiActionPermissionItem.Action">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Api.ApiParameterPermissionItem">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ApiParameterPermissionItem.Object">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ApiParameterPermissionItem.Parameter">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ApiParameterPermissionItem.Action">
-            <remarks/>
-        </member>
         <member name="T:WebAPI.Api.ApiArgumentPermissionItem">
             <remarks/>
         </member>
@@ -18095,6 +18295,18 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.ApiArgumentPermissionItem.Parameter">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.ApiParameterPermissionItem">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ApiParameterPermissionItem.Object">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ApiParameterPermissionItem.Parameter">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ApiParameterPermissionItem.Action">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.GroupPermission">
@@ -18134,6 +18346,24 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.RolesResponse.Status">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.BulkExportTasksResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.BulkExportTasksResponse.Tasks">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.BulkExportTasksResponse.Status">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.BulkExportTaskOrderBy">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.BulkExportTaskOrderBy.CreateDateAsc">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.BulkExportTaskOrderBy.CreateDateDesc">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.ePermissionType">
@@ -18269,6 +18499,15 @@
             <remarks/>
         </member>
         <member name="F:WebAPI.Api.GenericRuleOrderBy.NameDesc">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.DeleteBulkExportTaskCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.DeleteBulkExportTaskCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.DeleteBulkExportTaskCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.GetBulkExportTasksCompletedEventHandler">
@@ -18604,6 +18843,24 @@
         <member name="P:WebAPI.Api.UpdateScheduledTaskNextRunIntervalInSecondsCompletedEventArgs.Result">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Api.GetDeviceFamilyListCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetDeviceFamilyListCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GetDeviceFamilyListCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetCountryListCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetCountryListCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GetCountryListCompletedEventArgs.Result">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Api.TVAPI_GetTvinciGUIDCompletedEventHandler">
             <remarks/>
         </member>
@@ -18866,6 +19123,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.GetChannelAssetsCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.SearchAssetsCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.SearchAssetsCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.SearchAssetsCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.GetAvailableFileTypesCompletedEventHandler">
@@ -19759,15 +20025,6 @@
         <member name="P:WebAPI.Api.UpdateBulkExportTaskCompletedEventArgs.Result">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Api.DeleteBulkExportTaskCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.DeleteBulkExportTaskCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.DeleteBulkExportTaskCompletedEventArgs.Result">
-            <remarks/>
-        </member>
         <member name="T:WebAPI.Billing.AdyenBillingDetail">
             <remarks/>
         </member>
@@ -19795,13 +20052,13 @@
         <member name="P:WebAPI.Billing.BillingInfo.variant">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Billing.PaymentMethodIdResponse">
+        <member name="T:WebAPI.Billing.HouseholdPaymentMethodResponse">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Billing.PaymentMethodIdResponse.PaymentMethodId">
+        <member name="P:WebAPI.Billing.HouseholdPaymentMethodResponse.Status">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Billing.PaymentMethodIdResponse.Status">
+        <member name="P:WebAPI.Billing.HouseholdPaymentMethodResponse.PaymentMethod">
             <remarks/>
         </member>
         <member name="T:WebAPI.Billing.Status">
@@ -19811,6 +20068,36 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Billing.Status.Message">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.HouseholdPaymentMethod">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.HouseholdPaymentMethod.ID">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.HouseholdPaymentMethod.ExternalId">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.HouseholdPaymentMethod.Details">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.HouseholdPaymentMethod.Selected">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.HouseholdPaymentMethod.PaymentGatewayId">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.HouseholdPaymentMethod.PaymentMethodId">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.PaymentMethodIdResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentMethodIdResponse.PaymentMethodId">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentMethodIdResponse.Status">
             <remarks/>
         </member>
         <member name="T:WebAPI.Billing.PaymentMethodResponse">
@@ -20024,18 +20311,6 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Billing.PaymentGatwayPaymentMethods.HouseHoldPaymentMethods">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Billing.HouseholdPaymentMethod">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.HouseholdPaymentMethod.ID">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.HouseholdPaymentMethod.Details">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.HouseholdPaymentMethod.Selected">
             <remarks/>
         </member>
         <member name="T:WebAPI.Billing.PaymentGateway">
@@ -20804,6 +21079,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Billing.AddPaymentGatewayHouseholdPaymentMethodCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.AddPaymentGatewayPaymentMethodToHouseholdCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.AddPaymentGatewayPaymentMethodToHouseholdCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.AddPaymentGatewayPaymentMethodToHouseholdCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.Status">

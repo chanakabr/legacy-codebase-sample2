@@ -612,7 +612,14 @@ namespace Validator.Managers.Scheme
 
         private string getDescription(MethodInfo method)
         {
-            return getDescription(string.Format("//member[starts-with(@name,'M:{0}.{1}(')]", method.ReflectedType.FullName, method.Name));
+            if (method.GetParameters().Length > 0)
+            {
+                return getDescription(string.Format("//member[starts-with(@name,'M:{0}.{1}(')]", method.ReflectedType.FullName, method.Name));
+            }
+            else
+            {
+                return getDescription(string.Format("//member[@name='M:{0}.{1}']", method.ReflectedType.FullName, method.Name));
+            }
         }
 
         private string getDescription(MethodInfo method, ParameterInfo param)

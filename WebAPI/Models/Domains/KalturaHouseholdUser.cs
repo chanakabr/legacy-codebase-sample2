@@ -76,6 +76,15 @@ namespace WebAPI.Models.Domains
         [SchemeProperty(ReadOnly = true)]
         public KalturaHouseholdUserStatus Status { get; set; }
 
+        /// <summary>
+        /// True if the user is a default user
+        /// </summary>
+        [DataMember(Name = "isDefault")]
+        [JsonProperty("isDefault")]
+        [XmlElement(ElementName = "isDefault")]
+        [SchemeProperty(ReadOnly = true)]
+        public bool? IsDefault { get; set; }
+
         internal bool getIsMaster()
         {
             return IsMaster.HasValue ? (bool)IsMaster : false;

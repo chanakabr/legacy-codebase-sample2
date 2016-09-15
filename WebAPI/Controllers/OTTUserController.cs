@@ -762,13 +762,13 @@ namespace WebAPI.Controllers
             {
 
                 // call client
-                if (filter == null || (string.IsNullOrEmpty(filter.ExternalIdEqual) && string.IsNullOrEmpty(filter.UserNameEqual)))
+                if (filter == null || (string.IsNullOrEmpty(filter.ExternalIdEqual) && string.IsNullOrEmpty(filter.UsernameEqual) && string.IsNullOrEmpty(filter.IdIn)))
                 {
                     // get all users of the master / itself                    
 
                     List<string> householdUserIds = new List<string>();
 
-                    if (HouseholdUtils.IsUserMaster())
+                    if (HouseholdUtils.GetHouseholdFromRequest() != null)
                     {
                         householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId).Distinct().ToList();
                     }
@@ -789,9 +789,9 @@ namespace WebAPI.Controllers
                 {
                     response = ClientsManager.UsersClient().GetUserByExternalID(groupId, filter.ExternalIdEqual);
                 }
-                else if (!string.IsNullOrEmpty(filter.UserNameEqual))
+                else if (!string.IsNullOrEmpty(filter.UsernameEqual))
                 {
-                    response = ClientsManager.UsersClient().GetUserByName(groupId, filter.UserNameEqual);
+                    response = ClientsManager.UsersClient().GetUserByName(groupId, filter.UsernameEqual);
                 }
                 // user or master
                 else if (!string.IsNullOrEmpty(filter.IdIn))
@@ -805,7 +805,7 @@ namespace WebAPI.Controllers
                         var householdUsers = HouseholdUtils.GetHouseholdUserIds(groupId);
                         foreach (var userId in filter.GetIdIn())
 	                    {
-		                     if (householdUsers.Contains("userId"))
+		                     if (householdUsers.Contains(userId))
                              {
                                  usersToGet.Add(userId);
                              }
@@ -821,6 +821,7 @@ namespace WebAPI.Controllers
                         throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN, Enum.GetName(typeof(WebAPI.Filters.RequestType), WebAPI.Filters.RequestType.READ), 
                             "KalturaOTTUserFilter", "idIn");
                     }
+                    response = new KalturaOTTUserListResponse();
                     response.Users = ClientsManager.UsersClient().GetUsersData(groupId, usersToGet);
                     if (response.Users != null)
                     {

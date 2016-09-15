@@ -1162,15 +1162,17 @@ namespace WebAPI.Clients
             foreach (var user in household.DefaultUsers)
             {
                 if (response.ContainsKey(user.Id))
-                    continue;
-
-                if (!response.ContainsKey(user.Id))
+                {
+                    response[user.Id].IsDefault = true;
+                }
+                else
                 {
                     householdUser = new KalturaHouseholdUser()
                     {
                         HouseholdId = (int)household.Id,
                         Status = KalturaHouseholdUserStatus.OK,
-                        UserId = user.Id
+                        UserId = user.Id,
+                        IsDefault = true
                     };
 
                     response.Add(householdUser.UserId, householdUser);
@@ -1191,6 +1193,7 @@ namespace WebAPI.Clients
                     foreach (KalturaDevice device in familyDevices)
                     {
                         KalturaHouseholdDevice householdDevice = (KalturaHouseholdDevice)device;
+                        householdDevice.DeviceFamilyId = family.Id;
                         response.Objects.Add(householdDevice);
                         response.TotalCount++;
                     }
