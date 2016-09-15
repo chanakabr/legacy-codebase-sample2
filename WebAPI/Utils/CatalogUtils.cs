@@ -287,18 +287,6 @@ namespace WebAPI.Utils
             List<long> missingMediaIds = new List<long>();
             List<long> missingEpgIds = new List<long>();
 
-            Dictionary<string, string> epgToRecordingMapping = new Dictionary<string, string>();
-
-            foreach (var item in assetsBaseData)
-            {
-                var searchResult = item as RecordingSearchResult;
-
-                if (searchResult != null)
-                {
-                    epgToRecordingMapping.Add(searchResult.EpgId, searchResult.AssetId);
-                }
-            }
-
             // get assets from cache
             if (!GetAssetsFromCache(assetsBaseData, request.m_oFilter.m_nLanguage, out medias, out epgs, 
                 out missingMediaIds, out missingEpgIds))
@@ -321,9 +309,10 @@ namespace WebAPI.Utils
             }
 
             // build combined EPG and Media results
-            BaseObject baseObject = new BaseObject();
             foreach (var item in assetsBaseData)
             {
+                BaseObject baseObject = new BaseObject();
+
                 switch (item.AssetType)
                 {
                     case eAssetTypes.EPG:
@@ -339,6 +328,7 @@ namespace WebAPI.Utils
                         string epgId = searchResult.EpgId;
 
                         baseObject = epgs.Where(p => p != null && p.AssetId.ToString() == epgId).FirstOrDefault();
+
                         if (baseObject != null)
                         {
                             ProgramObj programObject = baseObject as ProgramObj;
