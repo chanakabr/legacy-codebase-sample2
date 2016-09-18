@@ -25,8 +25,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
         #region Data Members
 
-        protected int sizeOfBulk;
-        protected bool shouldAddRouting = true;
+        int sizeOfBulk;
 
         #endregion
 
@@ -117,7 +116,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 string baseType = GetIndexType();
 
                 string sMapping = serializer.CreateEpgMapping(group.m_oEpgGroupSettings.m_lMetasName, group.m_oEpgGroupSettings.m_lTagsName, indexAnalyzer, searchAnalyzer,
-                    baseType, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer, null, shouldAddRouting);
+                    baseType, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer);
                 string specificType = GetIndexType(language);
                 bool bMappingRes = api.InsertMapping(newIndexName, specificType, sMapping.ToString());
 
