@@ -3905,6 +3905,17 @@ namespace DAL
 
         }
 
+        public static DataTable GetDeviceBrands()
+        {
+            DataTable dt = null;
+            ODBCWrapper.StoredProcedure spGetDeviceBrands = new ODBCWrapper.StoredProcedure("GetDeviceBrands");
+            spGetDeviceBrands.SetConnectionKey("MAIN_CONNECTION_STRING");
+            dt = spGetDeviceBrands.Execute();
+
+            return dt;
+
+        }
+
         public static DataTable GetCountries(int groupId, List<int> countryIds)
         {
             DataTable dt = null;
