@@ -1236,5 +1236,20 @@ namespace ODBCWrapper
 
             return key;
         }
+
+        internal static bool GetProcedureDbMappingByName(string procedureName)
+        {
+            bool result = false;
+            ODBCWrapper.StoredProcedure spGetDomainRecordingsByDomainSeriesId = new ODBCWrapper.StoredProcedure("GetDatabaseStoredProcedureRouting");
+            spGetDomainRecordingsByDomainSeriesId.AddParameter("@Name", procedureName);
+            DataTable dt = spGetDomainRecordingsByDomainSeriesId.Execute();
+            if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+            {
+                int route = GetIntSafeVal(dt.Rows[0], "route", 0);
+                result = route == 1;
+            }
+
+            return result;
+        }
     }
 }
