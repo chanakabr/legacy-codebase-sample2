@@ -688,8 +688,8 @@
             </summary>
             <param name="id">Series Recording identifier</param>       
             <returns></returns>
-            <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-            UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048 </remarks>
+            <remarks>Possible status codes: BadRequest = 500003,UserNotInHousehold = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+            UserWithNoHousehold = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048 </remarks>
         </member>
         <member name="M:WebAPI.Controllers.SeriesRecordingController.CancelByEpgId(System.Int64,System.Int64)">
             <summary>        
@@ -698,8 +698,8 @@
             <param name="id">Series Recording identifier</param>
             <param name="epgId">epg program identifier</param>
             <returns></returns>
-            <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-            UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048, EpgIdNotPartOfSeries = 3049 </remarks>
+            <remarks>Possible status codes: BadRequest = 500003,UserNotInHousehold = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+            UserWithNoHousehold = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048, EpgIdNotPartOfSeries = 3049 </remarks>
         </member>
         <member name="M:WebAPI.Controllers.SeriesRecordingController.CancelBySeasonNumber(System.Int64,System.Int64)">
             <summary>        
@@ -708,8 +708,8 @@
             <param name="id">Series Recording identifier</param>
             <param name="seasonNumber">Season Number</param>
             <returns></returns>
-            <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-            UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048, SeasonNumberNotMatch = 3052  </remarks>
+            <remarks>Possible status codes: BadRequest = 500003,UserNotInHousehold = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+            UserWithNoHousehold = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048, SeasonNumberNotMatch = 3052  </remarks>
         </member>
         <member name="M:WebAPI.Controllers.SeriesRecordingController.Delete(System.Int64)">
             <summary>        
@@ -717,8 +717,8 @@
             </summary>
             <param name="id">Series Recording identifier</param>
             <returns></returns>
-            <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-            UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048 </remarks>
+            <remarks>Possible status codes: BadRequest = 500003,UserNotInHousehold = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+            UserWithNoHousehold = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048 </remarks>
         </member>
         <member name="M:WebAPI.Controllers.SeriesRecordingController.DeleteBySeasonNumber(System.Int64,System.Int32)">
             <summary>        
@@ -727,8 +727,8 @@
             <param name="id">Series Recording identifier</param>
             <param name="seasonNumber">Season Number</param>
             <returns></returns>
-            <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-            UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048, SeasonNumberNotMatch = 3052  </remarks>
+            <remarks>Possible status codes: BadRequest = 500003,UserNotInHousehold = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+            UserWithNoHousehold = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048, SeasonNumberNotMatch = 3052  </remarks>
         </member>
         <member name="M:WebAPI.Controllers.SeriesRecordingController.List(WebAPI.Models.ConditionalAccess.KalturaSeriesRecordingFilter)">
             <summary>
@@ -736,7 +736,7 @@
             </summary>
             <param name="filter">Filter parameters for filtering out the result - support order by only - START_DATE_ASC, START_DATE_DESC, ID_ASC,ID_DESC,SERIES_ID_ASC, SERIES_ID_DESC</param>
             <returns></returns>
-            <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024</remarks>
+            <remarks>Possible status codes: BadRequest = 500003, UserNotInHousehold = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoHousehold = 2024</remarks>
         </member>
         <member name="M:WebAPI.Controllers.SeriesRecordingController.Add(WebAPI.Models.ConditionalAccess.KalturaSeriesRecording)">
             <summary>
@@ -744,8 +744,8 @@
             </summary>
             <param name="recording">SeriesRecording Object</param>
             <returns></returns>
-            <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-            UserWithNoDomain = 2024, ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, ProgramCdvrNotEnabled = 3035,
+            <remarks>Possible status codes: BadRequest = 500003, UserNotInHousehold = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+            UserWithNoHousehold = 2024, ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, ProgramCdvrNotEnabled = 3035,
             AccountSeriesRecordingNotEnabled = 3046, AlreadyRecordedAsSeriesOrSeason = 3047, InvalidAssetId = 4024</remarks>
         </member>
         <member name="M:WebAPI.Controllers.SystemController.GetCountry(System.String)">
@@ -926,8 +926,8 @@
             </summary>
             <param name="recording">Recording Object</param>
             <returns></returns>
-            <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-            UserWithNoDomain = 2024, ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034,
+            <remarks>Possible status codes: BadRequest = 500003, UserNotInHousehold = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+            UserWithNoHousehold = 2024, ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034,
             ProgramCdvrNotEnabled = 3035, ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3038,
             ExceededQuota = 3042, AccountSeriesRecordingNotEnabled = 3046, AlreadyRecordedAsSeriesOrSeason = 3047, InvalidAssetId = 4024</remarks>
         </member>
@@ -938,7 +938,7 @@
             <param name="filter">Filter parameters for filtering out the result</param>
             <param name="pager">Page size and index</param>
             <returns></returns>
-            <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024</remarks>
+            <remarks>Possible status codes: BadRequest = 500003, UserNotInHousehold = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoHousehold = 2024</remarks>
         </member>
         <member name="M:WebAPI.Controllers.RecordingController.Cancel(System.Int64)">
             <summary>        
@@ -946,8 +946,8 @@
             </summary>
             <param name="id">Recording identifier</param>
             <returns></returns>
-            <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-            UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043 </remarks>
+            <remarks>Possible status codes: BadRequest = 500003,UserNotInHousehold = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+            UserWithNoHousehold = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043 </remarks>
         </member>
         <member name="M:WebAPI.Controllers.RecordingController.Delete(System.Int64)">
             <summary>        
@@ -955,8 +955,8 @@
             </summary>
             <param name="id">Recording identifier</param>
             <returns></returns>
-            <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-            UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043 </remarks>
+            <remarks>Possible status codes: BadRequest = 500003,UserNotInHousehold = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+            UserWithNoHousehold = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043 </remarks>
         </member>
         <member name="M:WebAPI.Controllers.RecordingController.Protect(System.Int64)">
             <summary>
@@ -964,8 +964,8 @@
             </summary>
             <param name="id">Recording identifier</param>
             <returns></returns>
-            <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024,
-            RecordingNotFound = 3039, RecordingStatusNotValid = 3043, DomainExceededProtectionQuota = 3044, AccountProtectRecordNotEnabled = 3045</remarks>     
+            <remarks>Possible status codes: BadRequest = 500003, UserNotInHousehold = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoHousehold = 2024,
+            RecordingNotFound = 3039, RecordingStatusNotValid = 3043, HouseholdExceededProtectionQuota = 3044, AccountProtectRecordNotEnabled = 3045</remarks>     
         </member>
         <member name="M:WebAPI.Controllers.LicensedUrlController.GetOldStandard(WebAPI.Models.Catalog.KalturaAssetType,System.Int32,System.String,System.String,System.Nullable{System.Int64},System.Nullable{WebAPI.Models.ConditionalAccess.KalturaStreamType})">
             <summary>
@@ -1918,9 +1918,10 @@
         </member>
         <member name="M:WebAPI.Controllers.HouseholdDeviceController.List(WebAPI.Models.Domains.KalturaHouseholdDeviceFilter)">
             <summary>
-            
+            Returns the devices within the household
             </summary>
-            <returns></returns><remarks>Possible status codes: 
+            <returns></returns><remarks>Possible status codes:
+            Household does not exist = 1006, Household user failed = 1007
             </remarks>
         </member>
         <member name="M:WebAPI.Controllers.BookmarkController.ListOldStandard(WebAPI.Models.Catalog.KalturaAssetsFilter)">
@@ -2054,7 +2055,7 @@
         </member>
         <member name="M:WebAPI.Controllers.HouseholdUserController.List(WebAPI.Models.Domains.KalturaHouseholdUserFilter)">
             <summary>
-            Adds a user to household       
+            Returns the users within the household
             </summary>                
             <param name="filter">Household user filter</param>
             <remarks>Possible status codes: 
@@ -7742,7 +7743,7 @@
              <summary>
              Suspend a given household service. Sets the household status to “suspended".The household service settings are maintained for later resume
              </summary>                
-             <remarks>Possible status codes: Domain already suspended = 1012
+             <remarks>Possible status codes: Household already suspended = 1012
             </remarks>
         </member>
         <member name="M:WebAPI.Controllers.HouseholdController.Resume">
@@ -7750,7 +7751,7 @@
              Resumed a given household service to its previous service settings
              </summary>                
              <remarks>Possible status codes: 
-             Domain already active = 1013
+             Household already active = 1013
             </remarks>
         </member>
         <member name="T:WebAPI.Models.API.KalturaParentalRule">
