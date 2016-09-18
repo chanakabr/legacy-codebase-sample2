@@ -97,7 +97,7 @@ namespace CouchbaseManager
         /// <summary>
         /// Return only documents that match the specified key. Key must be specified as a JSON value.
         /// </summary>
-        public string key;
+        public object key;
 
         /// <summary>
         /// True to JSON encode the parameter.
