@@ -421,6 +421,12 @@
             <returns></returns>
             <remarks>Possible status codes: CDN partner settings not found = 5025</remarks>   
         </member>
+        <member name="M:WebAPI.Controllers.DeviceBrandController.List">
+            <summary>
+            Return a list of the available device brands.
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.CountryController.List(WebAPI.Models.API.KalturaCountryFilter)">
             <summary>
             Get the list of countries for the group with option to filter by countries identifiers
@@ -430,11 +436,29 @@
         </member>
         <member name="M:WebAPI.Controllers.DeviceFamilyController.List">
             <summary>
-            Return a list of the available device families  series recordings for the household with optional filter by status and KSQL.
+            Return a list of the available device families.
             </summary>
-            <param name="filter">Filter parameters for filtering out the result - support order by only - START_DATE_ASC, START_DATE_DESC, ID_ASC,ID_DESC,SERIES_ID_ASC, SERIES_ID_DESC</param>
             <returns></returns>
-            <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024</remarks>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaListResponse">
+            <summary>
+            Base list wrapper
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaOTTObject">
+            <summary>
+            Base class
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaListResponse.TotalCount">
+            <summary>
+            Total items
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaDeviceBrandListResponse.Objects">
+            <summary>
+            
+            </summary>
         </member>
         <member name="T:WebAPI.Models.API.KalturaCountryFilter">
             <summary>
@@ -444,11 +468,6 @@
         <member name="T:WebAPI.Models.General.KalturaFilter`1">
             <summary>
             Base filter
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaOTTObject">
-            <summary>
-            Base class
             </summary>
         </member>
         <member name="P:WebAPI.Models.General.KalturaFilter`1.OrderBy">
@@ -461,19 +480,29 @@
             Country identifiers
             </summary>
         </member>
-        <member name="T:WebAPI.Models.General.KalturaListResponse">
-            <summary>
-            Base list wrapper
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaListResponse.TotalCount">
-            <summary>
-            Total items
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.API.KalturaCountryListResponse.Objects">
             <summary>
             
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Domains.KalturaDeviceBrand">
+            <summary>
+            Device brand details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaDeviceBrand.Id">
+            <summary>
+            Device brand identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaDeviceBrand.Name">
+            <summary>
+            Device brand name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaDeviceBrand.DeviceFamilyId">
+            <summary>
+            Device family identifier
             </summary>
         </member>
         <member name="P:WebAPI.Models.Domains.KalturaHouseholdDeviceFilter.HouseholdIdEqual">
@@ -8466,6 +8495,15 @@
         <member name="M:WebAPI.Api.API.GetDeviceFamilyListAsync(System.String,System.String,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.Api.API.GetDeviceBrandList(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetDeviceBrandListAsync(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetDeviceBrandListAsync(System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.Api.API.GetCountryList(System.String,System.String,System.Int32[])">
             <remarks/>
         </member>
@@ -9745,6 +9783,9 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.Api.API.GetDeviceFamilyListCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.GetDeviceBrandListCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.Api.API.GetCountryListCompleted">
@@ -17856,6 +17897,30 @@
         <member name="P:WebAPI.Api.CountryResponse.Countries">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Api.DeviceBrand">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.DeviceBrand.Id">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.DeviceBrand.Name">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.DeviceBrand.DeviceFamilyId">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.DeviceBrandResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.DeviceBrandResponse.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.DeviceBrandResponse.DeviceBrands">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.DeviceBrandResponse.TotalItems">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Api.DeviceFamily">
             <remarks/>
         </member>
@@ -18850,6 +18915,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.GetDeviceFamilyListCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetDeviceBrandListCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetDeviceBrandListCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GetDeviceBrandListCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.GetCountryListCompletedEventHandler">
