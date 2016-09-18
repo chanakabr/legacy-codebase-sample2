@@ -206,7 +206,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Adds a user to household       
+        /// Returns the users within the household   
         /// </summary>                
         /// <param name="filter">Household user filter</param>
         /// <remarks>Possible status codes: 
