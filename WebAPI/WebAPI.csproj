@@ -727,6 +727,9 @@
     <Content Include="Web References\Api\CountryResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Api\DeviceBrandResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Api\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
@@ -1161,11 +1164,14 @@
     <Compile Include="Controllers\CDNAdapterProfileController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
     <Compile Include="Controllers\CDNPartnerSettingsController.cs" />
+    <Compile Include="Controllers\DeviceBrandController.cs" />
     <Compile Include="Controllers\CountryController.cs" />
     <Compile Include="Controllers\DeviceFamilyController.cs" />
+    <Compile Include="Models\API\KalturaDeviceBrandListResponse.cs" />
     <Compile Include="Models\API\KalturaCountryFilter.cs" />
     <Compile Include="Models\API\KalturaCountryListResponse.cs" />
     <Compile Include="Models\API\KalturaCountryOrderBy.cs" />
+    <Compile Include="Models\Domains\KalturaDeviceBrand.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdDeviceFilter.cs" />
     <Compile Include="Models\API\KalturaDeviceFamilyListResponse.cs" />
     <Compile Include="Controllers\RegionController.cs" />
