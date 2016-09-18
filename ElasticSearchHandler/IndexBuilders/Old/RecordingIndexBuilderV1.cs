@@ -30,6 +30,7 @@ namespace ElasticSearchHandler.IndexBuilders
         {
             epgToRecordingMapping = new Dictionary<long, long>();
             serializer = new ESSerializerV1();
+            shouldAddRouting = false;
         }
 
         #endregion
@@ -99,5 +100,22 @@ namespace ElasticSearchHandler.IndexBuilders
         }
 
         #endregion
+
+
+        public static int Elevator(int[] people, int[] weights, int peopleLimit, int weightLimit)
+        {
+            int totalStops = 0;
+
+            int currentLimit = 0;
+            int currentWeight = 0;
+            int index = 0;
+
+            while (index < people.Length)
+            {
+
+            }
+
+            return totalStops;
+        }
     }
 }
