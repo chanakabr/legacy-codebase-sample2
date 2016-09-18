@@ -11,25 +11,25 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/deviceFamily/action")]
-    public class DeviceFamilyController : ApiController
+    [RoutePrefix("_service/deviceBrand/action")]
+    public class DeviceBrandController : ApiController
     {
 
         /// <summary>
-        /// Return a list of the available device families.
+        /// Return a list of the available device brands.
         /// </summary>
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaDeviceFamilyListResponse List()
+        public KalturaDeviceBrandListResponse List()
         {
-            KalturaDeviceFamilyListResponse response = null;
+            KalturaDeviceBrandListResponse response = null;
             int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 // call client                
-                response = ClientsManager.ApiClient().GetDeviceFamilyList(groupId);
+                response = ClientsManager.ApiClient().GetDeviceBrandList(groupId);
             }
             catch (ClientException ex)
             {

@@ -366,9 +366,10 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// 
+        /// Returns the devices within the household
         /// </summary>
-        /// <returns></returns><remarks>Possible status codes: 
+        /// <returns></returns><remarks>Possible status codes:
+        /// Household does not exist = 1006, Household user failed = 1007
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
