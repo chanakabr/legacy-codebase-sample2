@@ -47,7 +47,7 @@ namespace ODBCWrapper
         static public string GetConnectionString(string key, bool isWritable, string procedureName)
         {
             DatabaseStoredProceduresMapping dbSpMapping = Utils.GetDatabaseStoredProceduresRouting();
-            if (dbSpMapping.routing.ContainsKey(procedureName)
+            if (dbSpMapping.routing.ContainsKey(procedureName))
             {
                 isWritable = bool.Parse(dbSpMapping.routing[procedureName]);
             }
