@@ -50,6 +50,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "brand")]
         [JsonProperty("brand")]
         [XmlElement(ElementName = "brand")]
+        [Obsolete]
         public string Brand { get; set; }
 
         /// <summary>

@@ -407,9 +407,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #region DeviceFamily
 
             //TimeShiftedTvPartnerSettings to KalturaTimeShiftedTvPartnerSettings
-            Mapper.CreateMap<DeviceFamily, WebAPI.Models.Domains.KalturaDeviceFamily>()              
+            Mapper.CreateMap<DeviceFamily, WebAPI.Models.Domains.KalturaDeviceFamily>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+
+            Mapper.CreateMap<DeviceBrand, WebAPI.Models.Domains.KalturaDeviceBrand>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.DeviceFamilyId, opt => opt.MapFrom(src => src.DeviceFamilyId));
 
             #endregion
 
