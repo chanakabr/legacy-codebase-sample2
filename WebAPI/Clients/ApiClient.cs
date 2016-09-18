@@ -3206,6 +3206,40 @@ namespace WebAPI.Clients
             return result;
         }
 
+        internal KalturaDeviceBrandListResponse GetDeviceBrandList(int groupId)
+        {
+            Group group = GroupsManager.GetGroup(groupId);
+            KalturaDeviceBrandListResponse result = new KalturaDeviceBrandListResponse() { TotalCount = 0 };
+            DeviceBrandResponse response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GetDeviceBrandList(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            result.Objects = AutoMapper.Mapper.Map<List<KalturaDeviceBrand>>(response.DeviceBrands);
+            result.TotalCount = response.TotalItems;
+
+            return result;
+        }
+
         internal KalturaCountryListResponse GetCountryList(int groupId, List<int> countryIds)
         {
             Group group = GroupsManager.GetGroup(groupId);
