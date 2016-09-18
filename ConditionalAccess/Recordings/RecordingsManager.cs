@@ -255,17 +255,18 @@ namespace Recordings
 
                     RecordResult adapterResponse = null;
                     var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
+                    string externalChannelId = CatalogDAL.GetEPGChannelCDVRId(groupId, slimRecording.ChannelId);
 
                     try
                     {
                         //  recording in status scheduled/recording is canceled, otherwise we delete
                         if (slimRecording.EpgEndDate < DateTime.UtcNow)
                         {
-                            adapterResponse = adapterController.CancelRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
+                            adapterResponse = adapterController.CancelRecording(groupId, externalChannelId, slimRecording.ExternalRecordingId, adapterId);
                         }
                         else
                         {
-                            adapterResponse = adapterController.DeleteRecording(groupId, slimRecording.ExternalRecordingId, adapterId);
+                            adapterResponse = adapterController.DeleteRecording(groupId, externalChannelId, slimRecording.ExternalRecordingId, adapterId);
                         }
                     }
                     catch (KalturaException ex)
@@ -333,10 +334,11 @@ namespace Recordings
 
                             RecordResult adapterResponse = null;
                             bool shouldRetry = false;
+                            string externalChannelId = CatalogDAL.GetEPGChannelCDVRId(groupId, currentRecording.ChannelId);
 
                             try
                             {
-                                adapterResponse = adapterController.GetRecordingStatus(groupId, currentRecording.ExternalRecordingId, adapterId);
+                                adapterResponse = adapterController.GetRecordingStatus(groupId, externalChannelId, currentRecording.ExternalRecordingId, adapterId);
                             }
                             catch (KalturaException ex)
                             {
@@ -480,12 +482,13 @@ namespace Recordings
                         // Initialize parameters for adapter controller
                         long startTimeSeconds = ODBCWrapper.Utils.DateTimeToUnixTimestamp(startDate);
                         long durationSeconds = (long)(endDate - startDate).TotalSeconds;
+                        string externalChannelId = CatalogDAL.GetEPGChannelCDVRId(groupId, recording.ChannelId);
 
                         RecordResult adapterResponse = null;
                         try
                         {
                             adapterResponse = adapterController.UpdateRecordingSchedule(
-                                groupId, recording.ExternalRecordingId, adapterId, startTimeSeconds, durationSeconds);
+                                groupId, externalChannelId, recording.ExternalRecordingId, adapterId, startTimeSeconds, durationSeconds);
                         }
                         catch (KalturaException ex)
                         {
@@ -673,7 +676,9 @@ namespace Recordings
 
                     AdapterControllers.CDVR.CdvrAdapterController adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
                     int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
-                    RecordResult adapterResponse = adapterController.CancelRecording(groupId, recording.ExternalRecordingId, adapterId);
+                    string externalChannelId = CatalogDAL.GetEPGChannelCDVRId(groupId, recording.ChannelId);
+
+                    RecordResult adapterResponse = adapterController.CancelRecording(groupId, externalChannelId, recording.ExternalRecordingId, adapterId);
 
                     if (adapterResponse == null)
                     {
