@@ -14,6 +14,7 @@ namespace WebAPI.Models.Domains
     /// <summary>
     /// Device details
     /// </summary>
+    [XmlInclude(typeof(KalturaDevice))]
     [OldStandard("brandId", "brand_id")]
     [OldStandard("activatedOn", "activated_on")]
     public class KalturaHouseholdDevice : KalturaOTTObject
