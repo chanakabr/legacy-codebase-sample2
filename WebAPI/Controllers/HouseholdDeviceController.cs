@@ -27,8 +27,8 @@ namespace WebAPI.Controllers
         /// Device not in Household = 1003,  Household suspended = 1009, Limitation period = 1014</remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        [Throws(eResponseStatus.DeviceNotInDomain)]
-        [Throws(eResponseStatus.DomainSuspended)]
+        [Throws(eResponseStatus.DeviceNotInHousehold)]
+        [Throws(eResponseStatus.HouseholdSuspended)]
         [Throws(eResponseStatus.LimitationPeriod)]
         public bool Delete(string udid)
         {
@@ -92,10 +92,10 @@ namespace WebAPI.Controllers
         /// Household does not exist = 1006, Household suspended = 1009, Device exists in other household = 1016 , Device already exists = 1015, No users in household = 1017</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        [Throws(eResponseStatus.DomainNotExists)]
-        [Throws(eResponseStatus.DomainSuspended)]
-        [Throws(eResponseStatus.DeviceExistsInOtherDomains)]
-        [Throws(eResponseStatus.NoUsersInDomain)]
+        [Throws(eResponseStatus.HouseholdNotExists)]
+        [Throws(eResponseStatus.HouseholdSuspended)]
+        [Throws(eResponseStatus.DeviceExistsInOtherHouseholds)]
+        [Throws(eResponseStatus.NoUsersInHousehold)]
         public KalturaHouseholdDevice Add(KalturaHouseholdDevice device)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -135,10 +135,10 @@ namespace WebAPI.Controllers
         [Route("addOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
-        [Throws(eResponseStatus.DomainNotExists)]
-        [Throws(eResponseStatus.DomainSuspended)]
-        [Throws(eResponseStatus.DeviceExistsInOtherDomains)]
-        [Throws(eResponseStatus.NoUsersInDomain)]
+        [Throws(eResponseStatus.HouseholdNotExists)]
+        [Throws(eResponseStatus.HouseholdSuspended)]
+        [Throws(eResponseStatus.DeviceExistsInOtherHouseholds)]
+        [Throws(eResponseStatus.NoUsersInHousehold)]
         public KalturaHousehold AddOldStandard(string device_name, int device_brand_id, string udid)
         {
             KalturaHousehold household = null;
@@ -167,8 +167,8 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
         [Throws(eResponseStatus.DeviceNotExists)]
-        [Throws(eResponseStatus.DeviceNotInDomain)]
-        [Throws(eResponseStatus.DeviceExistsInOtherDomains)]
+        [Throws(eResponseStatus.DeviceNotInHousehold)]
+        [Throws(eResponseStatus.DeviceExistsInOtherHouseholds)]
         public KalturaHouseholdDevice Get()
         {
             KalturaHouseholdDevice device = null;

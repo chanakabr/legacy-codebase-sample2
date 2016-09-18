@@ -31,7 +31,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [SchemeArgument("id", RequiresPermission = true)]
-        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.HouseholdNotExists)]
         [Throws(eResponseStatus.HouseholdUserFailed)]
         public KalturaHousehold Get(int? id = null)
         {
@@ -69,7 +69,7 @@ namespace WebAPI.Controllers
         [Route("getOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
-        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.HouseholdNotExists)]
         [Throws(eResponseStatus.HouseholdUserFailed)]
         public KalturaHousehold GetOldStandard(List<KalturaHouseholdWithHolder> with = null)
         {
@@ -116,7 +116,7 @@ namespace WebAPI.Controllers
         [Route("getByOperator"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
-        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.HouseholdNotExists)]
         [Throws(eResponseStatus.HouseholdUserFailed)]
         public KalturaHousehold GetByOperator(KalturaIdentifierTypeFilter filter, List<KalturaHouseholdWithHolder> with = null)
         {
@@ -179,7 +179,7 @@ namespace WebAPI.Controllers
         /// User exists in other household = 1018, Household user failed = 1007</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.HouseholdNotExists)]
         [Throws(eResponseStatus.HouseholdUserFailed)]
         public KalturaHousehold Add(KalturaHousehold household)
         {
@@ -227,7 +227,7 @@ namespace WebAPI.Controllers
         [Route("addOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
-        [Throws(eResponseStatus.UserExistsInOtherDomains)]
+        [Throws(eResponseStatus.UserExistsInOtherHouseholds)]
         [Throws(eResponseStatus.HouseholdUserFailed)]
         public KalturaHousehold AddOldStandard(string name, string description, string external_id = null)
         {
@@ -565,12 +565,12 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Suspend a given household service. Sets the household status to “suspended".The household service settings are maintained for later resume
         /// </summary>                
-        /// <remarks>Possible status codes: Domain already suspended = 1012
+        /// <remarks>Possible status codes: Household already suspended = 1012
         ///</remarks>
         [Route("suspend"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [Throws(eResponseStatus.DomainAlreadySuspended)]
+        [Throws(eResponseStatus.HouseholdAlreadySuspended)]
         public bool Suspend()
         {
             var ks = KS.GetFromRequest();
@@ -595,12 +595,12 @@ namespace WebAPI.Controllers
         /// Resumed a given household service to its previous service settings
         /// </summary>                
         /// <remarks>Possible status codes: 
-        /// Domain already active = 1013
+        /// Household already active = 1013
         ///</remarks>
         [Route("resume"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [Throws(eResponseStatus.DomainAlreadyActive)]
+        [Throws(eResponseStatus.HouseholdAlreadyActive)]
         public bool Resume()
         {
             var ks = KS.GetFromRequest();

@@ -78,10 +78,10 @@ namespace WebAPI.Controllers
         [Route("list"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.UserDoesNotExist)]
-        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserWithNoHousehold)]
         [Throws(eResponseStatus.UserSuspended)]
-        [Throws(eResponseStatus.UserNotInDomain)]
-        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.UserNotInHousehold)]
+        [Throws(eResponseStatus.HouseholdNotExists)]
         public KalturaUserAssetRuleListResponse List(KalturaUserAssetRuleFilter filter)
         {
             List<KalturaUserAssetRule> response = null;

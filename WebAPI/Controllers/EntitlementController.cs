@@ -29,7 +29,7 @@ namespace WebAPI.Controllers
         [OldStandard("transactionType", "transaction_type")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("assetId", MinInteger = 1)]
-        [Throws(eResponseStatus.DomainSuspended)]
+        [Throws(eResponseStatus.HouseholdSuspended)]
         [Throws(eResponseStatus.InvalidPurchase)]
         [Throws(eResponseStatus.CancelationWindowPeriodExpired)]
         [Throws(eResponseStatus.ContentAlreadyConsumed)]
@@ -78,7 +78,7 @@ namespace WebAPI.Controllers
         [OldStandard("transactionType", "transaction_type")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("assetId", MinInteger = 1)]
-        [Throws(eResponseStatus.DomainSuspended)]
+        [Throws(eResponseStatus.HouseholdSuspended)]
         [Throws(eResponseStatus.InvalidPurchase)]
         public bool ForceCancel(int assetId, KalturaTransactionType transactionType)
         {
@@ -122,7 +122,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [OldStandard("subscriptionId", "subscription_id")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [Throws(eResponseStatus.DomainSuspended)]
+        [Throws(eResponseStatus.HouseholdSuspended)]
         [Throws(eResponseStatus.InvalidPurchase)]
         [Throws(eResponseStatus.SubscriptionNotRenewable)]
         public void CancelRenewal(string subscriptionId)
@@ -283,7 +283,7 @@ namespace WebAPI.Controllers
         /// <param name="productType">Product package type. Possible values: PPV, Subscription, Collection</param>
         /// <param name="history">Controls if the new entitlements grant will appear in the user’s history. True – will add a history entry. False (or if ommited) – no history entry will be added</param>
         /// <remarks>Possible status codes: 
-        /// User not in domain = 1005, User does not exist = 2000, User suspended = 2001, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
+        /// User not in household = 1005, User does not exist = 2000, User suspended = 2001, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
         /// Subscription purchased = 3024, Not for purchase = 3025, Collection purchased = 3027, UnKnown PPV module = 6001
         ///,       
         /// </remarks>
@@ -293,7 +293,7 @@ namespace WebAPI.Controllers
         [OldStandard("productType", "product_type")]
         [OldStandard("contentId", "content_id")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserNotInHousehold)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.UnableToPurchasePPVPurchased)]
@@ -398,7 +398,7 @@ namespace WebAPI.Controllers
         [Route("externalReconcile"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserNotInHousehold)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.ReconciliationFrequencyLimitation)]
         [Throws(eResponseStatus.AdapterAppFailure)]

@@ -27,7 +27,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Lists personal enriched data for given assets.
-        /// <remarks>Possible status codes: FileToMediaMismatch = 3028, InvalidAssetType = 4021, UserNotExistsInDomain = 1020, InvalidUser = 1026</remarks>
+        /// <remarks>Possible status codes: FileToMediaMismatch = 3028, InvalidAssetType = 4021, UserNotExistsInHousehold = 1020, InvalidUser = 1026</remarks>
         /// </summary>
         /// <param name="assets">Assets and files which we want their data</param>
         /// <param name="with">Which data will be returned</param>

@@ -24,7 +24,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="purchase">Purchase properties</param>
         /// <remarks>Possible status codes: 
-        /// User not in domain = 1005, Invalid user = 1026, User does not exist = 2000, User suspended = 2001, Coupon not valid = 3020, Unable to purchase - PPV purchased = 3021,  Unable to purchase - Free = 3022,  Unable to purchase - For purchase subscription only = 3023,
+        /// User not in household = 1005, Invalid user = 1026, User does not exist = 2000, User suspended = 2001, Coupon not valid = 3020, Unable to purchase - PPV purchased = 3021,  Unable to purchase - Free = 3022,  Unable to purchase - For purchase subscription only = 3023,
         ///  Unable to purchase - Subscription purchased = 3024, Not for purchase = 3025, Unable to purchase - Collection purchased = 3027, 
         ///  Adapter Url required = 5013, Incorrect price = 6000, UnKnown PPV module = 6001, Payment gateway not set for household = 6007, 
         ///  Payment gateway does not exist = 6008, Payment gateway charge ID required = 6009, No configuration found = 6011, 
@@ -34,7 +34,7 @@ namespace WebAPI.Controllers
         [Route("purchase"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserNotInHousehold)]
         [Throws(eResponseStatus.InvalidUser)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
@@ -90,7 +90,7 @@ namespace WebAPI.Controllers
         /// <param name="payment_gateway_id">Identifier for a pre-associated payment gateway. If not provided – the account’s default payment gateway is used</param>
         /// <param name="payment_method_id">Identifier for a pre-entered payment method. If not provided – the household’s default payment method is used</param>
         /// <remarks>Possible status codes: 
-        /// User not in domain = 1005, Invalid user = 1026, User does not exist = 2000, User suspended = 2001, Coupon not valid = 3020, Unable to purchase - PPV purchased = 3021,  Unable to purchase - Free = 3022,  Unable to purchase - For purchase subscription only = 3023,
+        /// User not in household = 1005, Invalid user = 1026, User does not exist = 2000, User suspended = 2001, Coupon not valid = 3020, Unable to purchase - PPV purchased = 3021,  Unable to purchase - Free = 3022,  Unable to purchase - For purchase subscription only = 3023,
         ///  Unable to purchase - Subscription purchased = 3024, Not for purchase = 3025, Unable to purchase - Collection purchased = 3027, 
         ///  Adapter Url required = 5013, Incorrect price = 6000, UnKnown PPV module = 6001, Payment gateway not set for household = 6007, 
         ///  Payment gateway does not exist = 6008, Payment gateway charge ID required = 6009, No configuration found = 6011, 
@@ -207,7 +207,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="externalReceipt">Receipt properties</param>
         /// <remarks>Possible status codes: 
-        /// User not in domain = 1005, Invalid user = 1026, User does not exist = 2000, User suspended = 2001, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
+        /// User not in household = 1005, Invalid user = 1026, User does not exist = 2000, User suspended = 2001, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
         /// Subscription purchased = 3024, Not for purchase = 3025, CollectionPurchased = 3027, UnKnown PPV module = 6001, Payment gateway does not exist = 6008, No configuration found = 6011,
         /// Signature mismatch = 6013, Unknown transaction state = 6042   
         ///    </remarks>
@@ -244,7 +244,7 @@ namespace WebAPI.Controllers
         /// <param name="purchase_receipt">A unique identifier that was provided by the In-App billing service to validate the purchase</param>
         /// <param name="payment_gateway_name">The payment gateway name for the In-App billing service to be used. Possible values: Google/Apple</param>
         /// <remarks>Possible status codes: 
-        /// User not in domain = 1005, Invalid user = 1026, User does not exist = 2000, User suspended = 2001, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
+        /// User not in household = 1005, Invalid user = 1026, User does not exist = 2000, User suspended = 2001, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
         /// Subscription purchased = 3024, Not for purchase = 3025, CollectionPurchased = 3027, UnKnown PPV module = 6001, Payment gateway does not exist = 6008, No configuration found = 6011,
         /// Signature mismatch = 6013, Unknown transaction state = 6042   
         ///    </remarks>
