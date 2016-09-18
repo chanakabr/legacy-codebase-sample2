@@ -308,7 +308,7 @@ namespace ODBCWrapper
             {
                 command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
             }
-            string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
+            string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable || Utils.UseWritable, m_sProcedureName);
             if (sConn == "")
             {
                 log.ErrorFormat("Empty connection string. could not run query. m_sProcedureName: {0}", m_sProcedureName != null ? m_sProcedureName.ToString() : string.Empty);

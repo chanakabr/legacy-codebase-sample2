@@ -43,10 +43,16 @@ namespace ODBCWrapper
             return connString;
         }
 
+        static public string GetConnectionString(string key, bool isWritable, string procedureName)
+        {
+            isWritable = Utils.GetDatabaseStoredProceduresRouting().routing.ContainsKey(procedureName) ? true : false;
+            return GetConnectionStringByKey(key, isWritable);
+        }
+
         //TODO : add connection string for WRITABLE 
         static public string GetConnectionStringByKey(string sKey, bool bIsWritable)
         {
-            string sRet = "";
+            string sRet = "";            
             string applicationIntent = (bIsWritable) ? "ReadWrite" : "ReadOnly";
             m_bIsWritable = bIsWritable;
 
@@ -355,7 +361,6 @@ namespace ODBCWrapper
 
             return con;
         }
-
 
     }
 }
