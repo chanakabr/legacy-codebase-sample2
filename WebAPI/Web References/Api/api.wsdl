@@ -1056,6 +1056,40 @@
           <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
         </s:sequence>
       </s:complexType>
+      <s:element name="GetDeviceBrandList">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDeviceBrandListResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetDeviceBrandListResult" type="tns:DeviceBrandResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DeviceBrandResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="DeviceBrands" type="tns:ArrayOfDeviceBrand" />
+          <s:element minOccurs="1" maxOccurs="1" name="TotalItems" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfDeviceBrand">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="DeviceBrand" nillable="true" type="tns:DeviceBrand" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="DeviceBrand">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Id" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="DeviceFamilyId" type="s:int" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="GetCountryList">
         <s:complexType>
           <s:sequence>
@@ -4698,6 +4732,7 @@
       <s:element name="CDNPartnerSettingsResponse" nillable="true" type="tns:CDNPartnerSettingsResponse" />
       <s:element name="ScheduledTaskLastRunDetails" nillable="true" type="tns:ScheduledTaskLastRunDetails" />
       <s:element name="DeviceFamilyResponse" nillable="true" type="tns:DeviceFamilyResponse" />
+      <s:element name="DeviceBrandResponse" nillable="true" type="tns:DeviceBrandResponse" />
       <s:element name="ArrayOfEPGChannelObject" nillable="true" type="tns:ArrayOfEPGChannelObject" />
       <s:element name="AdminAccountUserResponse" nillable="true" type="tns:AdminAccountUserResponse" />
       <s:element name="string" nillable="true" type="s:string" />
@@ -5044,6 +5079,12 @@
   </wsdl:message>
   <wsdl:message name="GetDeviceFamilyListSoapOut">
     <wsdl:part name="parameters" element="tns:GetDeviceFamilyListResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDeviceBrandListSoapIn">
+    <wsdl:part name="parameters" element="tns:GetDeviceBrandList" />
+  </wsdl:message>
+  <wsdl:message name="GetDeviceBrandListSoapOut">
+    <wsdl:part name="parameters" element="tns:GetDeviceBrandListResponse" />
   </wsdl:message>
   <wsdl:message name="GetCountryListSoapIn">
     <wsdl:part name="parameters" element="tns:GetCountryList" />
@@ -6026,6 +6067,13 @@
   <wsdl:message name="GetDeviceFamilyListHttpPostOut">
     <wsdl:part name="Body" element="tns:DeviceFamilyResponse" />
   </wsdl:message>
+  <wsdl:message name="GetDeviceBrandListHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDeviceBrandListHttpPostOut">
+    <wsdl:part name="Body" element="tns:DeviceBrandResponse" />
+  </wsdl:message>
   <wsdl:message name="InsertEPGScheduleHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -6965,6 +7013,10 @@
       <wsdl:input message="tns:GetDeviceFamilyListSoapIn" />
       <wsdl:output message="tns:GetDeviceFamilyListSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetDeviceBrandList">
+      <wsdl:input message="tns:GetDeviceBrandListSoapIn" />
+      <wsdl:output message="tns:GetDeviceBrandListSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetCountryList">
       <wsdl:input message="tns:GetCountryListSoapIn" />
       <wsdl:output message="tns:GetCountryListSoapOut" />
@@ -7586,6 +7638,10 @@
     <wsdl:operation name="GetDeviceFamilyList">
       <wsdl:input message="tns:GetDeviceFamilyListHttpPostIn" />
       <wsdl:output message="tns:GetDeviceFamilyListHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDeviceBrandList">
+      <wsdl:input message="tns:GetDeviceBrandListHttpPostIn" />
+      <wsdl:output message="tns:GetDeviceBrandListHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="InsertEPGSchedule">
       <wsdl:input message="tns:InsertEPGScheduleHttpPostIn" />
@@ -8274,6 +8330,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetDeviceFamilyList">
       <soap:operation soapAction="http://api.tvinci.com/GetDeviceFamilyList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDeviceBrandList">
+      <soap:operation soapAction="http://api.tvinci.com/GetDeviceBrandList" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -9796,6 +9861,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetDeviceBrandList">
+      <soap12:operation soapAction="http://api.tvinci.com/GetDeviceBrandList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetCountryList">
       <soap12:operation soapAction="http://api.tvinci.com/GetCountryList" style="document" />
       <wsdl:input>
@@ -11187,6 +11261,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetDeviceFamilyList">
       <http:operation location="/GetDeviceFamilyList" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDeviceBrandList">
+      <http:operation location="/GetDeviceBrandList" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

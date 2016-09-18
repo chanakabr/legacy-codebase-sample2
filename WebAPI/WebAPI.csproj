@@ -254,8 +254,50 @@
     <None Include="Service References\Catalog\Service28.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\Catalog\Service29.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\Catalog\Service3.wsdl" />
+    <None Include="Service References\Catalog\Service30.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service31.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service32.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service33.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service34.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service35.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service36.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service37.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service38.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service39.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\Catalog\Service4.wsdl" />
+    <None Include="Service References\Catalog\Service40.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service41.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service42.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\Catalog\Service43.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -277,6 +319,7 @@
     <None Include="Service References\Catalog\Service49.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\Catalog\Service5.wsdl" />
     <None Include="Service References\Catalog\Service50.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -355,10 +398,20 @@
     <None Include="Service References\Catalog\Service75.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\Catalog\Service76.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service77.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service78.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\Catalog\Service9.wsdl" />
     <None Include="Service References\Catalog\Service2.disco" />
     <None Include="Service References\Catalog\Service5.disco" />
     <None Include="Service References\Catalog\Service1.disco" />
+    <None Include="Service References\Catalog\Service.disco" />
     <Content Include="Service References\Catalog\WebAPI.Catalog.BaseResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
@@ -672,6 +725,9 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\Api\CountryResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\DeviceBrandResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\Api\Reference.map">
@@ -1108,11 +1164,14 @@
     <Compile Include="Controllers\CDNAdapterProfileController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
     <Compile Include="Controllers\CDNPartnerSettingsController.cs" />
+    <Compile Include="Controllers\DeviceBrandController.cs" />
     <Compile Include="Controllers\CountryController.cs" />
     <Compile Include="Controllers\DeviceFamilyController.cs" />
+    <Compile Include="Models\API\KalturaDeviceBrandListResponse.cs" />
     <Compile Include="Models\API\KalturaCountryFilter.cs" />
     <Compile Include="Models\API\KalturaCountryListResponse.cs" />
     <Compile Include="Models\API\KalturaCountryOrderBy.cs" />
+    <Compile Include="Models\Domains\KalturaDeviceBrand.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdDeviceFilter.cs" />
     <Compile Include="Models\API\KalturaDeviceFamilyListResponse.cs" />
     <Compile Include="Controllers\RegionController.cs" />
@@ -1543,6 +1602,7 @@
     <Compile Include="Models\Catalog\KalturaWatchStatus.cs" />
     <Compile Include="Models\Catalog\KalturaCatalogWith.cs" />
     <Compile Include="ObjectsConvertor\Mapping\Utils\AssetType.cs" />
+    <Compile Include="ObjectsConvertor\RecordingObj.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>

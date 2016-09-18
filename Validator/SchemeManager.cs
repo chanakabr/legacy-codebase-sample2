@@ -258,6 +258,15 @@ namespace Validator.Managers.Scheme
                     continue;
 
                 JsonPropertyAttribute jsonProperty = property.GetCustomAttribute<JsonPropertyAttribute>(true);
+
+                if (jsonProperty == null)
+                {
+                    valid = false;
+                    logError("Error", property.DeclaringType, string.Format("Filter property {0}.{1} ({2}) data member is invalid", 
+                        property.ReflectedType.Name, property.Name, property.PropertyType.Name));
+                    continue;
+                }
+
                 if (!property.PropertyType.IsPrimitive && !property.PropertyType.IsEnum && property.PropertyType != typeof(string))
                 {
                     if (!property.PropertyType.IsGenericType || property.PropertyType.GetGenericTypeDefinition() != typeof(Nullable<>))

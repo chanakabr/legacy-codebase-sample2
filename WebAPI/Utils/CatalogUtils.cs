@@ -25,6 +25,7 @@ namespace WebAPI.Utils
 
         private const string MEDIA_CACHE_KEY_PREFIX = "media";
         private const string EPG_CACHE_KEY_PREFIX = "epg";
+        private const string RECORDING_CACHE_KEY_PREFIX = "recording";
         private const string CACHE_KEY_FORMAT = "{0}_lng{1}";
 
         public static bool GetBaseResponse<T>(WebAPI.Catalog.IserviceClient client, BaseRequest request, out T response, bool shouldSupportFailOverCaching = false, string cacheKey = null) where T : BaseResponse
@@ -78,20 +79,29 @@ namespace WebAPI.Utils
             return passed;
         }
 
-        private static void GetAssetsFromCatalog(IserviceClient client, BaseRequest request, int cacheDuration, List<long> missingMediaIds, List<long> missingEpgIds, out List<MediaObj> mediasFromCatalog, out List<ProgramObj> epgsFromCatalog)
+        private static void GetAssetsFromCatalog(IserviceClient client, BaseRequest request, int cacheDuration, 
+            List<long> missingMediaIds, List<long> missingEpgIds,
+            out List<MediaObj> mediasFromCatalog, out List<ProgramObj> epgsFromCatalog)
         {
             mediasFromCatalog = new List<MediaObj>();
-            epgsFromCatalog = new List<ProgramObj>(); ;
+            epgsFromCatalog = new List<ProgramObj>();
 
             if ((missingMediaIds != null && missingMediaIds.Count > 0) || (missingEpgIds != null && missingEpgIds.Count > 0))
             {
                 // get group configuration 
                 Group group = GroupsManager.GetGroup(request.m_nGroupID);
 
+                List<long> epgIds = new List<long>();
+
+                if (missingEpgIds != null)
+                {
+                    epgIds.AddRange(missingEpgIds);
+                }
+
                 // Build AssetInfoRequest with the missing ids
                 AssetInfoRequest assetsRequest = new AssetInfoRequest()
                 {
-                    epgIds = missingEpgIds,
+                    epgIds = epgIds,
                     mediaIds = missingMediaIds,
                     m_nGroupID = request.m_nGroupID,
                     m_nPageIndex = 0,
@@ -155,36 +165,52 @@ namespace WebAPI.Utils
 
         // Gets medias and epgs from cache
         // Returns true if all assets were found in cache, false if at least one is missing or not up to date
-        private static bool GetAssetsFromCache(List<BaseObject> ids, int language, out List<MediaObj> medias, out List<ProgramObj> epgs, out List<long> missingMediaIds, out List<long> missingEpgIds)
+        private static bool GetAssetsFromCache(List<BaseObject> ids, int language, out List<MediaObj> medias, 
+            out List<ProgramObj> epgs, 
+            out List<long> missingMediaIds, out List<long> missingEpgIds)
         {
             bool result = true;
             medias = new List<MediaObj>();
             epgs = new List<ProgramObj>();
+
             missingMediaIds = null;
             missingEpgIds = null;
 
             if (ids != null && ids.Count > 0)
             {
-
                 List<CacheKey> mediaKeys = new List<CacheKey>();
                 List<CacheKey> epgKeys = new List<CacheKey>();
+                List<CacheKey> recordingKeys = new List<CacheKey>();
 
                 CacheKey key = null;
 
                 // Separate media ids and epg ids and build the cache keys
                 foreach (var id in ids)
                 {
-                    key = new CacheKey(id.AssetId, id.m_dUpdateDate);
+                    if (id.AssetType == eAssetTypes.NPVR)
+                    {
+                        var searchResult = id as RecordingSearchResult;
+
+                        if (searchResult != null)
+                        {
+                            key = new CacheKey(searchResult.EpgId, searchResult.m_dUpdateDate);
+                        }
+                    }
+                    else
+                    {
+                        key = new CacheKey(id.AssetId, id.m_dUpdateDate);
+                    }
+
                     switch (id.AssetType)
                     {
                         case eAssetTypes.MEDIA:
-                            mediaKeys.Add(key);
-                            break;
+                        mediaKeys.Add(key);
+                        break;
                         case eAssetTypes.EPG:
-                            epgKeys.Add(key);
-                            break;
-                        default:
-                            throw new Exception("Unexpected AsssetType");
+                        case eAssetTypes.NPVR:
+                        epgKeys.Add(key);
+                        break;default:
+                        throw new Exception("Unexpected AsssetType");
                     }
                 }
 
@@ -254,21 +280,23 @@ namespace WebAPI.Utils
             List<BaseObject> finalResult = new List<BaseObject>();
             List<MediaObj> medias = new List<MediaObj>();
             List<ProgramObj> epgs = new List<ProgramObj>();
-
+            
             List<MediaObj> mediasFromCatalog = new List<MediaObj>();
             List<ProgramObj> epgsFromCatalog = new List<ProgramObj>();
+            List<ProgramObj> recordingsFromCatalog = new List<ProgramObj>();
             List<long> missingMediaIds = new List<long>();
             List<long> missingEpgIds = new List<long>();
 
             // get assets from cache
-            if (!GetAssetsFromCache(assetsBaseData, request.m_oFilter.m_nLanguage, out medias, out epgs, out missingMediaIds, out missingEpgIds))
+            if (!GetAssetsFromCache(assetsBaseData, request.m_oFilter.m_nLanguage, out medias, out epgs, 
+                out missingMediaIds, out missingEpgIds))
             {
-
                 if ((missingMediaIds != null && missingMediaIds.Count > 0) ||
                     (missingEpgIds != null && missingEpgIds.Count > 0))
                 {
                     // Get the assets from catalog that were missing in cache (and add them to cache) 
-                    GetAssetsFromCatalog(client, request, cacheDuration, missingMediaIds, missingEpgIds, out mediasFromCatalog, out epgsFromCatalog);
+                    GetAssetsFromCatalog(client, request, cacheDuration, missingMediaIds, missingEpgIds,
+                        out mediasFromCatalog, out epgsFromCatalog);
 
                     // Append the medias from Catalog to the medias from cache
                     if (mediasFromCatalog != null)
@@ -281,23 +309,53 @@ namespace WebAPI.Utils
             }
 
             // build combined EPG and Media results
-            BaseObject baseObject = new BaseObject();
             foreach (var item in assetsBaseData)
             {
-                if (item.AssetType == eAssetTypes.MEDIA)
+                BaseObject baseObject = new BaseObject();
+
+                switch (item.AssetType)
                 {
-                    baseObject = medias.Where(m => m != null && m.AssetId.ToString() == item.AssetId).FirstOrDefault();
-                    if (baseObject != null)
-                        finalResult.Add(baseObject);
-                }
-                else
-                {
-                    if (item.AssetType == eAssetTypes.EPG)
+                    case eAssetTypes.EPG:
                     {
                         baseObject = epgs.Where(p => p != null && p.AssetId.ToString() == item.AssetId).FirstOrDefault();
                         if (baseObject != null)
                             finalResult.Add(baseObject);
+                        break;
                     }
+                    case eAssetTypes.NPVR:
+                    {
+                        var searchResult = item as RecordingSearchResult;
+                        string epgId = searchResult.EpgId;
+
+                        baseObject = epgs.Where(p => p != null && p.AssetId.ToString() == epgId).FirstOrDefault();
+
+                        if (baseObject != null)
+                        {
+                            ProgramObj programObject = baseObject as ProgramObj;
+                            long recordingId;
+
+                            long.TryParse(item.AssetId, out recordingId);
+
+                            RecordingObj recordingObject = new RecordingObj()
+                            {
+                                recordingId = recordingId,
+                                program = programObject
+                            };
+
+                            finalResult.Add(recordingObject);
+                        }
+                        break;
+                    }
+                    case eAssetTypes.MEDIA:
+                    {
+                        baseObject = medias.Where(m => m != null && m.AssetId.ToString() == item.AssetId).FirstOrDefault();
+                        if (baseObject != null)
+                            finalResult.Add(baseObject);
+                        break;
+                    }
+                    case eAssetTypes.UNKNOWN:
+                    default:
+                    break;
                 }
             }
 

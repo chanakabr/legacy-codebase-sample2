@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<SavedWcfConfigurationInformation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="9.1" CheckSum="kSFy3QtOipN6pfFLm8AWpL+APbQ=">
+<SavedWcfConfigurationInformation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="9.1" CheckSum="vpNRDEfi8uKYvnnU5JMddyAKWKU=">
   <bindingConfigurations>
     <bindingConfiguration bindingType="wsHttpBinding" name="WSHttpBinding_Iservice1">
       <properties>
@@ -127,10 +127,10 @@
     </bindingConfiguration>
   </bindingConfigurations>
   <endpoints>
-    <endpoint name="WSHttpBinding_Iservice" contract="Catalog.Iservice" bindingType="wsHttpBinding" address="http://localhost/ws_catalog/Service.svc" bindingConfiguration="WSHttpBinding_Iservice1">
+    <endpoint name="WSHttpBinding_Iservice" contract="Catalog.Iservice" bindingType="wsHttpBinding" address="http://localhost:82/WS_Catalog/Service.svc" bindingConfiguration="WSHttpBinding_Iservice1">
       <properties>
         <property path="/address" isComplexType="false" isExplicitlyDefined="true" clrType="System.Uri, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-          <serializedValue>http://localhost/ws_catalog/Service.svc</serializedValue>
+          <serializedValue>http://localhost:82/WS_Catalog/Service.svc</serializedValue>
         </property>
         <property path="/behaviorConfiguration" isComplexType="false" isExplicitlyDefined="false" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue />

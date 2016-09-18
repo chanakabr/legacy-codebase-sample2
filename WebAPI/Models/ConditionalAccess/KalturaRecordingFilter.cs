@@ -38,6 +38,12 @@ namespace WebAPI.Models.ConditionalAccess
         [SchemeProperty(MaxLength = 2048)]
         public string FilterExpression { get; set; }
 
+        //public string IdIn
+        //{
+        //    get;
+        //    set;
+        //}
+
         public override KalturaRecordingOrderBy GetDefaultOrderByValue()
         {
             return KalturaRecordingOrderBy.START_DATE_DESC;
