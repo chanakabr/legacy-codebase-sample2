@@ -53,7 +53,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">Filter parameters for filtering out the result</param>
         /// <returns></returns>
-        /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024,
+        /// <remarks>Possible status codes: BadRequest = 500003, UserNotInHousehold = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoHousehold = 2024,
         /// ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034, ProgramCdvrNotEnabled = 3035,
         /// ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3038, ExceededQuota = 3042,
         /// AccountSeriesRecordingNotEnabled = 3046, AlreadyRecordedAsSeriesOrSeason = 3047, InvalidAssetId = 4024</remarks>
@@ -95,16 +95,16 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="recording">Recording Object</param>
         /// <returns></returns>
-        /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-        /// UserWithNoDomain = 2024, ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034,
+        /// <remarks>Possible status codes: BadRequest = 500003, UserNotInHousehold = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+        /// UserWithNoHousehold = 2024, ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034,
         /// ProgramCdvrNotEnabled = 3035, ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3038,
         /// ExceededQuota = 3042, AccountSeriesRecordingNotEnabled = 3046, AlreadyRecordedAsSeriesOrSeason = 3047, InvalidAssetId = 4024</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserNotInHousehold)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
-        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserWithNoHousehold)]
         [Throws(eResponseStatus.ServiceNotAllowed)]
         [Throws(eResponseStatus.NotEntitled)]
         [Throws(eResponseStatus.AccountCdvrNotEnabled)]
@@ -142,13 +142,13 @@ namespace WebAPI.Controllers
         /// <param name="filter">Filter parameters for filtering out the result</param>
         /// <param name="pager">Page size and index</param>
         /// <returns></returns>
-        /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024</remarks>
+        /// <remarks>Possible status codes: BadRequest = 500003, UserNotInHousehold = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoHousehold = 2024</remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserNotInHousehold)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
-        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserWithNoHousehold)]
         public KalturaRecordingListResponse List(KalturaRecordingFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaRecordingListResponse response = null;
@@ -187,15 +187,15 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">Recording identifier</param>
         /// <returns></returns>
-        /// <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-        /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043 </remarks>
+        /// <remarks>Possible status codes: BadRequest = 500003,UserNotInHousehold = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+        /// UserWithNoHousehold = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043 </remarks>
         [Route("cancel"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserNotInHousehold)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
-        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserWithNoHousehold)]
         [Throws(eResponseStatus.RecordingNotFound)]
         [Throws(eResponseStatus.RecordingStatusNotValid)]
         public KalturaRecording Cancel(long id)
@@ -222,14 +222,14 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">Recording identifier</param>
         /// <returns></returns>
-        /// <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-        /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043 </remarks>
+        /// <remarks>Possible status codes: BadRequest = 500003,UserNotInHousehold = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+        /// UserWithNoHousehold = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043 </remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserNotInHousehold)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
-        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserWithNoHousehold)]
         [Throws(eResponseStatus.RecordingNotFound)]
         [Throws(eResponseStatus.RecordingStatusNotValid)]
         public KalturaRecording Delete(long id)
@@ -256,15 +256,15 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">Recording identifier</param>
         /// <returns></returns>
-        /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024,
-        /// RecordingNotFound = 3039, RecordingStatusNotValid = 3043, DomainExceededProtectionQuota = 3044, AccountProtectRecordNotEnabled = 3045</remarks>     
+        /// <remarks>Possible status codes: BadRequest = 500003, UserNotInHousehold = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoHousehold = 2024,
+        /// RecordingNotFound = 3039, RecordingStatusNotValid = 3043, HouseholdExceededProtectionQuota = 3044, AccountProtectRecordNotEnabled = 3045</remarks>     
         [Route("protect"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserNotInHousehold)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
-        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserWithNoHousehold)]
         [Throws(eResponseStatus.RecordingNotFound)]
         [Throws(eResponseStatus.RecordingStatusNotValid)]
         [Throws(eResponseStatus.ExceededProtectionQuota)]

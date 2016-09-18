@@ -34,7 +34,7 @@ namespace WebAPI.Controllers
         [Route("purchase"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserNotInHousehold)]
         [Throws(eResponseStatus.InvalidUser)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]

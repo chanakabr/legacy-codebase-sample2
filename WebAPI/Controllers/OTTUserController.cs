@@ -60,7 +60,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("loginWithPin"), HttpPost]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserNotInHousehold)]
         [Throws(eResponseStatus.WrongPasswordOrUserName)]
         [Throws(eResponseStatus.PinNotExists)]
         [Throws(eResponseStatus.PinExpired)]
@@ -75,7 +75,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DeviceNotRegistered)]
         [Throws(eResponseStatus.ErrorOnInitUser)]
         [Throws(eResponseStatus.UserNotMasterApproved)]
-        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserWithNoHousehold)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         public KalturaLoginResponse LoginWithPin(int partnerId, string pin, string udid = null, string secret = null)
         {
@@ -114,7 +114,7 @@ namespace WebAPI.Controllers
         [Route("login"), HttpPost]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [OldStandard("extraParams", "extra_params")]
-        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserNotInHousehold)]
         [Throws(eResponseStatus.WrongPasswordOrUserName)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.InsideLockTime)]
@@ -597,7 +597,7 @@ namespace WebAPI.Controllers
         [Route("delete"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        [Throws(eResponseStatus.DomainSuspended)]
+        [Throws(eResponseStatus.HouseholdSuspended)]
         [Throws(eResponseStatus.LimitationPeriod)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.DefaultUserCannotBeDeleted)]
