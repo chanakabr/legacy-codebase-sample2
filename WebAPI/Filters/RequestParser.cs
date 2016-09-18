@@ -68,6 +68,7 @@ namespace WebAPI.Filters
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private const char PARAMS_PREFIX = ':';
+        private const char PARAMS_NESTED_PREFIX = '.';
         private const string CB_SECTION_NAME = "tokens";
 
         private static int accessTokenLength = TCMClient.Settings.Instance.GetValue<int>("access_token_length");
@@ -288,7 +289,7 @@ namespace WebAPI.Filters
             string currentController = null;
 
             // version request
-            if (actionContext.Request.GetRouteData().Route.RouteTemplate == "api_v3/version" && (actionContext.Request.Method == HttpMethod.Post) || (actionContext.Request.Method == HttpMethod.Get))
+            if (actionContext.Request.GetRouteData().Route.RouteTemplate.Equals("api_v3/version"))
             {
                 base.OnActionExecuting(actionContext);
                 return;
@@ -297,52 +298,51 @@ namespace WebAPI.Filters
             HttpContext.Current.Items[REQUEST_TIME] = DateTime.UtcNow;
 
             NameValueCollection formData = null;
-            if (actionContext.Request.Method == HttpMethod.Post)
+
+            var rd = actionContext.ControllerContext.RouteData;
+            if (rd.Values.ContainsKey("service_name"))
             {
-                var rd = actionContext.ControllerContext.RouteData;
-                if (rd.Values.ContainsKey("service_name"))
-                {
-                    currentController = rd.Values["service_name"].ToString();
-                }
-                else
-                {
-                    formData = await ParseFormData(actionContext);
-                    currentController = formData.Get("service");
-                    if(currentController == null)
-                    {
-                        createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidService, "Unknown Service");
-                        return;
-                    }
-
-                    HttpContext.Current.Items[REQUEST_SERVICE] = currentController;
-                }
-
+                currentController = rd.Values["service_name"].ToString();
                 if (rd.Values.ContainsKey("action_name"))
                 {
                     currentAction = rd.Values["action_name"].ToString();
                 }
-                else if (formData != null)
-                {
-                    currentAction = formData.Get("action");
-                }
-                if (currentAction != null)
-                {
-                    HttpContext.Current.Items[REQUEST_ACTION] = currentAction;
-                }
+            }
+            else if (actionContext.Request.Method == HttpMethod.Post)
+            {
+                formData = await ParseFormData(actionContext);
+                currentController = formData.Get("service");
+                currentAction = formData.Get("action");
             }
             else if (actionContext.Request.Method == HttpMethod.Get)
             {
-                currentController = actionContext.Request.GetQueryNameValuePairs().Where(x => x.Key.ToLower() == "service").FirstOrDefault().Value;
-                var pair = actionContext.Request.GetQueryNameValuePairs().Where(x => x.Key.ToLower() == "action");
+                var pair = actionContext.Request.GetQueryNameValuePairs().Where(x => x.Key.ToLower() == "service");
                 if (pair != null)
                 {
-                    currentAction = pair.FirstOrDefault().Value;
+                    currentController = pair.FirstOrDefault().Value;
+                    pair = actionContext.Request.GetQueryNameValuePairs().Where(x => x.Key.ToLower() == "action");
+                    if (pair != null)
+                    {
+                        currentAction = pair.FirstOrDefault().Value;
+                    }
                 }
             }
             else
             {
                 createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.BadRequest, "HTTP Method not supported");
                 return;
+            }
+            
+            if(currentController == null)
+            {
+                createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidService, "Unknown Service");
+                return;
+            }
+
+            HttpContext.Current.Items[REQUEST_SERVICE] = currentController;
+            if (currentAction != null)
+            {
+                HttpContext.Current.Items[REQUEST_ACTION] = currentAction;
             }
 
             MethodInfo methodInfo = null;
@@ -450,7 +450,7 @@ namespace WebAPI.Filters
                 var tokens = actionContext.Request.GetQueryNameValuePairs().ToDictionary((keyItem) => keyItem.Key,
                     (valueItem) => valueItem.Value);
 
-                if (tokens["apiVersion"] != null)
+                if (tokens.ContainsKey("apiVersion"))
                 {
                     Version version;
                     if (!Version.TryParse(tokens["apiVersion"], out version))
@@ -677,7 +677,7 @@ namespace WebAPI.Filters
             // group the params by prefix
             foreach (var kv in tokens)
             {
-                string[] path = kv.Key.Split(PARAMS_PREFIX);
+                string[] path = kv.Key.Replace(PARAMS_NESTED_PREFIX, PARAMS_PREFIX).Split(PARAMS_PREFIX);
                 setElementByPath(paramsDic, path.ToList(), kv.Value);
             }
 
@@ -691,7 +691,7 @@ namespace WebAPI.Filters
             // group the params by prefix
             foreach (string key in tokens.Keys)
             {
-                string[] path = key.Split(PARAMS_PREFIX);
+                string[] path = key.Replace(PARAMS_NESTED_PREFIX, PARAMS_PREFIX).Split(PARAMS_PREFIX);
                 setElementByPath(paramsDic, path.ToList(), tokens.Get(key));
             }
 
@@ -803,7 +803,15 @@ namespace WebAPI.Filters
                 }
 
                 //If object
-                var classRes = buildObject(property.PropertyType, ((JObject)parameters[parameterName]).ToObject<Dictionary<string, object>>());
+                KalturaOTTObject classRes = null;
+                if (parameters[parameterName] is JObject)
+                {
+                    classRes = buildObject(property.PropertyType, ((JObject)parameters[parameterName]).ToObject<Dictionary<string, object>>());
+                }
+                else if (parameters[parameterName] is Dictionary<string, object>)
+                {
+                    classRes = buildObject(property.PropertyType, (Dictionary<string, object>)parameters[parameterName]);
+                }
                 property.SetValue(instance, classRes, null);
                 continue;
 

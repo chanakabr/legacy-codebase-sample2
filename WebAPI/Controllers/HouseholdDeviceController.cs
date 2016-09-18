@@ -381,7 +381,12 @@ namespace WebAPI.Controllers
             try
             {
                 KalturaHousehold household = null;
-                if (filter != null && filter.HouseholdIdEqual.HasValue && filter.HouseholdIdEqual.Value > 0)
+                if (filter == null)
+                {
+                    filter = new KalturaHouseholdDeviceFilter();
+                }
+
+                if (filter.HouseholdIdEqual.HasValue && filter.HouseholdIdEqual.Value > 0)
                 {
                     household = ClientsManager.DomainsClient().GetDomainInfo(groupId, filter.HouseholdIdEqual.Value);
                 }
