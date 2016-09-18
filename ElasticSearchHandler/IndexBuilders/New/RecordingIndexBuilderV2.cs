@@ -31,6 +31,7 @@ namespace ElasticSearchHandler.IndexBuilders
         {
             serializer = new ESSerializerV2();
             epgToRecordingMapping = new Dictionary<long, long>();
+            shouldAddRouting = false;
         }
 
         #endregion
