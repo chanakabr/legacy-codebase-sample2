@@ -567,19 +567,23 @@ namespace ElasticSearch.Common
 
         public virtual string CreateEpgMapping(List<string> lMetasNames, List<string> lTags, string indexAnalyzer, string searchAnalyzer,
                                                 string mappingName, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null,
-                                                string suffix = null)
+                                                string suffix = null,
+                                                bool shouldAddRouting = true)
         {
             if (lMetasNames == null || lTags == null)
                 return string.Empty;
 
             ESMappingObj mappingObj = new ESMappingObj(mappingName);
 
-            ESRouting routing = new ESRouting()
+            if (shouldAddRouting)
             {
-                path = "date_routing",
-                required = true
-            };
-            mappingObj.SetRouting(routing);
+                ESRouting routing = new ESRouting()
+                {
+                    path = "date_routing",
+                    required = true
+                };
+                mappingObj.SetRouting(routing);
+            }
 
             #region Add basic type mappings - (e.g. epg_id, group_id, description etc)
             mappingObj.AddProperty(new BasicMappingPropertyV1()
@@ -836,34 +840,38 @@ namespace ElasticSearch.Common
             StringBuilder sRecord = new StringBuilder();
             sRecord.Append("{ ");
 
-            SerializeEPGBody(oEpg, sRecord, suffix);
+            SerializeEPGBody(oEpg, sRecord, suffix, true);
 
             sRecord.Append(" }");
 
             return sRecord.ToString();
         }
 
-        protected virtual void SerializeEPGBody(EpgCB oEpg, StringBuilder sRecord, string suffix = null)
+        protected virtual void SerializeEPGBody(EpgCB oEpg, StringBuilder sRecord, string suffix = null, bool withRouting = true)
         {
             string name = oEpg.Name;
             string description = oEpg.Description;
 
             sRecord.AppendFormat("\"epg_id\": {0}, \"group_id\": {1}, \"epg_channel_id\": {2}, \"is_active\": {3}, \"start_date\": \"{4}\", \"end_date\": \"{5}\"," +
-                " \"{14}\": \"{6}\", \"{15}\": \"{7}\", \"cache_date\": \"{8}\", \"date_routing\": \"{9}\", \"create_date\": \"{10}\", \"update_date\": \"{11}\"," +
-                "\"search_end_date\": \"{12}\", \"crid\": \"{13}\",",
+                " \"{13}\": \"{6}\", \"{14}\": \"{7}\", \"cache_date\": \"{8}\", \"create_date\": \"{9}\", \"update_date\": \"{10}\"," +
+                "\"search_end_date\": \"{11}\", \"crid\": \"{12}\",",
                 oEpg.EpgID, oEpg.GroupID, oEpg.ChannelID, (oEpg.isActive) ? 1 : 0, oEpg.StartDate.ToString("yyyyMMddHHmmss"), oEpg.EndDate.ToString("yyyyMMddHHmmss"),
                 Common.Utils.ReplaceDocumentReservedCharacters(ref name), Common.Utils.ReplaceDocumentReservedCharacters(ref description),
                 /* cache_date*/ DateTime.UtcNow.ToString("yyyyMMddHHmmss"), 
-                /* date_routing */ oEpg.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
                 oEpg.CreateDate.ToString("yyyyMMddHHmmss"),
                 oEpg.UpdateDate.ToString("yyyyMMddHHmmss"),
                 oEpg.SearchEndDate.ToString("yyyyMMddHHmmss"),
                 oEpg.Crid,
-                // {14}
+                // {13}
                 AddSuffix("name", suffix),
-                // {15}
+                // {14}
                 AddSuffix("description", suffix)
                 );
+
+            if (withRouting)
+            {
+                sRecord.AppendFormat("\"date_routing\" : {0},", oEpg.StartDate.ToUniversalTime().ToString("yyyyMMdd"));
+            }
 
             #region add metas
             sRecord.Append(" \"metas\": {");
@@ -947,7 +955,7 @@ namespace ElasticSearch.Common
             builder.Append("{ ");
             builder.AppendFormat("\"recording_id\": {0},", recordingId);
 
-            SerializeEPGBody(oEpg, builder, suffix);
+            SerializeEPGBody(oEpg, builder, suffix, false);
 
             builder.Append(" }");
 

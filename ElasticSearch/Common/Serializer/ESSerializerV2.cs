@@ -396,32 +396,36 @@ namespace ElasticSearch.Common
 
         public override string CreateEpgMapping(List<string> lMetasNames, List<string> lTags, string indexAnalyzer, string searchAnalyzer,
                                                 string mappingName, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null,
-                                                string suffix = null)
+                                                string suffix = null,
+                                                bool shouldAddRouting = false)
         {
             if (lMetasNames == null || lTags == null)
                 return string.Empty;
 
             ESMappingObj mappingObj = new ESMappingObj(mappingName);
 
-            ESRouting routing = new ESRouting()
+            if (shouldAddRouting)
             {
-                path = null,
-                //
-                //  !!! ATTENTION !!!
-                //
-                // routing is not required in this version of ES
-                // This ie because it enforces routing to be specified in EVERY ACTION
-                // INCLUDING DELETE REQUESTS
-                // EVEN IF WE DON'T KNOW THE ROUTING KEY
-                // So in order to avoid this, I don't want the routing to be required
-                // It will be used when inserting and searching
-                // But not when deleting
-                // Alright?
-                //
-                required = false
-            };
+                ESRouting routing = new ESRouting()
+                {
+                    path = null,
+                    //
+                    //  !!! ATTENTION !!!
+                    //
+                    // routing is not required in this version of ES
+                    // This ie because it enforces routing to be specified in EVERY ACTION
+                    // INCLUDING DELETE REQUESTS
+                    // EVEN IF WE DON'T KNOW THE ROUTING KEY
+                    // So in order to avoid this, I don't want the routing to be required
+                    // It will be used when inserting and searching
+                    // But not when deleting
+                    // Alright?
+                    //
+                    required = false
+                };
 
-            mappingObj.SetRouting(routing);
+                mappingObj.SetRouting(routing);
+            }
 
             #region Add basic type mappings - (e.g. epg_id, group_id, description etc)
             mappingObj.AddProperty(new BasicMappingPropertyV2()
