@@ -19500,7 +19500,9 @@ namespace ConditionalAccess
                 if (cdvrAdapter != null && cdvrAdapter.DynamicLinksSupport)
                 {
                     // get the link from the CDVR adapter
-                    RecordResult recordResult = CdvrAdapterController.GetInstance().GetRecordingLinks(m_nGroupID, recording.ExternalRecordingId, cdvrAdapter.ID);
+                    string externalChannelId = Tvinci.Core.DAL.CatalogDAL.GetEPGChannelCDVRId(m_nGroupID, recording.ChannelId);
+
+                    RecordResult recordResult = CdvrAdapterController.GetInstance().GetRecordingLinks(m_nGroupID, externalChannelId, recording.ExternalRecordingId, cdvrAdapter.ID);
 
                     if (recordResult == null || recordResult.Links == null || recordResult.Links.Count == 0)
                     {

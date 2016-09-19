@@ -668,7 +668,7 @@ namespace AdapterControllers.CDVR
             return recordResult;
         }
 
-        public RecordResult GetRecordingLinks(int partnerId, string recordingId, int adapterId)
+        public RecordResult GetRecordingLinks(int partnerId, string channelId, string recordingId, int adapterId)
         {
             RecordResult recordResult = new RecordResult();
 
@@ -706,7 +706,7 @@ namespace AdapterControllers.CDVR
                     //call Adapter GetRecordingLinks
                     try
                     {
-                        adapterResponse = client.GetRecordingLinks(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        adapterResponse = client.GetRecordingLinks(recordingId, channelId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                     }
                     catch (Exception ex)
                     {
@@ -737,7 +737,7 @@ namespace AdapterControllers.CDVR
                         //call Adapter GetRecordingLinks - after it is configured
                         try
                         {
-                            adapterResponse = client.GetRecordingLinks(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                            adapterResponse = client.GetRecordingLinks(recordingId, channelId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                         }
                         catch (Exception ex)
                         {
