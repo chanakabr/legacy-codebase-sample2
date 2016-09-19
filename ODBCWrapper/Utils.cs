@@ -1012,13 +1012,13 @@ namespace ODBCWrapper
                 }
                 
                 string procedureName = executer as string;
-                if (!string.IsNullOrEmpty(procedureName) && dbSpRouting.ProceduresMapping.ContainsKey(procedureName))
+                if (!string.IsNullOrEmpty(procedureName) && dbSpRouting.ProceduresMapping.ContainsKey(procedureName.ToUpper()))
                 {
-                    ProcedureRoutingInfo procedureRoutingInfo = dbSpRouting.ProceduresMapping[procedureName];
+                    ProcedureRoutingInfo procedureRoutingInfo = dbSpRouting.ProceduresMapping[procedureName.ToUpper()];
                     string version = GetTcmConfigValue("Version");
                     if (!string.IsNullOrEmpty(version))
                     {
-                        isWritable = !procedureRoutingInfo.VersionsToExclude.Contains(version) ? procedureRoutingInfo.IsWritable : !procedureRoutingInfo.IsWritable;
+                        isWritable = !procedureRoutingInfo.VersionsToExclude.Contains(version.ToUpper()) ? procedureRoutingInfo.IsWritable : !procedureRoutingInfo.IsWritable;
                     }
                 }
 
@@ -1273,7 +1273,7 @@ namespace ODBCWrapper
                             {
                                 bool isWritable = ExtractBoolean(dr, "IS_WRITABLE");
                                 string versionsToExclude = GetSafeStr(dr, "VERSIONS_TO_EXCLUDE");
-                                routing.ProceduresMapping.Add(procedureName, new ProcedureRoutingInfo(isWritable, versionsToExclude));
+                                routing.ProceduresMapping.Add(procedureName.ToUpper(), new ProcedureRoutingInfo(isWritable, versionsToExclude));
                             }
                         }
                     }

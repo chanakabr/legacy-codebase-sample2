@@ -36,12 +36,12 @@ namespace ODBCWrapper
             this.VersionsToExclude = new HashSet<string>();
             if (!string.IsNullOrEmpty(versionsToExclude))
             {
-                string[] versions = versionsToExclude.Split(',');
+                string[] versions = versionsToExclude.Split(';');
                 foreach (string version in versions)
                 {
-                    if (!this.VersionsToExclude.Contains(version))
+                    if (!this.VersionsToExclude.Contains(version.ToUpper()))
                     {
-                        this.VersionsToExclude.Add(version);
+                        this.VersionsToExclude.Add(version..ToUpper());
                     }
                 }
             }
