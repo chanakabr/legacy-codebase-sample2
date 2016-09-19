@@ -14,17 +14,18 @@ namespace ODBCWrapper
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
+        private const int RETRY_LIMIT = 5;
         private const string DB_SP_ROUTING_KEY = "db_sp_routing";
-        private const int CB_DB_SP_ROUTING_EXPIRY_MIN = 60;
+        private const int CB_DB_SP_ROUTING_EXPIRY_HOURS = 24;        
         private const string REGEX_TABLE_NAME = @"\bjoin\s+(?<Retrieve>[a-zA-Z\._\d]+)\b|\bfrom\s+(?<Retrieve>[a-zA-Z\._\d]+)\b|\bupdate\s+(?<Update>[a-zA-Z\._\d]+)\b|\binsert\s+(?:\binto\b)?\s+(?<Insert>[a-zA-Z\._\d]+)\b|\btruncate\s+table\s+(?<Delete>[a-zA-Z\._\d]+)\b|\bdelete\s+(?:\bfrom\b)?\s+(?<Delete>[a-zA-Z\._\d]+)\b";
         public static readonly DateTime FICTIVE_DATE = new DateTime(2000, 1, 1);
         static List<string> dbWriteLockParams = (!string.IsNullOrEmpty(TCMClient.Settings.Instance.GetValue<string>("DB_WriteLock_Params"))) ? TCMClient.Settings.Instance.GetValue<string>("DB_WriteLock_Params").Split(';').ToList<string>() : null;
         static public string dBVersionPrefix = (!string.IsNullOrEmpty(TCMClient.Settings.Instance.GetValue<string>("DB_Settings.prefix"))) ? string.Concat("__", TCMClient.Settings.Instance.GetValue<string>("DB_Settings.prefix"), "__") : string.Empty;
         static bool UseReadWriteLockMechanism = TCMClient.Settings.Instance.GetValue<bool>("DB_WriteLock_Use");
+        static DbProceduresRouting dbSpRouting = InitializeDbProceduresRouting();
+        private static object locker = new object();
         [ThreadStatic]
         public static bool UseWritable;
-
-        protected const int RETRY_LIMIT = 5;
 
         static public string GetSafeStr(object o)
         {
@@ -999,6 +1000,27 @@ namespace ODBCWrapper
             if (!useWriteable)
             {
                 Utils.UseWritable = ReadWriteLock(sKey, oValue, executer, isWritable);
+                if (dbSpRouting == null)
+                {
+                    lock (locker)
+                    {
+                        if (dbSpRouting == null)
+                        {
+                            dbSpRouting = InitializeDbProceduresRouting();
+                        }
+                    }
+                }
+                
+                string procedureName = executer as string;
+                if (!string.IsNullOrEmpty(procedureName) && dbSpRouting.ProceduresMapping.ContainsKey(procedureName))
+                {
+                    ProcedureRoutingInfo procedureRoutingInfo = dbSpRouting.ProceduresMapping[procedureName];
+                    string version = GetTcmConfigValue("Version");
+                    if (!string.IsNullOrEmpty(version))
+                    {
+                        isWritable = !procedureRoutingInfo.VersionsToExclude.Contains(version) ? procedureRoutingInfo.IsWritable : !procedureRoutingInfo.IsWritable;
+                    }
+                }
 
                 //if (useWriteable) Logger.Logger.Log("DBLock ", "m_bUseWritable changed to '" + Utils.UseWritable + "', for: " + executer, "ODBC_DBLock");
             }
@@ -1098,9 +1120,9 @@ namespace ODBCWrapper
             return bRet;
         }
 
-        public static DatabaseStoredProceduresMapping GetDatabaseStoredProceduresRouting()
+        public static DbProceduresRouting GetDbProceduresRoutingFromCb()
         {
-            DatabaseStoredProceduresMapping response = null;
+            DbProceduresRouting response = null;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
@@ -1116,7 +1138,7 @@ namespace ODBCWrapper
                 int numOfRetries = 0;
                 while (numOfRetries < limitRetries)
                 {
-                    response = cbClient.Get<DatabaseStoredProceduresMapping>(dbSpRoutingKey, out getResult);
+                    response = cbClient.Get<DbProceduresRouting>(dbSpRoutingKey, out getResult);
                     if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
                     {
                         log.ErrorFormat("Error while trying to get database stored procedure routing, KeyNotFound. key: {0}", dbSpRoutingKey);
@@ -1143,7 +1165,7 @@ namespace ODBCWrapper
             return response;
         }
 
-        public static bool SetDatabaseStoredProceduresRouting(DatabaseStoredProceduresMapping dbSpRouting)
+        public static bool SetDbProceduresRouting(DbProceduresRouting dbSpRouting)
         {
             bool result = false;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
@@ -1162,10 +1184,10 @@ namespace ODBCWrapper
                 {
                     ulong version;
                     Couchbase.IO.ResponseStatus status;
-                    DatabaseStoredProceduresMapping currentDbSpRouting = cbClient.GetWithVersion<DatabaseStoredProceduresMapping>(dbSpRoutingKey, out version, out status);
+                    DbProceduresRouting currentDbSpRouting = cbClient.GetWithVersion<DbProceduresRouting>(dbSpRoutingKey, out version, out status);
                     if (status == Couchbase.IO.ResponseStatus.Success || status == Couchbase.IO.ResponseStatus.KeyNotFound)
                     {
-                        result = cbClient.SetWithVersion<DatabaseStoredProceduresMapping>(dbSpRoutingKey, dbSpRouting, version, (CB_DB_SP_ROUTING_EXPIRY_MIN * 60));
+                        result = cbClient.SetWithVersion<DbProceduresRouting>(dbSpRoutingKey, dbSpRouting, version, (CB_DB_SP_ROUTING_EXPIRY_HOURS * 3600));
                     }
 
                     if (!result)
@@ -1211,6 +1233,10 @@ namespace ODBCWrapper
 
                         System.Threading.Thread.Sleep(r.Next(50));
                     }
+                    else
+                    {
+                        dbSpRouting = null;
+                    }
                 }
             }
             catch (Exception ex)
@@ -1223,33 +1249,48 @@ namespace ODBCWrapper
 
         private static string GetDbSpRoutingKey()
         {
-            string key = string.Empty;
-            string version = GetTcmConfigValue("Version");
-            if (!string.IsNullOrEmpty(version))
-            {
-                key = string.Format("{0}_{1}", version, DB_SP_ROUTING_KEY);
-            }
-            else
-            {
-                log.Error("Can't get version value from TCM");
-            }
-
-            return key;
+            return DB_SP_ROUTING_KEY;
         }
 
-        internal static bool GetProcedureDbMappingByName(string procedureName)
+        private static DbProceduresRouting InitializeDbProceduresRouting()
         {
-            bool result = false;
-            ODBCWrapper.StoredProcedure spGetDomainRecordingsByDomainSeriesId = new ODBCWrapper.StoredProcedure("GetDatabaseStoredProcedureRouting");
-            spGetDomainRecordingsByDomainSeriesId.AddParameter("@Name", procedureName);
-            DataTable dt = spGetDomainRecordingsByDomainSeriesId.Execute();
-            if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+            DbProceduresRouting routing = null;
+            routing = GetDbProceduresRoutingFromCb();
+            if (routing == null)
             {
-                int route = GetIntSafeVal(dt.Rows[0], "route", 0);
-                result = route == 1;
+                routing = new DbProceduresRouting();
+                StoredProcedure spInitializeDbProceduresRouting = new StoredProcedure("InitializeDbProceduresRouting");
+                spInitializeDbProceduresRouting.SetConnectionKey("MAIN_CONNECTION_STRING");
+                try
+                {
+                    DataTable dt = spInitializeDbProceduresRouting.Execute();
+                    if (dt != null && dt.Rows != null)
+                    {
+                        foreach (DataRow dr in dt.Rows)
+                        {
+                            string procedureName = GetSafeStr(dr, "NAME");
+                            if (!string.IsNullOrEmpty(procedureName))
+                            {
+                                bool isWritable = ExtractBoolean(dr, "IS_WRITABLE");
+                                string versionsToExclude = GetSafeStr(dr, "VERSIONS_TO_EXCLUDE");
+                                routing.ProceduresMapping.Add(procedureName, new ProcedureRoutingInfo(isWritable, versionsToExclude));
+                            }
+                        }
+                    }
+
+                    if (!SetDbProceduresRouting(routing))
+                    {
+                        log.Error("Failed SetDbProceduresRouting");
+                    }
+                }
+
+                catch (Exception ex)
+                {
+                    log.Error("Failed InitializeDbProceduresRouting from DB", ex);
+                }
             }
 
-            return result;
+            return routing;
         }
     }
 }

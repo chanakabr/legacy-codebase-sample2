@@ -16,8 +16,7 @@ namespace ODBCWrapper
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static List<string> db_Slaves = (!string.IsNullOrEmpty(TCMClient.Settings.Instance.GetValue<string>("DB_Slaves_IPs"))) ? TCMClient.Settings.Instance.GetValue<string>("DB_Slaves_List").Split(':').ToList<string>() : null;
         public static bool m_bIsWritable;
-        private const string DB_NAME_CONNECTION_STRING_TEMAPLTE = "{dbname}";
-        private const string DB_SP_ROUTING_PROCEDURE_NAME = "GetDatabaseStoredProcedureRouting";
+        private const string DB_NAME_CONNECTION_STRING_TEMAPLTE = "{dbname}";        
 
         public Connection()
         {
@@ -42,24 +41,6 @@ namespace ODBCWrapper
                 connString = Regex.Replace(connString, DB_NAME_CONNECTION_STRING_TEMAPLTE, dbName, RegexOptions.IgnoreCase);
 
             return connString;
-        }
-
-        static public string GetConnectionString(string key, bool isWritable, string procedureName)
-        {
-            DatabaseStoredProceduresMapping dbSpMapping = Utils.GetDatabaseStoredProceduresRouting();
-            if (dbSpMapping.routing.ContainsKey(procedureName))
-            {
-                isWritable = bool.Parse(dbSpMapping.routing[procedureName]);
-            }
-            else if(procedureName != DB_SP_ROUTING_PROCEDURE_NAME)
-            {
-                bool isProcedureWriteable = Utils.GetProcedureDbMappingByName(procedureName);
-                isWritable = isProcedureWriteable;
-                dbSpMapping.routing.Add(procedureName, isProcedureWriteable.ToString());
-                Utils.SetDatabaseStoredProceduresRouting(dbSpMapping);   
-            }
-
-            return GetConnectionStringByKey(key, isWritable);
         }
 
         //TODO : add connection string for WRITABLE 
