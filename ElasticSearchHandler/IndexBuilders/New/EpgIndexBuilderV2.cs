@@ -344,6 +344,13 @@ namespace ElasticSearchHandler.IndexBuilders
 
         protected virtual void AddEPGsToIndex(string index, string type, Dictionary<ulong, Dictionary<string, EpgCB>> programs, Group group)
         {
+            // Basic validation
+            if (programs == null)
+            {
+                log.ErrorFormat("AddEPGsToIndex {0}/{1} for group {2}: programs is null!", index, type, this.groupId);
+                return;
+            }
+
             List<ESBulkRequestObj<ulong>> bulkRequests = new List<ESBulkRequestObj<ulong>>();
 
             // GetLinear Channel Values 
@@ -361,12 +368,29 @@ namespace ElasticSearchHandler.IndexBuilders
             {
                 foreach (var languageCode in programs[epgID].Keys)
                 {
-                    var language = group.GetLanguage(languageCode);
                     string suffix = null;
 
-                    if (!language.IsDefault)
+                    LanguageObj language = null;
+
+                    if (!string.IsNullOrEmpty(languageCode))
                     {
-                        suffix = language.Code;
+                        language = group.GetLanguage(languageCode);
+
+                        // Validate language
+                        if (language == null)
+                        {
+                            log.ErrorFormat("AddEPGsToIndex: Epg {0} has invalid language code {1}", epgID, languageCode);
+                            continue;
+                        }
+
+                        if (!language.IsDefault)
+                        {
+                            suffix = language.Code;
+                        }
+                    }
+                    else
+                    {
+                        language = group.GetGroupDefaultLanguage();
                     }
 
                     EpgCB epg = programs[epgID][languageCode];
@@ -375,7 +399,7 @@ namespace ElasticSearchHandler.IndexBuilders
                     {
                         // Serialize EPG object to string
                         string serializedEpg = SerializeEPGObject(epg, suffix);
-                        string epgType = ElasticSearchTaskUtils.GetTanslationType(type, group.GetLanguage(languageCode));
+                        string epgType = ElasticSearchTaskUtils.GetTanslationType(type, language);
 
                         bulkRequests.Add(new ESBulkRequestObj<ulong>()
                         {

@@ -329,14 +329,23 @@ namespace ElasticSearchHandler.IndexBuilders
 
         protected virtual void AddEPGsToIndex(string index, string type, Dictionary<ulong, Dictionary<string, EpgCB>> programs, Group group)
         {
+            // Basic validation
+            if (programs == null)
+            {
+                log.ErrorFormat("AddEPGsToIndex {0}/{1} for group {2}: programs is null!", index, type, this.groupId);
+                return;
+            }
+
             List<KeyValuePair<ulong, string>> epgList = new List<KeyValuePair<ulong, string>>();
 
             // GetLinear Channel Values 
             var programsList = new List<EpgCB>();
+
             foreach (var programsValues in programs.Values)
             {
                 programsList.AddRange(programsValues.Values);
             }
+
             ElasticSearchTaskUtils.GetLinearChannelValues(programsList, groupId);
             
             List<ESBulkRequestObj<int>> bulkList = new List<ESBulkRequestObj<int>>();
@@ -348,12 +357,18 @@ namespace ElasticSearchHandler.IndexBuilders
                 {
                     EpgCB epg = programs[epgID][languageCode];
 
+                    var language = group.GetLanguage(languageCode);
+                    
+                    if (language == null)
+                    {
+                        language = group.GetGroupDefaultLanguage();
+                    }
+
                     if (epg != null)
                     {
                         // Serialize EPG object to string
                         string serializedEpg = SerializeEPGObject(epg);
-                        string epgType = ElasticSearchTaskUtils.GetTanslationType(type, group.GetLanguage(languageCode));
-
+                        string epgType = ElasticSearchTaskUtils.GetTanslationType(type, language);
 
                         bulkList.Add(new ESBulkRequestObj<int>()
                               {
