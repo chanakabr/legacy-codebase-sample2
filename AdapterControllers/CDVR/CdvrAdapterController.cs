@@ -692,7 +692,7 @@ namespace AdapterControllers.CDVR
             long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
             //TODO: verify that signature is correct
-            string signature = string.Concat(recordingId, adapterId, timeStamp);
+            string signature = string.Concat(recordingId, channelId, adapterId, timeStamp);
 
             try
             {
