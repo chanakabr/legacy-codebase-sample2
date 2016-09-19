@@ -41,7 +41,7 @@ namespace ODBCWrapper
                 {
                     if (!this.VersionsToExclude.Contains(version.ToUpper()))
                     {
-                        this.VersionsToExclude.Add(version..ToUpper());
+                        this.VersionsToExclude.Add(version.ToUpper());
                     }
                 }
             }
