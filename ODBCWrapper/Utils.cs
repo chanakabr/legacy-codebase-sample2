@@ -1000,30 +1000,33 @@ namespace ODBCWrapper
             if (!useWriteable)
             {
                 Utils.UseWritable = ReadWriteLock(sKey, oValue, executer, isWritable);
-                if (dbSpRouting == null)
-                {
-                    lock (locker)
-                    {
-                        if (dbSpRouting == null)
-                        {
-                            dbSpRouting = InitializeDbProceduresRouting();
-                        }
-                    }
-                }
-                
-                string procedureName = executer as string;
-                if (!string.IsNullOrEmpty(procedureName) && dbSpRouting.ProceduresMapping.ContainsKey(procedureName.ToUpper()))
-                {
-                    ProcedureRoutingInfo procedureRoutingInfo = dbSpRouting.ProceduresMapping[procedureName.ToUpper()];
-                    string version = GetTcmConfigValue("Version");
-                    if (!string.IsNullOrEmpty(version))
-                    {
-                        isWritable = !procedureRoutingInfo.VersionsToExclude.Contains(version.ToUpper()) ? procedureRoutingInfo.IsWritable : !procedureRoutingInfo.IsWritable;
-                    }
-                }
-
-                //if (useWriteable) Logger.Logger.Log("DBLock ", "m_bUseWritable changed to '" + Utils.UseWritable + "', for: " + executer, "ODBC_DBLock");
             }
+
+            if (dbSpRouting == null)
+            {
+                lock (locker)
+                {
+                    if (dbSpRouting == null)
+                    {
+                        dbSpRouting = InitializeDbProceduresRouting();
+                    }
+                }
+            }
+                
+            string procedureName = executer as string;
+            int dbVersionPrefixLength = dBVersionPrefix.Length;
+            if (!string.IsNullOrEmpty(procedureName) && procedureName.Length > dbVersionPrefixLength
+                && dbSpRouting.ProceduresMapping.ContainsKey(procedureName.Substring(dbVersionPrefixLength, procedureName.Length - dbVersionPrefixLength).ToUpper()))
+            {
+                ProcedureRoutingInfo procedureRoutingInfo = dbSpRouting.ProceduresMapping[procedureName.Substring(dbVersionPrefixLength, procedureName.Length - dbVersionPrefixLength).ToUpper()];
+                string version = GetTcmConfigValue("Version");
+                if (!string.IsNullOrEmpty(version))
+                {
+                    Utils.UseWritable = !procedureRoutingInfo.VersionsToExclude.Contains(version.ToUpper()) ? procedureRoutingInfo.IsWritable : !procedureRoutingInfo.IsWritable;
+                }
+            }
+
+                //if (useWriteable) Logger.Logger.Log("DBLock ", "m_bUseWritable changed to '" + Utils.UseWritable + "', for: " + executer, "ODBC_DBLock");            
         }
 
         public static bool ReadWriteLock(string sKey, object oValue, object executer, bool isWritable)
