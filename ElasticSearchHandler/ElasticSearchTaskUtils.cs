@@ -165,6 +165,13 @@ namespace ElasticSearchHandler
         {
             try
             {
+                int days = TCMClient.Settings.Instance.GetValue<int>("CURRENT_REQUEST_DAYS_OFFSET");
+
+                if (days == 0)
+                {
+                    days = DAYS;
+                }
+
                 List<string> epgChannelIds = lEpg.Distinct().Select(item => item.ChannelID.ToString()).ToList<string>();
                 Dictionary<string, LinearChannelSettings> linearChannelSettings = CatalogCache.Instance().GetLinearChannelSettings(groupID, epgChannelIds);
 
@@ -172,25 +179,22 @@ namespace ElasticSearchHandler
                 {
                     if (!linearChannelSettings.ContainsKey(currentElement.ChannelID.ToString()))
                     {
-                        int days = TCMClient.Settings.Instance.GetValue<int>("CURRENT_REQUEST_DAYS_OFFSET");
-                        if (days == 0)
-                            days = DAYS;
                         currentElement.SearchEndDate = currentElement.EndDate.AddDays(days);
                     }
                     else if (linearChannelSettings[currentElement.ChannelID.ToString()].EnableCatchUp)
                     {
-                        currentElement.SearchEndDate = currentElement.EndDate.AddMinutes(linearChannelSettings[currentElement.ChannelID.ToString()].CatchUpBuffer);
+                        currentElement.SearchEndDate = 
+                            currentElement.EndDate.AddMinutes(linearChannelSettings[currentElement.ChannelID.ToString()].CatchUpBuffer);
                     }
                     else
                     {
                         currentElement.SearchEndDate = currentElement.EndDate;
                     }
-
                 });
             }
             catch (Exception ex)
             {
-                log.Error("Error - " + string.Format("Update EPGs threw an exception. (in GetLinearChannelValues).  Exception={0};Stack={1}", ex.Message, ex.StackTrace), ex);
+                log.Error("Error - " + string.Format("Update EPGs threw an exception. (in GetLinearChannelValues). Exception={0};Stack={1}", ex.Message, ex.StackTrace), ex);
                 throw ex;
             }
         }
