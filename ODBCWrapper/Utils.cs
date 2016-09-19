@@ -21,8 +21,7 @@ namespace ODBCWrapper
         public static readonly DateTime FICTIVE_DATE = new DateTime(2000, 1, 1);
         static List<string> dbWriteLockParams = (!string.IsNullOrEmpty(TCMClient.Settings.Instance.GetValue<string>("DB_WriteLock_Params"))) ? TCMClient.Settings.Instance.GetValue<string>("DB_WriteLock_Params").Split(';').ToList<string>() : null;
         static public string dBVersionPrefix = (!string.IsNullOrEmpty(TCMClient.Settings.Instance.GetValue<string>("DB_Settings.prefix"))) ? string.Concat("__", TCMClient.Settings.Instance.GetValue<string>("DB_Settings.prefix"), "__") : string.Empty;
-        static bool UseReadWriteLockMechanism = TCMClient.Settings.Instance.GetValue<bool>("DB_WriteLock_Use");
-        static DbProceduresRouting dbSpRouting = InitializeDbProceduresRouting();
+        static bool UseReadWriteLockMechanism = TCMClient.Settings.Instance.GetValue<bool>("DB_WriteLock_Use");        
         private static object locker = new object();
         [ThreadStatic]
         public static bool UseWritable;
@@ -1002,10 +1001,12 @@ namespace ODBCWrapper
                 Utils.UseWritable = ReadWriteLock(sKey, oValue, executer, isWritable);
             }
 
+            DbProceduresRouting dbSpRouting = GetDbProceduresRoutingFromCb();
             if (dbSpRouting == null)
             {
                 lock (locker)
                 {
+                    dbSpRouting = GetDbProceduresRoutingFromCb();
                     if (dbSpRouting == null)
                     {
                         dbSpRouting = InitializeDbProceduresRouting();
@@ -1236,10 +1237,6 @@ namespace ODBCWrapper
 
                         System.Threading.Thread.Sleep(r.Next(50));
                     }
-                    else
-                    {
-                        dbSpRouting = null;
-                    }
                 }
             }
             catch (Exception ex)
@@ -1257,40 +1254,35 @@ namespace ODBCWrapper
 
         private static DbProceduresRouting InitializeDbProceduresRouting()
         {
-            DbProceduresRouting routing = null;
-            routing = GetDbProceduresRoutingFromCb();
-            if (routing == null)
+            DbProceduresRouting routing = new DbProceduresRouting();            
+            StoredProcedure spInitializeDbProceduresRouting = new StoredProcedure("InitializeDbProceduresRouting");
+            spInitializeDbProceduresRouting.SetConnectionKey("MAIN_CONNECTION_STRING");
+            try
             {
-                routing = new DbProceduresRouting();
-                StoredProcedure spInitializeDbProceduresRouting = new StoredProcedure("InitializeDbProceduresRouting");
-                spInitializeDbProceduresRouting.SetConnectionKey("MAIN_CONNECTION_STRING");
-                try
+                DataTable dt = spInitializeDbProceduresRouting.Execute();
+                if (dt != null && dt.Rows != null)
                 {
-                    DataTable dt = spInitializeDbProceduresRouting.Execute();
-                    if (dt != null && dt.Rows != null)
+                    foreach (DataRow dr in dt.Rows)
                     {
-                        foreach (DataRow dr in dt.Rows)
+                        string procedureName = GetSafeStr(dr, "NAME");
+                        if (!string.IsNullOrEmpty(procedureName))
                         {
-                            string procedureName = GetSafeStr(dr, "NAME");
-                            if (!string.IsNullOrEmpty(procedureName))
-                            {
-                                bool isWritable = ExtractBoolean(dr, "IS_WRITABLE");
-                                string versionsToExclude = GetSafeStr(dr, "VERSIONS_TO_EXCLUDE");
-                                routing.ProceduresMapping.Add(procedureName.ToUpper(), new ProcedureRoutingInfo(isWritable, versionsToExclude));
-                            }
+                            bool isWritable = ExtractBoolean(dr, "IS_WRITABLE");
+                            string versionsToExclude = GetSafeStr(dr, "VERSIONS_TO_EXCLUDE");
+                            routing.ProceduresMapping.Add(procedureName.ToUpper(), new ProcedureRoutingInfo(isWritable, versionsToExclude));
                         }
                     }
-
-                    if (!SetDbProceduresRouting(routing))
-                    {
-                        log.Error("Failed SetDbProceduresRouting");
-                    }
                 }
 
-                catch (Exception ex)
+                if (!SetDbProceduresRouting(routing))
                 {
-                    log.Error("Failed InitializeDbProceduresRouting from DB", ex);
+                    log.Error("Failed SetDbProceduresRouting");
                 }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error("Failed InitializeDbProceduresRouting from DB", ex);
             }
 
             return routing;
