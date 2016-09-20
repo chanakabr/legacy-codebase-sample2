@@ -79,7 +79,7 @@ namespace WebAPI.Controllers
             {
                 // call client
                 response = ClientsManager.CatalogClient().getAssetHistory(groupId, userId.ToString(), udid,
-                    language, pager.getPageIndex(), pager.PageSize, filter.StatusEqual.Value, filter.getDaysLessThanOrEqual(), filter.getTypeIn(), filter.with.Select(x => x.type).ToList());
+                    language, pager.getPageIndex(), pager.PageSize, filter.StatusEqual.Value, filter.getDaysLessThanOrEqual(), filter.getTypeIn());
             }
             catch (ClientException ex)
             {
