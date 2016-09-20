@@ -319,7 +319,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetHistoryListResponse getAssetHistory(int groupId, string siteGuid, string udid, string language, int pageIndex, int? pageSize, KalturaWatchStatus watchStatus, int days, List<int> assetTypes, List<KalturaCatalogWith> withList)
+        public KalturaAssetHistoryListResponse getAssetHistory(int groupId, string siteGuid, string udid, string language, int pageIndex, int? pageSize, KalturaWatchStatus watchStatus, int days, List<int> assetTypes, List<KalturaCatalogWith> withList = null)
         {
             KalturaAssetHistoryListResponse finalResults = new KalturaAssetHistoryListResponse();
             finalResults.Objects = new List<KalturaAssetHistory>();
