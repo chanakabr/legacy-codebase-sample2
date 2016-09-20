@@ -204,7 +204,12 @@ namespace WebAPI.Controllers
             List<KalturaEntitlement> response = new List<KalturaEntitlement>();
 
             int groupId = KS.GetFromRequest().GroupId;
-            
+
+            if (pager == null)
+            {
+                pager = new KalturaFilterPager();
+            }
+
             try
             {
                 // call client
