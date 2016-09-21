@@ -7,15 +7,15 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Billing
 {
-    [OldStandard("paymentGatewayeConfiguration", "payment_gatewaye_configuration")]
+    [OldStandard("paymentGatewayConfiguration", "payment_gateway_configuration")]
     public class KalturaPaymentGatewayConfiguration : KalturaOTTObject
     {
         /// <summary>
         /// Payment gateway configuration
         /// </summary>
-        [DataMember(Name = "paymentGatewayeConfiguration")]
-        [JsonProperty("paymentGatewayeConfiguration")]
-        [XmlArray(ElementName = "paymentGatewayeConfiguration", IsNullable = true)]
+        [DataMember(Name = "paymentGatewayConfiguration")]
+        [JsonProperty("paymentGatewayConfiguration")]
+        [XmlArray(ElementName = "paymentGatewayConfiguration", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
         public List<KalturaKeyValue> Configuration { get; set; }
     }
