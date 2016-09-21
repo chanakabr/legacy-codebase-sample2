@@ -65,7 +65,7 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
         CBTableWebEditor<EPGChannelProgrammeObject> theTable = new CBTableWebEditor<EPGChannelProgrammeObject>(true, true, false, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
         FillTheTableEditor(ref theTable, sOldOrderBy, startD, startM, startY, endD, endM, endY);
 
-        string sCSVFile =  theTable.OpenCSV(); 
+        string sCSVFile = theTable.OpenCSV();
         theTable.Finish();
         theTable = null;
         return sCSVFile;
@@ -77,16 +77,37 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
         DateTime tEnd = DateUtils.GetDateFromStr(endD + "/" + endM + "/" + endY);
 
         //get epg programs from CB
-        int nGroupID = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
-
+        int groupId = LoginManager.GetLoginGroupID();
+        int parentGroupId = DAL.UtilsDal.GetParentGroupID(groupId);
         int channelID = int.Parse(Session["epg_channel_id"].ToString());
-        List<int> channelIDs = new List<int>() { channelID };
-        TvinciEpgBL oEpgBL = new TvinciEpgBL(nGroupID);
-        Dictionary<int, List<EPGChannelProgrammeObject>> dEpg = oEpgBL.GetMultiChannelProgramsDic(0, 0, channelIDs, tStart, tEnd).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-        if (dEpg != null && dEpg.ContainsKey(channelID))
-            theTable.SetData(dEpg[channelID]);
 
-        theTable.AddField("DOW");
+        List<int> epgIds = new List<int>();
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+        selectQuery += "SELECT ID FROM epg_channels_schedule with (nolock) where status<>2 and";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("epg_channel_id", "=", channelID);
+        selectQuery += "and";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", ">=", tStart.AddDays(-1));
+        selectQuery += "and";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "<=", tEnd);
+        selectQuery += "and";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupId);
+       
+        if (selectQuery.Execute("query", true) != null)
+        {
+            int count = selectQuery.Table("query").DefaultView.Count;
+            for (int i = 0; i < count; i++)
+            {
+                epgIds.Add(ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ID", i));
+            }
+        }
+        selectQuery.Finish();
+        selectQuery = null;
+
+        TvinciEpgBL oEpgBL = new TvinciEpgBL(parentGroupId);
+        List<EPGChannelProgrammeObject> Epgs = oEpgBL.GetEpgs(epgIds);
+        theTable.SetData(Epgs);
+
         theTable.AddField("Name");
         theTable.AddImageField("Pic");
         theTable.AddField("Description");
@@ -163,7 +184,7 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
         string sOldOrderBy = "";
         if (Session["order_by"] != null)
             sOldOrderBy = Session["order_by"].ToString();
-        CBTableWebEditor<EPGChannelProgrammeObject> theTable = new CBTableWebEditor<EPGChannelProgrammeObject>(true, true, true, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);       
+        CBTableWebEditor<EPGChannelProgrammeObject> theTable = new CBTableWebEditor<EPGChannelProgrammeObject>(true, true, true, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
 
         FillTheTableEditor(ref theTable, sOrderBy, startD, startM, startY, endD, endM, endY);
 
@@ -176,7 +197,7 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
         theTable = null;
         return sTable;
     }
-   
+
     public void GetSearchPannel()
     {
         DateTime dStart = DateTime.UtcNow;
@@ -219,7 +240,7 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
     private void FillDataTable(ref CBTableWebEditor<EPGChannelProgrammeObject> theTable)
     {
         DataTable dt = new DataTable();
-        
+
         // Build DataTable
         dt.Columns.Add("Name");
         dt.Columns.Add("Pic");
@@ -229,7 +250,7 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
         dt.Columns.Add("End Date");
         dt.Columns.Add("Identifier");
         dt.Columns.Add("State");
-        
+
         foreach (DictionaryEntry item in theTable.GetHiddenFields())
         {
             string sKey = item.Key.ToString();
@@ -239,17 +260,17 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
         foreach (DictionaryEntry item in theTable.GetOnOffFields())
         {
             dt.Columns.Add(item.Key.ToString());
-        }       
+        }
 
         List<EPGChannelProgrammeObject> lEpg = theTable.GetData();
         if (lEpg != null && lEpg.Count > 0)
         {
             //get all media description from DB 
             List<string> lEpgIdentifier = lEpg.Select(x => x.EPG_IDENTIFIER).ToList();
-            List<KeyValuePair<string,string>> lMediaDescription = DAL.TvmDAL.GetMediaDescription(lEpgIdentifier);
-            
+            List<KeyValuePair<string, string>> lMediaDescription = DAL.TvmDAL.GetMediaDescription(lEpgIdentifier);
+
             #region Fill DataTable Rows
-            DataRow row; 
+            DataRow row;
             foreach (EPGChannelProgrammeObject epg in lEpg)
             {
                 row = dt.NewRow();
@@ -269,7 +290,7 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
                     {
                     }
                 }
-                
+
                 DayOfWeek eDayOfWeek = DOW.DayOfWeek;
                 switch (eDayOfWeek)
                 {
@@ -329,7 +350,7 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
                 row["status"] = epg.STATUS;
                 row["is_active"] = epg.IS_ACTIVE;
 
-                row["On/Off"] = (epg.IS_ACTIVE.ToLower() == "true") ? 1 : 0 ;
+                row["On/Off"] = (epg.IS_ACTIVE.ToLower() == "true") ? 1 : 0;
 
                 dt.Rows.Add(row);
             }

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ApiObjects;
+using EpgBL;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -30,15 +32,18 @@ public partial class adm_epg_channels_schedule_translate : System.Web.UI.Page
             return;
         if (!IsPostBack)
         {
-            if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString().Trim() == "1")
-            {
-                Int32 nID = DBManipulator.DoTheWork();
-                return;
-            }
             Int32 nMenuID = 0;
-
             m_sMenu = TVinciShared.Menu.GetMainMenu(6, true, ref nMenuID);
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 3, true);
+
+            if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString().Trim() == "1")
+            {
+                //Int32 nID = DBManipulator.DoTheWork();
+                return;
+            }
+           
+
+           
             if (Request.QueryString["epg_channels_schedule_id"] != null &&
                 Request.QueryString["epg_channels_schedule_id"].ToString() != "")
             {
@@ -185,55 +190,252 @@ public partial class adm_epg_channels_schedule_translate : System.Web.UI.Page
             Session["error_msg"] = "";
             return Session["last_page_html"].ToString();
         }
+        EpgCB epg = new EpgCB();
+        int epgID = 0;
         object t = null;
+        string language = string.Empty;
         if (Session["epg_channels_schedule_id"] != null && Session["epg_channels_schedule_id"].ToString() != "" && int.Parse(Session["epg_channels_schedule_id"].ToString()) != 0)
         {
+            epgID = int.Parse(Session["epg_channels_schedule_id"].ToString());
+           
             if (Session["lang_id"] != null && Session["lang_id"].ToString() != "" && int.Parse(Session["lang_id"].ToString()) != 0)
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery += "select id from epg_channels_schedule_translate where ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("epg_channels_schedule_id", "=", int.Parse(Session["epg_channels_schedule_id"].ToString()));
-                selectQuery += "and";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_ID", "=", int.Parse(Session["lang_id"].ToString()));
+                selectQuery += "select CODE3 from lu_languages where ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", int.Parse(Session["lang_id"].ToString()));
                 if (selectQuery.Execute("query", true) != null)
                 {
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
                     if (nCount > 0)
-                        t = int.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
+                    {
+                        language = selectQuery.Table("query").DefaultView[0].Row["CODE3"].ToString();
+                    }
                 }
                 selectQuery.Finish();
                 selectQuery = null;
             }
         }
-        string sRet = "adm_epg_channels_schedule.aspx?search_save=1&epg_channel_id=" + Session["epg_channel_id"].ToString();
-        //string sRet = "adm_epg_channels.aspx?search_save=1";
-        DBRecordWebEditor theRecord = new DBRecordWebEditor("epg_channels_schedule_translate", "adm_table_pager", sRet, "", "ID", t, sRet, "epg_channels_schedule_id");
+        string sRet = "adm_epg_channels_schedule.aspx?search_save=1&epg_channel_id=" + Session["epg_channel_id"].ToString();                       
+        DBRecordWebEditor theRecord = new DBRecordWebEditor("epg_channels_schedule_translate", "adm_table_pager", sRet, "", "ID", t, sRet, "epg_channels_schedule_id");     
+
+        if (t == null)
+            t = 0;
+
+        //Retrieving the EpgCB or generating one if needed        
+        int nParentGroupID = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
+        TvinciEpgBL epgBL = new TvinciEpgBL(nParentGroupID);  //assuming this is a Kaltura user - the TVM does not support editing of yes Epg      
+
+        List<string> languages = new List<string>() { language };
+
+        List<EpgCB> epgs = epgBL.GetEpgCB((ulong.Parse(epgID.ToString())), languages);
+        if (epgs != null && epgs.Count > 0)
+        {
+            epg = epgs.Where(x => x.Language == language).FirstOrDefault();
+            if (epg == null)
+            {
+                epg = new EpgCB();
+            }
+        }
 
         DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 128);
-        dr_name.Initialize("Name", "adm_table_header_nbg", "FormInput", "NAME", true);
+        dr_name.Initialize("Name", "adm_table_header_nbg", "FormInput", "NAME", epg.Name, true);
         theRecord.AddRecord(dr_name);
 
-        DataRecordLongTextField dr_description = new DataRecordLongTextField("ltr", true, 60, 4);
-        dr_description.Initialize("Description", "adm_table_header_nbg", "FormInput", "DESCRIPTION", false);
-        theRecord.AddRecord(dr_description);
+        DataRecordDateTimeField dr_start_date = new DataRecordDateTimeField(true);
+        dr_start_date.Initialize("Start Date/Time", "adm_table_header_nbg", "FormInput", "START_DATE", epg.StartDate.ToString("dd/MM/yyyy HH:mm:ss"), true);
+        theRecord.AddRecord(dr_start_date);
+
+        DataRecordDateTimeField dr_end_date = new DataRecordDateTimeField(true);
+        dr_end_date.Initialize("End Date/Time", "adm_table_header_nbg", "FormInput", "END_DATE", epg.EndDate.ToString("dd/MM/yyyy HH:mm:ss"), true);
+        theRecord.AddRecord(dr_end_date);
+
+        if (!string.IsNullOrEmpty(epg.EpgIdentifier))
+        {
+            bool isDownloadPicWithImageServer = false;
+            string imageUrl = string.Empty;
+            int picId = 0;
+
+            if (ImageUtils.IsDownloadPicWithImageServer())
+            {
+                isDownloadPicWithImageServer = true;
+                int groupId = LoginManager.GetLoginGroupID();
+                imageUrl = GetEpgChannelsSchedulePicImageUrl(out picId);
+            }
+
+            DataRecordOnePicBrowserField dr_pic = new DataRecordOnePicBrowserField(string.Empty, epg.EpgIdentifier, epg.ChannelID, isDownloadPicWithImageServer, imageUrl, picId);
+            dr_pic.Initialize("Thumb", "adm_table_header_nbg", "FormInput", "PIC_ID", false);
+            dr_pic.SetValue(epg.PicID.ToString());
+            theRecord.AddRecord(dr_pic);
+        }
+
+        DataRecordLongTextField dr_bio = new DataRecordLongTextField("ltr", true, 60, 5);
+        dr_bio.Initialize("Description", "adm_table_header_nbg", "FormInput", "DESCRIPTION", epg.Description, false);
+        theRecord.AddRecord(dr_bio);
+
+        DataRecordShortTextField dr_d = new DataRecordShortTextField("ltr", true, 60, 128);
+        dr_d.Initialize("EPG Identifier", "adm_table_header_nbg", "FormInput", "EPG_IDENTIFIER", epg.EpgIdentifier, true);
+        theRecord.AddRecord(dr_d);
+
+        DataRecordOneVideoBrowserField dr_media = new DataRecordOneVideoBrowserField("media", "media_tags", "media_id");
+        dr_media.Initialize("Related Media", "adm_table_header_nbg", "FormInput", "MEDIA_ID", false);
+        dr_media.SetValue(epg.ExtraData.MediaID.ToString());
+        theRecord.AddRecord(dr_media);
+
+        // linear channel settings 
+
+        DataRecordDropDownField dr_CDVR = new DataRecordDropDownField("lu_epg_field_enable", "DESCRIPTION", "id", "", null, 60, false);
+        dr_CDVR.Initialize("C-DVR", "adm_table_header_nbg", "FormInput", "ENABLE_CDVR", false);
+        dr_CDVR.SetValue(epg.EnableCDVR.ToString());
+        theRecord.AddRecord(dr_CDVR);
+
+        DataRecordDropDownField dr_CATCH_UP = new DataRecordDropDownField("lu_epg_field_enable", "DESCRIPTION", "id", "", null, 60, false);
+        dr_CATCH_UP.Initialize("Catch-up", "adm_table_header_nbg", "FormInput", "ENABLE_CATCH_UP", false);
+        dr_CATCH_UP.SetValue(epg.EnableCatchUp.ToString());
+        theRecord.AddRecord(dr_CATCH_UP);
+
+        DataRecordDropDownField dr_START_OVER = new DataRecordDropDownField("lu_epg_field_enable", "DESCRIPTION", "id", "", null, 60, false);
+        dr_START_OVER.Initialize("Start Over", "adm_table_header_nbg", "FormInput", "ENABLE_START_OVER", false);
+        dr_START_OVER.SetValue(epg.EnableStartOver.ToString());
+        theRecord.AddRecord(dr_START_OVER);
+
+        DataRecordDropDownField dr_LIVE_TRICK_PLAY = new DataRecordDropDownField("lu_epg_field_enable", "DESCRIPTION", "id", "", null, 60, false);
+        dr_LIVE_TRICK_PLAY.Initialize("Live Trick Play", "adm_table_header_nbg", "FormInput", "ENABLE_TRICK_PLAY", false);
+        dr_LIVE_TRICK_PLAY.SetValue(epg.EnableTrickPlay.ToString());
+        theRecord.AddRecord(dr_LIVE_TRICK_PLAY);
+
+        bool isTstvSettings = false;
+        System.Data.DataRow dr = DAL.ApiDAL.GetTimeShiftedTvPartnerSettings(nParentGroupID);
+        if (dr != null)
+        {
+            isTstvSettings = true;
+        }
+
+        //Recordings (EPG) Data model
+        DataRecordLongTextField dr_CRID = new DataRecordLongTextField("ltr", true, 60, 10);
+        dr_CRID.Initialize("CRID", "adm_table_header_nbg", "FormInput", "CRID", epg.Crid, isTstvSettings);
+        theRecord.AddRecord(dr_CRID);
+
+        AddMetasFields(ref theRecord, epg);
+        AddTagsFields(ref theRecord, epg);
 
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
         dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
         theRecord.AddRecord(dr_groups);
 
-        DataRecordShortIntField dr_epg_channels_schedule_id = new DataRecordShortIntField(false, 9, 9);
-        dr_epg_channels_schedule_id.Initialize("epg_channels", "adm_table_header_nbg", "FormInput", "epg_channels_schedule_id", false);
-        dr_epg_channels_schedule_id.SetValue(Session["epg_channels_schedule_id"].ToString());
-        theRecord.AddRecord(dr_epg_channels_schedule_id);
+        DataRecordShortIntField dr_epg_channel_id = new DataRecordShortIntField(false, 9, 9);
+        dr_epg_channel_id.Initialize("Epg Channel ID", "adm_table_header_nbg", "FormInput", "epg_channel_id", false);
+        dr_epg_channel_id.SetValue(Session["epg_channel_id"].ToString());
+        theRecord.AddRecord(dr_epg_channel_id);
 
-        DataRecordShortIntField dr_lang_id = new DataRecordShortIntField(false, 9, 9);
-        dr_lang_id.Initialize("Lang", "adm_table_header_nbg", "FormInput", "LANGUAGE_ID", false);
-        dr_lang_id.SetValue(Session["lang_id"].ToString());
-        theRecord.AddRecord(dr_lang_id);
+        string sTableNew = theRecord.GetTableHTMLCB("adm_epg_channels_schedule_translate.aspx?submited=1", false, epg);
 
-        string sTable = theRecord.GetTableHTML("adm_epg_channel_translate.aspx?submited=1");
-
-        return sTable;
+        return sTableNew;
     }
+    //add the display of all the metas
+    protected void AddMetasFields(ref DBRecordWebEditor theRecord, EpgCB epg)
+    {
+        Dictionary<int, string> lMetas = getMetaTag(true);
+
+        foreach (int id in lMetas.Keys)
+        {
+            string sName = lMetas[id];
+            DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 128, id);
+            dr_name.Initialize(sName, "adm_table_header_nbg", "FormInput", string.Empty, "", false);
+            if (epg.Metas.Keys.Contains(sName))
+            {
+                string val = "";
+                val += epg.Metas[sName][0]; //asumming each meta has only one value
+                dr_name.SetValue(val);
+            }
+            theRecord.AddRecord(dr_name);
+        }
+    }
+
+    //add the display of all the tags
+    protected void AddTagsFields(ref DBRecordWebEditor theRecord, EpgCB epg)
+    {
+        Dictionary<int, string> lTags = getMetaTag(false);
+        foreach (int tagID in lTags.Keys)
+        {
+            string sName = lTags[tagID];
+            DataRecordMultiField dr_tags = new DataRecordMultiField("epg_tags", "id", "id", "EPG_program_tags", "program_id", "epg_tag_id", true, "ltr", 60, "tags");///
+            dr_tags.Initialize(sName, "adm_table_header_nbg", "FormInput", "VALUE", "", false);
+            dr_tags.SetCollectionLength(8);
+            dr_tags.SetExtraWhere("epg_tag_type_id=" + tagID.ToString());
+            if (epg.Tags.Keys.Contains(sName))
+            {
+                string val = "";
+                foreach (string tagVal in epg.Tags[sName])
+                    val += tagVal + ";";
+                dr_tags.SetValue(val);
+            }
+            theRecord.AddRecord(dr_tags);
+        }
+    }
+    //get a Dictionary of the meta\tag ID and its type 
+    protected Dictionary<int, string> getMetaTag(bool isMeta)
+    {
+        Dictionary<int, string> result = new Dictionary<int, string>();
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery += " select ID, name from";
+        if (isMeta)
+        {
+            selectQuery += "epg_metas_types";
+        }
+        else
+        {
+            selectQuery += "EPG_tags_types";
+        }
+        selectQuery += "where status=1 and";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", LoginManager.GetLoginGroupID());
+
+        if (!isMeta)
+            selectQuery += "order by order_num";
+
+        if (selectQuery.Execute("query", true) != null)
+        {
+            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+            for (int i = 0; i < nCount; i++)
+            {
+                object oName = selectQuery.Table("query").DefaultView[i].Row["name"].ToString();
+                if (oName != DBNull.Value && oName != null && oName.ToString() != "")
+                    result.Add(int.Parse(selectQuery.Table("query").DefaultView[i].Row["ID"].ToString()), oName.ToString());
+            }
+        }
+
+        selectQuery.Finish();
+        selectQuery = null;
+        return result;
+    }
+
+    private string GetEpgChannelsSchedulePicImageUrl(out int picId)
+    {
+        string imageUrl = string.Empty;
+        string baseUrl = string.Empty;
+        int version = 0;
+        picId = 0;
+        int groupId = LoginManager.GetLoginGroupID();
+
+        object epgChannelsScheduleId = Session["epg_channels_schedule_id"];
+
+
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery += "select p.BASE_URL, p.ID, p.version from epg_pics p left join epg_channels_schedule ec on ec.PIC_ID = p.ID where p.STATUS in (0, 1) and ec.id = " + epgChannelsScheduleId.ToString();
+
+        if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView != null && selectQuery.Table("query").DefaultView.Count > 0)
+        {
+
+            baseUrl = ODBCWrapper.Utils.GetSafeStr(selectQuery.Table("query").DefaultView[0].Row["BASE_URL"]);
+            picId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["ID"]);
+            version = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["version"]);
+            int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
+
+            imageUrl = PageUtils.BuildEpgUrl(parentGroupID, baseUrl, version);
+        }
+
+        return imageUrl;
+    }
+
+
 }

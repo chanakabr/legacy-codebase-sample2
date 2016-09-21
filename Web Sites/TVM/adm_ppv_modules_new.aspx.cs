@@ -384,7 +384,7 @@ public partial class adm_ppv_module_new : System.Web.UI.Page
             theRecord.AddRecord(dr_sub_price_codes);
 
 
-            DataRecordDropDownField dr_sub_usage_module = new DataRecordDropDownField("discount_codes", "code", "id", "", null, 60, false);
+            DataRecordDropDownField dr_sub_usage_module = new DataRecordDropDownField("discount_codes", "code", "id", "", null, 60, true);
             dr_sub_usage_module.SetFieldType("string");
             System.Data.DataTable usageModuleCodesDT = GetBaseDT();
 

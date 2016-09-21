@@ -530,7 +530,7 @@ public partial class adm_channels_media : System.Web.UI.Page
             apiWS.API client = new apiWS.API();
             client.Url = sWSURL;
 
-            var response = client.GetChannelAssets(sWSUserName, sWSPass, channelId);
+            var response = client.GetChannelAssets(sWSUserName, sWSPass, channelId, 0, 2000);
 
             List<string> mediaIds = new List<string>();
             List<string> epgIds = new List<string>();
