@@ -117,7 +117,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "affiliateCode")]
         [JsonProperty("affiliateCode")]
         [XmlElement(ElementName = "affiliateCode")]
-        [SchemeProperty(InsertOnly=true)]
+        [SchemeProperty(InsertOnly = true)]
         public string AffiliateCode { get; set; }
 
         /// <summary>

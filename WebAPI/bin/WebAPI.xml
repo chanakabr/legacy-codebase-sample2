@@ -2055,7 +2055,7 @@
         </member>
         <member name="M:WebAPI.Controllers.HouseholdUserController.List(WebAPI.Models.Domains.KalturaHouseholdUserFilter)">
             <summary>
-            Returns the users within the household   
+            Returns the users within the household
             </summary>                
             <param name="filter">Household user filter</param>
             <remarks>Possible status codes: 
