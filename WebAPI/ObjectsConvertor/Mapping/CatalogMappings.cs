@@ -126,7 +126,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.filterQuery))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_sDescription))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.m_nIsActive))
-                .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ConvertOrderObjToAssetOrder(src.m_eOrderBy, src.m_eOrderDir)))
+                .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ConvertOrderObjToAssetOrder(src.m_OrderObject.m_eOrderBy, src.m_OrderObject.m_eOrderDir)))
                 ;
 
             //CategoryResponse to Category
@@ -158,7 +158,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.m_oBasicDataField.m_sFirstNameField))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.m_oBasicDataField.m_sLastNameField));
 
-            //UnifiedSearchResult to KalturaSlimAsset
+            //UnifiedSearchResuannounclt to KalturaSlimAsset
             Mapper.CreateMap<UnifiedSearchResult, WebAPI.Models.Catalog.KalturaSlimAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertAssetType(src.AssetType)));
