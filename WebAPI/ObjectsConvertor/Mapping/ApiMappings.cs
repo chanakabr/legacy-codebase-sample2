@@ -1089,16 +1089,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        public static KalturaAssetOrderBy ConvertOrderObjToAssetOrder(OrderObj orderObj)
+        public static KalturaAssetOrderBy ConvertOrderObjToAssetOrder(OrderBy OrderBy, OrderDir OrderDir)
         {
             KalturaAssetOrderBy result = KalturaAssetOrderBy.START_DATE_DESC;
 
-            if (orderObj == null)
-            {
-                return result;
-            }
-
-            switch (orderObj.m_eOrderBy)
+            switch (OrderBy)
             {
                 case OrderBy.VIEWS:
                     {
@@ -1117,7 +1112,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     }
                 case OrderBy.START_DATE:
                     {
-                        if (orderObj.m_eOrderDir == OrderDir.DESC)
+                        if (OrderDir == OrderDir.DESC)
                         {
                             result = KalturaAssetOrderBy.START_DATE_DESC;
                         }
@@ -1129,7 +1124,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     }
                 case OrderBy.NAME:
                     {
-                        if (orderObj.m_eOrderDir == OrderDir.ASC)
+                        if (OrderDir == OrderDir.ASC)
                         {
                             result = KalturaAssetOrderBy.NAME_ASC;
                         }
@@ -1156,6 +1151,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return result;
+        }
+
+        public static KalturaAssetOrderBy ConvertOrderObjToAssetOrder(OrderObj orderObj)
+        {
+            if (orderObj == null)
+            {
+                return KalturaAssetOrderBy.START_DATE_DESC;
+            }
+
+            return ConvertOrderObjToAssetOrder(orderObj.m_eOrderBy, orderObj.m_eOrderDir);
         }
 
         public static WebAPI.Api.CDNAdapterSettings[] ConvertCDNAdapterSettings(SerializableDictionary<string, KalturaStringValue> settings)
