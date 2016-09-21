@@ -28,7 +28,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">Filter option for the last position</param>
         /// <returns></returns>
-        /// <remarks>Possible status codes: User not exists in domain = 1020, Invalid user = 1026, Invalid asset type = 4021
+        /// <remarks>Possible status codes: User not exists in household = 1020, Invalid user = 1026, Invalid asset type = 4021
         /// </remarks>
         [Route("listOldStandard"), HttpPost]
         [ApiAuthorize]
@@ -71,7 +71,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">Filter option for the last position</param>
         /// <returns></returns>
-        /// <remarks>Possible status codes: User not exists in domain = 1020, Invalid user = 1026, Invalid asset type = 4021
+        /// <remarks>Possible status codes: User not exists in household = 1020, Invalid user = 1026, Invalid asset type = 4021
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
