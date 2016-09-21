@@ -42,6 +42,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "assetTypes")]
         [XmlArray(ElementName = "assetTypes", IsNullable = true)]
         [XmlArrayItem("item")]
+        [SchemeProperty(ReadOnly = true)]
         public List<KalturaIntegerValue> AssetTypes { get; set; }
 
         /// <summary>

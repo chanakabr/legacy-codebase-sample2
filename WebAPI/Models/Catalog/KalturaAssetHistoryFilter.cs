@@ -72,7 +72,6 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "daysLessThanOrEqual")]
         [JsonProperty(PropertyName = "daysLessThanOrEqual")]
         [XmlElement(ElementName = "daysLessThanOrEqual")]
-        [Obsolete]
         public int? DaysLessThanOrEqual { get; set; }
 
         /// <summary>
