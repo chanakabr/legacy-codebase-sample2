@@ -163,6 +163,9 @@ namespace WebAPI.Controllers
         [ApiAuthorize(true)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [OldStandard("refreshToken", "refresh_token")]
+        [Throws(WebAPI.Managers.Models.StatusCode.InvalidRefreshToken)]
+        [Throws(WebAPI.Managers.Models.StatusCode.InvalidKS)]
+        [Throws(WebAPI.Managers.Models.StatusCode.RefreshTokenFailed)]
         public KalturaLoginSession RefreshSession(string refreshToken, string udid = null)
         {
             KalturaLoginSession response = null;
@@ -465,6 +468,7 @@ namespace WebAPI.Controllers
         [Route("get"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
         public KalturaOTTUser Get()
         {
             List<KalturaOTTUser> response = null;
