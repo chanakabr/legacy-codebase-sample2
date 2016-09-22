@@ -5836,6 +5836,19 @@ namespace Catalog
             MediaSearchRequest mediaSearchRequest = 
                 BuildMediasRequest(request.m_nMediaID, bIsMainLang, request.m_oFilter, ref filter, request.m_nGroupID, request.m_nMediaTypes, request.m_sSiteGuid, request.OrderObj);
 
+            LanguageObj language = null;
+
+            if (filter == null)
+            {
+                language = GetLanguage(request.m_nGroupID, -1);
+            }
+            else
+            {
+                language = GetLanguage(request.m_nGroupID, filter.m_nLanguage);
+            }
+
+            definitions.langauge = language;
+
             #region Basic
 
             definitions.groupId = request.m_nGroupID;
@@ -5881,8 +5894,6 @@ namespace Catalog
                 definitions.permittedWatchRules = string.Join(" ", group.m_sPermittedWatchRules);
             }
 
-            definitions.langauge = group.GetGroupDefaultLanguage();
-
             #endregion
 
             #region Request Filter Object
@@ -5904,6 +5915,13 @@ namespace Catalog
 
             List<BooleanPhraseNode> nodes = new List<BooleanPhraseNode>();
 
+            string suffix = string.Empty;
+
+            if (definitions.langauge != null && !definitions.langauge.IsDefault)
+            {
+                suffix = string.Format("_{0}", definitions.langauge.Code);
+            }
+
             if (mediaSearchRequest.m_lTags != null && mediaSearchRequest.m_lTags.Count > 0)
             {
                 foreach (KeyValue keyValue in mediaSearchRequest.m_lTags)
@@ -5913,7 +5931,8 @@ namespace Catalog
                         string key = keyValue.m_sKey;
                         string value = keyValue.m_sValue;
 
-                        BooleanLeaf leaf = new BooleanLeaf("tags." + key.ToLower(), value.ToLower(), typeof(string), ComparisonOperator.Equals);
+                        BooleanLeaf leaf = new BooleanLeaf(
+                            string.Format("tags.{0}{1}", key.ToLower(), suffix), value.ToLower(), typeof(string), ComparisonOperator.Equals);
                         nodes.Add(leaf);
                     }
                 }
@@ -5928,7 +5947,8 @@ namespace Catalog
                         string key = keyValue.m_sKey;
                         string value = keyValue.m_sValue;
 
-                        BooleanLeaf leaf = new BooleanLeaf("metas." + key.ToLower(), value.ToLower(), typeof(string), ComparisonOperator.Equals);
+                        BooleanLeaf leaf = new BooleanLeaf(
+                            string.Format("metas.{0}{1}", key.ToLower(), suffix), value.ToLower(), typeof(string), ComparisonOperator.Equals);
                         nodes.Add(leaf);
                     }
                 }
