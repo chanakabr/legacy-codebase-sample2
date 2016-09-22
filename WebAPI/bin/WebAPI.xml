@@ -421,6 +421,13 @@
             <returns></returns>
             <remarks>Possible status codes: CDN partner settings not found = 5025</remarks>   
         </member>
+        <member name="M:WebAPI.Controllers.MetaController.List(WebAPI.Models.API.KalturaMetaFilter)">
+            <summary>
+            Get the list of meta mappings for the partner
+            </summary>
+            <param name="filter">Country filter</param>
+            <remarks></remarks>
+        </member>
         <member name="M:WebAPI.Controllers.DeviceBrandController.List">
             <summary>
             Return a list of the available device brands.
@@ -429,7 +436,7 @@
         </member>
         <member name="M:WebAPI.Controllers.CountryController.List(WebAPI.Models.API.KalturaCountryFilter)">
             <summary>
-            Get the list of countries for the group with option to filter by countries identifiers
+            Get the list of countries for the partner with option to filter by countries identifiers
             </summary>
             <param name="filter">Country filter</param>
             <remarks></remarks>
@@ -440,9 +447,14 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="T:WebAPI.Models.General.KalturaListResponse">
+        <member name="T:WebAPI.Models.API.KalturaMetaFilter">
             <summary>
-            Base list wrapper
+            Meta filter
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaFilter`1">
+            <summary>
+            Base filter
             </summary>
         </member>
         <member name="T:WebAPI.Models.General.KalturaOTTObject">
@@ -450,9 +462,74 @@
             Base class
             </summary>
         </member>
+        <member name="P:WebAPI.Models.General.KalturaFilter`1.OrderBy">
+            <summary>
+            order by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMetaFilter.FieldNameEqual">
+            <summary>
+            Meta system field name to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMetaFilter.FieldNameNotEqual">
+            <summary>
+            Meta system field name to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMetaFilter.TypeEqual">
+            <summary>
+            Meta type to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMetaFilter.AssetTypeEqual">
+            <summary>
+            Asset type to filter by
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaMetaListResponse">
+            <summary>
+            Meta list response
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaListResponse">
+            <summary>
+            Base list wrapper
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.General.KalturaListResponse.TotalCount">
             <summary>
             Total items
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMetaListResponse.Objects">
+            <summary>
+            A list asset meta
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaMeta">
+            <summary>
+            Asset meta
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMeta.Name">
+            <summary>
+            Meta name for the partner
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMeta.FieldName">
+            <summary>
+            Meta system field name 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMeta.Type">
+            <summary>
+             Meta value type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMeta.AssetType">
+            <summary>
+            Asset type this meta is related to 
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaDeviceBrandListResponse.Objects">
@@ -463,16 +540,6 @@
         <member name="T:WebAPI.Models.API.KalturaCountryFilter">
             <summary>
             Country filter
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaFilter`1">
-            <summary>
-            Base filter
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaFilter`1.OrderBy">
-            <summary>
-            order by
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaCountryFilter.IdIn">
