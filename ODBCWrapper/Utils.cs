@@ -1000,7 +1000,6 @@ namespace ODBCWrapper
             {
                 Utils.UseWritable = ReadWriteLock(sKey, oValue, executer, isWritable);
             }
-
             DbProceduresRouting dbSpRouting = GetDbProceduresRoutingFromCb();
             if (dbSpRouting == null)
             {
@@ -1016,14 +1015,21 @@ namespace ODBCWrapper
                 
             string procedureName = executer as string;
             int dbVersionPrefixLength = dBVersionPrefix.Length;
-            if (!string.IsNullOrEmpty(procedureName) && procedureName.Length > dbVersionPrefixLength
+            if (!string.IsNullOrEmpty(procedureName) && procedureName.ToUpper().Contains(dBVersionPrefix.ToUpper())
                 && dbSpRouting.ProceduresMapping.ContainsKey(procedureName.Substring(dbVersionPrefixLength, procedureName.Length - dbVersionPrefixLength).ToUpper()))
             {
                 ProcedureRoutingInfo procedureRoutingInfo = dbSpRouting.ProceduresMapping[procedureName.Substring(dbVersionPrefixLength, procedureName.Length - dbVersionPrefixLength).ToUpper()];
                 string version = GetTcmConfigValue("Version");
                 if (!string.IsNullOrEmpty(version))
                 {
-                    Utils.UseWritable = !procedureRoutingInfo.VersionsToExclude.Contains(version.ToUpper()) ? procedureRoutingInfo.IsWritable : !procedureRoutingInfo.IsWritable;
+                    if (procedureRoutingInfo.VersionsToExclude.Contains(version.ToUpper()))
+                    {
+                        return;                        
+                    }          
+                    else
+                    {
+                        Utils.UseWritable = procedureRoutingInfo.IsWritable;
+                    }
                 }
             }
 
