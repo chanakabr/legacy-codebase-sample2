@@ -585,9 +585,24 @@ namespace DAL
                 {
                     long recordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
                     long epgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_PROGRAM_ID", 0);
-                    if (recordingId > 0 && epgId > 0 && !epgsToRecordingsMap.ContainsKey(recordingId))
+
+                    if (recordingId > 0 && epgId > 0)
                     {
-                        epgsToRecordingsMap.Add(epgId, recordingId);
+                        // If not contained already, add to dictionary
+                        if (!epgsToRecordingsMap.ContainsKey(epgId))
+                        {
+                            epgsToRecordingsMap.Add(epgId, recordingId);
+                        }
+                        else
+                        {
+                            // Otherwise only update if recording is newer...
+                            var existingRecordingId = epgsToRecordingsMap[epgId];
+
+                            if (recordingId > existingRecordingId)
+                            {
+                                epgsToRecordingsMap[epgId] = recordingId;
+                            }
+                        }
                     }
                 }
             }
@@ -605,15 +620,31 @@ namespace DAL
             spGetEpgsByRecordingStatus.AddIDListParameter<int>("@RecordingStatuses", recordingStatuses, "ID");
 
             DataTable dt = spGetEpgsByRecordingStatus.Execute();
+
             if (dt != null && dt.Rows != null)
             {
                 foreach (DataRow dr in dt.Rows)
                 {
                     long recordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
                     long epgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_PROGRAM_ID", 0);
-                    if (recordingId > 0 && epgId > 0 && !epgsToRecordingsMap.ContainsKey(recordingId))
+
+                    if (recordingId > 0 && epgId > 0)
                     {
-                        epgsToRecordingsMap.Add(epgId, recordingId);
+                        // If not contained already, add to dictionary
+                        if (!epgsToRecordingsMap.ContainsKey(epgId))
+                        {
+                            epgsToRecordingsMap.Add(epgId, recordingId);
+                        }
+                        else
+                        {
+                            // Otherwise only update if recording is newer...
+                            var existingRecordingId = epgsToRecordingsMap[epgId];
+
+                            if (recordingId > existingRecordingId)
+                            {
+                                epgsToRecordingsMap[epgId] = recordingId;
+                            }
+                        }
                     }
                 }
             }
