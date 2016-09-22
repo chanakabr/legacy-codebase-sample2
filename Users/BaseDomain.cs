@@ -630,20 +630,27 @@ namespace Users
             int numOfActiveNetworks = 0;
             int frequency = 0;
             DateTime dtLastDeactivationDate = DateTime.MinValue;
-            if (!UpdateRemoveHomeNetworkCommon(domainID, networkID, networkName, networkDesc, isActive, out res,
-                ref candidate, ref existingNetwork, ref numOfAllowedNetworks, ref numOfActiveNetworks, ref frequency, ref dtLastDeactivationDate))
+            try
             {
+                if (!UpdateRemoveHomeNetworkCommon(domainID, networkID, networkName, networkDesc, isActive, out res,
+                    ref candidate, ref existingNetwork, ref numOfAllowedNetworks, ref numOfActiveNetworks, ref frequency, ref dtLastDeactivationDate))
+                {
+                    response.Status = res;
+                    return response;
+                }
+                response.HomeNetwork = UpdateDomainHomeNetworkInner(domainID, numOfAllowedNetworks, numOfActiveNetworks, frequency,
+                    candidate, existingNetwork, dtLastDeactivationDate, ref res);
                 response.Status = res;
-                return response;
-            }
-            response.HomeNetwork = UpdateDomainHomeNetworkInner(domainID, numOfAllowedNetworks, numOfActiveNetworks, frequency,
-                candidate, existingNetwork, dtLastDeactivationDate, ref res);
-            response.Status = res;
 
-            if (res != null && res.Code == (int)eResponseStatus.OK)
+                if (res != null && res.Code == (int)eResponseStatus.OK)
+                {
+                    DomainsCache oDomainCache = DomainsCache.Instance();
+                    oDomainCache.RemoveDomain((int)domainID);
+                }
+            }
+            catch (Exception ex)
             {
-                DomainsCache oDomainCache = DomainsCache.Instance();
-                oDomainCache.RemoveDomain((int)domainID);
+                log.Error(string.Format("Error while updating domain home network. domainId = {0}, networkId = {1}", domainID, networkID), ex);
             }
             return response;
         }
