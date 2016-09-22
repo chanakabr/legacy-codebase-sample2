@@ -61,7 +61,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("price")]
         [XmlElement(ElementName = "price")]
         [SchemeProperty(MinFloat = 0)]
-        public float Price { get; set; }
+        public double Price { get; set; }
 
         /// <summary>
         /// Identifier for a pre-entered payment method. If not provided – the household’s default payment method is used
