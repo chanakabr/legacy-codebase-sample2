@@ -18,7 +18,7 @@ namespace WebAPI.Models.Billing
     [OldStandard("transactUrl", "transact_url")]
     [OldStandard("statusUrl", "status_url")]
     [OldStandard("renewUrl", "renew_url")]
-    [OldStandard("paymentGatewayeSettings", "payment_gatewaye_settings")]
+    [OldStandard("paymentGatewaySettings", "payment_gatewaye_settings")]
     [OldStandard("externalIdentifier", "external_identifier")]
     [OldStandard("pendingInterval", "pending_interval")]
     [OldStandard("pendingRetries", "pending_retries")]
@@ -70,9 +70,9 @@ namespace WebAPI.Models.Billing
         /// <summary>
         /// Payment gateway extra parameters
         /// </summary>
-        [DataMember(Name = "paymentGatewayeSettings")]
-        [JsonProperty("paymentGatewayeSettings")]
-        [XmlElement(ElementName = "paymentGatewayeSettings", IsNullable = true)]
+        [DataMember(Name = "paymentGatewaySettings")]
+        [JsonProperty("paymentGatewaySettings")]
+        [XmlElement(ElementName = "paymentGatewaySettings", IsNullable = true)]
         public SerializableDictionary<string, KalturaStringValue> Settings { get; set; }
 
         /// <summary>
