@@ -125,6 +125,19 @@ namespace WebAPI.Models.ConditionalAccess
         {
             return PreviewModuleId.HasValue ? PreviewModuleId.Value : 0;
         }
+
+        internal new void Validate()
+        {
+            if (ProductId == 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaPurchaseSession.productId");
+            }
+
+            if (ProductType == KalturaTransactionType.ppv && (!ContentId.HasValue && ContentId == 0))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaPurchaseSession.contentId");
+            }
+        }
     }
 
     public class KalturaExternalReceipt : KalturaPurchaseBase

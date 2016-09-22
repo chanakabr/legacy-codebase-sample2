@@ -341,6 +341,8 @@ namespace WebAPI.Controllers
 
             try
             {
+                purchaseSession.Validate();
+
                 // call client
                 response = ClientsManager.ConditionalAccessClient().GetCustomDataId(groupId, KS.GetFromRequest().UserId, KSUtils.ExtractKSPayload().UDID, purchaseSession.Price, purchaseSession.Currency, purchaseSession.ProductId, purchaseSession.getContentId(),
                     purchaseSession.Coupon, purchaseSession.ProductType, purchaseSession.getPreviewModuleId());
