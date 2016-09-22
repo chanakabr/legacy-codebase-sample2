@@ -16,6 +16,8 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/householdPaymentGateway/action")]
+    [OldStandardAction("enable", "set")]
+    [OldStandardAction("disable", "delete")]
     public class HouseholdPaymentGatewayController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -137,7 +139,7 @@ namespace WebAPI.Controllers
         /// payment gateway not valid = 6043
         /// </remarks>
         /// <param name="paymentGatewayId">Payment Gateway Identifier</param> 
-        [Route("set"), HttpPost]
+        [Route("enable"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.UserSuspended)]
@@ -179,7 +181,7 @@ namespace WebAPI.Controllers
         /// payment gateway selection is disabled = 6028, service forbidden = 500004
         /// </remarks>
         /// <param name="paymentGatewayId">Payment Gateway Identifier</param>
-        [Route("delete"), HttpPost]
+        [Route("disable"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.UserSuspended)]

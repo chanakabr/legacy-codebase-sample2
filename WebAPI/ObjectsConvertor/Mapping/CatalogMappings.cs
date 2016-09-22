@@ -126,6 +126,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.filterQuery))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_sDescription))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.m_nIsActive))
+                .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ConvertOrderObjToAssetOrder(src.m_OrderObject.m_eOrderBy, src.m_OrderObject.m_eOrderDir)))
                 ;
 
             //CategoryResponse to Category
@@ -157,7 +158,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.m_oBasicDataField.m_sFirstNameField))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.m_oBasicDataField.m_sLastNameField));
 
-            //UnifiedSearchResult to KalturaSlimAsset
+            //UnifiedSearchResuannounclt to KalturaSlimAsset
             Mapper.CreateMap<UnifiedSearchResult, WebAPI.Models.Catalog.KalturaSlimAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertAssetType(src.AssetType)));
@@ -606,6 +607,69 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
+        public static KalturaAssetOrderBy ConvertOrderObjToAssetOrder(OrderBy OrderBy, OrderDir OrderDir)
+        {
+            KalturaAssetOrderBy result = KalturaAssetOrderBy.START_DATE_DESC;
+
+            switch (OrderBy)
+            {
+                case OrderBy.VIEWS:
+                    {
+                        result = KalturaAssetOrderBy.VIEWS_DESC;
+                        break;
+                    }
+                case OrderBy.RATING:
+                    {
+                        result = KalturaAssetOrderBy.RATINGS_DESC;
+                        break;
+                    }
+                case OrderBy.VOTES_COUNT:
+                    {
+                        result = KalturaAssetOrderBy.VOTES_DESC;
+                        break;
+                    }
+                case OrderBy.START_DATE:
+                    {
+                        if (OrderDir == OrderDir.DESC)
+                        {
+                            result = KalturaAssetOrderBy.START_DATE_DESC;
+                        }
+                        else
+                        {
+                            result = KalturaAssetOrderBy.START_DATE_ASC;
+                        }
+                        break;
+                    }
+                case OrderBy.NAME:
+                    {
+                        if (OrderDir == OrderDir.ASC)
+                        {
+                            result = KalturaAssetOrderBy.NAME_ASC;
+                        }
+                        else
+                        {
+                            result = KalturaAssetOrderBy.NAME_DESC;
+                        }
+                        break;
+                    }
+                case OrderBy.RELATED:
+                    {
+                        result = KalturaAssetOrderBy.RELEVANCY_DESC;
+                        break;
+                    }
+                case OrderBy.META:
+                case OrderBy.CREATE_DATE:
+                case OrderBy.RECOMMENDATION:
+                case OrderBy.RANDOM:
+                case OrderBy.LIKE_COUNTER:
+                case OrderBy.NONE:
+                case OrderBy.ID:
+                default:
+                    break;
+            }
+
+            return result;
+        }
 
       
     }

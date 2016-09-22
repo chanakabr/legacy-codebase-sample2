@@ -46,6 +46,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "positionOwner")]
         [JsonProperty("positionOwner")]
         [XmlElement(ElementName = "positionOwner", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
         public KalturaPositionOwner PositionOwner { get; set; }
 
         /// <summary>
@@ -54,6 +55,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "finishedWatching")]
         [JsonProperty("finishedWatching")]
         [XmlElement(ElementName = "finishedWatching")]
+        [SchemeProperty(ReadOnly = true)]
         public bool? IsFinishedWatching { get; set; }
 
         /// <summary>
