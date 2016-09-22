@@ -54,7 +54,7 @@ namespace WebAPI.Models.Users
         public string UserId { get; set; }
 
         /// <summary>
-        ///The type of the list
+        ///The type of the list, all is not supported
         /// </summary>
         [DataMember(Name = "listType")]
         [JsonProperty("listType")]
