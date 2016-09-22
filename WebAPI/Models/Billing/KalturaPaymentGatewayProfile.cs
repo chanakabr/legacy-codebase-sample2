@@ -18,7 +18,7 @@ namespace WebAPI.Models.Billing
     [OldStandard("transactUrl", "transact_url")]
     [OldStandard("statusUrl", "status_url")]
     [OldStandard("renewUrl", "renew_url")]
-    [OldStandard("paymentGatewayeSettings", "payment_gatewaye_settings")]
+    [OldStandard("paymentGatewayeSettings", "payment_gateway_settings")]
     [OldStandard("externalIdentifier", "external_identifier")]
     [OldStandard("pendingInterval", "pending_interval")]
     [OldStandard("pendingRetries", "pending_retries")]

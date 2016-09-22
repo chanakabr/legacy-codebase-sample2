@@ -8121,7 +8121,7 @@
         </member>
         <member name="P:WebAPI.Models.Users.KalturaUserAssetsListItem.ListType">
              <summary>
-            The type of the list
+            The type of the list, all is not supported
              </summary>
         </member>
         <member name="T:WebAPI.Models.Users.KalturaOTTUserListResponse">
