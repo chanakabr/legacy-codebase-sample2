@@ -740,4 +740,22 @@ namespace ApiObjects
     {
         Delete = 0
     }
+
+    public enum MetaType
+    {
+        All,
+        String,
+        Number,
+        Bool,
+        Tag,
+    }
+
+    public enum MetaFieldName
+    {
+        All,
+        None,
+        SeriesId,
+        SeasonNumber,
+        EpisodeNumber,
+    }
 }
