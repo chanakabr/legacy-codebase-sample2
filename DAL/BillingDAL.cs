@@ -1227,7 +1227,7 @@ namespace DAL
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@status", status);
-                DataSet ds = sp.ExecuteDataSetWithListParam();
+                DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
                     DataTable dtPG = ds.Tables[0];
@@ -1257,6 +1257,22 @@ namespace DAL
                             paymentGateway.IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
                             int supportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_payment_method_support");
                             paymentGateway.SupportPaymentMethod = supportPaymentMethod == 1;
+
+                            if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
+                            {
+                                DataRow[] drpc = ds.Tables[1].Select("payment_gateway_id =" + paymentGateway.ID);
+
+                                foreach (DataRow drp in drpc)
+                                {
+                                    string key = ODBCWrapper.Utils.GetSafeStr(drp, "key");
+                                    string value = ODBCWrapper.Utils.GetSafeStr(drp, "value");
+                                    if (paymentGateway.Settings == null)
+                                    {
+                                        paymentGateway.Settings = new List<PaymentGatewaySettings>();
+                                    }
+                                    paymentGateway.Settings.Add(new PaymentGatewaySettings(key, value));
+                                }
+                            }
 
                             res.Add(paymentGateway);
                         }
@@ -1899,6 +1915,22 @@ namespace DAL
                 result.IsDefault = DefaultPaymentGateway == result.ID ? true : false;
                 int supportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_payment_method_support");
                 result.SupportPaymentMethod = supportPaymentMethod == 1 ? true : false;
+
+                if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
+                {
+                    DataRow[] drpc = ds.Tables[1].Select("payment_gateway_id =" + result.ID);
+
+                    foreach (DataRow drp in drpc)
+                    {
+                        string key = ODBCWrapper.Utils.GetSafeStr(drp, "key");
+                        string value = ODBCWrapper.Utils.GetSafeStr(drp, "value");
+                        if (result.Settings == null)
+                        {
+                            result.Settings = new List<PaymentGatewaySettings>();
+                        }
+                        result.Settings.Add(new PaymentGatewaySettings(key, value));
+                    }
+                }
             }
 
             return result;
