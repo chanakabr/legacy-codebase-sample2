@@ -995,8 +995,6 @@ namespace Catalog
                 }
             }
 
-            //name = ExtractValueFromToken<string>(item, nameWithPrefix);
-
             cacheDate = ExtractDateFromToken(item, AddPrefixToFieldName("cache_date", fieldNamePrefix));
             updateDate = ExtractDateFromToken(item, AddPrefixToFieldName("update_date", fieldNamePrefix));
             startDate = ExtractDateFromToken(item, AddPrefixToFieldName("start_date", fieldNamePrefix));
