@@ -167,6 +167,13 @@ namespace ElasticSearch.Searcher
                 this.ReturnFields.Add("\"recording_id\"");
             }
 
+            // Also return the language specific name field
+            if (this.SearchDefinitions.langauge != null &&
+                !this.SearchDefinitions.langauge.IsDefault)
+            {
+                this.ReturnFields.Add(string.Format("\"name_{0}\"", this.SearchDefinitions.langauge.Code));
+            }
+
             // This is a query-filter.
             // First comes query
             // Then comes filter

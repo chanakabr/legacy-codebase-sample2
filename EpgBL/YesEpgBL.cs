@@ -162,7 +162,11 @@ namespace EpgBL
         {
             return false;
         }
-
+        public override bool UpdateEpg(EpgCB newEpgItem, bool isMainLang, out string docID, ulong? cas = null)
+        {
+            docID = string.Empty;
+            return false;
+        }
         public override void RemoveGroupPrograms(DateTime? fromDate, DateTime? toDate)
         {
         }

@@ -38,6 +38,7 @@ namespace EpgBL
         public abstract bool SetEpg(EpgCB newEpgItem, out ulong epgID, ulong? cas = null);
 
         public abstract bool UpdateEpg(EpgCB newEpgItem, ulong? cas = null);
+        public abstract bool UpdateEpg(EpgCB newEpgItem, bool isMainLang, out string docID, ulong? cas = null);
 
         public abstract void RemoveGroupPrograms(DateTime? fromDate, DateTime? toDate);
 
