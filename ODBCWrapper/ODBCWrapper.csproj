@@ -156,6 +156,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DbProceduresRouting.cs" />
+    <Compile Include="ODBCWrapperCache.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -215,6 +216,10 @@
     <ProjectReference Include="..\CachingManager\CachingManager.csproj">
       <Project>{ccda61b3-0e68-483c-ab7f-3ed36e3384e2}</Project>
       <Name>CachingManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CachingProvider\CachingProvider.csproj">
+      <Project>{4191d9e7-8502-4b00-a488-771240e2cf40}</Project>
+      <Name>CachingProvider</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

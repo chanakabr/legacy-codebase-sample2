@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TVinciShared;
 using KLogMonitor;
 using System.Reflection;
 namespace CachingProvider
@@ -24,8 +23,7 @@ namespace CachingProvider
         {
             this.inMemoryCache = new SingleInMemoryCache(internalCacheName, 0);
             this.couchbaseCache = CouchBaseCache<T>.GetInstance(externalCacheName.ToString());
-
-            this.secondsInMemory = WS_Utils.GetTcmDoubleValue("Groups_Cache_TTL");
+            this.secondsInMemory = Utils.GetDoubleValueFromTcm("Groups_Cache_TTL");
 
             // default value = 1 minute = 60 seconds
             if (this.secondsInMemory == 0)
