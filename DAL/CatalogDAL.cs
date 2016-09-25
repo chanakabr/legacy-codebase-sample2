@@ -3298,6 +3298,40 @@ namespace Tvinci.Core.DAL
             return res;
         }
 
+        public static List<RecommendationEngine> ListRecommendationEngineList(int groupID)
+        {
+            List<RecommendationEngine> res = new List<RecommendationEngine>();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_RecommendationEngines");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                DataSet ds = sp.ExecuteDataSetWithListParam();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    DataTable dtResult = ds.Tables[0];
+                    if (dtResult != null && dtResult.Rows != null && dtResult.Rows.Count > 0)
+                    {
+                        RecommendationEngine recommendationEngine = null;
+                        foreach (DataRow dr in dtResult.Rows)
+                        {
+                            recommendationEngine = CreateRecommendationEngine(dr);
+                            if (recommendationEngine != null)
+                            {
+                                res.Add(recommendationEngine);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Empty, ex);
+                res = new List<RecommendationEngine>();
+            }
+            return res;
+        }
+
         public static bool InsertRecommendationEngineSettings(int groupID, int recommendationEngineId, List<RecommendationEngineSettings> settings)
         {
             try
@@ -3448,6 +3482,37 @@ namespace Tvinci.Core.DAL
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@status", status);
+                DataSet ds = sp.ExecuteDataSetWithListParam();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    DataTable dtResult = ds.Tables[0];
+                    if (dtResult != null && dtResult.Rows != null && dtResult.Rows.Count > 0)
+                    {
+                        ExternalChannel externalChannelBase = null;
+                        foreach (DataRow dr in dtResult.Rows)
+                        {
+                            externalChannelBase = SetExternalChannel(dr);
+                            res.Add(externalChannelBase);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Empty, ex);
+                res = new List<ExternalChannel>();
+            }
+            return res;
+        }
+
+        public static List<ExternalChannel> ListExternalChannel(int groupID)
+        {
+            List<ExternalChannel> res = new List<ExternalChannel>();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_ExternalChannels");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
                 DataSet ds = sp.ExecuteDataSetWithListParam();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
