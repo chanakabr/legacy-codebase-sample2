@@ -13,5 +13,25 @@ namespace AdapterControllers
         {            
             return System.Convert.ToBase64String(EncryptUtils.AesEncrypt(SharedSecret, EncryptUtils.HashSHA1(Signature)));
         }
+
+        public static ApiObjects.MetaType GetMetaTypeByDbName(string metaDbName)
+        {
+            if (metaDbName.EndsWith("DOUBLE_NAME"))
+            {
+                return ApiObjects.MetaType.Number;
+            }
+
+            if (metaDbName.EndsWith("BOOL_NAME"))
+            {
+                return ApiObjects.MetaType.Bool;
+            }
+
+            if (metaDbName.EndsWith("STR_NAME"))
+            {
+                return ApiObjects.MetaType.String;
+            }
+
+            return ApiObjects.MetaType.All;
+        }
     }
 }
