@@ -34,6 +34,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "udid")]
         [JsonProperty("udid")]
         [XmlElement(ElementName = "udid")]
+        [SchemeProperty(ReadOnly = true)]
         public string Udid { get; set; }
 
         /// <summary>
