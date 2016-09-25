@@ -3274,6 +3274,45 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        internal KalturaMetaListResponse GetGroupMeta(int groupId, KalturaAssetType assetType, KalturaMetaType? metaType, KalturaMetaFieldName? fieldNameEqual, KalturaMetaFieldName? fieldNameNotEqual)
+        {
+            Group group = GroupsManager.GetGroup(groupId);
+            KalturaMetaListResponse result = new KalturaMetaListResponse();
+            MetaResponse response = null;
+            try
+            {
+                eAssetTypes wsAssetType = ApiMappings.ConvertAssetType(assetType);
+                MetaType wsMetaType = ApiMappings.ConvertMetaType(metaType);
+                MetaFieldName wsFieldNameEqual = ApiMappings.ConvertMetaFieldName(fieldNameEqual);
+                MetaFieldName wsFieldNameNotEqual = ApiMappings.ConvertMetaFieldName(fieldNameNotEqual);
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GetGroupMetaList(group.ApiCredentials.Username, group.ApiCredentials.Password, wsAssetType, wsMetaType, wsFieldNameEqual, wsFieldNameNotEqual);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            result.Objects = AutoMapper.Mapper.Map<List<KalturaMeta>>(response.MetaList);
+            result.TotalCount = response.MetaList.Count();
+
+            return result;
+        }
     }
 }
 

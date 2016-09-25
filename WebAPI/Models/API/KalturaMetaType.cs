@@ -9,7 +9,7 @@ namespace WebAPI.Models.API
     {
         STRING,
         NUMBER,
-        BOOL,
+        BOOLEAN,
         STRING_ARRAY
     }
 }

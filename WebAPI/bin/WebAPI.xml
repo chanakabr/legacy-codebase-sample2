@@ -8581,6 +8581,15 @@
         <member name="M:WebAPI.Api.API.GetCountryListAsync(System.String,System.String,System.Int32[],System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.Api.API.GetGroupMetaList(System.String,System.String,WebAPI.Api.eAssetTypes,WebAPI.Api.MetaType,WebAPI.Api.MetaFieldName,WebAPI.Api.MetaFieldName)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetGroupMetaListAsync(System.String,System.String,WebAPI.Api.eAssetTypes,WebAPI.Api.MetaType,WebAPI.Api.MetaFieldName,WebAPI.Api.MetaFieldName)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetGroupMetaListAsync(System.String,System.String,WebAPI.Api.eAssetTypes,WebAPI.Api.MetaType,WebAPI.Api.MetaFieldName,WebAPI.Api.MetaFieldName,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.Api.API.TVAPI_GetTvinciGUID(System.String,System.String,WebAPI.Api.InitializationObject)">
             <remarks/>
         </member>
@@ -9857,6 +9866,9 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.Api.API.GetCountryListCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.GetGroupMetaListCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.Api.API.TVAPI_GetTvinciGUIDCompleted">
@@ -17944,6 +17956,81 @@
         <member name="P:WebAPI.Api.InitializationObject.m_sAdminToken">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Api.Meta">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.Meta.Name">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.Meta.FieldName">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.Meta.Type">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.Meta.AssetType">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.MetaFieldName">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.MetaFieldName.All">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.MetaFieldName.None">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.MetaFieldName.SeriesId">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.MetaFieldName.SeasonNumber">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.MetaFieldName.EpisodeNumber">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.MetaType">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.MetaType.All">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.MetaType.String">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.MetaType.Number">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.MetaType.Bool">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.MetaType.Tag">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.eAssetTypes">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.eAssetTypes.UNKNOWN">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.eAssetTypes.EPG">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.eAssetTypes.NPVR">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.eAssetTypes.MEDIA">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.MetaResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.MetaResponse.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.MetaResponse.MetaList">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Api.Country">
             <remarks/>
         </member>
@@ -18538,21 +18625,6 @@
         <member name="F:WebAPI.Api.eDbActionType.Add">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Api.eAssetTypes">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.eAssetTypes.UNKNOWN">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.eAssetTypes.EPG">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.eAssetTypes.NPVR">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.eAssetTypes.MEDIA">
-            <remarks/>
-        </member>
         <member name="T:WebAPI.Api.UserStatus">
             <remarks/>
         </member>
@@ -19001,6 +19073,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.GetCountryListCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetGroupMetaListCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetGroupMetaListCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GetGroupMetaListCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.TVAPI_GetTvinciGUIDCompletedEventHandler">
