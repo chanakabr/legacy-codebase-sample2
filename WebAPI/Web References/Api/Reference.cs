@@ -32,6 +32,10 @@ namespace WebAPI.Api {
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(BaseCacheObject))]
     public partial class API : System.Web.Services.Protocols.SoapHttpClientProtocol {
         
+        private System.Threading.SendOrPostCallback AddBulkExportTaskOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback UpdateBulkExportTaskOperationCompleted;
+        
         private System.Threading.SendOrPostCallback DeleteBulkExportTaskOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetBulkExportTasksOperationCompleted;
@@ -348,6 +352,8 @@ namespace WebAPI.Api {
         
         private System.Threading.SendOrPostCallback GetRecommendationEnginesOperationCompleted;
         
+        private System.Threading.SendOrPostCallback ListRecommendationEnginesOperationCompleted;
+        
         private System.Threading.SendOrPostCallback InsertRecommendationEngineSettingsOperationCompleted;
         
         private System.Threading.SendOrPostCallback SetRecommendationEngineSettingsOperationCompleted;
@@ -368,9 +374,7 @@ namespace WebAPI.Api {
         
         private System.Threading.SendOrPostCallback GetExternalChannelsOperationCompleted;
         
-        private System.Threading.SendOrPostCallback AddBulkExportTaskOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback UpdateBulkExportTaskOperationCompleted;
+        private System.Threading.SendOrPostCallback ListExternalChannelsOperationCompleted;
         
         private bool useDefaultCredentialsSetExplicitly;
         
@@ -409,6 +413,12 @@ namespace WebAPI.Api {
                 this.useDefaultCredentialsSetExplicitly = true;
             }
         }
+        
+        /// <remarks/>
+        public event AddBulkExportTaskCompletedEventHandler AddBulkExportTaskCompleted;
+        
+        /// <remarks/>
+        public event UpdateBulkExportTaskCompletedEventHandler UpdateBulkExportTaskCompleted;
         
         /// <remarks/>
         public event DeleteBulkExportTaskCompletedEventHandler DeleteBulkExportTaskCompleted;
@@ -885,6 +895,9 @@ namespace WebAPI.Api {
         public event GetRecommendationEnginesCompletedEventHandler GetRecommendationEnginesCompleted;
         
         /// <remarks/>
+        public event ListRecommendationEnginesCompletedEventHandler ListRecommendationEnginesCompleted;
+        
+        /// <remarks/>
         public event InsertRecommendationEngineSettingsCompletedEventHandler InsertRecommendationEngineSettingsCompleted;
         
         /// <remarks/>
@@ -915,10 +928,107 @@ namespace WebAPI.Api {
         public event GetExternalChannelsCompletedEventHandler GetExternalChannelsCompleted;
         
         /// <remarks/>
-        public event AddBulkExportTaskCompletedEventHandler AddBulkExportTaskCompleted;
+        public event ListExternalChannelsCompletedEventHandler ListExternalChannelsCompleted;
         
         /// <remarks/>
-        public event UpdateBulkExportTaskCompletedEventHandler UpdateBulkExportTaskCompleted;
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/AddBulkExportTask", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public BulkExportTaskResponse AddBulkExportTask(string sWSUserName, string sWSPassword, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes, bool isActive) {
+            object[] results = this.Invoke("AddBulkExportTask", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        externalKey,
+                        name,
+                        dataType,
+                        filter,
+                        exportType,
+                        frequency,
+                        notificationUrl,
+                        vodTypes,
+                        isActive});
+            return ((BulkExportTaskResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void AddBulkExportTaskAsync(string sWSUserName, string sWSPassword, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes, bool isActive) {
+            this.AddBulkExportTaskAsync(sWSUserName, sWSPassword, externalKey, name, dataType, filter, exportType, frequency, notificationUrl, vodTypes, isActive, null);
+        }
+        
+        /// <remarks/>
+        public void AddBulkExportTaskAsync(string sWSUserName, string sWSPassword, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes, bool isActive, object userState) {
+            if ((this.AddBulkExportTaskOperationCompleted == null)) {
+                this.AddBulkExportTaskOperationCompleted = new System.Threading.SendOrPostCallback(this.OnAddBulkExportTaskOperationCompleted);
+            }
+            this.InvokeAsync("AddBulkExportTask", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        externalKey,
+                        name,
+                        dataType,
+                        filter,
+                        exportType,
+                        frequency,
+                        notificationUrl,
+                        vodTypes,
+                        isActive}, this.AddBulkExportTaskOperationCompleted, userState);
+        }
+        
+        private void OnAddBulkExportTaskOperationCompleted(object arg) {
+            if ((this.AddBulkExportTaskCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.AddBulkExportTaskCompleted(this, new AddBulkExportTaskCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/UpdateBulkExportTask", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public BulkExportTaskResponse UpdateBulkExportTask(string sWSUserName, string sWSPassword, long id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<bool> isActive) {
+            object[] results = this.Invoke("UpdateBulkExportTask", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        id,
+                        externalKey,
+                        name,
+                        dataType,
+                        filter,
+                        exportType,
+                        frequency,
+                        notificationUrl,
+                        vodTypes,
+                        isActive});
+            return ((BulkExportTaskResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void UpdateBulkExportTaskAsync(string sWSUserName, string sWSPassword, long id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes, System.Nullable<bool> isActive) {
+            this.UpdateBulkExportTaskAsync(sWSUserName, sWSPassword, id, externalKey, name, dataType, filter, exportType, frequency, notificationUrl, vodTypes, isActive, null);
+        }
+        
+        /// <remarks/>
+        public void UpdateBulkExportTaskAsync(string sWSUserName, string sWSPassword, long id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes, System.Nullable<bool> isActive, object userState) {
+            if ((this.UpdateBulkExportTaskOperationCompleted == null)) {
+                this.UpdateBulkExportTaskOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdateBulkExportTaskOperationCompleted);
+            }
+            this.InvokeAsync("UpdateBulkExportTask", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        id,
+                        externalKey,
+                        name,
+                        dataType,
+                        filter,
+                        exportType,
+                        frequency,
+                        notificationUrl,
+                        vodTypes,
+                        isActive}, this.UpdateBulkExportTaskOperationCompleted, userState);
+        }
+        
+        private void OnUpdateBulkExportTaskOperationCompleted(object arg) {
+            if ((this.UpdateBulkExportTaskCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.UpdateBulkExportTaskCompleted(this, new UpdateBulkExportTaskCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/DeleteBulkExportTask", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -6489,6 +6599,37 @@ namespace WebAPI.Api {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/ListRecommendationEngines", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public RecommendationEnginesResponseList ListRecommendationEngines(string sWSUserName, string sWSPassword) {
+            object[] results = this.Invoke("ListRecommendationEngines", new object[] {
+                        sWSUserName,
+                        sWSPassword});
+            return ((RecommendationEnginesResponseList)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void ListRecommendationEnginesAsync(string sWSUserName, string sWSPassword) {
+            this.ListRecommendationEnginesAsync(sWSUserName, sWSPassword, null);
+        }
+        
+        /// <remarks/>
+        public void ListRecommendationEnginesAsync(string sWSUserName, string sWSPassword, object userState) {
+            if ((this.ListRecommendationEnginesOperationCompleted == null)) {
+                this.ListRecommendationEnginesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnListRecommendationEnginesOperationCompleted);
+            }
+            this.InvokeAsync("ListRecommendationEngines", new object[] {
+                        sWSUserName,
+                        sWSPassword}, this.ListRecommendationEnginesOperationCompleted, userState);
+        }
+        
+        private void OnListRecommendationEnginesOperationCompleted(object arg) {
+            if ((this.ListRecommendationEnginesCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.ListRecommendationEnginesCompleted(this, new ListRecommendationEnginesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/InsertRecommendationEngineSettings", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public Status InsertRecommendationEngineSettings(string sWSUserName, string sWSPassword, int recommendationEngineId, RecommendationEngineSettings[] settings) {
             object[] results = this.Invoke("InsertRecommendationEngineSettings", new object[] {
@@ -6821,102 +6962,33 @@ namespace WebAPI.Api {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/AddBulkExportTask", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public BulkExportTaskResponse AddBulkExportTask(string sWSUserName, string sWSPassword, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes, bool isActive) {
-            object[] results = this.Invoke("AddBulkExportTask", new object[] {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/ListExternalChannels", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public ExternalChannelResponseList ListExternalChannels(string sWSUserName, string sWSPassword) {
+            object[] results = this.Invoke("ListExternalChannels", new object[] {
                         sWSUserName,
-                        sWSPassword,
-                        externalKey,
-                        name,
-                        dataType,
-                        filter,
-                        exportType,
-                        frequency,
-                        notificationUrl,
-                        vodTypes,
-                        isActive});
-            return ((BulkExportTaskResponse)(results[0]));
+                        sWSPassword});
+            return ((ExternalChannelResponseList)(results[0]));
         }
         
         /// <remarks/>
-        public void AddBulkExportTaskAsync(string sWSUserName, string sWSPassword, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes, bool isActive) {
-            this.AddBulkExportTaskAsync(sWSUserName, sWSPassword, externalKey, name, dataType, filter, exportType, frequency, notificationUrl, vodTypes, isActive, null);
+        public void ListExternalChannelsAsync(string sWSUserName, string sWSPassword) {
+            this.ListExternalChannelsAsync(sWSUserName, sWSPassword, null);
         }
         
         /// <remarks/>
-        public void AddBulkExportTaskAsync(string sWSUserName, string sWSPassword, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes, bool isActive, object userState) {
-            if ((this.AddBulkExportTaskOperationCompleted == null)) {
-                this.AddBulkExportTaskOperationCompleted = new System.Threading.SendOrPostCallback(this.OnAddBulkExportTaskOperationCompleted);
+        public void ListExternalChannelsAsync(string sWSUserName, string sWSPassword, object userState) {
+            if ((this.ListExternalChannelsOperationCompleted == null)) {
+                this.ListExternalChannelsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnListExternalChannelsOperationCompleted);
             }
-            this.InvokeAsync("AddBulkExportTask", new object[] {
+            this.InvokeAsync("ListExternalChannels", new object[] {
                         sWSUserName,
-                        sWSPassword,
-                        externalKey,
-                        name,
-                        dataType,
-                        filter,
-                        exportType,
-                        frequency,
-                        notificationUrl,
-                        vodTypes,
-                        isActive}, this.AddBulkExportTaskOperationCompleted, userState);
+                        sWSPassword}, this.ListExternalChannelsOperationCompleted, userState);
         }
         
-        private void OnAddBulkExportTaskOperationCompleted(object arg) {
-            if ((this.AddBulkExportTaskCompleted != null)) {
+        private void OnListExternalChannelsOperationCompleted(object arg) {
+            if ((this.ListExternalChannelsCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.AddBulkExportTaskCompleted(this, new AddBulkExportTaskCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/UpdateBulkExportTask", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public BulkExportTaskResponse UpdateBulkExportTask(string sWSUserName, string sWSPassword, long id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<bool> isActive) {
-            object[] results = this.Invoke("UpdateBulkExportTask", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        id,
-                        externalKey,
-                        name,
-                        dataType,
-                        filter,
-                        exportType,
-                        frequency,
-                        notificationUrl,
-                        vodTypes,
-                        isActive});
-            return ((BulkExportTaskResponse)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void UpdateBulkExportTaskAsync(string sWSUserName, string sWSPassword, long id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes, System.Nullable<bool> isActive) {
-            this.UpdateBulkExportTaskAsync(sWSUserName, sWSPassword, id, externalKey, name, dataType, filter, exportType, frequency, notificationUrl, vodTypes, isActive, null);
-        }
-        
-        /// <remarks/>
-        public void UpdateBulkExportTaskAsync(string sWSUserName, string sWSPassword, long id, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency, string notificationUrl, int[] vodTypes, System.Nullable<bool> isActive, object userState) {
-            if ((this.UpdateBulkExportTaskOperationCompleted == null)) {
-                this.UpdateBulkExportTaskOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdateBulkExportTaskOperationCompleted);
-            }
-            this.InvokeAsync("UpdateBulkExportTask", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        id,
-                        externalKey,
-                        name,
-                        dataType,
-                        filter,
-                        exportType,
-                        frequency,
-                        notificationUrl,
-                        vodTypes,
-                        isActive}, this.UpdateBulkExportTaskOperationCompleted, userState);
-        }
-        
-        private void OnUpdateBulkExportTaskOperationCompleted(object arg) {
-            if ((this.UpdateBulkExportTaskCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.UpdateBulkExportTaskCompleted(this, new UpdateBulkExportTaskCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+                this.ListExternalChannelsCompleted(this, new ListExternalChannelsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -6942,34 +7014,30 @@ namespace WebAPI.Api {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class Status {
-        
-        private int codeField;
-        
-        private string messageField;
+    public enum eBulkExportDataType {
         
         /// <remarks/>
-        public int Code {
-            get {
-                return this.codeField;
-            }
-            set {
-                this.codeField = value;
-            }
-        }
+        VOD,
         
         /// <remarks/>
-        public string Message {
-            get {
-                return this.messageField;
-            }
-            set {
-                this.messageField = value;
-            }
-        }
+        EPG,
+        
+        /// <remarks/>
+        Users,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public enum eBulkExportExportType {
+        
+        /// <remarks/>
+        Full,
+        
+        /// <remarks/>
+        Incremental,
     }
     
     /// <remarks/>
@@ -7174,35 +7242,6 @@ namespace WebAPI.Api {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public enum eBulkExportDataType {
-        
-        /// <remarks/>
-        VOD,
-        
-        /// <remarks/>
-        EPG,
-        
-        /// <remarks/>
-        Users,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public enum eBulkExportExportType {
-        
-        /// <remarks/>
-        Full,
-        
-        /// <remarks/>
-        Incremental,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
-    [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
@@ -7229,6 +7268,39 @@ namespace WebAPI.Api {
             }
             set {
                 this.externalChannelsField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class Status {
+        
+        private int codeField;
+        
+        private string messageField;
+        
+        /// <remarks/>
+        public int Code {
+            get {
+                return this.codeField;
+            }
+            set {
+                this.codeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Message {
+            get {
+                return this.messageField;
+            }
+            set {
+                this.messageField = value;
             }
         }
     }
@@ -10549,12 +10621,12 @@ namespace WebAPI.Api {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisPurchaseMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisRenewalFailMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisRenewalFailMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisPurchaseMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(WelcomeMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ForgotPasswordMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendPasswordMailRequest))]
@@ -10742,99 +10814,9 @@ namespace WebAPI.Api {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class CinepolisPurchaseMailRequest : MailRequestObj {
-        
-        private string m_sPurchaseDateField;
-        
-        private string m_sItemNameField;
-        
-        private string m_sPriceField;
-        
-        private string m_sUsernameField;
-        
-        /// <remarks/>
-        public string m_sPurchaseDate {
-            get {
-                return this.m_sPurchaseDateField;
-            }
-            set {
-                this.m_sPurchaseDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sItemName {
-            get {
-                return this.m_sItemNameField;
-            }
-            set {
-                this.m_sItemNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sPrice {
-            get {
-                return this.m_sPriceField;
-            }
-            set {
-                this.m_sPriceField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sUsername {
-            get {
-                return this.m_sUsernameField;
-            }
-            set {
-                this.m_sUsernameField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class CinepolisRenewalFailMailRequest : MailRequestObj {
-        
-        private string m_sPurchaseDateField;
-        
-        private string m_sItemNameField;
-        
-        /// <remarks/>
-        public string m_sPurchaseDate {
-            get {
-                return this.m_sPurchaseDateField;
-            }
-            set {
-                this.m_sPurchaseDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sItemName {
-            get {
-                return this.m_sItemNameField;
-            }
-            set {
-                this.m_sItemNameField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -10993,6 +10975,27 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class PurchaseWithPreviewModuleRequest : PurchaseMailRequest {
+        
+        private string m_sPreviewModuleEndDateField;
+        
+        /// <remarks/>
+        public string m_sPreviewModuleEndDate {
+            get {
+                return this.m_sPreviewModuleEndDateField;
+            }
+            set {
+                this.m_sPreviewModuleEndDateField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class PurchaseFailRequest : PurchaseMailRequest {
     }
     
@@ -11011,17 +11014,86 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class PurchaseWithPreviewModuleRequest : PurchaseMailRequest {
+    public partial class CinepolisRenewalFailMailRequest : MailRequestObj {
         
-        private string m_sPreviewModuleEndDateField;
+        private string m_sPurchaseDateField;
+        
+        private string m_sItemNameField;
         
         /// <remarks/>
-        public string m_sPreviewModuleEndDate {
+        public string m_sPurchaseDate {
             get {
-                return this.m_sPreviewModuleEndDateField;
+                return this.m_sPurchaseDateField;
             }
             set {
-                this.m_sPreviewModuleEndDateField = value;
+                this.m_sPurchaseDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sItemName {
+            get {
+                return this.m_sItemNameField;
+            }
+            set {
+                this.m_sItemNameField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class CinepolisPurchaseMailRequest : MailRequestObj {
+        
+        private string m_sPurchaseDateField;
+        
+        private string m_sItemNameField;
+        
+        private string m_sPriceField;
+        
+        private string m_sUsernameField;
+        
+        /// <remarks/>
+        public string m_sPurchaseDate {
+            get {
+                return this.m_sPurchaseDateField;
+            }
+            set {
+                this.m_sPurchaseDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sItemName {
+            get {
+                return this.m_sItemNameField;
+            }
+            set {
+                this.m_sItemNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sPrice {
+            get {
+                return this.m_sPriceField;
+            }
+            set {
+                this.m_sPriceField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sUsername {
+            get {
+                return this.m_sUsernameField;
+            }
+            set {
+                this.m_sUsernameField = value;
             }
         }
     }
@@ -16123,8 +16195,8 @@ namespace WebAPI.Api {
     
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ApiActionPermissionItem))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ApiArgumentPermissionItem))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ApiParameterPermissionItem))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ApiArgumentPermissionItem))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -16196,51 +16268,6 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class ApiArgumentPermissionItem : PermissionItem {
-        
-        private string serviceField;
-        
-        private string actionField;
-        
-        private string parameterField;
-        
-        /// <remarks/>
-        public string Service {
-            get {
-                return this.serviceField;
-            }
-            set {
-                this.serviceField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Action {
-            get {
-                return this.actionField;
-            }
-            set {
-                this.actionField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Parameter {
-            get {
-                return this.parameterField;
-            }
-            set {
-                this.parameterField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class ApiParameterPermissionItem : PermissionItem {
         
         private string objectField;
@@ -16276,6 +16303,51 @@ namespace WebAPI.Api {
             }
             set {
                 this.actionField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class ApiArgumentPermissionItem : PermissionItem {
+        
+        private string serviceField;
+        
+        private string actionField;
+        
+        private string parameterField;
+        
+        /// <remarks/>
+        public string Service {
+            get {
+                return this.serviceField;
+            }
+            set {
+                this.serviceField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Action {
+            get {
+                return this.actionField;
+            }
+            set {
+                this.actionField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Parameter {
+            get {
+                return this.parameterField;
+            }
+            set {
+                this.parameterField = value;
             }
         }
     }
@@ -16628,6 +16700,58 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         NameDesc,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
+    public delegate void AddBulkExportTaskCompletedEventHandler(object sender, AddBulkExportTaskCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class AddBulkExportTaskCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal AddBulkExportTaskCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public BulkExportTaskResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((BulkExportTaskResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
+    public delegate void UpdateBulkExportTaskCompletedEventHandler(object sender, UpdateBulkExportTaskCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class UpdateBulkExportTaskCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal UpdateBulkExportTaskCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public BulkExportTaskResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((BulkExportTaskResponse)(this.results[0]));
+            }
+        }
     }
     
     /// <remarks/>
@@ -20772,6 +20896,32 @@ namespace WebAPI.Api {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
+    public delegate void ListRecommendationEnginesCompletedEventHandler(object sender, ListRecommendationEnginesCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class ListRecommendationEnginesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal ListRecommendationEnginesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public RecommendationEnginesResponseList Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((RecommendationEnginesResponseList)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void InsertRecommendationEngineSettingsCompletedEventHandler(object sender, InsertRecommendationEngineSettingsCompletedEventArgs e);
     
     /// <remarks/>
@@ -21032,52 +21182,26 @@ namespace WebAPI.Api {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
-    public delegate void AddBulkExportTaskCompletedEventHandler(object sender, AddBulkExportTaskCompletedEventArgs e);
+    public delegate void ListExternalChannelsCompletedEventHandler(object sender, ListExternalChannelsCompletedEventArgs e);
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class AddBulkExportTaskCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+    public partial class ListExternalChannelsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
         
         private object[] results;
         
-        internal AddBulkExportTaskCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+        internal ListExternalChannelsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }
         
         /// <remarks/>
-        public BulkExportTaskResponse Result {
+        public ExternalChannelResponseList Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((BulkExportTaskResponse)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
-    public delegate void UpdateBulkExportTaskCompletedEventHandler(object sender, UpdateBulkExportTaskCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class UpdateBulkExportTaskCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal UpdateBulkExportTaskCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public BulkExportTaskResponse Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((BulkExportTaskResponse)(this.results[0]));
+                return ((ExternalChannelResponseList)(this.results[0]));
             }
         }
     }

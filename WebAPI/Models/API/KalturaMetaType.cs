@@ -10,6 +10,6 @@ namespace WebAPI.Models.API
         STRING,
         NUMBER,
         BOOLEAN,
-        STRING_ARRAY
+        STRING_ARRAY // tag
     }
 }

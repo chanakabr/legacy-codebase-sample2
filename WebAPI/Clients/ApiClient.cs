@@ -1682,7 +1682,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetRecommendationEngines(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                    response = Api.ListRecommendationEngines(group.ApiCredentials.Username, group.ApiCredentials.Password);
                 }
             }
             catch (Exception ex)
@@ -2088,7 +2088,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetExternalChannels(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                    response = Api.ListExternalChannels(group.ApiCredentials.Username, group.ApiCredentials.Password);
                 }
             }
             catch (Exception ex)
