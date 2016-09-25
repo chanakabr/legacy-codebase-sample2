@@ -975,7 +975,28 @@ namespace Catalog
 
             assetId = ExtractValueFromToken<int>(item, assetIdField);
             groupId = ExtractValueFromToken<int>(item, AddPrefixToFieldName("group_id", fieldNamePrefix));
-            name = ExtractValueFromToken<string>(item, AddPrefixToFieldName("name", fieldNamePrefix));
+
+            var subItem = item;
+
+            if (!string.IsNullOrEmpty(fieldNamePrefix))
+            {
+                subItem = item.SelectToken(fieldNamePrefix);
+            }
+
+            foreach (var subSubItem in subItem)
+            {
+                JProperty property = subSubItem as JProperty;
+
+                if (property != null && property.Name.Contains("name"))
+                {
+                    name = ExtractValueFromToken<string>(subItem, property.Name);
+
+                    break;
+                }
+            }
+
+            //name = ExtractValueFromToken<string>(item, nameWithPrefix);
+
             cacheDate = ExtractDateFromToken(item, AddPrefixToFieldName("cache_date", fieldNamePrefix));
             updateDate = ExtractDateFromToken(item, AddPrefixToFieldName("update_date", fieldNamePrefix));
             startDate = ExtractDateFromToken(item, AddPrefixToFieldName("start_date", fieldNamePrefix));
