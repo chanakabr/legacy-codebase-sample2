@@ -271,17 +271,6 @@
           <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
         </s:sequence>
       </s:complexType>
-      <s:complexType name="ApiParameterPermissionItem">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:PermissionItem">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="Object" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="Parameter" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="Action" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="ApiArgumentPermissionItem">
         <s:complexContent mixed="false">
           <s:extension base="tns:PermissionItem">
@@ -289,6 +278,17 @@
               <s:element minOccurs="0" maxOccurs="1" name="Service" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="Action" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="Parameter" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ApiParameterPermissionItem">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PermissionItem">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="Object" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="Parameter" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="Action" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -1177,6 +1177,62 @@
           <s:element minOccurs="1" maxOccurs="1" name="Id" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="Code" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetGroupMetaList">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="assetType" type="s1:eAssetTypes" />
+            <s:element minOccurs="1" maxOccurs="1" name="metaType" type="tns:MetaType" />
+            <s:element minOccurs="1" maxOccurs="1" name="fieldNameEqual" type="tns:MetaFieldName" />
+            <s:element minOccurs="1" maxOccurs="1" name="fieldNameNotEqual" type="tns:MetaFieldName" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:simpleType name="MetaType">
+        <s:restriction base="s:string">
+          <s:enumeration value="All" />
+          <s:enumeration value="String" />
+          <s:enumeration value="Number" />
+          <s:enumeration value="Bool" />
+          <s:enumeration value="Tag" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="MetaFieldName">
+        <s:restriction base="s:string">
+          <s:enumeration value="All" />
+          <s:enumeration value="None" />
+          <s:enumeration value="SeriesId" />
+          <s:enumeration value="SeasonNumber" />
+          <s:enumeration value="EpisodeNumber" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="GetGroupMetaListResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetGroupMetaListResult" type="tns:MetaResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="MetaResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="MetaList" type="tns:ArrayOfMeta" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfMeta">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Meta" nillable="true" type="tns:Meta" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Meta">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="FieldName" type="tns:MetaFieldName" />
+          <s:element minOccurs="1" maxOccurs="1" name="Type" type="tns:MetaType" />
+          <s:element minOccurs="1" maxOccurs="1" name="AssetType" type="s1:eAssetTypes" />
         </s:sequence>
       </s:complexType>
       <s:element name="TVAPI_GetTvinciGUID">
@@ -4763,6 +4819,7 @@
       <s:element name="ScheduledTaskLastRunDetails" nillable="true" type="tns:ScheduledTaskLastRunDetails" />
       <s:element name="DeviceFamilyResponse" nillable="true" type="tns:DeviceFamilyResponse" />
       <s:element name="DeviceBrandResponse" nillable="true" type="tns:DeviceBrandResponse" />
+      <s:element name="MetaResponse" nillable="true" type="tns:MetaResponse" />
       <s:element name="ArrayOfEPGChannelObject" nillable="true" type="tns:ArrayOfEPGChannelObject" />
       <s:element name="AdminAccountUserResponse" nillable="true" type="tns:AdminAccountUserResponse" />
       <s:element name="string" nillable="true" type="s:string" />
@@ -5133,6 +5190,12 @@
   </wsdl:message>
   <wsdl:message name="GetCountryListSoapOut">
     <wsdl:part name="parameters" element="tns:GetCountryListResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupMetaListSoapIn">
+    <wsdl:part name="parameters" element="tns:GetGroupMetaList" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupMetaListSoapOut">
+    <wsdl:part name="parameters" element="tns:GetGroupMetaListResponse" />
   </wsdl:message>
   <wsdl:message name="TVAPI_GetTvinciGUIDSoapIn">
     <wsdl:part name="parameters" element="tns:TVAPI_GetTvinciGUID" />
@@ -6116,6 +6179,17 @@
   <wsdl:message name="GetDeviceBrandListHttpPostOut">
     <wsdl:part name="Body" element="tns:DeviceBrandResponse" />
   </wsdl:message>
+  <wsdl:message name="GetGroupMetaListHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="assetType" type="s:string" />
+    <wsdl:part name="metaType" type="s:string" />
+    <wsdl:part name="fieldNameEqual" type="s:string" />
+    <wsdl:part name="fieldNameNotEqual" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupMetaListHttpPostOut">
+    <wsdl:part name="Body" element="tns:MetaResponse" />
+  </wsdl:message>
   <wsdl:message name="InsertEPGScheduleHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -7085,6 +7159,10 @@
       <wsdl:input message="tns:GetCountryListSoapIn" />
       <wsdl:output message="tns:GetCountryListSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetGroupMetaList">
+      <wsdl:input message="tns:GetGroupMetaListSoapIn" />
+      <wsdl:output message="tns:GetGroupMetaListSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <wsdl:input message="tns:TVAPI_GetTvinciGUIDSoapIn" />
       <wsdl:output message="tns:TVAPI_GetTvinciGUIDSoapOut" />
@@ -7706,6 +7784,10 @@
     <wsdl:operation name="GetDeviceBrandList">
       <wsdl:input message="tns:GetDeviceBrandListHttpPostIn" />
       <wsdl:output message="tns:GetDeviceBrandListHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupMetaList">
+      <wsdl:input message="tns:GetGroupMetaListHttpPostIn" />
+      <wsdl:output message="tns:GetGroupMetaListHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="InsertEPGSchedule">
       <wsdl:input message="tns:InsertEPGScheduleHttpPostIn" />
@@ -8438,6 +8520,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetCountryList">
       <soap:operation soapAction="http://api.tvinci.com/GetCountryList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupMetaList">
+      <soap:operation soapAction="http://api.tvinci.com/GetGroupMetaList" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -9987,6 +10078,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetGroupMetaList">
+      <soap12:operation soapAction="http://api.tvinci.com/GetGroupMetaList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <soap12:operation soapAction="http://api.tvinci.com/TVAPI_GetTvinciGUID" style="document" />
       <wsdl:input>
@@ -11378,6 +11478,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetDeviceBrandList">
       <http:operation location="/GetDeviceBrandList" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupMetaList">
+      <http:operation location="/GetGroupMetaList" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

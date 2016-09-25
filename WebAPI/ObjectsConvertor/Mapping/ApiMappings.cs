@@ -184,7 +184,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                .ForMember(dest => dest.Enrichments, opt => opt.MapFrom(src => ConvertEnrichments(src.Enrichments)))
                ;
-            
+
             Mapper.CreateMap<ExternalChannelResponse, WebAPI.Models.API.KalturaExternalChannelProfile>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ExternalChannel.ID))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.ExternalChannel.Name))
@@ -401,7 +401,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.isDefault))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.name))
               .ForMember(dest => dest.RegionalChannels, opt => opt.MapFrom(src => src.linearChannels));
-            
+
             #endregion
 
             #region DeviceFamily
@@ -423,6 +423,24 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code));
+            #endregion
+
+            #region Meta
+
+            Mapper.CreateMap<Meta, KalturaMeta>()
+              .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertAssetType(src.AssetType)))
+              .ForMember(dest => dest.FieldName, opt => opt.MapFrom(src => ConvertFieldName(src.FieldName)))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertMetaType(src.Type)))
+              ;
+
+            Mapper.CreateMap<KalturaMeta, Meta>()
+             .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertAssetType(src.AssetType)))
+             .ForMember(dest => dest.FieldName, opt => opt.MapFrom(src => ConvertMetaFieldName(src.FieldName)))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertMetaType(src.Type)))
+             ;
+
             #endregion
         }
 
@@ -590,7 +608,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         private static ExternalRecommendationEngineEnrichment ConvertChannelEnrichment(KalturaChannelEnrichment type)
         {
-            ExternalRecommendationEngineEnrichment result ;
+            ExternalRecommendationEngineEnrichment result;
 
             switch (type)
             {
@@ -604,7 +622,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     result = ExternalRecommendationEngineEnrichment.ClientLocation;
                     break;
                 case KalturaChannelEnrichment.DeviceId:
-                    result = ExternalRecommendationEngineEnrichment.DeviceId ;
+                    result = ExternalRecommendationEngineEnrichment.DeviceId;
                     break;
                 case KalturaChannelEnrichment.DeviceType:
                     result = ExternalRecommendationEngineEnrichment.DeviceType;
@@ -1032,49 +1050,49 @@ namespace WebAPI.ObjectsConvertor.Mapping
             switch (orderObj.m_eOrderBy)
             {
                 case OrderBy.VIEWS:
-                {
-                    result = KalturaOrder.views;
-                    break;
-                }
+                    {
+                        result = KalturaOrder.views;
+                        break;
+                    }
                 case OrderBy.RATING:
-                {
-                    result = KalturaOrder.ratings;
-                    break;
-                }
+                    {
+                        result = KalturaOrder.ratings;
+                        break;
+                    }
                 case OrderBy.VOTES_COUNT:
-                {
-                    result = KalturaOrder.votes;
-                    break;
-                }
+                    {
+                        result = KalturaOrder.votes;
+                        break;
+                    }
                 case OrderBy.START_DATE:
-                {
-                    if (orderObj.m_eOrderDir == OrderDir.DESC)
                     {
-                        result = KalturaOrder.newest;
+                        if (orderObj.m_eOrderDir == OrderDir.DESC)
+                        {
+                            result = KalturaOrder.newest;
+                        }
+                        else
+                        {
+                            result = KalturaOrder.oldest_first;
+                        }
+                        break;
                     }
-                    else
-                    {
-                        result = KalturaOrder.oldest_first;
-                    }
-                    break;
-                }
                 case OrderBy.NAME:
-                {
-                    if (orderObj.m_eOrderDir == OrderDir.ASC)
                     {
-                        result = KalturaOrder.a_to_z;
+                        if (orderObj.m_eOrderDir == OrderDir.ASC)
+                        {
+                            result = KalturaOrder.a_to_z;
+                        }
+                        else
+                        {
+                            result = KalturaOrder.z_to_a;
+                        }
+                        break;
                     }
-                    else
-                    {
-                        result = KalturaOrder.z_to_a;
-                    }
-                    break;
-                }
                 case OrderBy.RELATED:
-                {
-                    result = KalturaOrder.relevancy;
-                    break;
-                }
+                    {
+                        result = KalturaOrder.relevancy;
+                        break;
+                    }
                 case OrderBy.META:
                 case OrderBy.CREATE_DATE:
                 case OrderBy.RECOMMENDATION:
@@ -1083,7 +1101,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case OrderBy.NONE:
                 case OrderBy.ID:
                 default:
-                break;
+                    break;
             }
 
             return result;
@@ -1265,6 +1283,162 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return result;
+        }
+
+        private static KalturaAssetType ConvertAssetType(eAssetTypes assetType)
+        {
+            KalturaAssetType response;
+            switch (assetType)
+            {
+                case eAssetTypes.EPG:
+                    response = KalturaAssetType.epg;
+                    break;
+                case eAssetTypes.NPVR:
+                    response = KalturaAssetType.recording;
+                    break;
+                case eAssetTypes.MEDIA:
+                    response = KalturaAssetType.media;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown Asset Type");
+            }
+
+            return response;
+        }
+
+        private static KalturaMetaType ConvertMetaType(MetaType metaType)
+        {
+            KalturaMetaType response;
+
+            switch (metaType)
+            {
+                case MetaType.String:
+                    response = KalturaMetaType.STRING;
+                    break;
+                case MetaType.Number:
+                    response = KalturaMetaType.NUMBER;
+                    break;
+                case MetaType.Bool:
+                    response = KalturaMetaType.BOOLEAN;
+                    break;
+                case MetaType.Tag:
+                    response = KalturaMetaType.STRING_ARRAY;
+                    break;
+                case MetaType.All:
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown meta type");
+            }
+
+            return response;
+        }
+
+        private static KalturaMetaFieldName ConvertFieldName(MetaFieldName metaFieldName)
+        {
+            KalturaMetaFieldName response;
+
+            switch (metaFieldName)
+            {
+                case MetaFieldName.None:
+                    response = KalturaMetaFieldName.NONE;
+                    break;
+                case MetaFieldName.SeriesId:
+                    response = KalturaMetaFieldName.SERIES_ID;
+                    break;
+                case MetaFieldName.SeasonNumber:
+                    response = KalturaMetaFieldName.SEASON_NUMBER;
+                    break;
+                case MetaFieldName.EpisodeNumber:
+                    response = KalturaMetaFieldName.EPISODE_NUMBER;
+                    break;
+                case MetaFieldName.All:
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown meta field name type");
+            }
+            return response;
+        }
+
+        internal static eAssetTypes ConvertAssetType(KalturaAssetType assetType)
+        {
+            eAssetTypes response;
+            switch (assetType)
+            {
+                case KalturaAssetType.epg:
+                    response = eAssetTypes.EPG;
+                    break;
+                case KalturaAssetType.recording:
+                    response = eAssetTypes.NPVR;
+                    break;
+                case KalturaAssetType.media:
+                    response = eAssetTypes.MEDIA;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown Asset Type");
+            }
+
+            return response;
+        }
+        
+        internal static MetaType ConvertMetaType(KalturaMetaType? metaType)
+        {
+            MetaType response;
+
+            if (metaType.HasValue)
+            {
+                switch (metaType.Value)
+                {
+                    case KalturaMetaType.STRING:
+                        response = MetaType.String;
+                        break;
+                    case KalturaMetaType.NUMBER:
+                        response = MetaType.Number;
+                        break;
+                    case KalturaMetaType.BOOLEAN:
+                        response = MetaType.Bool;
+                        break;
+                    case KalturaMetaType.STRING_ARRAY:
+                        response = MetaType.Tag;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown meta type");
+                }
+            }
+            else
+            {
+                response = MetaType.All;
+            }
+            return response;
+        }
+        
+        internal static MetaFieldName ConvertMetaFieldName(KalturaMetaFieldName? metaFieldName)
+        {
+            MetaFieldName response;
+
+            if (metaFieldName.HasValue)
+            {
+                switch (metaFieldName.Value)
+                {
+                    case KalturaMetaFieldName.NONE:
+                        response = MetaFieldName.None;
+                        break;
+                    case KalturaMetaFieldName.SERIES_ID:
+                        response = MetaFieldName.SeriesId;
+                        break;
+                    case KalturaMetaFieldName.SEASON_NUMBER:
+                        response = MetaFieldName.SeasonNumber;
+                        break;
+                    case KalturaMetaFieldName.EPISODE_NUMBER:
+                        response = MetaFieldName.EpisodeNumber;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown meta field name type");
+                }
+            }
+            else
+            {
+                response = MetaFieldName.All;
+            }
+
+            return response;
         }
     }
 }
