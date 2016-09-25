@@ -300,8 +300,9 @@ namespace EpgBL
 
                 return lResCB;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                log.ErrorFormat("Failed in GetEpgCB. Program Id = {0}. error = {1}", nProgramID, ex);
                 return new List<EpgCB>();
             }
         }
