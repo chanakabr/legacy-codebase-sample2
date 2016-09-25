@@ -21,6 +21,7 @@ namespace EpgBL
 
         public abstract EpgCB GetEpgCB(ulong nProgramID);
         public abstract EpgCB GetEpgCB(ulong nProgramID, out ulong cas);
+        public abstract EpgCB GetEpgCB(string ProgramID, out ulong cas);
         public abstract List<EpgCB> GetEpgCB(ulong nProgramID, List<string> languages);
         public abstract List<EPGChannelProgrammeObject> GetEpgCBsWithLanguage(List<ulong> programIDs, string language);
 
@@ -38,6 +39,7 @@ namespace EpgBL
         public abstract bool SetEpg(EpgCB newEpgItem, out ulong epgID, ulong? cas = null);
 
         public abstract bool UpdateEpg(EpgCB newEpgItem, ulong? cas = null);
+        public abstract bool UpdateEpg(EpgCB newEpgItem, bool isMainLang, out string docID, ulong? cas = null);
 
         public abstract void RemoveGroupPrograms(DateTime? fromDate, DateTime? toDate);
 
