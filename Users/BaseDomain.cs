@@ -211,18 +211,20 @@ namespace Users
             if (string.IsNullOrEmpty(udid))
                 return response;
 
+            DomainResponseStatus domainResponseStatus = DomainResponseStatus.OK;
+
             // get domain data
             Domain domain = DomainInitializer(groupId, domainId, false);
             if (domain == null || domain.m_DomainStatus == DomainStatus.Error)
             {
                 // error getting domain
                 log.ErrorFormat("Domain doesn't exists. nGroupID: {0}, nDomainID: {1}, sUDID: {2}, sDeviceName: {3}, nBrandID: {4}", groupId, domainId, udid, deviceName, brandId);
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.DomainNotExists, eResponseStatus.DomainNotExists.ToString());
+                domainResponseStatus = DomainResponseStatus.DomainNotExists;
             }
             else if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
             {
                 // domain is suspended
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.DomainSuspended, eResponseStatus.DomainSuspended.ToString());
+                domainResponseStatus = DomainResponseStatus.DomainSuspended;
             }
             else
             {
@@ -231,21 +233,16 @@ namespace Users
                 device.Initialize(udid, deviceName);
 
                 // add device to domain
-                DomainResponseStatus domainResponseStatus = domain.AddDeviceToDomain(m_nGroupID, domainId, udid, deviceName, brandId, ref device);
-
+                domainResponseStatus = domain.AddDeviceToDomain(m_nGroupID, domainId, udid, deviceName, brandId, ref device);
                 if (domainResponseStatus == DomainResponseStatus.OK)
                 {
                     // update domain info (to include new device)
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     response.Device = new DeviceResponseObject();
                     response.Device.m_oDevice = device;
                 }
-                else
-                {
-                    response.Status = new ApiObjects.Response.Status((int)domainResponseStatus, domainResponseStatus.ToString());
-                }
             }
 
+            response.Status = Utils.ConvertDomainResponseStatusToResponseObject(domainResponseStatus);
             return response;
         }
 
@@ -633,20 +630,27 @@ namespace Users
             int numOfActiveNetworks = 0;
             int frequency = 0;
             DateTime dtLastDeactivationDate = DateTime.MinValue;
-            if (!UpdateRemoveHomeNetworkCommon(domainID, networkID, networkName, networkDesc, isActive, out res,
-                ref candidate, ref existingNetwork, ref numOfAllowedNetworks, ref numOfActiveNetworks, ref frequency, ref dtLastDeactivationDate))
+            try
             {
+                if (!UpdateRemoveHomeNetworkCommon(domainID, networkID, networkName, networkDesc, isActive, out res,
+                    ref candidate, ref existingNetwork, ref numOfAllowedNetworks, ref numOfActiveNetworks, ref frequency, ref dtLastDeactivationDate))
+                {
+                    response.Status = res;
+                    return response;
+                }
+                response.HomeNetwork = UpdateDomainHomeNetworkInner(domainID, numOfAllowedNetworks, numOfActiveNetworks, frequency,
+                    candidate, existingNetwork, dtLastDeactivationDate, ref res);
                 response.Status = res;
-                return response;
-            }
-            response.HomeNetwork = UpdateDomainHomeNetworkInner(domainID, numOfAllowedNetworks, numOfActiveNetworks, frequency,
-                candidate, existingNetwork, dtLastDeactivationDate, ref res);
-            response.Status = res;
 
-            if (res != null && res.Code == (int)eResponseStatus.OK)
+                if (res != null && res.Code == (int)eResponseStatus.OK)
+                {
+                    DomainsCache oDomainCache = DomainsCache.Instance();
+                    oDomainCache.RemoveDomain((int)domainID);
+                }
+            }
+            catch (Exception ex)
             {
-                DomainsCache oDomainCache = DomainsCache.Instance();
-                oDomainCache.RemoveDomain((int)domainID);
+                log.Error(string.Format("Error while updating domain home network. domainId = {0}, networkId = {1}", domainID, networkID), ex);
             }
             return response;
         }

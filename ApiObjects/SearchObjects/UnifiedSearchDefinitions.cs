@@ -294,6 +294,23 @@ namespace ApiObjects.SearchObjects
             get;
             set;
         }
+
+        [JsonProperty()]
+        [DataMember]
+        public Dictionary<string, string> recordingsToDomainRecordingsMapping
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty()]
+        [DataMember]
+        public Dictionary<string, string> recordingsToEpgMapping
+        {
+            get;
+            set;
+        }
+
         #endregion
 
         #region Ctor

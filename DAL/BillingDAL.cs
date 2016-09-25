@@ -1227,7 +1227,7 @@ namespace DAL
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@status", status);
-                DataSet ds = sp.ExecuteDataSetWithListParam();
+                DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
                     DataTable dtPG = ds.Tables[0];
@@ -1243,20 +1243,36 @@ namespace DAL
                             paymentGateway.Selected = ODBCWrapper.Utils.GetIntSafeVal(dr, "selected");
                             int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
                             paymentGateway.IsDefault = isDefault == 1 ? true : false;
-                            paymentGateway.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "external_identifier");
-                            paymentGateway.PendingInterval = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "pending_interval");
-                            paymentGateway.PendingRetries = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "pending_retries");
-                            paymentGateway.SharedSecret = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "shared_secret");
-                            paymentGateway.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
-                            paymentGateway.TransactUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "transact_url");
-                            paymentGateway.StatusUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "status_url");
-                            paymentGateway.RenewUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "renew_url");
-                            paymentGateway.Status = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "status");
-                            paymentGateway.RenewalIntervalMinutes = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "renewal_interval_minutes");
-                            paymentGateway.RenewalStartMinutes = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "renewal_start_minutes");
-                            paymentGateway.IsActive = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
-                            int supportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_payment_method_support");
+                            paymentGateway.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(dr, "external_identifier");
+                            paymentGateway.PendingInterval = ODBCWrapper.Utils.GetIntSafeVal(dr, "pending_interval");
+                            paymentGateway.PendingRetries = ODBCWrapper.Utils.GetIntSafeVal(dr, "pending_retries");
+                            paymentGateway.SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret");
+                            paymentGateway.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(dr, "adapter_url");
+                            paymentGateway.TransactUrl = ODBCWrapper.Utils.GetSafeStr(dr, "transact_url");
+                            paymentGateway.StatusUrl = ODBCWrapper.Utils.GetSafeStr(dr, "status_url");
+                            paymentGateway.RenewUrl = ODBCWrapper.Utils.GetSafeStr(dr, "renew_url");
+                            paymentGateway.Status = ODBCWrapper.Utils.GetIntSafeVal(dr, "status");
+                            paymentGateway.RenewalIntervalMinutes = ODBCWrapper.Utils.GetIntSafeVal(dr, "renewal_interval_minutes");
+                            paymentGateway.RenewalStartMinutes = ODBCWrapper.Utils.GetIntSafeVal(dr, "renewal_start_minutes");
+                            paymentGateway.IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
+                            int supportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_payment_method_support");
                             paymentGateway.SupportPaymentMethod = supportPaymentMethod == 1;
+
+                            if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
+                            {
+                                DataRow[] drpc = ds.Tables[1].Select("payment_gateway_id =" + paymentGateway.ID);
+
+                                foreach (DataRow drp in drpc)
+                                {
+                                    string key = ODBCWrapper.Utils.GetSafeStr(drp, "key");
+                                    string value = ODBCWrapper.Utils.GetSafeStr(drp, "value");
+                                    if (paymentGateway.Settings == null)
+                                    {
+                                        paymentGateway.Settings = new List<PaymentGatewaySettings>();
+                                    }
+                                    paymentGateway.Settings.Add(new PaymentGatewaySettings(key, value));
+                                }
+                            }
 
                             res.Add(paymentGateway);
                         }
@@ -1899,6 +1915,22 @@ namespace DAL
                 result.IsDefault = DefaultPaymentGateway == result.ID ? true : false;
                 int supportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_payment_method_support");
                 result.SupportPaymentMethod = supportPaymentMethod == 1 ? true : false;
+
+                if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
+                {
+                    DataRow[] drpc = ds.Tables[1].Select("payment_gateway_id =" + result.ID);
+
+                    foreach (DataRow drp in drpc)
+                    {
+                        string key = ODBCWrapper.Utils.GetSafeStr(drp, "key");
+                        string value = ODBCWrapper.Utils.GetSafeStr(drp, "value");
+                        if (result.Settings == null)
+                        {
+                            result.Settings = new List<PaymentGatewaySettings>();
+                        }
+                        result.Settings.Add(new PaymentGatewaySettings(key, value));
+                    }
+                }
             }
 
             return result;

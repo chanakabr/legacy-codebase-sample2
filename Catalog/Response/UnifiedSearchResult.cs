@@ -39,4 +39,15 @@ namespace Catalog.Response
 
         #endregion
     }
+
+    [DataContract]
+    public class RecordingSearchResult : UnifiedSearchResult
+    {
+        [DataMember]
+        public string EpgId
+        {
+            get;
+            set;
+        }
+    }
 }

@@ -4164,6 +4164,7 @@ namespace Catalog
             #region  try get values from catalog cache
 
             double cacheTime = TVinciShared.WS_Utils.GetTcmDoubleValue("CATALOG_HIT_CACHE_TIME_IN_MINUTES");
+
             if (cacheTime == 0)
             {
                 cacheTime = 120d;
@@ -4171,11 +4172,11 @@ namespace Catalog
 
             CatalogCache catalogCache = CatalogCache.Instance();
             string ipKey = string.Format("{0}_userIP_{1}", eWSModules.CATALOG, userIP);
+
             object oCountryID = catalogCache.Get(ipKey);
+
             bool bIP = false;
             bool bMedia = false;
-
-            bool isValid = false;
 
             if (oCountryID != null)
             {
@@ -4185,44 +4186,49 @@ namespace Catalog
 
             string m_mf_Key = string.Format("{0}_media_{1}_mediaFile_{2}", eWSModules.CATALOG, mediaID, mediaFileID);
             List<KeyValuePair<string, int>> lMedia = catalogCache.Get<List<KeyValuePair<string, int>>>(m_mf_Key);
+
             if (lMedia != null && lMedia.Count > 0)
             {
                 InitMediaMarkHitDataFromCache(ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID, ref fileDuration, lMedia);
 
+                log.DebugFormat("GetMediaMarkHitInitialData, get media mark hit datafrom cache: " +
+                    "cdnID {0}, qualityID {1}, formatId {2}, mediaTypeId {3}, billingTypeId {4}, fileDuration {5}",
+                    cdnID, qualityID, formatID, mediaTypeID, billingTypeID, fileDuration);
+
                 if (cdnID == -1 && qualityID == -1 && formatID == -1 && mediaTypeID == -1 && billingTypeID == -1 && fileDuration == -1)
                 {
-                    isValid = false;
-                }
-                else
-                {
-                    isValid = true;
+                    return false;
                 }
 
                 bMedia = true;
-
             }
 
             #endregion
 
-            if (!isValid)
-            {
-                return false;
-            }
-
             if (!bIP) // try getting countryID from ES, if it fails get countryID from DB
             {
+                log.DebugFormat("GetMediaMarkHitInitialData, try getting countryID from ES, if it fails get countryID from DB");
+
                 countryID = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(userIP);
                 //getting from ES failed
                 if (countryID == 0)
                 {
+                    log.DebugFormat("GetMediaMarkHitInitialData, getting country from ES failed, getting from DB");
+
                     long ipVal = 0;
                     ipVal = ParseIPOutOfString(userIP);
                     CatalogDAL.Get_IPCountryCode(ipVal, ref countryID);
                 }
                 if (countryID > 0)
                 {
+                    log.DebugFormat("GetMediaMarkHitInitialData, setting countryId in cache");
+
                     catalogCache.Set(ipKey, countryID, cacheTime);
                     bIP = true;
+                }
+                else
+                {
+                    log.DebugFormat("GetMediaMarkHitInitialData, setting countryId in cache");
                 }
             }
 
@@ -4231,11 +4237,14 @@ namespace Catalog
                 if (CatalogDAL.GetMediaPlayData(mediaID, mediaFileID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID, ref fileDuration))
                 {
                     InitMediaMarkHitDataToCache(ownerGroupID, cdnID, qualityID, formatID, mediaTypeID, billingTypeID, fileDuration, ref lMedia);
+
                     catalogCache.Set(m_mf_Key, lMedia, cacheTime);
                     bMedia = true;
                 }
                 else
                 {
+                    log.DebugFormat("GetMediaMarkHitInitialData, GetMediaPlayData failed, setting in cache invalid media");
+
                     // If couldn't get media - create an "invalid" record and save it in cache
                     InitMediaMarkHitDataToCache(ownerGroupID, -1, -1, -1, -1, -1, -1, ref lMedia);
                     catalogCache.Set(m_mf_Key, lMedia, cacheTime);
@@ -5824,8 +5833,21 @@ namespace Catalog
 
             bool bIsMainLang = Utils.IsLangMain(request.m_nGroupID, request.m_oFilter.m_nLanguage);
 
-            MediaSearchRequest mediaSearchRequest = 
+            MediaSearchRequest mediaSearchRequest =
                 BuildMediasRequest(request.m_nMediaID, bIsMainLang, request.m_oFilter, ref filter, request.m_nGroupID, request.m_nMediaTypes, request.m_sSiteGuid, request.OrderObj);
+
+            LanguageObj language = null;
+
+            if (filter == null)
+            {
+                language = GetLanguage(request.m_nGroupID, -1);
+            }
+            else
+            {
+                language = GetLanguage(request.m_nGroupID, filter.m_nLanguage);
+            }
+
+            definitions.langauge = language;
 
             #region Basic
 
@@ -5872,8 +5894,6 @@ namespace Catalog
                 definitions.permittedWatchRules = string.Join(" ", group.m_sPermittedWatchRules);
             }
 
-            definitions.langauge = group.GetGroupDefaultLanguage();
-
             #endregion
 
             #region Request Filter Object
@@ -5895,6 +5915,13 @@ namespace Catalog
 
             List<BooleanPhraseNode> nodes = new List<BooleanPhraseNode>();
 
+            string suffix = string.Empty;
+
+            if (definitions.langauge != null && !definitions.langauge.IsDefault)
+            {
+                suffix = string.Format("_{0}", definitions.langauge.Code);
+            }
+
             if (mediaSearchRequest.m_lTags != null && mediaSearchRequest.m_lTags.Count > 0)
             {
                 foreach (KeyValue keyValue in mediaSearchRequest.m_lTags)
@@ -5904,7 +5931,8 @@ namespace Catalog
                         string key = keyValue.m_sKey;
                         string value = keyValue.m_sValue;
 
-                        BooleanLeaf leaf = new BooleanLeaf("tags." + key.ToLower(), value.ToLower(), typeof(string), ComparisonOperator.Equals);
+                        BooleanLeaf leaf = new BooleanLeaf(
+                            string.Format("tags.{0}{1}", key.ToLower(), suffix), value.ToLower(), typeof(string), ComparisonOperator.Equals);
                         nodes.Add(leaf);
                     }
                 }
@@ -5919,7 +5947,8 @@ namespace Catalog
                         string key = keyValue.m_sKey;
                         string value = keyValue.m_sValue;
 
-                        BooleanLeaf leaf = new BooleanLeaf("metas." + key.ToLower(), value.ToLower(), typeof(string), ComparisonOperator.Equals);
+                        BooleanLeaf leaf = new BooleanLeaf(
+                            string.Format("metas.{0}{1}", key.ToLower(), suffix), value.ToLower(), typeof(string), ComparisonOperator.Equals);
                         nodes.Add(leaf);
                     }
                 }

@@ -123,11 +123,11 @@ namespace ODBCWrapper
             return true;
         }
 
-        public int ExecuteAndGetId()
+        public long ExecuteAndGetId()
         {
             string oraStr = m_sOraStr.ToString();
 
-            int id = -1;
+            long id = -1;
             m_sOraStr = new System.Text.StringBuilder(oraStr);
             m_sOraStr.Append(sInsertStructure);
             m_sOraStr.Append(") ");
@@ -156,7 +156,7 @@ namespace ODBCWrapper
 
                     using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString() })
                     {
-                        id = (int)command.ExecuteScalar();
+                        id = Convert.ToInt64(command.ExecuteScalar());
                     }
                 }
                 catch (Exception ex)

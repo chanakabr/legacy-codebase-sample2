@@ -1365,11 +1365,13 @@ namespace Catalog
 
                         foreach (ElasticSearchApi.ESAssetDocument doc in assetsDocumentsDecoded)
                         {
+                            string assetId = doc.asset_id.ToString();
+
                             if (unifiedSearchDefinitions.shouldReturnExtendedSearchResult)
                             {
                                 var result = new ExtendedSearchResult()
                                     {
-                                        AssetId = doc.asset_id.ToString(),
+                                        AssetId = assetId,
                                         m_dUpdateDate = doc.update_date,
                                         AssetType = UnifiedSearchResult.ParseType(doc.type),
                                         EndDate = doc.end_date,
@@ -1394,12 +1396,50 @@ namespace Catalog
                             }
                             else
                             {
-                                searchResultsList.Add(new UnifiedSearchResult()
+                                var assetType = UnifiedSearchResult.ParseType(doc.type);
+
+                                if (assetType == eAssetTypes.NPVR)
                                 {
-                                    AssetId = doc.asset_id.ToString(),
-                                    m_dUpdateDate = doc.update_date,
-                                    AssetType = UnifiedSearchResult.ParseType(doc.type)
-                                });
+                                    // After we searched for recordings, we need to replace their ID (recording ID) with the personal ID (domain recording)
+                                    if (unifiedSearchDefinitions.recordingsToDomainRecordingsMapping != null &&
+                                        unifiedSearchDefinitions.recordingsToEpgMapping != null)
+                                    {
+                                        var recordingsMapping = unifiedSearchDefinitions.recordingsToDomainRecordingsMapping;
+                                        var epgMapping = unifiedSearchDefinitions.recordingsToEpgMapping;
+
+                                        string recordingId = assetId;
+                                        string domainRecordingId = string.Empty;
+
+                                        if (recordingsMapping.ContainsKey(recordingId))
+                                        {
+                                            // Replace ID
+                                            domainRecordingId = recordingsMapping[recordingId];
+                                        }
+
+                                        string epgId = string.Empty;
+
+                                        if (epgMapping.ContainsKey(recordingId))
+                                        {
+                                            epgId = epgMapping[recordingId];
+                                        }
+
+                                        searchResultsList.Add(new RecordingSearchResult()
+                                        {
+                                            AssetId = domainRecordingId,
+                                            AssetType = eAssetTypes.NPVR,
+                                            EpgId = epgId
+                                        });
+                                    }
+                                }
+                                else
+                                {
+                                    searchResultsList.Add(new UnifiedSearchResult()
+                                    {
+                                        AssetId = assetId,
+                                        m_dUpdateDate = doc.update_date,
+                                        AssetType = UnifiedSearchResult.ParseType(doc.type)
+                                    });
+                                }
                             }
                         }
 
@@ -1480,7 +1520,6 @@ namespace Catalog
                             #endregion
                         }
                     }
-
 
                     #endregion
                 }

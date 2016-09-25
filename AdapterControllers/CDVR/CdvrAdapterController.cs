@@ -227,15 +227,15 @@ namespace AdapterControllers.CDVR
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error in Record (Cdvr): error = {0}, adapterID = {1}, adapter ExternalIdentifier = {2}",
-                    ex, adapterId, adapter.ExternalIdentifier
+                log.ErrorFormat("Error in Record (Cdvr): error = {0}, adapterID = {1}, adapter ExternalIdentifier = {2}, channelId = {3}",
+                    ex, adapterId, adapter.ExternalIdentifier, channelId
                     );
                 throw new KalturaException("Adapter failed completing request", (int)eResponseStatus.AdapterAppFailure);
             }
             return recordResult;
         }
 
-        public RecordResult GetRecordingStatus(int partnerId, string recordingId, int adapterId)
+        public RecordResult GetRecordingStatus(int partnerId, string channelId, string recordingId, int adapterId)
         {
             RecordResult recordResult = new RecordResult();
 
@@ -259,12 +259,12 @@ namespace AdapterControllers.CDVR
             long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
             //TODO: verify that signature is correct
-            string signature = string.Concat(recordingId, adapterId, timeStamp);
+            string signature = string.Concat(recordingId, channelId, adapterId, timeStamp);
 
             try
             {
-                log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}",
-                    partnerId, adapter.ID, recordingId);
+                log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}, channelId = {3}",
+                    partnerId, adapter.ID, recordingId, channelId);
 
                 var adapterResponse = new AdapterControllers.cdvrAdap.RecordingResponse();
 
@@ -273,7 +273,7 @@ namespace AdapterControllers.CDVR
                     try
                     {
                         //call Adapter GetRecordingStatus
-                        adapterResponse = client.GetRecordingStatus(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        adapterResponse = client.GetRecordingStatus(recordingId, channelId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                     }
                     catch (Exception ex)
                     {
@@ -304,7 +304,7 @@ namespace AdapterControllers.CDVR
                         //call Adapter GetRecordingStatus - after it is configured
                         try
                         {
-                            adapterResponse = client.GetRecordingStatus(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                            adapterResponse = client.GetRecordingStatus(recordingId, channelId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                         }
                         catch (Exception ex)
                         {
@@ -333,15 +333,15 @@ namespace AdapterControllers.CDVR
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error in GetRecordingStatus (Cdvr): error = {0}, adapterID = {1}, adapter ExternalIdentifier = {2}, RecordingId = {3}",
-                    ex, adapterId, adapter.ExternalIdentifier, recordingId
+                log.ErrorFormat("Error in GetRecordingStatus (Cdvr): error = {0}, adapterID = {1}, adapter ExternalIdentifier = {2}, RecordingId = {3}, channelId = {4}",
+                    ex, adapterId, adapter.ExternalIdentifier, recordingId, channelId
                     );
                 throw new KalturaException("Adapter failed completing request", (int)eResponseStatus.AdapterAppFailure);
             }
             return recordResult;
         }
 
-        public RecordResult UpdateRecordingSchedule(int partnerId, string recordingId, int adapterId, long startDateSeconds, long durationSeconds)
+        public RecordResult UpdateRecordingSchedule(int partnerId, string channelId, string recordingId, int adapterId, long startDateSeconds, long durationSeconds)
         {
             RecordResult recordResult = new RecordResult();
 
@@ -364,12 +364,12 @@ namespace AdapterControllers.CDVR
             long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
             //TODO: verify that signature is correct
-            string signature = string.Concat(recordingId, adapterId, timeStamp);
+            string signature = string.Concat(recordingId, channelId, adapterId, startDateSeconds, durationSeconds, timeStamp);
 
             try
             {
-                log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}",
-                    partnerId, adapter.ID, recordingId);
+                log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}, channelId = {3}",
+                    partnerId, adapter.ID, recordingId, channelId);
 
                 var adapterResponse = new AdapterControllers.cdvrAdap.RecordingResponse();
 
@@ -378,8 +378,8 @@ namespace AdapterControllers.CDVR
                     //call Adapter UpdateRecordingSchedule
                     try
                     {
-                        adapterResponse = 
-                            client.UpdateRecordingSchedule(recordingId, adapterId, startDateSeconds, durationSeconds, 
+                        adapterResponse =
+                            client.UpdateRecordingSchedule(recordingId, channelId, adapterId, startDateSeconds, durationSeconds, 
                             timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                     }
                     catch (Exception ex)
@@ -412,7 +412,7 @@ namespace AdapterControllers.CDVR
                         try
                         {
                             adapterResponse =
-                                client.UpdateRecordingSchedule(recordingId, adapterId, startDateSeconds, durationSeconds,
+                                client.UpdateRecordingSchedule(recordingId, channelId, adapterId, startDateSeconds, durationSeconds,
                                 timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                         }
                         catch (Exception ex)
@@ -422,7 +422,7 @@ namespace AdapterControllers.CDVR
                     }
 
                     LogAdapterResponse(adapterResponse, "UpdateRecordingSchedule", adapterId,
-                    string.Format("recordingId = {0}, startDateSeconds = {1}, durationSeconds = {2}", recordingId, startDateSeconds, durationSeconds));
+                    string.Format("recordingId = {0}, startDateSeconds = {1}, durationSeconds = {2}, channelId = {3}", recordingId, startDateSeconds, durationSeconds, channelId));
 
                     #endregion
                 }
@@ -442,8 +442,8 @@ namespace AdapterControllers.CDVR
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error in UpdateRecordingSchedule (Cdvr): error = {0}, adapterID = {1}, adapter ExternalIdentifier = {2}, RecordingId = {3}",
-                    ex, adapterId, adapter.ExternalIdentifier, recordingId
+                log.ErrorFormat("Error in UpdateRecordingSchedule (Cdvr): error = {0}, adapterID = {1}, adapter ExternalIdentifier = {2}, RecordingId = {3}, channelId = {4}",
+                    ex, adapterId, adapter.ExternalIdentifier, recordingId, channelId
                     );
                 throw new KalturaException("Adapter failed completing request", (int)eResponseStatus.AdapterAppFailure);
             }
@@ -456,7 +456,7 @@ namespace AdapterControllers.CDVR
         /// <param name="recordingId">External recording ID</param>
         /// <param name="adapterId"></param>
         /// <returns></returns>
-        public RecordResult CancelRecording(int partnerId, string recordingId, int adapterId)
+        public RecordResult CancelRecording(int partnerId, string channelId, string recordingId, int adapterId)
         {
             RecordResult recordResult = new RecordResult();
 
@@ -480,12 +480,12 @@ namespace AdapterControllers.CDVR
             long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
             //TODO: verify that signature is correct
-            string signature = string.Concat(recordingId, adapterId, timeStamp);
+            string signature = string.Concat(recordingId, channelId, adapterId, timeStamp);
 
             try
             {
-                log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}",
-                    partnerId, adapter.ID, recordingId);
+                log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}, channelId = {3}",
+                    partnerId, adapter.ID, recordingId, channelId);
 
                 var adapterResponse = new AdapterControllers.cdvrAdap.RecordingResponse();
 
@@ -494,7 +494,7 @@ namespace AdapterControllers.CDVR
                     //call Adapter CancelRecording
                     try
                     {
-                        adapterResponse = client.CancelRecording(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        adapterResponse = client.CancelRecording(recordingId, channelId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                     }
                     catch (Exception ex)
                     {
@@ -525,7 +525,7 @@ namespace AdapterControllers.CDVR
                         //call Adapter CancelRecording - after it is configured
                         try
                         {
-                            adapterResponse = client.CancelRecording(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                            adapterResponse = client.CancelRecording(recordingId, channelId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                         }
                         catch (Exception ex)
                         {
@@ -554,15 +554,15 @@ namespace AdapterControllers.CDVR
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error in CancelRecording (Cdvr): error = {0}, adapterID = {1}, adapter ExternalIdentifier = {2}, RecordingId = {3}",
-                    ex, adapterId, adapter.ExternalIdentifier, recordingId
+                log.ErrorFormat("Error in CancelRecording (Cdvr): error = {0}, adapterID = {1}, adapter ExternalIdentifier = {2}, RecordingId = {3}, channelId = {3}",
+                    ex, adapterId, adapter.ExternalIdentifier, recordingId, channelId
                     );
                 throw new KalturaException("Adapter failed completing request", (int)eResponseStatus.AdapterAppFailure);
             }
             return recordResult;
         }
 
-        public RecordResult DeleteRecording(int partnerId, string recordingId, int adapterId)
+        public RecordResult DeleteRecording(int partnerId, string channelId, string recordingId, int adapterId)
         {
             RecordResult recordResult = new RecordResult();
 
@@ -586,12 +586,12 @@ namespace AdapterControllers.CDVR
             long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
             //TODO: verify that signature is correct
-            string signature = string.Concat(recordingId, adapterId, timeStamp);
+            string signature = string.Concat(recordingId, channelId, adapterId, timeStamp);
 
             try
             {
-                log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}",
-                    partnerId, adapter.ID, recordingId);
+                log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}, channelId = {3}",
+                    partnerId, adapter.ID, recordingId, channelId);
 
                 var adapterResponse = new AdapterControllers.cdvrAdap.RecordingResponse();
 
@@ -600,7 +600,7 @@ namespace AdapterControllers.CDVR
                     //call Adapter DeleteRecording
                     try
                     {
-                        adapterResponse = client.DeleteRecording(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        adapterResponse = client.DeleteRecording(recordingId, channelId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                     }
                     catch (Exception ex)
                     {
@@ -631,7 +631,7 @@ namespace AdapterControllers.CDVR
                         //call Adapter - DeleteRecording after it is configured
                         try
                         {
-                            adapterResponse = client.DeleteRecording(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                            adapterResponse = client.DeleteRecording(recordingId, channelId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                         }
                         catch (Exception ex)
                         {
@@ -660,15 +660,15 @@ namespace AdapterControllers.CDVR
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error in DeleteRecording (Cdvr): error = {0}, adapterID = {1}, adapter ExternalIdentifier = {2}, RecordingId = {3}",
-                    ex, adapterId, adapter.ExternalIdentifier, recordingId
+                log.ErrorFormat("Error in DeleteRecording (Cdvr): error = {0}, adapterID = {1}, adapter ExternalIdentifier = {2}, RecordingId = {3}, channelId = {4}",
+                    ex, adapterId, adapter.ExternalIdentifier, recordingId, channelId
                     );
                 throw new KalturaException("Adapter failed completing request", (int)eResponseStatus.AdapterAppFailure);
             }
             return recordResult;
         }
 
-        public RecordResult GetRecordingLinks(int partnerId, string recordingId, int adapterId)
+        public RecordResult GetRecordingLinks(int partnerId, string channelId, string recordingId, int adapterId)
         {
             RecordResult recordResult = new RecordResult();
 
@@ -692,12 +692,12 @@ namespace AdapterControllers.CDVR
             long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
             //TODO: verify that signature is correct
-            string signature = string.Concat(recordingId, adapterId, timeStamp);
+            string signature = string.Concat(recordingId, channelId, adapterId, timeStamp);
 
             try
             {
-                log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}",
-                    partnerId, adapter.ID, recordingId);
+                log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}, channelId = {3}",
+                    partnerId, adapter.ID, recordingId, channelId);
 
                 var adapterResponse = new AdapterControllers.cdvrAdap.RecordingResponse();
 
@@ -706,7 +706,7 @@ namespace AdapterControllers.CDVR
                     //call Adapter GetRecordingLinks
                     try
                     {
-                        adapterResponse = client.GetRecordingLinks(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        adapterResponse = client.GetRecordingLinks(recordingId, channelId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                     }
                     catch (Exception ex)
                     {
@@ -737,7 +737,7 @@ namespace AdapterControllers.CDVR
                         //call Adapter GetRecordingLinks - after it is configured
                         try
                         {
-                            adapterResponse = client.GetRecordingLinks(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                            adapterResponse = client.GetRecordingLinks(recordingId, channelId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                         }
                         catch (Exception ex)
                         {
@@ -766,8 +766,8 @@ namespace AdapterControllers.CDVR
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error in GetRecordingLinks (Cdvr): error = {0}, adapterID = {1}, adapter ExternalIdentifier = {2}, RecordingId = {3}",
-                    ex, adapterId, adapter.ExternalIdentifier, recordingId
+                log.ErrorFormat("Error in GetRecordingLinks (Cdvr): error = {0}, adapterID = {1}, adapter ExternalIdentifier = {2}, RecordingId = {3}, channelId = {4}",
+                    ex, adapterId, adapter.ExternalIdentifier, recordingId, channelId
                     );
                 throw new KalturaException("Adapter failed completing request", (int)eResponseStatus.AdapterAppFailure);
             }
