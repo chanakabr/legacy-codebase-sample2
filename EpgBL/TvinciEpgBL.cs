@@ -151,6 +151,44 @@ namespace EpgBL
             return bRes;
         }
 
+        public override bool UpdateEpg(EpgCB newEpgItem, bool isMainLang, out string docID, ulong? cas = null)
+        {
+            bool bRes = false;
+            docID = string.Empty;
+            try
+            {
+                if (newEpgItem == null)
+                    return false;
+
+                for (int i = 0; i < 3 && !bRes; i++)
+                {
+                    if (isMainLang)
+                    {
+                        docID = newEpgItem.EpgID.ToString();
+                    }
+                    else
+                    {
+                        docID = string.Format("epg_{0}_lang_{1}", newEpgItem.EpgID, newEpgItem.Language.ToLower());
+                    }
+
+                    bRes = (cas.HasValue) ? m_oEpgCouchbase.UpdateProgram(docID, newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE), cas.Value) :
+                                            m_oEpgCouchbase.UpdateProgram(docID, newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE));
+                }
+
+                if (!bRes)
+                {
+                    log.Error("InsertEpg - " + string.Format("Failed insert to CB id={0}", docID));
+                    docID = string.Empty;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("InsertEpg - " + string.Format("Exception, EpgID={0}, EpgIdentifier={1}, ChannelID={2}, ex={3} , ST: {4}",
+                   newEpgItem.EpgID, newEpgItem.EpgIdentifier, newEpgItem.ChannelID, ex.Message, ex.StackTrace), ex);
+            }
+            return bRes;
+        }
+
         public bool RemoveEpg(ulong id)
         {
             bool bRes = true;
