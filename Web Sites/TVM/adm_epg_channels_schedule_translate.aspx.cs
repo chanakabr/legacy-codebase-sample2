@@ -266,7 +266,7 @@ public partial class adm_epg_channels_schedule_translate : System.Web.UI.Page
         //Retrieving the EpgCB or generating one if needed        
         int nParentGroupID = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
         TvinciEpgBL epgBL = new TvinciEpgBL(nParentGroupID);  //assuming this is a Kaltura user - the TVM does not support editing of yes Epg      
-
+        Session["epg_language"] = language;
         List<string> languages = new List<string>() { language };
 
         List<EpgCB> epgs = epgBL.GetEpgCB((ulong.Parse(epgID.ToString())), languages);
