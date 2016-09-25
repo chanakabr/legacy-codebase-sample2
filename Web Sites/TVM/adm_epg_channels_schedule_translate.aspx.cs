@@ -6,6 +6,7 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using TvinciImporter;
 using TVinciShared;
 
 public partial class adm_epg_channels_schedule_translate : System.Web.UI.Page
@@ -38,6 +39,49 @@ public partial class adm_epg_channels_schedule_translate : System.Web.UI.Page
 
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString().Trim() == "1")
             {
+                //retreive all tags and Metas IDs from DB
+                Dictionary<int, string> tagsDic = getMetaTag(false);
+                Dictionary<int, string> metasDic = getMetaTag(true);
+                int groupId = LoginManager.GetLoginGroupID();
+
+                int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
+                TvinciEpgBL epgBLTvinci = new TvinciEpgBL(nParentGroupID);  //assuming this is a Kaltura user - the TVM does not support editing of yes Epg
+                int epgID = 0;
+                string epg_language = string.Empty;
+
+                if (Session["epg_channels_schedule_id"] != null && Session["epg_channels_schedule_id"].ToString() != "" && int.Parse(Session["epg_channels_schedule_id"].ToString()) != 0)
+                {
+                    epgID = int.Parse(Session["epg_channels_schedule_id"].ToString());
+                }
+                if (Session["epg_language"] != null && !string.IsNullOrEmpty(Session["epg_language"].ToString()))
+                {
+                    epg_language = Session["epg_language"].ToString();
+                }
+                List<EpgCB> epgs = epgBLTvinci.GetEpgCB((ulong)epgID, new List<string>() { epg_language });
+                EpgCB epg = epgs.Where(x => x.Language == epg_language).FirstOrDefault();
+                if (epg == null)
+                {
+                    epg = new EpgCB();
+                }
+               CouchBaseManipulator.DoTheWork(ref epg, metasDic, tagsDic); //update the data of the Epg from the page
+                
+                ulong nID = 0;
+                string docID = string.Empty;
+                epg.Language = epg_language;
+                if (epg.EpgID == 0)
+                {
+                    epg.EpgID = (ulong)epgID;                    
+                    epgBLTvinci.InsertEpg(epg, false, out docID);
+                }
+                else
+                {
+                    epg.EpgID = (ulong)epgID;                    
+                    epgBLTvinci.UpdateEpg(epg, false, out docID);
+                }
+
+                bool result = false;
+
+                result = ImporterImpl.UpdateEpg(new List<ulong>() { epg.EpgID }, groupId, eAction.Update);
                 //Int32 nID = DBManipulator.DoTheWork();
                 return;
             }
@@ -225,6 +269,8 @@ public partial class adm_epg_channels_schedule_translate : System.Web.UI.Page
         int nParentGroupID = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
         TvinciEpgBL epgBL = new TvinciEpgBL(nParentGroupID);  //assuming this is a Kaltura user - the TVM does not support editing of yes Epg      
 
+        Session["epg_language"] = language;
+
         List<string> languages = new List<string>() { language };
 
         List<EpgCB> epgs = epgBL.GetEpgCB((ulong.Parse(epgID.ToString())), languages);
@@ -234,8 +280,9 @@ public partial class adm_epg_channels_schedule_translate : System.Web.UI.Page
             if (epg == null)
             {
                 epg = new EpgCB();
+                epg.Language = language;
             }
-        }
+        }  
 
         DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 128);
         dr_name.Initialize("Name", "adm_table_header_nbg", "FormInput", "NAME", epg.Name, true);
