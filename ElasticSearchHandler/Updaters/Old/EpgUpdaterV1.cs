@@ -194,7 +194,7 @@ namespace ElasticSearchHandler.Updaters
                                     {
                                         docID = GetDocumentId(epg),
                                         index = alias,
-                                        type = ElasticSearchTaskUtils.GetTanslationType(GetDocumentType(), group.GetLanguage(epg.Language)),
+                                        type = ElasticSearchTaskUtils.GetTanslationType(GetDocumentType(), language),
                                         Operation = eOperation.index,
                                         document = serializedEpg
                                     });
