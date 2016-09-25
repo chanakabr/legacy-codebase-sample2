@@ -18,7 +18,8 @@ namespace ODBCWrapper
 
         public StoredProcedure(string sProcedureName)
         {
-            m_sProcedureName = string.Format("{0}{1}", Utils.dBVersionPrefix, sProcedureName);
+            procedureNameWithDbVersionPrefix = string.Format("{0}{1}", Utils.dBVersionPrefix, sProcedureName);
+            procedureName = sProcedureName;
             m_Parameters = new Dictionary<string, object>();
             m_bIsWritable = (sProcedureName.ToLower().StartsWith("get") && !sProcedureName.ToLower().StartsWith("getorinsert")) ? false : true;
         }
@@ -30,7 +31,8 @@ namespace ODBCWrapper
 
         ~StoredProcedure() { }
 
-        private string m_sProcedureName;
+        private string procedureNameWithDbVersionPrefix;
+        private string procedureName;
         private Dictionary<string, object> m_Parameters;
         private int m_nTimeout;
 
@@ -56,7 +58,7 @@ namespace ODBCWrapper
 
             m_Parameters.Add(key, value);
 
-            Utils.CheckDBReadWrite(key, value, m_sProcedureName, m_bIsWritable, ref Utils.UseWritable);
+            Utils.CheckDBReadWrite(key, value, procedureName, m_bIsWritable, ref Utils.UseWritable);
         }
 
         /// <summary>
@@ -76,14 +78,14 @@ namespace ODBCWrapper
                 m_Parameters.Add(sKey, DBNull.Value);
             }
 
-            Utils.CheckDBReadWrite(sKey, oValue, m_sProcedureName, m_bIsWritable, ref Utils.UseWritable);
+            Utils.CheckDBReadWrite(sKey, oValue, procedureName, m_bIsWritable, ref Utils.UseWritable);
         }
 
         public void AddXMLParameter<T>(string sKey, List<T> oListValue, string colName)
         {
             m_Parameters.Add(sKey, CreateXML<T>(oListValue, colName));
 
-            Utils.CheckDBReadWrite(sKey, oListValue, m_sProcedureName, m_bIsWritable, ref Utils.UseWritable);
+            Utils.CheckDBReadWrite(sKey, oListValue, procedureName, m_bIsWritable, ref Utils.UseWritable);
         }
 
 
@@ -91,7 +93,7 @@ namespace ODBCWrapper
         {
             m_Parameters.Add(sKey, CreateDataTable<T>(oListValue, colName));
 
-            Utils.CheckDBReadWrite(sKey, oListValue, m_sProcedureName, m_bIsWritable, ref Utils.UseWritable);
+            Utils.CheckDBReadWrite(sKey, oListValue, procedureName, m_bIsWritable, ref Utils.UseWritable);
         }
 
         public void AddKeyValueListParameter<T1, T2>(string sKey, Dictionary<T1, List<T2>> oListKeyValue, string colNameKey, string colNameValue)
@@ -134,7 +136,7 @@ namespace ODBCWrapper
             {
                 table.Rows.Add(id);
 
-                Utils.CheckDBReadWrite(colName, id, m_sProcedureName, m_bIsWritable, ref Utils.UseWritable);
+                Utils.CheckDBReadWrite(colName, id, procedureName, m_bIsWritable, ref Utils.UseWritable);
             }
             return table;
         }
@@ -247,7 +249,7 @@ namespace ODBCWrapper
             SqlCommand command = new SqlCommand();
 
             command.CommandType = System.Data.CommandType.StoredProcedure;
-            command.CommandText = m_sProcedureName;
+            command.CommandText = procedureNameWithDbVersionPrefix;
 
             if (m_nTimeout != 0)
                 command.CommandTimeout = m_nTimeout;
@@ -259,7 +261,7 @@ namespace ODBCWrapper
             string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
             if (sConn == "")
             {
-                log.ErrorFormat("Empty connection string. could not run query. m_sProcedureName: {0}", m_sProcedureName != null ? m_sProcedureName.ToString() : string.Empty);
+                log.ErrorFormat("Empty connection string. could not run query. m_sProcedureName: {0}", procedureNameWithDbVersionPrefix != null ? procedureNameWithDbVersionPrefix.ToString() : string.Empty);
                 return null;
             }
 
@@ -286,7 +288,7 @@ namespace ODBCWrapper
                 }
                 catch (Exception ex)
                 {
-                    string sMes = "While running : '" + m_sProcedureName + "'\r\n Exception occurred: " + ex.Message;
+                    string sMes = "While running : '" + procedureNameWithDbVersionPrefix + "'\r\n Exception occurred: " + ex.Message;
                     log.Error(sMes, ex);
                     return null;
                 }
@@ -302,7 +304,7 @@ namespace ODBCWrapper
             SqlCommand command = new SqlCommand();
 
             command.CommandType = System.Data.CommandType.StoredProcedure;
-            command.CommandText = m_sProcedureName;
+            command.CommandText = procedureNameWithDbVersionPrefix;
 
             foreach (string item in m_Parameters.Keys)
             {
@@ -311,7 +313,7 @@ namespace ODBCWrapper
             string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
             if (sConn == "")
             {
-                log.ErrorFormat("Empty connection string. could not run query. m_sProcedureName: {0}", m_sProcedureName != null ? m_sProcedureName.ToString() : string.Empty);
+                log.ErrorFormat("Empty connection string. could not run query. m_sProcedureName: {0}", procedureNameWithDbVersionPrefix != null ? procedureNameWithDbVersionPrefix.ToString() : string.Empty);
                 return null;
             }
             using (SqlConnection con = new SqlConnection(sConn))
@@ -332,7 +334,7 @@ namespace ODBCWrapper
                 catch (Exception ex)
                 {
                     con.Close();
-                    string sMes = "While running : '" + m_sProcedureName + "'\r\n Exception occurred: " + ex.Message;
+                    string sMes = "While running : '" + procedureNameWithDbVersionPrefix + "'\r\n Exception occurred: " + ex.Message;
                     log.Error(sMes, ex);
                     return null;
                 }
@@ -351,7 +353,7 @@ namespace ODBCWrapper
 
             SqlCommand command = new SqlCommand();
             command.CommandType = System.Data.CommandType.StoredProcedure;
-            command.CommandText = m_sProcedureName;
+            command.CommandText = procedureNameWithDbVersionPrefix;
 
             foreach (string item in m_Parameters.Keys)
             {
@@ -365,7 +367,7 @@ namespace ODBCWrapper
             string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
             if (sConn == "")
             {
-                log.ErrorFormat("Empty connection string. could not run query. m_sProcedureName: {0}", m_sProcedureName != null ? m_sProcedureName.ToString() : string.Empty);
+                log.ErrorFormat("Empty connection string. could not run query. m_sProcedureName: {0}", procedureNameWithDbVersionPrefix != null ? procedureNameWithDbVersionPrefix.ToString() : string.Empty);
                 return result;
             }
             using (SqlConnection con = new SqlConnection(sConn))
@@ -386,7 +388,7 @@ namespace ODBCWrapper
                 catch (Exception ex)
                 {
                     con.Close();
-                    string sMes = "While running : '" + m_sProcedureName + "'\r\n Exception occurred: " + ex.Message;
+                    string sMes = "While running : '" + procedureNameWithDbVersionPrefix + "'\r\n Exception occurred: " + ex.Message;
                     log.Error(sMes, ex);
                     return result;
                 }
@@ -405,7 +407,7 @@ namespace ODBCWrapper
 
             SqlCommand command = new SqlCommand();
             command.CommandType = System.Data.CommandType.StoredProcedure;
-            command.CommandText = m_sProcedureName;
+            command.CommandText = procedureNameWithDbVersionPrefix;
 
             foreach (string item in m_Parameters.Keys)
             {
@@ -419,7 +421,7 @@ namespace ODBCWrapper
             string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
             if (sConn == "")
             {
-                log.ErrorFormat("Empty connection string. could not run query. m_sProcedureName: {0}", m_sProcedureName != null ? m_sProcedureName.ToString() : string.Empty);
+                log.ErrorFormat("Empty connection string. could not run query. m_sProcedureName: {0}", procedureNameWithDbVersionPrefix != null ? procedureNameWithDbVersionPrefix.ToString() : string.Empty);
                 return result;
             }
             using (SqlConnection con = new SqlConnection(sConn))
@@ -439,7 +441,7 @@ namespace ODBCWrapper
                 catch (Exception ex)
                 {
                     con.Close();
-                    string sMes = "While running : '" + m_sProcedureName + "'\r\n Exception occurred: " + ex.Message;
+                    string sMes = "While running : '" + procedureNameWithDbVersionPrefix + "'\r\n Exception occurred: " + ex.Message;
                     log.Error(sMes, ex);
                     return result;
                 }
@@ -456,7 +458,7 @@ namespace ODBCWrapper
         {
             SqlCommand command = new SqlCommand();
             command.CommandType = System.Data.CommandType.StoredProcedure;
-            command.CommandText = m_sProcedureName;
+            command.CommandText = procedureNameWithDbVersionPrefix;
 
             foreach (string item in m_Parameters.Keys)
             {
@@ -466,7 +468,7 @@ namespace ODBCWrapper
             string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
             if (sConn == "")
             {
-                log.ErrorFormat("Empty connection string. could not run query. m_sProcedureName: {0}", m_sProcedureName != null ? m_sProcedureName.ToString() : string.Empty);
+                log.ErrorFormat("Empty connection string. could not run query. m_sProcedureName: {0}", procedureNameWithDbVersionPrefix != null ? procedureNameWithDbVersionPrefix.ToString() : string.Empty);
                 return;
             }
             using (SqlConnection con = new SqlConnection(sConn))
@@ -486,7 +488,7 @@ namespace ODBCWrapper
                 catch (Exception ex)
                 {
                     con.Close();
-                    string sMes = "While running : '" + m_sProcedureName + "'\r\n Exception occurred: " + ex.Message;
+                    string sMes = "While running : '" + procedureNameWithDbVersionPrefix + "'\r\n Exception occurred: " + ex.Message;
                     log.Error(sMes, ex);
                 }
             }
@@ -501,7 +503,7 @@ namespace ODBCWrapper
             SqlCommand command = new SqlCommand();
 
             command.CommandType = System.Data.CommandType.StoredProcedure;
-            command.CommandText = m_sProcedureName;
+            command.CommandText = procedureNameWithDbVersionPrefix;
 
             foreach (string item in m_Parameters.Keys)
             {
@@ -529,7 +531,7 @@ namespace ODBCWrapper
             string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
             if (sConn == "")
             {
-                log.ErrorFormat("Empty connection string. could not run query. m_sProcedureName: {0}", m_sProcedureName != null ? m_sProcedureName.ToString() : string.Empty);
+                log.ErrorFormat("Empty connection string. could not run query. m_sProcedureName: {0}", procedureNameWithDbVersionPrefix != null ? procedureNameWithDbVersionPrefix.ToString() : string.Empty);
                 return result;
             }
 
@@ -556,7 +558,7 @@ namespace ODBCWrapper
                 catch (Exception ex)
                 {
                     con.Close();
-                    string sMes = "While running : '" + m_sProcedureName + "'\r\n Exception occurred: " + ex.Message;
+                    string sMes = "While running : '" + procedureNameWithDbVersionPrefix + "'\r\n Exception occurred: " + ex.Message;
                     log.Error(sMes, ex);
                     return null;
                 }

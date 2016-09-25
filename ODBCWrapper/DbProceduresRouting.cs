@@ -15,6 +15,19 @@ namespace ODBCWrapper
         {
             this.ProceduresMapping = new Dictionary<string, ProcedureRoutingInfo>();
         }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder("{\n");
+            foreach (KeyValuePair<string, ProcedureRoutingInfo> spRoute in ProceduresMapping)
+            {
+                sb.Append(string.Format("{{Name: {0}", spRoute.Key));
+                sb.Append(string.Format("Info: {0}", spRoute.Value.ToString()));
+            }
+
+            sb.Append("\n}");
+            return sb.ToString();
+        }
     }
 
     public class ProcedureRoutingInfo
@@ -39,12 +52,25 @@ namespace ODBCWrapper
                 string[] versions = versionsToExclude.Split(';');
                 foreach (string version in versions)
                 {
-                    if (!this.VersionsToExclude.Contains(version.ToUpper()))
+                    if (!this.VersionsToExclude.Contains(version.ToLower()))
                     {
-                        this.VersionsToExclude.Add(version.ToUpper());
+                        this.VersionsToExclude.Add(version.ToLower());
                     }
                 }
             }
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder(string.Format("IsWriteable - {0}, ", IsWritable));
+            sb.Append("VersionsToExclude - ");
+            foreach (string version in VersionsToExclude)
+            {
+                sb.Append(string.Format("{0}, ", version));
+            }
+            sb.Append("}");
+
+            return sb.ToString();
         }
     }
 

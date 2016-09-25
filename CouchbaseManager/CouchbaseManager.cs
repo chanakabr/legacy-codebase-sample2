@@ -810,6 +810,42 @@ namespace CouchbaseManager
             return result;
         }
 
+        public T Get<T>(string key, out Couchbase.IO.ResponseStatus status, int inMemoryCacheTTL)
+        {
+            T result = default(T);
+            status = Couchbase.IO.ResponseStatus.None;
+
+            try
+            {
+                var bucket = ClusterHelper.GetBucket(bucketName);
+                IOperationResult<T> getResult = null;
+
+                string action = string.Format("Action: Get; bucket: {0}; key: {1}", bucketName, key);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                {
+                    getResult = bucket.Get<T>(key);
+                }
+
+                if (getResult != null)
+                {
+                    status = getResult.Status;
+                    if (getResult.Exception != null)
+                        throw getResult.Exception;
+
+                    if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
+                        result = getResult.Value;
+                    else
+                        HandleStatusCode(getResult, key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CouchBaseCache - Failed Get with key = {0}, ex = {1}", key, ex);
+            }
+
+            return result;
+        }
+
         public T Get<T>(string key, bool withLock, out ulong cas, out Couchbase.IO.ResponseStatus status)
         {
             T result = default(T);

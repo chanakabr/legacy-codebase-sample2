@@ -1000,40 +1000,26 @@ namespace ODBCWrapper
             {
                 Utils.UseWritable = ReadWriteLock(sKey, oValue, executer, isWritable);
             }
+
             DbProceduresRouting dbSpRouting = GetDbProceduresRoutingFromCb();
-            if (dbSpRouting == null)
+            if (dbSpRouting != null)
             {
-                lock (locker)
-                {
-                    dbSpRouting = GetDbProceduresRoutingFromCb();
-                    if (dbSpRouting == null)
+                string procedureName = (executer as string).ToLower();                
+                if (!string.IsNullOrEmpty(procedureName) && dbSpRouting.ProceduresMapping.ContainsKey(procedureName))
+                {                    
+                    ProcedureRoutingInfo procedureRoutingInfo = dbSpRouting.ProceduresMapping[procedureName];
+                    if (procedureRoutingInfo.VersionsToExclude.Contains(dBVersionPrefix.ToLower()))
                     {
-                        dbSpRouting = InitializeDbProceduresRouting();
+                        return;
                     }
-                }
-            }
-                
-            string procedureName = executer as string;
-            int dbVersionPrefixLength = dBVersionPrefix.Length;
-            if (!string.IsNullOrEmpty(procedureName) && procedureName.ToUpper().Contains(dBVersionPrefix.ToUpper())
-                && dbSpRouting.ProceduresMapping.ContainsKey(procedureName.Substring(dbVersionPrefixLength, procedureName.Length - dbVersionPrefixLength).ToUpper()))
-            {
-                ProcedureRoutingInfo procedureRoutingInfo = dbSpRouting.ProceduresMapping[procedureName.Substring(dbVersionPrefixLength, procedureName.Length - dbVersionPrefixLength).ToUpper()];
-                string version = GetTcmConfigValue("Version");
-                if (!string.IsNullOrEmpty(version))
-                {
-                    if (procedureRoutingInfo.VersionsToExclude.Contains(version.ToUpper()))
-                    {
-                        return;                        
-                    }          
                     else
                     {
                         Utils.UseWritable = procedureRoutingInfo.IsWritable;
-                    }
+                    }                    
                 }
             }
-
-                //if (useWriteable) Logger.Logger.Log("DBLock ", "m_bUseWritable changed to '" + Utils.UseWritable + "', for: " + executer, "ODBC_DBLock");            
+                
+            //if (useWriteable) Logger.Logger.Log("DBLock ", "m_bUseWritable changed to '" + Utils.UseWritable + "', for: " + executer, "ODBC_DBLock");            
         }
 
         public static bool ReadWriteLock(string sKey, object oValue, object executer, bool isWritable)
@@ -1150,8 +1136,16 @@ namespace ODBCWrapper
                 {
                     response = cbClient.Get<DbProceduresRouting>(dbSpRoutingKey, out getResult);
                     if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
-                    {
-                        log.ErrorFormat("Error while trying to get database stored procedure routing, KeyNotFound. key: {0}", dbSpRoutingKey);
+                    {                        
+                        lock (locker)
+                        {
+                            response = cbClient.Get<DbProceduresRouting>(dbSpRoutingKey, out getResult);
+                            if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
+                            {
+                                response = InitializeDbProceduresRouting();
+                            }
+                        }
+                        
                         break;
                     }
                     else if (getResult == Couchbase.IO.ResponseStatus.Success)
@@ -1275,7 +1269,7 @@ namespace ODBCWrapper
                         {
                             bool isWritable = ExtractBoolean(dr, "IS_WRITABLE");
                             string versionsToExclude = GetSafeStr(dr, "VERSIONS_TO_EXCLUDE");
-                            routing.ProceduresMapping.Add(procedureName.ToUpper(), new ProcedureRoutingInfo(isWritable, versionsToExclude));
+                            routing.ProceduresMapping.Add(procedureName.ToLower(), new ProcedureRoutingInfo(isWritable, versionsToExclude));
                         }
                     }
                 }
