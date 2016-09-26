@@ -3466,7 +3466,7 @@ namespace DAL
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@ProtectionPeriod", settings.ProtectionPeriod);
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@ProtectionQuotaPercentage", settings.ProtectionQuotaPercentage);
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@RecordingLifetimePeriod", settings.RecordingLifetimePeriod);
-                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@CleanupNoticePeriod", settings.CleanupNoticePeroid);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@CleanupNoticePeriod", settings.CleanupNoticePeriod);
                 if (!settings.IsSeriesRecordingEnabled.HasValue) // Default = enabled
                 {
                     settings.IsSeriesRecordingEnabled = true;
