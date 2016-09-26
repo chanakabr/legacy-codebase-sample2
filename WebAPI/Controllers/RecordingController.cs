@@ -98,7 +98,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: BadRequest = 500003, UserNotInHousehold = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
         /// UserWithNoHousehold = 2024, ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034,
         /// ProgramCdvrNotEnabled = 3035, ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3038,
-        /// ExceededQuota = 3042, AccountSeriesRecordingNotEnabled = 3046, AlreadyRecordedAsSeriesOrSeason = 3047, InvalidAssetId = 4024</remarks>
+        /// ExceededQuota = 3042, AlreadyRecordedAsSeriesOrSeason = 3047, InvalidAssetId = 4024</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.UserNotInHousehold)]
@@ -113,8 +113,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ProgramCatchUpNotEnabled)]
         [Throws(eResponseStatus.CatchUpBufferLimitation)]
         [Throws(eResponseStatus.ProgramNotInRecordingScheduleWindow)]
-        [Throws(eResponseStatus.ExceededQuota)]
-        [Throws(eResponseStatus.AccountSeriesRecordingNotEnabled)]
+        [Throws(eResponseStatus.ExceededQuota)]        
         [Throws(eResponseStatus.AlreadyRecordedAsSeriesOrSeason)]
         [Throws(eResponseStatus.InvalidAssetId)]
         public KalturaRecording Add(KalturaRecording recording)
