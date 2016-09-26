@@ -116,11 +116,61 @@ namespace Users
 
         }
 
+        private DomainResponseStatus ConvertDomainStatusToDomainResponseStatus(DomainStatus domainStatus)
+        {
+            switch(domainStatus)
+            {
+                case DomainStatus.OK:
+                    return DomainResponseStatus.OK;
+
+                case DomainStatus.DomainAlreadyExists:
+                    return DomainResponseStatus.DomainAlreadyExists;
+
+                case DomainStatus.ExceededLimit:
+                    return DomainResponseStatus.ExceededLimit;
+
+                case DomainStatus.DeviceTypeNotAllowed:
+                    return DomainResponseStatus.DeviceTypeNotAllowed;
+
+                case DomainStatus.UnKnown:
+                    return DomainResponseStatus.UnKnown;
+
+                case DomainStatus.DeviceNotInDomin:
+                    return DomainResponseStatus.DeviceNotInDomain;
+
+                case DomainStatus.UserNotInDomain:
+                    return DomainResponseStatus.UserNotExistsInDomain;
+
+                case DomainStatus.DomainNotExists:
+                    return DomainResponseStatus.DomainNotExists;
+
+                case DomainStatus.HouseholdUserFailed:
+                    return DomainResponseStatus.HouseholdUserFailed;
+
+                case DomainStatus.DomainSuspended:
+                    return DomainResponseStatus.DomainSuspended;
+
+                case DomainStatus.NoUsersInDomain:
+                    return DomainResponseStatus.NoUsersInDomain;
+
+                case DomainStatus.UserExistsInOtherDomains:
+                    return DomainResponseStatus.UserExistsInOtherDomains;
+            }
+            return DomainResponseStatus.Error;
+        }
+		
         public virtual DomainResponseObject ResetDomain(int nDomainID, int nFrequencyType)
         {
             Domain domain = DomainInitializer(m_nGroupID, nDomainID, false); // build the domain - without insert it to cache 
 
-            DomainResponseStatus eDomainResponseStatus = domain.ResetDomain(nFrequencyType);
+            DomainResponseStatus eDomainResponseStatus;
+            if (domain.m_DomainStatus != DomainStatus.OK)
+            {
+                eDomainResponseStatus = ConvertDomainStatusToDomainResponseStatus(domain.m_DomainStatus);
+                return new DomainResponseObject(null, eDomainResponseStatus);
+            }
+			
+            eDomainResponseStatus = domain.ResetDomain(nFrequencyType);
 
             domain = DomainInitializer(m_nGroupID, nDomainID, true); // Build the domain after the Reset and insert it to cache
 
