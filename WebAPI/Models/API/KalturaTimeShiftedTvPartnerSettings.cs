@@ -140,11 +140,11 @@ namespace WebAPI.Models.API
         /// <summary>
         /// The time in days before the recording lifetime is due from which the client should be able to warn user about deletion.
         /// </summary>
-        [DataMember(Name = "cleanupNoticePeroid")]
-        [JsonProperty("cleanupNoticePeroid")]
-        [XmlElement(ElementName = "cleanupNoticePeroid", IsNullable = true)]
+        [DataMember(Name = "cleanupNoticePeriod")]
+        [JsonProperty("cleanupNoticePeriod")]
+        [XmlElement(ElementName = "cleanupNoticePeriod", IsNullable = true)]
         [SchemeProperty(MinInteger = 0)]
-        public int? CleanupNoticePeroid { get; set; }
+        public int? CleanupNoticePeriod { get; set; }
 
         /// <summary>
         /// Is recording of series enabled
