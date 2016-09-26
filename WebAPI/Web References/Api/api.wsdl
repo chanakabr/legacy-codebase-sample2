@@ -761,7 +761,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="ProtectionPeriod" nillable="true" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="ProtectionQuotaPercentage" nillable="true" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="RecordingLifetimePeriod" nillable="true" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="CleanupNoticePeroid" nillable="true" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="CleanupNoticePeriod" nillable="true" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="IsSeriesRecordingEnabled" nillable="true" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="IsRecordingPlaybackNonEntitledChannelEnabled" nillable="true" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="IsRecordingPlaybackNonExistingChannelEnabled" nillable="true" type="s:boolean" />

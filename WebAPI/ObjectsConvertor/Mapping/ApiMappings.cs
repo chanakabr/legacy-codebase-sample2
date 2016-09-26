@@ -323,7 +323,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ProtectionPeriod, opt => opt.MapFrom(src => src.ProtectionPeriod))
                 .ForMember(dest => dest.ProtectionQuotaPercentage, opt => opt.MapFrom(src => src.ProtectionQuotaPercentage))
                 .ForMember(dest => dest.RecordingLifetimePeriod, opt => opt.MapFrom(src => src.RecordingLifetimePeriod))
-                .ForMember(dest => dest.CleanupNoticePeroid, opt => opt.MapFrom(src => src.CleanupNoticePeroid))
+                .ForMember(dest => dest.CleanupNoticePeriod, opt => opt.MapFrom(src => src.CleanupNoticePeriod))
                 .ForMember(dest => dest.SeriesRecordingEnabled, opt => opt.MapFrom(src => src.IsSeriesRecordingEnabled))
                 .ForMember(dest => dest.NonEntitledChannelPlaybackEnabled, opt => opt.MapFrom(src => src.IsRecordingPlaybackNonEntitledChannelEnabled))
                 .ForMember(dest => dest.NonExistingChannelPlaybackEnabled, opt => opt.MapFrom(src => src.IsRecordingPlaybackNonExistingChannelEnabled));
@@ -344,7 +344,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ProtectionPeriod, opt => opt.MapFrom(src => src.ProtectionPeriod))
                 .ForMember(dest => dest.ProtectionQuotaPercentage, opt => opt.MapFrom(src => src.ProtectionQuotaPercentage))
                 .ForMember(dest => dest.RecordingLifetimePeriod, opt => opt.MapFrom(src => src.RecordingLifetimePeriod))
-                .ForMember(dest => dest.CleanupNoticePeroid, opt => opt.MapFrom(src => src.CleanupNoticePeroid))
+                .ForMember(dest => dest.CleanupNoticePeriod, opt => opt.MapFrom(src => src.CleanupNoticePeriod))
                 .ForMember(dest => dest.IsSeriesRecordingEnabled, opt => opt.MapFrom(src => src.SeriesRecordingEnabled))
                 .ForMember(dest => dest.IsRecordingPlaybackNonEntitledChannelEnabled, opt => opt.MapFrom(src => src.NonEntitledChannelPlaybackEnabled))
                 .ForMember(dest => dest.IsRecordingPlaybackNonExistingChannelEnabled, opt => opt.MapFrom(src => src.NonExistingChannelPlaybackEnabled));
