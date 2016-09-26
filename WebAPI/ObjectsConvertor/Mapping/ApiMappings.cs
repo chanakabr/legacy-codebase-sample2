@@ -1357,24 +1357,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return response;
         }
 
-        internal static eAssetTypes ConvertAssetType(KalturaAssetType assetType)
+        internal static eAssetTypes ConvertAssetType(KalturaAssetType? assetType)
         {
-            eAssetTypes response;
-            switch (assetType)
+            eAssetTypes response = eAssetTypes.UNKNOWN;
+            if (assetType.HasValue)
             {
-                case KalturaAssetType.epg:
-                    response = eAssetTypes.EPG;
-                    break;
-                case KalturaAssetType.recording:
-                    response = eAssetTypes.NPVR;
-                    break;
-                case KalturaAssetType.media:
-                    response = eAssetTypes.MEDIA;
-                    break;
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown Asset Type");
+                switch (assetType)
+                {
+                    case KalturaAssetType.epg:
+                        response = eAssetTypes.EPG;
+                        break;
+                    case KalturaAssetType.recording:
+                        response = eAssetTypes.NPVR;
+                        break;
+                    case KalturaAssetType.media:
+                        response = eAssetTypes.MEDIA;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown Asset Type");
+                }
             }
-
             return response;
         }
         
