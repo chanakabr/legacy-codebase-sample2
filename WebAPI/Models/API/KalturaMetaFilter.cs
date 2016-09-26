@@ -47,7 +47,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "assetTypeEqual")]
         [JsonProperty("assetTypeEqual")]
         [XmlElement(ElementName = "assetTypeEqual")]
-        public KalturaAssetType AssetTypeEqual { get; set; }
+        public KalturaAssetType? AssetTypeEqual { get; set; }
 
         public override KalturaMetaOrderBy GetDefaultOrderByValue()
         {
