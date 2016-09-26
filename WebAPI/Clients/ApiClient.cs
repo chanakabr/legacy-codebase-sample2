@@ -3275,7 +3275,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaMetaListResponse GetGroupMeta(int groupId, KalturaAssetType assetType, KalturaMetaType? metaType, KalturaMetaFieldName? fieldNameEqual, KalturaMetaFieldName? fieldNameNotEqual)
+        internal KalturaMetaListResponse GetGroupMeta(int groupId, KalturaAssetType? assetType, KalturaMetaType? metaType, KalturaMetaFieldName? fieldNameEqual, KalturaMetaFieldName? fieldNameNotEqual)
         {
             Group group = GroupsManager.GetGroup(groupId);
             KalturaMetaListResponse result = new KalturaMetaListResponse();
