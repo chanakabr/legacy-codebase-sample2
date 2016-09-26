@@ -996,7 +996,7 @@
             <remarks>Possible status codes: BadRequest = 500003, UserNotInHousehold = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
             UserWithNoHousehold = 2024, ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034,
             ProgramCdvrNotEnabled = 3035, ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3038,
-            ExceededQuota = 3042, AccountSeriesRecordingNotEnabled = 3046, AlreadyRecordedAsSeriesOrSeason = 3047, InvalidAssetId = 4024</remarks>
+            ExceededQuota = 3042, AlreadyRecordedAsSeriesOrSeason = 3047, InvalidAssetId = 4024</remarks>
         </member>
         <member name="M:WebAPI.Controllers.RecordingController.List(WebAPI.Models.ConditionalAccess.KalturaRecordingFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
@@ -2084,7 +2084,7 @@
             <summary>
             Removes a user from household   
             </summary>                
-            <param name="userId">The identifier of the user to delete</param>
+            <param name="id">The identifier of the user to delete</param>
             <remarks>Possible status codes: 
             Household does not exists = 1006, Limitation period = 1014, User not exists in household = 1020, Invalid user = 1026, 
             Household suspended = 1009, No users in household = 1017, User not allowed = 1027</remarks>
@@ -7355,7 +7355,7 @@
             Specify the time in days that a recording should be kept for user. Start time begins with the program end date.
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings.CleanupNoticePeroid">
+        <member name="P:WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings.CleanupNoticePeriod">
             <summary>
             The time in days before the recording lifetime is due from which the client should be able to warn user about deletion.
             </summary>
