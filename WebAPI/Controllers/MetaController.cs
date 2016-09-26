@@ -27,10 +27,16 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
          [Route("list"), HttpPost]
          [ApiAuthorize]
-         public KalturaMetaListResponse List(KalturaMetaFilter filter)
+         public KalturaMetaListResponse List(KalturaMetaFilter filter = null)
          {
              KalturaMetaListResponse response = null;
 
+             if (filter == null)
+             {
+                 filter = new KalturaMetaFilter();
+             }
+
+             filter.validate();
              int groupId = KS.GetFromRequest().GroupId;
 
              try
