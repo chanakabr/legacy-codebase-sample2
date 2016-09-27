@@ -145,22 +145,6 @@ namespace WebAPI.Models.Catalog
     public class KalturaMediaAsset : KalturaAsset
     {
         /// <summary>
-        /// Date and time represented as epoch.
-        /// </summary>
-        [DataMember(Name = "systemStartDate")]
-        [JsonProperty(PropertyName = "systemStartDate")]
-        [XmlElement(ElementName = "systemStartDate")]
-        public long? SystemStartDate { get; set; }
-
-        /// <summary>
-        /// Date and time represented as epoch.
-        /// </summary>
-        [DataMember(Name = "systemFinalDate")]
-        [JsonProperty(PropertyName = "systemFinalDate")]
-        [XmlElement(ElementName = "systemFinalDate")]
-        public long? SystemFinalDate { get; set; }
-
-        /// <summary>
         /// External identifiers
         /// </summary>
         [DataMember(Name = "externalIds")]

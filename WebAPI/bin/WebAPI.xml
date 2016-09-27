@@ -3635,16 +3635,6 @@
             Media-asset info
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.SystemStartDate">
-            <summary>
-            Date and time represented as epoch.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.SystemFinalDate">
-            <summary>
-            Date and time represented as epoch.
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.ExternalIds">
             <summary>
             External identifiers
@@ -7365,7 +7355,7 @@
             Specify the time in days that a recording should be kept for user. Start time begins with the program end date.
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings.CleanupNoticePeroid">
+        <member name="P:WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings.CleanupNoticePeriod">
             <summary>
             The time in days before the recording lifetime is due from which the client should be able to warn user about deletion.
             </summary>
@@ -18287,7 +18277,7 @@
         <member name="P:WebAPI.Api.TimeShiftedTvPartnerSettings.RecordingLifetimePeriod">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.TimeShiftedTvPartnerSettings.CleanupNoticePeroid">
+        <member name="P:WebAPI.Api.TimeShiftedTvPartnerSettings.CleanupNoticePeriod">
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.TimeShiftedTvPartnerSettings.IsSeriesRecordingEnabled">
