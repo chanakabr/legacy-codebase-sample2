@@ -3635,16 +3635,6 @@
             Media-asset info
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.SystemStartDate">
-            <summary>
-            Date and time represented as epoch.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.SystemFinalDate">
-            <summary>
-            Date and time represented as epoch.
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.ExternalIds">
             <summary>
             External identifiers
@@ -3740,8 +3730,8 @@
         <member name="P:WebAPI.Models.Catalog.KalturaRelatedFilter.TypeIn">
             <summary>
             Comma separated list of asset types to search within. 
-            Possible values: 0 – EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).
-            If omitted – all types should be included.
+            Possible values: any media type ID (according to media type IDs defined dynamically in the system).
+            If omitted –   same type as the provided asset.
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaRelatedExternalFilter.IdEqual">
@@ -18277,7 +18267,7 @@
         <member name="P:WebAPI.Api.TimeShiftedTvPartnerSettings.RecordingLifetimePeriod">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.TimeShiftedTvPartnerSettings.CleanupNoticePeroid">
+        <member name="P:WebAPI.Api.TimeShiftedTvPartnerSettings.CleanupNoticePeriod">
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.TimeShiftedTvPartnerSettings.IsSeriesRecordingEnabled">
