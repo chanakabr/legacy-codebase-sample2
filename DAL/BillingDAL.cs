@@ -1512,6 +1512,11 @@ namespace DAL
 
                 DataTable dt = CreateDataTable(pgw.Settings);
                 sp.AddDataTableParameter("@KeyValueList", dt);
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    // default on sp is 0
+                    sp.AddParameter("@KeyValueListHasItems", 1);
+                }
 
                 DataSet ds = sp.ExecuteDataSet();
 
