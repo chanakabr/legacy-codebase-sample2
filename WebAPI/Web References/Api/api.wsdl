@@ -4,6 +4,102 @@
     <s:schema elementFormDefault="qualified" targetNamespace="http://api.tvinci.com/">
       <s:import namespace="http://api.tvinci.com/schemas/eAssetTypes1" />
       <s:import namespace="http://api.tvinci.com/schemas/EPGChannelProgrammeObject1" />
+      <s:element name="AddBulkExportTask">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="externalKey" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="dataType" type="tns:eBulkExportDataType" />
+            <s:element minOccurs="0" maxOccurs="1" name="filter" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="exportType" type="tns:eBulkExportExportType" />
+            <s:element minOccurs="1" maxOccurs="1" name="frequency" type="s:long" />
+            <s:element minOccurs="0" maxOccurs="1" name="notificationUrl" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="vodTypes" type="tns:ArrayOfInt" />
+            <s:element minOccurs="1" maxOccurs="1" name="isActive" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:simpleType name="eBulkExportDataType">
+        <s:restriction base="s:string">
+          <s:enumeration value="VOD" />
+          <s:enumeration value="EPG" />
+          <s:enumeration value="Users" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="eBulkExportExportType">
+        <s:restriction base="s:string">
+          <s:enumeration value="Full" />
+          <s:enumeration value="Incremental" />
+        </s:restriction>
+      </s:simpleType>
+      <s:complexType name="ArrayOfInt">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="int" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="AddBulkExportTaskResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="AddBulkExportTaskResult" type="tns:BulkExportTaskResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="BulkExportTaskResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Task" type="tns:BulkExportTask" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="BulkExportTask">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Id" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="ExternalKey" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="DataType" type="tns:eBulkExportDataType" />
+          <s:element minOccurs="0" maxOccurs="1" name="Filter" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="ExportType" type="tns:eBulkExportExportType" />
+          <s:element minOccurs="1" maxOccurs="1" name="Frequency" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="Version" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="InProcess" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="LastProcess" nillable="true" type="s:dateTime" />
+          <s:element minOccurs="0" maxOccurs="1" name="VodTypes" type="tns:ArrayOfInt" />
+          <s:element minOccurs="0" maxOccurs="1" name="NotificationUrl" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsActive" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Status">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateBulkExportTask">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="id" type="s:long" />
+            <s:element minOccurs="0" maxOccurs="1" name="externalKey" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="dataType" type="tns:eBulkExportDataType" />
+            <s:element minOccurs="0" maxOccurs="1" name="filter" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="exportType" type="tns:eBulkExportExportType" />
+            <s:element minOccurs="1" maxOccurs="1" name="frequency" type="s:long" />
+            <s:element minOccurs="0" maxOccurs="1" name="notificationUrl" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="vodTypes" type="tns:ArrayOfInt" />
+            <s:element minOccurs="1" maxOccurs="1" name="isActive" nillable="true" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateBulkExportTaskResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpdateBulkExportTaskResult" type="tns:BulkExportTaskResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="DeleteBulkExportTask">
         <s:complexType>
           <s:sequence>
@@ -21,12 +117,6 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:complexType name="Status">
-        <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
-        </s:sequence>
-      </s:complexType>
       <s:element name="GetBulkExportTasks">
         <s:complexType>
           <s:sequence>
@@ -70,41 +160,6 @@
       <s:complexType name="ArrayOfBulkExportTask">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="unbounded" name="BulkExportTask" nillable="true" type="tns:BulkExportTask" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="BulkExportTask">
-        <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="Id" type="s:long" />
-          <s:element minOccurs="0" maxOccurs="1" name="ExternalKey" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="DataType" type="tns:eBulkExportDataType" />
-          <s:element minOccurs="0" maxOccurs="1" name="Filter" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="ExportType" type="tns:eBulkExportExportType" />
-          <s:element minOccurs="1" maxOccurs="1" name="Frequency" type="s:long" />
-          <s:element minOccurs="0" maxOccurs="1" name="Version" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="InProcess" type="s:boolean" />
-          <s:element minOccurs="1" maxOccurs="1" name="LastProcess" nillable="true" type="s:dateTime" />
-          <s:element minOccurs="0" maxOccurs="1" name="VodTypes" type="tns:ArrayOfInt" />
-          <s:element minOccurs="0" maxOccurs="1" name="NotificationUrl" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="IsActive" type="s:boolean" />
-        </s:sequence>
-      </s:complexType>
-      <s:simpleType name="eBulkExportDataType">
-        <s:restriction base="s:string">
-          <s:enumeration value="VOD" />
-          <s:enumeration value="EPG" />
-          <s:enumeration value="Users" />
-        </s:restriction>
-      </s:simpleType>
-      <s:simpleType name="eBulkExportExportType">
-        <s:restriction base="s:string">
-          <s:enumeration value="Full" />
-          <s:enumeration value="Incremental" />
-        </s:restriction>
-      </s:simpleType>
-      <s:complexType name="ArrayOfInt">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="int" type="s:int" />
         </s:sequence>
       </s:complexType>
       <s:element name="Export">
@@ -216,17 +271,6 @@
           <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
         </s:sequence>
       </s:complexType>
-      <s:complexType name="ApiParameterPermissionItem">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:PermissionItem">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="Object" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="Parameter" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="Action" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="ApiArgumentPermissionItem">
         <s:complexContent mixed="false">
           <s:extension base="tns:PermissionItem">
@@ -234,6 +278,17 @@
               <s:element minOccurs="0" maxOccurs="1" name="Service" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="Action" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="Parameter" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ApiParameterPermissionItem">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PermissionItem">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="Object" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="Parameter" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="Action" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -706,7 +761,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="ProtectionPeriod" nillable="true" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="ProtectionQuotaPercentage" nillable="true" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="RecordingLifetimePeriod" nillable="true" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="CleanupNoticePeroid" nillable="true" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="CleanupNoticePeriod" nillable="true" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="IsSeriesRecordingEnabled" nillable="true" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="IsRecordingPlaybackNonEntitledChannelEnabled" nillable="true" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="IsRecordingPlaybackNonExistingChannelEnabled" nillable="true" type="s:boolean" />
@@ -1122,6 +1177,62 @@
           <s:element minOccurs="1" maxOccurs="1" name="Id" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="Code" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetGroupMetaList">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="assetType" type="s1:eAssetTypes" />
+            <s:element minOccurs="1" maxOccurs="1" name="metaType" type="tns:MetaType" />
+            <s:element minOccurs="1" maxOccurs="1" name="fieldNameEqual" type="tns:MetaFieldName" />
+            <s:element minOccurs="1" maxOccurs="1" name="fieldNameNotEqual" type="tns:MetaFieldName" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:simpleType name="MetaType">
+        <s:restriction base="s:string">
+          <s:enumeration value="All" />
+          <s:enumeration value="String" />
+          <s:enumeration value="Number" />
+          <s:enumeration value="Bool" />
+          <s:enumeration value="Tag" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="MetaFieldName">
+        <s:restriction base="s:string">
+          <s:enumeration value="All" />
+          <s:enumeration value="None" />
+          <s:enumeration value="SeriesId" />
+          <s:enumeration value="SeasonNumber" />
+          <s:enumeration value="EpisodeNumber" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="GetGroupMetaListResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetGroupMetaListResult" type="tns:MetaResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="MetaResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="MetaList" type="tns:ArrayOfMeta" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfMeta">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Meta" nillable="true" type="tns:Meta" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Meta">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="FieldName" type="tns:MetaFieldName" />
+          <s:element minOccurs="1" maxOccurs="1" name="Type" type="tns:MetaType" />
+          <s:element minOccurs="1" maxOccurs="1" name="AssetType" type="s1:eAssetTypes" />
         </s:sequence>
       </s:complexType>
       <s:element name="TVAPI_GetTvinciGUID">
@@ -2618,6 +2729,28 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
+      <s:complexType name="CinepolisPurchaseMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="CinepolisRenewalFailMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="PurchaseMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
@@ -2638,15 +2771,6 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="PurchaseWithPreviewModuleRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:PurchaseMailRequest">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPreviewModuleEndDate" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="PreviewModuleCancelOrRefundRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:PurchaseMailRequest" />
@@ -2657,24 +2781,11 @@
           <s:extension base="tns:PurchaseMailRequest" />
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="CinepolisRenewalFailMailRequest">
+      <s:complexType name="PurchaseWithPreviewModuleRequest">
         <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
+          <s:extension base="tns:PurchaseMailRequest">
             <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="CinepolisPurchaseMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPreviewModuleEndDate" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -4448,6 +4559,21 @@
           <s:element minOccurs="0" maxOccurs="unbounded" name="RecommendationEngine" nillable="true" type="tns:RecommendationEngine" />
         </s:sequence>
       </s:complexType>
+      <s:element name="ListRecommendationEngines">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ListRecommendationEnginesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ListRecommendationEnginesResult" type="tns:RecommendationEnginesResponseList" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="InsertRecommendationEngineSettings">
         <s:complexType>
           <s:sequence>
@@ -4664,58 +4790,18 @@
           <s:element minOccurs="0" maxOccurs="unbounded" name="ExternalChannel" nillable="true" type="tns:ExternalChannel" />
         </s:sequence>
       </s:complexType>
-      <s:element name="AddBulkExportTask">
+      <s:element name="ListExternalChannels">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="externalKey" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="dataType" type="tns:eBulkExportDataType" />
-            <s:element minOccurs="0" maxOccurs="1" name="filter" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="exportType" type="tns:eBulkExportExportType" />
-            <s:element minOccurs="1" maxOccurs="1" name="frequency" type="s:long" />
-            <s:element minOccurs="0" maxOccurs="1" name="notificationUrl" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="vodTypes" type="tns:ArrayOfInt" />
-            <s:element minOccurs="1" maxOccurs="1" name="isActive" type="s:boolean" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="AddBulkExportTaskResponse">
+      <s:element name="ListExternalChannelsResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="AddBulkExportTaskResult" type="tns:BulkExportTaskResponse" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:complexType name="BulkExportTaskResponse">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="Task" type="tns:BulkExportTask" />
-          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
-        </s:sequence>
-      </s:complexType>
-      <s:element name="UpdateBulkExportTask">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="id" type="s:long" />
-            <s:element minOccurs="0" maxOccurs="1" name="externalKey" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="dataType" type="tns:eBulkExportDataType" />
-            <s:element minOccurs="0" maxOccurs="1" name="filter" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="exportType" type="tns:eBulkExportExportType" />
-            <s:element minOccurs="1" maxOccurs="1" name="frequency" type="s:long" />
-            <s:element minOccurs="0" maxOccurs="1" name="notificationUrl" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="vodTypes" type="tns:ArrayOfInt" />
-            <s:element minOccurs="1" maxOccurs="1" name="isActive" nillable="true" type="s:boolean" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="UpdateBulkExportTaskResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="UpdateBulkExportTaskResult" type="tns:BulkExportTaskResponse" />
+            <s:element minOccurs="0" maxOccurs="1" name="ListExternalChannelsResult" type="tns:ExternalChannelResponseList" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -4733,6 +4819,7 @@
       <s:element name="ScheduledTaskLastRunDetails" nillable="true" type="tns:ScheduledTaskLastRunDetails" />
       <s:element name="DeviceFamilyResponse" nillable="true" type="tns:DeviceFamilyResponse" />
       <s:element name="DeviceBrandResponse" nillable="true" type="tns:DeviceBrandResponse" />
+      <s:element name="MetaResponse" nillable="true" type="tns:MetaResponse" />
       <s:element name="ArrayOfEPGChannelObject" nillable="true" type="tns:ArrayOfEPGChannelObject" />
       <s:element name="AdminAccountUserResponse" nillable="true" type="tns:AdminAccountUserResponse" />
       <s:element name="string" nillable="true" type="s:string" />
@@ -4846,6 +4933,18 @@
       </s:complexType>
     </s:schema>
   </wsdl:types>
+  <wsdl:message name="AddBulkExportTaskSoapIn">
+    <wsdl:part name="parameters" element="tns:AddBulkExportTask" />
+  </wsdl:message>
+  <wsdl:message name="AddBulkExportTaskSoapOut">
+    <wsdl:part name="parameters" element="tns:AddBulkExportTaskResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateBulkExportTaskSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateBulkExportTask" />
+  </wsdl:message>
+  <wsdl:message name="UpdateBulkExportTaskSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateBulkExportTaskResponse" />
+  </wsdl:message>
   <wsdl:message name="DeleteBulkExportTaskSoapIn">
     <wsdl:part name="parameters" element="tns:DeleteBulkExportTask" />
   </wsdl:message>
@@ -5091,6 +5190,12 @@
   </wsdl:message>
   <wsdl:message name="GetCountryListSoapOut">
     <wsdl:part name="parameters" element="tns:GetCountryListResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupMetaListSoapIn">
+    <wsdl:part name="parameters" element="tns:GetGroupMetaList" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupMetaListSoapOut">
+    <wsdl:part name="parameters" element="tns:GetGroupMetaListResponse" />
   </wsdl:message>
   <wsdl:message name="TVAPI_GetTvinciGUIDSoapIn">
     <wsdl:part name="parameters" element="tns:TVAPI_GetTvinciGUID" />
@@ -5788,6 +5893,12 @@
   <wsdl:message name="GetRecommendationEnginesSoapOut">
     <wsdl:part name="parameters" element="tns:GetRecommendationEnginesResponse" />
   </wsdl:message>
+  <wsdl:message name="ListRecommendationEnginesSoapIn">
+    <wsdl:part name="parameters" element="tns:ListRecommendationEngines" />
+  </wsdl:message>
+  <wsdl:message name="ListRecommendationEnginesSoapOut">
+    <wsdl:part name="parameters" element="tns:ListRecommendationEnginesResponse" />
+  </wsdl:message>
   <wsdl:message name="InsertRecommendationEngineSettingsSoapIn">
     <wsdl:part name="parameters" element="tns:InsertRecommendationEngineSettings" />
   </wsdl:message>
@@ -5848,17 +5959,11 @@
   <wsdl:message name="GetExternalChannelsSoapOut">
     <wsdl:part name="parameters" element="tns:GetExternalChannelsResponse" />
   </wsdl:message>
-  <wsdl:message name="AddBulkExportTaskSoapIn">
-    <wsdl:part name="parameters" element="tns:AddBulkExportTask" />
+  <wsdl:message name="ListExternalChannelsSoapIn">
+    <wsdl:part name="parameters" element="tns:ListExternalChannels" />
   </wsdl:message>
-  <wsdl:message name="AddBulkExportTaskSoapOut">
-    <wsdl:part name="parameters" element="tns:AddBulkExportTaskResponse" />
-  </wsdl:message>
-  <wsdl:message name="UpdateBulkExportTaskSoapIn">
-    <wsdl:part name="parameters" element="tns:UpdateBulkExportTask" />
-  </wsdl:message>
-  <wsdl:message name="UpdateBulkExportTaskSoapOut">
-    <wsdl:part name="parameters" element="tns:UpdateBulkExportTaskResponse" />
+  <wsdl:message name="ListExternalChannelsSoapOut">
+    <wsdl:part name="parameters" element="tns:ListExternalChannelsResponse" />
   </wsdl:message>
   <wsdl:message name="DeleteBulkExportTaskHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -6073,6 +6178,17 @@
   </wsdl:message>
   <wsdl:message name="GetDeviceBrandListHttpPostOut">
     <wsdl:part name="Body" element="tns:DeviceBrandResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupMetaListHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="assetType" type="s:string" />
+    <wsdl:part name="metaType" type="s:string" />
+    <wsdl:part name="fieldNameEqual" type="s:string" />
+    <wsdl:part name="fieldNameNotEqual" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupMetaListHttpPostOut">
+    <wsdl:part name="Body" element="tns:MetaResponse" />
   </wsdl:message>
   <wsdl:message name="InsertEPGScheduleHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -6818,6 +6934,13 @@
   <wsdl:message name="GetRecommendationEnginesHttpPostOut">
     <wsdl:part name="Body" element="tns:RecommendationEnginesResponseList" />
   </wsdl:message>
+  <wsdl:message name="ListRecommendationEnginesHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ListRecommendationEnginesHttpPostOut">
+    <wsdl:part name="Body" element="tns:RecommendationEnginesResponseList" />
+  </wsdl:message>
   <wsdl:message name="GetRecommendationEngineSettingsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -6856,7 +6979,22 @@
   <wsdl:message name="GetExternalChannelsHttpPostOut">
     <wsdl:part name="Body" element="tns:ExternalChannelResponseList" />
   </wsdl:message>
+  <wsdl:message name="ListExternalChannelsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ListExternalChannelsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ExternalChannelResponseList" />
+  </wsdl:message>
   <wsdl:portType name="APISoap">
+    <wsdl:operation name="AddBulkExportTask">
+      <wsdl:input message="tns:AddBulkExportTaskSoapIn" />
+      <wsdl:output message="tns:AddBulkExportTaskSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateBulkExportTask">
+      <wsdl:input message="tns:UpdateBulkExportTaskSoapIn" />
+      <wsdl:output message="tns:UpdateBulkExportTaskSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="DeleteBulkExportTask">
       <wsdl:input message="tns:DeleteBulkExportTaskSoapIn" />
       <wsdl:output message="tns:DeleteBulkExportTaskSoapOut" />
@@ -7020,6 +7158,10 @@
     <wsdl:operation name="GetCountryList">
       <wsdl:input message="tns:GetCountryListSoapIn" />
       <wsdl:output message="tns:GetCountryListSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupMetaList">
+      <wsdl:input message="tns:GetGroupMetaListSoapIn" />
+      <wsdl:output message="tns:GetGroupMetaListSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <wsdl:input message="tns:TVAPI_GetTvinciGUIDSoapIn" />
@@ -7485,6 +7627,10 @@
       <wsdl:input message="tns:GetRecommendationEnginesSoapIn" />
       <wsdl:output message="tns:GetRecommendationEnginesSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="ListRecommendationEngines">
+      <wsdl:input message="tns:ListRecommendationEnginesSoapIn" />
+      <wsdl:output message="tns:ListRecommendationEnginesSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="InsertRecommendationEngineSettings">
       <wsdl:input message="tns:InsertRecommendationEngineSettingsSoapIn" />
       <wsdl:output message="tns:InsertRecommendationEngineSettingsSoapOut" />
@@ -7525,13 +7671,9 @@
       <wsdl:input message="tns:GetExternalChannelsSoapIn" />
       <wsdl:output message="tns:GetExternalChannelsSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="AddBulkExportTask">
-      <wsdl:input message="tns:AddBulkExportTaskSoapIn" />
-      <wsdl:output message="tns:AddBulkExportTaskSoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="UpdateBulkExportTask">
-      <wsdl:input message="tns:UpdateBulkExportTaskSoapIn" />
-      <wsdl:output message="tns:UpdateBulkExportTaskSoapOut" />
+    <wsdl:operation name="ListExternalChannels">
+      <wsdl:input message="tns:ListExternalChannelsSoapIn" />
+      <wsdl:output message="tns:ListExternalChannelsSoapOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="APIHttpPost">
@@ -7642,6 +7784,10 @@
     <wsdl:operation name="GetDeviceBrandList">
       <wsdl:input message="tns:GetDeviceBrandListHttpPostIn" />
       <wsdl:output message="tns:GetDeviceBrandListHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupMetaList">
+      <wsdl:input message="tns:GetGroupMetaListHttpPostIn" />
+      <wsdl:output message="tns:GetGroupMetaListHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="InsertEPGSchedule">
       <wsdl:input message="tns:InsertEPGScheduleHttpPostIn" />
@@ -7963,6 +8109,10 @@
       <wsdl:input message="tns:GetRecommendationEnginesHttpPostIn" />
       <wsdl:output message="tns:GetRecommendationEnginesHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="ListRecommendationEngines">
+      <wsdl:input message="tns:ListRecommendationEnginesHttpPostIn" />
+      <wsdl:output message="tns:ListRecommendationEnginesHttpPostOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetRecommendationEngineSettings">
       <wsdl:input message="tns:GetRecommendationEngineSettingsHttpPostIn" />
       <wsdl:output message="tns:GetRecommendationEngineSettingsHttpPostOut" />
@@ -7983,9 +8133,31 @@
       <wsdl:input message="tns:GetExternalChannelsHttpPostIn" />
       <wsdl:output message="tns:GetExternalChannelsHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="ListExternalChannels">
+      <wsdl:input message="tns:ListExternalChannelsHttpPostIn" />
+      <wsdl:output message="tns:ListExternalChannelsHttpPostOut" />
+    </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="APISoap" type="tns:APISoap">
     <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="AddBulkExportTask">
+      <soap:operation soapAction="http://api.tvinci.com/AddBulkExportTask" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateBulkExportTask">
+      <soap:operation soapAction="http://api.tvinci.com/UpdateBulkExportTask" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="DeleteBulkExportTask">
       <soap:operation soapAction="http://api.tvinci.com/DeleteBulkExportTask" style="document" />
       <wsdl:input>
@@ -8348,6 +8520,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetCountryList">
       <soap:operation soapAction="http://api.tvinci.com/GetCountryList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupMetaList">
+      <soap:operation soapAction="http://api.tvinci.com/GetGroupMetaList" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -9399,6 +9580,15 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="ListRecommendationEngines">
+      <soap:operation soapAction="http://api.tvinci.com/ListRecommendationEngines" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="InsertRecommendationEngineSettings">
       <soap:operation soapAction="http://api.tvinci.com/InsertRecommendationEngineSettings" style="document" />
       <wsdl:input>
@@ -9489,17 +9679,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="AddBulkExportTask">
-      <soap:operation soapAction="http://api.tvinci.com/AddBulkExportTask" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="UpdateBulkExportTask">
-      <soap:operation soapAction="http://api.tvinci.com/UpdateBulkExportTask" style="document" />
+    <wsdl:operation name="ListExternalChannels">
+      <soap:operation soapAction="http://api.tvinci.com/ListExternalChannels" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -9510,6 +9691,24 @@
   </wsdl:binding>
   <wsdl:binding name="APISoap12" type="tns:APISoap">
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="AddBulkExportTask">
+      <soap12:operation soapAction="http://api.tvinci.com/AddBulkExportTask" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateBulkExportTask">
+      <soap12:operation soapAction="http://api.tvinci.com/UpdateBulkExportTask" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="DeleteBulkExportTask">
       <soap12:operation soapAction="http://api.tvinci.com/DeleteBulkExportTask" style="document" />
       <wsdl:input>
@@ -9872,6 +10071,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetCountryList">
       <soap12:operation soapAction="http://api.tvinci.com/GetCountryList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupMetaList">
+      <soap12:operation soapAction="http://api.tvinci.com/GetGroupMetaList" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -10923,6 +11131,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="ListRecommendationEngines">
+      <soap12:operation soapAction="http://api.tvinci.com/ListRecommendationEngines" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="InsertRecommendationEngineSettings">
       <soap12:operation soapAction="http://api.tvinci.com/InsertRecommendationEngineSettings" style="document" />
       <wsdl:input>
@@ -11013,17 +11230,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="AddBulkExportTask">
-      <soap12:operation soapAction="http://api.tvinci.com/AddBulkExportTask" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="UpdateBulkExportTask">
-      <soap12:operation soapAction="http://api.tvinci.com/UpdateBulkExportTask" style="document" />
+    <wsdl:operation name="ListExternalChannels">
+      <soap12:operation soapAction="http://api.tvinci.com/ListExternalChannels" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -11270,6 +11478,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetDeviceBrandList">
       <http:operation location="/GetDeviceBrandList" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupMetaList">
+      <http:operation location="/GetGroupMetaList" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -11997,6 +12214,15 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="ListRecommendationEngines">
+      <http:operation location="/ListRecommendationEngines" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetRecommendationEngineSettings">
       <http:operation location="/GetRecommendationEngineSettings" />
       <wsdl:input>
@@ -12042,16 +12268,25 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="ListExternalChannels">
+      <http:operation location="/ListExternalChannels" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="API">
     <wsdl:port name="APISoap" binding="tns:APISoap">
-      <soap:address location="http://localhost/ws_api/api.asmx" />
+      <soap:address location="http://localhost/v_api/api.asmx" />
     </wsdl:port>
     <wsdl:port name="APISoap12" binding="tns:APISoap12">
-      <soap12:address location="http://localhost/ws_api/api.asmx" />
+      <soap12:address location="http://localhost/v_api/api.asmx" />
     </wsdl:port>
     <wsdl:port name="APIHttpPost" binding="tns:APIHttpPost">
-      <http:address location="http://localhost/ws_api/api.asmx" />
+      <http:address location="http://localhost/v_api/api.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

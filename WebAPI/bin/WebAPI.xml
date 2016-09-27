@@ -421,6 +421,13 @@
             <returns></returns>
             <remarks>Possible status codes: CDN partner settings not found = 5025</remarks>   
         </member>
+        <member name="M:WebAPI.Controllers.MetaController.List(WebAPI.Models.API.KalturaMetaFilter)">
+            <summary>
+            Get the list of meta mappings for the partner
+            </summary>
+            <param name="filter">Country filter</param>
+            <remarks></remarks>
+        </member>
         <member name="M:WebAPI.Controllers.DeviceBrandController.List">
             <summary>
             Return a list of the available device brands.
@@ -429,7 +436,7 @@
         </member>
         <member name="M:WebAPI.Controllers.CountryController.List(WebAPI.Models.API.KalturaCountryFilter)">
             <summary>
-            Get the list of countries for the group with option to filter by countries identifiers
+            Get the list of countries for the partner with option to filter by countries identifiers
             </summary>
             <param name="filter">Country filter</param>
             <remarks></remarks>
@@ -440,9 +447,14 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="T:WebAPI.Models.General.KalturaListResponse">
+        <member name="T:WebAPI.Models.API.KalturaMetaFilter">
             <summary>
-            Base list wrapper
+            Meta filter
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaFilter`1">
+            <summary>
+            Base filter
             </summary>
         </member>
         <member name="T:WebAPI.Models.General.KalturaOTTObject">
@@ -450,9 +462,74 @@
             Base class
             </summary>
         </member>
+        <member name="P:WebAPI.Models.General.KalturaFilter`1.OrderBy">
+            <summary>
+            order by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMetaFilter.FieldNameEqual">
+            <summary>
+            Meta system field name to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMetaFilter.FieldNameNotEqual">
+            <summary>
+            Meta system field name to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMetaFilter.TypeEqual">
+            <summary>
+            Meta type to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMetaFilter.AssetTypeEqual">
+            <summary>
+            Asset type to filter by
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaMetaListResponse">
+            <summary>
+            Meta list response
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaListResponse">
+            <summary>
+            Base list wrapper
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.General.KalturaListResponse.TotalCount">
             <summary>
             Total items
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMetaListResponse.Objects">
+            <summary>
+            A list asset meta
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaMeta">
+            <summary>
+            Asset meta
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMeta.Name">
+            <summary>
+            Meta name for the partner
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMeta.FieldName">
+            <summary>
+            Meta system field name 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMeta.Type">
+            <summary>
+             Meta value type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMeta.AssetType">
+            <summary>
+            Asset type this meta is related to 
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaDeviceBrandListResponse.Objects">
@@ -463,16 +540,6 @@
         <member name="T:WebAPI.Models.API.KalturaCountryFilter">
             <summary>
             Country filter
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaFilter`1">
-            <summary>
-            Base filter
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaFilter`1.OrderBy">
-            <summary>
-            order by
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaCountryFilter.IdIn">
@@ -929,7 +996,7 @@
             <remarks>Possible status codes: BadRequest = 500003, UserNotInHousehold = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
             UserWithNoHousehold = 2024, ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034,
             ProgramCdvrNotEnabled = 3035, ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3038,
-            ExceededQuota = 3042, AccountSeriesRecordingNotEnabled = 3046, AlreadyRecordedAsSeriesOrSeason = 3047, InvalidAssetId = 4024</remarks>
+            ExceededQuota = 3042, AlreadyRecordedAsSeriesOrSeason = 3047, InvalidAssetId = 4024</remarks>
         </member>
         <member name="M:WebAPI.Controllers.RecordingController.List(WebAPI.Models.ConditionalAccess.KalturaRecordingFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
@@ -2017,7 +2084,7 @@
             <summary>
             Removes a user from household   
             </summary>                
-            <param name="userId">The identifier of the user to delete</param>
+            <param name="id">The identifier of the user to delete</param>
             <remarks>Possible status codes: 
             Household does not exists = 1006, Limitation period = 1014, User not exists in household = 1020, Invalid user = 1026, 
             Household suspended = 1009, No users in household = 1017, User not allowed = 1027</remarks>
@@ -7288,7 +7355,7 @@
             Specify the time in days that a recording should be kept for user. Start time begins with the program end date.
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings.CleanupNoticePeroid">
+        <member name="P:WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings.CleanupNoticePeriod">
             <summary>
             The time in days before the recording lifetime is due from which the client should be able to warn user about deletion.
             </summary>
@@ -8145,6 +8212,24 @@
         <member name="M:WebAPI.Api.API.#ctor">
             <remarks/>
         </member>
+        <member name="M:WebAPI.Api.API.AddBulkExportTask(System.String,System.String,System.String,System.String,WebAPI.Api.eBulkExportDataType,System.String,WebAPI.Api.eBulkExportExportType,System.Int64,System.String,System.Int32[],System.Boolean)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.AddBulkExportTaskAsync(System.String,System.String,System.String,System.String,WebAPI.Api.eBulkExportDataType,System.String,WebAPI.Api.eBulkExportExportType,System.Int64,System.String,System.Int32[],System.Boolean)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.AddBulkExportTaskAsync(System.String,System.String,System.String,System.String,WebAPI.Api.eBulkExportDataType,System.String,WebAPI.Api.eBulkExportExportType,System.Int64,System.String,System.Int32[],System.Boolean,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdateBulkExportTask(System.String,System.String,System.Int64,System.String,System.String,WebAPI.Api.eBulkExportDataType,System.String,WebAPI.Api.eBulkExportExportType,System.Int64,System.String,System.Int32[],System.Nullable{System.Boolean})">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdateBulkExportTaskAsync(System.String,System.String,System.Int64,System.String,System.String,WebAPI.Api.eBulkExportDataType,System.String,WebAPI.Api.eBulkExportExportType,System.Int64,System.String,System.Int32[],System.Nullable{System.Boolean})">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdateBulkExportTaskAsync(System.String,System.String,System.Int64,System.String,System.String,WebAPI.Api.eBulkExportDataType,System.String,WebAPI.Api.eBulkExportExportType,System.Int64,System.String,System.Int32[],System.Nullable{System.Boolean},System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.Api.API.DeleteBulkExportTask(System.String,System.String,System.Int64,System.String)">
             <remarks/>
         </member>
@@ -8512,6 +8597,15 @@
             <remarks/>
         </member>
         <member name="M:WebAPI.Api.API.GetCountryListAsync(System.String,System.String,System.Int32[],System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetGroupMetaList(System.String,System.String,WebAPI.Api.eAssetTypes,WebAPI.Api.MetaType,WebAPI.Api.MetaFieldName,WebAPI.Api.MetaFieldName)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetGroupMetaListAsync(System.String,System.String,WebAPI.Api.eAssetTypes,WebAPI.Api.MetaType,WebAPI.Api.MetaFieldName,WebAPI.Api.MetaFieldName)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetGroupMetaListAsync(System.String,System.String,WebAPI.Api.eAssetTypes,WebAPI.Api.MetaType,WebAPI.Api.MetaFieldName,WebAPI.Api.MetaFieldName,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Api.API.TVAPI_GetTvinciGUID(System.String,System.String,WebAPI.Api.InitializationObject)">
@@ -9558,6 +9652,15 @@
         <member name="M:WebAPI.Api.API.GetRecommendationEnginesAsync(System.String,System.String,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.Api.API.ListRecommendationEngines(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.ListRecommendationEnginesAsync(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.ListRecommendationEnginesAsync(System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.Api.API.InsertRecommendationEngineSettings(System.String,System.String,System.Int32,WebAPI.Api.RecommendationEngineSettings[])">
             <remarks/>
         </member>
@@ -9648,25 +9751,22 @@
         <member name="M:WebAPI.Api.API.GetExternalChannelsAsync(System.String,System.String,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.AddBulkExportTask(System.String,System.String,System.String,System.String,WebAPI.Api.eBulkExportDataType,System.String,WebAPI.Api.eBulkExportExportType,System.Int64,System.String,System.Int32[],System.Boolean)">
+        <member name="M:WebAPI.Api.API.ListExternalChannels(System.String,System.String)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.AddBulkExportTaskAsync(System.String,System.String,System.String,System.String,WebAPI.Api.eBulkExportDataType,System.String,WebAPI.Api.eBulkExportExportType,System.Int64,System.String,System.Int32[],System.Boolean)">
+        <member name="M:WebAPI.Api.API.ListExternalChannelsAsync(System.String,System.String)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.AddBulkExportTaskAsync(System.String,System.String,System.String,System.String,WebAPI.Api.eBulkExportDataType,System.String,WebAPI.Api.eBulkExportExportType,System.Int64,System.String,System.Int32[],System.Boolean,System.Object)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.UpdateBulkExportTask(System.String,System.String,System.Int64,System.String,System.String,WebAPI.Api.eBulkExportDataType,System.String,WebAPI.Api.eBulkExportExportType,System.Int64,System.String,System.Int32[],System.Nullable{System.Boolean})">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.UpdateBulkExportTaskAsync(System.String,System.String,System.Int64,System.String,System.String,WebAPI.Api.eBulkExportDataType,System.String,WebAPI.Api.eBulkExportExportType,System.Int64,System.String,System.Int32[],System.Nullable{System.Boolean})">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.Api.API.UpdateBulkExportTaskAsync(System.String,System.String,System.Int64,System.String,System.String,WebAPI.Api.eBulkExportDataType,System.String,WebAPI.Api.eBulkExportExportType,System.Int64,System.String,System.Int32[],System.Nullable{System.Boolean},System.Object)">
+        <member name="M:WebAPI.Api.API.ListExternalChannelsAsync(System.String,System.String,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Api.API.CancelAsync(System.Object)">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.AddBulkExportTaskCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.UpdateBulkExportTaskCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.Api.API.DeleteBulkExportTaskCompleted">
@@ -9790,6 +9890,9 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.Api.API.GetCountryListCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.GetGroupMetaListCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.Api.API.TVAPI_GetTvinciGUIDCompleted">
@@ -10140,6 +10243,9 @@
         <member name="E:WebAPI.Api.API.GetRecommendationEnginesCompleted">
             <remarks/>
         </member>
+        <member name="E:WebAPI.Api.API.ListRecommendationEnginesCompleted">
+            <remarks/>
+        </member>
         <member name="E:WebAPI.Api.API.InsertRecommendationEngineSettingsCompleted">
             <remarks/>
         </member>
@@ -10170,10 +10276,7 @@
         <member name="E:WebAPI.Api.API.GetExternalChannelsCompleted">
             <remarks/>
         </member>
-        <member name="E:WebAPI.Api.API.AddBulkExportTaskCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.Api.API.UpdateBulkExportTaskCompleted">
+        <member name="E:WebAPI.Api.API.ListExternalChannelsCompleted">
             <remarks/>
         </member>
         <member name="T:WebAPI.Billing.module">
@@ -15729,13 +15832,25 @@
             Summary description for Swagger
             </summary>
         </member>
-        <member name="T:WebAPI.Api.Status">
+        <member name="T:WebAPI.Api.eBulkExportDataType">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.Status.Code">
+        <member name="F:WebAPI.Api.eBulkExportDataType.VOD">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.Status.Message">
+        <member name="F:WebAPI.Api.eBulkExportDataType.EPG">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.eBulkExportDataType.Users">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.eBulkExportExportType">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.eBulkExportExportType.Full">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.eBulkExportExportType.Incremental">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.BulkExportTaskResponse">
@@ -15789,27 +15904,6 @@
         <member name="P:WebAPI.Api.BulkExportTask.IsActive">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Api.eBulkExportDataType">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.eBulkExportDataType.VOD">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.eBulkExportDataType.EPG">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.eBulkExportDataType.Users">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.eBulkExportExportType">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.eBulkExportExportType.Full">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.eBulkExportExportType.Incremental">
-            <remarks/>
-        </member>
         <member name="T:WebAPI.Api.ExternalChannelResponseList">
             <remarks/>
         </member>
@@ -15817,6 +15911,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.ExternalChannelResponseList.ExternalChannels">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.Status.Code">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.Status.Message">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.ExternalChannel">
@@ -16866,30 +16969,6 @@
         <member name="F:WebAPI.Api.eMailTemplateType.AddDeviceToDomain">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Api.CinepolisPurchaseMailRequest">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sPurchaseDate">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sItemName">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sPrice">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sUsername">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.CinepolisRenewalFailMailRequest">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.CinepolisRenewalFailMailRequest.m_sPurchaseDate">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.CinepolisRenewalFailMailRequest.m_sItemName">
-            <remarks/>
-        </member>
         <member name="T:WebAPI.Api.PurchaseMailRequest">
             <remarks/>
         </member>
@@ -16929,16 +17008,40 @@
         <member name="P:WebAPI.Api.PurchaseMailRequest.m_sUserEmail">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Api.PurchaseWithPreviewModuleRequest">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseWithPreviewModuleRequest.m_sPreviewModuleEndDate">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Api.PurchaseFailRequest">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.PreviewModuleCancelOrRefundRequest">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Api.PurchaseWithPreviewModuleRequest">
+        <member name="T:WebAPI.Api.CinepolisRenewalFailMailRequest">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.PurchaseWithPreviewModuleRequest.m_sPreviewModuleEndDate">
+        <member name="P:WebAPI.Api.CinepolisRenewalFailMailRequest.m_sPurchaseDate">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CinepolisRenewalFailMailRequest.m_sItemName">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.CinepolisPurchaseMailRequest">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sPurchaseDate">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sItemName">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sPrice">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sUsername">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.WelcomeMailRequest">
@@ -17877,6 +17980,81 @@
         <member name="P:WebAPI.Api.InitializationObject.m_sAdminToken">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Api.Meta">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.Meta.Name">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.Meta.FieldName">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.Meta.Type">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.Meta.AssetType">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.MetaFieldName">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.MetaFieldName.All">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.MetaFieldName.None">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.MetaFieldName.SeriesId">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.MetaFieldName.SeasonNumber">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.MetaFieldName.EpisodeNumber">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.MetaType">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.MetaType.All">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.MetaType.String">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.MetaType.Number">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.MetaType.Bool">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.MetaType.Tag">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.eAssetTypes">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.eAssetTypes.UNKNOWN">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.eAssetTypes.EPG">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.eAssetTypes.NPVR">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.eAssetTypes.MEDIA">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.MetaResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.MetaResponse.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.MetaResponse.MetaList">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Api.Country">
             <remarks/>
         </member>
@@ -18351,18 +18529,6 @@
         <member name="P:WebAPI.Api.ApiActionPermissionItem.Action">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Api.ApiArgumentPermissionItem">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ApiArgumentPermissionItem.Service">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ApiArgumentPermissionItem.Action">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ApiArgumentPermissionItem.Parameter">
-            <remarks/>
-        </member>
         <member name="T:WebAPI.Api.ApiParameterPermissionItem">
             <remarks/>
         </member>
@@ -18373,6 +18539,18 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.ApiParameterPermissionItem.Action">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.ApiArgumentPermissionItem">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ApiArgumentPermissionItem.Service">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ApiArgumentPermissionItem.Action">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ApiArgumentPermissionItem.Parameter">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.GroupPermission">
@@ -18471,21 +18649,6 @@
         <member name="F:WebAPI.Api.eDbActionType.Add">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Api.eAssetTypes">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.eAssetTypes.UNKNOWN">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.eAssetTypes.EPG">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.eAssetTypes.NPVR">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Api.eAssetTypes.MEDIA">
-            <remarks/>
-        </member>
         <member name="T:WebAPI.Api.UserStatus">
             <remarks/>
         </member>
@@ -18565,6 +18728,24 @@
             <remarks/>
         </member>
         <member name="F:WebAPI.Api.GenericRuleOrderBy.NameDesc">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.AddBulkExportTaskCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.AddBulkExportTaskCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.AddBulkExportTaskCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.UpdateBulkExportTaskCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.UpdateBulkExportTaskCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.UpdateBulkExportTaskCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.DeleteBulkExportTaskCompletedEventHandler">
@@ -18934,6 +19115,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.GetCountryListCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetGroupMetaListCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetGroupMetaListCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GetGroupMetaListCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.TVAPI_GetTvinciGUIDCompletedEventHandler">
@@ -19992,6 +20182,15 @@
         <member name="P:WebAPI.Api.GetRecommendationEnginesCompletedEventArgs.Result">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Api.ListRecommendationEnginesCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.ListRecommendationEnginesCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ListRecommendationEnginesCompletedEventArgs.Result">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Api.InsertRecommendationEngineSettingsCompletedEventHandler">
             <remarks/>
         </member>
@@ -20082,22 +20281,13 @@
         <member name="P:WebAPI.Api.GetExternalChannelsCompletedEventArgs.Result">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Api.AddBulkExportTaskCompletedEventHandler">
+        <member name="T:WebAPI.Api.ListExternalChannelsCompletedEventHandler">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Api.AddBulkExportTaskCompletedEventArgs">
+        <member name="T:WebAPI.Api.ListExternalChannelsCompletedEventArgs">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.AddBulkExportTaskCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.UpdateBulkExportTaskCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.UpdateBulkExportTaskCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.UpdateBulkExportTaskCompletedEventArgs.Result">
+        <member name="P:WebAPI.Api.ListExternalChannelsCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Billing.AdyenBillingDetail">

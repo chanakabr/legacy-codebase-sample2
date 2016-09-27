@@ -20,13 +20,13 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Removes a user from household   
         /// </summary>                
-        /// <param name="userId">The identifier of the user to delete</param>
+        /// <param name="id">The identifier of the user to delete</param>
         /// <remarks>Possible status codes: 
         /// Household does not exists = 1006, Limitation period = 1014, User not exists in household = 1020, Invalid user = 1026, 
         /// Household suspended = 1009, No users in household = 1017, User not allowed = 1027</remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("userId", "user_id_to_delete")]
+        [OldStandard("id", "user_id_to_delete")]
         [Throws(eResponseStatus.HouseholdNotExists)]
         [Throws(eResponseStatus.LimitationPeriod)]
         [Throws(eResponseStatus.UserNotExistsInHousehold)]
@@ -34,7 +34,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.HouseholdSuspended)]
         [Throws(eResponseStatus.NoUsersInHousehold)]
         [Throws(eResponseStatus.UserNotAllowed)]
-        public bool Delete(string userId)
+        public bool Delete(string id)
         {
             int groupId = KS.GetFromRequest().GroupId;
             string masterUserId = KS.GetFromRequest().UserId;
@@ -51,7 +51,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                return ClientsManager.DomainsClient().RemoveUserFromDomain(groupId, household_id, userId);
+                return ClientsManager.DomainsClient().RemoveUserFromDomain(groupId, household_id, id);
             }
             catch (ClientException ex)
             {

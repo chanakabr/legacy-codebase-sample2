@@ -60,6 +60,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "externalId")]
         [JsonProperty("externalId")]
         [XmlElement(ElementName = "externalId")]
+        [SchemeProperty(InsertOnly = true)]
         public string ExternalId { get; set; }
 
         /// <summary>
@@ -68,6 +69,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "householdLimitationsId")]
         [JsonProperty("householdLimitationsId")]
         [XmlElement(ElementName = "householdLimitationsId")]
+        [SchemeProperty(ReadOnly = true)]
         public int? HouseholdLimitationsId { get; set; }
 
         /// <summary>
@@ -76,6 +78,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "devicesLimit")]
         [JsonProperty("devicesLimit")]
         [XmlElement(ElementName = "devicesLimit")]
+        [SchemeProperty(ReadOnly = true)]
         public int? DevicesLimit { get; set; }
 
         /// <summary>
@@ -84,6 +87,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "usersLimit")]
         [JsonProperty("usersLimit")]
         [XmlElement(ElementName = "usersLimit")]
+        [SchemeProperty(ReadOnly = true)]
         public int? UsersLimit { get; set; }
 
         /// <summary>
@@ -92,6 +96,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "concurrentLimit")]
         [JsonProperty("concurrentLimit")]
         [XmlElement(ElementName = "concurrentLimit")]
+        [SchemeProperty(ReadOnly = true)]
         public int? ConcurrentLimit { get; set; }
 
         /// <summary>
@@ -140,6 +145,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "regionId")]
         [JsonProperty("regionId")]
         [XmlElement(ElementName = "regionId")]
+        [SchemeProperty(ReadOnly = true)]
         public int? RegionId { get; set; }
 
         /// <summary>
@@ -157,6 +163,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "isFrequencyEnabled")]
         [JsonProperty("isFrequencyEnabled")]
         [XmlElement(ElementName = "isFrequencyEnabled")]
+        [SchemeProperty(ReadOnly = true)]
         public bool? IsFrequencyEnabled { get; set; }
 
         /// <summary>
@@ -165,6 +172,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "frequencyNextDeviceAction")]
         [JsonProperty("frequencyNextDeviceAction")]
         [XmlElement(ElementName = "frequencyNextDeviceAction")]
+        [SchemeProperty(ReadOnly = true)]
         public long? FrequencyNextDeviceAction { get; set; }
 
         /// <summary>
@@ -173,6 +181,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "frequencyNextUserAction")]
         [JsonProperty("frequencyNextUserAction")]
         [XmlElement(ElementName = "frequencyNextUserAction")]
+        [SchemeProperty(ReadOnly = true)]
         public long? FrequencyNextUserAction { get; set; }
 
         /// <summary>
@@ -181,6 +190,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "restriction")]
         [JsonProperty("restriction")]
         [XmlElement(ElementName = "restriction", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
         public KalturaHouseholdRestriction? Restriction { get; set; }
 
         /// <summary>

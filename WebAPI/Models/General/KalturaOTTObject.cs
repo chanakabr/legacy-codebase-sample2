@@ -27,11 +27,6 @@ namespace WebAPI.Models.General
             {
                 return null;
             }
-
-            set
-            {
-
-            }
         }
     }
 }
