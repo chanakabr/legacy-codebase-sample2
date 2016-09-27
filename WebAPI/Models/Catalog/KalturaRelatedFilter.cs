@@ -40,11 +40,11 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "idEqual", IsNullable = true)]
         [SchemeProperty(MinInteger = 1)]
         public int? IdEqual { get; set; }
-
+               
         /// <summary>
         /// Comma separated list of asset types to search within. 
-        /// Possible values: 0 – EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).
-        /// If omitted – all types should be included.
+        /// Possible values: any media type ID (according to media type IDs defined dynamically in the system).
+        /// If omitted –   same type as the provided asset.
         /// </summary>
         [DataMember(Name = "typeIn")]
         [JsonProperty("typeIn")]
