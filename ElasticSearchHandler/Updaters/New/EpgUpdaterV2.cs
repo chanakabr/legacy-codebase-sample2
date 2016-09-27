@@ -27,6 +27,7 @@ namespace ElasticSearchHandler.Updaters
         protected int groupId;
         protected ElasticSearch.Common.ESSerializerV2 esSerializer;
         protected ElasticSearch.Common.ElasticSearchApi esApi;
+        protected EpgBL.BaseEpgBL epgBL;
 
         #endregion
 
@@ -66,6 +67,8 @@ namespace ElasticSearchHandler.Updaters
             this.groupId = groupId;
             esSerializer = new ElasticSearch.Common.ESSerializerV2();
             esApi = new ElasticSearch.Common.ElasticSearchApi();
+
+            epgBL = EpgBL.Utils.GetInstance(this.groupId);
         }
 
         #endregion
@@ -151,7 +154,7 @@ namespace ElasticSearchHandler.Updaters
                         (epgId) =>
                         {
                             cd.Load();
-                            return ElasticsearchTasksCommon.Utils.GetEpgPrograms(groupId, (int)epgId, languageCodes);
+                            return ElasticsearchTasksCommon.Utils.GetEpgPrograms(groupId, (int)epgId, languageCodes, epgBL);
                         }, epgIds[i]);
                 }
 

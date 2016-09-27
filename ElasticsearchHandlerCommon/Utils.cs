@@ -327,7 +327,7 @@ namespace ElasticsearchTasksCommon
             return res;
         }
 
-        public static List<EpgCB> GetEpgPrograms(int groupId, int epgId, List<string> languages)
+        public static List<EpgCB> GetEpgPrograms(int groupId, int epgId, List<string> languages, EpgBL.BaseEpgBL epgBL = null)
         {
             List<EpgCB> results = new List<EpgCB>();
 
@@ -342,7 +342,10 @@ namespace ElasticsearchTasksCommon
             {
                 try
                 {
-                    EpgBL.BaseEpgBL epgBL = EpgBL.Utils.GetInstance(groupId);
+                    if (epgBL == null)
+                    {
+                        epgBL = EpgBL.Utils.GetInstance(groupId);
+                    }
 
                     ulong uEpgID = (ulong)epgId;
                     results = epgBL.GetEpgCB(uEpgID, languages);
