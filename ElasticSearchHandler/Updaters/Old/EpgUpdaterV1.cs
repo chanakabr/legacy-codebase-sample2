@@ -138,25 +138,34 @@ namespace ElasticSearchHandler.Updaters
                     log.Debug("Warning - " + string.Format("Group {0} has no languages defined.", groupId));
                 }
 
-                Task<List<EpgCB>>[] programsTasks = new Task<List<EpgCB>>[epgIds.Count];
-                ContextData cd = new ContextData();
+                List<EpgCB> epgObjects = new List<EpgCB>();
 
-                //open task factory and run GetEpgProgram on different threads
-                //wait to finish
-                //bulk insert
-                for (int i = 0; i < epgIds.Count; i++)
+                if (epgIds.Count == 1)
                 {
-                    programsTasks[i] = Task.Factory.StartNew<List<EpgCB>>(
-                        (epgId) =>
-                        {
-                            cd.Load();
-                            return ElasticsearchTasksCommon.Utils.GetEpgPrograms(groupId, (int)epgId, languageCodes);
-                        }, epgIds[i]);
+                    epgObjects = ElasticsearchTasksCommon.Utils.GetEpgPrograms(groupId, epgIds[0], languageCodes);
                 }
+                else
+                {
+                    Task<List<EpgCB>>[] programsTasks = new Task<List<EpgCB>>[epgIds.Count];
+                    ContextData cd = new ContextData();
 
-                Task.WaitAll(programsTasks);
+                    //open task factory and run GetEpgProgram on different threads
+                    //wait to finish
+                    //bulk insert
+                    for (int i = 0; i < epgIds.Count; i++)
+                    {
+                        programsTasks[i] = Task.Factory.StartNew<List<EpgCB>>(
+                            (epgId) =>
+                            {
+                                cd.Load();
+                                return ElasticsearchTasksCommon.Utils.GetEpgPrograms(groupId, (int)epgId, languageCodes);
+                            }, epgIds[i]);
+                    }
 
-                List<EpgCB> epgObjects = programsTasks.SelectMany(t => t.Result).Where(t => t != null).ToList();
+                    Task.WaitAll(programsTasks);
+
+                    epgObjects = programsTasks.SelectMany(t => t.Result).Where(t => t != null).ToList();
+                }
 
                 // GetLinear Channel Values 
                 ElasticSearchTaskUtils.GetLinearChannelValues(epgObjects, this.groupId);
