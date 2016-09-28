@@ -404,6 +404,11 @@ namespace WebAPI.Filters
                             createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidJSONRequest, "Invalid JSON");
                             return;
                         }
+                        catch (FormatException)
+                        {
+                            createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidJSONRequest, "Invalid JSON");
+                            return;
+                        }
                     }
                 }
                 else if (HttpContext.Current.Request.ContentType == "text/xml" ||
