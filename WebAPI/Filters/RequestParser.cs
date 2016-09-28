@@ -612,6 +612,12 @@ namespace WebAPI.Filters
                                 {
                                     res = Enum.Parse(underlyingType, reqParams[name].ToString(), true);
                                 }
+                                else if (t == typeof(DateTime))
+                                {
+                                    long unixTimeStamp = (long) reqParams[name];
+                                    DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+                                    res = dtDateTime.AddSeconds(unixTimeStamp).ToLocalTime();
+                                }
                                 else
                                 {
                                     res = Convert.ChangeType(reqParams[name], underlyingType);
@@ -645,6 +651,18 @@ namespace WebAPI.Filters
                         if (reqParams[name].GetType() == typeof(JObject) || reqParams[name].GetType().IsSubclassOf(typeof(JObject)))
                         {
                             value = ((JObject)reqParams[name]).ToObject(t);
+                            if (t == typeof(DateTime))
+                            {
+                                long unixTimeStamp = (long) value;
+                                DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+                                value = dtDateTime.AddSeconds(unixTimeStamp).ToLocalTime();
+                            }
+                        }
+                        else if (t == typeof(DateTime))
+                        {
+                            long unixTimeStamp = (long) reqParams[name];
+                            DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+                            value = dtDateTime.AddSeconds(unixTimeStamp).ToLocalTime();
                         }
                         else
                         {
@@ -785,6 +803,12 @@ namespace WebAPI.Filters
                             if (underlyingType.IsEnum)
                             {
                                 res = Enum.Parse(underlyingType, parameters[parameterName].ToString(), true);
+                            }
+                            else if (underlyingType == typeof(DateTime))
+                            {
+                                long unixTimeStamp = (long) parameters[parameterName];
+                                DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+                                res = dtDateTime.AddSeconds(unixTimeStamp).ToLocalTime();
                             }
                             else
                             {
