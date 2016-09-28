@@ -49,7 +49,22 @@ namespace ElasticSearchHandler.IndexBuilders
 
             // Get information about relevant recordings
             epgToRecordingMapping = DAL.RecordingsDAL.GetEpgToRecordingsMapByRecordingStatuses(this.groupId, statuses);
-            List<string> epgIds = epgToRecordingMapping.Keys.Select(x => x.ToString()).ToList();                        
+            List<string> epgIds = new List<string>();
+
+            List<LanguageObj> languages = group.GetLangauges();
+
+            foreach (var programId in epgToRecordingMapping.Keys)
+            {
+                // for main language
+                epgIds.Add(programId.ToString());
+
+                //Build list of keys with language
+                foreach (var language in languages)
+                {
+                    string docID = string.Format("epg_{0}_lang_{1}", programId, language.Code.ToLower());
+                    epgIds.Add(docID);
+                }
+            }
 
             EpgBL.TvinciEpgBL epgBL = new TvinciEpgBL(this.groupId);
 
