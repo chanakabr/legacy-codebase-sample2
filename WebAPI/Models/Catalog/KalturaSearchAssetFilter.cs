@@ -98,7 +98,7 @@ namespace WebAPI.Models.Catalog
 
         internal override void Validate()
         {
-            if (!string.IsNullOrEmpty(IdIn))
+            if (string.IsNullOrEmpty(IdIn))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaSearchAssetFilter.idIn");
             }
