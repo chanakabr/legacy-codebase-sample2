@@ -237,19 +237,28 @@ namespace DalCB
                 {
                     IDictionary<string, object> getResult = cbManager.GetValues<object>(ids, true);
                     List<string> idsToGetFromRecordingsBucket = new List<string>(ids);
+
                     if (getResult != null && getResult.Count > 0)
                     {
-                        // Run on original list of Ids, to maintain their order                        
+                        // Run on original list of Ids, to maintain their order
                         foreach (string id in ids)
                         {
                             // Make sure the Id was returned from CB
                             if (getResult.ContainsKey(id))
                             {
                                 EpgCB tempEpg = BuildEpgCbFromCbObject(getResult[id]);
-                                if (tempEpg != null && tempEpg.Status == 1)
+
+                                if (tempEpg != null)
                                 {
-                                    resultEpgs.Add(tempEpg);
-                                    idsToGetFromRecordingsBucket.Remove(id);
+                                    if (tempEpg.Status == 1)
+                                    {
+                                        resultEpgs.Add(tempEpg);
+                                        idsToGetFromRecordingsBucket.Remove(id);
+                                    }
+                                    else
+                                    {
+                                        log.WarnFormat("EPG CB DAL - get program with ID {0} from CB, returned with status {1}", tempEpg.EpgID, tempEpg.Status);
+                                    }
                                 }
                             }
                         }
@@ -259,6 +268,7 @@ namespace DalCB
                     {
                         // try getting Ids from recording bucket
                         IDictionary<string, object> epgsOnRecordingBucket = recordingCbManager.GetValues<object>(idsToGetFromRecordingsBucket, true);
+
                         if (epgsOnRecordingBucket != null && epgsOnRecordingBucket.Count > 0)
                         {                            
                             foreach (string id in idsToGetFromRecordingsBucket)
