@@ -95,13 +95,5 @@ namespace WebAPI.Models.Catalog
 
             return values;
         }
-
-        internal override void Validate()
-        {
-            if (string.IsNullOrEmpty(IdIn))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaSearchAssetFilter.idIn");
-            }
-        }
     }
 }
