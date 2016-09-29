@@ -63,46 +63,27 @@ public partial class adm_epg_channels_schedule_translate : System.Web.UI.Page
                 {
                     epg = new EpgCB();
                 }
-<<<<<<< HEAD
-               CouchBaseManipulator.DoTheWork(ref epg, metasDic, tagsDic); //update the data of the Epg from the page
-                
-                ulong nID = 0;
-=======
                 CouchBaseManipulator.DoTheWork(ref epg, metasDic, tagsDic); //update the data of the Epg from the page
-                                
->>>>>>> Storm
+
                 string docID = string.Empty;
                 epg.Language = epg_language;
                 if (epg.EpgID == 0)
                 {
-<<<<<<< HEAD
-                    epg.EpgID = (ulong)epgID;                    
-=======
                     epg.EpgID = (ulong)epgID;
->>>>>>> Storm
                     epgBLTvinci.InsertEpg(epg, false, out docID);
                 }
                 else
                 {
-<<<<<<< HEAD
-                    epg.EpgID = (ulong)epgID;                    
-=======
                     epg.EpgID = (ulong)epgID;
->>>>>>> Storm
                     epgBLTvinci.UpdateEpg(epg, false, out docID);
                 }
 
                 bool result = false;
 
                 result = ImporterImpl.UpdateEpg(new List<ulong>() { epg.EpgID }, groupId, eAction.Update);
-<<<<<<< HEAD
-                //Int32 nID = DBManipulator.DoTheWork();
-=======
->>>>>>> Storm
+
                 return;
             }
-           
-
            
             if (Request.QueryString["epg_channels_schedule_id"] != null &&
                 Request.QueryString["epg_channels_schedule_id"].ToString() != "")
@@ -284,13 +265,9 @@ public partial class adm_epg_channels_schedule_translate : System.Web.UI.Page
         //Retrieving the EpgCB or generating one if needed        
         int nParentGroupID = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
         TvinciEpgBL epgBL = new TvinciEpgBL(nParentGroupID);  //assuming this is a Kaltura user - the TVM does not support editing of yes Epg      
-<<<<<<< HEAD
 
         Session["epg_language"] = language;
 
-=======
-        Session["epg_language"] = language;
->>>>>>> Storm
         List<string> languages = new List<string>() { language };
 
         List<EpgCB> epgs = epgBL.GetEpgCB((ulong.Parse(epgID.ToString())), languages);
