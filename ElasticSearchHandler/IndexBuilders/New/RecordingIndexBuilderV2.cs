@@ -53,11 +53,13 @@ namespace ElasticSearchHandler.IndexBuilders
             List<string> epgIds = new List<string>();
 
             List<LanguageObj> languages = group.GetLangauges();
+            List<EpgCB> epgs = new List<EpgCB>();
+            EpgBL.TvinciEpgBL epgBL = new TvinciEpgBL(this.groupId);
 
             foreach (var programId in epgToRecordingMapping.Keys)
             {
                 // for main language
-                epgIds.Add(programId.ToString()); 
+                epgIds.Add(programId.ToString());
 
                 //Build list of keys with language
                 foreach (var language in languages)
@@ -65,12 +67,21 @@ namespace ElasticSearchHandler.IndexBuilders
                     string docID = string.Format("epg_{0}_lang_{1}", programId, language.Code.ToLower());
                     epgIds.Add(docID);
                 }
+
+                // Work in bulks so we don't chocke the Couchbase. every time get only a bulk of EPGs
+                if (epgIds.Count >= sizeOfBulk)
+                {
+                    // Get EPG objects
+                    epgs.AddRange(epgBL.GetEpgs(epgIds));
+                    epgIds.Clear();
+                }
             }
 
-            EpgBL.TvinciEpgBL epgBL = new TvinciEpgBL(this.groupId);
-                        
-            // Get EPG objects
-            List<EpgCB> epgs = epgBL.GetEpgs(epgIds);
+            // Finish off what's left to get from CB
+            if (epgIds.Count >= 0)
+            {
+                epgs.AddRange(epgBL.GetEpgs(epgIds));
+            }
 
             Dictionary<ulong, Dictionary<string, EpgCB>> epgDictionary = BuildEpgsLanguageDictionary(epgs);
 
