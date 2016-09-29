@@ -335,7 +335,13 @@ namespace Users
             try
             {
                 res = m_oBasicData.Initialize(nUserID, nGroupID);
-                bool res2 = m_oDynamicData.Initialize(nUserID, nGroupID);
+
+                if (!res)
+                {
+                    return res;
+                }
+
+                res = m_oDynamicData.Initialize(nUserID, nGroupID);
 
                 m_sSiteGUID = nUserID.ToString();
 
