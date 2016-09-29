@@ -2256,7 +2256,7 @@ namespace Users
             string sNewFirstName = string.Empty;
             string sNewEmail = string.Empty;
 
-            using (DataTable dtUserBasicData = UsersDal.GetUserBasicData(nUserID))
+            using (DataTable dtUserBasicData = UsersDal.GetUserBasicData(nUserID, nGroupID))
             {
                 if (dtUserBasicData != null)
                 {
