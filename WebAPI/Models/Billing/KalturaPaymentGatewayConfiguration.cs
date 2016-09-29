@@ -7,7 +7,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Billing
 {
-    [OldStandard("paymentGatewayConfiguration", "payment_gateway_configuration")]
+    [OldStandard("paymentGatewayConfiguration", "payment_gatewaye_configuration")]
     public class KalturaPaymentGatewayConfiguration : KalturaOTTObject
     {
         /// <summary>
