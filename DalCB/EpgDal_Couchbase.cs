@@ -264,26 +264,7 @@ namespace DalCB
                         }
                     }
 
-                    if (idsToGetFromRecordingsBucket != null && idsToGetFromRecordingsBucket.Count > 0)
-                    {
-                        // try getting Ids from recording bucket
-                        IDictionary<string, object> epgsOnRecordingBucket = recordingCbManager.GetValues<object>(idsToGetFromRecordingsBucket, true);
-
-                        if (epgsOnRecordingBucket != null && epgsOnRecordingBucket.Count > 0)
-                        {                            
-                            foreach (string id in idsToGetFromRecordingsBucket)
-                            {
-                                if (epgsOnRecordingBucket.ContainsKey(id))
-                                {
-                                    EpgCB tempEpg = BuildEpgCbFromCbObject(epgsOnRecordingBucket[id]);
-                                    if (tempEpg != null && tempEpg.Status == 1)
-                                    {                                        
-                                        resultEpgs.Add(tempEpg);
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    resultEpgs = RecordingsBucketFallBack(idsToGetFromRecordingsBucket);
                 }
             }
             catch (Exception ex)
@@ -302,6 +283,34 @@ namespace DalCB
                 }
 
                 log.Error("Exception - " + string.Format("Exception at GetProgram (list of ids overload). Msg: {0} , IDs: {1} , Ex Type: {2} , ST: {3}", ex.Message, sb.ToString(), ex.GetType().Name, ex.StackTrace), ex);
+            }
+
+            return resultEpgs;
+        }
+
+        private List<EpgCB> RecordingsBucketFallBack(List<string> idsToGetFromRecordingsBucket)
+        {
+            List<EpgCB> resultEpgs = new List<EpgCB>();
+
+            if (idsToGetFromRecordingsBucket != null && idsToGetFromRecordingsBucket.Count > 0)
+            {
+                // try getting Ids from recording bucket
+                IDictionary<string, object> epgsOnRecordingBucket = recordingCbManager.GetValues<object>(idsToGetFromRecordingsBucket, true);
+
+                if (epgsOnRecordingBucket != null && epgsOnRecordingBucket.Count > 0)
+                {
+                    foreach (string id in idsToGetFromRecordingsBucket)
+                    {
+                        if (epgsOnRecordingBucket.ContainsKey(id))
+                        {
+                            EpgCB tempEpg = BuildEpgCbFromCbObject(epgsOnRecordingBucket[id]);
+                            if (tempEpg != null && tempEpg.Status == 1)
+                            {
+                                resultEpgs.Add(tempEpg);
+                            }
+                        }
+                    }
+                }
             }
 
             return resultEpgs;
