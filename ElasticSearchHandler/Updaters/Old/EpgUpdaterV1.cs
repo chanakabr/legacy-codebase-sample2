@@ -170,60 +170,69 @@ namespace ElasticSearchHandler.Updaters
                 // GetLinear Channel Values 
                 ElasticSearchTaskUtils.GetLinearChannelValues(epgObjects, this.groupId);
 
-                if (epgObjects != null & epgObjects.Count > 0)
+                if (epgObjects != null)
                 {
-                    // Temporarily - assume success
-                    bool temporaryResult = true;
-
-                    // Create dictionary by languages
-                    foreach (LanguageObj language in languages)
+                    if (epgObjects.Count == 0)
                     {
-                        // Filter programs to current language
-                        List<EpgCB> currentLanguageEpgs = epgObjects.Where(epg =>
-                            epg.Language.ToLower() == language.Code.ToLower() || (language.IsDefault && string.IsNullOrEmpty(epg.Language))).ToList();
+                        log.WarnFormat("Attention - when updating EPG, epg list is empty for IDs = {0}",
+                            string.Join(",", epgIds));
+                        result = true;
+                    }
+                    else
+                    {
+                        // Temporarily - assume success
+                        bool temporaryResult = true;
 
-                        if (currentLanguageEpgs != null && currentLanguageEpgs.Count > 0)
+                        // Create dictionary by languages
+                        foreach (LanguageObj language in languages)
                         {
-                            List<ESBulkRequestObj<ulong>> bulkRequests = new List<ESBulkRequestObj<ulong>>();
-                            string alias = GetAlias();
+                            // Filter programs to current language
+                            List<EpgCB> currentLanguageEpgs = epgObjects.Where(epg =>
+                                epg.Language.ToLower() == language.Code.ToLower() || (language.IsDefault && string.IsNullOrEmpty(epg.Language))).ToList();
 
-                            // Create bulk request object for each program
-                            foreach (EpgCB epg in epgObjects)
+                            if (currentLanguageEpgs != null && currentLanguageEpgs.Count > 0)
                             {
-                                string serializedEpg = SerializeEPG(epg);
-                                bulkRequests.Add(new ESBulkRequestObj<ulong>()
-                                {
-                                    docID = GetDocumentId(epg),
-                                    index = alias,
-                                    type = ElasticSearchTaskUtils.GetTanslationType(GetDocumentType(), language),
-                                    Operation = eOperation.index,
-                                    document = serializedEpg
-                                });
-                            }
+                                List<ESBulkRequestObj<ulong>> bulkRequests = new List<ESBulkRequestObj<ulong>>();
+                                string alias = GetAlias();
 
-                            // send request to ES API
-                            var invalidResults = esApi.CreateBulkRequest(bulkRequests);
-
-                            if (invalidResults != null && invalidResults.Count > 0)
-                            {
-                                foreach (var invalidResult in invalidResults)
+                                // Create bulk request object for each program
+                                foreach (EpgCB epg in epgObjects)
                                 {
-                                    log.Error("Error - " + string.Format(
-                                        "Could not update EPG in ES. GroupID={0};Type={1};EPG_ID={2};error={3};",
-                                        groupId, EPG, invalidResult.Key, invalidResult.Value));
+                                    string serializedEpg = SerializeEPG(epg);
+                                    bulkRequests.Add(new ESBulkRequestObj<ulong>()
+                                    {
+                                        docID = GetDocumentId(epg),
+                                        index = alias,
+                                        type = ElasticSearchTaskUtils.GetTanslationType(GetDocumentType(), language),
+                                        Operation = eOperation.index,
+                                        document = serializedEpg
+                                    });
                                 }
 
-                                result = false;
-                                temporaryResult = false;
-                            }
-                            else
-                            {
-                                temporaryResult &= true;
+                                // send request to ES API
+                                var invalidResults = esApi.CreateBulkRequest(bulkRequests);
+
+                                if (invalidResults != null && invalidResults.Count > 0)
+                                {
+                                    foreach (var invalidResult in invalidResults)
+                                    {
+                                        log.Error("Error - " + string.Format(
+                                            "Could not update EPG in ES. GroupID={0};Type={1};EPG_ID={2};error={3};",
+                                            groupId, EPG, invalidResult.Key, invalidResult.Value));
+                                    }
+
+                                    result = false;
+                                    temporaryResult = false;
+                                }
+                                else
+                                {
+                                    temporaryResult &= true;
+                                }
                             }
                         }
-                    }
 
-                    result = temporaryResult;
+                        result = temporaryResult;
+                    }
                 }
             }
             catch (Exception ex)

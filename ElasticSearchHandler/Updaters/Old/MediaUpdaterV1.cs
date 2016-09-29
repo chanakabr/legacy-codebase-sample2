@@ -183,18 +183,31 @@ namespace ElasticSearchHandler.Updaters
             bool result = true;
             string index = groupID.ToString();
 
-            ESDeleteResult deleteResult;
+            ESDeleteResult deleteResult = null;
 
             foreach (int id in mediaIDs)
             {
-                deleteResult = esApi.DeleteDoc(index, MEDIA, id.ToString());
-
-                if (!deleteResult.Ok)
+                if (id <= 0)
                 {
-                    log.Error("Error - " + String.Concat("Could not delete media from ES. Media id=", id));
+                    log.WarnFormat("Received delete media request of invalid media id {0}", id);
                 }
+                else
+                {
+                    deleteResult = esApi.DeleteDoc(index, MEDIA, id.ToString());
 
-                result &= deleteResult.Ok;
+                    if (deleteResult != null)
+                    {
+                        if (!deleteResult.Found)
+                        {
+                            log.WarnFormat("ES Delete request: delete media with ID {0} not found", id);
+                        }
+                        else if (!deleteResult.Ok)
+                        {
+                            log.Error("Error - " + String.Concat("Could not delete media from ES. Media id=", id));
+                        }
+                    }
+                    result &= deleteResult.Ok;
+                }
             }
 
             return result;
