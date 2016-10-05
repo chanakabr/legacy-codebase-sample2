@@ -17,7 +17,7 @@ namespace ApiObjects
 
         public RenewTransactionData(int groupId, string siteGuid, long purchaseId, string billingGuid, long endDate, DateTime nextRenewDate) :
             base(// id = guid
-                 Guid.NewGuid().ToString(),
+                 string.Format("p{0}_b{1}_d{2}", purchaseId, billingGuid, endDate),
                 // task = const
                  TASK)
         {
