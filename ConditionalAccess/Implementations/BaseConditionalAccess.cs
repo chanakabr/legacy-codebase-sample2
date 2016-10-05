@@ -14730,7 +14730,7 @@ namespace ConditionalAccess
         }
 
 
-        public bool Renew(string siteguid, long purchaseId, string billingGuid, long nextEndDate, ref bool shouldUpdateTaskStatus)
+        public bool  Renew(string siteguid, long purchaseId, string billingGuid, long nextEndDate, ref bool shouldUpdateTaskStatus)
         {
             // log request
             string logString = string.Format("Purchase request: siteguid {0}, purchaseId {1}, billingGuid {2}, endDateLong {3}", siteguid, purchaseId, billingGuid, nextEndDate);
@@ -19649,5 +19649,49 @@ namespace ConditionalAccess
 
             return result;
         }
+
+        public string BulkRecoveryForRenewSubscriptions(DateTime endDateStartRange, DateTime endDateEndRange)
+        {
+            int totalSubscriptionsToRenew = 0;
+            int totalRenewTransactionsAdded = 0;
+            DataTable dt = ConditionalAccessDAL.GetRenewSubscriptionsToRecover(m_nGroupID, endDateStartRange, endDateEndRange);
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                totalSubscriptionsToRenew = dt.Rows.Count;
+                foreach (DataRow dr in dt.Rows)
+                {
+                    long purchaseId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+                    string siteGuid = ODBCWrapper.Utils.GetSafeStr(dr, "SITE_USER_GUID");
+                    int groupId = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_ID");
+                    DateTime? endDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "END_DATE");
+                    string billingGuid = ODBCWrapper.Utils.GetSafeStr(dr, "BILLING_GUID");
+                    int renewalStartMin = ODBCWrapper.Utils.GetIntSafeVal(dr, "RENEWAL_START_MINUTES");
+
+                    //billing guid is already validated on the stored procedure
+                    if (purchaseId > 0 && !string.IsNullOrEmpty(siteGuid) && endDate.HasValue)
+                    {
+                        DateTime nextRenewalDate = endDate.Value.AddMinutes(renewalStartMin);
+                        // enqueue renew transaction
+                        RenewTransactionsQueue queue = new RenewTransactionsQueue();
+
+                        RenewTransactionData data = new RenewTransactionData(groupId, siteGuid, purchaseId, billingGuid,
+                                                        TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate.Value), nextRenewalDate);
+                        bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+                        if (enqueueSuccessful)
+                        {
+                            totalRenewTransactionsAdded++;
+                            log.DebugFormat("New task created for renew recovery. next renewal date: {0}, data: {1}", nextRenewalDate, data);
+                        }
+                        else
+                        {
+                            log.ErrorFormat("Failed enqueue recovery of renew transaction {0}", data);
+                        }
+                    }
+                }
+            }
+
+            return string.Format("Found {0} subscriptions to renew, {1} added to queue successfully", totalSubscriptionsToRenew, totalRenewTransactionsAdded);
+        }
+
     }
 }
