@@ -311,12 +311,10 @@ namespace GroupsCacheManager
 
         public List<Channel> GetChannels(List<int> channelIds, int groupId)
         {
-            List<Channel> channelsResults = null;
+            List<Channel> channelsResults = new List<Channel>();
 
             if (channelIds != null && channelIds.Count > 0)
             {
-                channelsResults = new List<Channel>();
-
                 Group group = this.GetGroup(groupId);
 
                 foreach (int id in channelIds)
