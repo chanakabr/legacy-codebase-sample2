@@ -264,7 +264,9 @@ namespace DalCB
                         }
                     }
 
-                    resultEpgs = RecordingsBucketFallBack(idsToGetFromRecordingsBucket);
+                    var fallBackEpgs = RecordingsBucketFallBack(idsToGetFromRecordingsBucket);
+
+                    resultEpgs.AddRange(fallBackEpgs);
                 }
             }
             catch (Exception ex)
