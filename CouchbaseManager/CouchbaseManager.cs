@@ -257,12 +257,12 @@ namespace CouchbaseManager
                     case 147:
                     // OperationTimeout
                     case 148:
-                    {
-                        //m_Client = CouchbaseManager.CouchbaseManager.RefreshInstance(bucket);
-                        break;
-                    }
+                        {
+                            //m_Client = CouchbaseManager.CouchbaseManager.RefreshInstance(bucket);
+                            break;
+                        }
                     default:
-                    break;
+                        break;
                 }
             }
         }
@@ -288,55 +288,55 @@ namespace CouchbaseManager
             switch (result.Status)
             {
                 case Couchbase.IO.ResponseStatus.AuthenticationContinue:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.AuthenticationError:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.Busy:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.ClientFailure:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.DocumentMutationLost:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.IncrDecrOnNonNumericValue:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.InternalError:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.InvalidArguments:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.InvalidRange:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.ItemNotStored:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.KeyExists:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.KeyNotFound:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.NoReplicasFound:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.NodeUnavailable:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.None:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.NotSupported:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.OperationTimeout:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.OutOfMemory:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.Success:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.TemporaryFailure:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.TransportFailure:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.UnknownCommand:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.VBucketBelongsToAnotherServer:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.ValueTooLarge:
-                break;
+                    break;
                 default:
-                break;
+                    break;
             }
         }
 
@@ -1363,6 +1363,7 @@ namespace CouchbaseManager
 
         #region View Methods
 
+
         /// <summary>
         /// Get specific, typed, objects from view
         /// </summary>
@@ -1371,8 +1372,20 @@ namespace CouchbaseManager
         /// <returns></returns>
         public List<T> View<T>(ViewManager definitions)
         {
-            List<T> result = new List<T>();
+            long totalNumOfResults = 0;
+            return View<T>(definitions, ref  totalNumOfResults);
+        }
 
+        /// <summary>
+        /// Get specific, typed, objects from view including total number of results
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="definitions"></param>
+        /// <returns></returns>
+        public List<T> View<T>(ViewManager definitions, ref long totalNumOfResults)
+        {
+            List<T> result = new List<T>();
+            long totalNumOfRes = 0;
             try
             {
                 var bucket = ClusterHelper.GetBucket(bucketName);
@@ -1382,7 +1395,7 @@ namespace CouchbaseManager
 
                 if (definitions.asJson)
                 {
-                    List<ViewRow<object>> rowsJson = definitions.QueryRows<object>(bucket);
+                    List<ViewRow<object>> rowsJson = definitions.QueryRows<object>(bucket, ref totalNumOfRes);
 
                     foreach (var viewRow in rowsJson)
                     {
@@ -1403,7 +1416,7 @@ namespace CouchbaseManager
                 }
                 else
                 {
-                    List<ViewRow<T>> rowsAsT = definitions.QueryRows<T>(bucket);
+                    List<ViewRow<T>> rowsAsT = definitions.QueryRows<T>(bucket, ref totalNumOfRes);
 
                     foreach (var viewRow in rowsAsT)
                     {
@@ -1504,13 +1517,14 @@ namespace CouchbaseManager
         public List<ViewRow<T>> ViewRows<T>(ViewManager definitions)
         {
             List<ViewRow<T>> result = new List<ViewRow<T>>();
-
+            long totalNumOfRes = 0;
             try
             {
                 var bucket = ClusterHelper.GetBucket(bucketName);
                 if (definitions.asJson)
                 {
-                    var jsonResults = definitions.QueryRows<object>(bucket);
+
+                    var jsonResults = definitions.QueryRows<object>(bucket, ref totalNumOfRes);
 
                     foreach (var jsonResult in jsonResults)
                     {
@@ -1523,7 +1537,7 @@ namespace CouchbaseManager
                     }
                 }
                 else
-                    result = definitions.QueryRows<T>(bucket);
+                    result = definitions.QueryRows<T>(bucket, ref totalNumOfRes);
             }
             catch (Exception ex)
             {
