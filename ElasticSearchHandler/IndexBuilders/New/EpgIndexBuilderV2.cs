@@ -206,6 +206,11 @@ namespace ElasticSearchHandler.IndexBuilders
                 {
                     List<Channel> allChannels = groupManager.GetChannels(group.channelIDs.ToList(), groupId);
 
+                    if (allChannels == null || allChannels.Count == 0)
+                    {
+                        return;
+                    }
+
                     var unifiedQueryBuilder = new ESUnifiedQueryBuilder(null, groupId);
 
                     foreach (Channel currentChannel in allChannels)
