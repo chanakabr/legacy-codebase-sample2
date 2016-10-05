@@ -173,7 +173,7 @@ namespace ElasticSearchHandler.Updaters
                 // GetLinear Channel Values 
                 ElasticSearchTaskUtils.GetLinearChannelValues(epgObjects, this.groupId);
 
-                if (epgObjects != null )
+                if (epgObjects != null)
                 {
                     if (epgObjects.Count == 0)
                     {
