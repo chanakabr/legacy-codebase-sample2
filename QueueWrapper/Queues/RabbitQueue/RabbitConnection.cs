@@ -264,22 +264,36 @@ namespace QueueWrapper
 
                         if (this.m_Connection != null)
                         {
-                            this.m_Connection = null;
-                            this.m_Model = null;
+                            this.m_Connection.Dispose();
                         }
                     }
                     catch (Exception ex)
                     {
                         log.Error("Failed closing instance of Rabbit Connection.", ex);
-                        m_Connection = null;
-                        m_Model = null;
                     }
                     finally
                     {
                         m_Connection = null;
                         m_Model = null;
-                        mutex.ReleaseMutex();
                     }
+
+                    try
+                    {
+                        if (this.m_Model != null)
+                        {
+                            this.m_Model.Dispose();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error("Failed closing instance of Rabbit Connection (model).", ex);
+                    }
+                    finally
+                    {
+                        m_Model = null;
+                    }
+
+                    mutex.ReleaseMutex();
                 }
             }
         }
@@ -418,7 +432,7 @@ namespace QueueWrapper
 
         #region Private Methods
 
-        private void ResetFailCounter()
+        public void ResetFailCounter()
         {
             if (m_FailCounter > 0)
             {
