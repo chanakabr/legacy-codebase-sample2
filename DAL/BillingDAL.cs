@@ -2384,7 +2384,7 @@ namespace DAL
                         householdPatmentMethod = new HouseholdPaymentMethod()
                         {
                             ID = ODBCWrapper.Utils.GetIntSafeVal(row, "ID"),
-                            ExternalId = ODBCWrapper.Utils.GetSafeStr(row, "NAME"),
+                            ExternalId = ODBCWrapper.Utils.GetSafeStr(row, "PAYMENT_METHOD_EXTERNAL_ID"),
                             Details = ODBCWrapper.Utils.GetSafeStr(row, "PAYMENT_DETAILS"),
                             PaymentGatewayId = paymentGatewayId,
                             PaymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(row, "PAYMENT_METHOD_ID"),
