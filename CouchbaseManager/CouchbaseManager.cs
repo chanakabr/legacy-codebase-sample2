@@ -1385,7 +1385,6 @@ namespace CouchbaseManager
         public List<T> View<T>(ViewManager definitions, ref long totalNumOfResults)
         {
             List<T> result = new List<T>();
-            long totalNumOfRes = 0;
             try
             {
                 var bucket = ClusterHelper.GetBucket(bucketName);
@@ -1395,7 +1394,7 @@ namespace CouchbaseManager
 
                 if (definitions.asJson)
                 {
-                    List<ViewRow<object>> rowsJson = definitions.QueryRows<object>(bucket, ref totalNumOfRes);
+                    List<ViewRow<object>> rowsJson = definitions.QueryRows<object>(bucket, ref totalNumOfResults);
 
                     foreach (var viewRow in rowsJson)
                     {
@@ -1416,7 +1415,7 @@ namespace CouchbaseManager
                 }
                 else
                 {
-                    List<ViewRow<T>> rowsAsT = definitions.QueryRows<T>(bucket, ref totalNumOfRes);
+                    List<ViewRow<T>> rowsAsT = definitions.QueryRows<T>(bucket, ref totalNumOfResults);
 
                     foreach (var viewRow in rowsAsT)
                     {
