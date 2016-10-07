@@ -1159,6 +1159,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
+    <Compile Include="Clients\DMSClient.cs" />
     <Compile Include="Controllers\AnnouncementController.cs" />
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
@@ -1167,6 +1168,8 @@
     <Compile Include="Controllers\CDNAdapterProfileController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
     <Compile Include="Controllers\CDNPartnerSettingsController.cs" />
+    <Compile Include="Controllers\ConfigurationGroupController.cs" />
+    <Compile Include="Controllers\ConfigurationGroupTagController.cs" />
     <Compile Include="Controllers\MetaController.cs" />
     <Compile Include="Controllers\DeviceBrandController.cs" />
     <Compile Include="Controllers\CountryController.cs" />
@@ -1181,6 +1184,17 @@
     <Compile Include="Models\API\KalturaCountryListResponse.cs" />
     <Compile Include="Models\API\KalturaCountryOrderBy.cs" />
     <Compile Include="Models\API\KalturaMetaType.cs" />
+    <Compile Include="Models\DMS\KalturaConfigurationGroupTagListResponse.cs" />
+    <Compile Include="Models\DMS\KalturaConfigurationGroupTag.cs" />
+    <Compile Include="Models\DMS\DMSGroupConfigurationGetResponse.cs" />
+    <Compile Include="Models\DMS\DMSStatusResponse.cs" />
+    <Compile Include="Models\DMS\DMSGroupConfiguration.cs" />
+    <Compile Include="Models\DMS\DMSGroupConfigurationListResponse.cs" />
+    <Compile Include="Models\DMS\KalturaConfigurationGroup.cs" />
+    <Compile Include="Models\DMS\KalturaConfigurationGroupListResponse.cs" />
+    <Compile Include="Models\DMS\DMSTagGetResponse.cs" />
+    <Compile Include="Models\DMS\DMSTagListResponse.cs" />
+    <Compile Include="Models\DMS\DMSTagMapping.cs" />
     <Compile Include="Models\Domains\KalturaDeviceBrand.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdDeviceFilter.cs" />
     <Compile Include="Models\API\KalturaDeviceFamilyListResponse.cs" />
@@ -1560,6 +1574,7 @@
     <Compile Include="ObjectsConvertor\Mapping\BillingMappings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\CatalogMappings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\ConditionalAccessMappings.cs" />
+    <Compile Include="ObjectsConvertor\Mapping\DMSMapping.cs" />
     <Compile Include="ObjectsConvertor\Mapping\DomainsMappings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\GeneralMeppings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\NotificationMapping.cs" />

@@ -552,6 +552,16 @@
             
             </summary>
         </member>
+        <member name="T:WebAPI.Models.DMS.KalturaConfigurationGroupTagListResponse">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.DMS.KalturaConfigurationGroupListResponse">
+            <summary>
+            
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Domains.KalturaDeviceBrand">
             <summary>
             Device brand details

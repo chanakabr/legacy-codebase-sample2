@@ -289,7 +289,14 @@ namespace ApiObjects.Response
         IllegalXml = 11000,
         MissingExternalIdentifier = 11001,
         UnknownIngestType = 11002,
-        EPGSProgramDatesError = 11003
+        EPGSProgramDatesError = 11003,
 
+         // DMS  12000-12999
+        Forbidden = 12000,
+        IllegalQueryParams = 12001,
+        IllegalPostData = 12002,
+        NotExist = 12003,
+        PartnerMismatch = 12004,
+        ItemAlreadyExist = 12005
     }
 }

@@ -18,6 +18,7 @@ namespace WebAPI.Filters
             SocialMappings.RegisterMappings();
             PartnerMappings.RegisterMappings();
             NotificationMapping.RegisterMappings();
+            DMSMapping.RegisterMappings();
         }
     }
 }
