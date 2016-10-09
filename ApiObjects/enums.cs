@@ -758,4 +758,11 @@ namespace ApiObjects
         SeasonNumber,
         EpisodeNumber,
     }
+
+    public enum ScheduledRecordingAssetType
+    {
+        SINGLE = 0,
+        SERIES = 1,
+        ALL = 2
+    }
 }
