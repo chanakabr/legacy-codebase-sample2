@@ -19,7 +19,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.NumberOfDevices, opt => opt.MapFrom(src => src.NumberOfDevices))
                 .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.PartnerId))
-                .ForMember(dest => dest.ConfigFileIds, opt => opt.MapFrom(src => src.ConfigFileIds))
+                .ForMember(dest => dest.ConfigFiles, opt => opt.MapFrom(src => src.ConfigFileIds))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags));
 
             // from local to dms  
@@ -29,8 +29,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.NumberOfDevices, opt => opt.MapFrom(src => src.NumberOfDevices))
                 .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.PartnerId))
-                .ForMember(dest => dest.ConfigFileIds, opt => opt.MapFrom(src => src.ConfigFileIds))
+                .ForMember(dest => dest.ConfigFileIds, opt => opt.MapFrom(src => src.ConfigFiles))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags));
+
+            // from DMSConfigurationMin to KalturaConfigurationMin
+            Mapper.CreateMap<DMSConfigurationMin, KalturaConfigurationMin>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+
+            // from local to dms  
+            Mapper.CreateMap<KalturaConfigurationMin, DMSConfigurationMin>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
             // from dms to local
             Mapper.CreateMap<DMSTagMapping, KalturaConfigurationGroupTag>()

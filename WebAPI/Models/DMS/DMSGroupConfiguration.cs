@@ -24,8 +24,8 @@ namespace WebAPI.Models.DMS
         [JsonProperty("number_of_devices")]
         public long NumberOfDevices { get; set; }
 
-        [JsonProperty("config_file_ids")]
-        public List<string> ConfigFileIds { get; set; }
+        [JsonProperty("config_files")]
+        public List<DMSConfigurationMin> ConfigFileIds { get; set; }
 
         [JsonProperty("type")]
         private string docType { get; set; }
@@ -34,7 +34,7 @@ namespace WebAPI.Models.DMS
         {
             this.docType = "group_configuration";
             this.Tags = new List<string>();
-            this.ConfigFileIds = new List<string>();
+            this.ConfigFileIds = new List<DMSConfigurationMin>();
         }
     }
 }

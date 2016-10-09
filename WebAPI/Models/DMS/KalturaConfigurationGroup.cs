@@ -31,17 +31,17 @@ namespace WebAPI.Models.DMS
         [DataMember(Name = "tags")]
         [JsonProperty("tags")]
         [XmlElement(ElementName = "tags")]
-        public KalturaStringValueArray Tags { get; set; }
+        public List<KalturaStringValue> Tags { get; set; }
 
         [DataMember(Name = "numberOfDevices")]
         [JsonProperty("numberOfDevices")]
         [XmlElement(ElementName = "numberOfDevices")]
         public long NumberOfDevices { get; set; }
 
-        [DataMember(Name = "configFileIds")]
-        [JsonProperty("configFileIds")]
-        [XmlElement(ElementName = "configFileIds")]
-        public KalturaStringValueArray ConfigFileIds { get; set; }
+        [DataMember(Name = "configFiles")]
+        [JsonProperty("configFiles")]
+        [XmlElement(ElementName = "configFiles")]
+        public List<KalturaConfigurationMin> ConfigFiles { get; set; }
 
         [DataMember(Name = "docType")]
         [JsonProperty("docType")]
@@ -51,8 +51,8 @@ namespace WebAPI.Models.DMS
         public KalturaConfigurationGroup()
         {
             this.DocType = "group_configuration";
-            this.Tags = new KalturaStringValueArray();
-            this.ConfigFileIds = new KalturaStringValueArray();
+            this.Tags = new  List<KalturaStringValue>();
+            this.ConfigFiles = new List<KalturaConfigurationMin>();
         }
     }
 }
