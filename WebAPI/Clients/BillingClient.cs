@@ -176,16 +176,23 @@ namespace WebAPI.Clients
             List<KalturaHouseholdPaymentMethod> householdPaymentMethods;
             foreach (PaymentGatewaySelectedBy paymentGateway in response.PaymentGateways)
             {
-                foreach (var paymentMethod in paymentGateway.PaymentMethods)
+                if (paymentGateway.PaymentMethods != null)
                 {
-                    householdPaymentMethods = Mapper.Map<List<KalturaHouseholdPaymentMethod>>(paymentMethod.HouseHoldPaymentMethods);
-                    foreach (var hpm in householdPaymentMethods)
+                    foreach (var paymentMethod in paymentGateway.PaymentMethods)
                     {
-                        hpm.PaymentMethodProfileId = paymentMethod.PaymentMethod.ID;
-                        hpm.PaymentGatewayId = paymentGateway.ID;
-                    }
+                        if (paymentMethod.HouseHoldPaymentMethods != null)
+                        {
+                            householdPaymentMethods = Mapper.Map<List<KalturaHouseholdPaymentMethod>>(paymentMethod.HouseHoldPaymentMethods);
 
-                    list.AddRange(householdPaymentMethods);
+                            foreach (var hpm in householdPaymentMethods)
+                            {
+                                hpm.PaymentMethodProfileId = paymentMethod.PaymentMethod.ID;
+                                hpm.PaymentGatewayId = paymentGateway.ID;
+                            }
+
+                            list.AddRange(householdPaymentMethods);
+                        }
+                    }
                 }
             }
 
