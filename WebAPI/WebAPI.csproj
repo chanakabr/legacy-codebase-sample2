@@ -1158,6 +1158,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App_Start\CustomResponseFormatter.cs" />
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="Clients\DMSClient.cs" />
     <Compile Include="Controllers\AnnouncementController.cs" />
@@ -1529,6 +1530,8 @@
     <Compile Include="Models\Pricing\KalturaPrice.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdWith.cs" />
     <Compile Include="Models\Pricing\KalturaSubscription.cs" />
+    <Compile Include="Models\Renderers\KalturaRenderer.cs" />
+    <Compile Include="Models\Renderers\KalturaStringRenderer.cs" />
     <Compile Include="Models\Social\KalturaFacebookSocial.cs" />
     <Compile Include="Models\Social\KalturaSocial.cs" />
     <Compile Include="Models\Social\KalturaSocialConfig.cs" />

@@ -29,7 +29,7 @@ namespace WebAPI.Controllers
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private void createMethodInvoker(string serviceName, string actionName, out MethodInfo methodInfo, out object classInstance)
+        private void createMethodInvoker(string serviceName, string actionName, out MethodInfo methodInfo, out ApiController classInstance)
         {
             Assembly asm = Assembly.GetExecutingAssembly();
             Type controller = asm.GetType(string.Format("WebAPI.Controllers.{0}Controller", serviceName), false, true);
@@ -46,8 +46,9 @@ namespace WebAPI.Controllers
 
             if (methodInfo == null)
                 throw new BadRequestException(BadRequestException.INVALID_ACTION, serviceName, actionName);
-            
-            classInstance = Activator.CreateInstance(controller, null);
+
+            classInstance = (ApiController) Activator.CreateInstance(controller, null);
+            classInstance.Configuration = Configuration;
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
@@ -93,7 +94,7 @@ namespace WebAPI.Controllers
         public async Task<object> Action(string service_name, string action_name)
         {
             MethodInfo methodInfo = null;
-            object classInstance = null;
+            ApiController classInstance = null;
             object response = null;
 
             createMethodInvoker(service_name, action_name, out methodInfo, out classInstance);

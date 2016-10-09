@@ -18,6 +18,7 @@ using WebAPI.Utils;
 using WebAPI.Managers.Scheme;
 using WebAPI.Filters;
 using WebAPI.Exceptions;
+using WebAPI.Models.Renderers;
 
 namespace Validator.Managers.Scheme
 {
@@ -777,6 +778,9 @@ namespace Validator.Managers.Scheme
                 return "bool";
             if (type.IsEnum)
                 return type.Name;
+
+            if (typeof(KalturaRenderer).IsAssignableFrom(type))
+                return "file";
 
             return type.Name;
         }

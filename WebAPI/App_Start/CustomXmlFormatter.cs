@@ -19,7 +19,7 @@ namespace WebAPI.App_Start
         {
             SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/xml"));
             SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/xml"));
-            MediaTypeMappings.Add(new QueryStringMapping("format", "1", "application/xml"));
+            MediaTypeMappings.Add(new QueryStringMapping("format", "2", "application/xml"));
         }
 
         public override bool CanReadType(Type type)
