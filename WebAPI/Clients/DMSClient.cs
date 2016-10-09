@@ -22,7 +22,8 @@ namespace WebAPI.Clients
         {
             GroupConfiguration,
             Tag,
-            Device
+            Device,
+            Report
         }
 
         private enum DMSCall
@@ -352,7 +353,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while getting configuration group tag list. partnerId: {0}, partnerId: {1}, exception: {2}", partnerId, groupId, ex);
+                log.ErrorFormat("Error while getting configuration group tag list. partnerId: {0}, groupId: {1}, exception: {2}", partnerId, groupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -623,5 +624,84 @@ namespace WebAPI.Clients
         }
         #endregion
 
+        #region Report Device
+        internal static KalturaDevice GetDeviceReport(int partnerId, string udid)
+        {
+            KalturaDevice device = null;
+            string url = string.Format("{0}/{1}/{2}", DMSControllers.Report.ToString(), partnerId, udid);
+            string result = string.Empty;
+
+            try
+            {
+                // call client
+                result = CallGetDMSClient(url);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while getting device report. partnerId: {0}, udid: {1}, exception: {2}", partnerId, udid, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            DMSReportDeviceGetResponse response = JsonConvert.DeserializeObject<DMSReportDeviceGetResponse>(result);
+
+            if (response == null || response.Result == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Result.Status != DMSeResponseStatus.OK)
+            {
+                throw new ClientException((int)DMSMapping.ConvertDMSStatus(response.Result.Status), response.Result.Message);
+            }
+
+            device = Mapper.Map<KalturaDevice>(response.Device);
+
+            return device;
+
+        }
+
+        internal static KalturaDeviceListResponse GetDevicesReport(int partnerId, long fromDate, int pageIndex, int pageSize)
+        {
+            KalturaDeviceListResponse result = new KalturaDeviceListResponse() { TotalCount = 0 };
+            string url = string.Format("{0}/{1}/{2}/{3}/{4}", DMSControllers.Report.ToString(), partnerId, fromDate, pageIndex, pageSize);
+            string dmsResult = string.Empty;
+
+            try
+            {
+                // call client
+                dmsResult = CallGetDMSClient(url);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while getting configuration group device list. partnerId: {0}, fromDate: {1}, pageIndex: {2}, pageSize: {3}, exception: {4}", partnerId, fromDate, pageIndex, pageSize, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            DMSReportDeviceListResponse response = JsonConvert.DeserializeObject<DMSReportDeviceListResponse>(dmsResult);
+
+            if (response == null || response.Result == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Result.Status != DMSeResponseStatus.OK)
+            {
+                throw new ClientException((int)DMSMapping.ConvertDMSStatus(response.Result.Status), response.Result.Message);
+            }
+
+            if (response.DeviceList != null && response.DeviceList.Count > 0)
+            {
+                result.TotalCount = response.DeviceList.Count;
+                // convert kaltura device            
+                result.Objects = Mapper.Map<List<KalturaDevice>>(response.DeviceList);
+            }
+
+            return result;
+        }
+
+       #endregion
+
+
+        
     }
 }

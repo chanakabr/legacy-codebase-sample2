@@ -58,6 +58,24 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.PartnerId))
                 .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.Udid));
 
+            // from dms to local
+            Mapper.CreateMap<DMSDevice, KalturaDevice>()
+                .ForMember(dest => dest.GroupConfigurationId, opt => opt.MapFrom(src => src.GroupConfigurationId))
+                .ForMember(dest => dest.GroupId, opt => opt.MapFrom(src => src.GroupId))
+                .ForMember(dest => dest.LastAccessDate, opt => opt.MapFrom(src => src.LastAccessDate))
+                .ForMember(dest => dest.LastAccessIP, opt => opt.MapFrom(src => src.LastAccessIP))
+                .ForMember(dest => dest.OperationSystem, opt => opt.MapFrom(src => src.OperationSystem))
+                .ForMember(dest => dest.PushParameters, opt => opt.MapFrom(src => src.PushParameters))
+                .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.Udid))
+                .ForMember(dest => dest.UserAgent, opt => opt.MapFrom(src => src.UserAgent))
+                .ForMember(dest => dest.VersionAppName, opt => opt.MapFrom(src => src.VersionAppName))
+                .ForMember(dest => dest.VersionNumber, opt => opt.MapFrom(src => src.VersionNumber))
+                .ForMember(dest => dest.VersionPlatform, opt => opt.MapFrom(src => ConvertPlatform(src.VersionPlatform)));
+
+            // from dms to local
+            Mapper.CreateMap<DMSPushParams, KalturaPushParams>()
+                .ForMember(dest => dest.ExternalToken, opt => opt.MapFrom(src => src.ExternalToken))
+                .ForMember(dest => dest.Token, opt => opt.MapFrom(src => src.Token));
 
 
 
