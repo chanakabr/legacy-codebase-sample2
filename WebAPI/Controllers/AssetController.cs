@@ -228,6 +228,13 @@ namespace WebAPI.Controllers
                     response = ClientsManager.CatalogClient().GetBundleAssets(groupId, userID, domainId, udid, language,
                        pager.getPageIndex(), pager.PageSize, bundleFilter.IdEqual, bundleFilter.OrderBy, bundleFilter.getTypeIn(), bundleFilter.BundleTypeEqual);
                 }
+                // returns assets that are scheduled to be recorded
+                else if (filter is KalturaScheduledRecordingAssetFilter)
+                {
+                    KalturaScheduledRecordingAssetFilter scheduledRecordingFilter = (KalturaScheduledRecordingAssetFilter)filter;
+                    response = ClientsManager.ConditionalAccessClient().GetScheduledRecordingAssets(groupId, userID, domainId, pager.getPageIndex(), pager.getPageSize(),
+                                                                                                       scheduledRecordingFilter.OrderBy, scheduledRecordingFilter.RecordingTypeEqual);
+                }
                 else
                 {
                     throw new InternalServerErrorException();

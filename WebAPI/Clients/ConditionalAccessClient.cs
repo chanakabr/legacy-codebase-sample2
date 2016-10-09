@@ -1833,6 +1833,13 @@ namespace WebAPI.Clients
 
             return kalturaResponse;
         }
+
+        internal KalturaAssetListResponse GetScheduledRecordingAssets(int groupId, string userID, int domainId, int pageIndex, int pageSize,
+                                                                      KalturaAssetOrderBy kalturaAssetOrderBy, KalturaScheduledRecordingAssetType kalturaScheduledRecordingAssetType)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }
 

@@ -1128,6 +1128,8 @@
     <Compile Include="Models\API\KalturaCountryListResponse.cs" />
     <Compile Include="Models\API\KalturaCountryOrderBy.cs" />
     <Compile Include="Models\API\KalturaMetaType.cs" />
+    <Compile Include="Models\Catalog\KalturaRecordingAssetFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaRecordingAssetType.cs" />
     <Compile Include="Models\Domains\KalturaDeviceBrand.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdDeviceFilter.cs" />
     <Compile Include="Models\API\KalturaDeviceFamilyListResponse.cs" />
