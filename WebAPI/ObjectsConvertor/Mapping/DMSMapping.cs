@@ -42,15 +42,24 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // from dms to local
             Mapper.CreateMap<DMSTagMapping, KalturaConfigurationGroupTag>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.GroupId))
+                .ForMember(dest => dest.GroupId, opt => opt.MapFrom(src => src.GroupId))
                 .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.PartnerId))
                 .ForMember(dest => dest.Tag, opt => opt.MapFrom(src => src.Tag));
 
             // from local to dms  
             Mapper.CreateMap<KalturaConfigurationGroupTag, DMSTagMapping>()
-                .ForMember(dest => dest.GroupId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.GroupId, opt => opt.MapFrom(src => src.GroupId))
                 .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.PartnerId))
                 .ForMember(dest => dest.Tag, opt => opt.MapFrom(src => src.Tag));
+
+            // from dms to local
+            Mapper.CreateMap<DMSDeviceMapping, KalturaConfigurationGroupDevice>()
+                .ForMember(dest => dest.GroupId, opt => opt.MapFrom(src => src.GroupId))
+                .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.PartnerId))
+                .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.Udid));
+
+
+
 
             // from dms to local
             Mapper.CreateMap<DMSGetConfigResponse, KalturaConfiguration>()

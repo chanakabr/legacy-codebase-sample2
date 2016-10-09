@@ -5,7 +5,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.DMS
 {
-    public class KalturaConfigurationGroupTag : KalturaOTTObject
+    public class KalturaConfigurationGroupDevice : KalturaOTTObject
     {
         [DataMember(Name = "groupId")]
         [JsonProperty("groupId")]
@@ -17,9 +17,9 @@ namespace WebAPI.Models.DMS
         [XmlElement(ElementName = "partnerId")]
         public int PartnerId { get; set; }
 
-        [DataMember(Name = "tag")]
-        [JsonProperty("tag")]
-        [XmlElement(ElementName = "tag")]
-        public string Tag { get; set; }       
+        [DataMember(Name = "udid")]
+        [JsonProperty("udid")]
+        [XmlElement(ElementName = "udid")]
+        public string Udid { get; set; }
     }
 }

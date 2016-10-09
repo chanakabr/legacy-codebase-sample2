@@ -93,16 +93,13 @@ namespace WebAPI.Controllers
             }
             return response;
         }
-               
+
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        [Throws(eResponseStatus.UserNotInHousehold)]
-        [Throws(eResponseStatus.UserDoesNotExist)]
-        [Throws(eResponseStatus.UserSuspended)]
-        [Throws(eResponseStatus.UserWithNoHousehold)]
-        [Throws(eResponseStatus.RecordingNotFound)]
-        [Throws(eResponseStatus.RecordingStatusNotValid)]
-        public bool Delete(string groupId)
+        [Throws(eResponseStatus.Forbidden)]
+        [Throws(eResponseStatus.IllegalQueryParams)]
+        [Throws(eResponseStatus.NotExist)]
+        public bool Delete(string groupId, string tag)
         {
             bool response = false;
 
@@ -111,10 +108,13 @@ namespace WebAPI.Controllers
                 if (string.IsNullOrWhiteSpace(groupId))
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "groupId");
 
+                if (string.IsNullOrWhiteSpace(tag))
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "tag");
+
                 int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
-                response = DMSClient.DeleteConfigurationGroup(partnerId, groupId);
+                response = DMSClient.DeleteConfigurationGroupTag(partnerId, groupId, tag);
             }
             catch (ClientException ex)
             {
