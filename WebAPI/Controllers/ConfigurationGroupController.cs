@@ -114,9 +114,9 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.NotExist)]
         [Throws(eResponseStatus.PartnerMismatch)]
-        public KalturaConfigurationGroup Delete(string groupId)
+        public bool Delete(string groupId)
         {
-            KalturaConfigurationGroup response = null;
+            bool response = false;
 
             try
             {

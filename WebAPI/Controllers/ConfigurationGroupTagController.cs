@@ -29,9 +29,9 @@ namespace WebAPI.Controllers
             KalturaConfigurationGroupTag response = null;
             int partnerId = KS.GetFromRequest().GroupId;
 
-            if( string.IsNullOrWhiteSpace(tag))
-                   throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "tag");
-          
+            if (string.IsNullOrWhiteSpace(tag))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "tag");
+
             try
             {
                 // call client               
@@ -57,11 +57,11 @@ namespace WebAPI.Controllers
             {
                 if (string.IsNullOrWhiteSpace(groupId))
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "groupId");
-         
+
                 int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
-                response = DMSClient.GetConfigurationGroupTagList(partnerId, groupId);        
+                response = DMSClient.GetConfigurationGroupTagList(partnerId, groupId);
             }
             catch (ClientException ex)
             {
@@ -84,7 +84,7 @@ namespace WebAPI.Controllers
                 int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
-                response = DMSClient.AddConfigurationGroup(partnerId, configurationGroup);        
+                response = DMSClient.AddConfigurationGroup(partnerId, configurationGroup);
             }
             catch (ClientException ex)
             {
@@ -92,7 +92,7 @@ namespace WebAPI.Controllers
             }
             return response;
         }
-    
+
         [Route("update"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
@@ -125,15 +125,15 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserWithNoHousehold)]
         [Throws(eResponseStatus.RecordingNotFound)]
         [Throws(eResponseStatus.RecordingStatusNotValid)]
-        public KalturaConfigurationGroup Delete(string groupId)
+        public bool Delete(string groupId)
         {
-            KalturaConfigurationGroup response = null;
+            bool response = false;
 
             try
             {
                 if (string.IsNullOrWhiteSpace(groupId))
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "groupId");
-                
+
                 int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
@@ -145,6 +145,6 @@ namespace WebAPI.Controllers
             }
             return response;
         }
-    
+
     }
 }

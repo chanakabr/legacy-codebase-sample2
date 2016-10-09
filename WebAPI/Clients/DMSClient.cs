@@ -23,7 +23,14 @@ namespace WebAPI.Clients
         {
             GroupConfiguration,
             Tag
-        }     
+        }
+
+        private enum DMSCall
+        {
+            POST,
+            PUT
+        }  
+
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());        
 
         public static KalturaConfigurationGroup GetConfigurationGroup(int partnerId, string groupId)
@@ -43,7 +50,7 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            DMSGroupConfigurationGetResponse groupConfigurationGetResponse = JsonConvert.DeserializeObject<DMSGroupConfigurationGetResponse>(result);
+            DMSGroupConfigurationResponse groupConfigurationGetResponse = JsonConvert.DeserializeObject<DMSGroupConfigurationResponse>(result);
 
             if (groupConfigurationGetResponse == null || groupConfigurationGetResponse.Result == null)
             {
@@ -108,12 +115,11 @@ namespace WebAPI.Clients
 
             try
             {
-                NameValueCollection pairs = new NameValueCollection();
-                //TODO: convert configurationGroup to NameValueCollection
-                // pairs.Add(configurationGroup.Id.g"id": "myId",
+                configurationGroup.PartnerId = partnerId;
+                DMSGroupConfiguration dmsGroupConfiguration = Mapper.Map<DMSGroupConfiguration>(configurationGroup);
 
                 // call client
-                dmsResult = CallPostDMSClient(url, pairs);
+                dmsResult = CallDMSClient(DMSCall.POST, url, dmsGroupConfiguration);
             }
             catch (Exception ex)
             {
@@ -121,20 +127,21 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            DMSStatusResponse statusResponse = JsonConvert.DeserializeObject<DMSStatusResponse>(dmsResult);
+            DMSGroupConfigurationResponse response = JsonConvert.DeserializeObject<DMSGroupConfigurationResponse>(dmsResult);
 
-            if (statusResponse == null)
+            if (response == null || response.Result == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (statusResponse.Status != DMSeResponseStatus.OK)
+            if (response.Result.Status != DMSeResponseStatus.OK)
             {
-                throw new ClientException((int)DMSMapping.ConvertDMSStatus(statusResponse.Status), statusResponse.Message);
+                throw new ClientException((int)DMSMapping.ConvertDMSStatus(response.Result.Status), response.Result.Message);
             }
 
-            result = new KalturaConfigurationGroup() { Id = statusResponse.ID };
-            return result;
+            configurationGroup = Mapper.Map<KalturaConfigurationGroup>(response.GroupConfiguration);
+
+            return configurationGroup;
         }
 
         internal static KalturaConfigurationGroup UpdateConfigurationGroup(int partnerId, KalturaConfigurationGroup configurationGroup)
@@ -148,10 +155,9 @@ namespace WebAPI.Clients
             try
             {
                 dmsGroupConfiguration = Mapper.Map<DMSGroupConfiguration>(configurationGroup);
-
+                dmsGroupConfiguration.PartnerId = partnerId;
                 // call client               
-                var data = JsonConvert.SerializeObject(dmsGroupConfiguration);
-                dmsResult = CallPutDMSClient(url, data);
+                dmsResult = CallDMSClient(DMSCall.PUT, url, dmsGroupConfiguration);
             }
             catch (Exception ex)
             {
@@ -161,24 +167,26 @@ namespace WebAPI.Clients
 
             DMSStatusResponse statusResponse = JsonConvert.DeserializeObject<DMSStatusResponse>(dmsResult);
 
-            if (statusResponse == null)
+            DMSGroupConfigurationResponse response = JsonConvert.DeserializeObject<DMSGroupConfigurationResponse>(dmsResult);
+
+            if (response == null || response.Result == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (statusResponse.Status != DMSeResponseStatus.OK)
+            if (response.Result.Status != DMSeResponseStatus.OK)
             {
-                throw new ClientException((int)DMSMapping.ConvertDMSStatus(statusResponse.Status), statusResponse.Message);
+                throw new ClientException((int)DMSMapping.ConvertDMSStatus(response.Result.Status), response.Result.Message);
             }
 
-            result = new KalturaConfigurationGroup() { Id = statusResponse.ID };
-            return result;
+            configurationGroup = Mapper.Map<KalturaConfigurationGroup>(response.GroupConfiguration);
+
+            return configurationGroup;
         }
 
-        internal static KalturaConfigurationGroup DeleteConfigurationGroup(int partnerId, string groupId)
+        internal static bool DeleteConfigurationGroup(int partnerId, string groupId)
         {
             KalturaConfigurationGroup result = null;
-            DMSGroupConfiguration dmsGroupConfiguration = null;
 
             string url = string.Format("{0}/{1}/{2}", DMSControllers.GroupConfiguration.ToString(), partnerId, groupId);
             string dmsResult = string.Empty;
@@ -206,8 +214,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)DMSMapping.ConvertDMSStatus(statusResponse.Status), statusResponse.Message);
             }
 
-            result = new KalturaConfigurationGroup() { Id = statusResponse.ID };
-            return result;
+            return true;
         }
 
         private static string CallDeleteDMSClient(string url)
@@ -233,34 +240,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        private static string CallPutDMSClient(string url, string data)
-        {
-            string result = string.Empty;
-
-            string dmsServer = TCMClient.Settings.Instance.GetValue<string>("dms_url");
-            if (string.IsNullOrWhiteSpace(dmsServer))
-            {
-                throw new InternalServerErrorException(InternalServerErrorException.MISSING_CONFIGURATION, "dms_url");
-            }
-            var dmsRestUrl = string.Format("{0}/api/{1}", dmsServer, url);
-
-            var request = WebRequest.Create(dmsRestUrl);
-            request.Method = "PUT";
-            request.ContentType = "application/json; charset=utf-8";
-            using (var writer = new StreamWriter(request.GetRequestStream()))
-            {
-                writer.Write(data);
-            }
-
-            using (var response = request.GetResponse())
-            using (var reader = new StreamReader(response.GetResponseStream()))
-            {
-                result = reader.ReadToEnd();
-            }
-
-            return result;
-        }
-
+       
         private static string CallGetDMSClient(string url)
         {
             string result = string.Empty;
@@ -286,7 +266,7 @@ namespace WebAPI.Clients
         }
 
 
-        private static string CallPostDMSClient(string url, NameValueCollection pairs)
+        private static string CallDMSClient(DMSCall dmsCall, string url, Object data)
         {
             string result = string.Empty;
 
@@ -297,13 +277,22 @@ namespace WebAPI.Clients
             }
             var dmsRestUrl = string.Format("{0}/api/{1}", dmsServer, url);
 
-            byte[] response = null;
-            using (WebClient client = new WebClient())
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create(dmsRestUrl);
+            httpWebRequest.ContentType = "application/json";
+            httpWebRequest.Method = dmsCall.ToString();
+
+            using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
             {
-                response = client.UploadValues(dmsRestUrl,"POST", pairs);
+                string json = JsonConvert.SerializeObject(data);
+                streamWriter.Write(json);
             }
 
-            result = Encoding.ASCII.GetString(response);
+            var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            {
+                result = streamReader.ReadToEnd();
+            }
+
             return result;
         }
 

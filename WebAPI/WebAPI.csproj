@@ -1186,9 +1186,9 @@
     <Compile Include="Models\API\KalturaMetaType.cs" />
     <Compile Include="Models\DMS\DMSConfigurationMin.cs" />
     <Compile Include="Models\DMS\DMSGroupConfigurationMin.cs" />
+    <Compile Include="Models\DMS\DMSGroupConfigurationResponse.cs" />
     <Compile Include="Models\DMS\KalturaConfigurationGroupTagListResponse.cs" />
     <Compile Include="Models\DMS\KalturaConfigurationGroupTag.cs" />
-    <Compile Include="Models\DMS\DMSGroupConfigurationGetResponse.cs" />
     <Compile Include="Models\DMS\DMSStatusResponse.cs" />
     <Compile Include="Models\DMS\DMSGroupConfiguration.cs" />
     <Compile Include="Models\DMS\DMSGroupConfigurationListResponse.cs" />
