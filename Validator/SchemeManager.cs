@@ -488,7 +488,7 @@ namespace Validator.Managers.Scheme
             }
 
             string actionId = route.Template;
-            if (actionId != "get" && actionId != "add" && actionId != "update" && actionId != "delete" && actionId != "list" && !hasValidationException(action, SchemeValidationType.ACTION_NAME))
+            if (actionId != "get" && actionId != "add" && actionId != "update" && actionId != "delete" && actionId != "list" && actionId != "updateStatus" && actionId != "serve" && !hasValidationException(action, SchemeValidationType.ACTION_NAME))
             {
                 logError("Error", controller, string.Format("Action {0}.{1} ({2}) has non-standard name (add, update, get, delete and list are allowed)", serviceId, actionId, controller.Name));
                 valid = false;
