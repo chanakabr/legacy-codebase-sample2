@@ -1,13 +1,13 @@
 ﻿
 namespace WebAPI.Models.DMS
 {
-    public class DMSTagGetResponse
+    public class DMSTagResponse
     {
         public DMSStatusResponse Result { get; set; }
 
         public DMSTagMapping TagMap { get; set; }
 
-        public DMSTagGetResponse()
+        public DMSTagResponse()
         {
             this.Result = new DMSStatusResponse();
         }

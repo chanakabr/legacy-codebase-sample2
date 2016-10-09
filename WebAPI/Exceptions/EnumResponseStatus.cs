@@ -299,6 +299,7 @@ namespace ApiObjects.Response
         PartnerMismatch = 12004,
         ItemAlreadyExist = 12005,
         Registered = 12006,
-        VersionNotFound = 12007
+        VersionNotFound = 12007,
+        AlreadyExist = 12008
     }
 }

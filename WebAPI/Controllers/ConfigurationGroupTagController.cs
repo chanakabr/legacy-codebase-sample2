@@ -74,41 +74,18 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
-        [Throws(eResponseStatus.IllegalPostData)]
-        public KalturaConfigurationGroup Add(KalturaConfigurationGroup configurationGroup)
-        {
-            KalturaConfigurationGroup response = null;
-
-            try
-            {
-                int partnerId = KS.GetFromRequest().GroupId;
-
-                // call client        
-                response = DMSClient.AddConfigurationGroup(partnerId, configurationGroup);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-            return response;
-        }
-
-        [Route("update"), HttpPost]
-        [ApiAuthorize]
-        [Throws(eResponseStatus.Forbidden)]
-        [Throws(eResponseStatus.IllegalQueryParams)]
+        [Throws(eResponseStatus.AlreadyExist)]
         [Throws(eResponseStatus.NotExist)]
-        [Throws(eResponseStatus.IllegalPostData)]
-        public KalturaConfigurationGroup Update(KalturaConfigurationGroup configurationGroup)
+        public KalturaConfigurationGroupTag Add(KalturaConfigurationGroupTag configurationGroupTag)
         {
-            KalturaConfigurationGroup response = null;
+            KalturaConfigurationGroupTag response = null;
 
             try
             {
                 int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
-                response = DMSClient.UpdateConfigurationGroup(partnerId, configurationGroup);
+                response = DMSClient.AddConfigurationGroupTag(partnerId, configurationGroupTag);
             }
             catch (ClientException ex)
             {
@@ -116,7 +93,7 @@ namespace WebAPI.Controllers
             }
             return response;
         }
-
+               
         [Route("delete"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.UserNotInHousehold)]

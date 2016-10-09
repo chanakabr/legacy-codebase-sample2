@@ -109,8 +109,6 @@ namespace WebAPI.Clients
 
         internal static KalturaConfigurationGroup AddConfigurationGroup(int partnerId, KalturaConfigurationGroup configurationGroup)
         {
-            KalturaConfigurationGroup result = null;
-
             string url = string.Format("{0}/{1}", DMSControllers.GroupConfiguration.ToString(), partnerId);
             string dmsResult = string.Empty;
 
@@ -285,8 +283,15 @@ namespace WebAPI.Clients
 
             using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
             {
-                string json = JsonConvert.SerializeObject(data);
-                streamWriter.Write(json);
+                if (data != null)
+                {
+                    string json = JsonConvert.SerializeObject(data);
+                    streamWriter.Write(json);
+                }
+                else
+                {
+                    streamWriter.Write(string.Empty);
+                }
             }
 
             var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
@@ -299,7 +304,7 @@ namespace WebAPI.Clients
         }
         #endregion
 
-        #region Configuration Group
+        #region Configuration Group Tag
         internal static KalturaConfigurationGroupTag GetConfigurationGroupTag(int partnerId, string tag)
         {
             KalturaConfigurationGroupTag configurationGroupTag = null;
@@ -317,7 +322,7 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            DMSTagGetResponse dmsTagGetResponse = JsonConvert.DeserializeObject<DMSTagGetResponse>(result);
+            DMSTagResponse dmsTagGetResponse = JsonConvert.DeserializeObject<DMSTagResponse>(result);
 
             if (dmsTagGetResponse == null || dmsTagGetResponse.Result == null)
             {
@@ -338,7 +343,7 @@ namespace WebAPI.Clients
         internal static KalturaConfigurationGroupTagListResponse GetConfigurationGroupTagList(int partnerId, string groupId)
         {
             KalturaConfigurationGroupTagListResponse result = new KalturaConfigurationGroupTagListResponse() { TotalCount = 0 };
-            string url = string.Format("{0}/{1}/{2}", DMSControllers.GroupConfiguration.ToString(), partnerId, groupId);
+            string url = string.Format("{0}/List/{1}/{2}", DMSControllers.Tag.ToString(), partnerId, groupId);
             string dmsResult = string.Empty;
 
             try
@@ -372,6 +377,42 @@ namespace WebAPI.Clients
             }
 
             return result;
+        }
+
+        internal static KalturaConfigurationGroupTag AddConfigurationGroupTag(int partnerId, KalturaConfigurationGroupTag configurationGroupTag)
+        {
+            string url = string.Format("{0}/{1}/{2}/{3}", DMSControllers.Tag.ToString(), partnerId, configurationGroupTag.Id,configurationGroupTag.Tag);
+            string dmsResult = string.Empty;
+
+            try
+            {
+                //configurationGroupTag.PartnerId = partnerId;
+                //DMSTagMapping dmsTagMapping = Mapper.Map<DMSTagMapping>(configurationGroupTag);
+
+                // call client
+                dmsResult = CallDMSClient(DMSCall.POST, url, null);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while AddConfigurationGroup. partnerId: {0}, exception: {1}", partnerId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            DMSTagResponse response = JsonConvert.DeserializeObject<DMSTagResponse>(dmsResult);
+
+            if (response == null || response.Result == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Result.Status != DMSeResponseStatus.OK)
+            {
+                throw new ClientException((int)DMSMapping.ConvertDMSStatus(response.Result.Status), response.Result.Message);
+            }
+
+            configurationGroupTag = Mapper.Map<KalturaConfigurationGroupTag>(response.TagMap);
+
+            return configurationGroupTag;
         }
         #endregion
 
@@ -410,5 +451,7 @@ namespace WebAPI.Clients
 
             return configurationGroup;
         }
+
+      
     }
 }

@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace WebAPI.Models.DMS
 {
-    [DataContract]
+    [JsonObject]    
     public class DMSTagMapping
     {
         [JsonProperty("group_id")]

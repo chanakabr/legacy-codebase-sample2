@@ -7,11 +7,5 @@ namespace WebAPI.Models.DMS
         public DMSStatusResponse Result { get; set; }
 
         public List<DMSTagMapping> TagMappingList { get; set; }
-
-        public DMSTagListResponse()
-        {
-            this.Result = new DMSStatusResponse();
-            this.TagMappingList = new List<DMSTagMapping>();
-        }
     }
 }

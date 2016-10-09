@@ -1197,7 +1197,7 @@
     <Compile Include="Models\DMS\DMSGroupConfigurationListResponse.cs" />
     <Compile Include="Models\DMS\KalturaConfigurationGroup.cs" />
     <Compile Include="Models\DMS\KalturaConfigurationGroupListResponse.cs" />
-    <Compile Include="Models\DMS\DMSTagGetResponse.cs" />
+    <Compile Include="Models\DMS\DMSTagResponse.cs" />
     <Compile Include="Models\DMS\DMSTagListResponse.cs" />
     <Compile Include="Models\DMS\DMSTagMapping.cs" />
     <Compile Include="Models\DMS\KalturaConfigurationMin.cs" />
