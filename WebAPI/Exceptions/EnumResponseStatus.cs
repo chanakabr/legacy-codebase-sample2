@@ -297,6 +297,8 @@ namespace ApiObjects.Response
         IllegalPostData = 12002,
         NotExist = 12003,
         PartnerMismatch = 12004,
-        ItemAlreadyExist = 12005
+        ItemAlreadyExist = 12005,
+        Registered = 12006,
+        VersionNotFound = 12007
     }
 }

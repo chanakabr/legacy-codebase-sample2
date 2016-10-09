@@ -29,14 +29,15 @@ namespace WebAPI.Clients
         {
             POST,
             PUT
-        }  
+        }
 
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());        
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
+        #region Configuration Group
         public static KalturaConfigurationGroup GetConfigurationGroup(int partnerId, string groupId)
         {
             KalturaConfigurationGroup configurationGroup = null;
-            string url = string.Format("{0}/{1}/{2}", DMSControllers.GroupConfiguration.ToString(), partnerId, groupId);            
+            string url = string.Format("{0}/{1}/{2}", DMSControllers.GroupConfiguration.ToString(), partnerId, groupId);
             string result = string.Empty;
 
             try
@@ -217,6 +218,9 @@ namespace WebAPI.Clients
             return true;
         }
 
+        #endregion
+
+        #region DMs Calls
         private static string CallDeleteDMSClient(string url)
         {
             string result = string.Empty;
@@ -240,8 +244,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-       
-        private static string CallGetDMSClient(string url)
+        private static string CallGetDMSClient(string url, string action = "api")
         {
             string result = string.Empty;
 
@@ -250,7 +253,7 @@ namespace WebAPI.Clients
             {
                 throw new InternalServerErrorException(InternalServerErrorException.MISSING_CONFIGURATION, "dms_url");
             }
-            var dmsRestUrl = string.Format("{0}/api/{1}", dmsServer,url);
+            var dmsRestUrl = string.Format("{0}/{1}/{2}", dmsServer, action, url);
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(dmsRestUrl);
             request.AutomaticDecompression = DecompressionMethods.GZip;
@@ -264,7 +267,6 @@ namespace WebAPI.Clients
             }
             return result;
         }
-
 
         private static string CallDMSClient(DMSCall dmsCall, string url, Object data)
         {
@@ -295,8 +297,9 @@ namespace WebAPI.Clients
 
             return result;
         }
+        #endregion
 
-
+        #region Configuration Group
         internal static KalturaConfigurationGroupTag GetConfigurationGroupTag(int partnerId, string tag)
         {
             KalturaConfigurationGroupTag configurationGroupTag = null;
@@ -314,7 +317,7 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            DMSTagGetResponse dmsTagGetResponse  = JsonConvert.DeserializeObject<DMSTagGetResponse>(result);
+            DMSTagGetResponse dmsTagGetResponse = JsonConvert.DeserializeObject<DMSTagGetResponse>(result);
 
             if (dmsTagGetResponse == null || dmsTagGetResponse.Result == null)
             {
@@ -369,6 +372,43 @@ namespace WebAPI.Clients
             }
 
             return result;
+        }
+        #endregion
+
+        internal static KalturaConfiguration GetConfiguration(int partnerId, string applicationName, string configurationVersion, string platform, string UDID, string tag)
+        {
+            string result = string.Empty;
+            KalturaConfiguration configurationGroup = null;
+            string url = string.Format("getconfig?username=dms&password=tvinci&appname={0}&cver={1}&platform={2}&udid={3}&partnerId={4}&tag={5}",
+                applicationName, configurationVersion, platform, UDID, partnerId, tag);
+
+            try
+            {
+                // call client
+                result = CallGetDMSClient(url,"v2");
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while getting configuration. partnerId: {0}, applicationName: {1}, configurationVersion: {2}, platform: {3}, UDID: {4}, tag: {5}, exception: {6}",
+                    partnerId, applicationName, configurationVersion, platform, UDID, tag, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            DMSGetConfigResponse response = JsonConvert.DeserializeObject<DMSGetConfigResponse>(result);
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (!(response.Status == DMSeStatus.Success || response.Status == DMSeStatus.Registered))
+            {
+                throw new ClientException((int)DMSMapping.ConvertDMSStatus(response.Status));
+            }
+
+            configurationGroup = Mapper.Map<KalturaConfiguration>(response);
+
+            return configurationGroup;
         }
     }
 }
