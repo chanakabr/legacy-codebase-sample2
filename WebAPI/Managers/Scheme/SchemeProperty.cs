@@ -36,13 +36,18 @@ namespace WebAPI.Managers.Scheme
             if(HttpContext.Current.Items[RequestParser.REQUEST_TYPE] != null)
                 requiresPermission = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
 
-            if (isA(requiresPermission, RequestType.WRITE) && ReadOnly && !OldStandardAttribute.isCurrentRequestOldVersion())
+            if (!OldStandardAttribute.isCurrentRequestOldVersion())
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_IS_READONLY, name);
-            }
+                if (isA(requiresPermission, RequestType.WRITE) && ReadOnly)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_IS_READONLY, name);
+                }
 
-            if (isA(requiresPermission, RequestType.UPDATE) && InsertOnly)
-                throw new BadRequestException(BadRequestException.ARGUMENT_IS_INSERTONLY, name);
+                if (isA(requiresPermission, RequestType.UPDATE) && InsertOnly)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_IS_INSERTONLY, name);
+                }
+            }
 
             if (RequiresPermission > 0)
             {

@@ -39,6 +39,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "externalId")]
         [JsonProperty("externalId")]
         [XmlElement(ElementName = "externalId")]
+        [SchemeProperty(InsertOnly = true)]
         public string ExternalId { get; set; }
 
         /// <summary>

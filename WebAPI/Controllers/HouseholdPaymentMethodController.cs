@@ -20,7 +20,7 @@ namespace WebAPI.Controllers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         /// <summary>
-        /// Get a list of all configured Payment Gateways providers available for the account. For each payment is provided with the household associated payment methods. 
+        /// Get a list of all payment methods of the household.
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
