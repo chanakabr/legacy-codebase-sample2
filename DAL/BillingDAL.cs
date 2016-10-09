@@ -2241,27 +2241,6 @@ namespace DAL
             return response;
         }
 
-        public static bool Update_PaymentGatewayPaymentMethod(int paymentMethodId, string name, bool allowMultiInstance)
-        {
-            int rowCount = 0;
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_PaymentGatewayPaymentMethod");
-                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@payment_method_id", paymentMethodId);
-                sp.AddParameter("@name", name);
-                sp.AddParameter("@allow_multi_instance", allowMultiInstance ? 1 : 0);
-
-                rowCount = sp.ExecuteReturnValue<int>();
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error at Update_PaymentGatewayPaymentMethod. paymentMethodId: {0}, name = {1}", paymentMethodId, !string.IsNullOrEmpty(name) ? name : string.Empty, ex);
-            }
-
-            return rowCount > 0;
-        }
-
         public static bool Delete_PaymentGatewayPaymentMethod(int paymentMethodId)
         {
             int rowCount = 0;
