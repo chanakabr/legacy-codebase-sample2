@@ -174,7 +174,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                return ClientsManager.BillingClient().UpdatePaymentMethod(groupId, paymentMethod.getId(), paymentMethod.Name, paymentMethod.getAllowMultiInstance());
+                return ClientsManager.BillingClient().UpdatePaymentMethod(groupId, paymentMethodId, paymentMethod.Name, paymentMethod.getAllowMultiInstance());
             }
             catch (ClientException ex)
             {
