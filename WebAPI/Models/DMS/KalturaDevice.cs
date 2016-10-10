@@ -33,7 +33,7 @@ namespace WebAPI.Models.DMS
         [XmlElement(ElementName = "versionPlatform")]
         [JsonProperty("versionPlatform")]
         [JsonConverter(typeof(StringEnumConverter))]
-        public KalturaePlatform VersionPlatform { get; set; }
+        public KalturaPlatform VersionPlatform { get; set; }
 
         [DataMember(Name = "versionAppName")]
         [XmlElement(ElementName = "versionAppName")]

@@ -421,6 +421,58 @@
             <returns></returns>
             <remarks>Possible status codes: CDN partner settings not found = 5025</remarks>   
         </member>
+        <member name="M:WebAPI.Controllers.ConfigurationController.Serve(System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            Return a device configuration applicable for a specific device (UDID), app name, software version, platform and optionally a configuration group’s tag
+            </summary>
+            <param name="applicationName"></param>
+            <param name="configurationVersion"></param>
+            <param name="platform"></param>
+            <param name="udid"></param>
+            <param name="tag"></param>
+            <returns></returns>
+            <remarks> Possible status codes: IllegalQueryParams = 12001, Registered = 12006, VersionNotFound = 12007</remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.ConfigurationController.Get(System.String)">
+            <summary>
+            Return the device configuration
+            </summary>
+            <param name="configurationId"></param>
+            <returns></returns>
+            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.ConfigurationController.List(WebAPI.Models.DMS.KalturaConfigurationFilter)">
+            <summary>
+            Return a list of device configurations of a configuration group
+            </summary>
+            <param name="filter"></param>
+            <returns></returns>
+            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001</remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.ConfigurationController.Add(WebAPI.Models.DMS.KalturaConfiguration)">
+            <summary>
+            Add a new device configuration to a configuration group
+            </summary>
+            <param name="configurationGroup"></param>
+            <returns></returns>
+            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002, AlreadyExist = 12008</remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.ConfigurationController.Update(System.String,WebAPI.Models.DMS.KalturaConfiguration)">
+            <summary>
+            Update device configuration
+            </summary>
+            <param name="configurationGroup"></param>
+            <returns></returns>
+            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002, NotExist = 12003, PartnerMismatch = 12004, AlreadyExist = 12008</remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.ConfigurationController.Delete(System.String)">
+            <summary>
+            Delete a device configuration
+            </summary>
+            <param name="groupId"></param>
+            <returns></returns>
+            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
+        </member>
         <member name="M:WebAPI.Controllers.MetaController.List(WebAPI.Models.API.KalturaMetaFilter)">
             <summary>
             Get the list of meta mappings for the partner
@@ -570,6 +622,14 @@
         <member name="T:WebAPI.Models.DMS.KalturaConfigurationGroupListResponse">
             <summary>
             
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.DMS.KalturaConfigurationListResponse">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurationListResponse.Objects">
+            <summary>
             </summary>
         </member>
         <member name="T:WebAPI.Models.Domains.KalturaDeviceBrand">

@@ -1,5 +1,7 @@
 ﻿using ApiObjects.Response;
 using AutoMapper;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.DMS;
@@ -77,55 +79,86 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ExternalToken, opt => opt.MapFrom(src => src.ExternalToken))
                 .ForMember(dest => dest.Token, opt => opt.MapFrom(src => src.Token));
 
+            // from dms to local
+            Mapper.CreateMap<DMSAppVersion, KalturaConfiguration>()
+                .ForMember(dest => dest.AppName, opt => opt.MapFrom(src => src.AppName))
+                .ForMember(dest => dest.ClientVersion, opt => opt.MapFrom(src => src.ClientVersion))
+                .ForMember(dest => dest.IsForceUpdate, opt => opt.MapFrom(src => src.IsForceUpdate))
+                .ForMember(dest => dest.Platform, opt => opt.MapFrom(src => ConvertPlatform(src.Platform)))
+                .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.GroupId))
+                .ForMember(dest => dest.ExternalPushId, opt => opt.MapFrom(src => src.ExternalPushId))
+                .ForMember(dest => dest.Content, opt => opt.MapFrom(src => ConvertToContent(src.Params)))
+                .ForMember(dest => dest.GroupConfigurationId, opt => opt.MapFrom(src => src.GroupConfigurationId))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault));
 
+            // from local to dms 
+            Mapper.CreateMap<KalturaConfiguration, DMSAppVersion>()
+                .ForMember(dest => dest.AppName, opt => opt.MapFrom(src => src.AppName))
+                .ForMember(dest => dest.ClientVersion, opt => opt.MapFrom(src => src.ClientVersion))
+                .ForMember(dest => dest.IsForceUpdate, opt => opt.MapFrom(src => src.IsForceUpdate))
+                .ForMember(dest => dest.Platform, opt => opt.MapFrom(src => ConvertPlatform(src.Platform)))
+                .ForMember(dest => dest.GroupId, opt => opt.MapFrom(src => src.PartnerId))
+                .ForMember(dest => dest.ExternalPushId, opt => opt.MapFrom(src => src.ExternalPushId))
+                .ForMember(dest => dest.Params, opt => opt.MapFrom(src => ConvertToParms(src.Content)))
+                .ForMember(dest => dest.GroupConfigurationId, opt => opt.MapFrom(src => src.GroupConfigurationId))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault));
 
-            //// from dms to local
-            //Mapper.CreateMap<DMSGetConfigResponse, KalturaConfiguration>()
-            //    .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertDMSStatus(src.Status)))
-            //    .ForMember(dest => dest.UDID, opt => opt.MapFrom(src => src.UDID))
-            //    .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version))
-            //    .ForMember(dest => dest.Params, opt => opt.MapFrom(src => src.Params))
-            //    .ForMember(dest => dest.Token, opt => opt.MapFrom(src => src.Token));
-
-            //// from dms to local
-            //Mapper.CreateMap<DMSAppVersion, KalturaAppVersion>()
-            //    .ForMember(dest => dest.AppName, opt => opt.MapFrom(src => src.AppName))
-            //    .ForMember(dest => dest.ClientVersion, opt => opt.MapFrom(src => src.ClientVersion))
-            //    .ForMember(dest => dest.IsForceUpdate, opt => opt.MapFrom(src => src.IsForceUpdate))
-            //    .ForMember(dest => dest.Platform, opt => opt.MapFrom(src => ConvertPlatform(src.Platform)))
-            //    .ForMember(dest => dest.GroupId, opt => opt.MapFrom(src => src.GroupId))
-            //    .ForMember(dest => dest.ExternalPushId, opt => opt.MapFrom(src => src.ExternalPushId))
-            //    .ForMember(dest => dest.Params, opt => opt.MapFrom(src => src.Params))  //TODO : convert parama
-            //    .ForMember(dest => dest.GroupConfigurationId, opt => opt.MapFrom(src => src.GroupConfigurationId))
-            //    .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-            //    .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
-            //    ;
-
-            //// from dms to local
-            //Mapper.CreateMap<DMSDeviceToken, KalturaDeviceToken>()
-            //    .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.Key))
-            //    .ForMember(dest => dest.ValidUntil, opt => opt.MapFrom(src => src.ValidUntil))
-            //    ;
         }
 
-        private static KalturaePlatform ConvertPlatform(DMSePlatform dMSePlatform)
+        private static Dictionary<string, object> ConvertToParms(string data)
+        {
+            return JsonConvert.DeserializeObject < Dictionary<string, object>>(data);
+        }
+
+        private static string ConvertToContent(Dictionary<string, object> dictionary)
+        {
+            return JsonConvert.SerializeObject(dictionary);
+        }
+
+        private static KalturaPlatform ConvertPlatform(KalturaePlatform kalturaePlatform)
+        {
+            switch (kalturaePlatform)
+            {
+                case KalturaePlatform.Android:
+                    return KalturaPlatform.Android;
+                case KalturaePlatform.iOS:
+                    return KalturaPlatform.iOS;
+                case KalturaePlatform.WindowsPhone:
+                    return KalturaPlatform.WindowsPhone;
+                case KalturaePlatform.Blackberry:
+                    return KalturaPlatform.Blackberry;
+                case KalturaePlatform.STB:
+                    return KalturaPlatform.STB;
+                case KalturaePlatform.CTV:
+                    return KalturaPlatform.CTV;
+                case KalturaePlatform.Other:
+                    return KalturaPlatform.Other;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown platform owner");
+            }
+        }
+
+
+        private static KalturaPlatform ConvertPlatform(DMSePlatform dMSePlatform)
         {
             switch (dMSePlatform)
             {
                 case DMSePlatform.Android:
-                    return KalturaePlatform.Android;
+                    return KalturaPlatform.Android;
                 case DMSePlatform.iOS:
-                    return KalturaePlatform.iOS;
+                    return KalturaPlatform.iOS;
                 case DMSePlatform.WindowsPhone:
-                    return KalturaePlatform.WindowsPhone;
+                    return KalturaPlatform.WindowsPhone;
                 case DMSePlatform.Blackberry:
-                    return KalturaePlatform.Blackberry;
+                    return KalturaPlatform.Blackberry;
                 case DMSePlatform.STB:
-                    return KalturaePlatform.STB;
+                    return KalturaPlatform.STB;
                 case DMSePlatform.CTV:
-                    return KalturaePlatform.CTV;
+                    return KalturaPlatform.CTV;
                 case DMSePlatform.Other:
-                    return KalturaePlatform.Other;
+                    return KalturaPlatform.Other;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown platform owner");
             }

@@ -3,68 +3,27 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
+using WebAPI.Models.Renderers;
 
 namespace WebAPI.Models.DMS
 {
     public class KalturaConfiguration : KalturaOTTObject
     {
-        [DataMember(Name = "status")]
-        [JsonProperty("status")]
-        [XmlElement(ElementName = "status")]
-        public KalturaeStatus Status { get; set; }
-
-        [DataMember(Name = "udid")]
-        [JsonProperty("udid")]
-        [XmlElement(ElementName = "udid")]
-        public string UDID { get; set; }
-
-        [DataMember(Name = "version")]
-        [JsonProperty("version")]
-        [XmlElement(ElementName = "version")]
-        public KalturaAppVersion Version { get; set; }
-
-        [DataMember(Name = "params")]
-        [JsonProperty("params")]
-        [XmlElement(ElementName = "params")]
-        public SerializableDictionary<string, object> Params { get; set; }
-
-        [DataMember(Name = "token")]
-        [JsonProperty("token")]
-        [XmlElement(ElementName = "token")]
-        public KalturaDeviceToken Token;
-    }    
-
-    [DataContract]
-    public class KalturaDeviceToken : KalturaOTTObject
-    {
-        [DataMember(Name = "key")]
-        [XmlElement(ElementName = "key")]
-        [JsonProperty("key", Order = 0)]
-        public Guid Key { get; set; }
-
-        [DataMember(Name = "valid")]
-        [XmlElement(ElementName = "valid")]
-        [JsonProperty("valid", Order = 1)]
-        public long? ValidUntil { get; set; }
-    }
-
-    [DataContract]
-    public class KalturaAppVersion : KalturaOTTObject
-    {
-        [DataMember(Name = "appname")]
-        [XmlElement(ElementName = "appname")]
-        [JsonProperty("appname", Order = 1)]
+        [DataMember(Name = "appName")]
+        [XmlElement(ElementName = "appName")]
+        [JsonProperty("appName", Order = 1)]
         public string AppName { get; set; }
 
-        [DataMember(Name = "clientversion")]
-        [XmlElement(ElementName = "clientversion")]
-        [JsonProperty("clientversion", Order = 2)]
+        [DataMember(Name = "clientVersion")]
+        [XmlElement(ElementName = "clientVersion")]
+        [JsonProperty("clientVersion", Order = 2)]
         public string ClientVersion { get; set; }
 
-        [DataMember(Name = "isforceupdate")]
-        [XmlElement(ElementName = "isforceupdate")]
-        [JsonProperty("isforceupdate", Order = 3)]
+        [DataMember(Name = "isForceUpdate")]
+        [XmlElement(ElementName = "isForceUpdate")]
+        [JsonProperty("isForceUpdate", Order = 3)]
         public bool IsForceUpdate { get; set; }
 
         [DataMember(Name = "platform")]
@@ -72,20 +31,20 @@ namespace WebAPI.Models.DMS
         [JsonProperty("platform", Order = 4)]
         public KalturaePlatform Platform { get; set; }
 
-        [DataMember(Name = "partnerid")]
-        [XmlElement(ElementName = "partnerid")]
-        [JsonProperty("partnerid", Order = 5)]
-        public int GroupId { get; set; }
+        [DataMember(Name = "partnerId")]
+        [XmlElement(ElementName = "partnerId")]
+        [JsonProperty("partnerId", Order = 5)]
+        public int PartnerId { get; set; }
 
         [DataMember(Name = "externalPushId")]
         [XmlElement(ElementName = "externalPushId")]
         [JsonProperty("externalPushId", Order = 6)]
         public string ExternalPushId { get; set; }
 
-        [DataMember(Name = "params")]
-        [XmlElement(ElementName = "params")]
-        [JsonProperty("params", NullValueHandling = NullValueHandling.Ignore)]
-        public SerializableDictionary<string, object> Params { get; set; }
+        [DataMember(Name = "content")]
+        [XmlElement(ElementName = "content")]
+        [JsonProperty("content")]
+        public string Content{ get; set; }
 
         [DataMember(Name = "groupConfigurationId")]
         [XmlElement(ElementName = "groupConfigurationId")]
@@ -95,6 +54,7 @@ namespace WebAPI.Models.DMS
         [DataMember(Name = "id")]
         [XmlElement(ElementName = "id")]
         [JsonProperty("id")]
+        [SchemeProperty(ReadOnly = true)]
         public string Id { get; set; }
 
         [DataMember(Name = "isDefault")]

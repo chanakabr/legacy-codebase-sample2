@@ -21,7 +21,7 @@ namespace WebAPI.App_Start
     {
         private string _sContentType;
 
-        public CustomResponseFormatter(HttpConfiguration httpConfiguration, string contentType = "application/json")
+        public CustomResponseFormatter(HttpConfiguration httpConfiguration, string contentType)
         {
             _sContentType = contentType;
 

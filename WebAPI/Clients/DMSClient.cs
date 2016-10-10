@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Web.Http;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.DMS;
@@ -24,7 +25,8 @@ namespace WebAPI.Clients
             GroupConfiguration,
             Tag,
             Device,
-            Report
+            Report,
+            Configuration
         }
 
         private enum DMSCall
@@ -158,6 +160,7 @@ namespace WebAPI.Clients
             {
                 dmsGroupConfiguration = Mapper.Map<DMSGroupConfiguration>(configurationGroup);
                 dmsGroupConfiguration.PartnerId = partnerId;
+                //dmsGroupConfiguration.id
                 // call client  
                 string data = JsonConvert.SerializeObject(dmsGroupConfiguration);
                 dmsResult = CallDMSClient(DMSCall.PUT, url, data);
@@ -167,8 +170,6 @@ namespace WebAPI.Clients
                 log.ErrorFormat("Error while update ConfigurationGroup. partnerId: {0}, exception: {1}", partnerId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
-
-            DMSStatusResponse statusResponse = JsonConvert.DeserializeObject<DMSStatusResponse>(dmsResult);
 
             DMSGroupConfigurationResponse response = JsonConvert.DeserializeObject<DMSGroupConfigurationResponse>(dmsResult);
 
@@ -445,12 +446,11 @@ namespace WebAPI.Clients
         }
         #endregion
 
-        #region Configuration 
+        #region Configuration
 
-        internal static KalturaStringRenderer GetConfiguration(int partnerId, string applicationName, string configurationVersion, string platform, string UDID, string tag)
+        internal static string Serve(int partnerId, string applicationName, string configurationVersion, string platform, string UDID, string tag)
         {
             string result = string.Empty;
-            KalturaStringRenderer stringRenderer = null;
             string url = string.Format("getconfig?username=dms&password=tvinci&appname={0}&cver={1}&platform={2}&udid={3}&partnerId={4}&tag={5}",
                 applicationName, configurationVersion, platform, UDID, partnerId, tag);
 
@@ -478,9 +478,195 @@ namespace WebAPI.Clients
                 throw new ClientException((int)DMSMapping.ConvertDMSStatus(response.Status));
             }
 
-            //stringRenderer = new KalturaStringRenderer(, result);
+            return result;
+        }
 
-            return stringRenderer;
+        internal static KalturaConfiguration GetConfiguration(int partnerId, string configurationId)
+        {
+            KalturaConfiguration configuration = null;
+            string url = string.Format("{0}/{1}/{2}", DMSControllers.Configuration.ToString(), partnerId, configurationId);
+            string result = string.Empty;
+
+            try
+            {
+                // call client
+                result = CallGetDMSClient(url);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while getting configuration. partnerId: {0}, configurationId: {1}, exception: {2}", partnerId, configurationId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            DMSConfigurationResponse response = JsonConvert.DeserializeObject<DMSConfigurationResponse>(result);
+
+            if (response == null || response.Result == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Result.Status != DMSeResponseStatus.OK)
+            {
+                throw new ClientException((int)DMSMapping.ConvertDMSStatus(response.Result.Status), response.Result.Message);
+            }
+
+            configuration = Mapper.Map<KalturaConfiguration>(response.Configuration);
+
+            return configuration;
+        }
+
+        internal static KalturaConfigurationListResponse GetConfigurationList(int partnerId, KalturaConfigurationType configurationType, string configurationId)
+        {
+            KalturaConfigurationListResponse result = new KalturaConfigurationListResponse() { TotalCount = 0 };
+
+            if (configurationType != KalturaConfigurationType.NotDefault)
+            {
+                configurationId = "null";
+            }
+            string url = string.Format("{0}/{1}/{2}/{3}", DMSControllers.Configuration.ToString(), partnerId, configurationType.ToString(), configurationId);
+            string dmsResult = string.Empty;
+
+            try
+            {
+                // call client
+                dmsResult = CallGetDMSClient(url);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while getting configuration list. partnerId: {0}, configurationType: {1}, configurationId: {2}, exception: {3}", partnerId, configurationType.ToString(), configurationId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            DMSConfigurationListResponse response = JsonConvert.DeserializeObject<DMSConfigurationListResponse>(dmsResult);
+
+            if (response == null || response.Result == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Result.Status != DMSeResponseStatus.OK)
+            {
+                throw new ClientException((int)DMSMapping.ConvertDMSStatus(response.Result.Status), response.Result.Message);
+            }
+
+            if (response.Configurations != null && response.Configurations.Count > 0)
+            {
+                result.TotalCount = response.Configurations.Count;
+                // convert configuration
+                result.Objects = Mapper.Map<List<KalturaConfiguration>>(response.Configurations);
+            }
+
+            return result;
+        }
+
+        internal static KalturaConfiguration AddConfiguration(int partnerId, KalturaConfiguration configuration)
+        {
+            string url = string.Format("{0}/{1}", DMSControllers.Configuration.ToString(), partnerId);
+            string dmsResult = string.Empty;
+
+            try
+            {
+                configuration.PartnerId = partnerId;
+                DMSAppVersion dmsAppVersion = Mapper.Map<DMSAppVersion>(configuration);
+
+                // call client
+                string data = JsonConvert.SerializeObject(dmsAppVersion);
+                dmsResult = CallDMSClient(DMSCall.POST, url, data);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while adding configuration. partnerId: {0}, exception: {1}", partnerId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            DMSConfigurationResponse response = JsonConvert.DeserializeObject<DMSConfigurationResponse>(dmsResult);
+
+            if (response == null || response.Result == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Result.Status != DMSeResponseStatus.OK)
+            {
+                throw new ClientException((int)DMSMapping.ConvertDMSStatus(response.Result.Status), response.Result.Message);
+            }
+
+            configuration = Mapper.Map<KalturaConfiguration>(response.Configuration);
+
+            return configuration;
+        }
+
+        internal static KalturaConfiguration UpdateConfiguration(int partnerId, string configurationGroupId, KalturaConfiguration configuration)
+        {
+            DMSAppVersion dmsAppVersion = null;
+
+            string url = string.Format("{0}/{1}/{2}", DMSControllers.Configuration.ToString(), partnerId, configuration.GroupConfigurationId);
+            string dmsResult = string.Empty;
+
+            try
+            {
+                dmsAppVersion = Mapper.Map<DMSAppVersion>(configuration);
+                dmsAppVersion.GroupId = partnerId;
+                dmsAppVersion.Id = configurationGroupId;
+
+                // call client  
+                string data = JsonConvert.SerializeObject(dmsAppVersion);
+                dmsResult = CallDMSClient(DMSCall.PUT, url, data);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while updating configuration. partnerId: {0}, groupId: {1}, exception: {2}", partnerId, configurationGroupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            DMSConfigurationResponse response = JsonConvert.DeserializeObject<DMSConfigurationResponse>(dmsResult);
+
+
+            if (response == null || response.Result == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Result.Status != DMSeResponseStatus.OK)
+            {
+                throw new ClientException((int)DMSMapping.ConvertDMSStatus(response.Result.Status), response.Result.Message);
+            }
+
+            configuration = Mapper.Map<KalturaConfiguration>(response.Configuration);
+
+            return configuration;
+        }
+
+        internal static bool DeleteConfiguration(int partnerId, string id)
+        {
+
+            string url = string.Format("{0}/{1}/{2}", DMSControllers.Configuration.ToString(), partnerId, id);
+            string dmsResult = string.Empty;
+
+            try
+            {
+                // call client               
+                dmsResult = CallDeleteDMSClient(url);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while update ConfigurationGroup. partnerId: {0}, exception: {1}", partnerId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            DMSStatusResponse response = JsonConvert.DeserializeObject<DMSStatusResponse>(dmsResult);
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status != DMSeResponseStatus.OK)
+            {
+                throw new ClientException((int)DMSMapping.ConvertDMSStatus(response.Status), response.Message);
+            }
+
+            return true;
         }
 
         #endregion
@@ -534,7 +720,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while getting configuration group device list. partnerId: {0}, partnerId: {1}, pageIndex: {2}, pageSize: {3}, exception: {4}", partnerId, groupId, pageIndex, pageSize, ex);
+                log.ErrorFormat("Error while getting configuration group device list. partnerId: {0}, groupId: {1}, pageIndex: {2}, pageSize: {3}, exception: {4}", partnerId, groupId, pageIndex, pageSize, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -626,6 +812,7 @@ namespace WebAPI.Clients
 
             return true;
         }
+
         #endregion
 
         #region Report Device
@@ -703,9 +890,6 @@ namespace WebAPI.Clients
             return result;
         }
 
-       #endregion
-
-
-        
+        #endregion       
     }
 }

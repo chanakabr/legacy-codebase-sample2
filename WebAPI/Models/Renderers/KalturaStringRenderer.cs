@@ -14,7 +14,7 @@ namespace WebAPI.Models.Renderers
     {
         private String _sContent;
 
-        public KalturaStringRenderer(HttpConfiguration httpConfiguration, string content, string contentType = null)
+        public KalturaStringRenderer(HttpConfiguration httpConfiguration, string content, string contentType = "application/json")
             : base(httpConfiguration, contentType)
         {
             _sContent = content;

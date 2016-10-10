@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace WebAPI.Models.DMS
 {
-    public enum KalturaePlatform
+    [Serializable]
+    public enum KalturaPlatform
     {
         Android = 0,
         iOS = 1,
@@ -15,4 +13,13 @@ namespace WebAPI.Models.DMS
         CTV = 5,
         Other = 6
     }
+
+    public enum KalturaConfigurationType
+    {        
+        All,
+        Default,
+        NotDefault
+    }
+
+
 }

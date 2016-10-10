@@ -30,7 +30,7 @@
     <OutputPath>bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <WarningLevel>0</WarningLevel>
     <DocumentationFile>bin\WebAPI.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
@@ -1184,7 +1184,11 @@
     <Compile Include="Models\API\KalturaCountryListResponse.cs" />
     <Compile Include="Models\API\KalturaCountryOrderBy.cs" />
     <Compile Include="Models\API\KalturaMetaType.cs" />
+    <Compile Include="Models\DMS\DMSConfigurationListResponse.cs" />
+    <Compile Include="Models\DMS\DMSConfigurationResponse.cs" />
     <Compile Include="Models\DMS\DMSEnums.cs" />
+    <Compile Include="Models\DMS\KalturaConfiguration.cs" />
+    <Compile Include="Models\DMS\KalturaConfigurationFilter.cs" />
     <Compile Include="Models\DMS\KalturaDeviceListResponse.cs" />
     <Compile Include="Models\DMS\KalturaPushParams.cs" />
     <Compile Include="Models\DMS\KalturaDevice.cs" />
@@ -1213,6 +1217,7 @@
     <Compile Include="Models\DMS\DMSTagMapping.cs" />
     <Compile Include="Models\DMS\KalturaConfigurationMin.cs" />
     <Compile Include="Models\DMS\DMSPushParams.cs" />
+    <Compile Include="Models\DMS\KalturaConfigurationListResponse.cs" />
     <Compile Include="Models\Domains\KalturaDeviceBrand.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdDeviceFilter.cs" />
     <Compile Include="Models\API\KalturaDeviceFamilyListResponse.cs" />
