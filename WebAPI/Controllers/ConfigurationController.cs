@@ -17,7 +17,7 @@ namespace WebAPI.Controllers
         /// Return a device configuration applicable for a specific device (UDID), app name, software version, platform and optionally a configuration group’s tag
         /// </summary>
         /// <param name="applicationName"></param>
-        /// <param name="configurationVersion"></param>
+        /// <param name="clientVersion"> </param>
         /// <param name="platform"></param>
         /// <param name="udid"></param>
         /// <param name="tag"></param>
@@ -29,7 +29,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.Registered)]
         [Throws(eResponseStatus.VersionNotFound)]
-        public KalturaStringRenderer Serve(string applicationName, string configurationVersion, string platform, string udid, string tag)
+        public KalturaStringRenderer Serve(string applicationName, string clientVersion, string platform, string udid, string tag)
         {
             string response = null;
 
@@ -38,8 +38,8 @@ namespace WebAPI.Controllers
             if (string.IsNullOrWhiteSpace(applicationName))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "applicationName");
 
-            if (string.IsNullOrWhiteSpace(configurationVersion))
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "configurationVersion");
+            if (string.IsNullOrWhiteSpace(clientVersion))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "clientVersion");
 
             if (string.IsNullOrWhiteSpace(platform))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "platform");
@@ -50,7 +50,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client               
-                response = DMSClient.Serve(partnerId, applicationName, configurationVersion, platform, udid, tag);
+                response = DMSClient.Serve(partnerId, applicationName, clientVersion, platform, udid, tag);
             }
             catch (ClientException ex)
             {
@@ -105,7 +105,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
-        public KalturaConfigurationListResponse List(KalturaConfigurationFilter filter = null)
+        public KalturaConfigurationListResponse List(KalturaConfigurationFilter filter)
         {
             KalturaConfigurationListResponse response = null;
 

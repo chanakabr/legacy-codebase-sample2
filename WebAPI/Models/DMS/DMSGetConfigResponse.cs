@@ -33,43 +33,35 @@ namespace WebAPI.Models.DMS
     [DataContract]
     public class DMSAppVersion
     {
-        [JsonProperty("appname", Order = 1)]
-        public string AppName { get; set; }
-
-        [JsonProperty("clientversion", Order = 2)]
-        public string ClientVersion { get; set; }
-
-        [JsonProperty("isforceupdate", Order = 3)]
-        public bool IsForceUpdate { get; set; }
-
-        [JsonProperty("platform", Order = 4)]
-        public DMSePlatform Platform { get; set; }
-
-        [JsonProperty("partnerid", Order = 5)]
-        public int GroupId { get; set; }
-
-        [JsonProperty("external_push_id", Order = 6)]
-        public string ExternalPushId { get; set; }
-
-        [JsonProperty("params", NullValueHandling = NullValueHandling.Ignore)]
-        public Dictionary<string, object> Params { get; set; }
-
-        [JsonProperty("group_configuration_id")]
-        public string GroupConfigurationId { get; set; }
-
-        [JsonProperty("type")]
-        private string docType { get; set; }
-
-        public DMSAppVersion()
-        {
-            this.docType = "configuration";
-        }
-
-        [JsonProperty("id")]
+         [JsonProperty("id")]
         public string Id { get; set; }
 
         [JsonProperty("is_default")]
         public bool IsDefault { get; set; }
+
+        [JsonProperty("group_configuration_id")]
+        public string GroupConfigurationId { get; set; }
+
+        [JsonProperty("appname")]
+        public string AppName { get; set; }
+
+        [JsonProperty("clientversion")]
+        public string ClientVersion { get; set; }
+
+        [JsonProperty("isforceupdate")]
+        public bool IsForceUpdate { get; set; }
+
+        [JsonProperty("platform")]
+        public DMSePlatform Platform { get; set; }
+
+        [JsonProperty("partnerid")]
+        public int GroupId { get; set; }
+
+        [JsonProperty("external_push_id")]
+        public string ExternalPushId { get; set; }      
+
+        [JsonProperty("params", NullValueHandling = NullValueHandling.Ignore)]
+        public Dictionary<string, object> Params { get; set; }
     }
 
     public enum DMSeStatus

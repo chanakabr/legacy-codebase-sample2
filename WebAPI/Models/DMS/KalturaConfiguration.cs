@@ -34,7 +34,8 @@ namespace WebAPI.Models.DMS
         [DataMember(Name = "partnerId")]
         [XmlElement(ElementName = "partnerId")]
         [JsonProperty("partnerId", Order = 5)]
-        public int PartnerId { get; set; }
+        [SchemeProperty(ReadOnly = true)]
+        public int PartnerId { get; set; }  // TODO: check for ignore
 
         [DataMember(Name = "externalPushId")]
         [XmlElement(ElementName = "externalPushId")]

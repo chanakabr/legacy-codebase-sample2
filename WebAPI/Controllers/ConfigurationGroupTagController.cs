@@ -49,26 +49,26 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Return list of tags for a configuration group
         /// </summary>
-        /// <param name="groupId"></param>
+        /// <param name="filter"></param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001</remarks>        
         [Route("list"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
-        public KalturaConfigurationGroupTagListResponse List(string groupId)
+        public KalturaConfigurationGroupTagListResponse List(KalturaConfigurationGroupTagFilter filter)
         {
             KalturaConfigurationGroupTagListResponse response = null;
 
             try
             {
-                if (string.IsNullOrWhiteSpace(groupId))
-                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "groupId");
+                if (string.IsNullOrWhiteSpace(filter.ConfigurationGroupIdEqual))
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "configurationGroupId");
 
                 int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
-                response = DMSClient.GetConfigurationGroupTagList(partnerId, groupId);
+                response = DMSClient.GetConfigurationGroupTagList(partnerId, filter.ConfigurationGroupIdEqual);
             }
             catch (ClientException ex)
             {
@@ -96,7 +96,6 @@ namespace WebAPI.Controllers
             try
             {
                 int partnerId = KS.GetFromRequest().GroupId;
-
                 // call client        
                 response = DMSClient.AddConfigurationGroupTag(partnerId, configurationGroupTag);
             }
@@ -110,7 +109,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Remove a tag association from configuration group
         /// </summary>
-        /// <param name="groupId"></param>
+        /// <param name="configurationGroupId"></param>
         /// <param name="tag"></param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001,  NotExist = 12003</remarks>        
@@ -119,14 +118,15 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.NotExist)]
-        public bool Delete(string groupId, string tag)
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        public bool Delete(string configurationGroupId, string tag)
         {
             bool response = false;
 
             try
             {
-                if (string.IsNullOrWhiteSpace(groupId))
-                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "groupId");
+                if (string.IsNullOrWhiteSpace(configurationGroupId))
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "configurationGroupId");
 
                 if (string.IsNullOrWhiteSpace(tag))
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "tag");
@@ -134,7 +134,7 @@ namespace WebAPI.Controllers
                 int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
-                response = DMSClient.DeleteConfigurationGroupTag(partnerId, groupId, tag);
+                response = DMSClient.DeleteConfigurationGroupTag(partnerId, configurationGroupId, tag);
             }
             catch (ClientException ex)
             {

@@ -25,9 +25,9 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.NotExist)]
         [Throws(eResponseStatus.PartnerMismatch)]
-        public KalturaDevice Get(string udid)
+        public KalturaReport Get(string udid)
         {
-            KalturaDevice response = null;
+            KalturaReport response = null;
             int partnerId = KS.GetFromRequest().GroupId;
 
             if (string.IsNullOrWhiteSpace(udid))
@@ -49,16 +49,16 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Return device configurations retrieval log. Supports paging and can be filtered with the parameter "FromData".
         /// </summary>
-        /// <param name="fromDate"></param>
+        /// <param name="filter"></param>
         /// <param name="pager">Page size and index</param>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001 </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
-        public KalturaDeviceListResponse List(long fromDate, KalturaFilterPager pager = null)
+        public KalturaReportListResponse List(KalturaReportFilter filter, KalturaFilterPager pager = null)
         {
-            KalturaDeviceListResponse response = null;
+            KalturaReportListResponse response = null;
 
             if (pager == null)
             {
@@ -67,13 +67,13 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (fromDate < 0)
+                if (filter.FromDateEqual < 0)
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "fromDate");
 
                 int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
-                response = DMSClient.GetDevicesReport(partnerId, fromDate, pager.getPageIndex(), pager.getPageSize());
+                response = DMSClient.GetDevicesReport(partnerId, filter.FromDateEqual, pager.getPageIndex(), pager.getPageSize());
             }
             catch (ClientException ex)
             {

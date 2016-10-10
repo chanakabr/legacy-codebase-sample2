@@ -9,8 +9,6 @@ namespace WebAPI.Models.DMS
 {
     public class KalturaConfigurationGroup : KalturaOTTObject
     {
-        //TODO: onlt name is ediatble
-
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
@@ -26,7 +24,7 @@ namespace WebAPI.Models.DMS
         [JsonProperty("partnerId")]
         [XmlElement(ElementName = "partnerId")]
         [SchemeProperty(ReadOnly = true)]
-        public int PartnerId { get; set; }
+        public int PartnerId { get; set; } // TODO: check for ignore
 
         [DataMember(Name = "isDefault")]
         [JsonProperty("isDefault")]

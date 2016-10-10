@@ -7,7 +7,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.DMS
 {
     [JsonObject]
-    public class KalturaDevice : KalturaOTTObject
+    public class KalturaReport : KalturaOTTObject
     {
         [DataMember(Name = "groupId")]
         [XmlElement(ElementName = "groupId")]

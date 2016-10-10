@@ -49,14 +49,14 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Return the list of associated devices for a given configuration group
         /// </summary>
-        /// <param name="groupId">Group configuration ID</param>
+        /// <param name="filter"></param>
         /// <param name="pager">Page size and index</param>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001 </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
-        public KalturaConfigurationGroupDeviceListResponse List(string groupId, KalturaFilterPager pager = null)
+        public KalturaConfigurationGroupDeviceListResponse List(KalturaConfigurationGroupDeviceFilter filter, KalturaFilterPager pager = null)
         {
             KalturaConfigurationGroupDeviceListResponse response = null;
 
@@ -67,13 +67,13 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (string.IsNullOrWhiteSpace(groupId))
-                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "groupId");
+                if (string.IsNullOrWhiteSpace(filter.ConfigurationGroupIdEqual))
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "configurationGroupIdEqual");
 
                 int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
-                response = DMSClient.GetConfigurationGroupDeviceList(partnerId, groupId, pager.getPageIndex(), pager.getPageSize());
+                response = DMSClient.GetConfigurationGroupDeviceList(partnerId, filter.ConfigurationGroupIdEqual, pager.getPageIndex(), pager.getPageSize());
             }
             catch (ClientException ex)
             {
@@ -94,7 +94,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.IllegalPostData)]
         [Throws(eResponseStatus.NotExist)]
-        public KalturaConfigurationGroupDevice Add(string groupId, KalturaStringValueArray udids)
+        public KalturaConfigurationGroupDevice Add(KalturaConfigurationGroupDevice configurationGroupDevice)
         {
             KalturaConfigurationGroupDevice response = null;
 
@@ -103,7 +103,7 @@ namespace WebAPI.Controllers
                 int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
-                response = DMSClient.AddConfigurationGroupDevice(partnerId, groupId, udids);
+                response = DMSClient.AddConfigurationGroupDevice(partnerId, configurationGroupDevice.ConfigurationGroupId, configurationGroupDevice.Udid);
             }
             catch (ClientException ex)
             {
@@ -115,7 +115,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Remove a device association
         /// </summary>
-        /// <param name="groupId"></param>
+        /// <param name="configurationGroupId"></param>
         /// <param name="udid"></param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003 </remarks>
@@ -124,14 +124,15 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.NotExist)]
-        public bool Delete(string groupId, string udid)
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        public bool Delete(string configurationGroupId, string udid)
         {
             bool response = false;
 
             try
             {
-                if (string.IsNullOrWhiteSpace(groupId))
-                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "groupId");
+                if (string.IsNullOrWhiteSpace(configurationGroupId))
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "configurationGroupId");
 
                 if (string.IsNullOrWhiteSpace(udid))
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "udid");
@@ -139,7 +140,7 @@ namespace WebAPI.Controllers
                 int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
-                response = DMSClient.DeleteConfigurationGroupDevice(partnerId, groupId, udid);
+                response = DMSClient.DeleteConfigurationGroupDevice(partnerId, configurationGroupId, udid);
             }
             catch (ClientException ex)
             {

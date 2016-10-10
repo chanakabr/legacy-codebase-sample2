@@ -1170,10 +1170,22 @@
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
     <Compile Include="Controllers\CDNPartnerSettingsController.cs" />
     <Compile Include="Controllers\ConfigurationController.cs" />
+    <Compile Include="Controllers\ConfigurationGroupController.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Controllers\ConfigurationGroupDeviceController.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Controllers\ConfigurationGroupTagController.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Controllers\MetaController.cs" />
     <Compile Include="Controllers\DeviceBrandController.cs" />
     <Compile Include="Controllers\CountryController.cs" />
     <Compile Include="Controllers\DeviceFamilyController.cs" />
+    <Compile Include="Controllers\ReportController.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Models\API\KalturaMetaOrderBy.cs" />
     <Compile Include="Models\API\KalturaMetaFilter.cs" />
     <Compile Include="Models\API\KalturaMetaListResponse.cs" />
@@ -1184,14 +1196,17 @@
     <Compile Include="Models\API\KalturaCountryListResponse.cs" />
     <Compile Include="Models\API\KalturaCountryOrderBy.cs" />
     <Compile Include="Models\API\KalturaMetaType.cs" />
+    <Compile Include="Models\DMS\KalturaReportFilter.cs" />
+    <Compile Include="Models\DMS\KalturaConfigurationGroupTagFilter.cs" />
     <Compile Include="Models\DMS\DMSConfigurationListResponse.cs" />
     <Compile Include="Models\DMS\DMSConfigurationResponse.cs" />
     <Compile Include="Models\DMS\DMSEnums.cs" />
     <Compile Include="Models\DMS\KalturaConfiguration.cs" />
     <Compile Include="Models\DMS\KalturaConfigurationFilter.cs" />
+    <Compile Include="Models\DMS\KalturaConfigurationGroupDeviceFilter.cs" />
     <Compile Include="Models\DMS\KalturaDeviceListResponse.cs" />
     <Compile Include="Models\DMS\KalturaPushParams.cs" />
-    <Compile Include="Models\DMS\KalturaDevice.cs" />
+    <Compile Include="Models\DMS\KalturaReport.cs" />
     <Compile Include="Models\DMS\DMSReportDeviceGetResponse.cs" />
     <Compile Include="Models\DMS\DMSReportDeviceListResponse.cs" />
     <Compile Include="Models\DMS\DMSDevice.cs" />

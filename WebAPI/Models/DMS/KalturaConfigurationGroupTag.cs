@@ -7,10 +7,10 @@ namespace WebAPI.Models.DMS
 {
     public class KalturaConfigurationGroupTag : KalturaOTTObject
     {
-        [DataMember(Name = "groupId")]
-        [JsonProperty("groupId")]
-        [XmlElement(ElementName = "groupId")]
-        public string GroupId { get; set; }
+        [DataMember(Name = "configurationGroupId")]
+        [JsonProperty("configurationGroupId")]
+        [XmlElement(ElementName = "configurationGroupId")]
+        public string ConfigurationGroupId { get; set; }
 
         [DataMember(Name = "partnerId")]
         [JsonProperty("partnerId")]

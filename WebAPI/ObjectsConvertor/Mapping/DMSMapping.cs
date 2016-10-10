@@ -44,24 +44,24 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // from dms to local
             Mapper.CreateMap<DMSTagMapping, KalturaConfigurationGroupTag>()
-                .ForMember(dest => dest.GroupId, opt => opt.MapFrom(src => src.GroupId))
+                .ForMember(dest => dest.ConfigurationGroupId, opt => opt.MapFrom(src => src.GroupId))
                 .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.PartnerId))
                 .ForMember(dest => dest.Tag, opt => opt.MapFrom(src => src.Tag));
 
             // from local to dms  
             Mapper.CreateMap<KalturaConfigurationGroupTag, DMSTagMapping>()
-                .ForMember(dest => dest.GroupId, opt => opt.MapFrom(src => src.GroupId))
+                .ForMember(dest => dest.GroupId, opt => opt.MapFrom(src => src.ConfigurationGroupId))
                 .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.PartnerId))
                 .ForMember(dest => dest.Tag, opt => opt.MapFrom(src => src.Tag));
 
             // from dms to local
             Mapper.CreateMap<DMSDeviceMapping, KalturaConfigurationGroupDevice>()
-                .ForMember(dest => dest.GroupId, opt => opt.MapFrom(src => src.GroupId))
+                .ForMember(dest => dest.ConfigurationGroupId, opt => opt.MapFrom(src => src.GroupId))
                 .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.PartnerId))
                 .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.Udid));
 
             // from dms to local
-            Mapper.CreateMap<DMSDevice, KalturaDevice>()
+            Mapper.CreateMap<DMSDevice, KalturaReport>()
                 .ForMember(dest => dest.GroupConfigurationId, opt => opt.MapFrom(src => src.GroupConfigurationId))
                 .ForMember(dest => dest.GroupId, opt => opt.MapFrom(src => src.GroupId))
                 .ForMember(dest => dest.LastAccessDate, opt => opt.MapFrom(src => src.LastAccessDate))
@@ -104,7 +104,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.GroupConfigurationId, opt => opt.MapFrom(src => src.GroupConfigurationId))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault));
-
         }
 
         private static Dictionary<string, object> ConvertToParms(string data)

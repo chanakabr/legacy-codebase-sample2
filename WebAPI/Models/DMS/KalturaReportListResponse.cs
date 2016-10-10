@@ -11,13 +11,13 @@ namespace WebAPI.Models.DMS
     /// 
     /// </summary>
     [Serializable]
-    public class KalturaDeviceListResponse : KalturaListResponse
+    public class KalturaReportListResponse : KalturaListResponse
     {
         [DataMember(Name = "objects")]
         [JsonProperty(PropertyName = "objects")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem("item")]
-        public List<KalturaDevice> Objects { get; set; }
+        public List<KalturaReport> Objects { get; set; }
 
     }
 

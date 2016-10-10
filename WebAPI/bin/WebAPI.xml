@@ -426,7 +426,7 @@
             Return a device configuration applicable for a specific device (UDID), app name, software version, platform and optionally a configuration group’s tag
             </summary>
             <param name="applicationName"></param>
-            <param name="configurationVersion"></param>
+            <param name="clientVersion"> </param>
             <param name="platform"></param>
             <param name="udid"></param>
             <param name="tag"></param>
@@ -473,6 +473,110 @@
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         </member>
+        <member name="M:WebAPI.Controllers.ConfigurationGroupController.Get(System.String)">
+            <summary>
+            Return the configuration group details, including group identifiers, tags, and number of associated devices, and list of device configuration
+            </summary>
+            <param name="groupId"></param>
+            <returns></returns>
+            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.ConfigurationGroupController.List">
+            <summary>
+            Return the list of configuration groups
+            </summary>
+            <returns></returns>
+            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001</remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.ConfigurationGroupController.Add(WebAPI.Models.DMS.KalturaConfigurationGroup)">
+            <summary>
+            Add a new configuration group
+            </summary>
+            <param name="configurationGroup"></param>
+            <returns></returns>
+            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002</remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.ConfigurationGroupController.Update(System.String,WebAPI.Models.DMS.KalturaConfigurationGroup)">
+            <summary>
+            Update configuration group name
+            </summary>
+            <param name="configurationGroup"></param>
+            <returns></returns>
+            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002, NotExist = 12003</remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.ConfigurationGroupController.Delete(System.String)">
+            <summary>
+            Remove a configuration group, including its tags, device configurations and devices associations
+            </summary>
+            <param name="groupId"></param>
+            <returns></returns>
+            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.ConfigurationGroupDeviceController.Get(System.String)">
+            <summary>
+            Return the configuration group to which a specific device is associated to
+            </summary>
+            <param name="udid">Device UDID</param>        
+            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.ConfigurationGroupDeviceController.List(WebAPI.Models.DMS.KalturaConfigurationGroupDeviceFilter,WebAPI.Models.General.KalturaFilterPager)">
+            <summary>
+            Return the list of associated devices for a given configuration group
+            </summary>
+            <param name="filter"></param>
+            <param name="pager">Page size and index</param>
+            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001 </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.ConfigurationGroupDeviceController.Add(WebAPI.Models.DMS.KalturaConfigurationGroupDevice)">
+            <summary>
+            Associate a collection of devices to a configuration group. If a device is already associated to another group – old association is replaced 
+            </summary>
+            <param name="groupId"></param>
+            <param name="udids"></param>
+            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002, NotExist = 12003 </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.ConfigurationGroupDeviceController.Delete(System.String,System.String)">
+            <summary>
+            Remove a device association
+            </summary>
+            <param name="configurationGroupId"></param>
+            <param name="udid"></param>
+            <returns></returns>
+            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003 </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.ConfigurationGroupTagController.Get(System.String)">
+            <summary>
+            Return the configuration group the tag is associated to
+            </summary>
+            <param name="tag"></param>
+            <returns></returns>
+            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.ConfigurationGroupTagController.List(WebAPI.Models.DMS.KalturaConfigurationGroupTagFilter)">
+            <summary>
+            Return list of tags for a configuration group
+            </summary>
+            <param name="filter"></param>
+            <returns></returns>
+            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001</remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.ConfigurationGroupTagController.Add(WebAPI.Models.DMS.KalturaConfigurationGroupTag)">
+            <summary>
+            Add a new tag to a configuration group. If this tag is already associated to another group, request fails
+            </summary>
+            <param name="configurationGroupTag"></param>
+            <returns></returns>
+            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001,  NotExist = 12003, AlreadyExist = 12008</remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.ConfigurationGroupTagController.Delete(System.String,System.String)">
+            <summary>
+            Remove a tag association from configuration group
+            </summary>
+            <param name="configurationGroupId"></param>
+            <param name="tag"></param>
+            <returns></returns>
+            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001,  NotExist = 12003</remarks>        
+        </member>
         <member name="M:WebAPI.Controllers.MetaController.List(WebAPI.Models.API.KalturaMetaFilter)">
             <summary>
             Get the list of meta mappings for the partner
@@ -498,6 +602,21 @@
             Return a list of the available device families.
             </summary>
             <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.ReportController.Get(System.String)">
+            <summary>
+            Return a device configuration retrieval log request for a specific device.
+            </summary>
+            <param name="udid">Device UDID</param>        
+            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.ReportController.List(WebAPI.Models.DMS.KalturaReportFilter,WebAPI.Models.General.KalturaFilterPager)">
+            <summary>
+            Return device configurations retrieval log. Supports paging and can be filtered with the parameter "FromData".
+            </summary>
+            <param name="filter"></param>
+            <param name="pager">Page size and index</param>
+            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001 </remarks>
         </member>
         <member name="T:WebAPI.Models.API.KalturaMetaFilter">
             <summary>
@@ -604,7 +723,7 @@
             
             </summary>
         </member>
-        <member name="T:WebAPI.Models.DMS.KalturaDeviceListResponse">
+        <member name="T:WebAPI.Models.DMS.KalturaReportListResponse">
             <summary>
             
             </summary>

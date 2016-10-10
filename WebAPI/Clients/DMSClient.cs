@@ -127,7 +127,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while AddConfigurationGroup. partnerId: {0}, exception: {1}", partnerId, ex);
+                log.ErrorFormat("Error while adding configuration group. partnerId: {0}, exception: {1}", partnerId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -383,7 +383,7 @@ namespace WebAPI.Clients
 
         internal static KalturaConfigurationGroupTag AddConfigurationGroupTag(int partnerId, KalturaConfigurationGroupTag configurationGroupTag)
         {
-            string url = string.Format("{0}/{1}/{2}/{3}", DMSControllers.Tag.ToString(), partnerId, configurationGroupTag.GroupId, configurationGroupTag.Tag);
+            string url = string.Format("{0}/{1}/{2}/{3}", DMSControllers.Tag.ToString(), partnerId, configurationGroupTag.ConfigurationGroupId, configurationGroupTag.Tag);
             string dmsResult = string.Empty;
 
             try
@@ -414,9 +414,9 @@ namespace WebAPI.Clients
             return configurationGroupTag;
         }
 
-        internal static bool DeleteConfigurationGroupTag(int partnerId, string groupId, string tag)
+        internal static bool DeleteConfigurationGroupTag(int partnerId, string configurationGroupId, string tag)
         {
-            string url = string.Format("{0}/{1}/{2}/{3}", DMSControllers.Tag.ToString(), partnerId, groupId, tag);
+            string url = string.Format("{0}/{1}/{2}/{3}", DMSControllers.Tag.ToString(), partnerId, configurationGroupId, tag);
             string dmsResult = string.Empty;
 
             try
@@ -426,7 +426,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while delete configuration group tag. partnerId: {0}, groupId: {1}, tag: {2}, exception: {3}", partnerId, groupId, tag, ex);
+                log.ErrorFormat("Error while delete configuration group tag. partnerId: {0}, configurationGroupId: {1}, tag: {2}, exception: {3}", partnerId, configurationGroupId, tag, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -448,11 +448,11 @@ namespace WebAPI.Clients
 
         #region Configuration
 
-        internal static string Serve(int partnerId, string applicationName, string configurationVersion, string platform, string UDID, string tag)
+        internal static string Serve(int partnerId, string applicationName, string clientVersion, string platform, string UDID, string tag)
         {
             string result = string.Empty;
             string url = string.Format("getconfig?username=dms&password=tvinci&appname={0}&cver={1}&platform={2}&udid={3}&partnerId={4}&tag={5}",
-                applicationName, configurationVersion, platform, UDID, partnerId, tag);
+                applicationName, clientVersion, platform, UDID, partnerId, tag);
 
             try
             {
@@ -462,7 +462,7 @@ namespace WebAPI.Clients
             catch (Exception ex)
             {
                 log.ErrorFormat("Error while getting configuration. partnerId: {0}, applicationName: {1}, configurationVersion: {2}, platform: {3}, UDID: {4}, tag: {5}, exception: {6}",
-                    partnerId, applicationName, configurationVersion, platform, UDID, tag, ex);
+                    partnerId, applicationName, clientVersion, platform, UDID, tag, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -596,18 +596,18 @@ namespace WebAPI.Clients
             return configuration;
         }
 
-        internal static KalturaConfiguration UpdateConfiguration(int partnerId, string configurationGroupId, KalturaConfiguration configuration)
+        internal static KalturaConfiguration UpdateConfiguration(int partnerId, string configurationId, KalturaConfiguration configuration)
         {
             DMSAppVersion dmsAppVersion = null;
 
-            string url = string.Format("{0}/{1}/{2}", DMSControllers.Configuration.ToString(), partnerId, configuration.GroupConfigurationId);
+            string url = string.Format("{0}/{1}/{2}", DMSControllers.Configuration.ToString(), partnerId, configurationId);
             string dmsResult = string.Empty;
 
             try
             {
                 dmsAppVersion = Mapper.Map<DMSAppVersion>(configuration);
                 dmsAppVersion.GroupId = partnerId;
-                dmsAppVersion.Id = configurationGroupId;
+                dmsAppVersion.Id = configurationId;
 
                 // call client  
                 string data = JsonConvert.SerializeObject(dmsAppVersion);
@@ -615,7 +615,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while updating configuration. partnerId: {0}, groupId: {1}, exception: {2}", partnerId, configurationGroupId, ex);
+                log.ErrorFormat("Error while updating configuration. partnerId: {0}, configurationId: {1}, exception: {2}", partnerId, configurationId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -746,7 +746,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal static KalturaConfigurationGroupDevice AddConfigurationGroupDevice(int partnerId, string groupId, KalturaStringValueArray udids)
+        internal static KalturaConfigurationGroupDevice AddConfigurationGroupDevice(int partnerId, string groupId, string udid)
         {
             string url = string.Format("{0}/{1}/{2}", DMSControllers.Device.ToString(), partnerId, groupId);
             string dmsResult = string.Empty;
@@ -754,14 +754,13 @@ namespace WebAPI.Clients
 
             try
             {
-                List<string> udidList = udids.Objects.Select(v => v.value).ToList();
-                data = string.Format("[{0}]", string.Join(",", udids));
+                data = string.Format("[{0}]", udid);
                 // call client
                 dmsResult = CallDMSClient(DMSCall.POST, url, data);
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while add configuration group device. partnerId: {0}, udids: {1}, exception: {2}", partnerId, data, ex);
+                log.ErrorFormat("Error while add configuration group device. partnerId: {0}, udid: {1}, exception: {2}", partnerId, data, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -782,9 +781,9 @@ namespace WebAPI.Clients
             return configurationGroupDevice;
         }
 
-        internal static bool DeleteConfigurationGroupDevice(int partnerId, string groupId, string udid)
+        internal static bool DeleteConfigurationGroupDevice(int partnerId, string configurationGroupId, string udid)
         {
-            string url = string.Format("{0}/{1}/{2}/{3}", DMSControllers.Device.ToString(), partnerId, groupId, udid);
+            string url = string.Format("{0}/{1}/{2}/{3}", DMSControllers.Device.ToString(), partnerId, configurationGroupId, udid);
             string dmsResult = string.Empty;
 
             try
@@ -794,7 +793,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while delete configuration group device. partnerId: {0}, groupId: {1}, udid: {2}, exception: {3}", partnerId, groupId, udid, ex);
+                log.ErrorFormat("Error while delete configuration group device. partnerId: {0}, configurationGroupId: {1}, udid: {2}, exception: {3}", partnerId, configurationGroupId, udid, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -816,9 +815,9 @@ namespace WebAPI.Clients
         #endregion
 
         #region Report Device
-        internal static KalturaDevice GetDeviceReport(int partnerId, string udid)
+        internal static KalturaReport GetDeviceReport(int partnerId, string udid)
         {
-            KalturaDevice device = null;
+            KalturaReport device = null;
             string url = string.Format("{0}/{1}/{2}", DMSControllers.Report.ToString(), partnerId, udid);
             string result = string.Empty;
 
@@ -845,15 +844,15 @@ namespace WebAPI.Clients
                 throw new ClientException((int)DMSMapping.ConvertDMSStatus(response.Result.Status), response.Result.Message);
             }
 
-            device = Mapper.Map<KalturaDevice>(response.Device);
+            device = Mapper.Map<KalturaReport>(response.Device);
 
             return device;
 
         }
 
-        internal static KalturaDeviceListResponse GetDevicesReport(int partnerId, long fromDate, int pageIndex, int pageSize)
+        internal static KalturaReportListResponse GetDevicesReport(int partnerId, long fromDate, int pageIndex, int pageSize)
         {
-            KalturaDeviceListResponse result = new KalturaDeviceListResponse() { TotalCount = 0 };
+            KalturaReportListResponse result = new KalturaReportListResponse() { TotalCount = 0 };
             string url = string.Format("{0}/{1}/{2}/{3}/{4}", DMSControllers.Report.ToString(), partnerId, fromDate, pageIndex, pageSize);
             string dmsResult = string.Empty;
 
@@ -884,7 +883,7 @@ namespace WebAPI.Clients
             {
                 result.TotalCount = response.DeviceList.Count;
                 // convert kaltura device            
-                result.Objects = Mapper.Map<List<KalturaDevice>>(response.DeviceList);
+                result.Objects = Mapper.Map<List<KalturaReport>>(response.DeviceList);
             }
 
             return result;
