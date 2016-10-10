@@ -11,6 +11,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.DMS;
 using WebAPI.Models.General;
+using WebAPI.Models.Renderers;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
 
@@ -444,42 +445,45 @@ namespace WebAPI.Clients
         }
         #endregion
 
-        //internal static KalturaConfiguration GetConfiguration(int partnerId, string applicationName, string configurationVersion, string platform, string UDID, string tag)
-        //{
-        //    string result = string.Empty;
-        //    KalturaConfiguration configurationGroup = null;
-        //    string url = string.Format("getconfig?username=dms&password=tvinci&appname={0}&cver={1}&platform={2}&udid={3}&partnerId={4}&tag={5}",
-        //        applicationName, configurationVersion, platform, UDID, partnerId, tag);
+        #region Configuration 
 
-        //    try
-        //    {
-        //        // call client
-        //        result = CallGetDMSClient(url, "v2");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        log.ErrorFormat("Error while getting configuration. partnerId: {0}, applicationName: {1}, configurationVersion: {2}, platform: {3}, UDID: {4}, tag: {5}, exception: {6}",
-        //            partnerId, applicationName, configurationVersion, platform, UDID, tag, ex);
-        //        ErrorUtils.HandleWSException(ex);
-        //    }
+        internal static KalturaStringRenderer GetConfiguration(int partnerId, string applicationName, string configurationVersion, string platform, string UDID, string tag)
+        {
+            string result = string.Empty;
+            KalturaStringRenderer stringRenderer = null;
+            string url = string.Format("getconfig?username=dms&password=tvinci&appname={0}&cver={1}&platform={2}&udid={3}&partnerId={4}&tag={5}",
+                applicationName, configurationVersion, platform, UDID, partnerId, tag);
 
-        //    DMSGetConfigResponse response = JsonConvert.DeserializeObject<DMSGetConfigResponse>(result);
+            try
+            {
+                // call client
+                result = CallGetDMSClient(url, "v2");
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while getting configuration. partnerId: {0}, applicationName: {1}, configurationVersion: {2}, platform: {3}, UDID: {4}, tag: {5}, exception: {6}",
+                    partnerId, applicationName, configurationVersion, platform, UDID, tag, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
 
-        //    if (response == null)
-        //    {
-        //        throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-        //    }
+            DMSGetConfigResponse response = JsonConvert.DeserializeObject<DMSGetConfigResponse>(result);
 
-        //    if (!(response.Status == DMSeStatus.Success || response.Status == DMSeStatus.Registered))
-        //    {
-        //        throw new ClientException((int)DMSMapping.ConvertDMSStatus(response.Status));
-        //    }
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
 
-        //    configurationGroup = Mapper.Map<KalturaConfiguration>(response);
+            if (!(response.Status == DMSeStatus.Success || response.Status == DMSeStatus.Registered))
+            {
+                throw new ClientException((int)DMSMapping.ConvertDMSStatus(response.Status));
+            }
 
-        //    return configurationGroup;
-        //}
+            //stringRenderer = new KalturaStringRenderer(, result);
 
+            return stringRenderer;
+        }
+
+        #endregion
 
         #region Configuration Group Device
         internal static KalturaConfigurationGroupDevice GetConfigurationGroupDevice(int partnerId, string udid)

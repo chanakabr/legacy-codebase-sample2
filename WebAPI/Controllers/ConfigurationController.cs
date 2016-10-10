@@ -5,6 +5,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.DMS;
+using WebAPI.Models.Renderers;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -18,9 +19,10 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.Registered)]
         [Throws(eResponseStatus.VersionNotFound)]
-        public KalturaConfiguration Serve(string applicationName, string configurationVersion, string platform, string UDID, string tag)
+        public KalturaStringRenderer Serve(string applicationName, string configurationVersion, string platform, string udid, string tag)
         {
-            KalturaConfiguration response = null;
+            KalturaStringRenderer response = null;
+
             int partnerId = KS.GetFromRequest().GroupId;
 
             if (string.IsNullOrWhiteSpace(applicationName))
@@ -32,13 +34,13 @@ namespace WebAPI.Controllers
             if (string.IsNullOrWhiteSpace(platform))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "platform");
 
-            if (string.IsNullOrWhiteSpace(UDID))
+            if (string.IsNullOrWhiteSpace(udid))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "UDID");
 
             try
             {
                 // call client               
-                response = DMSClient.GetConfiguration(partnerId, applicationName, configurationVersion, platform, UDID, tag);
+                response = DMSClient.GetConfiguration(partnerId, applicationName, configurationVersion, platform, udid, tag);
             }
             catch (ClientException ex)
             {
