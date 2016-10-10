@@ -14,7 +14,7 @@ namespace WebAPI.Controllers
     public class ConfigurationGroupDeviceController : ApiController
     {
         /// <summary>
-        /// Returns device association by a given UDID
+        /// Return the configuration group to which a specific device is associated to
         /// </summary>
         /// <param name="udid">Device UDID</param>        
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>
@@ -47,7 +47,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Returns a list of device associations by a given group configuration ID.
+        /// Return the list of associated devices for a given configuration group
         /// </summary>
         /// <param name="groupId">Group configuration ID</param>
         /// <param name="pager">Page size and index</param>
@@ -83,7 +83,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Adds a new device association.
+        /// Associate a collection of devices to a configuration group. If a device is already associated to another group – old association is replaced 
         /// </summary>
         /// <param name="groupId"></param>
         /// <param name="udids"></param>
@@ -113,7 +113,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Delete a device association
+        /// Remove a device association
         /// </summary>
         /// <param name="groupId"></param>
         /// <param name="udid"></param>

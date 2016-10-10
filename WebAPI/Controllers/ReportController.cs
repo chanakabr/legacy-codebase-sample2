@@ -14,7 +14,7 @@ namespace WebAPI.Controllers
     public class ReportController : ApiController
     {
         /// <summary>
-        /// Gets a single device information by a given UDID
+        /// Return a device configuration retrieval log request for a specific device.
         /// </summary>
         /// <param name="udid">Device UDID</param>        
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>
@@ -47,7 +47,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Return a list of device information. Supports paging and can be filtered with the parameter "FromData".
+        /// Return device configurations retrieval log. Supports paging and can be filtered with the parameter "FromData".
         /// </summary>
         /// <param name="fromDate"></param>
         /// <param name="pager">Page size and index</param>

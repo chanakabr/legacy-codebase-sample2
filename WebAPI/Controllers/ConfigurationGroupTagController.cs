@@ -12,6 +12,12 @@ namespace WebAPI.Controllers
     [RoutePrefix("_service/configurationGroupTag/action")]
     public class ConfigurationGroupTagController : ApiController
     {
+        /// <summary>
+        /// Return the configuration group the tag is associated to
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         [Route("get"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
@@ -40,6 +46,12 @@ namespace WebAPI.Controllers
             return response;
         }
 
+        /// <summary>
+        /// Return list of tags for a configuration group
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <returns></returns>
+        /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001</remarks>        
         [Route("list"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
@@ -65,6 +77,12 @@ namespace WebAPI.Controllers
             return response;
         }
 
+        /// <summary>
+        /// Add a new tag to a configuration group. If this tag is already associated to another group, request fails
+        /// </summary>
+        /// <param name="configurationGroupTag"></param>
+        /// <returns></returns>
+        /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001,  NotExist = 12003, AlreadyExist = 12008</remarks>        
         [Route("add"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
@@ -89,6 +107,13 @@ namespace WebAPI.Controllers
             return response;
         }
 
+        /// <summary>
+        /// Remove a tag association from configuration group
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001,  NotExist = 12003</remarks>        
         [Route("delete"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
@@ -117,6 +142,5 @@ namespace WebAPI.Controllers
             }
             return response;
         }
-
     }
 }
