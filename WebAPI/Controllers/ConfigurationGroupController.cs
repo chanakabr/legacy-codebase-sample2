@@ -9,7 +9,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/configurationgroup/action")]
+    [RoutePrefix("_service/configurationGroup/action")]
     public class ConfigurationGroupController : ApiController
     {
         [Route("get"), HttpPost]
@@ -91,7 +91,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.NotExist)]
         [Throws(eResponseStatus.IllegalPostData)]
-        public KalturaConfigurationGroup Update(KalturaConfigurationGroup configurationGroup)
+        public KalturaConfigurationGroup Update(int groupId, KalturaConfigurationGroup configurationGroup) //TODO: Anat why need 2 args?
         {
             KalturaConfigurationGroup response = null;
 

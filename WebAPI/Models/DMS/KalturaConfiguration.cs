@@ -70,16 +70,16 @@ namespace WebAPI.Models.DMS
         [DataMember(Name = "platform")]
         [XmlElement(ElementName = "platform")]
         [JsonProperty("platform", Order = 4)]
-        public DMSePlatform Platform { get; set; }
+        public KalturaePlatform Platform { get; set; }
 
         [DataMember(Name = "partnerid")]
         [XmlElement(ElementName = "partnerid")]
         [JsonProperty("partnerid", Order = 5)]
         public int GroupId { get; set; }
 
-        [DataMember(Name = "external_push_id")]
-        [XmlElement(ElementName = "external_push_id")]
-        [JsonProperty("external_push_id", Order = 6)]
+        [DataMember(Name = "externalPushId")]
+        [XmlElement(ElementName = "externalPushId")]
+        [JsonProperty("externalPushId", Order = 6)]
         public string ExternalPushId { get; set; }
 
         [DataMember(Name = "params")]
@@ -87,29 +87,19 @@ namespace WebAPI.Models.DMS
         [JsonProperty("params", NullValueHandling = NullValueHandling.Ignore)]
         public SerializableDictionary<string, object> Params { get; set; }
 
-        [DataMember(Name = "group_configuration_id")]
-        [XmlElement(ElementName = "group_configuration_id")]
-        [JsonProperty("group_configuration_id")]
-        public string GroupConfigurationId { get; set; }
-
-        [DataMember(Name = "type")]
-        [XmlElement(ElementName = "type")]
-        [JsonProperty("type")]
-        private string docType { get; set; }
-
-        public KalturaAppVersion()
-        {
-            this.docType = "configuration";
-        }
+        [DataMember(Name = "groupConfigurationId")]
+        [XmlElement(ElementName = "groupConfigurationId")]
+        [JsonProperty("groupConfigurationId")]
+        public string GroupConfigurationId { get; set; }      
 
         [DataMember(Name = "id")]
         [XmlElement(ElementName = "id")]
         [JsonProperty("id")]
         public string Id { get; set; }
 
-        [DataMember(Name = "is_default")]
-        [XmlElement(ElementName = "is_default")]
-        [JsonProperty("is_default")]
+        [DataMember(Name = "isDefault")]
+        [XmlElement(ElementName = "isDefault")]
+        [JsonProperty("isDefault")]
         public bool IsDefault { get; set; }
     }
 

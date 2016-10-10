@@ -9,7 +9,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/configurationgrouptag/action")]
+    [RoutePrefix("_service/configurationGroupTag/action")]
     public class ConfigurationGroupTagController : ApiController
     {
         [Route("get"), HttpPost]

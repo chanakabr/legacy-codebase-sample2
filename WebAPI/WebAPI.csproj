@@ -1169,11 +1169,6 @@
     <Compile Include="Controllers\CDNAdapterProfileController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
     <Compile Include="Controllers\CDNPartnerSettingsController.cs" />
-    <Compile Include="Controllers\ConfigurationGroupController.cs" />
-    <Compile Include="Controllers\ConfigurationGroupDeviceController.cs" />
-    <Compile Include="Controllers\ConfigurationGroupTagController.cs" />
-    <Compile Include="Controllers\ConfigurationController.cs" />
-    <Compile Include="Controllers\ReportController.cs" />
     <Compile Include="Controllers\MetaController.cs" />
     <Compile Include="Controllers\DeviceBrandController.cs" />
     <Compile Include="Controllers\CountryController.cs" />
@@ -1188,6 +1183,7 @@
     <Compile Include="Models\API\KalturaCountryListResponse.cs" />
     <Compile Include="Models\API\KalturaCountryOrderBy.cs" />
     <Compile Include="Models\API\KalturaMetaType.cs" />
+    <Compile Include="Models\DMS\DMSEnums.cs" />
     <Compile Include="Models\DMS\KalturaDeviceListResponse.cs" />
     <Compile Include="Models\DMS\KalturaPushParams.cs" />
     <Compile Include="Models\DMS\KalturaDevice.cs" />
@@ -1198,7 +1194,6 @@
     <Compile Include="Models\DMS\DMSDeviceMapping.cs" />
     <Compile Include="Models\DMS\DMSDeviceResponse.cs" />
     <Compile Include="Models\DMS\DMSDeviceListResponse.cs" />
-    <Compile Include="Models\DMS\KalturaConfiguration.cs" />
     <Compile Include="Models\DMS\DMSConfigurationMin.cs" />
     <Compile Include="Models\DMS\DMSGroupConfigurationMin.cs" />
     <Compile Include="Models\DMS\DMSGroupConfigurationResponse.cs" />

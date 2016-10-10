@@ -10,7 +10,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/configurationgroupdevice/action")]
+    [RoutePrefix("_service/configurationGroupDevice/action")]
     public class ConfigurationGroupDeviceController : ApiController
     {
         /// <summary>

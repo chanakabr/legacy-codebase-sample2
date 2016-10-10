@@ -421,53 +421,6 @@
             <returns></returns>
             <remarks>Possible status codes: CDN partner settings not found = 5025</remarks>   
         </member>
-        <member name="M:WebAPI.Controllers.ConfigurationGroupDeviceController.Get(System.String)">
-            <summary>
-            Returns device association by a given UDID
-            </summary>
-            <param name="udid">Device UDID</param>        
-            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>
-        </member>
-        <member name="M:WebAPI.Controllers.ConfigurationGroupDeviceController.List(System.String,WebAPI.Models.General.KalturaFilterPager)">
-            <summary>
-            Returns a list of device associations by a given group configuration ID.
-            </summary>
-            <param name="groupId">Group configuration ID</param>
-            <param name="pager">Page size and index</param>
-            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001 </remarks>
-        </member>
-        <member name="M:WebAPI.Controllers.ConfigurationGroupDeviceController.Add(System.String,WebAPI.Models.General.KalturaStringValueArray)">
-            <summary>
-            Adds a new device association.
-            </summary>
-            <param name="groupId"></param>
-            <param name="udids"></param>
-            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002, NotExist = 12003 </remarks>
-        </member>
-        <member name="M:WebAPI.Controllers.ConfigurationGroupDeviceController.Delete(System.String,System.String)">
-            <summary>
-            Delete a device association
-            </summary>
-            <param name="groupId"></param>
-            <param name="udid"></param>
-            <returns></returns>
-            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003 </remarks>
-        </member>
-        <member name="M:WebAPI.Controllers.ReportController.Get(System.String)">
-            <summary>
-            Gets a single device information by a given UDID
-            </summary>
-            <param name="udid">Device UDID</param>        
-            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>
-        </member>
-        <member name="M:WebAPI.Controllers.ReportController.List(System.Int64,WebAPI.Models.General.KalturaFilterPager)">
-            <summary>
-            Return a list of device information. Supports paging and can be filtered with the parameter "FromData".
-            </summary>
-            <param name="fromDate"></param>
-            <param name="pager">Page size and index</param>
-            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001 </remarks>
-        </member>
         <member name="M:WebAPI.Controllers.MetaController.List(WebAPI.Models.API.KalturaMetaFilter)">
             <summary>
             Get the list of meta mappings for the partner

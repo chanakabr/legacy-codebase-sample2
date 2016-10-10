@@ -79,33 +79,33 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
 
 
-            // from dms to local
-            Mapper.CreateMap<DMSGetConfigResponse, KalturaConfiguration>()
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertDMSStatus(src.Status)))
-                .ForMember(dest => dest.UDID, opt => opt.MapFrom(src => src.UDID))
-                .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version))
-                .ForMember(dest => dest.Params, opt => opt.MapFrom(src => src.Params))
-                .ForMember(dest => dest.Token, opt => opt.MapFrom(src => src.Token));
+            //// from dms to local
+            //Mapper.CreateMap<DMSGetConfigResponse, KalturaConfiguration>()
+            //    .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertDMSStatus(src.Status)))
+            //    .ForMember(dest => dest.UDID, opt => opt.MapFrom(src => src.UDID))
+            //    .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version))
+            //    .ForMember(dest => dest.Params, opt => opt.MapFrom(src => src.Params))
+            //    .ForMember(dest => dest.Token, opt => opt.MapFrom(src => src.Token));
 
-            // from dms to local
-            Mapper.CreateMap<DMSAppVersion, KalturaAppVersion>()
-                .ForMember(dest => dest.AppName, opt => opt.MapFrom(src => src.AppName))
-                .ForMember(dest => dest.ClientVersion, opt => opt.MapFrom(src => src.ClientVersion))
-                .ForMember(dest => dest.IsForceUpdate, opt => opt.MapFrom(src => src.IsForceUpdate))
-                .ForMember(dest => dest.Platform, opt => opt.MapFrom(src => ConvertPlatform(src.Platform)))
-                .ForMember(dest => dest.GroupId, opt => opt.MapFrom(src => src.GroupId))
-                .ForMember(dest => dest.ExternalPushId, opt => opt.MapFrom(src => src.ExternalPushId))
-                .ForMember(dest => dest.Params, opt => opt.MapFrom(src => src.Params))  //TODO : convert parama
-                .ForMember(dest => dest.GroupConfigurationId, opt => opt.MapFrom(src => src.GroupConfigurationId))
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
-                ;
+            //// from dms to local
+            //Mapper.CreateMap<DMSAppVersion, KalturaAppVersion>()
+            //    .ForMember(dest => dest.AppName, opt => opt.MapFrom(src => src.AppName))
+            //    .ForMember(dest => dest.ClientVersion, opt => opt.MapFrom(src => src.ClientVersion))
+            //    .ForMember(dest => dest.IsForceUpdate, opt => opt.MapFrom(src => src.IsForceUpdate))
+            //    .ForMember(dest => dest.Platform, opt => opt.MapFrom(src => ConvertPlatform(src.Platform)))
+            //    .ForMember(dest => dest.GroupId, opt => opt.MapFrom(src => src.GroupId))
+            //    .ForMember(dest => dest.ExternalPushId, opt => opt.MapFrom(src => src.ExternalPushId))
+            //    .ForMember(dest => dest.Params, opt => opt.MapFrom(src => src.Params))  //TODO : convert parama
+            //    .ForMember(dest => dest.GroupConfigurationId, opt => opt.MapFrom(src => src.GroupConfigurationId))
+            //    .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+            //    .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
+            //    ;
 
-            // from dms to local
-            Mapper.CreateMap<DMSDeviceToken, KalturaDeviceToken>()
-                .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.Key))
-                .ForMember(dest => dest.ValidUntil, opt => opt.MapFrom(src => src.ValidUntil))
-                ;
+            //// from dms to local
+            //Mapper.CreateMap<DMSDeviceToken, KalturaDeviceToken>()
+            //    .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.Key))
+            //    .ForMember(dest => dest.ValidUntil, opt => opt.MapFrom(src => src.ValidUntil))
+            //    ;
         }
 
         private static KalturaePlatform ConvertPlatform(DMSePlatform dMSePlatform)

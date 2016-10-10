@@ -444,41 +444,41 @@ namespace WebAPI.Clients
         }
         #endregion
 
-        internal static KalturaConfiguration GetConfiguration(int partnerId, string applicationName, string configurationVersion, string platform, string UDID, string tag)
-        {
-            string result = string.Empty;
-            KalturaConfiguration configurationGroup = null;
-            string url = string.Format("getconfig?username=dms&password=tvinci&appname={0}&cver={1}&platform={2}&udid={3}&partnerId={4}&tag={5}",
-                applicationName, configurationVersion, platform, UDID, partnerId, tag);
+        //internal static KalturaConfiguration GetConfiguration(int partnerId, string applicationName, string configurationVersion, string platform, string UDID, string tag)
+        //{
+        //    string result = string.Empty;
+        //    KalturaConfiguration configurationGroup = null;
+        //    string url = string.Format("getconfig?username=dms&password=tvinci&appname={0}&cver={1}&platform={2}&udid={3}&partnerId={4}&tag={5}",
+        //        applicationName, configurationVersion, platform, UDID, partnerId, tag);
 
-            try
-            {
-                // call client
-                result = CallGetDMSClient(url, "v2");
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while getting configuration. partnerId: {0}, applicationName: {1}, configurationVersion: {2}, platform: {3}, UDID: {4}, tag: {5}, exception: {6}",
-                    partnerId, applicationName, configurationVersion, platform, UDID, tag, ex);
-                ErrorUtils.HandleWSException(ex);
-            }
+        //    try
+        //    {
+        //        // call client
+        //        result = CallGetDMSClient(url, "v2");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        log.ErrorFormat("Error while getting configuration. partnerId: {0}, applicationName: {1}, configurationVersion: {2}, platform: {3}, UDID: {4}, tag: {5}, exception: {6}",
+        //            partnerId, applicationName, configurationVersion, platform, UDID, tag, ex);
+        //        ErrorUtils.HandleWSException(ex);
+        //    }
 
-            DMSGetConfigResponse response = JsonConvert.DeserializeObject<DMSGetConfigResponse>(result);
+        //    DMSGetConfigResponse response = JsonConvert.DeserializeObject<DMSGetConfigResponse>(result);
 
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
+        //    if (response == null)
+        //    {
+        //        throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+        //    }
 
-            if (!(response.Status == DMSeStatus.Success || response.Status == DMSeStatus.Registered))
-            {
-                throw new ClientException((int)DMSMapping.ConvertDMSStatus(response.Status));
-            }
+        //    if (!(response.Status == DMSeStatus.Success || response.Status == DMSeStatus.Registered))
+        //    {
+        //        throw new ClientException((int)DMSMapping.ConvertDMSStatus(response.Status));
+        //    }
 
-            configurationGroup = Mapper.Map<KalturaConfiguration>(response);
+        //    configurationGroup = Mapper.Map<KalturaConfiguration>(response);
 
-            return configurationGroup;
-        }
+        //    return configurationGroup;
+        //}
 
 
         #region Configuration Group Device
