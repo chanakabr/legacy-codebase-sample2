@@ -1,11 +1,5 @@
 ﻿using ApiObjects.Response;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Web;
 using System.Web.Http;
-using WebAPI.ClientManagers.Client;
 using WebAPI.Clients;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -15,7 +9,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    public class ConfigurationGroupTagController
+    [RoutePrefix("_service/configurationgrouptag/action")]
+    public class ConfigurationGroupTagController : ApiController
     {
         [Route("get"), HttpPost]
         [ApiAuthorize]

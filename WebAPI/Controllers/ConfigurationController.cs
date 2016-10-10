@@ -5,12 +5,12 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.DMS;
-using WebAPI.Models.General;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    public class ConfigurationController
+    [RoutePrefix("_service/configuration/action")]
+    public class ConfigurationController : ApiController
     {
         [Route("serve"), HttpPost]
         [ApiAuthorize]

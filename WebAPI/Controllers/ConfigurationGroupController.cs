@@ -9,7 +9,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    public class ConfigurationGroupController
+    [RoutePrefix("_service/configurationgroup/action")]
+    public class ConfigurationGroupController : ApiController
     {
         [Route("get"), HttpPost]
         [ApiAuthorize]
