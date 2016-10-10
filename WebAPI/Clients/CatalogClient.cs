@@ -2025,5 +2025,10 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        internal KalturaAssetListResponse GetScheduledRecordingAssets(int groupId, string userID, int domainId, List<long> list, int p1, int p2, KalturaAssetOrderBy kalturaAssetOrderBy, KalturaScheduledRecordingAssetType kalturaScheduledRecordingAssetType)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

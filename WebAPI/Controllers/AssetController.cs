@@ -232,7 +232,7 @@ namespace WebAPI.Controllers
                 else if (filter is KalturaScheduledRecordingAssetFilter)
                 {
                     KalturaScheduledRecordingAssetFilter scheduledRecordingFilter = (KalturaScheduledRecordingAssetFilter)filter;
-                    response = ClientsManager.ConditionalAccessClient().GetScheduledRecordingAssets(groupId, userID, domainId, pager.getPageIndex(), pager.getPageSize(),
+                    response = ClientsManager.CatalogClient().GetScheduledRecordingAssets(groupId, userID, domainId, scheduledRecordingFilter.ConvertChannelsIn(), pager.getPageIndex(), pager.getPageSize(),
                                                                                                        scheduledRecordingFilter.OrderBy, scheduledRecordingFilter.RecordingTypeEqual);
                 }
                 else

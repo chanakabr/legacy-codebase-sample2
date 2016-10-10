@@ -1417,7 +1417,7 @@ namespace WebAPI.Clients
                 {
                     // fire request
                     response = ConditionalAccess.SearchDomainRecordings(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, domainID, convertedRecordingStatuses.ToArray(),
-                                                                          ksqlFilter, pageIndex, pageSize.Value, order);
+                                                                          ksqlFilter, pageIndex, pageSize.Value, order, false);
                 }
             }
             catch (Exception ex)
@@ -1832,13 +1832,7 @@ namespace WebAPI.Clients
             //    };
 
             return kalturaResponse;
-        }
-
-        internal KalturaAssetListResponse GetScheduledRecordingAssets(int groupId, string userID, int domainId, int pageIndex, int pageSize,
-                                                                      KalturaAssetOrderBy kalturaAssetOrderBy, KalturaScheduledRecordingAssetType kalturaScheduledRecordingAssetType)
-        {
-            throw new NotImplementedException();
-        }
+        }        
 
     }
 }

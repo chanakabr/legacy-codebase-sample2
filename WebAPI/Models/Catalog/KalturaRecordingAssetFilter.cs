@@ -9,7 +9,7 @@ using WebAPI.Models.ConditionalAccess;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaScheduledRecordingAssetFilter : KalturaSearchAssetFilter
+    public class KalturaScheduledRecordingAssetFilter : KalturaAssetFilter
     {
 
         /// <summary>
@@ -20,5 +20,32 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "recordingTypeEqual")]
         public KalturaScheduledRecordingAssetType RecordingTypeEqual { get; set; }
 
+        /// <summary>
+        /// Channels to filter by
+        /// </summary>
+        [DataMember(Name = "channelsIn")]
+        [JsonProperty(PropertyName = "channelsIn")]
+        [XmlArray(ElementName = "channelsIn", IsNullable = true)]
+        public string ChannelsIn { get; set; }
+
+        public List<long> ConvertChannelsIn()
+        {
+            List<long> channelsIds = new List<long>();
+            if (!string.IsNullOrEmpty(ChannelsIn))
+            {
+                string[] splitChannels = ChannelsIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);                
+                foreach (string channelId in splitChannels)
+                {
+                    long parsedChannelId;
+                    if (long.TryParse(channelId, out parsedChannelId) && parsedChannelId > 0)
+                    {
+                        channelsIds.Add(parsedChannelId);
+                    }
+                }
+            }
+
+            return channelsIds;
+
+        }
     }
 }
