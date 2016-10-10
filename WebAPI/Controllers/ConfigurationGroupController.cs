@@ -12,6 +12,12 @@ namespace WebAPI.Controllers
     [RoutePrefix("_service/configurationGroup/action")]
     public class ConfigurationGroupController : ApiController
     {
+        /// <summary>
+        /// Return the configuration group details, including group identifiers, tags, and number of associated devices, and list of device configuration
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <returns></returns>
+        /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         [Route("get"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
@@ -40,6 +46,11 @@ namespace WebAPI.Controllers
             return response;
         }
 
+        /// <summary>
+        /// Return the list of configuration groups
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001</remarks>        
         [Route("list"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
@@ -62,6 +73,12 @@ namespace WebAPI.Controllers
             return response;
         }
 
+        /// <summary>
+        /// Add a new configuration group
+        /// </summary>
+        /// <param name="configurationGroup"></param>
+        /// <returns></returns>
+        /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002</remarks>        
         [Route("add"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
@@ -85,13 +102,19 @@ namespace WebAPI.Controllers
             return response;
         }
 
+        /// <summary>
+        /// Update configuration group name
+        /// </summary>
+        /// <param name="configurationGroup"></param>
+        /// <returns></returns>
+        /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002, NotExist = 12003</remarks>        
         [Route("update"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.NotExist)]
         [Throws(eResponseStatus.IllegalPostData)]
-        public KalturaConfigurationGroup Update(int groupId, KalturaConfigurationGroup configurationGroup) //TODO: Anat why need 2 args?
+        public KalturaConfigurationGroup Update(KalturaConfigurationGroup configurationGroup) 
         {
             KalturaConfigurationGroup response = null;
 
@@ -109,6 +132,12 @@ namespace WebAPI.Controllers
             return response;
         }
 
+        /// <summary>
+        /// Remove a configuration group, including its tags, device configurations and devices associations
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <returns></returns>
+        /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         [Route("delete"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
@@ -135,6 +164,5 @@ namespace WebAPI.Controllers
             }
             return response;
         }
-
     }
 }
