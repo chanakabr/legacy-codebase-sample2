@@ -152,7 +152,7 @@ namespace WebAPI.Controllers
             try
             {
                 if (string.IsNullOrWhiteSpace(configurationGroupId))
-                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "groupId");
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "configurationGroupId");
 
                 int partnerId = KS.GetFromRequest().GroupId;
 
