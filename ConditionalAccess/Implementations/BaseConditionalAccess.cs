@@ -19693,7 +19693,7 @@ namespace ConditionalAccess
             return string.Format("Found {0} subscriptions to renew, {1} added to queue successfully", totalSubscriptionsToRenew, totalRenewTransactionsAdded);
         }
 
-        public ScheduledRecordingAssetResponse GetScheduledRecordingAssets(string userId, long domainId, ScheduledRecordingAssetType scheduledRecordingAssetType, DateTime endDateStartRange,
+        public ScheduledRecordingAssetResponse GetScheduledRecordingAssets(string userId, long domainId, List<long> channels, ScheduledRecordingAssetType scheduledRecordingAssetType, DateTime endDateStartRange,
                                                                             DateTime endDateEndRange, int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy)
         {
             ScheduledRecordingAssetResponse response = new ScheduledRecordingAssetResponse();
@@ -19710,6 +19710,7 @@ namespace ConditionalAccess
                 bool isSingle = scheduledRecordingAssetType == ScheduledRecordingAssetType.SINGLE;
                 List<DomainSeriesRecording> series = null;
                 List<TstvRecordingStatus> statusesToSearch = new List<TstvRecordingStatus>() { TstvRecordingStatus.Scheduled };
+                // should we get the existing series recordings
                 if (!isSingle)
                 {
                     statusesToSearch.AddRange(new List<TstvRecordingStatus>() { TstvRecordingStatus.SeriesDelete, TstvRecordingStatus.SeriesCancel, TstvRecordingStatus.Failed,
@@ -19722,23 +19723,33 @@ namespace ConditionalAccess
                 if (domainRecordings != null && domainRecordings.Status.Code == (int)eResponseStatus.OK)
                 {                    
                     if (domainRecordings.Recordings.Count > 0)
-                    {                        
-                        response.Assets = domainRecordings.Recordings.Where(x => x.Type == RecordingType.Single &&
-                                          x.RecordingStatus == TstvRecordingStatus.Scheduled).Select(x => x.EpgId).ToList();
+                    {
+                        // get SINGLE scheduled recordings assets
+                        if (scheduledRecordingAssetType != ScheduledRecordingAssetType.SERIES)
+                        {
+                            List<long> scheduledSingleEpgIds = domainRecordings.Recordings.Where(x => x.Type == RecordingType.Single && x.RecordingStatus == TstvRecordingStatus.Scheduled
+                                                                                                    && channels.Contains(x.ChannelId)).Select(x => x.EpgId).ToList();
+                            foreach (long epgId in scheduledSingleEpgIds)
+                            {
+                                response.Assets.Add(new ScheduledRecordingAsset(epgId, eAssetTypes.EPG, DateTime.MinValue));
+                            }
+                        }
+                        
+                        // get SERIES scheduled recordings assets
                         if (!isSingle)
                         {
                             List<string> excludedCrids = new List<string>();                            
-                            List<RecordingType> recordingTypesToExcludeCrids = new List<RecordingType>() { RecordingType.Season, RecordingType.Series };                            
-                            excludedCrids = domainRecordings.Recordings.Where(x => recordingTypesToExcludeCrids.Contains(x.Type)).Select(x => x.EpgId.ToString()).ToList();
-                            List<WS_Catalog.ExtendedSearchResult> futureEpgsOfSeasonOrSeries = Utils.SearchFutureSeriesEpgs(m_nGroupID, excludedCrids, series, endDateStartRange, endDateEndRange);
+                            List<RecordingType> recordingTypesToExcludeCrids = new List<RecordingType>() { RecordingType.Season, RecordingType.Series };
+                            excludedCrids = domainRecordings.Recordings.Where(x => recordingTypesToExcludeCrids.Contains(x.Type)).Select(x => x.Crid).ToList();
+                            List<WS_Catalog.UnifiedSearchResult> futureEpgsOfSeasonOrSeries = Utils.SearchFutureSeriesEpgs(m_nGroupID, channels, excludedCrids, series, endDateStartRange, endDateEndRange);
                             if (futureEpgsOfSeasonOrSeries != null)
                             {
-                                foreach (WS_Catalog.ExtendedSearchResult futureEpgSearchResult in futureEpgsOfSeasonOrSeries)
+                                foreach (WS_Catalog.UnifiedSearchResult futureEpgSearchResult in futureEpgsOfSeasonOrSeries)
                                 {
                                     long epgId;
-                                    if (long.TryParse(futureEpgSearchResult.AssetId, out epgId) && !response.Assets.Contains(epgId))
+                                    if (long.TryParse(futureEpgSearchResult.AssetId, out epgId))
                                     {
-                                        response.Assets.Add(epgId);                                        
+                                        response.Assets.Add(new ScheduledRecordingAsset(epgId, futureEpgSearchResult.AssetType, futureEpgSearchResult.m_dUpdateDate));
                                     }
                                 }
                             }

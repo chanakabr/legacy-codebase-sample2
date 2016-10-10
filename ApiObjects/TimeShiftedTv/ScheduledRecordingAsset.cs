@@ -11,25 +11,25 @@ namespace ApiObjects.TimeShiftedTv
 
         public long AssetId { get; set; }
 
-        public RecordingType Type { get; set; }
+        public eAssetTypes AssetType { get; set; }
 
-        public string Crid { get; set; }
+        public DateTime UpdatedDate { get; set; }
 
         public ScheduledRecordingAsset() { }
 
-        public ScheduledRecordingAsset(long assetId, RecordingType type, string crid)
+        public ScheduledRecordingAsset(long assetId, eAssetTypes AssetType, DateTime UpdatedDate)
         {
             this.AssetId = assetId;
-            this.Type = type;
-            this.Crid = crid;
+            this.AssetType = AssetType;
+            this.UpdatedDate = UpdatedDate;
         }
 
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
             sb.Append(string.Format("AssetId: {0}", AssetId));
-            sb.Append(string.Format("Type: {0}", Type));
-            sb.Append(string.Format("Crid: {0}", string.IsNullOrEmpty(Crid) ? "" : Crid));
+            sb.Append(string.Format("AssetType: {0}", AssetType));
+            sb.Append(string.Format("UpdatedDate: {0}", UpdatedDate));
 
             return sb.ToString();
         }

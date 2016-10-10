@@ -5659,10 +5659,10 @@ namespace ConditionalAccess
             return recordings;
         }
 
-        internal static List<ExtendedSearchResult> SearchFutureSeriesEpgs(int groupID, List<string> excludedCrids, List<DomainSeriesRecording> series, DateTime? startDate, DateTime? endDate)
+        internal static List<UnifiedSearchResult> SearchFutureSeriesEpgs(int groupID, List<long> channels, List<string> excludedCrids, List<DomainSeriesRecording> series, DateTime? startDate, DateTime? endDate)
         {
             WS_Catalog.IserviceClient client = null;
-            List<ExtendedSearchResult> recordings = null;
+            List<UnifiedSearchResult> assets = null;
 
             // build the KSQL for the series
             string seriesId;
@@ -5672,7 +5672,7 @@ namespace ConditionalAccess
             if (!GetSeriesMetaTagsFieldsNamesForSearch(groupID, out seriesId, out seasonNumber, out episodeNumber))
             {
                 log.ErrorFormat("failed to 'GetSeriesMetaTagsNamesForGroup' for groupId = {0} ", groupID);
-                return recordings;
+                return assets;
             }
 
             // build the filter query for the search
@@ -5692,22 +5692,23 @@ namespace ConditionalAccess
                 }
 
                 ksql.AppendFormat("(and {0} = '{1}' epg_channel_id = '{2}' {3} {4})", seriesId, serie.SeriesId, serie.EpgChannelId, season, seasonsToExclude.ToString());
-
             }
 
             if (startDate.HasValue)
             {
-                ksql.AppendFormat("start_date > '{0}'", TVinciShared.DateUtils.DateTimeToUnixTimestamp(startDate.Value));
+                ksql.AppendFormat(") start_date > '{0}'", TVinciShared.DateUtils.DateTimeToUnixTimestamp(startDate.Value));
             }
             else
             {
-                ksql.AppendFormat(") start_date > '0')");
+                ksql.AppendFormat(") start_date > '0'");
             }
 
             if (endDate.HasValue)
             {
-                ksql.AppendFormat("end_date < '{0}'", TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate.Value));
+                ksql.AppendFormat(" end_date < '{0}'", TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate.Value));
             }
+
+            ksql.Append(")");
 
             // get program ids
             try
@@ -5730,7 +5731,6 @@ namespace ConditionalAccess
                         m_bOnlyActiveMedia = true
                     },
                     excludedCrids = excludedCrids != null ? excludedCrids.ToArray() : null,
-                    ExtraReturnFields = new string[] { "epg_id", "crid", "epg_channel_id", seriesId, seasonNumber },
                     ShouldUseSearchEndDate = true
                 };
                 FillCatalogSignature(request);
@@ -5739,7 +5739,7 @@ namespace ConditionalAccess
                 if (string.IsNullOrEmpty(catalogUrl))
                 {
                     log.Error("Catalog Url is null or empty");
-                    return recordings;
+                    return assets;
                 }
 
                 client.Endpoint.Address = new System.ServiceModel.EndpointAddress(catalogUrl);
@@ -5749,15 +5749,15 @@ namespace ConditionalAccess
                 if (response == null || response.status == null)
                 {
                     log.ErrorFormat("Got empty response from Catalog 'GetResponse' for 'ExtendedSearchRequest'");
-                    return recordings;
+                    return assets;
                 }
                 if (response.status.Code != (int)eResponseStatus.OK)
                 {
                     log.ErrorFormat("Got error response from catalog 'GetResponse' for 'ExtendedSearchRequest'. response: code = {0}, message = {1}", response.status.Code, response.status.Message);
-                    return recordings;
+                    return assets;
                 }
 
-                recordings = response.searchResults.Select(sr => (ExtendedSearchResult)sr).ToList();
+                assets = response.searchResults.ToList();
             }
 
             catch (Exception ex)
@@ -5773,7 +5773,7 @@ namespace ConditionalAccess
                 }
             }
 
-            return recordings;
+            return assets;
         }
 
         internal static bool GetSeriesMetaTagsFieldsNamesForSearch(int groupId, out string seriesIdName, out string seasonNumberName, out string episodeNumberName)
