@@ -1196,7 +1196,6 @@
     <Compile Include="Models\API\KalturaCountryListResponse.cs" />
     <Compile Include="Models\API\KalturaCountryOrderBy.cs" />
     <Compile Include="Models\API\KalturaMetaType.cs" />
-    <Compile Include="Models\DMS\KalturaDeviceListResponse.cs" />
     <Compile Include="Models\DMS\KalturaReportFilter.cs" />
     <Compile Include="Models\DMS\KalturaConfigurationGroupTagFilter.cs" />
     <Compile Include="Models\DMS\DMSConfigurationListResponse.cs" />
@@ -1211,12 +1210,10 @@
     <Compile Include="Models\DMS\DMSReportDeviceGetResponse.cs" />
     <Compile Include="Models\DMS\DMSReportDeviceListResponse.cs" />
     <Compile Include="Models\DMS\DMSDevice.cs" />
-    <Compile Include="Models\DMS\DMSDeviceGetResponse.cs" />
     <Compile Include="Models\DMS\DMSDeviceMapping.cs" />
     <Compile Include="Models\DMS\DMSDeviceResponse.cs" />
     <Compile Include="Models\DMS\DMSDeviceListResponse.cs" />
     <Compile Include="Models\DMS\DMSConfigurationMin.cs" />
-    <Compile Include="Models\DMS\DMSGroupConfigurationMin.cs" />
     <Compile Include="Models\DMS\DMSGroupConfigurationResponse.cs" />
     <Compile Include="Models\DMS\DMSGetConfigResponse.cs" />
     <Compile Include="Models\DMS\KalturaConfigurationGroupDevice.cs" />
