@@ -44,15 +44,18 @@ namespace WebAPI.Models.API
             return KalturaUserRoleOrderBy.NONE;
         }
 
-        internal long[] getIds()
+        internal List<long> getIds()
         {
+            List<long> values = new List<long>();
             if (Ids != null)
-                return Ids.Select(id => id.value).ToArray();
+            {
+                values.AddRange(Ids.Select(id => id.value));
+                return values;
+            }
 
             if (string.IsNullOrEmpty(IdIn))
                 return null;
 
-            List<long> values = new List<long>();
             string[] stringValues = IdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (string stringValue in stringValues)
             {
@@ -67,7 +70,7 @@ namespace WebAPI.Models.API
                 }
             }
 
-            return values.ToArray();
+            return values;
         }
     }
 }

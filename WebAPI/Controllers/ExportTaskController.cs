@@ -154,7 +154,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                var listRes = ClientsManager.ApiClient().GetBulkExportTasks(groupId, new long[] { id }, null, KalturaExportTaskOrderBy.CREATE_DATE_DESC);
+                var listRes = ClientsManager.ApiClient().GetBulkExportTasks(groupId, new List<long> { id }, null, KalturaExportTaskOrderBy.CREATE_DATE_DESC);
                 if (listRes != null && listRes.Count > 0)
                 {
                     response = listRes[0];
@@ -223,7 +223,13 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.ApiClient().GetBulkExportTasks(groupId, filter.ids != null ? filter.ids.Select(id => id.value).ToArray() : null, null, filter.OrderBy);
+                List<long> ids = null;
+                if (filter.ids != null)
+                {
+                    ids = new List<long>();
+                    ids.AddRange(filter.ids.Select(id => id.value));
+                }
+                response = ClientsManager.ApiClient().GetBulkExportTasks(groupId, ids, null, filter.OrderBy);
             }
             catch (ClientException ex)
             {

@@ -11,17 +11,14 @@
     <Setting Name="WebAPI_Pricing_mdoule" Type="(Web Service URL)" Scope="Application">
       <Value Profile="(Default)">http://webservices/pricing_v4_0/module.asmx</Value>
     </Setting>
-    <Setting Name="WebAPI_Users_UsersService" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://localhost/ws_Users/module.asmx</Value>
-    </Setting>
     <Setting Name="WebAPI_ConditionalAccess_module" Type="(Web Service URL)" Scope="Application">
       <Value Profile="(Default)">http://webservices/cas_v4_0/module.asmx</Value>
     </Setting>
     <Setting Name="WebAPI_Billing_module" Type="(Web Service URL)" Scope="Application">
       <Value Profile="(Default)">http://localhost/WS_Billing/module.asmx</Value>
     </Setting>
-    <Setting Name="WebAPI_Api_API" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://webservices/api_v4_0/api.asmx</Value>
+    <Setting Name="WebAPI_Users_UsersService" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://webservices/users_v4_0/module.asmx</Value>
     </Setting>
   </Settings>
 </SettingsFile>

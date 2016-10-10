@@ -7,6 +7,7 @@ using System.Web;
 using WebAPI.Clients;
 using WebAPI.Notifications;
 using WebAPI.Users;
+using WS_API;
 
 namespace WebAPI.ClientManagers.Client
 {
@@ -19,7 +20,7 @@ namespace WebAPI.ClientManagers.Client
             switch (clientType)
             {
                 case ClientType.Api:
-                    client = new ApiClient() { Module = new Api.API() { Url = url } };
+                    client = new ApiClient() { Module = new API() };
                     break;
                 case ClientType.Billing:
                     client = new BillingClient() { Module = new Billing.module() { Url = url } };
