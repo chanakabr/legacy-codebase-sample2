@@ -477,7 +477,7 @@
             <summary>
             Return the configuration group details, including group identifiers, tags, and number of associated devices, and list of device configuration
             </summary>
-            <param name="groupId"></param>
+            <param name="configurationGroupId"></param>
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         </member>
@@ -508,7 +508,7 @@
             <summary>
             Remove a configuration group, including its tags, device configurations and devices associations
             </summary>
-            <param name="groupId"></param>
+            <param name="configurationGroupId"></param>
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         </member>
