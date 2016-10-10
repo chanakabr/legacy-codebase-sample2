@@ -29,7 +29,7 @@ namespace WebAPI.Models.DMS
         [DataMember(Name = "platform")]
         [XmlElement(ElementName = "platform")]
         [JsonProperty("platform", Order = 4)]
-        public KalturaePlatform Platform { get; set; }
+        public KalturaPlatform Platform { get; set; }
 
         [DataMember(Name = "partnerId")]
         [XmlElement(ElementName = "partnerId")]
@@ -77,7 +77,7 @@ namespace WebAPI.Models.DMS
         VersionNotFound = 7
     }
 
-    public enum KalturaePlatform
+    public enum KalturaPlatform
     {
         Android = 0,
         iOS = 1,

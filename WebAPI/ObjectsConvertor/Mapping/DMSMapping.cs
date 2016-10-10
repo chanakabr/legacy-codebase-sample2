@@ -116,23 +116,23 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return JsonConvert.SerializeObject(dictionary);
         }
 
-        private static KalturaPlatform ConvertPlatform(KalturaePlatform kalturaePlatform)
+        private static KalturaPlatform ConvertPlatform(KalturaPlatform kalturaePlatform)
         {
             switch (kalturaePlatform)
             {
-                case KalturaePlatform.Android:
+                case KalturaPlatform.Android:
                     return KalturaPlatform.Android;
-                case KalturaePlatform.iOS:
+                case KalturaPlatform.iOS:
                     return KalturaPlatform.iOS;
-                case KalturaePlatform.WindowsPhone:
+                case KalturaPlatform.WindowsPhone:
                     return KalturaPlatform.WindowsPhone;
-                case KalturaePlatform.Blackberry:
+                case KalturaPlatform.Blackberry:
                     return KalturaPlatform.Blackberry;
-                case KalturaePlatform.STB:
+                case KalturaPlatform.STB:
                     return KalturaPlatform.STB;
-                case KalturaePlatform.CTV:
+                case KalturaPlatform.CTV:
                     return KalturaPlatform.CTV;
-                case KalturaePlatform.Other:
+                case KalturaPlatform.Other:
                     return KalturaPlatform.Other;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown platform owner");

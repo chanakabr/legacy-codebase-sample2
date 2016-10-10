@@ -15,7 +15,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Return the configuration group details, including group identifiers, tags, and number of associated devices, and list of device configuration
         /// </summary>
-        /// <param name="groupId"></param>
+        /// <param name="configurationGroupId"></param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         [Route("get"), HttpPost]
@@ -25,18 +25,18 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.NotExist)]
         [Throws(eResponseStatus.PartnerMismatch)]
-        public KalturaConfigurationGroup Get(string groupId)
+        public KalturaConfigurationGroup Get(string configurationGroupId)
         {
             KalturaConfigurationGroup response = null;
             int partnerId = KS.GetFromRequest().GroupId;
 
-            if (string.IsNullOrWhiteSpace(groupId))
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "groupId");
+            if (string.IsNullOrWhiteSpace(configurationGroupId))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "configurationGroupId");
 
             try
             {
                 // call client               
-                response = DMSClient.GetConfigurationGroup(partnerId, groupId);
+                response = DMSClient.GetConfigurationGroup(partnerId, configurationGroupId);
             }
             catch (ClientException ex)
             {
@@ -136,7 +136,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Remove a configuration group, including its tags, device configurations and devices associations
         /// </summary>
-        /// <param name="groupId"></param>
+        /// <param name="configurationGroupId"></param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         [Route("delete"), HttpPost]
@@ -145,19 +145,19 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.NotExist)]
         [Throws(eResponseStatus.PartnerMismatch)]
-        public bool Delete(string groupId)
+        public bool Delete(string configurationGroupId)
         {
             bool response = false;
 
             try
             {
-                if (string.IsNullOrWhiteSpace(groupId))
+                if (string.IsNullOrWhiteSpace(configurationGroupId))
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "groupId");
 
                 int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
-                response = DMSClient.DeleteConfigurationGroup(partnerId, groupId);
+                response = DMSClient.DeleteConfigurationGroup(partnerId, configurationGroupId);
             }
             catch (ClientException ex)
             {
