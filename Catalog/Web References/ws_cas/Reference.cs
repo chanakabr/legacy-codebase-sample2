@@ -41,8 +41,6 @@ namespace Catalog.ws_cas {
         
         private System.Threading.SendOrPostCallback BulkRecoveryForRenewSubscriptionsOperationCompleted;
         
-        private System.Threading.SendOrPostCallback GetScheduledRecordingAssetsOperationCompleted;
-        
         private System.Threading.SendOrPostCallback GetUserPermittedItemsOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetDomainPermittedItemsOperationCompleted;
@@ -353,9 +351,6 @@ namespace Catalog.ws_cas {
         
         /// <remarks/>
         public event BulkRecoveryForRenewSubscriptionsCompletedEventHandler BulkRecoveryForRenewSubscriptionsCompleted;
-        
-        /// <remarks/>
-        public event GetScheduledRecordingAssetsCompletedEventHandler GetScheduledRecordingAssetsCompleted;
         
         /// <remarks/>
         public event GetUserPermittedItemsCompletedEventHandler GetUserPermittedItemsCompleted;
@@ -918,55 +913,6 @@ namespace Catalog.ws_cas {
             if ((this.BulkRecoveryForRenewSubscriptionsCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.BulkRecoveryForRenewSubscriptionsCompleted(this, new BulkRecoveryForRenewSubscriptionsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetScheduledRecordingAssets", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public ScheduledRecordingAssetResponse GetScheduledRecordingAssets(string sWSUserName, string sWSPassword, string userId, long domainId, long[] channels, ScheduledRecordingAssetType scheduledRecordingAssetType, System.DateTime endDateStartRange, System.DateTime endDateEndRange, int pageIndex, int pageSize, OrderObj orderBy) {
-            object[] results = this.Invoke("GetScheduledRecordingAssets", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        userId,
-                        domainId,
-                        channels,
-                        scheduledRecordingAssetType,
-                        endDateStartRange,
-                        endDateEndRange,
-                        pageIndex,
-                        pageSize,
-                        orderBy});
-            return ((ScheduledRecordingAssetResponse)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void GetScheduledRecordingAssetsAsync(string sWSUserName, string sWSPassword, string userId, long domainId, long[] channels, ScheduledRecordingAssetType scheduledRecordingAssetType, System.DateTime endDateStartRange, System.DateTime endDateEndRange, int pageIndex, int pageSize, OrderObj orderBy) {
-            this.GetScheduledRecordingAssetsAsync(sWSUserName, sWSPassword, userId, domainId, channels, scheduledRecordingAssetType, endDateStartRange, endDateEndRange, pageIndex, pageSize, orderBy, null);
-        }
-        
-        /// <remarks/>
-        public void GetScheduledRecordingAssetsAsync(string sWSUserName, string sWSPassword, string userId, long domainId, long[] channels, ScheduledRecordingAssetType scheduledRecordingAssetType, System.DateTime endDateStartRange, System.DateTime endDateEndRange, int pageIndex, int pageSize, OrderObj orderBy, object userState) {
-            if ((this.GetScheduledRecordingAssetsOperationCompleted == null)) {
-                this.GetScheduledRecordingAssetsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetScheduledRecordingAssetsOperationCompleted);
-            }
-            this.InvokeAsync("GetScheduledRecordingAssets", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        userId,
-                        domainId,
-                        channels,
-                        scheduledRecordingAssetType,
-                        endDateStartRange,
-                        endDateEndRange,
-                        pageIndex,
-                        pageSize,
-                        orderBy}, this.GetScheduledRecordingAssetsOperationCompleted, userState);
-        }
-        
-        private void OnGetScheduledRecordingAssetsOperationCompleted(object arg) {
-            if ((this.GetScheduledRecordingAssetsCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetScheduledRecordingAssetsCompleted(this, new GetScheduledRecordingAssetsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -6895,6 +6841,121 @@ namespace Catalog.ws_cas {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class OrderObj {
+        
+        private OrderBy m_eOrderByField;
+        
+        private OrderDir m_eOrderDirField;
+        
+        private int lu_min_period_idField;
+        
+        private string m_sOrderValueField;
+        
+        private bool m_bIsSlidingWindowFieldField;
+        
+        /// <remarks/>
+        public OrderBy m_eOrderBy {
+            get {
+                return this.m_eOrderByField;
+            }
+            set {
+                this.m_eOrderByField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public OrderDir m_eOrderDir {
+            get {
+                return this.m_eOrderDirField;
+            }
+            set {
+                this.m_eOrderDirField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int lu_min_period_id {
+            get {
+                return this.lu_min_period_idField;
+            }
+            set {
+                this.lu_min_period_idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sOrderValue {
+            get {
+                return this.m_sOrderValueField;
+            }
+            set {
+                this.m_sOrderValueField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool m_bIsSlidingWindowField {
+            get {
+                return this.m_bIsSlidingWindowFieldField;
+            }
+            set {
+                this.m_bIsSlidingWindowFieldField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public enum OrderBy {
+        
+        /// <remarks/>
+        ID,
+        
+        /// <remarks/>
+        VIEWS,
+        
+        /// <remarks/>
+        RATING,
+        
+        /// <remarks/>
+        VOTES_COUNT,
+        
+        /// <remarks/>
+        LIKE_COUNTER,
+        
+        /// <remarks/>
+        START_DATE,
+        
+        /// <remarks/>
+        NAME,
+        
+        /// <remarks/>
+        CREATE_DATE,
+        
+        /// <remarks/>
+        META,
+        
+        /// <remarks/>
+        RANDOM,
+        
+        /// <remarks/>
+        RELATED,
+        
+        /// <remarks/>
+        NONE,
+        
+        /// <remarks/>
+        RECOMMENDATION,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class RecordingResponse {
         
         private Status statusField;
@@ -9992,10 +10053,10 @@ namespace Catalog.ws_cas {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(QuotaResponse))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordResponse))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(LicensedLinkNPVRResponse))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelDeleteResponse))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(QuotaResponse))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -10024,39 +10085,6 @@ namespace Catalog.ws_cas {
             }
             set {
                 this.msgField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class QuotaResponse : NPVRResponse {
-        
-        private long totalQuotaField;
-        
-        private long occupiedQuotaField;
-        
-        /// <remarks/>
-        public long totalQuota {
-            get {
-                return this.totalQuotaField;
-            }
-            set {
-                this.totalQuotaField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public long occupiedQuota {
-            get {
-                return this.occupiedQuotaField;
-            }
-            set {
-                this.occupiedQuotaField = value;
             }
         }
     }
@@ -10113,13 +10141,46 @@ namespace Catalog.ws_cas {
     }
     
     /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class QuotaResponse : NPVRResponse {
+        
+        private long totalQuotaField;
+        
+        private long occupiedQuotaField;
+        
+        /// <remarks/>
+        public long totalQuota {
+            get {
+                return this.totalQuotaField;
+            }
+            set {
+                this.totalQuotaField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long occupiedQuota {
+            get {
+                return this.occupiedQuotaField;
+            }
+            set {
+                this.occupiedQuotaField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteSeriesNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ProtectNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(LicensedLinkNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RetrieveQuotaNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelNPVRCommand))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelSeriesNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByProgramIdNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByNameNPVRCommand))]
@@ -10201,6 +10262,15 @@ namespace Catalog.ws_cas {
                 this.assetIDField = value;
             }
         }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class RecordNPVRCommand : BaseNPVRCommand {
     }
     
     /// <remarks/>
@@ -10375,15 +10445,6 @@ namespace Catalog.ws_cas {
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class CancelNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class RecordNPVRCommand : BaseNPVRCommand {
     }
     
     /// <remarks/>
@@ -12400,211 +12461,6 @@ namespace Catalog.ws_cas {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class ScheduledRecordingAsset {
-        
-        private long assetIdField;
-        
-        private eAssetTypes assetTypeField;
-        
-        private System.DateTime updatedDateField;
-        
-        /// <remarks/>
-        public long AssetId {
-            get {
-                return this.assetIdField;
-            }
-            set {
-                this.assetIdField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public eAssetTypes AssetType {
-            get {
-                return this.assetTypeField;
-            }
-            set {
-                this.assetTypeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime UpdatedDate {
-            get {
-                return this.updatedDateField;
-            }
-            set {
-                this.updatedDateField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class ScheduledRecordingAssetResponse {
-        
-        private Status statusField;
-        
-        private ScheduledRecordingAsset[] assetsField;
-        
-        private int totalItemsField;
-        
-        /// <remarks/>
-        public Status Status {
-            get {
-                return this.statusField;
-            }
-            set {
-                this.statusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public ScheduledRecordingAsset[] Assets {
-            get {
-                return this.assetsField;
-            }
-            set {
-                this.assetsField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int TotalItems {
-            get {
-                return this.totalItemsField;
-            }
-            set {
-                this.totalItemsField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class OrderObj {
-        
-        private OrderBy m_eOrderByField;
-        
-        private OrderDir m_eOrderDirField;
-        
-        private int lu_min_period_idField;
-        
-        private string m_sOrderValueField;
-        
-        private bool m_bIsSlidingWindowFieldField;
-        
-        /// <remarks/>
-        public OrderBy m_eOrderBy {
-            get {
-                return this.m_eOrderByField;
-            }
-            set {
-                this.m_eOrderByField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public OrderDir m_eOrderDir {
-            get {
-                return this.m_eOrderDirField;
-            }
-            set {
-                this.m_eOrderDirField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int lu_min_period_id {
-            get {
-                return this.lu_min_period_idField;
-            }
-            set {
-                this.lu_min_period_idField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sOrderValue {
-            get {
-                return this.m_sOrderValueField;
-            }
-            set {
-                this.m_sOrderValueField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool m_bIsSlidingWindowField {
-            get {
-                return this.m_bIsSlidingWindowFieldField;
-            }
-            set {
-                this.m_bIsSlidingWindowFieldField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public enum OrderBy {
-        
-        /// <remarks/>
-        ID,
-        
-        /// <remarks/>
-        VIEWS,
-        
-        /// <remarks/>
-        RATING,
-        
-        /// <remarks/>
-        VOTES_COUNT,
-        
-        /// <remarks/>
-        LIKE_COUNTER,
-        
-        /// <remarks/>
-        START_DATE,
-        
-        /// <remarks/>
-        NAME,
-        
-        /// <remarks/>
-        CREATE_DATE,
-        
-        /// <remarks/>
-        META,
-        
-        /// <remarks/>
-        RANDOM,
-        
-        /// <remarks/>
-        RELATED,
-        
-        /// <remarks/>
-        NONE,
-        
-        /// <remarks/>
-        RECOMMENDATION,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class SearchableRecording {
         
         private long domainRecordingIdField;
@@ -12642,22 +12498,6 @@ namespace Catalog.ws_cas {
                 this.epgIdField = value;
             }
         }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public enum ScheduledRecordingAssetType {
-        
-        /// <remarks/>
-        SINGLE,
-        
-        /// <remarks/>
-        SERIES,
-        
-        /// <remarks/>
-        ALL,
     }
     
     /// <remarks/>
@@ -12896,32 +12736,6 @@ namespace Catalog.ws_cas {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((string)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void GetScheduledRecordingAssetsCompletedEventHandler(object sender, GetScheduledRecordingAssetsCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetScheduledRecordingAssetsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal GetScheduledRecordingAssetsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public ScheduledRecordingAssetResponse Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((ScheduledRecordingAssetResponse)(this.results[0]));
             }
         }
     }

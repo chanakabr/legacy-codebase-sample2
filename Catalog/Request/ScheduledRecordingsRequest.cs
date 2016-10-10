@@ -22,7 +22,7 @@ namespace Catalog.Request
         public List<long> channelIds;
 
         [DataMember]
-        public ScheduledRecordingAssetType scheduledRecordingAssetType;
+        public ApiObjects.ScheduledRecordingAssetType scheduledRecordingAssetType;
 
         [DataMember]
         public ApiObjects.SearchObjects.OrderObj orderBy;
@@ -62,7 +62,7 @@ namespace Catalog.Request
 
                 CheckSignature(baseRequest);
 
-                bool isSingle = scheduledRecordingAssetType == ScheduledRecordingAssetType.SINGLE;
+                bool isSingle = scheduledRecordingAssetType == ApiObjects.ScheduledRecordingAssetType.SINGLE;
                 List<long> epgIdsToOrderAndPage = new List<long>();
                 SeriesRecording[] series = null;
                 string wsUserName, wsPassword;
@@ -100,7 +100,7 @@ namespace Catalog.Request
                     if (domainRecordings.TotalItems > 0)
                     {
                         // get SINGLE scheduled recordings assets
-                        if (scheduledRecordingAssetType != ScheduledRecordingAssetType.SERIES)
+                        if (scheduledRecordingAssetType != ApiObjects.ScheduledRecordingAssetType.SERIES)
                         {
                             epgIdsToOrderAndPage = domainRecordings.Recordings.Where(x => x.Type == RecordingType.Single && x.RecordingStatus == TstvRecordingStatus.Scheduled
                                                                                                     && channelIds.Contains(x.ChannelId)).Select(x => x.EpgId).ToList();
@@ -109,7 +109,7 @@ namespace Catalog.Request
                     }
                         
                     List<string> excludedCrids = new List<string>();
-                    if (scheduledRecordingAssetType != ScheduledRecordingAssetType.SINGLE)
+                    if (scheduledRecordingAssetType != ApiObjects.ScheduledRecordingAssetType.SINGLE)
                     {
                         List<RecordingType> recordingTypesToExcludeCrids = new List<RecordingType>() { RecordingType.Season, RecordingType.Series };
                         excludedCrids = domainRecordings.Recordings.Where(x => recordingTypesToExcludeCrids.Contains(x.Type)).Select(x => x.Crid).ToList();
@@ -139,13 +139,13 @@ namespace Catalog.Request
             {            
                 List<TstvRecordingStatus> statusesToSearch = new List<TstvRecordingStatus>();
                 // should we get the scheduled single recordings
-                 if (scheduledRecordingAssetType != ScheduledRecordingAssetType.SERIES)
+                if (scheduledRecordingAssetType != ApiObjects.ScheduledRecordingAssetType.SERIES)
                  {
                      statusesToSearch.Add(TstvRecordingStatus.Scheduled);
                  }
 
                 // should we get the existing series recordings
-                if (scheduledRecordingAssetType != ScheduledRecordingAssetType.SINGLE)
+                if (scheduledRecordingAssetType != ApiObjects.ScheduledRecordingAssetType.SINGLE)
                 {
                     statusesToSearch.AddRange(new List<TstvRecordingStatus>() { TstvRecordingStatus.SeriesDelete, TstvRecordingStatus.SeriesCancel, TstvRecordingStatus.Failed,
                                                                                     TstvRecordingStatus.Recorded, TstvRecordingStatus.Recording });

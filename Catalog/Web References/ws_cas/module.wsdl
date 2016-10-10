@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:tns="http://ca.tvinci.com/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:s4="http://ca.tvinci.com/AbstractTypes" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s1="http://api.tvinci.com/schemas/eAssetTypes1" xmlns:s2="http://pricing.tvinci.com/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:s3="http://billing.tvinci.com/" targetNamespace="http://ca.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:tns="http://ca.tvinci.com/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:s4="http://ca.tvinci.com/AbstractTypes" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s1="http://pricing.tvinci.com/" xmlns:s2="http://billing.tvinci.com/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:s3="http://api.tvinci.com/schemas/eAssetTypes1" targetNamespace="http://ca.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://ca.tvinci.com/">
-      <s:import namespace="http://api.tvinci.com/schemas/eAssetTypes1" />
       <s:import namespace="http://pricing.tvinci.com/" />
       <s:import namespace="http://billing.tvinci.com/" />
+      <s:import namespace="http://api.tvinci.com/schemas/eAssetTypes1" />
       <s:element name="HandleUserTask">
         <s:complexType>
           <s:sequence>
@@ -125,89 +125,6 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="GetScheduledRecordingAssets">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:long" />
-            <s:element minOccurs="0" maxOccurs="1" name="channels" type="tns:ArrayOfLong" />
-            <s:element minOccurs="1" maxOccurs="1" name="scheduledRecordingAssetType" type="tns:ScheduledRecordingAssetType" />
-            <s:element minOccurs="1" maxOccurs="1" name="endDateStartRange" type="s:dateTime" />
-            <s:element minOccurs="1" maxOccurs="1" name="endDateEndRange" type="s:dateTime" />
-            <s:element minOccurs="1" maxOccurs="1" name="pageIndex" type="s:int" />
-            <s:element minOccurs="1" maxOccurs="1" name="pageSize" type="s:int" />
-            <s:element minOccurs="0" maxOccurs="1" name="orderBy" type="tns:OrderObj" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:simpleType name="ScheduledRecordingAssetType">
-        <s:restriction base="s:string">
-          <s:enumeration value="SINGLE" />
-          <s:enumeration value="SERIES" />
-          <s:enumeration value="ALL" />
-        </s:restriction>
-      </s:simpleType>
-      <s:complexType name="OrderObj">
-        <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="m_eOrderBy" type="tns:OrderBy" />
-          <s:element minOccurs="1" maxOccurs="1" name="m_eOrderDir" type="tns:OrderDir" />
-          <s:element minOccurs="1" maxOccurs="1" name="lu_min_period_id" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_sOrderValue" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="m_bIsSlidingWindowField" type="s:boolean" />
-        </s:sequence>
-      </s:complexType>
-      <s:simpleType name="OrderBy">
-        <s:restriction base="s:string">
-          <s:enumeration value="ID" />
-          <s:enumeration value="VIEWS" />
-          <s:enumeration value="RATING" />
-          <s:enumeration value="VOTES_COUNT" />
-          <s:enumeration value="LIKE_COUNTER" />
-          <s:enumeration value="START_DATE" />
-          <s:enumeration value="NAME" />
-          <s:enumeration value="CREATE_DATE" />
-          <s:enumeration value="META" />
-          <s:enumeration value="RANDOM" />
-          <s:enumeration value="RELATED" />
-          <s:enumeration value="NONE" />
-          <s:enumeration value="RECOMMENDATION" />
-        </s:restriction>
-      </s:simpleType>
-      <s:simpleType name="OrderDir">
-        <s:restriction base="s:string">
-          <s:enumeration value="ASC" />
-          <s:enumeration value="DESC" />
-          <s:enumeration value="NONE" />
-        </s:restriction>
-      </s:simpleType>
-      <s:element name="GetScheduledRecordingAssetsResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetScheduledRecordingAssetsResult" type="tns:ScheduledRecordingAssetResponse" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:complexType name="ScheduledRecordingAssetResponse">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
-          <s:element minOccurs="0" maxOccurs="1" name="Assets" type="tns:ArrayOfScheduledRecordingAsset" />
-          <s:element minOccurs="1" maxOccurs="1" name="TotalItems" type="s:int" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="ArrayOfScheduledRecordingAsset">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="ScheduledRecordingAsset" nillable="true" type="tns:ScheduledRecordingAsset" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="ScheduledRecordingAsset">
-        <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="AssetId" type="s:long" />
-          <s:element minOccurs="1" maxOccurs="1" name="AssetType" type="s1:eAssetTypes" />
-          <s:element minOccurs="1" maxOccurs="1" name="UpdatedDate" type="s:dateTime" />
-        </s:sequence>
-      </s:complexType>
       <s:element name="GetUserPermittedItems">
         <s:complexType>
           <s:sequence>
@@ -709,7 +626,7 @@
           <s:element minOccurs="0" maxOccurs="1" name="m_sPurchasedItemCode" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="m_eItemType" type="tns:BillingItemsType" />
           <s:element minOccurs="1" maxOccurs="1" name="m_eBillingAction" type="tns:BillingAction" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_Price" type="s2:Price" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_Price" type="s1:Price" />
           <s:element minOccurs="1" maxOccurs="1" name="m_dtActionDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="m_dtStartDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="m_dtEndDate" type="s:dateTime" />
@@ -980,14 +897,14 @@
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="m_sPPVModuleCode" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="m_bSubscriptionOnly" type="s:boolean" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_oPrice" type="s2:Price" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_oFullPrice" type="s2:Price" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oPrice" type="s1:Price" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oFullPrice" type="s1:Price" />
           <s:element minOccurs="1" maxOccurs="1" name="m_PriceReason" type="tns:PriceReason" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_relevantSub" type="s2:Subscription" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_relevantCol" type="s2:Collection" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_relevantPP" type="s2:PrePaidModule" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_relevantSub" type="s1:Subscription" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_relevantCol" type="s1:Collection" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_relevantPP" type="s1:PrePaidModule" />
           <s:element minOccurs="0" maxOccurs="1" name="m_oPPVDescription" type="tns:ArrayOfLanguageContainer" />
-          <s:element minOccurs="1" maxOccurs="1" name="m_couponStatus" type="s2:CouponsStatus" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_couponStatus" type="s1:CouponsStatus" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sFirstDeviceNameFound" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="m_bCancelWindow" type="s:boolean" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sPurchasedBySiteGuid" type="s:string" />
@@ -1019,7 +936,7 @@
       </s:simpleType>
       <s:complexType name="ArrayOfLanguageContainer">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="LanguageContainer" nillable="true" type="s2:LanguageContainer" />
+          <s:element minOccurs="0" maxOccurs="unbounded" name="LanguageContainer" nillable="true" type="s1:LanguageContainer" />
         </s:sequence>
       </s:complexType>
       <s:element name="GetItemsPricesWithCouponsEx">
@@ -1170,7 +1087,7 @@
       <s:complexType name="SubscriptionsPricesContainer">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="m_sSubscriptionCode" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_oPrice" type="s2:Price" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oPrice" type="s1:Price" />
           <s:element minOccurs="1" maxOccurs="1" name="m_PriceReason" type="tns:PriceReason" />
         </s:sequence>
       </s:complexType>
@@ -1202,7 +1119,7 @@
       <s:complexType name="CollectionsPricesContainer">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="m_sCollectionCode" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_oPrice" type="s2:Price" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oPrice" type="s1:Price" />
           <s:element minOccurs="1" maxOccurs="1" name="m_PriceReason" type="tns:PriceReason" />
         </s:sequence>
       </s:complexType>
@@ -1256,7 +1173,7 @@
       <s:complexType name="PrePaidPricesContainer">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="m_sPrePaidCode" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_oPrice" type="s2:Price" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oPrice" type="s1:Price" />
           <s:element minOccurs="1" maxOccurs="1" name="m_PriceReason" type="tns:PriceReason" />
         </s:sequence>
       </s:complexType>
@@ -1551,7 +1468,7 @@
       </s:element>
       <s:complexType name="BillingResponse">
         <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="m_oStatus" type="s3:BillingResponseStatus" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_oStatus" type="s2:BillingResponseStatus" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sRecieptCode" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sStatusDescription" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sExternalReceiptCode" type="s:string" />
@@ -2119,8 +2036,8 @@
           <s:element minOccurs="0" maxOccurs="1" name="m_sPurchasedItemName" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sPurchasedItemCode" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="m_eItemType" type="tns:BillingItemsType" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_oPrice" type="s2:Price" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_oCredit" type="s2:Price" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oPrice" type="s1:Price" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oCredit" type="s1:Price" />
           <s:element minOccurs="1" maxOccurs="1" name="m_dtActionDate" type="s:dateTime" />
         </s:sequence>
       </s:complexType>
@@ -2416,11 +2333,6 @@
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="RecordNPVRCommand">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:BaseNPVRCommand" />
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="CancelNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand" />
@@ -2467,6 +2379,11 @@
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
       </s:complexType>
+      <s:complexType name="RecordNPVRCommand">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseNPVRCommand" />
+        </s:complexContent>
+      </s:complexType>
       <s:element name="GetNPVRResponseResponse">
         <s:complexType>
           <s:sequence>
@@ -2479,6 +2396,16 @@
           <s:element minOccurs="0" maxOccurs="1" name="status" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="msg" type="s:string" />
         </s:sequence>
+      </s:complexType>
+      <s:complexType name="QuotaResponse">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:NPVRResponse">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="totalQuota" type="s:long" />
+              <s:element minOccurs="1" maxOccurs="1" name="occupiedQuota" type="s:long" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
       </s:complexType>
       <s:complexType name="CancelDeleteResponse">
         <s:complexContent mixed="false">
@@ -2499,16 +2426,6 @@
           <s:extension base="tns:NPVRResponse">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="recordingID" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="QuotaResponse">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:NPVRResponse">
-            <s:sequence>
-              <s:element minOccurs="1" maxOccurs="1" name="totalQuota" type="s:long" />
-              <s:element minOccurs="1" maxOccurs="1" name="occupiedQuota" type="s:long" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -2537,7 +2454,7 @@
       </s:complexType>
       <s:complexType name="ArrayOfServiceObject">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="ServiceObject" nillable="true" type="s2:ServiceObject" />
+          <s:element minOccurs="0" maxOccurs="unbounded" name="ServiceObject" nillable="true" type="s1:ServiceObject" />
         </s:sequence>
       </s:complexType>
       <s:element name="GetUserSubscriptions">
@@ -2812,7 +2729,7 @@
       <s:complexType name="AssetFiles">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="AssetId" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="AssetType" type="s1:eAssetTypes" />
+          <s:element minOccurs="1" maxOccurs="1" name="AssetType" type="s3:eAssetTypes" />
           <s:element minOccurs="0" maxOccurs="1" name="FileIds" type="tns:ArrayOfInt" />
         </s:sequence>
       </s:complexType>
@@ -2837,7 +2754,7 @@
       <s:complexType name="AssetItemPrices">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="AssetId" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="AssetType" type="s1:eAssetTypes" />
+          <s:element minOccurs="1" maxOccurs="1" name="AssetType" type="s3:eAssetTypes" />
           <s:element minOccurs="0" maxOccurs="1" name="PriceContainers" type="tns:ArrayOfMediaFileItemPricesContainer" />
         </s:sequence>
       </s:complexType>
@@ -3364,6 +3281,39 @@
           <s:element minOccurs="0" maxOccurs="unbounded" name="TstvRecordingStatus" type="tns:TstvRecordingStatus" />
         </s:sequence>
       </s:complexType>
+      <s:complexType name="OrderObj">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="m_eOrderBy" type="tns:OrderBy" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_eOrderDir" type="tns:OrderDir" />
+          <s:element minOccurs="1" maxOccurs="1" name="lu_min_period_id" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sOrderValue" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_bIsSlidingWindowField" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="OrderBy">
+        <s:restriction base="s:string">
+          <s:enumeration value="ID" />
+          <s:enumeration value="VIEWS" />
+          <s:enumeration value="RATING" />
+          <s:enumeration value="VOTES_COUNT" />
+          <s:enumeration value="LIKE_COUNTER" />
+          <s:enumeration value="START_DATE" />
+          <s:enumeration value="NAME" />
+          <s:enumeration value="CREATE_DATE" />
+          <s:enumeration value="META" />
+          <s:enumeration value="RANDOM" />
+          <s:enumeration value="RELATED" />
+          <s:enumeration value="NONE" />
+          <s:enumeration value="RECOMMENDATION" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="OrderDir">
+        <s:restriction base="s:string">
+          <s:enumeration value="ASC" />
+          <s:enumeration value="DESC" />
+          <s:enumeration value="NONE" />
+        </s:restriction>
+      </s:simpleType>
       <s:element name="SearchDomainRecordingsResponse">
         <s:complexType>
           <s:sequence>
@@ -3737,21 +3687,11 @@
       <s:element name="RecordingResponse" nillable="true" type="tns:RecordingResponse" />
       <s:element name="DomainQuotaResponse" nillable="true" type="tns:DomainQuotaResponse" />
     </s:schema>
-    <s:schema elementFormDefault="qualified" targetNamespace="http://api.tvinci.com/schemas/eAssetTypes1">
-      <s:simpleType name="eAssetTypes">
-        <s:restriction base="s:string">
-          <s:enumeration value="UNKNOWN" />
-          <s:enumeration value="EPG" />
-          <s:enumeration value="NPVR" />
-          <s:enumeration value="MEDIA" />
-        </s:restriction>
-      </s:simpleType>
-    </s:schema>
     <s:schema elementFormDefault="qualified" targetNamespace="http://pricing.tvinci.com/">
       <s:complexType name="Price">
         <s:sequence>
           <s:element minOccurs="1" maxOccurs="1" name="m_dPrice" type="s:double" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_oCurrency" type="s2:Currency" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oCurrency" type="s1:Currency" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="Currency">
@@ -3764,29 +3704,29 @@
       </s:complexType>
       <s:complexType name="Subscription">
         <s:complexContent mixed="false">
-          <s:extension base="s2:PPVModule">
+          <s:extension base="s1:PPVModule">
             <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sCodes" type="s2:ArrayOfBundleCodeContainer" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sCodes" type="s1:ArrayOfBundleCodeContainer" />
               <s:element minOccurs="1" maxOccurs="1" name="m_dStartDate" type="s:dateTime" />
               <s:element minOccurs="1" maxOccurs="1" name="m_dEndDate" type="s:dateTime" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sFileTypes" type="s2:ArrayOfInt" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sFileTypes" type="s1:ArrayOfInt" />
               <s:element minOccurs="1" maxOccurs="1" name="m_bIsRecurring" type="s:boolean" />
               <s:element minOccurs="1" maxOccurs="1" name="m_nNumberOfRecPeriods" type="s:int" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_oSubscriptionPriceCode" type="s2:PriceCode" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_oExtDisountModule" type="s2:DiscountModule" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sName" type="s2:ArrayOfLanguageContainer" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_oSubscriptionUsageModule" type="s2:UsageModule" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_oSubscriptionPriceCode" type="s1:PriceCode" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_oExtDisountModule" type="s1:DiscountModule" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sName" type="s1:ArrayOfLanguageContainer" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_oSubscriptionUsageModule" type="s1:UsageModule" />
               <s:element minOccurs="1" maxOccurs="1" name="m_fictivicMediaID" type="s:int" />
               <s:element minOccurs="1" maxOccurs="1" name="m_Priority" type="s:long" />
               <s:element minOccurs="0" maxOccurs="1" name="m_ProductCode" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_SubscriptionCode" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_MultiSubscriptionUsageModule" type="s2:ArrayOfUsageModule" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_MultiSubscriptionUsageModule" type="s1:ArrayOfUsageModule" />
               <s:element minOccurs="1" maxOccurs="1" name="n_GeoCommerceID" type="s:int" />
               <s:element minOccurs="1" maxOccurs="1" name="m_bIsInfiniteRecurring" type="s:boolean" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_UserTypes" type="s2:ArrayOfUserType" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_oPreviewModule" type="s2:PreviewModule" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_UserTypes" type="s1:ArrayOfUserType" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_oPreviewModule" type="s1:PreviewModule" />
               <s:element minOccurs="1" maxOccurs="1" name="m_nDomainLimitationModule" type="s:int" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_lServices" type="s2:ArrayOfServiceObject" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_lServices" type="s1:ArrayOfServiceObject" />
               <s:element minOccurs="1" maxOccurs="1" name="m_GracePeriodMinutes" type="s:int" />
             </s:sequence>
           </s:extension>
@@ -3794,15 +3734,15 @@
       </s:complexType>
       <s:complexType name="PPVModule">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="m_oPriceCode" type="s2:PriceCode" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_oUsageModule" type="s2:UsageModule" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_oDiscountModule" type="s2:DiscountModule" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_oCouponsGroup" type="s2:CouponsGroup" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_sDescription" type="s2:ArrayOfLanguageContainer" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oPriceCode" type="s1:PriceCode" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oUsageModule" type="s1:UsageModule" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oDiscountModule" type="s1:DiscountModule" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oCouponsGroup" type="s1:CouponsGroup" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sDescription" type="s1:ArrayOfLanguageContainer" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sObjectCode" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sObjectVirtualName" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="m_bSubscriptionOnly" type="s:boolean" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_relatedFileTypes" type="s2:ArrayOfInt" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_relatedFileTypes" type="s1:ArrayOfInt" />
           <s:element minOccurs="0" maxOccurs="1" name="m_Product_Code" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="m_bFirstDeviceLimitation" type="s:boolean" />
         </s:sequence>
@@ -3810,14 +3750,14 @@
       <s:complexType name="PriceCode">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="m_sCode" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_oPrise" type="s2:Price" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oPrise" type="s1:Price" />
           <s:element minOccurs="1" maxOccurs="1" name="m_nObjectID" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_sDescription" type="s2:ArrayOfLanguageContainer" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sDescription" type="s1:ArrayOfLanguageContainer" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ArrayOfLanguageContainer">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="LanguageContainer" nillable="true" type="s2:LanguageContainer" />
+          <s:element minOccurs="0" maxOccurs="unbounded" name="LanguageContainer" nillable="true" type="s1:LanguageContainer" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="LanguageContainer">
@@ -3828,13 +3768,13 @@
       </s:complexType>
       <s:complexType name="DiscountModule">
         <s:complexContent mixed="false">
-          <s:extension base="s2:PriceCode">
+          <s:extension base="s1:PriceCode">
             <s:sequence>
               <s:element minOccurs="1" maxOccurs="1" name="m_dPercent" type="s:double" />
-              <s:element minOccurs="1" maxOccurs="1" name="m_eTheRelationType" type="s2:RelationTypes" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_eTheRelationType" type="s1:RelationTypes" />
               <s:element minOccurs="1" maxOccurs="1" name="m_dStartDate" type="s:dateTime" />
               <s:element minOccurs="1" maxOccurs="1" name="m_dEndDate" type="s:dateTime" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_oWhenAlgo" type="s2:WhenAlgo" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_oWhenAlgo" type="s1:WhenAlgo" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -3847,7 +3787,7 @@
       </s:simpleType>
       <s:complexType name="WhenAlgo">
         <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="m_eAlgoType" type="s2:WhenAlgoType" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_eAlgoType" type="s1:WhenAlgoType" />
           <s:element minOccurs="1" maxOccurs="1" name="m_nNTimes" type="s:int" />
         </s:sequence>
       </s:complexType>
@@ -3880,9 +3820,9 @@
       </s:complexType>
       <s:complexType name="CouponsGroup">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="m_oDiscountCode" type="s2:DiscountModule" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oDiscountCode" type="s1:DiscountModule" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sDiscountCode" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_sDescription" type="s2:ArrayOfLanguageContainer" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sDescription" type="s1:ArrayOfLanguageContainer" />
           <s:element minOccurs="1" maxOccurs="1" name="m_dStartDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="m_dEndDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="m_nMaxUseCountForCoupon" type="s:int" />
@@ -3899,16 +3839,16 @@
       </s:complexType>
       <s:complexType name="Collection">
         <s:complexContent mixed="false">
-          <s:extension base="s2:PPVModule">
+          <s:extension base="s1:PPVModule">
             <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sCodes" type="s2:ArrayOfBundleCodeContainer" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sCodes" type="s1:ArrayOfBundleCodeContainer" />
               <s:element minOccurs="1" maxOccurs="1" name="m_dStartDate" type="s:dateTime" />
               <s:element minOccurs="1" maxOccurs="1" name="m_dEndDate" type="s:dateTime" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sFileTypes" type="s2:ArrayOfInt" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_oCollectionPriceCode" type="s2:PriceCode" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_oExtDisountModule" type="s2:DiscountModule" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sName" type="s2:ArrayOfLanguageContainer" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_oCollectionUsageModule" type="s2:UsageModule" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sFileTypes" type="s1:ArrayOfInt" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_oCollectionPriceCode" type="s1:PriceCode" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_oExtDisountModule" type="s1:DiscountModule" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sName" type="s1:ArrayOfLanguageContainer" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_oCollectionUsageModule" type="s1:UsageModule" />
               <s:element minOccurs="1" maxOccurs="1" name="m_fictivicMediaID" type="s:int" />
               <s:element minOccurs="0" maxOccurs="1" name="m_ProductCode" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_CollectionCode" type="s:string" />
@@ -3918,7 +3858,7 @@
       </s:complexType>
       <s:complexType name="ArrayOfBundleCodeContainer">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="BundleCodeContainer" nillable="true" type="s2:BundleCodeContainer" />
+          <s:element minOccurs="0" maxOccurs="unbounded" name="BundleCodeContainer" nillable="true" type="s1:BundleCodeContainer" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="BundleCodeContainer">
@@ -3929,12 +3869,12 @@
       </s:complexType>
       <s:complexType name="ArrayOfUsageModule">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="UsageModule" nillable="true" type="s2:UsageModule" />
+          <s:element minOccurs="0" maxOccurs="unbounded" name="UsageModule" nillable="true" type="s1:UsageModule" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ArrayOfUserType">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="UserType" type="s2:UserType" />
+          <s:element minOccurs="0" maxOccurs="unbounded" name="UserType" type="s1:UserType" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="UserType">
@@ -3954,7 +3894,7 @@
       </s:complexType>
       <s:complexType name="ArrayOfServiceObject">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="ServiceObject" nillable="true" type="s2:ServiceObject" />
+          <s:element minOccurs="0" maxOccurs="unbounded" name="ServiceObject" nillable="true" type="s1:ServiceObject" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ServiceObject">
@@ -3965,12 +3905,12 @@
       </s:complexType>
       <s:complexType name="PrePaidModule">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="m_PriceCode" type="s2:PriceCode" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_CreditValue" type="s2:PriceCode" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_UsageModule" type="s2:UsageModule" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_DiscountModule" type="s2:DiscountModule" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_CouponsGroup" type="s2:CouponsGroup" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_Description" type="s2:ArrayOfLanguageContainer" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_PriceCode" type="s1:PriceCode" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_CreditValue" type="s1:PriceCode" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_UsageModule" type="s1:UsageModule" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_DiscountModule" type="s1:DiscountModule" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_CouponsGroup" type="s1:CouponsGroup" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_Description" type="s1:ArrayOfLanguageContainer" />
           <s:element minOccurs="1" maxOccurs="1" name="m_ObjectCode" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="m_Title" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="m_isFixedCredit" type="s:boolean" />
@@ -4001,6 +3941,16 @@
           <s:enumeration value="CellularPermissionsError" />
           <s:enumeration value="UnKnownBillingProvider" />
           <s:enumeration value="UserSuspended" />
+        </s:restriction>
+      </s:simpleType>
+    </s:schema>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://api.tvinci.com/schemas/eAssetTypes1">
+      <s:simpleType name="eAssetTypes">
+        <s:restriction base="s:string">
+          <s:enumeration value="UNKNOWN" />
+          <s:enumeration value="EPG" />
+          <s:enumeration value="NPVR" />
+          <s:enumeration value="MEDIA" />
         </s:restriction>
       </s:simpleType>
     </s:schema>
@@ -4046,12 +3996,6 @@
   </wsdl:message>
   <wsdl:message name="BulkRecoveryForRenewSubscriptionsSoapOut">
     <wsdl:part name="parameters" element="tns:BulkRecoveryForRenewSubscriptionsResponse" />
-  </wsdl:message>
-  <wsdl:message name="GetScheduledRecordingAssetsSoapIn">
-    <wsdl:part name="parameters" element="tns:GetScheduledRecordingAssets" />
-  </wsdl:message>
-  <wsdl:message name="GetScheduledRecordingAssetsSoapOut">
-    <wsdl:part name="parameters" element="tns:GetScheduledRecordingAssetsResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsSoapIn">
     <wsdl:part name="parameters" element="tns:GetUserPermittedItems" />
@@ -6336,10 +6280,6 @@
       <wsdl:input message="tns:BulkRecoveryForRenewSubscriptionsSoapIn" />
       <wsdl:output message="tns:BulkRecoveryForRenewSubscriptionsSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="GetScheduledRecordingAssets">
-      <wsdl:input message="tns:GetScheduledRecordingAssetsSoapIn" />
-      <wsdl:output message="tns:GetScheduledRecordingAssetsSoapOut" />
-    </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsSoapIn" />
       <wsdl:output message="tns:GetUserPermittedItemsSoapOut" />
@@ -7387,15 +7327,6 @@
     </wsdl:operation>
     <wsdl:operation name="BulkRecoveryForRenewSubscriptions">
       <soap:operation soapAction="http://ca.tvinci.com/BulkRecoveryForRenewSubscriptions" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetScheduledRecordingAssets">
-      <soap:operation soapAction="http://ca.tvinci.com/GetScheduledRecordingAssets" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -8605,15 +8536,6 @@
     </wsdl:operation>
     <wsdl:operation name="BulkRecoveryForRenewSubscriptions">
       <soap12:operation soapAction="http://ca.tvinci.com/BulkRecoveryForRenewSubscriptions" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetScheduledRecordingAssets">
-      <soap12:operation soapAction="http://ca.tvinci.com/GetScheduledRecordingAssets" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
