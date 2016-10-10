@@ -15,7 +15,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Return the configuration group details, including group identifiers, tags, and number of associated devices, and list of device configuration
         /// </summary>
-        /// <param name="configurationGroupId"></param>
+        /// <param name="id">Configuration group identifier</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         [Route("get"), HttpPost]
@@ -25,18 +25,18 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.NotExist)]
         [Throws(eResponseStatus.PartnerMismatch)]
-        public KalturaConfigurationGroup Get(string configurationGroupId)
+        public KalturaConfigurationGroup Get(string id)
         {
             KalturaConfigurationGroup response = null;
             int partnerId = KS.GetFromRequest().GroupId;
 
-            if (string.IsNullOrWhiteSpace(configurationGroupId))
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "configurationGroupId");
+            if (string.IsNullOrWhiteSpace(id))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "id");
 
             try
             {
                 // call client               
-                response = DMSClient.GetConfigurationGroup(partnerId, configurationGroupId);
+                response = DMSClient.GetConfigurationGroup(partnerId, id);
             }
             catch (ClientException ex)
             {
@@ -76,7 +76,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Add a new configuration group
         /// </summary>
-        /// <param name="configurationGroup"></param>
+        /// <param name="configurationGroup">Configuration group</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002</remarks>        
         [Route("add"), HttpPost]
@@ -105,7 +105,8 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Update configuration group name
         /// </summary>
-        /// <param name="configurationGroup"></param>
+        /// <param name="id">Configuration group identifier</param>
+        /// <param name="configurationGroup">Configuration group</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002, NotExist = 12003</remarks>        
         [Route("update"), HttpPost]
@@ -136,7 +137,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Remove a configuration group, including its tags, device configurations and devices associations
         /// </summary>
-        /// <param name="configurationGroupId"></param>
+        /// <param name="id">Configuration group identifier</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         [Route("delete"), HttpPost]
@@ -145,19 +146,19 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.NotExist)]
         [Throws(eResponseStatus.PartnerMismatch)]
-        public bool Delete(string configurationGroupId)
+        public bool Delete(string id)
         {
             bool response = false;
 
             try
             {
-                if (string.IsNullOrWhiteSpace(configurationGroupId))
-                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "configurationGroupId");
+                if (string.IsNullOrWhiteSpace(id))
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "id");
 
                 int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
-                response = DMSClient.DeleteConfigurationGroup(partnerId, configurationGroupId);
+                response = DMSClient.DeleteConfigurationGroup(partnerId, id);
             }
             catch (ClientException ex)
             {

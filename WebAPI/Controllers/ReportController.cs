@@ -49,7 +49,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Return device configurations retrieval log. Supports paging and can be filtered with the parameter "FromData".
         /// </summary>
-        /// <param name="filter"></param>
+        /// <param name="filter">Filter option for from date (sec)</param>
         /// <param name="pager">Page size and index</param>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001 </remarks>
         [Route("list"), HttpPost]

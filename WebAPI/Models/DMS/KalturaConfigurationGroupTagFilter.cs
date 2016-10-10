@@ -9,6 +9,9 @@ namespace WebAPI.Models.DMS
     {
         NONE
     }
+    /// <summary>
+    /// Configuration group tag filter
+    /// </summary>
     public class KalturaConfigurationGroupTagFilter: KalturaFilter<KalturaConfigurationGroupTagOrderBy>
     {
         [DataMember(Name = "configurationGroupIdEqual")]

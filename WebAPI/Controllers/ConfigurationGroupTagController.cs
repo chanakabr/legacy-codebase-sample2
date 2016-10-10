@@ -15,7 +15,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Return the configuration group the tag is associated to
         /// </summary>
-        /// <param name="tag"></param>
+        /// <param name="tag">Tag</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         [Route("get"), HttpPost]
@@ -49,7 +49,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Return list of tags for a configuration group
         /// </summary>
-        /// <param name="filter"></param>
+        /// <param name="filter">Filter option for configuration group identifier</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001</remarks>        
         [Route("list"), HttpPost]
@@ -80,7 +80,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Add a new tag to a configuration group. If this tag is already associated to another group, request fails
         /// </summary>
-        /// <param name="configurationGroupTag"></param>
+        /// <param name="configurationGroupTag">Configuration group tag</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001,  NotExist = 12003, AlreadyExist = 12008</remarks>        
         [Route("add"), HttpPost]
@@ -109,8 +109,8 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Remove a tag association from configuration group
         /// </summary>
-        /// <param name="configurationGroupId"></param>
-        /// <param name="tag"></param>
+        /// <param name="configurationGroupId">Configuration group identifier</param>
+        /// <param name="tag">Tag</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001,  NotExist = 12003</remarks>        
         [Route("delete"), HttpPost]

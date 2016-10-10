@@ -7,16 +7,26 @@ namespace WebAPI.Models.DMS
 {
     public class KalturaConfigurationGroupDevice : KalturaOTTObject
     {
+        /// <summary>
+        /// Configuration group id
+        /// </summary>
         [DataMember(Name = "configurationGroupId")]
         [JsonProperty("configurationGroupId")]
         [XmlElement(ElementName = "configurationGroupId")]
         public string ConfigurationGroupId { get; set; }
 
+        /// <summary>
+        /// Partner id
+        /// </summary>
         [DataMember(Name = "partnerId")]
         [JsonProperty("partnerId")]
         [XmlElement(ElementName = "partnerId")]
         public int PartnerId { get; set; }
 
+
+        /// <summary>
+        /// Device UDID
+        /// </summary>
         [DataMember(Name = "udid")]
         [JsonProperty("udid")]
         [XmlElement(ElementName = "udid")]

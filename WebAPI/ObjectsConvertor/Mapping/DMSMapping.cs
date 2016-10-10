@@ -62,8 +62,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // from dms to local
             Mapper.CreateMap<DMSDevice, KalturaReport>()
-                .ForMember(dest => dest.GroupConfigurationId, opt => opt.MapFrom(src => src.GroupConfigurationId))
-                .ForMember(dest => dest.GroupId, opt => opt.MapFrom(src => src.GroupId))
+                .ForMember(dest => dest.ConfigurationGroupId, opt => opt.MapFrom(src => src.GroupConfigurationId))
+                .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.GroupId))
                 .ForMember(dest => dest.LastAccessDate, opt => opt.MapFrom(src => src.LastAccessDate))
                 .ForMember(dest => dest.LastAccessIP, opt => opt.MapFrom(src => src.LastAccessIP))
                 .ForMember(dest => dest.OperationSystem, opt => opt.MapFrom(src => src.OperationSystem))
@@ -88,7 +88,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.GroupId))
                 .ForMember(dest => dest.ExternalPushId, opt => opt.MapFrom(src => src.ExternalPushId))
                 .ForMember(dest => dest.Content, opt => opt.MapFrom(src => ConvertToContent(src.Params)))
-                .ForMember(dest => dest.GroupConfigurationId, opt => opt.MapFrom(src => src.GroupConfigurationId))
+                .ForMember(dest => dest.ConfigurationGroupId, opt => opt.MapFrom(src => src.GroupConfigurationId))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault));
 
@@ -101,7 +101,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.GroupId, opt => opt.MapFrom(src => src.PartnerId))
                 .ForMember(dest => dest.ExternalPushId, opt => opt.MapFrom(src => src.ExternalPushId))
                 .ForMember(dest => dest.Params, opt => opt.MapFrom(src => ConvertToParms(src.Content)))
-                .ForMember(dest => dest.GroupConfigurationId, opt => opt.MapFrom(src => src.GroupConfigurationId))
+                .ForMember(dest => dest.GroupConfigurationId, opt => opt.MapFrom(src => src.ConfigurationGroupId))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault));
         }

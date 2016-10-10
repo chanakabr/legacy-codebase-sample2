@@ -1,9 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using Models;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace WebAPI.Models.DMS
 {

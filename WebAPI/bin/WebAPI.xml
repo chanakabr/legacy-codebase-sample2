@@ -425,11 +425,11 @@
             <summary>
             Return a device configuration applicable for a specific device (UDID), app name, software version, platform and optionally a configuration group’s tag
             </summary>
-            <param name="applicationName"></param>
-            <param name="clientVersion"> </param>
-            <param name="platform"></param>
-            <param name="udid"></param>
-            <param name="tag"></param>
+            <param name="applicationName">Application name</param>
+            <param name="clientVersion">Client version</param>
+            <param name="platform">platform</param>
+            <param name="udid">Device UDID</param>
+            <param name="tag">Tag</param>
             <returns></returns>
             <remarks> Possible status codes: IllegalQueryParams = 12001, Registered = 12006, VersionNotFound = 12007</remarks>        
         </member>
@@ -437,7 +437,7 @@
             <summary>
             Return the device configuration
             </summary>
-            <param name="configurationId"></param>
+            <param name="id">Configuration identifier</param>
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         </member>
@@ -445,7 +445,7 @@
             <summary>
             Return a list of device configurations of a configuration group
             </summary>
-            <param name="filter"></param>
+            <param name="filter">Filter option for configuration type (All/Default/NotDefault). in case of notDefault configuration in must be supplied </param>
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001</remarks>        
         </member>
@@ -453,7 +453,7 @@
             <summary>
             Add a new device configuration to a configuration group
             </summary>
-            <param name="configurationGroup"></param>
+            <param name="configuration">Device configuration</param>
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002, AlreadyExist = 12008</remarks>        
         </member>
@@ -461,7 +461,8 @@
             <summary>
             Update device configuration
             </summary>
-            <param name="configurationGroup"></param>
+            <param name="id">Configuration identifier</param>
+            <param name="configuration">configuration to update</param>
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002, NotExist = 12003, PartnerMismatch = 12004, AlreadyExist = 12008</remarks>        
         </member>
@@ -469,7 +470,7 @@
             <summary>
             Delete a device configuration
             </summary>
-            <param name="groupId"></param>
+            <param name="id">Configuration identifier</param>
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         </member>
@@ -477,7 +478,7 @@
             <summary>
             Return the configuration group details, including group identifiers, tags, and number of associated devices, and list of device configuration
             </summary>
-            <param name="configurationGroupId"></param>
+            <param name="id">Configuration group identifier</param>
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         </member>
@@ -492,7 +493,7 @@
             <summary>
             Add a new configuration group
             </summary>
-            <param name="configurationGroup"></param>
+            <param name="configurationGroup">Configuration group</param>
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002</remarks>        
         </member>
@@ -500,7 +501,8 @@
             <summary>
             Update configuration group name
             </summary>
-            <param name="configurationGroup"></param>
+            <param name="id">Configuration group identifier</param>
+            <param name="configurationGroup">Configuration group</param>
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002, NotExist = 12003</remarks>        
         </member>
@@ -508,7 +510,7 @@
             <summary>
             Remove a configuration group, including its tags, device configurations and devices associations
             </summary>
-            <param name="configurationGroupId"></param>
+            <param name="id">Configuration group identifier</param>
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         </member>
@@ -523,7 +525,7 @@
             <summary>
             Return the list of associated devices for a given configuration group
             </summary>
-            <param name="filter"></param>
+            <param name="filter">Filter option for configuration group identifier</param>
             <param name="pager">Page size and index</param>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001 </remarks>
         </member>
@@ -531,16 +533,15 @@
             <summary>
             Associate a collection of devices to a configuration group. If a device is already associated to another group – old association is replaced 
             </summary>
-            <param name="groupId"></param>
-            <param name="udids"></param>
+            <param name="configurationGroupDevice">Configuration group device</param>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002, NotExist = 12003 </remarks>
         </member>
         <member name="M:WebAPI.Controllers.ConfigurationGroupDeviceController.Delete(System.String,System.String)">
             <summary>
             Remove a device association
             </summary>
-            <param name="configurationGroupId"></param>
-            <param name="udid"></param>
+            <param name="configurationGroupId">Configuration group identifier</param>
+            <param name="udid">Device UDID</param>
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003 </remarks>
         </member>
@@ -548,7 +549,7 @@
             <summary>
             Return the configuration group the tag is associated to
             </summary>
-            <param name="tag"></param>
+            <param name="tag">Tag</param>
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         </member>
@@ -556,7 +557,7 @@
             <summary>
             Return list of tags for a configuration group
             </summary>
-            <param name="filter"></param>
+            <param name="filter">Filter option for configuration group identifier</param>
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001</remarks>        
         </member>
@@ -564,7 +565,7 @@
             <summary>
             Add a new tag to a configuration group. If this tag is already associated to another group, request fails
             </summary>
-            <param name="configurationGroupTag"></param>
+            <param name="configurationGroupTag">Configuration group tag</param>
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001,  NotExist = 12003, AlreadyExist = 12008</remarks>        
         </member>
@@ -572,8 +573,8 @@
             <summary>
             Remove a tag association from configuration group
             </summary>
-            <param name="configurationGroupId"></param>
-            <param name="tag"></param>
+            <param name="configurationGroupId">Configuration group identifier</param>
+            <param name="tag">Tag</param>
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001,  NotExist = 12003</remarks>        
         </member>
@@ -614,7 +615,7 @@
             <summary>
             Return device configurations retrieval log. Supports paging and can be filtered with the parameter "FromData".
             </summary>
-            <param name="filter"></param>
+            <param name="filter">Filter option for from date (sec)</param>
             <param name="pager">Page size and index</param>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001 </remarks>
         </member>
@@ -723,32 +724,254 @@
             
             </summary>
         </member>
+        <member name="T:WebAPI.Models.DMS.KalturaReportFilter">
+            <summary>
+            Report filter
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.DMS.KalturaConfigurationGroupTagFilter">
+            <summary>
+            Configuration group tag filter
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfiguration.AppName">
+            <summary>
+            Application name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfiguration.ClientVersion">
+            <summary>
+            Client version
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfiguration.IsForceUpdate">
+            <summary>
+            Is force update
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfiguration.Platform">
+            <summary>
+            Platform: Android/iOS/WindowsPhone/Blackberry/STB/CTV/Other
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfiguration.PartnerId">
+            <summary>
+            Partner id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfiguration.ExternalPushId">
+            <summary>
+            External push id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfiguration.Content">
+            <summary>
+            Content
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfiguration.ConfigurationGroupId">
+            <summary>
+            Configuration group id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfiguration.Id">
+            <summary>
+            Configuration id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfiguration.IsDefault">
+            <summary>
+            Is default 
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.DMS.KalturaConfigurationFilter">
+            <summary>
+            Configuration filter
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.DMS.KalturaConfigurationGroupDeviceFilter">
+            <summary>
+            Configuration group device filter
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.DMS.KalturaReportListResponse">
             <summary>
-            
+            Reports info wrapper
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaReportListResponse.Objects">
+            <summary>
+            Reports
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaPushParams.Token">
+            <summary>
+            Token
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaPushParams.ExternalToken">
+            <summary>
+            External token
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaReport.PartnerId">
+            <summary>
+            Partner id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaReport.Udid">
+            <summary>
+            Device UDID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaReport.PushParameters">
+            <summary>
+            Push parameters
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaReport.VersionNumber">
+            <summary>
+            Version number
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaReport.VersionPlatform">
+            <summary>
+            Version platform
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaReport.VersionAppName">
+            <summary>
+            Version application name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaReport.LastAccessIP">
+            <summary>
+            Last access IP
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaReport.LastAccessDate">
+            <summary>
+            Last access date
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaReport.UserAgent">
+            <summary>
+            User agent
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaReport.OperationSystem">
+            <summary>
+            Operation system
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaReport.ConfigurationGroupId">
+            <summary>
+            Configuration group id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroupDevice.ConfigurationGroupId">
+            <summary>
+            Configuration group id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroupDevice.PartnerId">
+            <summary>
+            Partner id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroupDevice.Udid">
+            <summary>
+            Device UDID
             </summary>
         </member>
         <member name="T:WebAPI.Models.DMS.KalturaConfigurationGroupDeviceListResponse">
             <summary>
-            
+            Configuration group devices info wrapper 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroupDeviceListResponse.Objects">
+            <summary>
+            Configuration group devices
             </summary>
         </member>
         <member name="T:WebAPI.Models.DMS.KalturaConfigurationGroupTagListResponse">
             <summary>
-            
+            Configurations group tags info wrapper
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroupTagListResponse.Objects">
+            <summary>
+            Configuration group tags
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroupTag.ConfigurationGroupId">
+            <summary>
+            Configuration group identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroupTag.PartnerId">
+            <summary>
+            Partner identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroupTag.Tag">
+            <summary>
+            Tag
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroup.Id">
+            <summary>
+            Configuration group identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroup.Name">
+            <summary>
+            Configuration group name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroup.PartnerId">
+            <summary>
+            Partner id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroup.IsDefault">
+            <summary>
+            Is default
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroup.Tags">
+            <summary>
+            tags
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroup.NumberOfDevices">
+            <summary>
+            Number of devices
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroup.ConfigFiles">
+            <summary>
+            Configuration files
             </summary>
         </member>
         <member name="T:WebAPI.Models.DMS.KalturaConfigurationGroupListResponse">
             <summary>
-            
+            Configuration groups info wrapper 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroupListResponse.Objects">
+            <summary>
+            Configuration groups
             </summary>
         </member>
         <member name="T:WebAPI.Models.DMS.KalturaConfigurationListResponse">
             <summary>
+            Configurations info wrapper
             </summary>
         </member>
         <member name="P:WebAPI.Models.DMS.KalturaConfigurationListResponse.Objects">
             <summary>
+            Configurations
             </summary>
         </member>
         <member name="T:WebAPI.Models.Domains.KalturaDeviceBrand">

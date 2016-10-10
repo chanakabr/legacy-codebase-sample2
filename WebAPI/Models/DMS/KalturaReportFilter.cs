@@ -9,6 +9,9 @@ namespace WebAPI.Models.DMS
     {
         NONE
     }
+    /// <summary>
+    /// Report filter
+    /// </summary>
     public class KalturaReportFilter : KalturaFilter<KalturaReportOrderBy>
     {
         [DataMember(Name = "fromDateEqual")]

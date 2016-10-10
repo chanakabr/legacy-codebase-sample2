@@ -9,6 +9,9 @@ namespace WebAPI.Models.DMS
     {
         NONE
     }
+    /// <summary>
+    /// Configuration filter
+    /// </summary>
     public class KalturaConfigurationFilter : KalturaFilter<KalturaConfigurationOrderBy>
     {
         [DataMember(Name = "configurationTypeEqual")]

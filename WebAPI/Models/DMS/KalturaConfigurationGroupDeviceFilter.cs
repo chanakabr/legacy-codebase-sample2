@@ -9,6 +9,9 @@ namespace WebAPI.Models.DMS
     {
         NONE
     }
+    /// <summary>
+     /// Configuration group device filter
+    /// </summary>
     public class KalturaConfigurationGroupDeviceFilter: KalturaFilter<KalturaConfigurationGroupDeviceOrderBy>
     {
         [DataMember(Name = "configurationGroupIdEqual")]

@@ -16,11 +16,11 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Return a device configuration applicable for a specific device (UDID), app name, software version, platform and optionally a configuration group’s tag
         /// </summary>
-        /// <param name="applicationName"></param>
-        /// <param name="clientVersion"> </param>
-        /// <param name="platform"></param>
-        /// <param name="udid"></param>
-        /// <param name="tag"></param>
+        /// <param name="applicationName">Application name</param>
+        /// <param name="clientVersion">Client version</param>
+        /// <param name="platform">platform</param>
+        /// <param name="udid">Device UDID</param>
+        /// <param name="tag">Tag</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: IllegalQueryParams = 12001, Registered = 12006, VersionNotFound = 12007</remarks>        
         [Route("serve"), HttpPost]
@@ -63,7 +63,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Return the device configuration
         /// </summary>
-        /// <param name="configurationId"></param>
+        /// <param name="id">Configuration identifier</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         [Route("get"), HttpPost]
@@ -73,19 +73,19 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.NotExist)]
         [Throws(eResponseStatus.PartnerMismatch)]
-        public KalturaConfiguration Get(string configurationId)
+        public KalturaConfiguration Get(string id)
         {
             KalturaConfiguration response = null;
 
             int partnerId = KS.GetFromRequest().GroupId;
 
-            if (string.IsNullOrWhiteSpace(configurationId))
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "configurationId");
+            if (string.IsNullOrWhiteSpace(id))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "id");
 
             try
             {
                 // call client               
-                response = DMSClient.GetConfiguration(partnerId, configurationId);
+                response = DMSClient.GetConfiguration(partnerId, id);
             }
             catch (ClientException ex)
             {
@@ -98,7 +98,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Return a list of device configurations of a configuration group
         /// </summary>
-        /// <param name="filter"></param>
+        /// <param name="filter">Filter option for configuration type (All/Default/NotDefault). in case of notDefault configuration in must be supplied </param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001</remarks>        
         [Route("list"), HttpPost]
@@ -132,7 +132,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Add a new device configuration to a configuration group
         /// </summary>
-        /// <param name="configurationGroup"></param>
+        /// <param name="configuration">Device configuration</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002, AlreadyExist = 12008</remarks>        
         [Route("add"), HttpPost]
@@ -162,7 +162,8 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Update device configuration
         /// </summary>
-        /// <param name="configurationGroup"></param>
+        /// <param name="id">Configuration identifier</param>
+        /// <param name="configuration">configuration to update</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002, NotExist = 12003, PartnerMismatch = 12004, AlreadyExist = 12008</remarks>        
         [Route("update"), HttpPost]
@@ -194,7 +195,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Delete a device configuration
         /// </summary>
-        /// <param name="groupId"></param>
+        /// <param name="id">Configuration identifier</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         [Route("delete"), HttpPost]
@@ -223,6 +224,5 @@ namespace WebAPI.Controllers
             }
             return response;
         }
-
     }
 }

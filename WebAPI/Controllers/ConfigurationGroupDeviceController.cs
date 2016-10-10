@@ -49,7 +49,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Return the list of associated devices for a given configuration group
         /// </summary>
-        /// <param name="filter"></param>
+        /// <param name="filter">Filter option for configuration group identifier</param>
         /// <param name="pager">Page size and index</param>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001 </remarks>
         [Route("list"), HttpPost]
@@ -85,8 +85,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Associate a collection of devices to a configuration group. If a device is already associated to another group – old association is replaced 
         /// </summary>
-        /// <param name="groupId"></param>
-        /// <param name="udids"></param>
+        /// <param name="configurationGroupDevice">Configuration group device</param>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002, NotExist = 12003 </remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
@@ -115,8 +114,8 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Remove a device association
         /// </summary>
-        /// <param name="configurationGroupId"></param>
-        /// <param name="udid"></param>
+        /// <param name="configurationGroupId">Configuration group identifier</param>
+        /// <param name="udid">Device UDID</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003 </remarks>
         [Route("delete"), HttpPost]
@@ -148,6 +147,5 @@ namespace WebAPI.Controllers
             }
             return response;
         }
-
     }
 }
