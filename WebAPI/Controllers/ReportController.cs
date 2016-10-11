@@ -73,7 +73,7 @@ namespace WebAPI.Controllers
                 int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
-                response = DMSClient.GetDevicesReport(partnerId, filter.FromDateEqual, pager.getPageIndex(), pager.getPageSize());
+                response = DMSClient.GetDevicesReport(partnerId, filter.FromDateEqual, pager.getPageIndex() + 1, pager.getPageSize());
             }
             catch (ClientException ex)
             {

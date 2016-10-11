@@ -63,7 +63,6 @@ namespace WebAPI.Controllers
             if (pager == null)
             {
                 pager = new KalturaFilterPager();
-                pager.PageIndex = 1;
             }
 
             try
@@ -74,7 +73,7 @@ namespace WebAPI.Controllers
                 int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
-                response = DMSClient.GetConfigurationGroupDeviceList(partnerId, filter.ConfigurationGroupIdEqual, pager.getPageIndex(), pager.getPageSize());
+                response = DMSClient.GetConfigurationGroupDeviceList(partnerId, filter.ConfigurationGroupIdEqual, pager.getPageIndex() + 1, pager.getPageSize());
             }
             catch (ClientException ex)
             {
@@ -94,7 +93,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.IllegalPostData)]
         [Throws(eResponseStatus.NotExist)]
-        [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]        
+        [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
         public bool Add(KalturaConfigurationGroupDevice configurationGroupDevice)
         {
             bool response = false;

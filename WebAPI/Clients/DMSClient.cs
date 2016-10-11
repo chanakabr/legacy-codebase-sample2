@@ -4,15 +4,11 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Reflection;
-using System.Web.Http;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.DMS;
-using WebAPI.Models.General;
-using WebAPI.Models.Renderers;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
 
@@ -475,7 +471,7 @@ namespace WebAPI.Clients
 
             if (!(response.Status == DMSeStatus.Success || response.Status == DMSeStatus.Registered))
             {
-                throw new ClientException((int)DMSMapping.ConvertDMSStatus(response.Status));
+                throw new ClientException((int)DMSMapping.ConvertDMSStatus(response.Status), string.Empty);
             }
 
             return result;
@@ -750,7 +746,7 @@ namespace WebAPI.Clients
         {
             string url = string.Format("{0}/{1}/{2}", DMSControllers.Device.ToString(), partnerId, groupId);
             string dmsResult = string.Empty;
-            List<string> data = new List<string>();            
+            List<string> data = new List<string>();
 
             try
             {
@@ -887,6 +883,6 @@ namespace WebAPI.Clients
             return result;
         }
 
-        #endregion       
+        #endregion
     }
 }
