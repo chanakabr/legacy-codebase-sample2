@@ -6,6 +6,8 @@ namespace WebAPI.Models.DMS
     {
         public DMSStatusResponse Result { get; set; }
 
-        public List<DMSDeviceMapping> DeviceMappingList { get; set; }
+        public List<DMSDeviceMapping> DeviceMapList { get; set; }
+
+        public long TotalNumOfResults { get; set; }       
     }
 }

@@ -710,7 +710,7 @@ namespace WebAPI.Clients
         internal static KalturaConfigurationGroupDeviceListResponse GetConfigurationGroupDeviceList(int partnerId, string groupId, int pageIndex, int pageSize)
         {
             KalturaConfigurationGroupDeviceListResponse result = new KalturaConfigurationGroupDeviceListResponse() { TotalCount = 0 };
-            string url = string.Format("{0}/{1}/{2}/{3}/{4}", DMSControllers.Tag.ToString(), partnerId, groupId, pageIndex, pageSize);
+            string url = string.Format("{0}/{1}/{2}/{3}/{4}", DMSControllers.Device.ToString(), partnerId, groupId, pageIndex, pageSize);
             string dmsResult = string.Empty;
 
             try
@@ -736,49 +736,47 @@ namespace WebAPI.Clients
                 throw new ClientException((int)DMSMapping.ConvertDMSStatus(response.Result.Status), response.Result.Message);
             }
 
-            if (response.DeviceMappingList != null && response.DeviceMappingList.Count > 0)
+            if (response.DeviceMapList != null && response.DeviceMapList.Count > 0)
             {
-                result.TotalCount = response.DeviceMappingList.Count;
+                result.TotalCount = response.DeviceMapList.Count;
                 // convert device            
-                result.Objects = Mapper.Map<List<KalturaConfigurationGroupDevice>>(response.DeviceMappingList);
+                result.Objects = Mapper.Map<List<KalturaConfigurationGroupDevice>>(response.DeviceMapList);
             }
 
             return result;
         }
 
-        internal static KalturaConfigurationGroupDevice AddConfigurationGroupDevice(int partnerId, string groupId, string udid)
+        internal static bool AddConfigurationGroupDevice(int partnerId, string groupId, string udid)
         {
             string url = string.Format("{0}/{1}/{2}", DMSControllers.Device.ToString(), partnerId, groupId);
             string dmsResult = string.Empty;
-            string data = string.Empty;
+            List<string> data = new List<string>();            
 
             try
             {
-                data = string.Format("[{0}]", udid);
+                data.Add(udid);
                 // call client
-                dmsResult = CallDMSClient(DMSCall.POST, url, data);
+                dmsResult = CallDMSClient(DMSCall.POST, url, JsonConvert.SerializeObject(data));
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while add configuration group device. partnerId: {0}, udid: {1}, exception: {2}", partnerId, data, ex);
+                log.ErrorFormat("Error while add configuration group device. partnerId: {0}, udid: {1}, exception: {2}", partnerId, udid, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
-            DMSDeviceResponse response = JsonConvert.DeserializeObject<DMSDeviceResponse>(dmsResult);
+            DMSStatusResponse response = JsonConvert.DeserializeObject<DMSStatusResponse>(dmsResult);
 
-            if (response == null || response.Result == null)
+            if (response == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.Result.Status != DMSeResponseStatus.OK)
+            if (response.Status != DMSeResponseStatus.OK)
             {
-                throw new ClientException((int)DMSMapping.ConvertDMSStatus(response.Result.Status), response.Result.Message);
+                throw new ClientException((int)DMSMapping.ConvertDMSStatus(response.Status), response.Message);
             }
 
-            var configurationGroupDevice = Mapper.Map<KalturaConfigurationGroupDevice>(response.DeviceMap);
-
-            return configurationGroupDevice;
+            return true;
         }
 
         internal static bool DeleteConfigurationGroupDevice(int partnerId, string configurationGroupId, string udid)

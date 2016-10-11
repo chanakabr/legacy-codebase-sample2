@@ -63,6 +63,7 @@ namespace WebAPI.Controllers
             if (pager == null)
             {
                 pager = new KalturaFilterPager();
+                pager.PageIndex = 1;
             }
 
             try
@@ -93,9 +94,10 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.IllegalPostData)]
         [Throws(eResponseStatus.NotExist)]
-        public KalturaConfigurationGroupDevice Add(KalturaConfigurationGroupDevice configurationGroupDevice)
+        [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]        
+        public bool Add(KalturaConfigurationGroupDevice configurationGroupDevice)
         {
-            KalturaConfigurationGroupDevice response = null;
+            bool response = false;
 
             try
             {
