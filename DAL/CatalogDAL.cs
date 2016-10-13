@@ -1525,7 +1525,7 @@ namespace Tvinci.Core.DAL
             return umm.LastMark.Location;
         }
 
-        public static List<UserMediaMark> GetDomainLastPositions(int nDomainID, int ttl, ePlayType ePlay = ePlayType.MEDIA)
+        public static List<UserMediaMark> GetDomainLastPositions(int nDomainID, int ttl, List<ePlayType> playTypes)
         {
             var domainMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.DOMAIN_CONCURRENCY);
 
@@ -1535,11 +1535,24 @@ namespace Tvinci.Core.DAL
             if (data == null)
                 return null;
 
+            List<string> playTypesStrings = new List<string>();
+
+            if (playTypes != null)
+            {
+                // If all - leave it as an empty list. empty list means everything
+                if (!playTypes.Contains(ePlayType.ALL))
+                {
+                    playTypesStrings = playTypes.Select(t => t.ToString()).ToList();
+                }
+            }
+
             Random r = new Random();
             List<string> playActions = new List<string>() { MediaPlayActions.FINISH.ToString().ToLower(), MediaPlayActions.STOP.ToString().ToLower() };
 
             DomainMediaMark domainMarks = JsonConvert.DeserializeObject<DomainMediaMark>(data);
-            domainMarks.devices = domainMarks.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow && x.playType == ePlay.ToString() &&
+            domainMarks.devices = domainMarks.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow && 
+                // either the list is empty (which means all play types) or x's type is in the list)
+                (playTypesStrings.Count == 0 || playTypesStrings.Contains(x.playType)) &&
                 !playActions.Contains(x.AssetAction.ToLower())).ToList();
 
             //Cleaning old ones...
@@ -1550,18 +1563,11 @@ namespace Tvinci.Core.DAL
                 var marks = domainMarksManager.GetWithVersion<string>(docKey, out version);
 
                 DomainMediaMark dm = JsonConvert.DeserializeObject<DomainMediaMark>(marks);
-                switch (ePlay)
-                {
-                    case ePlayType.MEDIA:
-                    case ePlayType.NPVR:
-                        dm.devices = dm.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow && x.playType == ePlay.ToString()).ToList();
-                        break;
-                    case ePlayType.ALL:
-                        dm.devices = dm.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow).ToList();
-                        break;
-                    default:
-                        break;
-                }
+
+                dm.devices = dm.devices.Where(x => 
+                    x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow &&
+                    // either the list is empty (which means all play types) or x's type is in the list)
+                    (playTypesStrings.Count == 0 || playTypesStrings.Contains(x.playType))).ToList();
 
                 bool res = domainMarksManager.SetWithVersion(docKey, JsonConvert.SerializeObject(dm, Formatting.None), version);
 
