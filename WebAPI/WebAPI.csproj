@@ -1021,6 +1021,9 @@
     <Compile Include="Models\API\KalturaMetaType.cs" />
     <Compile Include="Models\DMS\KalturaConfigurationGroupDeviceReport.cs" />
     <Compile Include="Models\DMS\KalturaReportFilter.cs" />
+    <Compile Include="Models\API\KalturaMetaType.cs" />
+    <Compile Include="Models\DMS\KalturaDeviceReportFilter.cs" />
+    <Compile Include="Models\DMS\KalturaDeviceReport.cs" />
     <Compile Include="Models\DMS\KalturaConfigurationGroupTagFilter.cs" />
     <Compile Include="Models\DMS\DMSConfigurationListResponse.cs" />
     <Compile Include="Models\DMS\DMSConfigurationResponse.cs" />
@@ -1028,7 +1031,6 @@
     <Compile Include="Models\DMS\KalturaConfiguration.cs" />
     <Compile Include="Models\DMS\KalturaConfigurationFilter.cs" />
     <Compile Include="Models\DMS\KalturaConfigurationGroupDeviceFilter.cs" />
-    <Compile Include="Models\DMS\KalturaReportListResponse.cs" />
     <Compile Include="Models\DMS\KalturaPushParams.cs" />
     <Compile Include="Models\DMS\DMSReportDeviceGetResponse.cs" />
     <Compile Include="Models\DMS\DMSReportDeviceListResponse.cs" />
@@ -1303,6 +1305,7 @@
     <Compile Include="Models\API\KalturaPermission.cs" />
     <Compile Include="Models\API\KalturaPermissionItem.cs" />
     <Compile Include="Models\General\KalturaReport.cs" />
+    <Compile Include="Models\General\KalturaReportFilter.cs" />
     <Compile Include="Models\General\KalturaReportListResponse.cs" />
     <Compile Include="Models\General\KalturaReportTypeBy.cs" />
     <Compile Include="Models\General\KalturaRequestConfiguration.cs" />

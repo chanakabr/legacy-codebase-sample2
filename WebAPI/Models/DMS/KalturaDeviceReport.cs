@@ -7,7 +7,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.DMS
 {
     [JsonObject]
-    public class KalturaConfigurationGroupDeviceReport : KalturaReport
+    public class KalturaDeviceReport : KalturaReport
     {
         /// <summary>
         /// Partner id

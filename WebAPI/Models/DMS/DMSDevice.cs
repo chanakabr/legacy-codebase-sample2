@@ -3,8 +3,12 @@ using Newtonsoft.Json.Converters;
 
 namespace WebAPI.Models.DMS
 {
+    public class BaseReport
+    {
+    }
+
     [JsonObject]
-    public class DMSDevice
+    public class DMSDevice : BaseReport
     {
         [JsonProperty("partner_id")]
         public int GroupId { get; set; }
