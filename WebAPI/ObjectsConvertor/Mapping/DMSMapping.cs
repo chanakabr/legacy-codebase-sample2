@@ -19,7 +19,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.NumberOfDevices, opt => opt.MapFrom(src => src.NumberOfDevices))
                 .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.PartnerId))
-                .ForMember(dest => dest.ConfigFiles, opt => opt.MapFrom(src => src.ConfigFileIds))
+                .ForMember(dest => dest.ConfigurationIdentifiers, opt => opt.MapFrom(src => src.ConfigFileIds))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags));
 
             // from local to dms  
@@ -29,16 +29,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.NumberOfDevices, opt => opt.MapFrom(src => src.NumberOfDevices))
                 .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.PartnerId))
-                .ForMember(dest => dest.ConfigFileIds, opt => opt.MapFrom(src => src.ConfigFiles))
+                .ForMember(dest => dest.ConfigFileIds, opt => opt.MapFrom(src => src.ConfigurationIdentifiers))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags));
 
             // from DMSConfigurationMin to KalturaConfigurationMin
-            Mapper.CreateMap<DMSConfigurationMin, KalturaConfigurationMin>()
+            Mapper.CreateMap<DMSConfigurationMin, KalturaConfigurationIdentifier>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
             // from local to dms  
-            Mapper.CreateMap<KalturaConfigurationMin, DMSConfigurationMin>()
+            Mapper.CreateMap<KalturaConfigurationIdentifier, DMSConfigurationMin>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
@@ -61,7 +61,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.Udid));
 
             // from dms to local
-            Mapper.CreateMap<DMSDevice, KalturaReport>()
+            Mapper.CreateMap<DMSDevice, KalturaConfigurationGroupDeviceReport>()
                 .ForMember(dest => dest.ConfigurationGroupId, opt => opt.MapFrom(src => src.GroupConfigurationId))
                 .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.GroupId))
                 .ForMember(dest => dest.LastAccessDate, opt => opt.MapFrom(src => src.LastAccessDate))
@@ -89,8 +89,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ExternalPushId, opt => opt.MapFrom(src => src.ExternalPushId))
                 .ForMember(dest => dest.Content, opt => opt.MapFrom(src => ConvertToContent(src.Params)))
                 .ForMember(dest => dest.ConfigurationGroupId, opt => opt.MapFrom(src => src.GroupConfigurationId))
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault));
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
 
             // from local to dms 
             Mapper.CreateMap<KalturaConfiguration, DMSAppVersion>()
@@ -102,8 +101,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ExternalPushId, opt => opt.MapFrom(src => src.ExternalPushId))
                 .ForMember(dest => dest.Params, opt => opt.MapFrom(src => ConvertToParms(src.Content)))
                 .ForMember(dest => dest.GroupConfigurationId, opt => opt.MapFrom(src => src.ConfigurationGroupId))
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault));
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
         }
 
         private static Dictionary<string, object> ConvertToParms(string data)

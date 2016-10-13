@@ -306,7 +306,7 @@ namespace WebAPI.Clients
         internal static KalturaConfigurationGroupTag GetConfigurationGroupTag(int partnerId, string tag)
         {
             KalturaConfigurationGroupTag configurationGroupTag = null;
-            string url = string.Format("{0}/{1}/{2}", DMSControllers.Tag.ToString(), partnerId, tag);
+            string url = string.Format("{0}/Get/{1}/{2}", DMSControllers.Tag.ToString(), partnerId, tag);
             string result = string.Empty;
 
             try
@@ -410,9 +410,9 @@ namespace WebAPI.Clients
             return configurationGroupTag;
         }
 
-        internal static bool DeleteConfigurationGroupTag(int partnerId, string configurationGroupId, string tag)
+        internal static bool DeleteConfigurationGroupTag(int partnerId, string tag)
         {
-            string url = string.Format("{0}/{1}/{2}/{3}", DMSControllers.Tag.ToString(), partnerId, configurationGroupId, tag);
+            string url = string.Format("{0}/{1}/{2}", DMSControllers.Tag.ToString(), partnerId, tag);
             string dmsResult = string.Empty;
 
             try
@@ -422,7 +422,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while delete configuration group tag. partnerId: {0}, configurationGroupId: {1}, tag: {2}, exception: {3}", partnerId, configurationGroupId, tag, ex);
+                log.ErrorFormat("Error while delete configuration group tag. partnerId: {0}, tag: {1}, exception: {2}", partnerId, tag, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -775,9 +775,9 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal static bool DeleteConfigurationGroupDevice(int partnerId, string configurationGroupId, string udid)
+        internal static bool DeleteConfigurationGroupDevice(int partnerId, string udid)
         {
-            string url = string.Format("{0}/{1}/{2}/{3}", DMSControllers.Device.ToString(), partnerId, configurationGroupId, udid);
+            string url = string.Format("{0}/Delete/{1}/{2}", DMSControllers.Device.ToString(), partnerId, udid);
             string dmsResult = string.Empty;
 
             try
@@ -787,7 +787,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while delete configuration group device. partnerId: {0}, configurationGroupId: {1}, udid: {2}, exception: {3}", partnerId, configurationGroupId, udid, ex);
+                log.ErrorFormat("Error while delete configuration group device. partnerId: {0}, udid: {1}, exception: {2}", partnerId, udid, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -809,9 +809,9 @@ namespace WebAPI.Clients
         #endregion
 
         #region Report Device
-        internal static KalturaReport GetDeviceReport(int partnerId, string udid)
+        internal static KalturaConfigurationGroupDeviceReport GetDeviceReport(int partnerId, string udid)
         {
-            KalturaReport device = null;
+            KalturaConfigurationGroupDeviceReport device = null;
             string url = string.Format("{0}/{1}/{2}", DMSControllers.Report.ToString(), partnerId, udid);
             string result = string.Empty;
 
@@ -838,7 +838,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)DMSMapping.ConvertDMSStatus(response.Result.Status), response.Result.Message);
             }
 
-            device = Mapper.Map<KalturaReport>(response.Device);
+            device = Mapper.Map<KalturaConfigurationGroupDeviceReport>(response.Device);
 
             return device;
 
@@ -877,7 +877,7 @@ namespace WebAPI.Clients
             {
                 result.TotalCount = response.DeviceList.Count;
                 // convert kaltura device            
-                result.Objects = Mapper.Map<List<KalturaReport>>(response.DeviceList);
+               // result.Objects = Mapper.Map<List<KalturaConfigurationGroupDeviceReport>>(response.DeviceList) ;
             }
 
             return result;

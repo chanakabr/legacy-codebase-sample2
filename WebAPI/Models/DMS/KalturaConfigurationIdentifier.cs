@@ -6,7 +6,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.DMS
 {
     [JsonObject]
-    public class KalturaConfigurationMin : KalturaOTTObject
+    public class KalturaConfigurationIdentifier : KalturaOTTObject
     {
         [DataMember(Name = "id")]
         [JsonProperty("id")]

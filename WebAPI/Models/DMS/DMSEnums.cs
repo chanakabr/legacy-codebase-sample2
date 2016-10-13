@@ -20,6 +20,4 @@ namespace WebAPI.Models.DMS
         Default,
         NotDefault
     }
-
-
 }

@@ -16,7 +16,7 @@ namespace WebAPI.Models.DMS
         public Dictionary<string, object> Params { get; set; }
 
         public DMSDeviceToken Token;
-    }    
+    }
 
     [DataContract]
     public class DMSDeviceToken
@@ -31,7 +31,7 @@ namespace WebAPI.Models.DMS
     [DataContract]
     public class DMSAppVersion
     {
-         [JsonProperty("id")]
+        [JsonProperty("id")]
         public string Id { get; set; }
 
         [JsonProperty("is_default")]
@@ -56,7 +56,7 @@ namespace WebAPI.Models.DMS
         public int GroupId { get; set; }
 
         [JsonProperty("external_push_id")]
-        public string ExternalPushId { get; set; }      
+        public string ExternalPushId { get; set; }
 
         [JsonProperty("params", NullValueHandling = NullValueHandling.Ignore)]
         public Dictionary<string, object> Params { get; set; }

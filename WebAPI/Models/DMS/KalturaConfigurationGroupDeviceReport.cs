@@ -7,7 +7,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.DMS
 {
     [JsonObject]
-    public class KalturaReport : KalturaOTTObject
+    public class KalturaConfigurationGroupDeviceReport : KalturaReport
     {
         /// <summary>
         /// Partner id
@@ -16,6 +16,14 @@ namespace WebAPI.Models.DMS
         [XmlElement(ElementName = "partnerId")]
         [JsonProperty("partnerId")]
         public int PartnerId { get; set; }
+
+        /// <summary>
+        /// Configuration group id
+        /// </summary>
+        [DataMember(Name = "configurationGroupId")]
+        [XmlElement(ElementName = "configurationGroupId")]
+        [JsonProperty("configurationGroupId")]
+        public string ConfigurationGroupId { get; set; }
 
         /// <summary>
         /// Device UDID
@@ -89,15 +97,5 @@ namespace WebAPI.Models.DMS
         [XmlElement(ElementName = "operationSystem")]
         [JsonProperty("operationSystem")]
         public string OperationSystem { get; set; }
-
-        /// <summary>
-        /// Configuration group id
-        /// </summary>
-        [DataMember(Name = "configurationGroupId")]
-        [XmlElement(ElementName = "configurationGroupId")]
-        [JsonProperty("configurationGroupId")]
-        public string ConfigurationGroupId { get; set; }
-
-
     }
 }
