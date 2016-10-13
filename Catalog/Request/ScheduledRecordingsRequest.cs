@@ -69,7 +69,7 @@ namespace Catalog.Request
                 GetWsCredentials(out wsUserName, out wsPassword);
                 // should we get the followed series
                 if (!isSingle)
-                {                    
+                {
                     using (ws_cas.module cas = new ws_cas.module())
                     {
                         string url = Utils.GetWSURL("ws_cas");
@@ -85,7 +85,12 @@ namespace Catalog.Request
                         SeriesResponse seriesResponse = cas.GetFollowSeries(wsUserName, wsPassword, m_sSiteGuid, domainId, new SeriesRecordingOrderObj());
                         if (seriesResponse != null && seriesResponse.Status != null && seriesResponse.Status.Code == (int)eResponseStatus.OK)
                         {
-                            series = seriesResponse.SeriesRecordings.Where(x => channelIds.Contains(x.EpgChannelId)).ToArray();
+                            if (channelIds != null && channelIds.Count > 0)
+                            {
+                                seriesResponse.SeriesRecordings = seriesResponse.SeriesRecordings.Where(x => channelIds.Contains(x.EpgChannelId)).ToArray();
+                            }
+
+                            series = seriesResponse.SeriesRecordings.ToArray();
                         }
                         else
                         {
@@ -102,12 +107,27 @@ namespace Catalog.Request
                         // get SINGLE scheduled recordings assets
                         if (scheduledRecordingAssetType != ApiObjects.ScheduledRecordingAssetType.SERIES)
                         {
-                            epgIdsToOrderAndPage = domainRecordings.Recordings.Where(x => x.Type == RecordingType.Single && x.RecordingStatus == TstvRecordingStatus.Scheduled
-                                                                                                    && channelIds.Contains(x.ChannelId)).Select(x => x.EpgId).ToList();
-                            // TODO: filter start/end dates
+                            if (channelIds != null && channelIds.Count > 0)
+                            {
+                                domainRecordings.Recordings = domainRecordings.Recordings.Where(x => channelIds.Contains(x.ChannelId)).Select(x => x).ToArray();
+                            }
+
+                            domainRecordings.Recordings = domainRecordings.Recordings.Where(x => x.Type == RecordingType.Single && x.RecordingStatus == TstvRecordingStatus.Scheduled).Select(x => x).ToArray();
+
+                            if (startDate.HasValue)
+                            {
+                                domainRecordings.Recordings = domainRecordings.Recordings.Where(x => x.EpgStartDate > startDate.Value).Select(x => x).ToArray();
+                            }
+
+                            if (endDate.HasValue)
+                            {
+                                domainRecordings.Recordings = domainRecordings.Recordings.Where(x => x.EpgEndDate < endDate.Value).Select(x => x).ToArray();
+                            }
+
+                            epgIdsToOrderAndPage = domainRecordings.Recordings.Select(x => x.EpgId).ToList();                            
                         }
                     }
-                        
+
                     List<string> excludedCrids = new List<string>();
                     if (scheduledRecordingAssetType != ApiObjects.ScheduledRecordingAssetType.SINGLE)
                     {
@@ -136,13 +156,13 @@ namespace Catalog.Request
         {
             RecordingResponse result = new RecordingResponse();
             try
-            {            
+            {
                 List<TstvRecordingStatus> statusesToSearch = new List<TstvRecordingStatus>();
                 // should we get the scheduled single recordings
                 if (scheduledRecordingAssetType != ApiObjects.ScheduledRecordingAssetType.SERIES)
-                 {
-                     statusesToSearch.Add(TstvRecordingStatus.Scheduled);
-                 }
+                {
+                    statusesToSearch.Add(TstvRecordingStatus.Scheduled);
+                }
 
                 // should we get the existing series recordings
                 if (scheduledRecordingAssetType != ApiObjects.ScheduledRecordingAssetType.SINGLE)
@@ -152,7 +172,7 @@ namespace Catalog.Request
                 }
 
                 using (ws_cas.module cas = new ws_cas.module())
-                {                
+                {
                     string url = Utils.GetWSURL("ws_cas");
                     if (!string.IsNullOrEmpty(url))
                     {
@@ -163,7 +183,8 @@ namespace Catalog.Request
                         throw new Exception("CAS url is null or empty");
                     }
 
-                    result = cas.SearchDomainRecordings(wsUserName, wsPassword, m_sSiteGuid, domainId, statusesToSearch.ToArray(), string.Empty, 0, 0, new OrderObj(), true);
+                    result = cas.SearchDomainRecordings(wsUserName, wsPassword, m_sSiteGuid, domainId, statusesToSearch.ToArray(), string.Empty, 0, 0,
+                                                        new OrderObj() { m_eOrderBy = OrderBy.ID, m_eOrderDir = OrderDir.ASC }, true);
                 }
             }
 
@@ -202,7 +223,7 @@ namespace Catalog.Request
 
             // build the KSQL for the series
             string seriesId = "series_id";
-            string seasonNumber = "season_number";            
+            string seasonNumber = "season_number";
 
             // build the filter query for the search
             StringBuilder ksql = new StringBuilder("(and (or ");
@@ -264,6 +285,6 @@ namespace Catalog.Request
 
             return response;
         }
-                
+
     }
 }
