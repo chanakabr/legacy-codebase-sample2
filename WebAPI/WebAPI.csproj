@@ -1054,6 +1054,8 @@
     <Compile Include="Models\DMS\KalturaConfigurationIdentifier.cs" />
     <Compile Include="Models\DMS\DMSPushParams.cs" />
     <Compile Include="Models\DMS\KalturaConfigurationListResponse.cs" />
+    <Compile Include="Models\Catalog\KalturaRecordingAssetFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaRecordingAssetType.cs" />
     <Compile Include="Models\Domains\KalturaDeviceBrand.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdDeviceFilter.cs" />
     <Compile Include="Models\API\KalturaDeviceFamilyListResponse.cs" />
