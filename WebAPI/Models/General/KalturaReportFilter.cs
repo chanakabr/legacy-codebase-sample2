@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Models.General;
 
-namespace WebAPI.Models.DMS
+namespace WebAPI.Models.General
 {
     public enum KalturaReportOrderBy
     {
@@ -14,11 +14,6 @@ namespace WebAPI.Models.DMS
     /// </summary>
     public class KalturaReportFilter : KalturaFilter<KalturaReportOrderBy>
     {
-        [DataMember(Name = "fromDateEqual")]
-        [JsonProperty("fromDateEqual")]
-        [XmlElement(ElementName = "fromDateEqual")]
-        public long FromDateEqual { get; set; }
-
         public override KalturaReportOrderBy GetDefaultOrderByValue()
         {
             return KalturaReportOrderBy.NONE;

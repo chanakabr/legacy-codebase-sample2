@@ -13,9 +13,11 @@ namespace WebAPI.Controllers
     [RoutePrefix("_service/configuration/action")]
     public class ConfigurationController : ApiController
     {
+
         /// <summary>
         /// Return a device configuration applicable for a specific device (UDID), app name, software version, platform and optionally a configuration group’s tag
         /// </summary>
+        /// <param name="partnerId">Partner Id</param>
         /// <param name="applicationName">Application name</param>
         /// <param name="clientVersion">Client version</param>
         /// <param name="platform">platform</param>
@@ -29,11 +31,12 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.Registered)]
         [Throws(eResponseStatus.VersionNotFound)]
-        public KalturaStringRenderer Serve(string applicationName, string clientVersion, string platform, string udid, string tag)
+        public KalturaStringRenderer ServeByDevice(int partnerId, string applicationName, string clientVersion, string platform, string udid, string tag)
         {
             string response = null;
 
-            int partnerId = KS.GetFromRequest().GroupId;
+            if (partnerId <= 0)
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "partnerId");
 
             if (string.IsNullOrWhiteSpace(applicationName))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "applicationName");

@@ -421,10 +421,11 @@
             <returns></returns>
             <remarks>Possible status codes: CDN partner settings not found = 5025</remarks>   
         </member>
-        <member name="M:WebAPI.Controllers.ConfigurationController.Serve(System.String,System.String,System.String,System.String,System.String)">
+        <member name="M:WebAPI.Controllers.ConfigurationController.ServeByDevice(System.Int32,System.String,System.String,System.String,System.String,System.String)">
             <summary>
             Return a device configuration applicable for a specific device (UDID), app name, software version, platform and optionally a configuration group’s tag
             </summary>
+            <param name="partnerId">Partner Id</param>
             <param name="applicationName">Application name</param>
             <param name="clientVersion">Client version</param>
             <param name="platform">platform</param>
@@ -611,6 +612,14 @@
             <param name="udid">Device UDID</param>        
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>
         </member>
+        <member name="M:WebAPI.Controllers.ReportController.List(WebAPI.Models.General.KalturaReportFilter,WebAPI.Models.General.KalturaFilterPager)">
+            <summary>
+            Return device configurations retrieval log. Supports paging and can be filtered with the parameter "FromData".
+            </summary>
+            <param name="filter">Filter option for from date (sec)</param>
+            <param name="pager">Page size and index</param>
+            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001 </remarks>
+        </member>
         <member name="T:WebAPI.Models.API.KalturaMetaFilter">
             <summary>
             Meta filter
@@ -716,64 +725,69 @@
             
             </summary>
         </member>
-        <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroupDeviceReport.PartnerId">
+        <member name="T:WebAPI.Models.DMS.KalturaDeviceReportFilter">
+            <summary>
+            Report filter
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaReportFilter">
+            <summary>
+            Report filter
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaDeviceReport.PartnerId">
             <summary>
             Partner id
             </summary>
         </member>
-        <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroupDeviceReport.ConfigurationGroupId">
+        <member name="P:WebAPI.Models.DMS.KalturaDeviceReport.ConfigurationGroupId">
             <summary>
             Configuration group id
             </summary>
         </member>
-        <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroupDeviceReport.Udid">
+        <member name="P:WebAPI.Models.DMS.KalturaDeviceReport.Udid">
             <summary>
             Device UDID
             </summary>
         </member>
-        <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroupDeviceReport.PushParameters">
+        <member name="P:WebAPI.Models.DMS.KalturaDeviceReport.PushParameters">
             <summary>
             Push parameters
             </summary>
         </member>
-        <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroupDeviceReport.VersionNumber">
+        <member name="P:WebAPI.Models.DMS.KalturaDeviceReport.VersionNumber">
             <summary>
             Version number
             </summary>
         </member>
-        <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroupDeviceReport.VersionPlatform">
+        <member name="P:WebAPI.Models.DMS.KalturaDeviceReport.VersionPlatform">
             <summary>
             Version platform
             </summary>
         </member>
-        <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroupDeviceReport.VersionAppName">
+        <member name="P:WebAPI.Models.DMS.KalturaDeviceReport.VersionAppName">
             <summary>
             Version application name
             </summary>
         </member>
-        <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroupDeviceReport.LastAccessIP">
+        <member name="P:WebAPI.Models.DMS.KalturaDeviceReport.LastAccessIP">
             <summary>
             Last access IP
             </summary>
         </member>
-        <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroupDeviceReport.LastAccessDate">
+        <member name="P:WebAPI.Models.DMS.KalturaDeviceReport.LastAccessDate">
             <summary>
             Last access date
             </summary>
         </member>
-        <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroupDeviceReport.UserAgent">
+        <member name="P:WebAPI.Models.DMS.KalturaDeviceReport.UserAgent">
             <summary>
             User agent
             </summary>
         </member>
-        <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroupDeviceReport.OperationSystem">
+        <member name="P:WebAPI.Models.DMS.KalturaDeviceReport.OperationSystem">
             <summary>
             Operation system
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.DMS.KalturaReportFilter">
-            <summary>
-            Report filter
             </summary>
         </member>
         <member name="T:WebAPI.Models.DMS.KalturaConfigurationGroupTagFilter">
@@ -834,16 +848,6 @@
         <member name="T:WebAPI.Models.DMS.KalturaConfigurationGroupDeviceFilter">
             <summary>
             Configuration group device filter
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.DMS.KalturaReportListResponse">
-            <summary>
-            Reports info wrapper
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.DMS.KalturaReportListResponse.Objects">
-            <summary>
-            Reports
             </summary>
         </member>
         <member name="P:WebAPI.Models.DMS.KalturaPushParams.Token">
