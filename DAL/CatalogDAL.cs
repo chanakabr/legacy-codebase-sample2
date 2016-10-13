@@ -3139,9 +3139,9 @@ namespace Tvinci.Core.DAL
 
             DataSet ds = sp.ExecuteDataSet();
 
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            if (ds != null && ds.Tables != null && ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count == 1 && ds.Tables.Count == 2)
             {
-                result = CreateRecommendationEngine(ds.Tables[0].Rows[0]);
+                result = CreateRecommendationEngine(ds.Tables[0].Rows[0], ds.Tables[1]);
             }
 
             return result;
@@ -3162,6 +3162,35 @@ namespace Tvinci.Core.DAL
                 result.IsActive = is_Active == 1 ? true : false;
                 result.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
                 result.SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret");
+            }
+
+            return result;
+
+        }
+
+        private static RecommendationEngine CreateRecommendationEngine(DataRow recommendationEngineDr, DataTable recommendationEngineSettingsDt)
+        {
+            RecommendationEngine result = null;
+            result = CreateRecommendationEngine(recommendationEngineDr);
+
+            if (recommendationEngineDr != null)
+            {
+                if (recommendationEngineSettingsDt != null && recommendationEngineSettingsDt.Rows != null)
+                {
+                    List<RecommendationEngineSettings> settings = new List<RecommendationEngineSettings>();
+                    foreach (DataRow dr in recommendationEngineSettingsDt.Rows)
+                    {
+                        long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "recommendation_engine_id", 0);
+                        if (id > 0)
+                        {
+                            string key = ODBCWrapper.Utils.GetSafeStr(dr, "key");
+                            string value = ODBCWrapper.Utils.GetSafeStr(dr, "value");
+                            settings.Add(new RecommendationEngineSettings(key, value));    
+                        }
+                    }
+
+                    result.Settings = settings;
+                }
             }
 
             return result;
@@ -3272,18 +3301,47 @@ namespace Tvinci.Core.DAL
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@status", status);
-                DataSet ds = sp.ExecuteDataSetWithListParam();
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
                 {
-                    DataTable dtResult = ds.Tables[0];
-                    if (dtResult != null && dtResult.Rows != null && dtResult.Rows.Count > 0)
+                    DataTable dtRecommendationEngines = ds.Tables[0];
+                    DataTable dtRecommendationEnginesSettings = ds.Tables[1];
+                    Dictionary<long, List<RecommendationEngineSettings>> recommendationEngineSettingsMap = new Dictionary<long, List<RecommendationEngineSettings>>();
+                    if (dtRecommendationEnginesSettings != null && dtRecommendationEnginesSettings.Rows != null)
                     {
-                        RecommendationEngine recommendationEngine = null;
-                        foreach (DataRow dr in dtResult.Rows)
+                        foreach (DataRow dr in dtRecommendationEnginesSettings.Rows)
                         {
-                            recommendationEngine = CreateRecommendationEngine(dr);
+                            long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "recommendation_engine_id", 0);
+                            if (id > 0)
+                            {                                
+                                string key = ODBCWrapper.Utils.GetSafeStr(dr, "key");
+                                string value = ODBCWrapper.Utils.GetSafeStr(dr, "value");
+                                if (recommendationEngineSettingsMap.ContainsKey(id))
+                                {
+                                    recommendationEngineSettingsMap[id].Add(new RecommendationEngineSettings(key, value));
+                                }
+                                else
+                                {
+                                    List<RecommendationEngineSettings> engineSettings = new List<RecommendationEngineSettings>();
+                                    engineSettings.Add(new RecommendationEngineSettings(key, value));
+                                    recommendationEngineSettingsMap.Add(id, engineSettings);
+                                }
+                            }
+                        }
+                    }
+
+                    if (dtRecommendationEngines != null && dtRecommendationEngines.Rows != null)
+                    {                        
+                        foreach (DataRow dr in dtRecommendationEngines.Rows)
+                        {
+                            RecommendationEngine recommendationEngine = CreateRecommendationEngine(dr);
                             if (recommendationEngine != null)
                             {
+                                if (recommendationEngineSettingsMap.ContainsKey(recommendationEngine.ID))
+                                {
+                                    recommendationEngine.Settings = recommendationEngineSettingsMap[recommendationEngine.ID];
+                                }
+
                                 res.Add(recommendationEngine);
                             }
                         }
@@ -3465,9 +3523,9 @@ namespace Tvinci.Core.DAL
 
             DataSet ds = sp.ExecuteDataSet();
 
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            if (ds != null && ds.Tables != null && ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count == 1 && ds.Tables.Count == 2)
             {
-                result = CreateRecommendationEngine(ds.Tables[0].Rows[0]);
+                result = CreateRecommendationEngine(ds.Tables[0].Rows[0], ds.Tables[1]);
             }
 
             return result;
