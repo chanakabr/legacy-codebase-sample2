@@ -17369,7 +17369,7 @@ namespace ConditionalAccess
         }
 
         public RecordingResponse SerachDomainRecordings(string userID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses,
-            string filter, int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, bool shouldIgnorePaging = false)
+            string filter, int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, bool shouldIgnorePaging)
         {
             RecordingResponse response = new RecordingResponse();
             try

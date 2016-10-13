@@ -62,8 +62,7 @@ namespace Catalog.Request
 
                 CheckSignature(baseRequest);
 
-                bool isSingle = scheduledRecordingAssetType == ApiObjects.ScheduledRecordingAssetType.SINGLE;
-                List<long> epgIdsToOrderAndPage = new List<long>();
+                bool isSingle = scheduledRecordingAssetType == ApiObjects.ScheduledRecordingAssetType.SINGLE;                
                 SeriesRecording[] series = null;
                 string wsUserName, wsPassword;
                 GetWsCredentials(out wsUserName, out wsPassword);
@@ -102,18 +101,26 @@ namespace Catalog.Request
                 RecordingResponse domainRecordings = GetCurrentRecordings(wsUserName, wsPassword);
                 if (domainRecordings != null && domainRecordings.Status != null && domainRecordings.Status.Code == (int)eResponseStatus.OK)
                 {
+                    List<long> epgIdsToOrderAndPage = new List<long>();
+                    List<string> excludedCrids = new List<string>();
                     if (domainRecordings.TotalItems > 0)
                     {
+                        if (channelIds != null && channelIds.Count > 0)
+                        {
+                            domainRecordings.Recordings = domainRecordings.Recordings.Where(x => channelIds.Contains(x.ChannelId)).Select(x => x).ToArray();
+                        }
+                        
+                        // get crids to exclude
+                        if (scheduledRecordingAssetType != ApiObjects.ScheduledRecordingAssetType.SINGLE)
+                        {
+                            List<RecordingType> recordingTypesToExcludeCrids = new List<RecordingType>() { RecordingType.Season, RecordingType.Series };
+                            excludedCrids = domainRecordings.Recordings.Where(x => recordingTypesToExcludeCrids.Contains(x.Type)).Select(x => x.Crid).ToList();
+                        }
+                        
                         // get SINGLE scheduled recordings assets
                         if (scheduledRecordingAssetType != ApiObjects.ScheduledRecordingAssetType.SERIES)
                         {
-                            if (channelIds != null && channelIds.Count > 0)
-                            {
-                                domainRecordings.Recordings = domainRecordings.Recordings.Where(x => channelIds.Contains(x.ChannelId)).Select(x => x).ToArray();
-                            }
-
                             domainRecordings.Recordings = domainRecordings.Recordings.Where(x => x.Type == RecordingType.Single && x.RecordingStatus == TstvRecordingStatus.Scheduled).Select(x => x).ToArray();
-
                             if (startDate.HasValue)
                             {
                                 domainRecordings.Recordings = domainRecordings.Recordings.Where(x => x.EpgStartDate > startDate.Value).Select(x => x).ToArray();
@@ -126,13 +133,6 @@ namespace Catalog.Request
 
                             epgIdsToOrderAndPage = domainRecordings.Recordings.Select(x => x.EpgId).ToList();                            
                         }
-                    }
-
-                    List<string> excludedCrids = new List<string>();
-                    if (scheduledRecordingAssetType != ApiObjects.ScheduledRecordingAssetType.SINGLE)
-                    {
-                        List<RecordingType> recordingTypesToExcludeCrids = new List<RecordingType>() { RecordingType.Season, RecordingType.Series };
-                        excludedCrids = domainRecordings.Recordings.Where(x => recordingTypesToExcludeCrids.Contains(x.Type)).Select(x => x.Crid).ToList();
                     }
 
                     response = SearchScheduledRecordings(m_nGroupID, epgIdsToOrderAndPage, excludedCrids, series, startDate, endDate);
