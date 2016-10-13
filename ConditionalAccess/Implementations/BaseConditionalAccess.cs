@@ -11594,7 +11594,7 @@ namespace ConditionalAccess
                         else
                         {
                             oResult.Code = (int)eResponseStatus.CancelationWindowPeriodExpired;
-                            oResult.Message = "Subscription could not be cancelled because it is not in cancellation window";
+                            oResult.Message = string.Format("{0} could not be cancelled because it is not in cancellation window", p_enmTransactionType.ToString());
                         }
                     }
                 }
