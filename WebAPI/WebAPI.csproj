@@ -1019,6 +1019,7 @@
     <Compile Include="Models\API\KalturaCountryListResponse.cs" />
     <Compile Include="Models\API\KalturaCountryOrderBy.cs" />
     <Compile Include="Models\API\KalturaMetaType.cs" />
+    <Compile Include="Models\DMS\KalturaConfigurationGroupDeviceReport.cs" />
     <Compile Include="Models\DMS\KalturaReportFilter.cs" />
     <Compile Include="Models\DMS\KalturaConfigurationGroupTagFilter.cs" />
     <Compile Include="Models\DMS\DMSConfigurationListResponse.cs" />
@@ -1029,7 +1030,6 @@
     <Compile Include="Models\DMS\KalturaConfigurationGroupDeviceFilter.cs" />
     <Compile Include="Models\DMS\KalturaReportListResponse.cs" />
     <Compile Include="Models\DMS\KalturaPushParams.cs" />
-    <Compile Include="Models\DMS\KalturaReport.cs" />
     <Compile Include="Models\DMS\DMSReportDeviceGetResponse.cs" />
     <Compile Include="Models\DMS\DMSReportDeviceListResponse.cs" />
     <Compile Include="Models\DMS\DMSDevice.cs" />
@@ -1051,7 +1051,7 @@
     <Compile Include="Models\DMS\DMSTagResponse.cs" />
     <Compile Include="Models\DMS\DMSTagListResponse.cs" />
     <Compile Include="Models\DMS\DMSTagMapping.cs" />
-    <Compile Include="Models\DMS\KalturaConfigurationMin.cs" />
+    <Compile Include="Models\DMS\KalturaConfigurationIdentifier.cs" />
     <Compile Include="Models\DMS\DMSPushParams.cs" />
     <Compile Include="Models\DMS\KalturaConfigurationListResponse.cs" />
     <Compile Include="Models\Domains\KalturaDeviceBrand.cs" />
@@ -1300,6 +1300,9 @@
     <Compile Include="Models\General\KalturaClientConfiguration.cs" />
     <Compile Include="Models\API\KalturaPermission.cs" />
     <Compile Include="Models\API\KalturaPermissionItem.cs" />
+    <Compile Include="Models\General\KalturaReport.cs" />
+    <Compile Include="Models\General\KalturaReportListResponse.cs" />
+    <Compile Include="Models\General\KalturaReportTypeBy.cs" />
     <Compile Include="Models\General\KalturaRequestConfiguration.cs" />
     <Compile Include="Models\General\KalturaSessionType.cs" />
     <Compile Include="Models\General\KalturaIntegerValue.cs" />

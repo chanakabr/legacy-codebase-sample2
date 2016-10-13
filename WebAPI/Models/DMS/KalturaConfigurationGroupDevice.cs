@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.DMS
@@ -21,8 +22,8 @@ namespace WebAPI.Models.DMS
         [DataMember(Name = "partnerId")]
         [JsonProperty("partnerId")]
         [XmlElement(ElementName = "partnerId")]
+        [SchemeProperty(ReadOnly = true)]
         public int PartnerId { get; set; }
-
 
         /// <summary>
         /// Device UDID

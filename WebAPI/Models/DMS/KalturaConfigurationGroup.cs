@@ -33,7 +33,7 @@ namespace WebAPI.Models.DMS
         [JsonProperty("partnerId")]
         [XmlElement(ElementName = "partnerId")]
         [SchemeProperty(ReadOnly = true)]
-        public int PartnerId { get; set; } // TODO: check for ignore
+        public int PartnerId { get; set; } 
 
         /// <summary>
         /// Is default
@@ -63,18 +63,18 @@ namespace WebAPI.Models.DMS
         public long NumberOfDevices { get; set; }
 
         /// <summary>
-        /// Configuration files
+        /// Configuration identifiers 
         /// </summary>
-        [DataMember(Name = "configFiles")]
-        [JsonProperty("configFiles")]
-        [XmlElement(ElementName = "configFiles")]
+        [DataMember(Name = "configurationIdentifiers")]
+        [JsonProperty("configurationIdentifiers")]
+        [XmlElement(ElementName = "configurationIdentifiers")]
         [SchemeProperty(ReadOnly = true)]
-        public List<KalturaConfigurationMin> ConfigFiles { get; set; }       
+        public List<KalturaConfigurationIdentifier> ConfigurationIdentifiers  { get; set; }       
 
         public KalturaConfigurationGroup()
         {
             this.Tags = new  List<KalturaStringValue>();
-            this.ConfigFiles = new List<KalturaConfigurationMin>();
+            this.ConfigurationIdentifiers = new List<KalturaConfigurationIdentifier>();
         }
     }
 }

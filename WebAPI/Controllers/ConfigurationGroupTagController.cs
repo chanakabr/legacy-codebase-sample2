@@ -119,22 +119,19 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.NotExist)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        public bool Delete(string configurationGroupId, string tag)
+        public bool Delete(string tag)
         {
             bool response = false;
 
             try
             {
-                if (string.IsNullOrWhiteSpace(configurationGroupId))
-                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "configurationGroupId");
-
                 if (string.IsNullOrWhiteSpace(tag))
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "tag");
 
                 int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
-                response = DMSClient.DeleteConfigurationGroupTag(partnerId, configurationGroupId, tag);
+                response = DMSClient.DeleteConfigurationGroupTag(partnerId, tag);
             }
             catch (ClientException ex)
             {

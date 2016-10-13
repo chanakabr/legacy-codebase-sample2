@@ -9,61 +9,22 @@ namespace WebAPI.Models.DMS
     public class KalturaConfiguration : KalturaOTTObject
     {
         /// <summary>
-        /// Application name
+        /// Configuration id
         /// </summary>
-        [DataMember(Name = "appName")]
-        [XmlElement(ElementName = "appName")]
-        [JsonProperty("appName", Order = 1)]
-        public string AppName { get; set; }
-
-        /// <summary>
-        /// Client version
-        /// </summary>
-        [DataMember(Name = "clientVersion")]
-        [XmlElement(ElementName = "clientVersion")]
-        [JsonProperty("clientVersion", Order = 2)]
-        public string ClientVersion { get; set; }
-
-        /// <summary>
-        /// Is force update
-        /// </summary>
-        [DataMember(Name = "isForceUpdate")]
-        [XmlElement(ElementName = "isForceUpdate")]
-        [JsonProperty("isForceUpdate", Order = 3)]
-        public bool IsForceUpdate { get; set; }
-
-        /// <summary>
-        /// Platform: Android/iOS/WindowsPhone/Blackberry/STB/CTV/Other
-        /// </summary>
-        [DataMember(Name = "platform")]
-        [XmlElement(ElementName = "platform")]
-        [JsonProperty("platform", Order = 4)]
-        public KalturaPlatform Platform { get; set; }
+        [DataMember(Name = "id")]
+        [XmlElement(ElementName = "id")]
+        [JsonProperty("id")]
+        [SchemeProperty(ReadOnly = true)]
+        public string Id { get; set; }
 
         /// <summary>
         /// Partner id
         /// </summary>
         [DataMember(Name = "partnerId")]
         [XmlElement(ElementName = "partnerId")]
-        [JsonProperty("partnerId", Order = 5)]
+        [JsonProperty("partnerId")]
         [SchemeProperty(ReadOnly = true)]
-        public int PartnerId { get; set; }  // TODO: check for ignore
-
-        /// <summary>
-        /// External push id
-        /// </summary>
-        [DataMember(Name = "externalPushId")]
-        [XmlElement(ElementName = "externalPushId")]
-        [JsonProperty("externalPushId", Order = 6)]
-        public string ExternalPushId { get; set; }
-
-        /// <summary>
-        /// Content
-        /// </summary>
-        [DataMember(Name = "content")]
-        [XmlElement(ElementName = "content")]
-        [JsonProperty("content")]
-        public string Content { get; set; }
+        public int PartnerId { get; set; }  
 
         /// <summary>
         /// Configuration group id
@@ -74,21 +35,52 @@ namespace WebAPI.Models.DMS
         public string ConfigurationGroupId { get; set; }
 
         /// <summary>
-        /// Configuration id
+        /// Application name
         /// </summary>
-        [DataMember(Name = "id")]
-        [XmlElement(ElementName = "id")]
-        [JsonProperty("id")]
-        [SchemeProperty(ReadOnly = true)]
-        public string Id { get; set; }
+        [DataMember(Name = "appName")]
+        [XmlElement(ElementName = "appName")]
+        [JsonProperty("appName")]
+        public string AppName { get; set; }
 
         /// <summary>
-        /// Is default 
+        /// Client version
         /// </summary>
-        [DataMember(Name = "isDefault")]
-        [XmlElement(ElementName = "isDefault")]
-        [JsonProperty("isDefault")]
-        public bool IsDefault { get; set; }
+        [DataMember(Name = "clientVersion")]
+        [XmlElement(ElementName = "clientVersion")]
+        [JsonProperty("clientVersion")]
+        public string ClientVersion { get; set; }
+       
+        /// <summary>
+        /// Platform: Android/iOS/WindowsPhone/Blackberry/STB/CTV/Other
+        /// </summary>
+        [DataMember(Name = "platform")]
+        [XmlElement(ElementName = "platform")]
+        [JsonProperty("platform")]
+        public KalturaPlatform Platform { get; set; }
+     
+        /// <summary>
+        /// External push id
+        /// </summary>
+        [DataMember(Name = "externalPushId")]
+        [XmlElement(ElementName = "externalPushId")]
+        [JsonProperty("externalPushId")]
+        public string ExternalPushId { get; set; }
+
+        /// <summary>
+        /// Is force update
+        /// </summary>
+        [DataMember(Name = "isForceUpdate")]
+        [XmlElement(ElementName = "isForceUpdate")]
+        [JsonProperty("isForceUpdate")]
+        public bool IsForceUpdate { get; set; }
+
+        /// <summary>
+        /// Content
+        /// </summary>
+        [DataMember(Name = "content")]
+        [XmlElement(ElementName = "content")]
+        [JsonProperty("content")]
+        public string Content { get; set; }
     }
 
     public enum KalturaStatus
