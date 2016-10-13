@@ -41,7 +41,7 @@ namespace WebAPI.Models.DMS
         [DataMember(Name = "isDefault")]
         [JsonProperty("isDefault")]
         [XmlElement(ElementName = "isDefault")]
-        [SchemeProperty(ReadOnly = true)]
+        [SchemeProperty(InsertOnly = true)]      
         public bool IsDefault { get; set; }
 
         /// <summary>
