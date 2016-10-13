@@ -3,7 +3,6 @@ using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using WebAPI.Api;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -20,6 +19,14 @@ using System.ServiceModel;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.Domains;
 using WebAPI.Models.Users;
+using ApiObjects;
+using ApiObjects.Rules;
+using ApiObjects.Response;
+using WS_API;
+using ApiObjects.TimeShiftedTv;
+using ApiObjects.Roles;
+using ApiObjects.CDNAdapter;
+using ApiObjects.BulkExport;
 
 namespace WebAPI.Clients
 {
@@ -31,15 +38,15 @@ namespace WebAPI.Clients
         {
         }
 
-        protected WebAPI.Api.API Api
+        protected API Api
         {
             get
             {
-                return (Module as WebAPI.Api.API);
+                return (Module as API);
             }
         }
 
-        public LanguageObj[] GetGroupLanguages(string username, string password)
+        public List<LanguageObj> GetGroupLanguages(string username, string password)
         {
             try
             {
@@ -55,7 +62,7 @@ namespace WebAPI.Clients
             }
         }
 
-        public LanguageObj[] GetGroupLanguages(int groupId)
+        public List<LanguageObj> GetGroupLanguages(int groupId)
         {
             Group group = GroupsManager.GetGroup(groupId);
             return GetGroupLanguages(group.ApiCredentials.Username, group.ApiCredentials.Password);
@@ -79,7 +86,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -114,7 +121,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -149,7 +156,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -174,7 +181,7 @@ namespace WebAPI.Clients
 
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.Status response = null;
+            Status response = null;
 
             try
             {
@@ -185,7 +192,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -212,7 +219,7 @@ namespace WebAPI.Clients
 
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.Status response = null;
+            Status response = null;
 
             try
             {
@@ -223,7 +230,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -250,7 +257,7 @@ namespace WebAPI.Clients
 
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.PinResponse webServiceResponse = null;
+            PinResponse webServiceResponse = null;
 
             try
             {
@@ -261,7 +268,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -291,7 +298,7 @@ namespace WebAPI.Clients
 
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.PinResponse webServiceResponse = null;
+            PinResponse webServiceResponse = null;
 
             try
             {
@@ -302,7 +309,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -333,7 +340,7 @@ namespace WebAPI.Clients
 
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.PinResponse webServiceResponse = null;
+            PinResponse webServiceResponse = null;
 
             try
             {
@@ -344,7 +351,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -374,7 +381,7 @@ namespace WebAPI.Clients
 
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.PinResponse webServiceResponse = null;
+            PinResponse webServiceResponse = null;
 
             try
             {
@@ -385,7 +392,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -414,7 +421,7 @@ namespace WebAPI.Clients
         {
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.PinResponse webServiceResponse = null;
+            PinResponse webServiceResponse = null;
 
             try
             {
@@ -425,7 +432,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -452,7 +459,7 @@ namespace WebAPI.Clients
         {
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.PinResponse webServiceResponse = null;
+            PinResponse webServiceResponse = null;
 
             try
             {
@@ -463,7 +470,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -501,7 +508,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -535,7 +542,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -560,7 +567,7 @@ namespace WebAPI.Clients
 
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.PurchaseSettingsResponse webServiceResponse = null;
+            PurchaseSettingsResponse webServiceResponse = null;
 
             try
             {
@@ -571,7 +578,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -601,7 +608,7 @@ namespace WebAPI.Clients
 
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.PurchaseSettingsResponse webServiceResponse = null;
+            PurchaseSettingsResponse webServiceResponse = null;
 
             try
             {
@@ -612,7 +619,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -643,7 +650,7 @@ namespace WebAPI.Clients
 
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.PurchaseSettingsResponse webServiceResponse = null;
+            PurchaseSettingsResponse webServiceResponse = null;
 
             try
             {
@@ -654,7 +661,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -684,7 +691,7 @@ namespace WebAPI.Clients
 
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.PurchaseSettingsResponse webServiceResponse = null;
+            PurchaseSettingsResponse webServiceResponse = null;
 
             try
             {
@@ -695,7 +702,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -726,7 +733,7 @@ namespace WebAPI.Clients
 
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.PurchaseSettingsResponse webServiceResponse = null;
+            PurchaseSettingsResponse webServiceResponse = null;
 
             try
             {
@@ -737,7 +744,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -767,7 +774,7 @@ namespace WebAPI.Clients
 
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.PurchaseSettingsResponse webServiceResponse = null;
+            PurchaseSettingsResponse webServiceResponse = null;
 
             try
             {
@@ -778,7 +785,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -809,7 +816,7 @@ namespace WebAPI.Clients
 
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.PurchaseSettingsResponse webServiceResponse = null;
+            PurchaseSettingsResponse webServiceResponse = null;
 
             try
             {
@@ -820,7 +827,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -850,7 +857,7 @@ namespace WebAPI.Clients
 
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.PurchaseSettingsResponse webServiceResponse = null;
+            PurchaseSettingsResponse webServiceResponse = null;
 
             try
             {
@@ -861,7 +868,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -901,7 +908,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -935,7 +942,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -970,7 +977,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1005,7 +1012,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1030,7 +1037,7 @@ namespace WebAPI.Clients
 
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.Status response = null;
+            Status response = null;
 
             try
             {
@@ -1041,7 +1048,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1068,7 +1075,7 @@ namespace WebAPI.Clients
 
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.Status response = null;
+            Status response = null;
 
             try
             {
@@ -1079,7 +1086,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1106,7 +1113,7 @@ namespace WebAPI.Clients
 
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.Status response = null;
+            Status response = null;
 
             try
             {
@@ -1117,7 +1124,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1144,7 +1151,7 @@ namespace WebAPI.Clients
 
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.Status response = null;
+            Status response = null;
 
             try
             {
@@ -1155,7 +1162,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1197,7 +1204,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1235,7 +1242,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1274,7 +1281,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1312,7 +1319,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1346,7 +1353,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1370,7 +1377,7 @@ namespace WebAPI.Clients
         internal List<KalturaOSSAdapterBaseProfile> GetOSSAdapter(int groupId)
         {
             List<Models.API.KalturaOSSAdapterBaseProfile> KalturaOSSAdapterBaseProfileList = null;
-            WebAPI.Api.OSSAdapterResponseList response = null;
+            OSSAdapterResponseList response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -1404,7 +1411,7 @@ namespace WebAPI.Clients
 
         internal bool DeleteOSSAdapter(int groupId, int ossAdapterId)
         {
-            WebAPI.Api.Status response = null;
+            Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
             try
             {
@@ -1434,7 +1441,7 @@ namespace WebAPI.Clients
 
         internal KalturaOSSAdapterProfile InsertOSSAdapter(int groupId, KalturaOSSAdapterProfile ossAdapter)
         {
-            WebAPI.Api.OSSAdapterResponse response = null;
+            OSSAdapterResponse response = null;
             KalturaOSSAdapterProfile kalturaOSSAdapterProfile = null;
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -1443,7 +1450,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    WebAPI.Api.OSSAdapter request = Mapper.Map<WebAPI.Api.OSSAdapter>(ossAdapter);
+                    OSSAdapter request = Mapper.Map<OSSAdapter>(ossAdapter);
                     response = Api.InsertOSSAdapter(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
                 }
             }
@@ -1470,7 +1477,7 @@ namespace WebAPI.Clients
 
         internal KalturaOSSAdapterProfile SetOSSAdapter(int groupId, KalturaOSSAdapterProfile ossAdapter)
         {
-            WebAPI.Api.OSSAdapterResponse response = null;
+            OSSAdapterResponse response = null;
             KalturaOSSAdapterProfile kalturaOSSAdapterProfile = null;
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -1479,7 +1486,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    WebAPI.Api.OSSAdapter request = Mapper.Map<WebAPI.Api.OSSAdapter>(ossAdapter);
+                    OSSAdapter request = Mapper.Map<OSSAdapter>(ossAdapter);
                     response = Api.SetOSSAdapter(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
                 }
             }
@@ -1506,7 +1513,7 @@ namespace WebAPI.Clients
         internal List<KalturaOSSAdapterProfile> GetOSSAdapterSettings(int groupId)
         {
             List<Models.API.KalturaOSSAdapterProfile> KalturaOSSAdapterProfileList = null;
-            WebAPI.Api.OSSAdapterSettingsResponse response = null;
+            OSSAdapterSettingsResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
             try
@@ -1540,13 +1547,13 @@ namespace WebAPI.Clients
 
         internal bool DeleteOSSAdapterSettings(int groupId, int ossAdapterId, SerializableDictionary<string, KalturaStringValue> settings)
         {
-            WebAPI.Api.Status response = null;
+            Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    WebAPI.Api.OSSAdapterSettings[] request = ApiMappings.ConvertOSSAdapterSettings(settings);
+                    List<OSSAdapterSettings> request = ApiMappings.ConvertOSSAdapterSettings(settings);
                     response = Api.DeleteOSSAdapterSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, ossAdapterId, request);
                 }
             }
@@ -1571,14 +1578,14 @@ namespace WebAPI.Clients
 
         internal bool InsertOSSAdapterSettings(int groupId, int ossAdapterId, SerializableDictionary<string, KalturaStringValue> settings)
         {
-            WebAPI.Api.Status response = null;
+            Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    WebAPI.Api.OSSAdapterSettings[] request = ApiMappings.ConvertOSSAdapterSettings(settings);
+                    List<OSSAdapterSettings> request = ApiMappings.ConvertOSSAdapterSettings(settings);
                     response = Api.InsertOSSAdapterSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, ossAdapterId, request);
                 }
             }
@@ -1603,13 +1610,13 @@ namespace WebAPI.Clients
 
         internal bool SetOSSAdapterSettings(int groupId, int ossAdapterId, SerializableDictionary<string, KalturaStringValue> settings)
         {
-            WebAPI.Api.Status response = null;
+            Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    WebAPI.Api.OSSAdapterSettings[] configs = ApiMappings.ConvertOSSAdapterSettings(settings);
+                    List<OSSAdapterSettings> configs = ApiMappings.ConvertOSSAdapterSettings(settings);
                     response = Api.SetOSSAdapterSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, ossAdapterId, configs);
                 }
             }
@@ -1634,7 +1641,7 @@ namespace WebAPI.Clients
 
         internal KalturaOSSAdapterProfile GenerateOSSSharedSecret(int groupId, int ossAdapterId)
         {
-            WebAPI.Api.OSSAdapterResponse response = null;
+            OSSAdapterResponse response = null;
             KalturaOSSAdapterProfile kalturaOSSAdapterProfile = null;
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -1674,7 +1681,7 @@ namespace WebAPI.Clients
         internal List<KalturaRecommendationProfile> GetRecommendationEngines(int groupId)
         {
             List<Models.API.KalturaRecommendationProfile> kalturaRecommendationEngineProfile = null;
-            WebAPI.Api.RecommendationEnginesResponseList response = null;
+            RecommendationEnginesResponseList response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -1708,7 +1715,7 @@ namespace WebAPI.Clients
 
         internal bool DeleteRecommendationEngine(int groupId, int recommendatioEngineId)
         {
-            WebAPI.Api.Status response = null;
+            Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
             try
             {
@@ -1738,7 +1745,7 @@ namespace WebAPI.Clients
 
         internal KalturaRecommendationProfile InsertRecommendationEngine(int groupId, KalturaRecommendationProfile recommendationEngine)
         {
-            WebAPI.Api.RecommendationEngineResponse response = null;
+            RecommendationEngineResponse response = null;
             KalturaRecommendationProfile kalturaRecommendationEngineProfile = null;
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -1747,7 +1754,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    WebAPI.Api.RecommendationEngine request = Mapper.Map<WebAPI.Api.RecommendationEngine>(recommendationEngine);
+                    RecommendationEngine request = Mapper.Map<RecommendationEngine>(recommendationEngine);
                     response = Api.InsertRecommendationEngine(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
                 }
             }
@@ -1774,7 +1781,7 @@ namespace WebAPI.Clients
 
         internal KalturaRecommendationProfile SetRecommendationEngine(int groupId, int recommendationEngineId, KalturaRecommendationProfile recommendationEngine)
         {
-            WebAPI.Api.RecommendationEngineResponse response = null;
+            RecommendationEngineResponse response = null;
             KalturaRecommendationProfile kalturaRecommendationEngineProfile = null;
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -1783,7 +1790,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    WebAPI.Api.RecommendationEngine request = Mapper.Map<WebAPI.Api.RecommendationEngine>(recommendationEngine);
+                    RecommendationEngine request = Mapper.Map<RecommendationEngine>(recommendationEngine);
                     request.ID = recommendationEngineId;
                     response = Api.SetRecommendationEngine(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
                 }
@@ -1811,7 +1818,7 @@ namespace WebAPI.Clients
         internal List<KalturaRecommendationProfile> GetRecommendationEngineSettings(int groupId)
         {
             List<Models.API.KalturaRecommendationProfile> KalturaRecommendationEngineList = null;
-            WebAPI.Api.RecommendationEngineSettinsResponse response = null;
+            RecommendationEngineSettinsResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
             try
@@ -1845,13 +1852,13 @@ namespace WebAPI.Clients
 
         internal bool DeleteRecommendationEngineSettings(int groupId, int recommendationEngineId, SerializableDictionary<string, KalturaStringValue> settings)
         {
-            WebAPI.Api.Status response = null;
+            Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    WebAPI.Api.RecommendationEngineSettings[] request = ApiMappings.ConvertRecommendationEngineSettings(settings);
+                    List<RecommendationEngineSettings> request = ApiMappings.ConvertRecommendationEngineSettings(settings);
                     response = Api.DeleteRecommendationEngineSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, recommendationEngineId, request);
                 }
             }
@@ -1876,14 +1883,14 @@ namespace WebAPI.Clients
 
         internal bool InsertRecommendationEngineSettings(int groupId, int recommendationEngineId, SerializableDictionary<string, KalturaStringValue> settings)
         {
-            WebAPI.Api.Status response = null;
+            Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    WebAPI.Api.RecommendationEngineSettings[] request = ApiMappings.ConvertRecommendationEngineSettings(settings);
+                    List<RecommendationEngineSettings> request = ApiMappings.ConvertRecommendationEngineSettings(settings);
                     response = Api.InsertRecommendationEngineSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, recommendationEngineId, request);
                 }
             }
@@ -1908,13 +1915,13 @@ namespace WebAPI.Clients
 
         internal bool SetRecommendationEngineSettings(int groupId, int recommendationEngineId, SerializableDictionary<string, KalturaStringValue> settings)
         {
-            WebAPI.Api.Status response = null;
+            Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    WebAPI.Api.RecommendationEngineSettings[] configs = ApiMappings.ConvertRecommendationEngineSettings(settings);
+                    List<RecommendationEngineSettings> configs = ApiMappings.ConvertRecommendationEngineSettings(settings);
                     response = Api.SetRecommendationEngineSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, recommendationEngineId, configs);
                 }
             }
@@ -1939,7 +1946,7 @@ namespace WebAPI.Clients
 
         internal KalturaRecommendationProfile GeneratereRecommendationEngineSharedSecret(int groupId, int recommendationEngineId)
         {
-            WebAPI.Api.RecommendationEngineResponse response = null;
+            RecommendationEngineResponse response = null;
             KalturaRecommendationProfile kalturaRecommendationEngineProfile = null;
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -1977,7 +1984,7 @@ namespace WebAPI.Clients
         #region ExternalChannel
         internal KalturaExternalChannelProfile InsertExternalChannel(int groupId, KalturaExternalChannelProfile externalChannel)
         {
-            WebAPI.Api.ExternalChannelResponse response = null;
+            ExternalChannelResponse response = null;
             KalturaExternalChannelProfile kalturaExternalChannelProfile = null;
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -1986,7 +1993,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    WebAPI.Api.ExternalChannel request = Mapper.Map<WebAPI.Api.ExternalChannel>(externalChannel);
+                    ExternalChannel request = Mapper.Map<ExternalChannel>(externalChannel);
                     response = Api.InsertExternalChannel(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
                 }
             }
@@ -2013,7 +2020,7 @@ namespace WebAPI.Clients
 
         internal KalturaExternalChannelProfile SetExternalChannel(int groupId, KalturaExternalChannelProfile externalChannel)
         {
-            WebAPI.Api.ExternalChannelResponse response = null;
+            ExternalChannelResponse response = null;
             KalturaExternalChannelProfile kalturaExternalChannelProfile = null;
 
 
@@ -2023,7 +2030,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    WebAPI.Api.ExternalChannel request = Mapper.Map<WebAPI.Api.ExternalChannel>(externalChannel);
+                    ExternalChannel request = Mapper.Map<ExternalChannel>(externalChannel);
                     response = Api.SetExternalChannel(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
                 }
             }
@@ -2049,7 +2056,7 @@ namespace WebAPI.Clients
 
         internal bool DeleteExternalChannel(int groupId, int externalChannelId)
         {
-            WebAPI.Api.Status response = null;
+            Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
             try
             {
@@ -2080,7 +2087,7 @@ namespace WebAPI.Clients
         internal List<KalturaExternalChannelProfile> GetExternalChannels(int groupId)
         {
             List<Models.API.KalturaExternalChannelProfile> kalturaExternalChannelList = null;
-            WebAPI.Api.ExternalChannelResponseList response = null;
+            ExternalChannelResponseList response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -2130,12 +2137,12 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Api.AddBulkExportTask(group.ApiCredentials.Username, group.ApiCredentials.Password, externalKey, name, wsDataType, filter, wsExportType, frequency,
-                        notificationUrl, vodTypes != null ? vodTypes.ToArray() : null, isActive);
+                        notificationUrl, vodTypes != null ? vodTypes : null, isActive);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2162,20 +2169,20 @@ namespace WebAPI.Clients
 
             BulkExportTaskResponse response = null;
 
-            WebAPI.Api.eBulkExportExportType wsExportType = ApiMappings.ConvertExportType(exportType);
-            WebAPI.Api.eBulkExportDataType wsDataType = ApiMappings.ConvertExportDataType(dataType);
+            eBulkExportExportType wsExportType = ApiMappings.ConvertExportType(exportType);
+            eBulkExportDataType wsDataType = ApiMappings.ConvertExportDataType(dataType);
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Api.UpdateBulkExportTask(group.ApiCredentials.Username, group.ApiCredentials.Password, id, externalKey, name, wsDataType, filter, wsExportType, frequency,
-                        notificationUrl, vodTypes != null ? vodTypes.ToArray() : null, isActive);
+                        notificationUrl, vodTypes != null ? vodTypes : null, isActive);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2201,7 +2208,7 @@ namespace WebAPI.Clients
 
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.Status response = null;
+            Status response = null;
 
             try
             {
@@ -2212,7 +2219,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2233,7 +2240,7 @@ namespace WebAPI.Clients
             return success;
         }
 
-        internal List<Models.API.KalturaExportTask> GetBulkExportTasks(int groupId, long[] ids, string[] externalKeys, KalturaExportTaskOrderBy orderBy)
+        internal List<Models.API.KalturaExportTask> GetBulkExportTasks(int groupId, List<long> ids, List<string> externalKeys, KalturaExportTaskOrderBy orderBy)
         {
             List<Models.API.KalturaExportTask> tasks = new List<Models.API.KalturaExportTask>();
             BulkExportTasksResponse response = null;
@@ -2252,7 +2259,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2271,7 +2278,7 @@ namespace WebAPI.Clients
             return tasks;
         }
 
-        internal List<KalturaUserRole> GetRoles(string username, string password, long[] roleIds = null)
+        internal List<KalturaUserRole> GetRoles(string username, string password, List<long> roleIds = null)
         {
             List<KalturaUserRole> roles = new List<KalturaUserRole>();
             RolesResponse response = null;
@@ -2285,7 +2292,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2304,7 +2311,7 @@ namespace WebAPI.Clients
             return roles;
         }
 
-        public List<KalturaUserRole> GetRoles(int groupId, long[] roleIds = null)
+        public List<KalturaUserRole> GetRoles(int groupId, List<long> roleIds = null)
         {
             Group group = GroupsManager.GetGroup(groupId);
             return GetRoles(group.ApiCredentials.Username, group.ApiCredentials.Password, roleIds);
@@ -2323,7 +2330,7 @@ namespace WebAPI.Clients
             }
         }
 
-        internal List<KalturaPermission> GetPermissions(int groupId, long[] ids)
+        internal List<KalturaPermission> GetPermissions(int groupId, List<long> ids)
         {
             List<KalturaPermission> permissions = new List<KalturaPermission>();
             PermissionsResponse response = null;
@@ -2339,7 +2346,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2374,7 +2381,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2417,13 +2424,18 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.AddPermission(group.ApiCredentials.Username, group.ApiCredentials.Password, permission.Name,
-                        permission.PermissionItems != null ? permission.PermissionItems.Select(p => p.getId()).ToArray() : null, type, usersGroup, 0);
+                    List<long> permissionItemIds = null;
+                    if (permission.PermissionItems != null)
+                    {
+                        permissionItemIds = new List<long>();
+                        permissionItemIds.AddRange(permission.PermissionItems.Select(p => p.getId()));
+                    }
+                    response = Api.AddPermission(group.ApiCredentials.Username, group.ApiCredentials.Password, permission.Name, permissionItemIds, type, usersGroup, 0);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2448,7 +2460,7 @@ namespace WebAPI.Clients
 
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.Status response = null;
+            Status response = null;
 
             try
             {
@@ -2459,7 +2471,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2486,7 +2498,7 @@ namespace WebAPI.Clients
 
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.Status response = null;
+            Status response = null;
 
             try
             {
@@ -2497,7 +2509,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2522,7 +2534,7 @@ namespace WebAPI.Clients
         #region KSQL Channel
         internal KalturaChannel InsertKSQLChannel(int groupId, KalturaChannel channel)
         {
-            WebAPI.Api.KSQLChannelResponse response = null;
+            KSQLChannelResponse response = null;
             KalturaChannel profile = null;
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -2531,7 +2543,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    WebAPI.Api.KSQLChannel request = Mapper.Map<WebAPI.Api.KSQLChannel>(channel);
+                    KSQLChannel request = Mapper.Map<KSQLChannel>(channel);
                     response = Api.InsertKSQLChannel(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
                 }
             }
@@ -2557,7 +2569,7 @@ namespace WebAPI.Clients
 
         internal KalturaChannel SetKSQLChannel(int groupId, KalturaChannel channel)
         {
-            WebAPI.Api.KSQLChannelResponse response = null;
+            KSQLChannelResponse response = null;
             KalturaChannel profile = null;
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -2566,7 +2578,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    WebAPI.Api.KSQLChannel request = Mapper.Map<WebAPI.Api.KSQLChannel>(channel);
+                    KSQLChannel request = Mapper.Map<KSQLChannel>(channel);
                     response = Api.SetKSQLChannel(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
                 }
             }
@@ -2593,7 +2605,7 @@ namespace WebAPI.Clients
         [Obsolete]
         internal KalturaChannelProfile InsertKSQLChannelProfile(int groupId, KalturaChannelProfile channel)
         {
-            WebAPI.Api.KSQLChannelResponse response = null;
+            KSQLChannelResponse response = null;
             KalturaChannelProfile profile = null;
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -2602,7 +2614,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    WebAPI.Api.KSQLChannel request = Mapper.Map<WebAPI.Api.KSQLChannel>(channel);
+                    KSQLChannel request = Mapper.Map<KSQLChannel>(channel);
                     response = Api.InsertKSQLChannel(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
                 }
             }
@@ -2629,7 +2641,7 @@ namespace WebAPI.Clients
         [Obsolete]
         internal KalturaChannelProfile SetKSQLChannelProfile(int groupId, KalturaChannelProfile channel)
         {
-            WebAPI.Api.KSQLChannelResponse response = null;
+            KSQLChannelResponse response = null;
             KalturaChannelProfile profile = null;
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -2638,7 +2650,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    WebAPI.Api.KSQLChannel request = Mapper.Map<WebAPI.Api.KSQLChannel>(channel);
+                    KSQLChannel request = Mapper.Map<KSQLChannel>(channel);
                     response = Api.SetKSQLChannel(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
                 }
             }
@@ -2664,7 +2676,7 @@ namespace WebAPI.Clients
 
         internal bool DeleteKSQLChannel(int groupId, int channelId)
         {
-            WebAPI.Api.Status response = null;
+            Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
             try
             {
@@ -2695,7 +2707,7 @@ namespace WebAPI.Clients
         internal KalturaChannelProfile GetKSQLChannel(int groupId, int channelId)
         {
             KalturaChannelProfile profile = null;
-            WebAPI.Api.KSQLChannelResponse response = null;
+            KSQLChannelResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -2734,7 +2746,7 @@ namespace WebAPI.Clients
 
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Api.Status response = null;
+            Status response = null;
             int mediaId = 0;
             List<int> mediaIds = new List<int>();
 
@@ -2748,12 +2760,12 @@ namespace WebAPI.Clients
                              && int.TryParse(assetType.Id, out mediaId)).Select(x => int.Parse(x.Id)).ToList();
                     }
 
-                    response = Api.CleanUserHistory(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, mediaIds.ToArray());
+                    response = Api.CleanUserHistory(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, mediaIds);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2790,7 +2802,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2826,7 +2838,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2864,7 +2876,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2900,7 +2912,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2914,9 +2926,9 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            if (response.Adapters.Length > 0)
+            if (response.Adapters.Count > 0)
             {
-                result.TotalCount = response.Adapters.Length;
+                result.TotalCount = response.Adapters.Count;
                 result.Adapters = AutoMapper.Mapper.Map<List<KalturaCDNAdapterProfile>>(response.Adapters);
             }
 
@@ -2937,7 +2949,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -2973,7 +2985,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3011,7 +3023,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3046,7 +3058,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3081,7 +3093,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3117,7 +3129,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3149,12 +3161,12 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetRegions(group.ApiCredentials.Username, group.ApiCredentials.Password, externalIds != null ? externalIds.ToArray() : null, wsOrderBy);
+                    response = Api.GetRegions(group.ApiCredentials.Username, group.ApiCredentials.Password, externalIds != null ? externalIds : null, wsOrderBy);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3187,7 +3199,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3221,7 +3233,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3250,12 +3262,12 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetCountryList(group.ApiCredentials.Username, group.ApiCredentials.Password, countryIds.ToArray());
+                    response = Api.GetCountryList(group.ApiCredentials.Username, group.ApiCredentials.Password, countryIds);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3294,7 +3306,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3312,20 +3324,6 @@ namespace WebAPI.Clients
             result.TotalCount = response.MetaList.Count();
 
             return result;
-        }
-    }
-}
-
-namespace WebAPI.Api
-{
-    // adding request ID to header
-    public partial class API
-    {
-        protected override WebRequest GetWebRequest(Uri uri)
-        {
-            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
-            return request;
         }
     }
 }

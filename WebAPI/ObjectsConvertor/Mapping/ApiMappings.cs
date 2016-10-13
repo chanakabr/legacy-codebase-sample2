@@ -1,8 +1,13 @@
-﻿using AutoMapper;
+﻿using ApiObjects;
+using ApiObjects.BulkExport;
+using ApiObjects.CDNAdapter;
+using ApiObjects.Roles;
+using ApiObjects.Rules;
+using ApiObjects.SearchObjects;
+using ApiObjects.TimeShiftedTv;
+using AutoMapper;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using WebAPI.Api;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.API;
@@ -17,7 +22,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
         public static void RegisterMappings()
         {
             //Language 
-            Mapper.CreateMap<LanguageObj, Language>()
+            Mapper.CreateMap<LanguageObj, WebAPI.Managers.Models.Language>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
@@ -45,7 +50,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #region Parental Rules
 
             // ParentalRule
-            Mapper.CreateMap<WebAPI.Api.ParentalRule, WebAPI.Models.API.KalturaParentalRule>()
+            Mapper.CreateMap<ParentalRule, WebAPI.Models.API.KalturaParentalRule>()
                 .ForMember(dest => dest.blockAnonymousAccess, opt => opt.MapFrom(src => src.blockAnonymousAccess))
                 .ForMember(dest => dest.description, opt => opt.MapFrom(src => src.description))
                 .ForMember(dest => dest.epgTagTypeId, opt => opt.MapFrom(src => src.epgTagTypeId))
@@ -60,39 +65,39 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ruleType, opt => opt.MapFrom(src => ConvertParentalRuleType(src.ruleType)));
 
             // PinResponse
-            Mapper.CreateMap<WebAPI.Api.PinResponse, WebAPI.Models.API.KalturaPinResponse>()
+            Mapper.CreateMap<PinResponse, WebAPI.Models.API.KalturaPinResponse>()
                 .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
                 .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.parental));
 
             // Pin
-            Mapper.CreateMap<WebAPI.Api.PinResponse, WebAPI.Models.API.KalturaPin>()
+            Mapper.CreateMap<PinResponse, WebAPI.Models.API.KalturaPin>()
                 .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
                 .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.parental));
 
             // Purchase Settings
-            Mapper.CreateMap<WebAPI.Api.PurchaseSettingsResponse, WebAPI.Models.API.KalturaPurchaseSettings>()
+            Mapper.CreateMap<PurchaseSettingsResponse, WebAPI.Models.API.KalturaPurchaseSettings>()
                 .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
                 .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin))
                 .ForMember(dest => dest.Permission, opt => opt.MapFrom(src => ConvertPurchaseSetting(src.type)))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.purchase));
 
             // Purchase Settings Response
-            Mapper.CreateMap<WebAPI.Api.PurchaseSettingsResponse, WebAPI.Models.API.KalturaPurchaseSettingsResponse>()
+            Mapper.CreateMap<PurchaseSettingsResponse, WebAPI.Models.API.KalturaPurchaseSettingsResponse>()
                 .ForMember(dest => dest.Origin, opt => opt.MapFrom(src => ConvertRuleLevel(src.level)))
                 .ForMember(dest => dest.PIN, opt => opt.MapFrom(src => src.pin))
                 .ForMember(dest => dest.PurchaseSettingsType, opt => opt.MapFrom(src => ConvertPurchaseSetting(src.type)))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPinType.purchase));
 
-            Mapper.CreateMap<WebAPI.Api.GenericRule, WebAPI.Models.API.KalturaGenericRule>()
+            Mapper.CreateMap<GenericRule, WebAPI.Models.API.KalturaGenericRule>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.RuleType, opt => opt.MapFrom(src => ConvertRuleType(src.RuleType)));
 
             //KalturaUserAssetRule
-            Mapper.CreateMap<WebAPI.Api.GenericRule, KalturaUserAssetRule>()
+            Mapper.CreateMap<GenericRule, KalturaUserAssetRule>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
@@ -353,7 +358,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #region CDN Adapter
 
-            Mapper.CreateMap<KalturaCDNAdapterProfile, WebAPI.Api.CDNAdapter>()
+            Mapper.CreateMap<KalturaCDNAdapterProfile, CDNAdapter>()
                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
@@ -363,7 +368,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
                .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
 
-            Mapper.CreateMap<WebAPI.Api.CDNAdapter, KalturaCDNAdapterProfile>()
+            Mapper.CreateMap<CDNAdapter, KalturaCDNAdapterProfile>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
@@ -449,11 +454,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return (KalturaApiParameterPermissionItemAction)Enum.Parse(typeof(KalturaApiParameterPermissionItemAction), action);
         }
 
-        private static List<KalturaPermissionItem> ConvertPermissionItems(PermissionItem[] permissionItems)
+        private static List<KalturaPermissionItem> ConvertPermissionItems(List<PermissionItem> permissionItems)
         {
             List<KalturaPermissionItem> result = null;
 
-            if (permissionItems != null && permissionItems.Length > 0)
+            if (permissionItems != null && permissionItems.Count > 0)
             {
                 result = new List<KalturaPermissionItem>();
 
@@ -484,11 +489,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static List<KalturaPermission> ConvertPermissions(Permission[] permissions)
+        private static List<KalturaPermission> ConvertPermissions(List<Permission> permissions)
         {
             List<KalturaPermission> result = null;
 
-            if (permissions != null && permissions.Length > 0)
+            if (permissions != null && permissions.Count > 0)
             {
                 result = new List<KalturaPermission>();
 
@@ -512,11 +517,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static List<KalturaChannelEnrichmentHolder> ConvertEnrichments(ExternalRecommendationEngineEnrichment[] list)
+        private static List<KalturaChannelEnrichmentHolder> ConvertEnrichments(List<ExternalRecommendationEngineEnrichment> list)
         {
             List<KalturaChannelEnrichmentHolder> result = null;
 
-            if (list != null && list.Length > 0)
+            if (list != null && list.Count > 0)
             {
                 result = new List<KalturaChannelEnrichmentHolder>();
 
@@ -655,14 +660,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        internal static Dictionary<string, KalturaStringValue> ConvertRecommendationEngineSettings(RecommendationEngineSettings[] settings)
+        internal static Dictionary<string, KalturaStringValue> ConvertRecommendationEngineSettings(List<RecommendationEngineSettings> settings)
         {
             if (settings == null)
                 return null;
 
             Dictionary<string, KalturaStringValue> result = null;
 
-            if (settings.Count() > 0)
+            if (settings.Count > 0)
             {
                 result = new Dictionary<string, KalturaStringValue>();
                 foreach (var data in settings)
@@ -676,22 +681,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        internal static RecommendationEngineSettings[] ConvertRecommendationEngineSettings(SerializableDictionary<string, KalturaStringValue> settings)
+        internal static List<RecommendationEngineSettings> ConvertRecommendationEngineSettings(SerializableDictionary<string, KalturaStringValue> settings)
         {
             if (settings == null)
                 return null;
 
-            List<Api.RecommendationEngineSettings> result = null;
+            List<RecommendationEngineSettings> result = null;
 
             if (settings.Count > 0)
             {
                 result = new List<RecommendationEngineSettings>();
-                Api.RecommendationEngineSettings pc;
+                RecommendationEngineSettings pc;
                 foreach (KeyValuePair<string, KalturaStringValue> data in settings)
                 {
                     if (!string.IsNullOrEmpty(data.Key))
                     {
-                        pc = new Api.RecommendationEngineSettings();
+                        pc = new RecommendationEngineSettings();
                         pc.key = data.Key;
                         pc.value = data.Value.value;
                         result.Add(pc);
@@ -700,7 +705,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
             if (result != null && result.Count > 0)
             {
-                return result.ToArray();
+                return result;
             }
             else
             {
@@ -708,19 +713,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
         }
 
-        private static WebAPI.Models.API.KalturaParentalRuleType ConvertParentalRuleType(WebAPI.Api.eParentalRuleType type)
+        private static WebAPI.Models.API.KalturaParentalRuleType ConvertParentalRuleType(eParentalRuleType type)
         {
             WebAPI.Models.API.KalturaParentalRuleType result = WebAPI.Models.API.KalturaParentalRuleType.ALL;
 
             switch (type)
             {
-                case WebAPI.Api.eParentalRuleType.All:
+                case eParentalRuleType.All:
                     result = WebAPI.Models.API.KalturaParentalRuleType.ALL;
                     break;
-                case WebAPI.Api.eParentalRuleType.Movies:
+                case eParentalRuleType.Movies:
                     result = WebAPI.Models.API.KalturaParentalRuleType.MOVIES;
                     break;
-                case WebAPI.Api.eParentalRuleType.TVSeries:
+                case eParentalRuleType.TVSeries:
                     result = WebAPI.Models.API.KalturaParentalRuleType.TV_SERIES;
                     break;
                 default:
@@ -730,19 +735,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static WebAPI.Models.API.KalturaRuleLevel ConvertRuleLevel(WebAPI.Api.eRuleLevel? type)
+        private static WebAPI.Models.API.KalturaRuleLevel ConvertRuleLevel(eRuleLevel? type)
         {
             WebAPI.Models.API.KalturaRuleLevel result = WebAPI.Models.API.KalturaRuleLevel.invalid;
 
             switch (type)
             {
-                case WebAPI.Api.eRuleLevel.User:
+                case eRuleLevel.User:
                     result = WebAPI.Models.API.KalturaRuleLevel.user;
                     break;
-                case WebAPI.Api.eRuleLevel.Domain:
+                case eRuleLevel.Domain:
                     result = WebAPI.Models.API.KalturaRuleLevel.household;
                     break;
-                case WebAPI.Api.eRuleLevel.Group:
+                case eRuleLevel.Group:
                     result = WebAPI.Models.API.KalturaRuleLevel.account;
                     break;
                 default:
@@ -753,7 +758,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static WebAPI.Models.API.KalturaPurchaseSettingsType? ConvertPurchaseSetting(WebAPI.Api.ePurchaeSettingsType? type)
+        private static WebAPI.Models.API.KalturaPurchaseSettingsType? ConvertPurchaseSetting(ePurchaeSettingsType? type)
         {
             WebAPI.Models.API.KalturaPurchaseSettingsType result = WebAPI.Models.API.KalturaPurchaseSettingsType.block;
 
@@ -764,13 +769,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             switch (type)
             {
-                case WebAPI.Api.ePurchaeSettingsType.Allow:
+                case ePurchaeSettingsType.Allow:
                     result = WebAPI.Models.API.KalturaPurchaseSettingsType.allow;
                     break;
-                case WebAPI.Api.ePurchaeSettingsType.Ask:
+                case ePurchaeSettingsType.Ask:
                     result = WebAPI.Models.API.KalturaPurchaseSettingsType.ask;
                     break;
-                case WebAPI.Api.ePurchaeSettingsType.Block:
+                case ePurchaeSettingsType.Block:
                     result = WebAPI.Models.API.KalturaPurchaseSettingsType.block;
                     break;
                 default:
@@ -781,7 +786,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static WebAPI.Models.API.KalturaRuleType ConvertRuleType(WebAPI.Api.RuleType type)
+        private static WebAPI.Models.API.KalturaRuleType ConvertRuleType(RuleType type)
         {
             WebAPI.Models.API.KalturaRuleType result;
 
@@ -806,11 +811,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        internal static Dictionary<string, int> ConvertErrorsDictionary(KeyValuePair[] errors)
+        internal static Dictionary<string, int> ConvertErrorsDictionary(List<KeyValuePair> errors)
         {
             Dictionary<string, int> result = new Dictionary<string, int>();
 
-            foreach (var item in errors)
+            foreach (KeyValuePair item in errors)
             {
                 if (!result.ContainsKey(item.key))
                 {
@@ -821,19 +826,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        internal static OSSAdapterSettings[] ConvertOSSAdapterSettings(SerializableDictionary<string, KalturaStringValue> settings)
+        internal static List<OSSAdapterSettings> ConvertOSSAdapterSettings(SerializableDictionary<string, KalturaStringValue> settings)
         {
-            List<Api.OSSAdapterSettings> result = null;
+            List<OSSAdapterSettings> result = null;
 
             if (settings != null && settings.Count > 0)
             {
                 result = new List<OSSAdapterSettings>();
-                Api.OSSAdapterSettings pc;
+                OSSAdapterSettings pc;
                 foreach (KeyValuePair<string, KalturaStringValue> data in settings)
                 {
                     if (!string.IsNullOrEmpty(data.Key))
                     {
-                        pc = new Api.OSSAdapterSettings();
+                        pc = new OSSAdapterSettings();
                         pc.key = data.Key;
                         pc.value = data.Value.value;
                         result.Add(pc);
@@ -842,7 +847,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
             if (result != null && result.Count > 0)
             {
-                return result.ToArray();
+                return result;
             }
             else
             {
@@ -850,11 +855,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
         }
 
-        public static Dictionary<string, KalturaStringValue> ConvertOSSAdapterSettings(Api.OSSAdapterSettings[] settings)
+        public static Dictionary<string, KalturaStringValue> ConvertOSSAdapterSettings(List<OSSAdapterSettings> settings)
         {
             Dictionary<string, KalturaStringValue> result = null;
 
-            if (settings != null && settings.Count() > 0)
+            if (settings != null && settings.Count > 0)
             {
                 result = new Dictionary<string, KalturaStringValue>();
                 foreach (var data in settings)
@@ -868,7 +873,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static WebAPI.Models.API.KalturaExportDataType ConvertExportDataType(WebAPI.Api.eBulkExportDataType type)
+        private static WebAPI.Models.API.KalturaExportDataType ConvertExportDataType(eBulkExportDataType type)
         {
             WebAPI.Models.API.KalturaExportDataType result;
 
@@ -890,7 +895,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static WebAPI.Models.API.KalturaExportType ConvertExportType(WebAPI.Api.eBulkExportExportType type)
+        private static WebAPI.Models.API.KalturaExportType ConvertExportType(eBulkExportExportType type)
         {
             WebAPI.Models.API.KalturaExportType result;
 
@@ -1181,19 +1186,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return ConvertOrderObjToAssetOrder(orderObj.m_eOrderBy, orderObj.m_eOrderDir);
         }
 
-        public static WebAPI.Api.CDNAdapterSettings[] ConvertCDNAdapterSettings(SerializableDictionary<string, KalturaStringValue> settings)
+        public static CDNAdapterSettings[] ConvertCDNAdapterSettings(SerializableDictionary<string, KalturaStringValue> settings)
         {
-            List<WebAPI.Api.CDNAdapterSettings> result = null;
+            List<CDNAdapterSettings> result = null;
 
             if (settings != null && settings.Count > 0)
             {
-                result = new List<WebAPI.Api.CDNAdapterSettings>();
-                WebAPI.Api.CDNAdapterSettings pc;
+                result = new List<CDNAdapterSettings>();
+                CDNAdapterSettings pc;
                 foreach (KeyValuePair<string, KalturaStringValue> data in settings)
                 {
                     if (!string.IsNullOrEmpty(data.Key))
                     {
-                        pc = new WebAPI.Api.CDNAdapterSettings();
+                        pc = new CDNAdapterSettings();
                         pc.key = data.Key;
                         pc.value = data.Value.value;
                         result.Add(pc);
@@ -1210,11 +1215,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
         }
 
-        public static Dictionary<string, KalturaStringValue> ConvertCDNAdapterSettings(WebAPI.Api.CDNAdapterSettings[] settings)
+        public static Dictionary<string, KalturaStringValue> ConvertCDNAdapterSettings(List<CDNAdapterSettings> settings)
         {
             Dictionary<string, KalturaStringValue> result = null;
 
-            if (settings != null && settings.Count() > 0)
+            if (settings != null && settings.Count > 0)
             {
                 result = new Dictionary<string, KalturaStringValue>();
                 foreach (var data in settings)
@@ -1306,25 +1311,25 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return response;
         }
 
-        private static KalturaMetaType ConvertMetaType(MetaType metaType)
+        private static KalturaMetaType ConvertMetaType(ApiObjects.MetaType metaType)
         {
             KalturaMetaType response;
 
             switch (metaType)
             {
-                case MetaType.String:
+                case ApiObjects.MetaType.String:
                     response = KalturaMetaType.STRING;
                     break;
-                case MetaType.Number:
+                case ApiObjects.MetaType.Number:
                     response = KalturaMetaType.NUMBER;
                     break;
-                case MetaType.Bool:
+                case ApiObjects.MetaType.Bool:
                     response = KalturaMetaType.BOOLEAN;
                     break;
-                case MetaType.Tag:
+                case ApiObjects.MetaType.Tag:
                     response = KalturaMetaType.STRING_ARRAY;
                     break;
-                case MetaType.All:
+                case ApiObjects.MetaType.All:
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown meta type");
             }
@@ -1379,26 +1384,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
             return response;
         }
-        
-        internal static MetaType ConvertMetaType(KalturaMetaType? metaType)
+
+        internal static ApiObjects.MetaType ConvertMetaType(KalturaMetaType? metaType)
         {
-            MetaType response;
+            ApiObjects.MetaType response;
 
             if (metaType.HasValue)
             {
                 switch (metaType.Value)
                 {
                     case KalturaMetaType.STRING:
-                        response = MetaType.String;
+                        response = ApiObjects.MetaType.String;
                         break;
                     case KalturaMetaType.NUMBER:
-                        response = MetaType.Number;
+                        response = ApiObjects.MetaType.Number;
                         break;
                     case KalturaMetaType.BOOLEAN:
-                        response = MetaType.Bool;
+                        response = ApiObjects.MetaType.Bool;
                         break;
                     case KalturaMetaType.STRING_ARRAY:
-                        response = MetaType.Tag;
+                        response = ApiObjects.MetaType.Tag;
                         break;
                     default:
                         throw new ClientException((int)StatusCode.Error, "Unknown meta type");
@@ -1406,7 +1411,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
             else
             {
-                response = MetaType.All;
+                response = ApiObjects.MetaType.All;
             }
             return response;
         }

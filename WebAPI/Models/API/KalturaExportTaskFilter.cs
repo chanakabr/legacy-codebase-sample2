@@ -31,7 +31,7 @@ namespace WebAPI.Models.API
             return KalturaExportTaskOrderBy.CREATE_DATE_ASC;
         }
 
-        internal long[] getIdIn()
+        internal List<long> getIdIn()
         {
             if (string.IsNullOrEmpty(IdIn))
                 return null;
@@ -51,7 +51,7 @@ namespace WebAPI.Models.API
                 }
             }
 
-            return values.ToArray();
+            return values;
         }
     }
 }
