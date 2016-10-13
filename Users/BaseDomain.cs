@@ -1308,9 +1308,9 @@ namespace Users
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 bool bRes = oDomainCache.RemoveDLM(nDlmID);
                 if (bRes)
-                    resp.Code = (int)eResponseStatus.OK;
+                    resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 else
-                    resp.Code = (int)eResponseStatus.DlmNotExist;
+                    resp = new ApiObjects.Response.Status((int)eResponseStatus.DlmNotExist, "Dlm Not Exist");
 
                 return resp;
             }
@@ -1336,7 +1336,7 @@ namespace Users
                 {
                     if (domain.m_nLimit == dlmID) // noo need to change anything
                     {
-                        oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, string.Empty);
+                        oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
                     else
                     {
@@ -1344,7 +1344,7 @@ namespace Users
                         bool bDLM = oDomainsCache.GetDLM(dlmID, nGroupID, out oLimitationsManager);
                         if (!bDLM || oLimitationsManager == null)
                         {
-                            oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.DlmNotExist, string.Empty);
+                            oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.DlmNotExist, "Domain Not Exists");
                         }
                         else // start compare between two DLMs
                         {
@@ -1355,7 +1355,7 @@ namespace Users
                 }
                 else
                 {
-                    oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.DomainNotExists, string.Empty);
+                    oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.DomainNotExists, "Domain Not Exists");
                 }
 
                 return oChangeDLMObj;
@@ -1380,12 +1380,11 @@ namespace Users
                 if (bDLM && dlmObj != null)
                 {
                     oDLMResponse.dlm = dlmObj;
-                    oDLMResponse.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, string.Empty);
+                    oDLMResponse.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
-
                 else
                 {
-                    oDLMResponse.resp = new ApiObjects.Response.Status((int)eResponseStatus.DlmNotExist, string.Empty);
+                    oDLMResponse.resp = new ApiObjects.Response.Status((int)eResponseStatus.DlmNotExist, "Dlm Not Exist");
                 }
 
                 return oDLMResponse;
@@ -1393,7 +1392,7 @@ namespace Users
             catch (Exception ex)
             {
                 log.Error("GetDLM - " + string.Format("failed to GetDLM DlmID = {0}, nGroupID = {1}, ex = {2}", nDlmID, nGroupID, ex.Message), ex);
-                oDLMResponse.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
+                oDLMResponse.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 return oDLMResponse;
             }
         }
