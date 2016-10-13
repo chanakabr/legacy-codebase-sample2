@@ -25,7 +25,7 @@ namespace WebAPI.Controllers
         /// <param name="tag">Tag</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: IllegalQueryParams = 12001, Registered = 12006, VersionNotFound = 12007</remarks>        
-        [Route("serve"), HttpPost]
+        [Route("serveByDevice"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.IllegalQueryParams)]
