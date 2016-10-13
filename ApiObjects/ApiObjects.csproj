@@ -381,6 +381,8 @@
     <Compile Include="TimeShiftedTv\DomainQuotaResponse.cs" />
     <Compile Include="TimeShiftedTv\DomainSeriesRecording.cs" />
     <Compile Include="TimeShiftedTv\QuotaManagementModel.cs" />
+    <Compile Include="TimeShiftedTv\ScheduledRecordingAsset.cs" />
+    <Compile Include="TimeShiftedTv\ScheduledRecordingAssetResponse.cs" />
     <Compile Include="TimeShiftedTv\SearchableRecording.cs" />
     <Compile Include="TimeShiftedTv\UserRecording.cs" />
     <Compile Include="TimeShiftedTv\RecordingCB.cs" />

@@ -150,6 +150,7 @@
     <Compile Include="Request\AssetsBookmarksRequestData.cs" />
     <Compile Include="Request\ExtendedSearchRequest.cs" />
     <Compile Include="Request\CountryRequest.cs" />
+    <Compile Include="Request\ScheduledRecordingsRequest.cs" />
     <Compile Include="Response\AssetCommentResponse.cs" />
     <Compile Include="Response\AssetCommentsListResponse.cs" />
     <Compile Include="Response\AssetsBookmarksResponse.cs" />
@@ -656,10 +657,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>Catalog_api_API</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost:82/ws_cas/module.asmx">
+    <WebReferenceUrl Include="http://localhost/WS_ConditionalAccess/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\ws_cas\</RelPath>
-      <UpdateFromURL>http://localhost:82/ws_cas/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/WS_ConditionalAccess/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

@@ -42,6 +42,7 @@ namespace Catalog.Request
         [ServiceKnownType(typeof(MediaRelatedExternalRequest))]
         [ServiceKnownType(typeof(MediaSearchExternalRequest))]
         [ServiceKnownType(typeof(AssetCommentAddRequest))]
+        [ServiceKnownType(typeof(ScheduledRecordingsRequest))]
 
         [OperationContract]
         BaseResponse GetResponse(BaseRequest oBaseRequest);

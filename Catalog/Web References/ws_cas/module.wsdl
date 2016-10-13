@@ -804,6 +804,7 @@
             <s:element minOccurs="1" maxOccurs="1" name="pageIndex" type="s:int" />
             <s:element minOccurs="1" maxOccurs="1" name="pageSize" type="s:int" />
             <s:element minOccurs="0" maxOccurs="1" name="orderBy" type="tns:OrderObj" />
+            <s:element minOccurs="1" maxOccurs="1" name="shouldIgnorePaging" type="s:boolean" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1270,6 +1271,23 @@
           <s:element minOccurs="1" maxOccurs="1" name="EpgId" type="s:long" />
         </s:sequence>
       </s:complexType>
+      <s:element name="BulkRecoveryForRenewSubscriptions">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="endDateStartRange" type="s:dateTime" />
+            <s:element minOccurs="1" maxOccurs="1" name="endDateEndRange" type="s:dateTime" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="BulkRecoveryForRenewSubscriptionsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="BulkRecoveryForRenewSubscriptionsResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="GetUserPermittedItems">
         <s:complexType>
           <s:sequence>
@@ -3642,10 +3660,10 @@
       <s:element name="LicensedLinkResponse" nillable="true" type="tns:LicensedLinkResponse" />
       <s:element name="KeyValuePair" nillable="true" type="tns:KeyValuePair" />
       <s:element name="ArrayOfSearchableRecording" nillable="true" type="tns:ArrayOfSearchableRecording" />
+      <s:element name="string" nillable="true" type="s:string" />
       <s:element name="ArrayOfPermittedMediaContainer" nillable="true" type="tns:ArrayOfPermittedMediaContainer" />
       <s:element name="PermittedMediaContainerResponse" nillable="true" type="tns:PermittedMediaContainerResponse" />
       <s:element name="UserCAStatus" type="tns:UserCAStatus" />
-      <s:element name="string" nillable="true" type="s:string" />
       <s:element name="ArrayOfPermittedSubscriptionContainer" nillable="true" type="tns:ArrayOfPermittedSubscriptionContainer" />
       <s:element name="ArrayOfPermittedCollectionContainer" nillable="true" type="tns:ArrayOfPermittedCollectionContainer" />
       <s:element name="ArrayOfUserBillingTransactionsResponse" nillable="true" type="tns:ArrayOfUserBillingTransactionsResponse" />
@@ -4230,6 +4248,12 @@
   </wsdl:message>
   <wsdl:message name="GetDomainSearchableRecordingsSoapOut">
     <wsdl:part name="parameters" element="tns:GetDomainSearchableRecordingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="BulkRecoveryForRenewSubscriptionsSoapIn">
+    <wsdl:part name="parameters" element="tns:BulkRecoveryForRenewSubscriptions" />
+  </wsdl:message>
+  <wsdl:message name="BulkRecoveryForRenewSubscriptionsSoapOut">
+    <wsdl:part name="parameters" element="tns:BulkRecoveryForRenewSubscriptionsResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsSoapIn">
     <wsdl:part name="parameters" element="tns:GetUserPermittedItems" />
@@ -5149,6 +5173,15 @@
   </wsdl:message>
   <wsdl:message name="GetDomainSearchableRecordingsHttpPostOut">
     <wsdl:part name="Body" element="tns:ArrayOfSearchableRecording" />
+  </wsdl:message>
+  <wsdl:message name="BulkRecoveryForRenewSubscriptionsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="endDateStartRange" type="s:string" />
+    <wsdl:part name="endDateEndRange" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="BulkRecoveryForRenewSubscriptionsHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -6415,6 +6448,10 @@
       <wsdl:input message="tns:GetDomainSearchableRecordingsSoapIn" />
       <wsdl:output message="tns:GetDomainSearchableRecordingsSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="BulkRecoveryForRenewSubscriptions">
+      <wsdl:input message="tns:BulkRecoveryForRenewSubscriptionsSoapIn" />
+      <wsdl:output message="tns:BulkRecoveryForRenewSubscriptionsSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsSoapIn" />
       <wsdl:output message="tns:GetUserPermittedItemsSoapOut" />
@@ -6924,6 +6961,10 @@
     <wsdl:operation name="GetDomainSearchableRecordings">
       <wsdl:input message="tns:GetDomainSearchableRecordingsHttpPostIn" />
       <wsdl:output message="tns:GetDomainSearchableRecordingsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="BulkRecoveryForRenewSubscriptions">
+      <wsdl:input message="tns:BulkRecoveryForRenewSubscriptionsHttpPostIn" />
+      <wsdl:output message="tns:BulkRecoveryForRenewSubscriptionsHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsHttpPostIn" />
@@ -7664,6 +7705,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetDomainSearchableRecordings">
       <soap:operation soapAction="http://ca.tvinci.com/GetDomainSearchableRecordings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="BulkRecoveryForRenewSubscriptions">
+      <soap:operation soapAction="http://ca.tvinci.com/BulkRecoveryForRenewSubscriptions" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -8871,6 +8921,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="BulkRecoveryForRenewSubscriptions">
+      <soap12:operation soapAction="http://ca.tvinci.com/BulkRecoveryForRenewSubscriptions" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <soap12:operation soapAction="http://ca.tvinci.com/GetUserPermittedItems" style="document" />
       <wsdl:input>
@@ -10017,6 +10076,15 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="BulkRecoveryForRenewSubscriptions">
+      <http:operation location="/BulkRecoveryForRenewSubscriptions" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <http:operation location="/GetUserPermittedItems" />
       <wsdl:input>
@@ -10740,13 +10808,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://localhost:82/ws_cas/module.asmx" />
+      <soap:address location="http://localhost/WS_ConditionalAccess/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://localhost:82/ws_cas/module.asmx" />
+      <soap12:address location="http://localhost/WS_ConditionalAccess/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://localhost:82/ws_cas/module.asmx" />
+      <http:address location="http://localhost/WS_ConditionalAccess/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
