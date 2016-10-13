@@ -2026,9 +2026,77 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaAssetListResponse GetScheduledRecordingAssets(int groupId, string userID, int domainId, List<long> list, int p1, int p2, KalturaAssetOrderBy kalturaAssetOrderBy, KalturaScheduledRecordingAssetType kalturaScheduledRecordingAssetType)
+        internal KalturaAssetListResponse GetScheduledRecordingAssets(int groupId, string userID, int domainId, string udid, string language, List<long> channelIdsToFilter, int pageIndex, int? pageSize,
+                                                                        long? startDateToFilter, long? endDateToFilter, KalturaAssetOrderBy? orderBy, KalturaScheduledRecordingAssetType scheduledRecordingType)
         {
-            throw new NotImplementedException();
+            KalturaAssetListResponse result = new KalturaAssetListResponse();
+
+            // Create catalog order object
+            OrderObj order = new OrderObj();
+            if (orderBy == null)
+            {
+                order.m_eOrderBy = OrderBy.NONE;
+            }
+            else
+            {
+                order = CatalogConvertor.ConvertOrderToOrderObj(orderBy.Value);
+            }
+
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
+
+            // build request
+            ScheduledRecordingsRequest request = new ScheduledRecordingsRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_bUseStartDate = group.UseStartDate,
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
+                },
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize.Value,
+                m_sSiteGuid = userID,
+                domainId = domainId,
+                orderBy = order,                
+                m_dServerTime = getServerTime(),
+                channelIds = channelIdsToFilter,
+                scheduledRecordingAssetType = CatalogMappings.ConvertKalturaScheduledRecordingAssetType(scheduledRecordingType),
+                startDate = startDateToFilter.HasValue ? SerializationUtils.ConvertFromUnixTimestamp(startDateToFilter.Value) : new DateTime?(),
+                endDate = endDateToFilter.HasValue ? SerializationUtils.ConvertFromUnixTimestamp(endDateToFilter.Value) : new DateTime?()
+
+            };
+
+            // fire request
+            UnifiedSearchResponse scheduledRecordingResponse = new UnifiedSearchResponse();
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(CatalogClientModule, request, out scheduledRecordingResponse))
+            {
+                // general error
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (scheduledRecordingResponse.status.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(scheduledRecordingResponse.status.Code, scheduledRecordingResponse.status.Message);
+            }
+
+            if (scheduledRecordingResponse.searchResults != null && scheduledRecordingResponse.searchResults.Count > 0)
+            {
+                // get base objects list
+                List<BaseObject> assetsBaseDataList = scheduledRecordingResponse.searchResults.Select(x => x as BaseObject).ToList();
+
+                // get assets from catalog/cache
+                result.Objects = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration);
+                result.TotalCount = scheduledRecordingResponse.m_nTotalItems;
+            }
+
+            return result;
         }
     }
 }

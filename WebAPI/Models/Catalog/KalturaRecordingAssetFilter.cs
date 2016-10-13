@@ -9,7 +9,7 @@ using WebAPI.Models.ConditionalAccess;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaScheduledRecordingAssetFilter : KalturaAssetFilter
+    public class KalturaScheduledRecordingProgramFilter : KalturaAssetFilter
     {
 
         /// <summary>
@@ -27,6 +27,22 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "channelsIn")]
         [XmlArray(ElementName = "channelsIn", IsNullable = true)]
         public string ChannelsIn { get; set; }
+
+        /// <summary>
+        /// start date
+        /// </summary>
+        [DataMember(Name = "startDateGreaterThanOrNull")]
+        [JsonProperty(PropertyName = "startDateGreaterThanOrNull")]
+        [XmlElement(ElementName = "startDateGreaterThanOrNull", IsNullable = true)]
+        public long? StartDateGreaterThanOrNull { get; set; }
+
+        /// <summary>
+        /// end date
+        /// </summary>
+        [DataMember(Name = "endDateLessThanOrNull")]
+        [JsonProperty(PropertyName = "endDateLessThanOrNull")]
+        [XmlElement(ElementName = "endDateLessThanOrNull", IsNullable = true)]
+        public long? EndDateLessThanOrNull { get; set; }
 
         public List<long> ConvertChannelsIn()
         {

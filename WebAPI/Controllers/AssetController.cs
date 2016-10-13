@@ -229,11 +229,11 @@ namespace WebAPI.Controllers
                        pager.getPageIndex(), pager.PageSize, bundleFilter.IdEqual, bundleFilter.OrderBy, bundleFilter.getTypeIn(), bundleFilter.BundleTypeEqual);
                 }
                 // returns assets that are scheduled to be recorded
-                else if (filter is KalturaScheduledRecordingAssetFilter)
+                else if (filter is KalturaScheduledRecordingProgramFilter)
                 {
-                    KalturaScheduledRecordingAssetFilter scheduledRecordingFilter = (KalturaScheduledRecordingAssetFilter)filter;
-                    response = ClientsManager.CatalogClient().GetScheduledRecordingAssets(groupId, userID, domainId, scheduledRecordingFilter.ConvertChannelsIn(), pager.getPageIndex(), pager.getPageSize(),
-                                                                                                       scheduledRecordingFilter.OrderBy, scheduledRecordingFilter.RecordingTypeEqual);
+                    KalturaScheduledRecordingProgramFilter scheduledRecordingFilter = (KalturaScheduledRecordingProgramFilter)filter;
+                    response = ClientsManager.CatalogClient().GetScheduledRecordingAssets(groupId, userID, domainId, udid, language, scheduledRecordingFilter.ConvertChannelsIn(), pager.getPageIndex(), 
+                                    pager.getPageSize(), scheduledRecordingFilter.StartDateGreaterThanOrNull, scheduledRecordingFilter.EndDateLessThanOrNull, scheduledRecordingFilter.OrderBy, scheduledRecordingFilter.RecordingTypeEqual);
                 }
                 else
                 {
