@@ -1,12 +1,9 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.DMS
 {
-    public class BaseReport
-    {
-    }
-
     [JsonObject]
     public class DMSDevice : BaseReport
     {

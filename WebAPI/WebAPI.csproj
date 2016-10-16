@@ -1018,8 +1018,8 @@
     <Compile Include="Models\API\KalturaCountryFilter.cs" />
     <Compile Include="Models\API\KalturaCountryListResponse.cs" />
     <Compile Include="Models\API\KalturaCountryOrderBy.cs" />
-    <Compile Include="Models\API\KalturaMetaType.cs" />    
-    <Compile Include="Models\DMS\KalturaDeviceReportFilter.cs" />    
+    <Compile Include="Models\API\KalturaMetaType.cs" />
+    <Compile Include="Models\DMS\KalturaDeviceReportFilter.cs" />
     <Compile Include="Models\DMS\KalturaDeviceReport.cs" />
     <Compile Include="Models\DMS\KalturaConfigurationGroupTagFilter.cs" />
     <Compile Include="Models\DMS\DMSConfigurationListResponse.cs" />
@@ -1273,6 +1273,7 @@
     <Compile Include="Models\Domains\KalturaHouseholdFrequencyType.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdLimitations.cs" />
     <Compile Include="Models\Domains\KalturaDevicePin.cs" />
+    <Compile Include="Models\General\BaseReport.cs" />
     <Compile Include="Models\General\KalturaApiArgumentPermissionItem.cs" />
     <Compile Include="Models\General\KalturaApiParameterPermissionItem.cs" />
     <Compile Include="Models\General\KalturaFilter.cs" />

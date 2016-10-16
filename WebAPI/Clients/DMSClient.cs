@@ -145,7 +145,7 @@ namespace WebAPI.Clients
             return configurationGroup;
         }
 
-        internal static KalturaConfigurationGroup UpdateConfigurationGroup(int partnerId, KalturaConfigurationGroup configurationGroup)
+        internal static KalturaConfigurationGroup UpdateConfigurationGroup(int partnerId, string configurationGroupId, KalturaConfigurationGroup configurationGroup)
         {
             KalturaConfigurationGroup result = null;
             DMSGroupConfiguration dmsGroupConfiguration = null;
@@ -157,7 +157,7 @@ namespace WebAPI.Clients
             {
                 dmsGroupConfiguration = Mapper.Map<DMSGroupConfiguration>(configurationGroup);
                 dmsGroupConfiguration.PartnerId = partnerId;
-                //dmsGroupConfiguration.id
+                dmsGroupConfiguration.Id = configurationGroupId;
                 // call client  
                 string data = JsonConvert.SerializeObject(dmsGroupConfiguration);
                 dmsResult = CallDMSClient(DMSCall.PUT, url, data);
