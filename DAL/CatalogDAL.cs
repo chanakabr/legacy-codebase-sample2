@@ -3301,47 +3301,18 @@ namespace Tvinci.Core.DAL
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@status", status);
-                DataSet ds = sp.ExecuteDataSet();
-                if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
+                DataSet ds = sp.ExecuteDataSetWithListParam();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
-                    DataTable dtRecommendationEngines = ds.Tables[0];
-                    DataTable dtRecommendationEnginesSettings = ds.Tables[1];
-                    Dictionary<long, List<RecommendationEngineSettings>> recommendationEngineSettingsMap = new Dictionary<long, List<RecommendationEngineSettings>>();
-                    if (dtRecommendationEnginesSettings != null && dtRecommendationEnginesSettings.Rows != null)
+                    DataTable dtResult = ds.Tables[0];
+                    if (dtResult != null && dtResult.Rows != null && dtResult.Rows.Count > 0)
                     {
-                        foreach (DataRow dr in dtRecommendationEnginesSettings.Rows)
+                        RecommendationEngine recommendationEngine = null;
+                        foreach (DataRow dr in dtResult.Rows)
                         {
-                            long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "recommendation_engine_id", 0);
-                            if (id > 0)
-                            {                                
-                                string key = ODBCWrapper.Utils.GetSafeStr(dr, "key");
-                                string value = ODBCWrapper.Utils.GetSafeStr(dr, "value");
-                                if (recommendationEngineSettingsMap.ContainsKey(id))
-                                {
-                                    recommendationEngineSettingsMap[id].Add(new RecommendationEngineSettings(key, value));
-                                }
-                                else
-                                {
-                                    List<RecommendationEngineSettings> engineSettings = new List<RecommendationEngineSettings>();
-                                    engineSettings.Add(new RecommendationEngineSettings(key, value));
-                                    recommendationEngineSettingsMap.Add(id, engineSettings);
-                                }
-                            }
-                        }
-                    }
-
-                    if (dtRecommendationEngines != null && dtRecommendationEngines.Rows != null)
-                    {                        
-                        foreach (DataRow dr in dtRecommendationEngines.Rows)
-                        {
-                            RecommendationEngine recommendationEngine = CreateRecommendationEngine(dr);
+                            recommendationEngine = CreateRecommendationEngine(dr);
                             if (recommendationEngine != null)
                             {
-                                if (recommendationEngineSettingsMap.ContainsKey(recommendationEngine.ID))
-                                {
-                                    recommendationEngine.Settings = recommendationEngineSettingsMap[recommendationEngine.ID];
-                                }
-
                                 res.Add(recommendationEngine);
                             }
                         }
