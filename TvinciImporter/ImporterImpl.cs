@@ -5534,6 +5534,12 @@ namespace TvinciImporter
 
                         foreach (string sEndPointAddress in arrAddresses)
                         {
+                            if (string.IsNullOrWhiteSpace(sEndPointAddress))
+                            {
+                                log.WarnFormat("UpdateIndex - one of Catalog URLs is empty");
+                                continue;
+                            }
+
                             try
                             {
                                 wsCatalog = GetCatalogClient(sEndPointAddress);
