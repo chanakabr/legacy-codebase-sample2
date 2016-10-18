@@ -615,7 +615,7 @@ namespace Tvinci.Core.DAL
             }
         }
 
-        private static bool UpdateDomainConcurrency(string udid, 
+        private static bool UpdateDomainConcurrency(string udid,
             CouchbaseManager.CouchbaseManager couchbase, string documentKey, UserMediaMark userMediaMark)
         {
             ulong version;
@@ -642,8 +642,8 @@ namespace Tvinci.Core.DAL
             bool res = couchbase.SetWithVersion(documentKey, JsonConvert.SerializeObject(domainMediaMark, Formatting.None), version);
             return res;
         }
-        
-        private static bool UpdateOrInsert_UsersMediaMarkOrHit(CouchbaseManager.CouchbaseManager couchbaseManager, string udid, 
+
+        private static bool UpdateOrInsert_UsersMediaMarkOrHit(CouchbaseManager.CouchbaseManager couchbaseManager, string udid,
             ref int limitRetries, Random r, string mmKey, ref bool success, UserMediaMark userMediaMark, int finishedPercent = 95)
         {
             bool locationStatusChanged = false;
@@ -2359,7 +2359,7 @@ namespace Tvinci.Core.DAL
             }
         }
 
-        public static void UpdateOrInsert_UsersEpgMark(int nDomainID, int nSiteUserGuid, string sUDID, int nAssetID, int nGroupID, int nLoactionSec, 
+        public static void UpdateOrInsert_UsersEpgMark(int nDomainID, int nSiteUserGuid, string sUDID, int nAssetID, int nGroupID, int nLoactionSec,
             int fileDuration, string action, bool isFirstPlay)
         {
             var mediaMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
@@ -3191,7 +3191,7 @@ namespace Tvinci.Core.DAL
                         {
                             string key = ODBCWrapper.Utils.GetSafeStr(dr, "key");
                             string value = ODBCWrapper.Utils.GetSafeStr(dr, "value");
-                            settings.Add(new RecommendationEngineSettings(key, value));    
+                            settings.Add(new RecommendationEngineSettings(key, value));
                         }
                     }
 
@@ -3307,47 +3307,18 @@ namespace Tvinci.Core.DAL
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@status", status);
-                DataSet ds = sp.ExecuteDataSet();
-                if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
+                DataSet ds = sp.ExecuteDataSetWithListParam();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
-                    DataTable dtRecommendationEngines = ds.Tables[0];
-                    DataTable dtRecommendationEnginesSettings = ds.Tables[1];
-                    Dictionary<long, List<RecommendationEngineSettings>> recommendationEngineSettingsMap = new Dictionary<long, List<RecommendationEngineSettings>>();
-                    if (dtRecommendationEnginesSettings != null && dtRecommendationEnginesSettings.Rows != null)
+                    DataTable dtResult = ds.Tables[0];
+                    if (dtResult != null && dtResult.Rows != null && dtResult.Rows.Count > 0)
                     {
-                        foreach (DataRow dr in dtRecommendationEnginesSettings.Rows)
+                        RecommendationEngine recommendationEngine = null;
+                        foreach (DataRow dr in dtResult.Rows)
                         {
-                            long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "recommendation_engine_id", 0);
-                            if (id > 0)
-                            {                                
-                                string key = ODBCWrapper.Utils.GetSafeStr(dr, "key");
-                                string value = ODBCWrapper.Utils.GetSafeStr(dr, "value");
-                                if (recommendationEngineSettingsMap.ContainsKey(id))
-                                {
-                                    recommendationEngineSettingsMap[id].Add(new RecommendationEngineSettings(key, value));
-                                }
-                                else
-                                {
-                                    List<RecommendationEngineSettings> engineSettings = new List<RecommendationEngineSettings>();
-                                    engineSettings.Add(new RecommendationEngineSettings(key, value));
-                                    recommendationEngineSettingsMap.Add(id, engineSettings);
-                                }
-                            }
-                        }
-                    }
-
-                    if (dtRecommendationEngines != null && dtRecommendationEngines.Rows != null)
-                    {                        
-                        foreach (DataRow dr in dtRecommendationEngines.Rows)
-                        {
-                            RecommendationEngine recommendationEngine = CreateRecommendationEngine(dr);
+                            recommendationEngine = CreateRecommendationEngine(dr);
                             if (recommendationEngine != null)
                             {
-                                if (recommendationEngineSettingsMap.ContainsKey(recommendationEngine.ID))
-                                {
-                                    recommendationEngine.Settings = recommendationEngineSettingsMap[recommendationEngine.ID];
-                                }
-
                                 res.Add(recommendationEngine);
                             }
                         }
@@ -3370,18 +3341,47 @@ namespace Tvinci.Core.DAL
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_RecommendationEngines");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
-                DataSet ds = sp.ExecuteDataSetWithListParam();
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
                 {
-                    DataTable dtResult = ds.Tables[0];
-                    if (dtResult != null && dtResult.Rows != null && dtResult.Rows.Count > 0)
+                    DataTable dtRecommendationEngines = ds.Tables[0];
+                    DataTable dtRecommendationEnginesSettings = ds.Tables[1];
+                    Dictionary<long, List<RecommendationEngineSettings>> recommendationEngineSettingsMap = new Dictionary<long, List<RecommendationEngineSettings>>();
+                    if (dtRecommendationEnginesSettings != null && dtRecommendationEnginesSettings.Rows != null)
                     {
-                        RecommendationEngine recommendationEngine = null;
-                        foreach (DataRow dr in dtResult.Rows)
+                        foreach (DataRow dr in dtRecommendationEnginesSettings.Rows)
                         {
-                            recommendationEngine = CreateRecommendationEngine(dr);
+                            long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "recommendation_engine_id", 0);
+                            if (id > 0)
+                            {
+                                string key = ODBCWrapper.Utils.GetSafeStr(dr, "key");
+                                string value = ODBCWrapper.Utils.GetSafeStr(dr, "value");
+                                if (recommendationEngineSettingsMap.ContainsKey(id))
+                                {
+                                    recommendationEngineSettingsMap[id].Add(new RecommendationEngineSettings(key, value));
+                                }
+                                else
+                                {
+                                    List<RecommendationEngineSettings> engineSettings = new List<RecommendationEngineSettings>();
+                                    engineSettings.Add(new RecommendationEngineSettings(key, value));
+                                    recommendationEngineSettingsMap.Add(id, engineSettings);
+                                }
+                            }
+                        }
+                    }
+
+                    if (dtRecommendationEngines != null && dtRecommendationEngines.Rows != null)
+                    {
+                        foreach (DataRow dr in dtRecommendationEngines.Rows)
+                        {
+                            RecommendationEngine recommendationEngine = CreateRecommendationEngine(dr);
                             if (recommendationEngine != null)
                             {
+                                if (recommendationEngineSettingsMap.ContainsKey(recommendationEngine.ID))
+                                {
+                                    recommendationEngine.Settings = recommendationEngineSettingsMap[recommendationEngine.ID];
+                                }
+
                                 res.Add(recommendationEngine);
                             }
                         }
