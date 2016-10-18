@@ -112,18 +112,15 @@ namespace WebAPI.Controllers
         {
             KalturaConfigurationListResponse response = null;
 
-            if (filter.ConfigurationTypeEqual == KalturaConfigurationType.NotDefault)
-            {
-                if (string.IsNullOrWhiteSpace(filter.ConfigurationIdEqual))
-                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "configurationId");
-            }
+            if (string.IsNullOrWhiteSpace(filter.ConfigurationGroupIdEqual))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "configurationGroupIdEqual");
 
             try
             {
                 int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
-                response = DMSClient.GetConfigurationList(partnerId, filter.ConfigurationTypeEqual, filter.ConfigurationIdEqual);
+                response = DMSClient.GetConfigurationList(partnerId, filter.ConfigurationTypeEqual, filter.ConfigurationGroupIdEqual);
             }
             catch (ClientException ex)
             {
