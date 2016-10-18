@@ -99,9 +99,9 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Return a list of device configurations of a configuration group
+        /// Return a list of device configurations of a configuration group 
         /// </summary>
-        /// <param name="filter">Filter option for configuration type (All/Default/NotDefault). in case of notDefault configuration in must be supplied </param>
+        /// <param name="filter">Filter option for configuration type (All/Default/NotDefault).</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001</remarks>        
         [Route("list"), HttpPost]
