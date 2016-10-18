@@ -158,7 +158,7 @@ public partial class adm_media : System.Web.UI.Page
     protected void InsertStrMetaToTable(ref DBTableWebEditor theTable, Int32 nGroupID, bool bWithQ)
     {
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery += " select * from groups where ";
+        selectQuery += " select * from groups with (nolock) where ";
         selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nGroupID);
         if (selectQuery.Execute("query", true) != null)
         {
@@ -219,7 +219,7 @@ public partial class adm_media : System.Web.UI.Page
     protected void InsertDoubleMetaToTable(ref DBTableWebEditor theTable, Int32 nGroupID, bool bWithQ)
     {
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery += " select * from groups where ";
+        selectQuery += " select * from groups with (nolock) where ";
         selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nGroupID);
         if (selectQuery.Execute("query", true) != null)
         {
@@ -288,7 +288,7 @@ public partial class adm_media : System.Web.UI.Page
         theTable += ",q.CO_GUID as 'Outer GUID',q.EPG_IDENTIFIER as 'EPG GUID',q.s_id as 'id',q.s_desc as 'Status', pic_id from (select distinct m.is_active,m.is_active as 'q_ia'";
         InsertStrMetaToTable(ref theTable, nGroupID, false);
         InsertDoubleMetaToTable(ref theTable, nGroupID, false);
-        theTable += ",m.editor_remarks,m.MEDIA_PIC_ID as 'pic_id',m.PLAYER_CONTROL_ADS,m.CO_GUID,m.EPG_IDENTIFIER,m.status,m.NAME as 'NAME',m.DESCRIPTION as 'Description',m.id as 's_id',lcs.description as 's_desc',CONVERT(VARCHAR(10),m.CATALOG_START_DATE, 104) as 'Catalog_Start_Date',CONVERT(VARCHAR(10),m.START_DATE, 104) as 'Start_Date',CONVERT(VARCHAR(10),m.End_DATE, 104) as 'End_Date',CONVERT(VARCHAR(10),m.Final_End_DATE, 104) as 'Final_End_Date'  from media m,lu_content_status lcs";
+        theTable += ",m.editor_remarks,m.MEDIA_PIC_ID as 'pic_id',m.PLAYER_CONTROL_ADS,m.CO_GUID,m.EPG_IDENTIFIER,m.status,m.NAME as 'NAME',m.DESCRIPTION as 'Description',m.id as 's_id',lcs.description as 's_desc',CONVERT(VARCHAR(10),m.CATALOG_START_DATE, 104) as 'Catalog_Start_Date',CONVERT(VARCHAR(10),m.START_DATE, 104) as 'Start_Date',CONVERT(VARCHAR(10),m.End_DATE, 104) as 'End_Date',CONVERT(VARCHAR(10),m.Final_End_DATE, 104) as 'Final_End_Date'  from media m with (nolock),lu_content_status lcs with (nolock)";
         if (Session["search_tag"] != null && Session["search_tag"].ToString() != "")
             theTable += ",tags t,media_tags mt ";
         if (Session["search_only_unapproved_comments"] != null && Session["search_only_unapproved_comments"].ToString() != "")
