@@ -512,11 +512,11 @@ namespace WebAPI.Clients
             return configuration;
         }
 
-        internal static KalturaConfigurationListResponse GetConfigurationList(int partnerId, KalturaConfigurationType configurationType, string configurationGroupId)
+        internal static KalturaConfigurationListResponse GetConfigurationList(int partnerId, string configurationGroupId)
         {
             KalturaConfigurationListResponse result = new KalturaConfigurationListResponse() { TotalCount = 0 };
 
-            string url = string.Format("{0}/{1}/{2}/{3}", DMSControllers.Configuration.ToString(), partnerId, configurationType.ToString(), configurationGroupId);
+            string url = string.Format("{0}/List/{1}/{2}", DMSControllers.Configuration.ToString(), partnerId, configurationGroupId);
             string dmsResult = string.Empty;
 
             try
@@ -526,7 +526,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while getting configuration list. partnerId: {0}, configurationType: {1}, configurationId: {2}, exception: {3}", partnerId, configurationType.ToString(), configurationGroupId, ex);
+                log.ErrorFormat("Error while getting configuration list. partnerId: {0}, configurationGroupId: {1}, exception: {2}", partnerId, configurationGroupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 

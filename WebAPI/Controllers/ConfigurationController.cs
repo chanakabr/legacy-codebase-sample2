@@ -120,7 +120,7 @@ namespace WebAPI.Controllers
                 int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
-                response = DMSClient.GetConfigurationList(partnerId, filter.ConfigurationTypeEqual, filter.ConfigurationGroupIdEqual);
+                response = DMSClient.GetConfigurationList(partnerId, filter.ConfigurationGroupIdEqual);
             }
             catch (ClientException ex)
             {

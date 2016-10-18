@@ -14,11 +14,6 @@ namespace WebAPI.Models.DMS
     /// </summary>
     public class KalturaConfigurationFilter : KalturaFilter<KalturaConfigurationOrderBy>
     {
-        [DataMember(Name = "configurationTypeEqual")]
-        [JsonProperty("configurationTypeEqual")]
-        [XmlElement(ElementName = "configurationTypeEqual")]
-        public KalturaConfigurationType ConfigurationTypeEqual { get; set; }
-
         [DataMember(Name = "configurationGroupIdEqual")]
         [JsonProperty("configurationGroupIdEqual")]
         [XmlElement(ElementName = "configurationGroupIdEqual")]
