@@ -11,9 +11,6 @@
     <Setting Name="WebAPI_ConditionalAccess_module" Type="(Web Service URL)" Scope="Application">
       <Value Profile="(Default)">http://localhost/WS_ConditionalAccess/module.asmx</Value>
     </Setting>
-    <Setting Name="WebAPI_Billing_module" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://localhost/WS_Billing/module.asmx</Value>
-    </Setting>
     <Setting Name="WebAPI_Users_UsersService" Type="(Web Service URL)" Scope="Application">
       <Value Profile="(Default)">http://webservices/users_v4_0/module.asmx</Value>
     </Setting>

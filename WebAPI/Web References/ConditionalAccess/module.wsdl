@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://ca.tvinci.com/" xmlns:s1="http://billing.tvinci.com/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s2="http://api.tvinci.com/schemas/eAssetTypes1" xmlns:s3="http://ca.tvinci.com/AbstractTypes" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://ca.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://ca.tvinci.com/" xmlns:s1="http://api.tvinci.com/schemas/eAssetTypes1" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s2="http://ca.tvinci.com/AbstractTypes" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://ca.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://ca.tvinci.com/">
-      <s:import namespace="http://billing.tvinci.com/" />
       <s:import namespace="http://api.tvinci.com/schemas/eAssetTypes1" />
       <s:element name="HandleUserTask">
         <s:complexType>
@@ -1699,12 +1698,27 @@
       </s:element>
       <s:complexType name="BillingResponse">
         <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="m_oStatus" type="s1:BillingResponseStatus" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_oStatus" type="tns:BillingResponseStatus" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sRecieptCode" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sStatusDescription" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sExternalReceiptCode" type="s:string" />
         </s:sequence>
       </s:complexType>
+      <s:simpleType name="BillingResponseStatus">
+        <s:restriction base="s:string">
+          <s:enumeration value="Success" />
+          <s:enumeration value="Fail" />
+          <s:enumeration value="UnKnown" />
+          <s:enumeration value="PriceNotCorrect" />
+          <s:enumeration value="UnKnownUser" />
+          <s:enumeration value="UnKnownPPVModule" />
+          <s:enumeration value="ExpiredCard" />
+          <s:enumeration value="ExternalError" />
+          <s:enumeration value="CellularPermissionsError" />
+          <s:enumeration value="UnKnownBillingProvider" />
+          <s:enumeration value="UserSuspended" />
+        </s:restriction>
+      </s:simpleType>
       <s:element name="CC_DummyChargeUserForSubscription">
         <s:complexType>
           <s:sequence>
@@ -2955,7 +2969,7 @@
       <s:complexType name="AssetFiles">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="AssetId" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="AssetType" type="s2:eAssetTypes" />
+          <s:element minOccurs="1" maxOccurs="1" name="AssetType" type="s1:eAssetTypes" />
           <s:element minOccurs="0" maxOccurs="1" name="FileIds" type="tns:ArrayOfInt" />
         </s:sequence>
       </s:complexType>
@@ -2980,7 +2994,7 @@
       <s:complexType name="AssetItemPrices">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="AssetId" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="AssetType" type="s2:eAssetTypes" />
+          <s:element minOccurs="1" maxOccurs="1" name="AssetType" type="s1:eAssetTypes" />
           <s:element minOccurs="0" maxOccurs="1" name="PriceContainers" type="tns:ArrayOfMediaFileItemPricesContainer" />
         </s:sequence>
       </s:complexType>
@@ -3913,23 +3927,6 @@
       <s:element name="RecordingResponse" nillable="true" type="tns:RecordingResponse" />
       <s:element name="DomainQuotaResponse" nillable="true" type="tns:DomainQuotaResponse" />
     </s:schema>
-    <s:schema elementFormDefault="qualified" targetNamespace="http://billing.tvinci.com/">
-      <s:simpleType name="BillingResponseStatus">
-        <s:restriction base="s:string">
-          <s:enumeration value="Success" />
-          <s:enumeration value="Fail" />
-          <s:enumeration value="UnKnown" />
-          <s:enumeration value="PriceNotCorrect" />
-          <s:enumeration value="UnKnownUser" />
-          <s:enumeration value="UnKnownPPVModule" />
-          <s:enumeration value="ExpiredCard" />
-          <s:enumeration value="ExternalError" />
-          <s:enumeration value="CellularPermissionsError" />
-          <s:enumeration value="UnKnownBillingProvider" />
-          <s:enumeration value="UserSuspended" />
-        </s:restriction>
-      </s:simpleType>
-    </s:schema>
     <s:schema elementFormDefault="qualified" targetNamespace="http://api.tvinci.com/schemas/eAssetTypes1">
       <s:simpleType name="eAssetTypes">
         <s:restriction base="s:string">
@@ -4773,7 +4770,7 @@
     <wsdl:part name="epgId" type="s:string" />
     <wsdl:part name="Id" type="s:string" />
     <wsdl:part name="epgStartDate" type="s:string" />
-    <wsdl:part name="domainSeriesIds" type="s3:StringArray" />
+    <wsdl:part name="domainSeriesIds" type="s2:StringArray" />
   </wsdl:message>
   <wsdl:message name="DistributeRecordingWithDomainIdsHttpPostOut">
     <wsdl:part name="Body" element="tns:boolean" />
@@ -4947,7 +4944,7 @@
   <wsdl:message name="GetUsersBillingHistoryHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="arrSiteGUIDs" type="s3:StringArray" />
+    <wsdl:part name="arrSiteGUIDs" type="s2:StringArray" />
     <wsdl:part name="dStartDate" type="s:string" />
     <wsdl:part name="dEndDate" type="s:string" />
   </wsdl:message>
@@ -4970,7 +4967,7 @@
   <wsdl:message name="GetDomainsBillingHistoryHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="domainIDs" type="s3:StringArray" />
+    <wsdl:part name="domainIDs" type="s2:StringArray" />
     <wsdl:part name="dStartDate" type="s:string" />
     <wsdl:part name="dEndDate" type="s:string" />
   </wsdl:message>
@@ -5032,7 +5029,7 @@
   <wsdl:message name="GetItemsPricesHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nMediaFiles" type="s3:StringArray" />
+    <wsdl:part name="nMediaFiles" type="s2:StringArray" />
     <wsdl:part name="sUserGUID" type="s:string" />
     <wsdl:part name="bOnlyLowest" type="s:string" />
     <wsdl:part name="sCountryCd2" type="s:string" />
@@ -5046,7 +5043,7 @@
   <wsdl:message name="GetItemsPricesByIPHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nMediaFiles" type="s3:StringArray" />
+    <wsdl:part name="nMediaFiles" type="s2:StringArray" />
     <wsdl:part name="sUserGUID" type="s:string" />
     <wsdl:part name="bOnlyLowest" type="s:string" />
     <wsdl:part name="sCountryCd2" type="s:string" />
@@ -5060,7 +5057,7 @@
   <wsdl:message name="GetItemsPricesWithCouponsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nMediaFiles" type="s3:StringArray" />
+    <wsdl:part name="nMediaFiles" type="s2:StringArray" />
     <wsdl:part name="sUserGUID" type="s:string" />
     <wsdl:part name="sCouponCode" type="s:string" />
     <wsdl:part name="bOnlyLowest" type="s:string" />
@@ -5075,7 +5072,7 @@
   <wsdl:message name="GetItemsPricesWithCouponsByIPHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nMediaFiles" type="s3:StringArray" />
+    <wsdl:part name="nMediaFiles" type="s2:StringArray" />
     <wsdl:part name="sUserGUID" type="s:string" />
     <wsdl:part name="sCouponCode" type="s:string" />
     <wsdl:part name="bOnlyLowest" type="s:string" />
@@ -5090,7 +5087,7 @@
   <wsdl:message name="GetSubscriptionsPricesHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="sSubscriptions" type="s3:StringArray" />
+    <wsdl:part name="sSubscriptions" type="s2:StringArray" />
     <wsdl:part name="sUserGUID" type="s:string" />
     <wsdl:part name="sCountryCd2" type="s:string" />
     <wsdl:part name="sLanguageCode3" type="s:string" />
@@ -5103,7 +5100,7 @@
   <wsdl:message name="GetCollectionsPricesHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="sCollections" type="s3:StringArray" />
+    <wsdl:part name="sCollections" type="s2:StringArray" />
     <wsdl:part name="sUserGUID" type="s:string" />
     <wsdl:part name="sCountryCd2" type="s:string" />
     <wsdl:part name="sLanguageCode3" type="s:string" />
@@ -5115,7 +5112,7 @@
   <wsdl:message name="GetSubscriptionsPricesByIPHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="sSubscriptions" type="s3:StringArray" />
+    <wsdl:part name="sSubscriptions" type="s2:StringArray" />
     <wsdl:part name="sUserGUID" type="s:string" />
     <wsdl:part name="sCountryCd2" type="s:string" />
     <wsdl:part name="sLanguageCode3" type="s:string" />
@@ -5128,7 +5125,7 @@
   <wsdl:message name="GetPrePaidPricesHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="sPrePaids" type="s3:StringArray" />
+    <wsdl:part name="sPrePaids" type="s2:StringArray" />
     <wsdl:part name="sUserGUID" type="s:string" />
     <wsdl:part name="sCouponCode" type="s:string" />
     <wsdl:part name="sCountryCd2" type="s:string" />
@@ -5141,7 +5138,7 @@
   <wsdl:message name="GetSubscriptionsPricesWithCouponHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="sSubscriptions" type="s3:StringArray" />
+    <wsdl:part name="sSubscriptions" type="s2:StringArray" />
     <wsdl:part name="sUserGUID" type="s:string" />
     <wsdl:part name="sCouponCode" type="s:string" />
     <wsdl:part name="sCountryCd2" type="s:string" />
@@ -5155,7 +5152,7 @@
   <wsdl:message name="GetCollectionsPricesWithCouponHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="sCollections" type="s3:StringArray" />
+    <wsdl:part name="sCollections" type="s2:StringArray" />
     <wsdl:part name="sUserGUID" type="s:string" />
     <wsdl:part name="sCouponCode" type="s:string" />
     <wsdl:part name="sCountryCd2" type="s:string" />
@@ -5169,7 +5166,7 @@
   <wsdl:message name="GetSubscriptionsPricesWithCouponByIPHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="sSubscriptions" type="s3:StringArray" />
+    <wsdl:part name="sSubscriptions" type="s2:StringArray" />
     <wsdl:part name="sUserGUID" type="s:string" />
     <wsdl:part name="sCouponCode" type="s:string" />
     <wsdl:part name="sCountryCd2" type="s:string" />
@@ -5942,7 +5939,7 @@
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="domainID" type="s:string" />
-    <wsdl:part name="fileTypeIDs" type="s3:StringArray" />
+    <wsdl:part name="fileTypeIDs" type="s2:StringArray" />
   </wsdl:message>
   <wsdl:message name="GetUserBundlesHttpPostOut">
     <wsdl:part name="Body" element="tns:UserBundlesResponse" />
@@ -5951,7 +5948,7 @@
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="domainID" type="s:string" />
-    <wsdl:part name="fileTypeIDs" type="s3:StringArray" />
+    <wsdl:part name="fileTypeIDs" type="s2:StringArray" />
   </wsdl:message>
   <wsdl:message name="GetUserPurchasedAssetsHttpPostOut">
     <wsdl:part name="Body" element="tns:UserPurhcasedAssetsResponse" />
@@ -6105,7 +6102,7 @@
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="userID" type="s:string" />
-    <wsdl:part name="epgIDs" type="s3:StringArray" />
+    <wsdl:part name="epgIDs" type="s2:StringArray" />
   </wsdl:message>
   <wsdl:message name="QueryRecordsHttpPostOut">
     <wsdl:part name="Body" element="tns:RecordingResponse" />
@@ -6130,7 +6127,7 @@
   <wsdl:message name="IngestRecordingHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="epgs" type="s3:StringArray" />
+    <wsdl:part name="epgs" type="s2:StringArray" />
     <wsdl:part name="action" type="s:string" />
   </wsdl:message>
   <wsdl:message name="IngestRecordingHttpPostOut">

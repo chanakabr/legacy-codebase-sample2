@@ -584,66 +584,6 @@
     <Content Include="Service References\Notifications\WebAPI.Notifications.Status.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
-    <Content Include="Web References\Billing\AdyenBillingDetail.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Billing\BillingResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Billing\HouseholdPaymentGatewayResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Billing\InAppBillingResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Billing\HouseholdPaymentMethodResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <None Include="Web References\Billing\module.disco" />
-    <None Include="Web References\Billing\module.wsdl" />
-    <Content Include="Web References\Billing\PaymentGatewayChargeIDResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Billing\PaymentGatewayResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Billing\PaymentGatewaySettingsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Billing\PaymentGateway.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Billing\PaymentGatewayItemResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Billing\PaymentGatewayConfigurationResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Billing\PaymentGatewayListResponse1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Billing\PaymentMethodsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Billing\PaymentMethodResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Billing\PaymentMethodIdResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <None Include="Web References\Billing\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <Content Include="Web References\Billing\Status.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Billing\TransactResult.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Billing\UpdatePendingResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
     <Content Include="Web References\ConditionalAccess\AssetItemPriceResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -1460,11 +1400,6 @@
     <Compile Include="Utils\JilFormatter.cs" />
     <Compile Include="Utils\SerializationUtils.cs" />
     <Compile Include="Utils\Utils.cs" />
-    <Compile Include="Web References\Billing\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>
     <Compile Include="Web References\ConditionalAccess\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -1524,17 +1459,6 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://localhost/WS_Billing/module.asmx">
-      <UrlBehavior>Dynamic</UrlBehavior>
-      <RelPath>Web References\Billing\</RelPath>
-      <UpdateFromURL>http://localhost/WS_Billing/module.asmx</UpdateFromURL>
-      <ServiceLocationURL>
-      </ServiceLocationURL>
-      <CachedDynamicPropName>
-      </CachedDynamicPropName>
-      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
-      <CachedSettingsPropName>WebAPI_Billing_module</CachedSettingsPropName>
-    </WebReferenceUrl>
     <WebReferenceUrl Include="http://localhost/WS_ConditionalAccess/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\ConditionalAccess\</RelPath>
@@ -1592,6 +1516,14 @@
     <ProjectReference Include="..\..\ws_api\WS_API.csproj">
       <Project>{bef1df84-21c1-47da-bb2d-bb607ee1978e}</Project>
       <Name>WS_API</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ws_billing\Billing\Billing.csproj">
+      <Project>{0b4a22f7-e733-4bf3-a77d-fc2cf4f61a5a}</Project>
+      <Name>Billing</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ws_billing\WS_Billing.csproj">
+      <Project>{944128c1-804a-4444-a697-37e019af5850}</Project>
+      <Name>WS_Billing</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\ws_pricing\Pricing\Pricing.csproj">
       <Project>{143a9361-b461-42a7-b579-a75c0e7b1ea3}</Project>
