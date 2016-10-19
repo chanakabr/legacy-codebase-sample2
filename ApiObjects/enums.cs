@@ -765,4 +765,10 @@ namespace ApiObjects
         SERIES = 1,
         ALL = 2
     }
+
+    public enum GroupFeature
+    { 
+        CROWDSOURCE = 0,
+        BUZZFEED = 1
+    }
 }
