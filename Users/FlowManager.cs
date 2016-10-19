@@ -112,7 +112,7 @@ namespace Users
         public static bool SendWelcomeMailRequest(ref UserResponseObject userResponse, KalturaBaseUsers user, User newUser, string password, List<KeyValuePair> keyValueList)
         {
             bool mailSent = false;
-            Users.TvinciAPI.WelcomeMailRequest mailRequest = new TvinciAPI.WelcomeMailRequest();
+            WelcomeMailRequest mailRequest = new WelcomeMailRequest();
 
             try
             {

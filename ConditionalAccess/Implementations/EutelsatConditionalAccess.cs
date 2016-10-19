@@ -9,9 +9,11 @@ using System.Text;
 using ApiObjects;
 using ApiObjects.Epg;
 using com.llnw.mediavault;
-using ConditionalAccess.TvinciAPI;
 using DAL;
 using KLogMonitor;
+using Pricing;
+using WS_Pricing;
+using WS_API;
 
 namespace ConditionalAccess
 {
@@ -90,7 +92,7 @@ namespace ConditionalAccess
             string sWSURL = string.Empty;
             TvinciUsers.UsersService u = null;
             TvinciBilling.module bm = null;
-            TvinciPricing.mdoule m = null;
+            mdoule m = null;
 
             TvinciBilling.BillingResponse ret = new ConditionalAccess.TvinciBilling.BillingResponse();
             ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.UnKnown;
@@ -167,12 +169,7 @@ namespace ConditionalAccess
                 sWSUserName = string.Empty;
                 sWSPass = string.Empty;
 
-                m = new global::ConditionalAccess.TvinciPricing.mdoule();
-                sWSURL = Utils.GetWSURL("pricing_ws");
-                if (!string.IsNullOrEmpty(sWSURL))
-                {
-                    m.Url = sWSURL;
-                }
+                m = new mdoule();
                 if (string.IsNullOrEmpty(sPPVModuleCode))
                 {
                     ret.m_oStatus = ConditionalAccess.TvinciBilling.BillingResponseStatus.Fail;
@@ -185,7 +182,7 @@ namespace ConditionalAccess
                 long ppvModuleCode = 0;
                 long.TryParse(sPPVModuleCode, out ppvModuleCode);
 
-                TvinciPricing.PPVModule thePPVModule = m.ValidatePPVModuleForMediaFile(sWSUserName, sWSPass, nMediaFileID, ppvModuleCode);
+                PPVModule thePPVModule = m.ValidatePPVModuleForMediaFile(sWSUserName, sWSPass, nMediaFileID, ppvModuleCode);
 
                 if (thePPVModule == null)
                 {
@@ -222,11 +219,11 @@ namespace ConditionalAccess
 
                 PriceReason theReason = PriceReason.UnKnown;
 
-                TvinciPricing.Subscription relevantSub = null;
-                TvinciPricing.Collection relevantCol = null;
-                TvinciPricing.PrePaidModule relevantPP = null;
+                Subscription relevantSub = null;
+                Collection relevantCol = null;
+                PrePaidModule relevantPP = null;
 
-                TvinciPricing.Price p = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDeviceUDID);
+                Price p = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDeviceUDID);
 
                 if (theReason == PriceReason.ForPurchase || (theReason == PriceReason.SubscriptionPurchased && p.m_dPrice > 0))
                 {
@@ -714,8 +711,8 @@ namespace ConditionalAccess
                 }
 
                 PriceReason theReason = PriceReason.UnKnown;
-                TvinciPricing.Subscription theSub = null;
-                TvinciPricing.Price p = Utils.GetSubscriptionFinalPrice(m_nGroupID, sSubscriptionCode, sSiteGUID, sCouponCode, ref theReason, ref theSub, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                Subscription theSub = null;
+                Price p = Utils.GetSubscriptionFinalPrice(m_nGroupID, sSubscriptionCode, sSiteGUID, sCouponCode, ref theReason, ref theSub, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
 
                 if (p != null)
                 {
@@ -794,8 +791,8 @@ namespace ConditionalAccess
         }
 
         private TvinciBilling.BillingResponse HandleSubPurchase(string sSiteGUID, string sHouseholdUID, double dPrice, string sCurrency, string sSubscriptionCode, string sCouponCode, string sUserIP,
-                                                            string sExtraParams, ref string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sIP, TvinciPricing.Subscription theSub,
-                                                            TvinciPricing.Price p, int domainId)
+                                                            string sExtraParams, ref string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sIP, Subscription theSub,
+                                                            Price p, int domainId)
         {
 
             TvinciBilling.BillingResponse ret = new TvinciBilling.BillingResponse();
@@ -856,13 +853,10 @@ namespace ConditionalAccess
 
                 bool dbRes = DAL.ConditionalAccessDAL.UpdateSubPurchase(m_nGroupID, sSiteGUID, sSubscriptionCode, bIsRecurring ? 1 : 0);
 
-                int numOfUses = 0;
                 int nMaxNumberOfViews = (theSub != null && theSub.m_oUsageModule != null) ? theSub.m_oUsageModule.m_nMaxNumberOfViews : 0;
                 int nViewLifeCycleSec = (theSub != null && theSub.m_oUsageModule != null) ? theSub.m_oUsageModule.m_tsViewLifeCycle : 0;
 
                 int nReceiptCode = (!string.IsNullOrEmpty(ret.m_sRecieptCode)) ? int.Parse(ret.m_sRecieptCode) : 0;
-                int nIsActive = 1;
-                int nStatus = 1;
 
                 DateTime? dtEndDate = null;
                 if (theSub != null && theSub.m_oSubscriptionUsageModule != null)
@@ -938,7 +932,7 @@ namespace ConditionalAccess
         public override LicensedLinkResponse GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
         {
             LicensedLinkResponse oLicensedLinkResponse = new LicensedLinkResponse();
-            TvinciAPI.API api = null;
+            API api = null;
             try
             {
                 // Validate inputs
@@ -981,19 +975,14 @@ namespace ConditionalAccess
                 //call api service to get the epg_url_link 
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
-                api = new TvinciAPI.API();
-                string sApiWSUrl = Utils.GetWSURL("api_ws");
-                if (!string.IsNullOrEmpty(sApiWSUrl))
-                {
-                    api.Url = sApiWSUrl;
-                }
+                api = new API();
 
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.API, ref sWSUserName, ref sWSPass);
                 //get channel name 
                 string channelName = api.GetCoGuidByMediaFileId(sWSUserName, sWSPass, nMediaFileID);
 
                 eEPGFormatType eformat = (eEPGFormatType)format;
-                TvinciAPI.Scheduling scheduling = api.GetProgramSchedule(sWSUserName, sWSPass, nProgramId);
+                Scheduling scheduling = api.GetProgramSchedule(sWSUserName, sWSPass, nProgramId);
                 if (scheduling != null)
                 {
                     dURLParams.Add(EpgLinkConstants.PROGRAM_END, scheduling.EndTime);

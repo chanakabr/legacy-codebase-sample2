@@ -244,7 +244,6 @@ namespace Catalog.Request
                 if (m_oMediaPlayRequestData.m_nAvgBitRate > 0)
                 {
                     int siteGuid = 0;
-                    int status = 1;
                     int.TryParse(m_oMediaPlayRequestData.m_sSiteGuid, out siteGuid);
                 }
             }

@@ -8,6 +8,8 @@ using ConditionalAccess.TvinciUsers;
 using ApiObjects;
 using KLogMonitor;
 using System.Reflection;
+using Pricing;
+using WS_Pricing;
 
 namespace ConditionalAccess
 {
@@ -22,7 +24,7 @@ namespace ConditionalAccess
         private string m_fromAdd;
         private string m_voucherMailSubject;
 
-        public override bool ActivateCampaign(TvinciPricing.Campaign camp, CampaignActionInfo cai, int groupID)
+        public override bool ActivateCampaign(Campaign camp, CampaignActionInfo cai, int groupID)
         {
             bool retVal = false;
             int numOfUses = 0;
@@ -30,12 +32,7 @@ namespace ConditionalAccess
             {
                 string sWSUserName = "";
                 string sWSPass = "";
-                TvinciPricing.mdoule m = new global::ConditionalAccess.TvinciPricing.mdoule();
-                string sWSURL = Utils.GetWSURL("pricing_ws");
-                if (!string.IsNullOrEmpty(sWSURL))
-                {
-                    m.Url = sWSURL;
-                }
+                mdoule m = new mdoule();
                 Utils.GetWSCredentials(groupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
                 PasswordGenerator p = new PasswordGenerator();
                 p.Maximum = 16;

@@ -23,6 +23,7 @@ using ApiObjects.Notification;
 using System.Threading.Tasks;
 using System.Web;
 using System.ServiceModel;
+using WS_API;
 
 namespace Users
 {
@@ -375,18 +376,12 @@ namespace Users
             return retVal;
         }
 
-        static public bool SendMail(int nGroupID, TvinciAPI.MailRequestObj request)
+        static public bool SendMail(int nGroupID, MailRequestObj request)
         {
-            using (TvinciAPI.API client = new TvinciAPI.API())
+            using (API client = new API())
             {
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
-                string sWSURL = Utils.GetTcmConfigValue("api_ws");
-
-                if (sWSURL.Length > 0)
-                {
-                    client.Url = sWSURL;
-                }
 
                 Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(eWSModules.USERS, nGroupID, eWSModules.API);
                 if (oCredentials != null)
@@ -1118,18 +1113,4 @@ namespace Users
         }
     }
 
-}
-
-namespace Users.TvinciAPI
-{
-    // adding request ID to header
-    public partial class API
-    {
-        protected override WebRequest GetWebRequest(Uri uri)
-        {
-            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
-            return request;
-        }
-    }
 }

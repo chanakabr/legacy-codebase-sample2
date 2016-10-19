@@ -420,7 +420,7 @@ namespace Catalog.Cache
                     Set(key, isTstvSettingsExists);
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 return false;
             }

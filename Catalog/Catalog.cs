@@ -36,6 +36,7 @@ using System.IO;
 using ApiObjects.PlayCycle;
 using ApiObjects.Epg;
 using System.Net;
+using WS_API;
 
 namespace Catalog
 {
@@ -1045,11 +1046,8 @@ namespace Catalog
             }
 
             // Initialize web service
-            using (ws_api.API apiWebService = new ws_api.API())
+            using (API apiWebService = new API())
             {
-                string url = Utils.GetWSURL("ws_api");
-                apiWebService.Url = url;
-
                 // Call webservice method
                 var serviceResponse = apiWebService.GetUserParentalRuleTags(userName, password, siteGuid, 0);
 
@@ -1064,7 +1062,7 @@ namespace Catalog
                 if (serviceResponse.status.Code != 0)
                 {
                     throw new Exception(string.Format(
-                        "Error when getting user parental rule tags from WS_API. code ={0}, message = {1}, user_id = {2}, group_id = {3}",
+                        "Error when getting user parental rule tags from  code ={0}, message = {1}, user_id = {2}, group_id = {3}",
                         serviceResponse.status.Code, serviceResponse.status.Message,
                         siteGuid, groupId));
                 }
@@ -6922,9 +6920,8 @@ namespace Catalog
                 }
                 return true;
             }
-            catch (Exception ex)
+            catch
             {
-                return false;
             }
             return false;
         }
@@ -7365,22 +7362,6 @@ namespace Catalog
         }
     }
 }
-
-namespace Catalog.ws_api
-{
-    // adding request ID to header
-    public partial class API
-    {
-        protected override WebRequest GetWebRequest(Uri uri)
-        {
-            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
-            return request;
-        }
-
-    }
-}
-
 
 namespace Catalog.WS_Domains
 {

@@ -1886,7 +1886,6 @@ namespace TVinciShared
             {
                 string[] sVidIDs = m_sStartValue.Split(';');
                 sTmp += "<tr><td colspan=\"3\" id=\"" + nID.ToString() + "_pic_beowse\">";
-                Int32 nRowCounter = 0;
                 for (int i = 0; i < sVidIDs.Length; i++)
                 {
                     Int32 nVidID = 0;

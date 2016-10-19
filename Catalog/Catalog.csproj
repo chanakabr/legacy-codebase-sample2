@@ -285,11 +285,6 @@
     <Compile Include="Request\UserSocialMediasRequest.cs" />
     <Compile Include="UnifiedSearchDefinitionsBuilder.cs" />
     <Compile Include="Utils.cs" />
-    <Compile Include="Web References\ws_api\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>
     <Compile Include="Web References\Lucene_WCF\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -330,95 +325,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include="Web References\ws_api\AdminAccountUserResponse1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_api\api.wsdl" />
-    <None Include="Web References\ws_api\CategoryObject1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_api\ChannelObject1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_api\DeviceAvailabiltyRule1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_api\EPGChannelObject1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_api\EPGChannelProgrammeObject1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_api\FileTypeContainer1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_api\GenericRuleResponse1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_api\GenericWriteResponse1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_api\GroupInfo1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_api\GroupOperator1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_api\GroupRule1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_api\LanguageObj1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_api\MediaConcurrencyRule1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_api\MediaInfoStructObject1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_api\MediaMarkObject1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_api\MeidaMaper1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_api\ParentalRulesResponse1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_api\ParentalRulesTagsResponse1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_api\PinResponse1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_api\PurchaseSettingsResponse1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_api\RateMediaObject1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_api\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <None Include="Web References\ws_api\RegionsResponse1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_api\Scheduling1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_api\Status1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_api\StatusErrorCodesResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_api\TagResponseObject1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_api\UserIMRequestObject1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
     <None Include="Web References\Lucene_WCF\ChannelContainObj.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -445,9 +351,6 @@
     </None>
     <None Include="Web References\Lucene_WCF\Service3.xsd">
       <SubType>Designer</SubType>
-    </None>
-    <None Include="Web References\ws_api\UserStatus1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\ws_cas\AssetItemPriceResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -646,18 +549,7 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://localhost:82/WS_API/api.asmx">
-      <UrlBehavior>Dynamic</UrlBehavior>
-      <RelPath>Web References\ws_api\</RelPath>
-      <UpdateFromURL>http://localhost:82/WS_API/api.asmx</UpdateFromURL>
-      <ServiceLocationURL>
-      </ServiceLocationURL>
-      <CachedDynamicPropName>
-      </CachedDynamicPropName>
-      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
-      <CachedSettingsPropName>Catalog_api_API</CachedSettingsPropName>
-    </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/WS_ConditionalAccess/module.asmx">
+    <WebReferenceUrl Include="http://localhost:82/ws_cas/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\ws_cas\</RelPath>
       <UpdateFromURL>http://localhost/WS_ConditionalAccess/module.asmx</UpdateFromURL>
@@ -703,6 +595,10 @@
     </WebReferenceUrl>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\ws_api\WS_API.csproj">
+      <Project>{bef1df84-21c1-47da-bb2d-bb607ee1978e}</Project>
+      <Name>WS_API</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AdapterControllers\AdapterControllers.csproj">
       <Project>{a1fbded5-52fe-4b67-9aab-e71cc366d5cd}</Project>
       <Name>AdapterControllers</Name>
@@ -793,9 +689,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Web References\ws_users\module.disco" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Web References\ws_api\api.disco" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Adapter\" />

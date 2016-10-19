@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Pricing;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ namespace ConditionalAccess
     public abstract class BaseCampaignActionImpl
     {
 
-        public virtual bool ActivateCampaign(TvinciPricing.Campaign camp, CampaignActionInfo cai, int groupID)
+        public virtual bool ActivateCampaign(Campaign camp, CampaignActionInfo cai, int groupID)
         {
             bool retVal = false;
             ODBCWrapper.UpdateQuery updateQuery = null;
@@ -32,7 +33,7 @@ namespace ConditionalAccess
             return retVal;
         }
 
-        public virtual CampaignActionInfo ActivateCampaignWithInfo(TvinciPricing.Campaign camp, CampaignActionInfo cai, int groupID)
+        public virtual CampaignActionInfo ActivateCampaignWithInfo(Campaign camp, CampaignActionInfo cai, int groupID)
         {
             return null;
         }

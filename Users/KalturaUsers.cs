@@ -8,6 +8,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using WS_API;
 
 namespace Users
 {
@@ -328,11 +329,11 @@ namespace Users
 
         public override void PostSubscribeToNewsLetter(ref UserResponseObject userResponse, bool passed, ref UserDynamicData dynamicData, ref User user, ref List<KeyValuePair> keyValueList) { }
 
-        internal override void InitSendWelcomeMail(ref UserResponseObject userResponse, ref TvinciAPI.WelcomeMailRequest mailRequest, string firstName, string userName, string password, string email, string facebookId)
+        internal override void InitSendWelcomeMail(ref UserResponseObject userResponse, ref WelcomeMailRequest mailRequest, string firstName, string userName, string password, string email, string facebookId)
         {
             mailRequest.m_sToken = DAL.UsersDal.GetActivationToken(GroupId, userName);
             mailRequest.m_sTemplateName = WelcomeMailTemplate;
-            mailRequest.m_eMailType = TvinciAPI.eMailTemplateType.Welcome;
+            mailRequest.m_eMailType = eMailTemplateType.Welcome;
             mailRequest.m_sFirstName = firstName;
             mailRequest.m_sLastName = string.Empty;
             mailRequest.m_sSenderFrom = MailFromAdd;
@@ -343,9 +344,9 @@ namespace Users
             mailRequest.m_sPassword = (string.IsNullOrEmpty(facebookId)) ? password : "Facebook Password";
         }
 
-        public override void PreSendWelcomeMail(ref UserResponseObject userResponse, ref TvinciAPI.WelcomeMailRequest mailRequest, string firstName, string userName, string password, string email, string facebookId, ref List<KeyValuePair> keyValueList) { }
+        public override void PreSendWelcomeMail(ref UserResponseObject userResponse, ref WelcomeMailRequest mailRequest, string firstName, string userName, string password, string email, string facebookId, ref List<KeyValuePair> keyValueList) { }
 
-        internal override bool MidSendWelcomeMail(ref UserResponseObject userResponse, TvinciAPI.WelcomeMailRequest mailRequest)
+        internal override bool MidSendWelcomeMail(ref UserResponseObject userResponse, WelcomeMailRequest mailRequest)
         {
             return Utils.SendMail(GroupId, mailRequest);
         }
@@ -356,14 +357,10 @@ namespace Users
 
         internal override bool MidCreateDefaultRules(ref UserResponseObject userResponse, string siteGuid, int groupId, ref User userBo)
         {
-            using (TvinciAPI.API client = new TvinciAPI.API())
+            using (API client = new API())
             {
                 string wsUserName = "";
                 string wSPass = "";
-                string wsUrl = Utils.GetTcmConfigValue("api_ws");
-
-                if (wsUrl != "")
-                    client.Url = wsUrl;
 
                 Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.USERS, groupId, ApiObjects.eWSModules.API);
 
@@ -372,7 +369,7 @@ namespace Users
                     wsUserName = oCredentials.m_sUsername;
                     wSPass = oCredentials.m_sPassword;
                 }
-                log.Debug("Default Rules - " + wsUserName + " " + wSPass + " " + client.Url);
+                log.Debug("Default Rules - " + wsUserName + " " + wSPass);
 
                 return client.SetDefaultRules(wsUserName, wSPass, siteGuid);
             }

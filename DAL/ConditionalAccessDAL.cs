@@ -2396,7 +2396,7 @@ namespace DAL
                 bool isDelete = sp.ExecuteReturnValue<bool>();
                 return isDelete;
             }
-            catch (Exception ex)
+            catch 
             {
                 return false;
             }
