@@ -615,7 +615,7 @@ namespace Tvinci.Core.DAL
             }
         }
 
-        private static bool UpdateDomainConcurrency(string udid, 
+        private static bool UpdateDomainConcurrency(string udid,
             CouchbaseManager.CouchbaseManager couchbase, string documentKey, UserMediaMark userMediaMark)
         {
             ulong version;
@@ -642,8 +642,8 @@ namespace Tvinci.Core.DAL
             bool res = couchbase.SetWithVersion(documentKey, JsonConvert.SerializeObject(domainMediaMark, Formatting.None), version);
             return res;
         }
-        
-        private static bool UpdateOrInsert_UsersMediaMarkOrHit(CouchbaseManager.CouchbaseManager couchbaseManager, string udid, 
+
+        private static bool UpdateOrInsert_UsersMediaMarkOrHit(CouchbaseManager.CouchbaseManager couchbaseManager, string udid,
             ref int limitRetries, Random r, string mmKey, ref bool success, UserMediaMark userMediaMark, int finishedPercent = 95)
         {
             bool locationStatusChanged = false;
@@ -1525,7 +1525,7 @@ namespace Tvinci.Core.DAL
             return umm.LastMark.Location;
         }
 
-        public static List<UserMediaMark> GetDomainLastPositions(int nDomainID, int ttl, ePlayType ePlay = ePlayType.MEDIA)
+        public static List<UserMediaMark> GetDomainLastPositions(int nDomainID, int ttl, List<ePlayType> playTypes)
         {
             var domainMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.DOMAIN_CONCURRENCY);
 
@@ -1535,11 +1535,24 @@ namespace Tvinci.Core.DAL
             if (data == null)
                 return null;
 
+            List<string> playTypesStrings = new List<string>();
+
+            if (playTypes != null)
+            {
+                // If all - leave it as an empty list. empty list means everything
+                if (!playTypes.Contains(ePlayType.ALL))
+                {
+                    playTypesStrings = playTypes.Select(t => t.ToString()).ToList();
+                }
+            }
+
             Random r = new Random();
             List<string> playActions = new List<string>() { MediaPlayActions.FINISH.ToString().ToLower(), MediaPlayActions.STOP.ToString().ToLower() };
 
             DomainMediaMark domainMarks = JsonConvert.DeserializeObject<DomainMediaMark>(data);
-            domainMarks.devices = domainMarks.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow && x.playType == ePlay.ToString() &&
+            domainMarks.devices = domainMarks.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow && 
+                // either the list is empty (which means all play types) or x's type is in the list)
+                (playTypesStrings.Count == 0 || playTypesStrings.Contains(x.playType)) &&
                 !playActions.Contains(x.AssetAction.ToLower())).ToList();
 
             //Cleaning old ones...
@@ -1550,18 +1563,11 @@ namespace Tvinci.Core.DAL
                 var marks = domainMarksManager.GetWithVersion<string>(docKey, out version);
 
                 DomainMediaMark dm = JsonConvert.DeserializeObject<DomainMediaMark>(marks);
-                switch (ePlay)
-                {
-                    case ePlayType.MEDIA:
-                    case ePlayType.NPVR:
-                        dm.devices = dm.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow && x.playType == ePlay.ToString()).ToList();
-                        break;
-                    case ePlayType.ALL:
-                        dm.devices = dm.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow).ToList();
-                        break;
-                    default:
-                        break;
-                }
+
+                dm.devices = dm.devices.Where(x => 
+                    x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow &&
+                    // either the list is empty (which means all play types) or x's type is in the list)
+                    (playTypesStrings.Count == 0 || playTypesStrings.Contains(x.playType))).ToList();
 
                 bool res = domainMarksManager.SetWithVersion(docKey, JsonConvert.SerializeObject(dm, Formatting.None), version);
 
@@ -2353,7 +2359,7 @@ namespace Tvinci.Core.DAL
             }
         }
 
-        public static void UpdateOrInsert_UsersEpgMark(int nDomainID, int nSiteUserGuid, string sUDID, int nAssetID, int nGroupID, int nLoactionSec, 
+        public static void UpdateOrInsert_UsersEpgMark(int nDomainID, int nSiteUserGuid, string sUDID, int nAssetID, int nGroupID, int nLoactionSec,
             int fileDuration, string action, bool isFirstPlay)
         {
             var mediaMarksManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
@@ -3139,9 +3145,9 @@ namespace Tvinci.Core.DAL
 
             DataSet ds = sp.ExecuteDataSet();
 
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            if (ds != null && ds.Tables != null && ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count == 1 && ds.Tables.Count == 2)
             {
-                result = CreateRecommendationEngine(ds.Tables[0].Rows[0]);
+                result = CreateRecommendationEngine(ds.Tables[0].Rows[0], ds.Tables[1]);
             }
 
             return result;
@@ -3162,6 +3168,35 @@ namespace Tvinci.Core.DAL
                 result.IsActive = is_Active == 1 ? true : false;
                 result.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
                 result.SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret");
+            }
+
+            return result;
+
+        }
+
+        private static RecommendationEngine CreateRecommendationEngine(DataRow recommendationEngineDr, DataTable recommendationEngineSettingsDt)
+        {
+            RecommendationEngine result = null;
+            result = CreateRecommendationEngine(recommendationEngineDr);
+
+            if (recommendationEngineDr != null)
+            {
+                if (recommendationEngineSettingsDt != null && recommendationEngineSettingsDt.Rows != null)
+                {
+                    List<RecommendationEngineSettings> settings = new List<RecommendationEngineSettings>();
+                    foreach (DataRow dr in recommendationEngineSettingsDt.Rows)
+                    {
+                        long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "recommendation_engine_id", 0);
+                        if (id > 0)
+                        {
+                            string key = ODBCWrapper.Utils.GetSafeStr(dr, "key");
+                            string value = ODBCWrapper.Utils.GetSafeStr(dr, "value");
+                            settings.Add(new RecommendationEngineSettings(key, value));
+                        }
+                    }
+
+                    result.Settings = settings;
+                }
             }
 
             return result;
@@ -3284,6 +3319,69 @@ namespace Tvinci.Core.DAL
                             recommendationEngine = CreateRecommendationEngine(dr);
                             if (recommendationEngine != null)
                             {
+                                res.Add(recommendationEngine);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Empty, ex);
+                res = new List<RecommendationEngine>();
+            }
+            return res;
+        }
+
+        public static List<RecommendationEngine> ListRecommendationEngineList(int groupID)
+        {
+            List<RecommendationEngine> res = new List<RecommendationEngine>();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_RecommendationEngines");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
+                {
+                    DataTable dtRecommendationEngines = ds.Tables[0];
+                    DataTable dtRecommendationEnginesSettings = ds.Tables[1];
+                    Dictionary<long, List<RecommendationEngineSettings>> recommendationEngineSettingsMap = new Dictionary<long, List<RecommendationEngineSettings>>();
+                    if (dtRecommendationEnginesSettings != null && dtRecommendationEnginesSettings.Rows != null)
+                    {
+                        foreach (DataRow dr in dtRecommendationEnginesSettings.Rows)
+                        {
+                            long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "recommendation_engine_id", 0);
+                            if (id > 0)
+                            {
+                                string key = ODBCWrapper.Utils.GetSafeStr(dr, "key");
+                                string value = ODBCWrapper.Utils.GetSafeStr(dr, "value");
+                                if (recommendationEngineSettingsMap.ContainsKey(id))
+                                {
+                                    recommendationEngineSettingsMap[id].Add(new RecommendationEngineSettings(key, value));
+                                }
+                                else
+                                {
+                                    List<RecommendationEngineSettings> engineSettings = new List<RecommendationEngineSettings>();
+                                    engineSettings.Add(new RecommendationEngineSettings(key, value));
+                                    recommendationEngineSettingsMap.Add(id, engineSettings);
+                                }
+                            }
+                        }
+                    }
+
+                    if (dtRecommendationEngines != null && dtRecommendationEngines.Rows != null)
+                    {
+                        foreach (DataRow dr in dtRecommendationEngines.Rows)
+                        {
+                            RecommendationEngine recommendationEngine = CreateRecommendationEngine(dr);
+                            if (recommendationEngine != null)
+                            {
+                                if (recommendationEngineSettingsMap.ContainsKey(recommendationEngine.ID))
+                                {
+                                    recommendationEngine.Settings = recommendationEngineSettingsMap[recommendationEngine.ID];
+                                }
+
                                 res.Add(recommendationEngine);
                             }
                         }
@@ -3431,9 +3529,9 @@ namespace Tvinci.Core.DAL
 
             DataSet ds = sp.ExecuteDataSet();
 
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            if (ds != null && ds.Tables != null && ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count == 1 && ds.Tables.Count == 2)
             {
-                result = CreateRecommendationEngine(ds.Tables[0].Rows[0]);
+                result = CreateRecommendationEngine(ds.Tables[0].Rows[0], ds.Tables[1]);
             }
 
             return result;
@@ -3448,6 +3546,37 @@ namespace Tvinci.Core.DAL
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@status", status);
+                DataSet ds = sp.ExecuteDataSetWithListParam();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    DataTable dtResult = ds.Tables[0];
+                    if (dtResult != null && dtResult.Rows != null && dtResult.Rows.Count > 0)
+                    {
+                        ExternalChannel externalChannelBase = null;
+                        foreach (DataRow dr in dtResult.Rows)
+                        {
+                            externalChannelBase = SetExternalChannel(dr);
+                            res.Add(externalChannelBase);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Empty, ex);
+                res = new List<ExternalChannel>();
+            }
+            return res;
+        }
+
+        public static List<ExternalChannel> ListExternalChannel(int groupID)
+        {
+            List<ExternalChannel> res = new List<ExternalChannel>();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_ExternalChannels");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
                 DataSet ds = sp.ExecuteDataSetWithListParam();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {

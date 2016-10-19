@@ -116,11 +116,61 @@ namespace Users
 
         }
 
+        private DomainResponseStatus ConvertDomainStatusToDomainResponseStatus(DomainStatus domainStatus)
+        {
+            switch(domainStatus)
+            {
+                case DomainStatus.OK:
+                    return DomainResponseStatus.OK;
+
+                case DomainStatus.DomainAlreadyExists:
+                    return DomainResponseStatus.DomainAlreadyExists;
+
+                case DomainStatus.ExceededLimit:
+                    return DomainResponseStatus.ExceededLimit;
+
+                case DomainStatus.DeviceTypeNotAllowed:
+                    return DomainResponseStatus.DeviceTypeNotAllowed;
+
+                case DomainStatus.UnKnown:
+                    return DomainResponseStatus.UnKnown;
+
+                case DomainStatus.DeviceNotInDomin:
+                    return DomainResponseStatus.DeviceNotInDomain;
+
+                case DomainStatus.UserNotInDomain:
+                    return DomainResponseStatus.UserNotExistsInDomain;
+
+                case DomainStatus.DomainNotExists:
+                    return DomainResponseStatus.DomainNotExists;
+
+                case DomainStatus.HouseholdUserFailed:
+                    return DomainResponseStatus.HouseholdUserFailed;
+
+                case DomainStatus.DomainSuspended:
+                    return DomainResponseStatus.DomainSuspended;
+
+                case DomainStatus.NoUsersInDomain:
+                    return DomainResponseStatus.NoUsersInDomain;
+
+                case DomainStatus.UserExistsInOtherDomains:
+                    return DomainResponseStatus.UserExistsInOtherDomains;
+            }
+            return DomainResponseStatus.Error;
+        }
+		
         public virtual DomainResponseObject ResetDomain(int nDomainID, int nFrequencyType)
         {
             Domain domain = DomainInitializer(m_nGroupID, nDomainID, false); // build the domain - without insert it to cache 
 
-            DomainResponseStatus eDomainResponseStatus = domain.ResetDomain(nFrequencyType);
+            DomainResponseStatus eDomainResponseStatus;
+            if (domain.m_DomainStatus != DomainStatus.OK)
+            {
+                eDomainResponseStatus = ConvertDomainStatusToDomainResponseStatus(domain.m_DomainStatus);
+                return new DomainResponseObject(null, eDomainResponseStatus);
+            }
+			
+            eDomainResponseStatus = domain.ResetDomain(nFrequencyType);
 
             domain = DomainInitializer(m_nGroupID, nDomainID, true); // Build the domain after the Reset and insert it to cache
 
@@ -1258,9 +1308,9 @@ namespace Users
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 bool bRes = oDomainCache.RemoveDLM(nDlmID);
                 if (bRes)
-                    resp.Code = (int)eResponseStatus.OK;
+                    resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 else
-                    resp.Code = (int)eResponseStatus.DlmNotExist;
+                    resp = new ApiObjects.Response.Status((int)eResponseStatus.DlmNotExist, "Dlm Not Exist");
 
                 return resp;
             }
@@ -1286,7 +1336,7 @@ namespace Users
                 {
                     if (domain.m_nLimit == dlmID) // noo need to change anything
                     {
-                        oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, string.Empty);
+                        oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
                     else
                     {
@@ -1294,7 +1344,7 @@ namespace Users
                         bool bDLM = oDomainsCache.GetDLM(dlmID, nGroupID, out oLimitationsManager);
                         if (!bDLM || oLimitationsManager == null)
                         {
-                            oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.DlmNotExist, string.Empty);
+                            oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.DlmNotExist, "Domain Not Exists");
                         }
                         else // start compare between two DLMs
                         {
@@ -1305,7 +1355,7 @@ namespace Users
                 }
                 else
                 {
-                    oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.DomainNotExists, string.Empty);
+                    oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.DomainNotExists, "Domain Not Exists");
                 }
 
                 return oChangeDLMObj;
@@ -1330,12 +1380,11 @@ namespace Users
                 if (bDLM && dlmObj != null)
                 {
                     oDLMResponse.dlm = dlmObj;
-                    oDLMResponse.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, string.Empty);
+                    oDLMResponse.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
-
                 else
                 {
-                    oDLMResponse.resp = new ApiObjects.Response.Status((int)eResponseStatus.DlmNotExist, string.Empty);
+                    oDLMResponse.resp = new ApiObjects.Response.Status((int)eResponseStatus.DlmNotExist, "Dlm Not Exist");
                 }
 
                 return oDLMResponse;
@@ -1343,7 +1392,7 @@ namespace Users
             catch (Exception ex)
             {
                 log.Error("GetDLM - " + string.Format("failed to GetDLM DlmID = {0}, nGroupID = {1}, ex = {2}", nDlmID, nGroupID, ex.Message), ex);
-                oDLMResponse.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
+                oDLMResponse.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 return oDLMResponse;
             }
         }

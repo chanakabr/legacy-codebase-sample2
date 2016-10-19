@@ -167,6 +167,13 @@ namespace ElasticSearch.Searcher
                 this.ReturnFields.Add("\"recording_id\"");
             }
 
+            // Also return the language specific name field
+            if (this.SearchDefinitions.langauge != null &&
+                !this.SearchDefinitions.langauge.IsDefault)
+            {
+                this.ReturnFields.Add(string.Format("\"name_{0}\"", this.SearchDefinitions.langauge.Code));
+            }
+
             // This is a query-filter.
             // First comes query
             // Then comes filter
@@ -738,8 +745,12 @@ namespace ElasticSearch.Searcher
                 {
                     recordingFilter.AddChild(recoedingsDatesFilter);
                 }
+            }
 
-                #region Excluded CRIDs
+            #region Excluded CRIDs
+
+            if (this.SearchDefinitions.shouldSearchRecordings || this.SearchDefinitions.shouldSearchEpg)
+            {                
 
                 if (this.SearchDefinitions.excludedCrids != null && this.SearchDefinitions.excludedCrids.Count > 0)
                 {
@@ -751,9 +762,11 @@ namespace ElasticSearch.Searcher
 
                     idsTerm.Value.AddRange(this.SearchDefinitions.excludedCrids);
                     recordingFilter.AddChild(idsTerm);
+                    epgFilter.AddChild(idsTerm);
                 }
-                #endregion 
             }
+
+            #endregion
 
             #region Phrase Tree
 
@@ -874,7 +887,8 @@ namespace ElasticSearch.Searcher
             //          unified = OR
             //              [
             //                  epg, 
-            //                  media
+            //                  media,
+            //                  recording
             //              ]
             //      ]
             BaseFilterCompositeType filterParent = new FilterCompositeType(CutWith.AND);

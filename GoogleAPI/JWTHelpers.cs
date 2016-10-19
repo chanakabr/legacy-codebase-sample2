@@ -334,8 +334,6 @@ namespace Tvinic.GoogleAPI
         {
             if (!string.IsNullOrEmpty(algString))
             {
-                JWTHeaderObject.JWTHash _ci;
-
                 //bool boolFunc = Enum.TryParse(algString, out _ci);
                 object d = Enum.Parse(typeof(JWTHeaderObject.JWTHash), algString, true);
 

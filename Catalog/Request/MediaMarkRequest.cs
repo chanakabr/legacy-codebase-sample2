@@ -26,7 +26,7 @@ namespace Catalog.Request
     [DataContract]
     public class MediaMarkRequest : BaseRequest, IRequestImp
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());        
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());         
 
         [DataMember]
         public MediaPlayRequestData m_oMediaPlayRequestData;
@@ -387,20 +387,20 @@ namespace Catalog.Request
                                                         m_oMediaPlayRequestData.m_nLoc, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid,
                                                         m_oMediaPlayRequestData.m_sUDID, playCycleKey, nSwhoosh, contextData)));
                     }
-
-                    if (nActionID == (int)MediaPlayActions.HIT)
-                    // log for mediahit for statistics
-                    {
-                        tasks.Add(Task.Factory.StartNew(() => WriteLiveViews(m_nGroupID, mediaId, nMediaTypeID, nPlayTime, contextData)));
-                    }
                 }
 
                 if (nActionID != -1)
                 {
                     if (nActionID != (int)MediaPlayActions.HIT)
+                    {                        
+                        tasks.Add(Task.Factory.StartNew(() => Catalog.WriteNewWatcherMediaActionLog(nWatcherID, sSessionID, nBillingTypeID, nOwnerGroupID, nQualityID, nFormatID, mediaId,
+                                                                                        m_oMediaPlayRequestData.m_nMediaFileID, m_nGroupID, nCDNID, nActionID, nCountryID, nPlayerID, m_oMediaPlayRequestData.m_nLoc,
+                                                                                        nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, contextData)));
+                    }
+                    else if (UtilsDal.GetGroupFeatureStatus(m_nGroupID, GroupFeature.CROWDSOURCE))
+                    // log for mediahit for statistics
                     {
-                        CatalogDAL.Insert_NewWatcherMediaAction(nWatcherID, sSessionID, nBillingTypeID, nOwnerGroupID, nQualityID, nFormatID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_nGroupID,
-                                                                nCDNID, nActionID, nCountryID, nPlayerID, m_oMediaPlayRequestData.m_nLoc, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID);
+                        tasks.Add(Task.Factory.StartNew(() => WriteLiveViews(m_nGroupID, mediaId, nMediaTypeID, nPlayTime, contextData)));
                     }
 
                     if (IsFirstPlay(nActionID))
@@ -621,7 +621,6 @@ namespace Catalog.Request
                 {
                     nActionID = 40;
                     int siteGuid = 0;
-                    int status = 1;
                     int.TryParse(this.m_oMediaPlayRequestData.m_sSiteGuid, out siteGuid);
                     break;
                 }

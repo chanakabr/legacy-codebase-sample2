@@ -1512,6 +1512,11 @@ namespace DAL
 
                 DataTable dt = CreateDataTable(pgw.Settings);
                 sp.AddDataTableParameter("@KeyValueList", dt);
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    // default on sp is 0
+                    sp.AddParameter("@KeyValueListHasItems", 1);
+                }
 
                 DataSet ds = sp.ExecuteDataSet();
 
@@ -2236,27 +2241,6 @@ namespace DAL
             return response;
         }
 
-        public static bool Update_PaymentGatewayPaymentMethod(int paymentMethodId, string name, bool allowMultiInstance)
-        {
-            int rowCount = 0;
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_PaymentGatewayPaymentMethod");
-                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@payment_method_id", paymentMethodId);
-                sp.AddParameter("@name", name);
-                sp.AddParameter("@allow_multi_instance", allowMultiInstance ? 1 : 0);
-
-                rowCount = sp.ExecuteReturnValue<int>();
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error at Update_PaymentGatewayPaymentMethod. paymentMethodId: {0}, name = {1}", paymentMethodId, !string.IsNullOrEmpty(name) ? name : string.Empty, ex);
-            }
-
-            return rowCount > 0;
-        }
-
         public static bool Delete_PaymentGatewayPaymentMethod(int paymentMethodId)
         {
             int rowCount = 0;
@@ -2379,7 +2363,7 @@ namespace DAL
                         householdPatmentMethod = new HouseholdPaymentMethod()
                         {
                             ID = ODBCWrapper.Utils.GetIntSafeVal(row, "ID"),
-                            ExternalId = ODBCWrapper.Utils.GetSafeStr(row, "NAME"),
+                            ExternalId = ODBCWrapper.Utils.GetSafeStr(row, "PAYMENT_METHOD_EXTERNAL_ID"),
                             Details = ODBCWrapper.Utils.GetSafeStr(row, "PAYMENT_DETAILS"),
                             PaymentGatewayId = paymentGatewayId,
                             PaymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(row, "PAYMENT_METHOD_ID"),

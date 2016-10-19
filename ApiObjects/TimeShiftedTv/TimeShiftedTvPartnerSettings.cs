@@ -23,7 +23,7 @@ namespace ApiObjects.TimeShiftedTv
         public int? ProtectionPeriod { get; set; }
         public int? ProtectionQuotaPercentage { get; set; }
         public int? RecordingLifetimePeriod { get; set; }
-        public int? CleanupNoticePeroid { get; set; }
+        public int? CleanupNoticePeriod { get; set; }
         public bool? IsSeriesRecordingEnabled { get; set; }
         public bool? IsRecordingPlaybackNonEntitledChannelEnabled { get; set; }
         public bool? IsRecordingPlaybackNonExistingChannelEnabled { get; set; }
@@ -51,7 +51,7 @@ namespace ApiObjects.TimeShiftedTv
             this.ProtectionPeriod = protectionPeriod;
             this.ProtectionQuotaPercentage = protectionQuotaPercentage;
             this.RecordingLifetimePeriod = recordingLifetimePeroid;
-            this.CleanupNoticePeroid = cleanupNoticePeroid;
+            this.CleanupNoticePeriod = cleanupNoticePeroid;
             this.IsSeriesRecordingEnabled = isSeriesRecordingEnabled;
             this.IsRecordingPlaybackNonEntitledChannelEnabled = isRecordingPlaybackNonEntitledEnabled;
             this.IsRecordingPlaybackNonExistingChannelEnabled = isRecordingPlaybackNonExistingEnabled;
@@ -74,7 +74,7 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("ProtectionPeriod: {0}, ", ProtectionPeriod.HasValue ? ProtectionPeriod.Value.ToString() : "Null"));
             sb.Append(string.Format("ProtectionQuotaPercentage: {0}, ", ProtectionQuotaPercentage.HasValue ? ProtectionQuotaPercentage.Value.ToString() : "Null"));
             sb.Append(string.Format("RecordingLifetimePeroid: {0}, ", RecordingLifetimePeriod.HasValue ? RecordingLifetimePeriod.Value.ToString() : "Null"));
-            sb.Append(string.Format("CleanupNoticePeroid: {0}, ", CleanupNoticePeroid.HasValue ? CleanupNoticePeroid.Value.ToString() : "Null"));
+            sb.Append(string.Format("CleanupNoticePeroid: {0}, ", CleanupNoticePeriod.HasValue ? CleanupNoticePeriod.Value.ToString() : "Null"));
             sb.Append(string.Format("IsSeriesRecordingEnabled: {0}, ", IsSeriesRecordingEnabled.HasValue ? IsSeriesRecordingEnabled.Value.ToString() : "Null"));
             sb.Append(string.Format("IsRecordingPlaybackNonEntitledChannelEnabled: {0}, ", IsRecordingPlaybackNonEntitledChannelEnabled.HasValue ? IsRecordingPlaybackNonEntitledChannelEnabled.Value.ToString() : "Null"));
             sb.Append(string.Format("IsRecordingPlaybackNonExistingChannelEnabled: {0}, ", IsRecordingPlaybackNonExistingChannelEnabled.HasValue ? IsRecordingPlaybackNonExistingChannelEnabled.Value.ToString() : "Null"));

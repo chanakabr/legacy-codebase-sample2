@@ -36,6 +36,7 @@ using System.IO;
 using ApiObjects.PlayCycle;
 using ApiObjects.Epg;
 using System.Net;
+using WS_API;
 
 namespace Catalog
 {
@@ -43,6 +44,7 @@ namespace Catalog
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly KLogger statisticsLog = new KLogger("MediaEohLogger", true);
+        private static readonly KLogger newWatcherMediaActionLog = new KLogger("NewWatcherMediaActionLogger", true);
 
         private static readonly string TAGS = "tags";
         private static readonly string METAS = "metas";
@@ -1045,11 +1047,8 @@ namespace Catalog
             }
 
             // Initialize web service
-            using (ws_api.API apiWebService = new ws_api.API())
+            using (API apiWebService = new API())
             {
-                string url = Utils.GetWSURL("ws_api");
-                apiWebService.Url = url;
-
                 // Call webservice method
                 var serviceResponse = apiWebService.GetUserParentalRuleTags(userName, password, siteGuid, 0);
 
@@ -1064,7 +1063,7 @@ namespace Catalog
                 if (serviceResponse.status.Code != 0)
                 {
                     throw new Exception(string.Format(
-                        "Error when getting user parental rule tags from WS_API. code ={0}, message = {1}, user_id = {2}, group_id = {3}",
+                        "Error when getting user parental rule tags from  code ={0}, message = {1}, user_id = {2}, group_id = {3}",
                         serviceResponse.status.Code, serviceResponse.status.Message,
                         siteGuid, groupId));
                 }
@@ -3326,7 +3325,12 @@ namespace Catalog
                 case StatsType.MEDIA:
                     {
                         BaseStaticticsBL staticticsBL = StatisticsBL.Utils.GetInstance(nGroupID);
-                        Dictionary<string, BuzzWeightedAverScore> buzzDict = staticticsBL.GetBuzzAverScore(lAssetIDs);
+                        Dictionary<string, BuzzWeightedAverScore> buzzDict = null;
+                        if (UtilsDal.GetGroupFeatureStatus(nGroupID, GroupFeature.BUZZFEED))
+                        {
+                            buzzDict = staticticsBL.GetBuzzAverScore(lAssetIDs);
+                        }
+
                         bool isBuzzNotEmpty = buzzDict != null && buzzDict.Count > 0;
 
                         if (IsBringAllStatsRegardlessDates(dStartDate, dEndDate))
@@ -6922,9 +6926,8 @@ namespace Catalog
                 }
                 return true;
             }
-            catch (Exception ex)
+            catch
             {
-                return false;
             }
             return false;
         }
@@ -7363,24 +7366,27 @@ namespace Catalog
             string key = string.Format("u{0}_{1}{2}", currentResult.UserID, assetType, currentResult.AssetId);
             return key;
         }
-    }
-}
 
-namespace Catalog.ws_api
-{
-    // adding request ID to header
-    public partial class API
-    {
-        protected override WebRequest GetWebRequest(Uri uri)
+        public static void WriteNewWatcherMediaActionLog(int nWatcherID, string sSessionID, int nBillingTypeID, int nOwnerGroupID, int nQualityID, int nFormatID, int nMediaID, int nMediaFileID, int nGroupID,
+                                                        int nCDNID, int nActionID, int nCountryID, int nPlayerID, int nLoc, int nBrowser, int nPlatform, string sSiteGUID, string sUDID, ContextData context)
         {
-            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
-            return request;
+            try
+            {
+                context.Load();
+                // We write an empty string as the first parameter to split the start of the log from the mediaEoh row data
+                string infoToLog = string.Join(",", new object[] { " ", nWatcherID, sSessionID, nBillingTypeID, nOwnerGroupID, nQualityID, nFormatID, nMediaID, nMediaFileID, nGroupID, nCDNID,
+                                                                        nActionID, nCountryID, nPlayerID, nLoc, nBrowser, nPlatform, sSiteGUID, sUDID });
+                newWatcherMediaActionLog.Info(infoToLog);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in WriteNewWatcherMediaActionLog, nWatcherID: {0}, mediaID: {1}, mediaFileID: {2}, groupID: {3}, actionID: {4}, userId: {5}",
+                                         nMediaID, nMediaFileID, nGroupID, nActionID, sSiteGUID), ex);
+            }
         }
 
     }
 }
-
 
 namespace Catalog.WS_Domains
 {

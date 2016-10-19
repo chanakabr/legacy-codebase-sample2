@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -8,24 +9,24 @@ namespace Users
 {
     public static class MailFactory
     {
-        public static TvinciAPI.AddDeviceMailRequest GetAddDeviceMailRequest(int nGroupID, string sMasterFirstName, string sMasterUsername, string sMasterEmail, string sDeviceUdid, string sDeviceName, string sActivationToken)
+        public static AddDeviceMailRequest GetAddDeviceMailRequest(int nGroupID, string sMasterFirstName, string sMasterUsername, string sMasterEmail, string sDeviceUdid, string sDeviceName, string sActivationToken)
         {
-            TvinciAPI.AddDeviceMailRequest retVal = null;
+            AddDeviceMailRequest retVal = null;
              string key = string.Format("users_GetAddDeviceMailRequest_{0}", nGroupID);
-             bool bRes = UsersCache.GetItem<TvinciAPI.AddDeviceMailRequest>(key, out retVal);
+             bool bRes = UsersCache.GetItem<AddDeviceMailRequest>(key, out retVal);
             if (!bRes)
             {
                 DataRowView dvMailParameters = DAL.UsersDal.GetGroupMailParameters(nGroupID);
 
                 if (dvMailParameters != null)
                 {
-                    retVal = new TvinciAPI.AddDeviceMailRequest();
+                    retVal = new AddDeviceMailRequest();
 
                     retVal.m_sTemplateName = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "DEVICE_REQUEST_MAIL");
                     retVal.m_sSubject = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "DEVICE_REQUEST_MAIL_SUBJECT");
                     retVal.m_sSenderFrom = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "MAIL_FROM_ADD");
                     retVal.m_sSenderName = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "MAIL_FROM_NAME");
-                    retVal.m_eMailType = TvinciAPI.eMailTemplateType.AddDeviceToDomain;
+                    retVal.m_eMailType = eMailTemplateType.AddDeviceToDomain;
 
                     UsersCache.AddItem(key, retVal);
                 }
@@ -44,23 +45,23 @@ namespace Users
             return retVal;
         }
 
-        public static TvinciAPI.AddUserMailRequest GetAddUserMailRequest(int nGroupID, string sMasterFirstName, string sMasterUsername, string sMasterUserEmail, string sNewUsername, string sNewFirstName, string sActivationToken)
+        public static AddUserMailRequest GetAddUserMailRequest(int nGroupID, string sMasterFirstName, string sMasterUsername, string sMasterUserEmail, string sNewUsername, string sNewFirstName, string sActivationToken)
         {
-            TvinciAPI.AddUserMailRequest retVal = null;
+            AddUserMailRequest retVal = null;
             string key = string.Format("users_GetAddUserMailRequest_{0}", nGroupID);
-            bool bRes = UsersCache.GetItem<TvinciAPI.AddUserMailRequest>(key, out retVal);
+            bool bRes = UsersCache.GetItem<AddUserMailRequest>(key, out retVal);
             if (!bRes)
             {
                 DataRowView dvMailParameters = DAL.UsersDal.GetGroupMailParameters(nGroupID);
                 if (dvMailParameters != null)
                 {
-                    retVal = new TvinciAPI.AddUserMailRequest();
+                    retVal = new AddUserMailRequest();
                     retVal.m_sTemplateName = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "ACTIVATION_MAIL");
                     retVal.m_sSubject = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "ACTIVATION_MAIL_SUBJECT");
                     retVal.m_sSenderFrom = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "MAIL_FROM_ADD");
                     retVal.m_sSenderName = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "MAIL_FROM_NAME");
 
-                    retVal.m_eMailType = TvinciAPI.eMailTemplateType.AddUserToDomain;
+                    retVal.m_eMailType = eMailTemplateType.AddUserToDomain;
                     UsersCache.AddItem(key, retVal);
                 }
             }
@@ -79,25 +80,25 @@ namespace Users
             return retVal;
         }
 
-        public static TvinciAPI.WelcomeMailRequest GetWelcomeMailRequest(int nGroupID, string sMasterFirstName, string sNewUsername, string sNewFirstName, string sEmail)
+        public static WelcomeMailRequest GetWelcomeMailRequest(int nGroupID, string sMasterFirstName, string sNewUsername, string sNewFirstName, string sEmail)
         {
-            TvinciAPI.WelcomeMailRequest retVal = null;
+            WelcomeMailRequest retVal = null;
 
             string key = string.Format("users_GetWelcomeMailRequest_{0}", nGroupID);
-            bool bRes = UsersCache.GetItem<TvinciAPI.WelcomeMailRequest>(key, out retVal);
+            bool bRes = UsersCache.GetItem<WelcomeMailRequest>(key, out retVal);
             if (!bRes)
             {
                 DataRowView dvMailParameters = DAL.UsersDal.GetGroupMailParameters(nGroupID);
 
                 if (dvMailParameters != null)
                 {
-                    retVal = new TvinciAPI.WelcomeMailRequest();
+                    retVal = new WelcomeMailRequest();
 
                     retVal.m_sTemplateName = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "WELCOME_MAIL");
                     retVal.m_sSubject = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "WELCOME_MAIL_SUBJECT");
                     retVal.m_sSenderFrom = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "MAIL_FROM_ADD");
                     retVal.m_sSenderName = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "MAIL_FROM_NAME");
-                    retVal.m_eMailType = TvinciAPI.eMailTemplateType.Welcome;
+                    retVal.m_eMailType = eMailTemplateType.Welcome;
 
                     UsersCache.AddItem(key, retVal);
                 }

@@ -151,6 +151,44 @@ namespace EpgBL
             return bRes;
         }
 
+        public override bool UpdateEpg(EpgCB newEpgItem, bool isMainLang, out string docID, ulong? cas = null)
+        {
+            bool bRes = false;
+            docID = string.Empty;
+            try
+            {
+                if (newEpgItem == null)
+                    return false;
+
+                for (int i = 0; i < 3 && !bRes; i++)
+                {
+                    if (isMainLang)
+                    {
+                        docID = newEpgItem.EpgID.ToString();
+                    }
+                    else
+                    {
+                        docID = string.Format("epg_{0}_lang_{1}", newEpgItem.EpgID, newEpgItem.Language.ToLower());
+                    }
+
+                    bRes = (cas.HasValue) ? m_oEpgCouchbase.UpdateProgram(docID, newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE), cas.Value) :
+                                            m_oEpgCouchbase.UpdateProgram(docID, newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE));
+                }
+
+                if (!bRes)
+                {
+                    log.Error("InsertEpg - " + string.Format("Failed insert to CB id={0}", docID));
+                    docID = string.Empty;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("InsertEpg - " + string.Format("Exception, EpgID={0}, EpgIdentifier={1}, ChannelID={2}, ex={3} , ST: {4}",
+                   newEpgItem.EpgID, newEpgItem.EpgIdentifier, newEpgItem.ChannelID, ex.Message, ex.StackTrace), ex);
+            }
+            return bRes;
+        }
+
         public bool RemoveEpg(ulong id)
         {
             bool bRes = true;
@@ -300,8 +338,9 @@ namespace EpgBL
 
                 return lResCB;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                log.ErrorFormat("Failed in GetEpgCB. Program Id = {0}. error = {1}", nProgramID, ex);
                 return new List<EpgCB>();
             }
         }
@@ -343,6 +382,13 @@ namespace EpgBL
         public override EpgCB GetEpgCB(ulong nProgramID, out ulong cas)
         {
             EpgCB oRes = m_oEpgCouchbase.GetProgram(nProgramID.ToString(), out cas);
+            oRes = (oRes != null && oRes.ParentGroupID == m_nGroupID) ? oRes : null;
+            return oRes;
+        }
+
+        public override EpgCB GetEpgCB(string ProgramID, out ulong cas)
+        {
+            EpgCB oRes = m_oEpgCouchbase.GetProgram(ProgramID, out cas);
             oRes = (oRes != null && oRes.ParentGroupID == m_nGroupID) ? oRes : null;
             return oRes;
         }

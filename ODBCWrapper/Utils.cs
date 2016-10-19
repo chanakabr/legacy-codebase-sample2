@@ -1074,7 +1074,7 @@ namespace ODBCWrapper
                                     }
                                 }
                             }
-                            catch (Exception ex)
+                            catch 
                             {
                                 //Logger.Logger.Log("DBLock; Executer=" + executer + ", isWritable=" + isWritable, ex.ToString(), "ODBC_DBLock");
                             }
@@ -1099,7 +1099,7 @@ namespace ODBCWrapper
                                     //Logger.Logger.Log("DBLock ", "Created (" + res + ") for " + executer + ", with Key: " + cbKeyPrefix + oValue, "ODBC_DBLock");
                                 }
                             }
-                            catch (Exception ex)
+                            catch 
                             {
                                 //Logger.Logger.Log("DBLock; Executer=" + executer + ", isWritable=" + isWritable, ex.ToString(), "ODBC_DBLock");
                             }
@@ -1109,7 +1109,7 @@ namespace ODBCWrapper
                     }
                 }
             }
-            catch (Exception ex)
+            catch 
             {
                 //Logger.Logger.Log("DBLock", ex.ToString(), "ODBC_DBLock");
             }

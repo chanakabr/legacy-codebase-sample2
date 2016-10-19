@@ -2396,7 +2396,7 @@ namespace DAL
                 bool isDelete = sp.ExecuteReturnValue<bool>();
                 return isDelete;
             }
-            catch (Exception ex)
+            catch 
             {
                 return false;
             }
@@ -2494,6 +2494,18 @@ namespace DAL
 
             return model;
         }
-              
+
+        public static DataTable GetRenewSubscriptionsToRecover(int groupId, DateTime endDateStartRange, DateTime endDateEndRange)
+        {
+            DataTable dt = null;
+            StoredProcedure spGetRenewSubscriptionsToRecover = new StoredProcedure("GetRenewSubscriptionsToRecover");
+            spGetRenewSubscriptionsToRecover.SetConnectionKey("CONNECTION_STRING");
+            spGetRenewSubscriptionsToRecover.AddParameter("@GroupId", groupId);
+            spGetRenewSubscriptionsToRecover.AddParameter("@EndDateStartRange", endDateStartRange);
+            spGetRenewSubscriptionsToRecover.AddParameter("@EndDateEndRange", endDateEndRange);
+            dt = spGetRenewSubscriptionsToRecover.Execute();
+
+            return dt;
+        }
     }
 }

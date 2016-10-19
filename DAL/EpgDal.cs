@@ -668,7 +668,7 @@ namespace Tvinci.Core.DAL
                     list = ds.Tables[0].AsEnumerable().Select(x => (long)(x["id"])).ToList();
                 }
             }
-            catch (Exception ex)
+            catch 
             {
                 return null;
             }

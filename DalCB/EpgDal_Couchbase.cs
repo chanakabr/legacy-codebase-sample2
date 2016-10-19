@@ -20,6 +20,7 @@ namespace DalCB
         private static readonly string EPG_DAL_CB_LOG_FILE = "EpgDAL_CB";
 
         CouchbaseManager.CouchbaseManager cbManager;
+        CouchbaseManager.CouchbaseManager recordingCbManager;
         private int m_nGroupID;
 
         public EpgDal_Couchbase(int nGroupID)
@@ -29,10 +30,11 @@ namespace DalCB
             try
             {
                 cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.EPG);
+                recordingCbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.RECORDINGS);
 
-                if (cbManager == null)
+                if (cbManager == null || recordingCbManager == null)
                 {
-                    log.ErrorFormat("Error creating couchbaseManager for GID:{0}. Couchbase bucket EPG", nGroupID);
+                    log.ErrorFormat("Error creating couchbaseManager for GID:{0}. Couchbase bucket EPG/RECORDINGS", nGroupID);
                 }
             }
             catch (Exception exc)
@@ -234,48 +236,37 @@ namespace DalCB
                 if (ids != null && ids.Count > 0)
                 {
                     IDictionary<string, object> getResult = cbManager.GetValues<object>(ids, true);
+                    List<string> idsToGetFromRecordingsBucket = new List<string>(ids);
 
                     if (getResult != null && getResult.Count > 0)
                     {
                         // Run on original list of Ids, to maintain their order
-                        foreach (var id in ids)
+                        foreach (string id in ids)
                         {
                             // Make sure the Id was returned from CB
                             if (getResult.ContainsKey(id))
                             {
-                                object currentValue = getResult[id];
+                                EpgCB tempEpg = BuildEpgCbFromCbObject(getResult[id]);
 
-                                //resultEpgs.Add(currentValue);
-
-                                // Old code:
-                                // If the value that CB returned is valid
-                                if (currentValue != null)
+                                if (tempEpg != null)
                                 {
-                                    if (currentValue is string || currentValue is Newtonsoft.Json.Linq.JToken ||
-                                        currentValue is Newtonsoft.Json.Linq.JObject)
+                                    if (tempEpg.Status == 1)
                                     {
-                                        string sValue = Convert.ToString(currentValue);
-
-                                        if (!string.IsNullOrEmpty(sValue))
-                                        {
-                                            // Deserialize string from CB to an EpgCB object
-                                            EpgCB tempEpg = JsonConvert.DeserializeObject<EpgCB>(sValue);
-
-                                            // If it was successful, add to list
-                                            if (tempEpg != null && tempEpg.Status == 1)
-                                            {
-                                                resultEpgs.Add(tempEpg);
-                                            }
-                                        }
+                                        resultEpgs.Add(tempEpg);
+                                        idsToGetFromRecordingsBucket.Remove(id);
                                     }
-                                    else if (currentValue is EpgCB)
+                                    else
                                     {
-                                        resultEpgs.Add(currentValue as EpgCB);
+                                        log.WarnFormat("EPG CB DAL - get program with ID {0} from CB, returned with status {1}", tempEpg.EpgID, tempEpg.Status);
                                     }
                                 }
                             }
                         }
                     }
+
+                    var fallBackEpgs = RecordingsBucketFallBack(idsToGetFromRecordingsBucket);
+
+                    resultEpgs.AddRange(fallBackEpgs);
                 }
             }
             catch (Exception ex)
@@ -297,6 +288,62 @@ namespace DalCB
             }
 
             return resultEpgs;
+        }
+
+        private List<EpgCB> RecordingsBucketFallBack(List<string> idsToGetFromRecordingsBucket)
+        {
+            List<EpgCB> resultEpgs = new List<EpgCB>();
+
+            if (idsToGetFromRecordingsBucket != null && idsToGetFromRecordingsBucket.Count > 0)
+            {
+                // try getting Ids from recording bucket
+                IDictionary<string, object> epgsOnRecordingBucket = recordingCbManager.GetValues<object>(idsToGetFromRecordingsBucket, true);
+
+                if (epgsOnRecordingBucket != null && epgsOnRecordingBucket.Count > 0)
+                {
+                    foreach (string id in idsToGetFromRecordingsBucket)
+                    {
+                        if (epgsOnRecordingBucket.ContainsKey(id))
+                        {
+                            EpgCB tempEpg = BuildEpgCbFromCbObject(epgsOnRecordingBucket[id]);
+                            if (tempEpg != null && tempEpg.Status == 1)
+                            {
+                                resultEpgs.Add(tempEpg);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return resultEpgs;
+        }
+
+        private EpgCB BuildEpgCbFromCbObject(object cbObject)
+        {
+            EpgCB epgCb = null;                        
+
+            // Old code:
+            // If the value that CB returned is valid
+            if (cbObject != null)
+            {
+                if (cbObject is string || cbObject is Newtonsoft.Json.Linq.JToken ||
+                    cbObject is Newtonsoft.Json.Linq.JObject)
+                {
+                    string sValue = Convert.ToString(cbObject);
+
+                    if (!string.IsNullOrEmpty(sValue))
+                    {
+                        // Deserialize string from CB to an EpgCB object
+                        epgCb = JsonConvert.DeserializeObject<EpgCB>(sValue);
+                    }
+                }
+                else if (cbObject is EpgCB)
+                {
+                    epgCb = cbObject as EpgCB;
+                }
+            }
+
+            return epgCb;
         }
 
         //returns all programs with group id from view (does not take start_date into consideration)

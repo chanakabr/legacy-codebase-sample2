@@ -171,17 +171,6 @@ namespace ConditionalAccess
         UserSuspended = 8,
     }
     
-    [Serializable]
-    public enum eTransactionType
-    {
-        [EnumMember]
-        PPV,
-        [EnumMember]
-        Subscription,
-        [EnumMember]
-        Collection
-    }
-    
     internal enum BundleToUse : byte
     {
         All = 0,

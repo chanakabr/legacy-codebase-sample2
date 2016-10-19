@@ -8,6 +8,7 @@ using System.Text;
 using TVinciShared;
 using KLogMonitor;
 using System.Reflection;
+using Pricing;
 
 namespace ConditionalAccess
 {
@@ -461,7 +462,7 @@ namespace ConditionalAccess
             return bm.CC_ChargeUser(sWSUsername, sWSPassword, sSiteGuid, dPrice, sCurrency, sUserIP, sCustomData, 1, nNumOfPayments, sExtraParams, sPaymentMethodID, sEncryptedCVV);
         }
 
-        protected override bool HandleChargeUserForSubscriptionBillingSuccess(string sWSUsername, string sWSPassword, string sSiteGUID, int domainID, TvinciPricing.Subscription theSub, 
+        protected override bool HandleChargeUserForSubscriptionBillingSuccess(string sWSUsername, string sWSPassword, string sSiteGUID, int domainID, Subscription theSub, 
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode, 
             string sDeviceName, TvinciBilling.BillingResponse br, bool bIsEntitledToPreviewModule, string sSubscriptionCode, 
             string sCustomData, bool bIsRecurring, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, ref TvinciBilling.module wsBillingService)
@@ -500,9 +501,9 @@ namespace ConditionalAccess
             return !isDummy || price != 0d;
         }
 
-         protected override bool HandleChargeUserForMediaFileBillingSuccess(string sWSUsername, string sWSPassword, string sSiteGUID,int domainID, TvinciPricing.Subscription relevantSub, 
+         protected override bool HandleChargeUserForMediaFileBillingSuccess(string sWSUsername, string sWSPassword, string sSiteGUID,int domainID, Subscription relevantSub, 
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode, string sDeviceName, 
-            TvinciBilling.BillingResponse br, string sCustomData, TvinciPricing.PPVModule thePPVModule, long lMediaFileID,
+            TvinciBilling.BillingResponse br, string sCustomData, PPVModule thePPVModule, long lMediaFileID,
             ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, ref TvinciBilling.module wsBillingService, string billingGuid = null, DateTime? startDate = null, DateTime? endDate = null)
         {
             bool res = base.HandleChargeUserForMediaFileBillingSuccess(sWSUsername,sWSPassword, sSiteGUID, domainID, relevantSub, dPrice, sCurrency,
@@ -534,7 +535,7 @@ namespace ConditionalAccess
             return res;
         }
 
-        protected override bool IsTakePriceFromBundleFinalPrice(bool isDummy, TvinciPricing.Price p)
+        protected override bool IsTakePriceFromBundleFinalPrice(bool isDummy, Price p)
         {
             return false;
         }

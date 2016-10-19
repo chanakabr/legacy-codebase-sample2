@@ -5184,15 +5184,22 @@ namespace TvinciImporter
         /// <returns>Concatenated urls from DB</returns>
         private static string GetCatalogUrlByParameters(int groupId, eObjectType? objectType, eAction? action)
         {
-            string catalogURL = GetConfigVal("WS_Catalog");
+            string tcmCatalogURL = GetConfigVal("WS_Catalog");
+            string catalogURL = tcmCatalogURL;
 
             try
             {
                 catalogURL = DAL.ImporterImpDAL.Get_CatalogUrlByParameters(groupId, objectType, action);
+
+                if (!catalogURL.Contains(tcmCatalogURL))
+                {
+                    catalogURL = string.Format("{0};{1}", catalogURL, tcmCatalogURL);
+                }
             }
             catch (Exception ex)
             {
                 log.Error("GetCatalogUrlByAction - GroupID : " + groupId + ", error : " + ex.Message, ex);
+                catalogURL = tcmCatalogURL;
             }
 
             return catalogURL;
@@ -5232,7 +5239,7 @@ namespace TvinciImporter
                 }
                 return response.Status;
             }
-            catch (Exception ex)
+            catch 
             {
                 return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
             }
@@ -5446,7 +5453,7 @@ namespace TvinciImporter
                 }
                 return response.Status;
             }
-            catch (Exception ex)
+            catch 
             {
                 return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
             }
@@ -5527,6 +5534,12 @@ namespace TvinciImporter
 
                         foreach (string sEndPointAddress in arrAddresses)
                         {
+                            if (string.IsNullOrWhiteSpace(sEndPointAddress))
+                            {
+                                log.WarnFormat("UpdateIndex - one of Catalog URLs is empty");
+                                continue;
+                            }
+
                             try
                             {
                                 wsCatalog = GetCatalogClient(sEndPointAddress);

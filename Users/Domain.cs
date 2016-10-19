@@ -1768,7 +1768,9 @@ namespace Users
         private Dictionary<int, int> GetConcurrentCount(long lDomainID, string sUDID, ref int nTotalConcurrentStreamsWithoutGivenDevice)
         {
             Dictionary<int, int> res = null;
-            List<UserMediaMark> positions = CatalogDAL.GetDomainLastPositions((int)lDomainID, Utils.CONCURRENCY_MILLISEC_THRESHOLD);
+            List<UserMediaMark> positions = CatalogDAL.GetDomainLastPositions((int)lDomainID, Utils.CONCURRENCY_MILLISEC_THRESHOLD,
+                        new List<ePlayType>() { ApiObjects.ePlayType.NPVR, ApiObjects.ePlayType.MEDIA });
+
             if (positions != null)
             {
                 res = new Dictionary<int, int>();
@@ -1989,7 +1991,7 @@ namespace Users
 
                 User masterUser = new User(nGroupID, m_masterGUIDs[0]);
 
-                TvinciAPI.AddDeviceMailRequest sMailRequest = null;
+                AddDeviceMailRequest sMailRequest = null;
 
                 if (masterUser != null)
                 {
@@ -2385,7 +2387,7 @@ namespace Users
                 // Now we can send the activation mail to the Master
                 if (!string.IsNullOrEmpty(sActivationToken))
                 {
-                    TvinciAPI.AddUserMailRequest sMailRequest = MailFactory.GetAddUserMailRequest(nGroupID, masterUser.m_oBasicData.m_sFirstName, masterUser.m_oBasicData.m_sUserName, masterUser.m_oBasicData.m_sEmail,
+                    AddUserMailRequest sMailRequest = MailFactory.GetAddUserMailRequest(nGroupID, masterUser.m_oBasicData.m_sFirstName, masterUser.m_oBasicData.m_sUserName, masterUser.m_oBasicData.m_sEmail,
                                                                                                 sNewUsername, sNewFirstName, sActivationToken);
                     if (sMailRequest != null)
                     {
@@ -2545,7 +2547,8 @@ namespace Users
 
             if (nMediaConcurrencyLimit > 0) // check concurrency only if limitation  > 0 
             {
-                List<UserMediaMark> lUserMediaMark = CatalogDAL.GetDomainLastPositions((int)lDomainID, Utils.CONCURRENCY_MILLISEC_THRESHOLD);
+                List<UserMediaMark> lUserMediaMark = CatalogDAL.GetDomainLastPositions((int)lDomainID, Utils.CONCURRENCY_MILLISEC_THRESHOLD,
+                        new List<ePlayType>() { ApiObjects.ePlayType.NPVR, ApiObjects.ePlayType.MEDIA });
                 if (lUserMediaMark != null)
                 {
                     List<UserMediaMark> lMediaConcurrency = lUserMediaMark.Where(c => !c.UDID.Equals(sUDID) && c.MediaID == nMediaID && c.CreatedAt.AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow).ToList();
@@ -2576,7 +2579,9 @@ namespace Users
 
                 if (nNpvrConcurrencyLimit > 0) // check concurrency only if limitation  > 0 
                 {
-                    List<UserMediaMark> lUserMediaMark = CatalogDAL.GetDomainLastPositions((int)lDomainID, Utils.CONCURRENCY_MILLISEC_THRESHOLD, ApiObjects.ePlayType.NPVR);
+                    List<UserMediaMark> lUserMediaMark = CatalogDAL.GetDomainLastPositions((int)lDomainID, Utils.CONCURRENCY_MILLISEC_THRESHOLD,
+                        new List<ePlayType>() { ApiObjects.ePlayType.NPVR, ApiObjects.ePlayType.MEDIA });
+
                     if (lUserMediaMark != null)
                     {
                         List<UserMediaMark> lMediaConcurrency = lUserMediaMark.Where(c => c.NpvrID == sNPVR && c.CreatedAt.AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow).ToList();

@@ -8,7 +8,6 @@ using System.Web.Script.Serialization;
 using System.Threading.Tasks;
 using System.Reflection;
 using NotificationObj;
-using System.Linq;
 using System.Threading;
 using System.Text.RegularExpressions;
 using KLogMonitor;
@@ -1165,7 +1164,6 @@ namespace NotificationInterface
             try
             {
                 int tagTypeId = 0;
-                int isAll = 1;
                 Dictionary<string, List<string>> notificationTags = null;
                 Dictionary<string, List<string>> notificationTagsAll = null;
                 Dictionary<int, List<int>> lTag = new Dictionary<int, List<int>>();

@@ -14123,7 +14123,6 @@ namespace TVinciShared
             bool bWithFileTypes = false;
             bool bIsLangMain = true;
             ProtocolsFuncs.GetLangData(sLang, nGroupID, ref nLangID, ref bIsLangMain);
-            ApiObjects.PlayListSchema oPlayListSchema = null;
 
 
             int mediaCount = 0;

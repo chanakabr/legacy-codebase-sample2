@@ -166,6 +166,12 @@ namespace QueueWrapper
                     {
                         try
                         {
+                            if (this.m_Model != null)
+                            {
+                                this.m_Model.Dispose();
+                                this.m_Model = null;
+                            }
+
                             this.m_Model = m_Connection.CreateModel();
                         }
                         // If failed, retry until we reach limit - with a new connection
@@ -185,7 +191,7 @@ namespace QueueWrapper
                             // should be "application/json"
                             if (!string.IsNullOrEmpty(configuration.ContentType))
                                 properties.ContentType = configuration.ContentType;
-                            
+
                             // set message expiration
                             if (expirationMiliSec != 0)
                                 properties.Expiration = expirationMiliSec.ToString();
@@ -193,7 +199,10 @@ namespace QueueWrapper
                             properties.DeliveryMode = 2;
                             properties.SetPersistent(true);
 
-                            using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_RABBITMQ, null, null, null, null) { Database = configuration.Exchange })
+                            using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_RABBITMQ, null, null, null, null)
+                            {
+                                Database = configuration.Exchange
+                            })
                             {
                                 m_Model.BasicPublish(configuration.Exchange, configuration.RoutingKey, properties, body);
                             }
@@ -205,18 +214,21 @@ namespace QueueWrapper
 
                             isPublishSucceeded = true;
                             ResetFailCounter();
+
+                            m_Model.Dispose();
+                            m_Model = null;
                         }
                     }
                     catch (OperationInterruptedException ex)
                     {
-                        log.ErrorFormat("OperationInterruptedException - Failed publishing message to rabbit. Message = {0}, EX = {1}", ex.Message, ex);                        
+                        log.ErrorFormat("OperationInterruptedException - Failed publishing message to rabbit. Message = {0}, EX = {1}", ex.Message, ex);
                         ClearConnection();
                         return Publish(configuration, message);
                     }
                     catch (Exception ex)
                     {
                         log.ErrorFormat("Failed publishing message to rabbit. Message = {0}, EX = {1}", ex.Message, ex);
-                        IncreaseFailCounter();                        
+                        IncreaseFailCounter();
                     }
                 }
                 else
@@ -252,22 +264,36 @@ namespace QueueWrapper
 
                         if (this.m_Connection != null)
                         {
-                            this.m_Connection = null;
-                            this.m_Model = null;
+                            this.m_Connection.Dispose();
                         }
                     }
                     catch (Exception ex)
                     {
                         log.Error("Failed closing instance of Rabbit Connection.", ex);
-                        m_Connection = null;
-                        m_Model = null;
                     }
                     finally
                     {
                         m_Connection = null;
                         m_Model = null;
-                        mutex.ReleaseMutex();
                     }
+
+                    try
+                    {
+                        if (this.m_Model != null)
+                        {
+                            this.m_Model.Dispose();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error("Failed closing instance of Rabbit Connection (model).", ex);
+                    }
+                    finally
+                    {
+                        m_Model = null;
+                    }
+
+                    mutex.ReleaseMutex();
                 }
             }
         }
@@ -327,7 +353,7 @@ namespace QueueWrapper
 
                 return false;
             }
-            catch (Exception ex) { return false; }
+            catch { return false; }
             finally
             {
                 Close();
@@ -406,7 +432,7 @@ namespace QueueWrapper
 
         #region Private Methods
 
-        private void ResetFailCounter()
+        public void ResetFailCounter()
         {
             if (m_FailCounter > 0)
             {

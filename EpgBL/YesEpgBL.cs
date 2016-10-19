@@ -72,8 +72,12 @@ namespace EpgBL
         {
             EPGChannelProgrammeObject res = GetProgramData(nProgramID.ToString());
             return res;
-        }      
-
+        }
+        public override EpgCB GetEpgCB(string ProgramID, out ulong cas)
+        {
+            cas = 0;
+            return null;
+        }
         public override List<EPGChannelProgrammeObject> GetEpgs(List<int> lIds)
         {
             List<EPGChannelProgrammeObject> res = new List<EPGChannelProgrammeObject>();
@@ -162,7 +166,11 @@ namespace EpgBL
         {
             return false;
         }
-
+        public override bool UpdateEpg(EpgCB newEpgItem, bool isMainLang, out string docID, ulong? cas = null)
+        {
+            docID = string.Empty;
+            return false;
+        }
         public override void RemoveGroupPrograms(DateTime? fromDate, DateTime? toDate)
         {
         }

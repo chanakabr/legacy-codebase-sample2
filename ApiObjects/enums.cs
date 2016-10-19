@@ -740,4 +740,35 @@ namespace ApiObjects
     {
         Delete = 0
     }
+
+    public enum MetaType
+    {
+        All,
+        String,
+        Number,
+        Bool,
+        Tag,
+    }
+
+    public enum MetaFieldName
+    {
+        All,
+        None,
+        SeriesId,
+        SeasonNumber,
+        EpisodeNumber,
+    }
+
+    public enum ScheduledRecordingAssetType
+    {
+        SINGLE = 0,
+        SERIES = 1,
+        ALL = 2
+    }
+
+    public enum GroupFeature
+    { 
+        CROWDSOURCE = 0,
+        BUZZFEED = 1
+    }
 }

@@ -364,7 +364,7 @@ namespace CouchbaseManager
             return result;
         }
 
-        public List<ViewRow<T>> QueryRows<T>(IBucket bucket)
+        public List<ViewRow<T>> QueryRows<T>(IBucket bucket, ref long totalNumOfResults)
         {
             List<ViewRow<T>> result = new List<ViewRow<T>>();
 
@@ -378,6 +378,7 @@ namespace CouchbaseManager
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
                     queryResult = bucket.Query<object>(query);
+                    totalNumOfResults = queryResult.TotalRows;
                 }
 
                 // If something went wrong - log it and throw exception (if there is one)
@@ -446,6 +447,7 @@ namespace CouchbaseManager
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
                     queryResult = bucket.Query<T>(query);
+                    totalNumOfResults = queryResult.TotalRows;
                 }
 
                 // If something went wrong - log it and throw exception (if there is one)

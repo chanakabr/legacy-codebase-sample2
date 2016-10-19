@@ -3359,7 +3359,7 @@ namespace DAL
                 }
                 return new List<RegistrySettings>();
             }
-            catch (Exception ex)
+            catch
             {
                 return new List<RegistrySettings>();
             }
@@ -3466,7 +3466,7 @@ namespace DAL
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@ProtectionPeriod", settings.ProtectionPeriod);
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@ProtectionQuotaPercentage", settings.ProtectionQuotaPercentage);
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@RecordingLifetimePeriod", settings.RecordingLifetimePeriod);
-                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@CleanupNoticePeriod", settings.CleanupNoticePeroid);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@CleanupNoticePeriod", settings.CleanupNoticePeriod);
                 if (!settings.IsSeriesRecordingEnabled.HasValue) // Default = enabled
                 {
                     settings.IsSeriesRecordingEnabled = true;
@@ -3620,7 +3620,7 @@ namespace DAL
                 bool isDelete = sp.ExecuteReturnValue<bool>();
                 return isDelete;
             }
-            catch (Exception ex)
+            catch
             {
                 return false;
             }
