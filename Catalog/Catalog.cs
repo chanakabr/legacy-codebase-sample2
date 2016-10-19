@@ -44,6 +44,7 @@ namespace Catalog
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly KLogger statisticsLog = new KLogger("MediaEohLogger", true);
+        private static readonly KLogger newWatcherMediaActionLog = new KLogger("NewWatcherMediaActionLogger", true);
 
         private static readonly string TAGS = "tags";
         private static readonly string METAS = "metas";
@@ -7365,6 +7366,25 @@ namespace Catalog
             string key = string.Format("u{0}_{1}{2}", currentResult.UserID, assetType, currentResult.AssetId);
             return key;
         }
+
+        public static void WriteNewWatcherMediaActionLog(int nWatcherID, string sSessionID, int nBillingTypeID, int nOwnerGroupID, int nQualityID, int nFormatID, int nMediaID, int nMediaFileID, int nGroupID,
+                                                        int nCDNID, int nActionID, int nCountryID, int nPlayerID, int nLoc, int nBrowser, int nPlatform, string sSiteGUID, string sUDID, ContextData context)
+        {
+            try
+            {
+                context.Load();
+                // We write an empty string as the first parameter to split the start of the log from the mediaEoh row data
+                string infoToLog = string.Join(",", new object[] { " ", nWatcherID, sSessionID, nBillingTypeID, nOwnerGroupID, nQualityID, nFormatID, nMediaID, nMediaFileID, nGroupID, nCDNID,
+                                                                        nActionID, nCountryID, nPlayerID, nLoc, nBrowser, nPlatform, sSiteGUID, sUDID });
+                newWatcherMediaActionLog.Info(infoToLog);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in WriteNewWatcherMediaActionLog, nWatcherID: {0}, mediaID: {1}, mediaFileID: {2}, groupID: {3}, actionID: {4}, userId: {5}",
+                                         nMediaID, nMediaFileID, nGroupID, nActionID, sSiteGUID), ex);
+            }
+        }
+
     }
 }
 
