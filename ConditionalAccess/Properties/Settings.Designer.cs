@@ -26,16 +26,6 @@ namespace ConditionalAccess.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("https://platform-us.tvinci.com/billing/module.asmx")]
-        public string ConditionalAccess_TvinciBilling_module {
-            get {
-                return ((string)(this["ConditionalAccess_TvinciBilling_module"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
         [global::System.Configuration.DefaultSettingValueAttribute("http://54.72.1.39:8030/users_v3_7/module.asmx")]
         public string ConditionalAccess_TvinciUsers_UsersService {
             get {

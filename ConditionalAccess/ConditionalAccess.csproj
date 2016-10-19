@@ -117,7 +117,6 @@
     <Compile Include="UserEntitlementsObject.cs" />
     <Compile Include="Implementations\BaseConditionalAccess.cs" />
     <Compile Include="Commands\BaseNPVRCommand.cs" />
-    <Compile Include="Response\BillingResponse.cs" />
     <Compile Include="BillingTransactionContainer.cs" />
     <Compile Include="CampaignActionInfo.cs" />
     <Compile Include="Response\BillingStatusResponse.cs" />
@@ -132,9 +131,6 @@
     <Compile Include="Response\DomainServicesResponse.cs" />
     <Compile Include="Response\Entitlement.cs" />
     <Compile Include="Response\EntitlementResponse.cs" />
-    <Compile Include="iTunesReceipt.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Commands\LicensedLinkNPVRCommand.cs" />
     <Compile Include="Response\LicensedLinkNPVRResponse.cs" />
     <Compile Include="Response\LicensedLinkResponse.cs" />
@@ -157,7 +153,6 @@
     <Compile Include="Implementations\ElisaConditionalAccess.cs" />
     <Compile Include="enums.cs" />
     <Compile Include="Implementations\FilmoConditionalAccess.cs" />
-    <Compile Include="InAppReceipt.cs" />
     <Compile Include="ItemPriceContainer.cs" />
     <Compile Include="LicenseContainer.cs" />
     <Compile Include="PermittedMediaContainer.cs" />
@@ -186,11 +181,6 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Compile>
     <Compile Include="Web References\tikle\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>
-    <Compile Include="Web References\TvinciBilling\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.map</DependentUpon>
@@ -295,42 +285,6 @@
     <None Include="Web References\NotificationService\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <None Include="Web References\TvinciBilling\AdyenBillingDetail1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciBilling\HouseholdPaymentGatewayResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciBilling\PaymentGateway.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciBilling\PaymentGatewayChargeIDResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciBilling\PaymentGatewayConfigurationResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciBilling\PaymentGatewayItemResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciBilling\PaymentGatewayResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciBilling\PaymentGatewaySettingsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciBilling\PurchaseAdapterResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciBilling\Status.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciBilling\TransactResult1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciBilling\UpdatePendingResponse1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\TvinciDomains\ChangeDLMObj.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -448,17 +402,6 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>ConditionalAccess_TvinciDomains_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost:81/WS_Billing/module.asmx">
-      <UrlBehavior>Static</UrlBehavior>
-      <RelPath>Web References\TvinciBilling\</RelPath>
-      <UpdateFromURL>http://localhost:81/WS_Billing/module.asmx</UpdateFromURL>
-      <ServiceLocationURL>
-      </ServiceLocationURL>
-      <CachedDynamicPropName>
-      </CachedDynamicPropName>
-      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
-      <CachedSettingsPropName>ConditionalAccess_TvinciBilling_module</CachedSettingsPropName>
-    </WebReferenceUrl>
     <WebReferenceUrl Include="http://localhost/WS_Users/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciUsers\</RelPath>
@@ -506,20 +449,6 @@
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\tikle\Service.wsdl" />
-    <None Include="Web References\TvinciBilling\InAppBillingResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciBilling\module.wsdl" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Web References\TvinciBilling\BillingResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciBilling\module.disco" />
-    <None Include="Web References\TvinciBilling\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="Web References\TvinciUsers\module.wsdl" />
@@ -557,6 +486,14 @@
     <ProjectReference Include="..\..\ws_api\WS_API.csproj">
       <Project>{bef1df84-21c1-47da-bb2d-bb607ee1978e}</Project>
       <Name>WS_API</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ws_billing\Billing\Billing.csproj">
+      <Project>{0b4a22f7-e733-4bf3-a77d-fc2cf4f61a5a}</Project>
+      <Name>Billing</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ws_billing\WS_Billing.csproj">
+      <Project>{944128c1-804a-4444-a697-37e019af5850}</Project>
+      <Name>WS_Billing</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\ws_pricing\Pricing\Pricing.csproj">
       <Project>{143a9361-b461-42a7-b579-a75c0e7b1ea3}</Project>

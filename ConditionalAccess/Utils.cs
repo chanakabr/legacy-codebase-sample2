@@ -6293,17 +6293,3 @@ namespace ConditionalAccess.TvinciUsers
         }
     }
 }
-
-namespace ConditionalAccess.TvinciBilling
-{
-    // adding request ID to header
-    public partial class module
-    {
-        protected override WebRequest GetWebRequest(Uri uri)
-        {
-            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
-            return request;
-        }
-    }
-}

@@ -9,6 +9,8 @@ using TVinciShared;
 using KLogMonitor;
 using System.Reflection;
 using Pricing;
+using WS_Billing;
+using Billing;
 
 namespace ConditionalAccess
 {
@@ -292,10 +294,10 @@ namespace ConditionalAccess
             return TVinciShared.HashUtils.GetMD5HashUTF8EncodingInHexaString(String.Concat(DateTime.UtcNow.ToString("yyyy-MM-dd"), secret));
         }
 
-        protected override TvinciBilling.BillingResponse HandleBaseRenewMPPBillingCharge(string sSiteGuid, double dPrice, string sCurrency, string sUserIP, string sCustomData, int nPaymentNumber, int nRecPeriods, string sExtraParams, int nBillingMethod, long lPurchaseID, ConditionalAccess.eBillingProvider bp)
+        protected override BillingResponse HandleBaseRenewMPPBillingCharge(string sSiteGuid, double dPrice, string sCurrency, string sUserIP, string sCustomData, int nPaymentNumber, int nRecPeriods, string sExtraParams, int nBillingMethod, long lPurchaseID, ConditionalAccess.eBillingProvider bp)
         {
-            TvinciBilling.module bm = null;
-            TvinciBilling.BillingResponse res = null;
+            module bm = null;
+            BillingResponse res = null;
             try
             {
                 string sWSUsername = string.Empty;
@@ -457,15 +459,15 @@ namespace ConditionalAccess
             }
         }
 
-        protected override TvinciBilling.BillingResponse HandleCCChargeUser(string sWSUsername, string sWSPassword, string sSiteGuid, double dPrice, string sCurrency, string sUserIP, string sCustomData, int nPaymentNumber, int nNumOfPayments, string sExtraParams, string sPaymentMethodID, string sEncryptedCVV, bool bIsDummy, bool bIsEntitledToPreviewModule, ref TvinciBilling.module bm)
+        protected override BillingResponse HandleCCChargeUser(string sWSUsername, string sWSPassword, string sSiteGuid, double dPrice, string sCurrency, string sUserIP, string sCustomData, int nPaymentNumber, int nNumOfPayments, string sExtraParams, string sPaymentMethodID, string sEncryptedCVV, bool bIsDummy, bool bIsEntitledToPreviewModule, ref module bm)
         {
             return bm.CC_ChargeUser(sWSUsername, sWSPassword, sSiteGuid, dPrice, sCurrency, sUserIP, sCustomData, 1, nNumOfPayments, sExtraParams, sPaymentMethodID, sEncryptedCVV);
         }
 
         protected override bool HandleChargeUserForSubscriptionBillingSuccess(string sWSUsername, string sWSPassword, string sSiteGUID, int domainID, Subscription theSub, 
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode, 
-            string sDeviceName, TvinciBilling.BillingResponse br, bool bIsEntitledToPreviewModule, string sSubscriptionCode, 
-            string sCustomData, bool bIsRecurring, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, ref TvinciBilling.module wsBillingService)
+            string sDeviceName, BillingResponse br, bool bIsEntitledToPreviewModule, string sSubscriptionCode, 
+            string sCustomData, bool bIsRecurring, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, ref module wsBillingService)
         {
             bool res = base.HandleChargeUserForSubscriptionBillingSuccess(sWSUsername, sWSPassword,sSiteGUID, domainID, theSub, dPrice, sCurrency,
                 sCouponCode, sUserIP, sCountryCd, sLanguageCode, sDeviceName, br, bIsEntitledToPreviewModule, sSubscriptionCode,
@@ -503,8 +505,8 @@ namespace ConditionalAccess
 
          protected override bool HandleChargeUserForMediaFileBillingSuccess(string sWSUsername, string sWSPassword, string sSiteGUID,int domainID, Subscription relevantSub, 
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode, string sDeviceName, 
-            TvinciBilling.BillingResponse br, string sCustomData, PPVModule thePPVModule, long lMediaFileID,
-            ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, ref TvinciBilling.module wsBillingService, string billingGuid = null, DateTime? startDate = null, DateTime? endDate = null)
+            BillingResponse br, string sCustomData, PPVModule thePPVModule, long lMediaFileID,
+            ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, ref module wsBillingService, string billingGuid = null, DateTime? startDate = null, DateTime? endDate = null)
         {
             bool res = base.HandleChargeUserForMediaFileBillingSuccess(sWSUsername,sWSPassword, sSiteGUID, domainID, relevantSub, dPrice, sCurrency,
                 sCouponCode, sUserIP, sCountryCd, sLanguageCode, sDeviceName, br, sCustomData, thePPVModule, lMediaFileID,
