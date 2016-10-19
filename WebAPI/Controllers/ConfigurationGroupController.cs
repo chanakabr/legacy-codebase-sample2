@@ -115,17 +115,19 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.NotExist)]
         [Throws(eResponseStatus.IllegalPostData)]
-        public KalturaConfigurationGroup Update(string id, KalturaConfigurationGroup configurationGroup) 
+        public KalturaConfigurationGroup Update(string id, KalturaConfigurationGroup configurationGroup)
         {
             KalturaConfigurationGroup response = null;
+
+            if (string.IsNullOrWhiteSpace(id))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "id");
 
             try
             {
                 int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
-                
-                response = DMSClient.UpdateConfigurationGroup(partnerId, configurationGroup);
+                response = DMSClient.UpdateConfigurationGroup(partnerId, id, configurationGroup);
             }
             catch (ClientException ex)
             {

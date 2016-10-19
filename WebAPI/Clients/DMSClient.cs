@@ -9,6 +9,7 @@ using System.Reflection;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.DMS;
+using WebAPI.Models.General;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
 
@@ -144,7 +145,7 @@ namespace WebAPI.Clients
             return configurationGroup;
         }
 
-        internal static KalturaConfigurationGroup UpdateConfigurationGroup(int partnerId, KalturaConfigurationGroup configurationGroup)
+        internal static KalturaConfigurationGroup UpdateConfigurationGroup(int partnerId, string configurationGroupId, KalturaConfigurationGroup configurationGroup)
         {
             KalturaConfigurationGroup result = null;
             DMSGroupConfiguration dmsGroupConfiguration = null;
@@ -156,7 +157,7 @@ namespace WebAPI.Clients
             {
                 dmsGroupConfiguration = Mapper.Map<DMSGroupConfiguration>(configurationGroup);
                 dmsGroupConfiguration.PartnerId = partnerId;
-                //dmsGroupConfiguration.id
+                dmsGroupConfiguration.Id = configurationGroupId;
                 // call client  
                 string data = JsonConvert.SerializeObject(dmsGroupConfiguration);
                 dmsResult = CallDMSClient(DMSCall.PUT, url, data);
@@ -511,15 +512,11 @@ namespace WebAPI.Clients
             return configuration;
         }
 
-        internal static KalturaConfigurationListResponse GetConfigurationList(int partnerId, KalturaConfigurationType configurationType, string configurationId)
+        internal static KalturaConfigurationListResponse GetConfigurationList(int partnerId, string configurationGroupId)
         {
             KalturaConfigurationListResponse result = new KalturaConfigurationListResponse() { TotalCount = 0 };
 
-            if (configurationType != KalturaConfigurationType.NotDefault)
-            {
-                configurationId = "null";
-            }
-            string url = string.Format("{0}/{1}/{2}/{3}", DMSControllers.Configuration.ToString(), partnerId, configurationType.ToString(), configurationId);
+            string url = string.Format("{0}/List/{1}/{2}", DMSControllers.Configuration.ToString(), partnerId, configurationGroupId);
             string dmsResult = string.Empty;
 
             try
@@ -529,7 +526,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while getting configuration list. partnerId: {0}, configurationType: {1}, configurationId: {2}, exception: {3}", partnerId, configurationType.ToString(), configurationId, ex);
+                log.ErrorFormat("Error while getting configuration list. partnerId: {0}, configurationGroupId: {1}, exception: {2}", partnerId, configurationGroupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -809,9 +806,9 @@ namespace WebAPI.Clients
         #endregion
 
         #region Report Device
-        internal static KalturaConfigurationGroupDeviceReport GetDeviceReport(int partnerId, string udid)
+        internal static KalturaDeviceReport GetDeviceReport(int partnerId, string udid)
         {
-            KalturaConfigurationGroupDeviceReport device = null;
+            KalturaDeviceReport device = null;
             string url = string.Format("{0}/{1}/{2}", DMSControllers.Report.ToString(), partnerId, udid);
             string result = string.Empty;
 
@@ -838,7 +835,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)DMSMapping.ConvertDMSStatus(response.Result.Status), response.Result.Message);
             }
 
-            device = Mapper.Map<KalturaConfigurationGroupDeviceReport>(response.Device);
+            device = Mapper.Map<KalturaDeviceReport>(response.Device);
 
             return device;
 
@@ -877,7 +874,7 @@ namespace WebAPI.Clients
             {
                 result.TotalCount = response.DeviceList.Count;
                 // convert kaltura device            
-               // result.Objects = Mapper.Map<List<KalturaConfigurationGroupDeviceReport>>(response.DeviceList) ;
+                result.Objects = Mapper.Map<List<KalturaReport>>(response.DeviceList);
             }
 
             return result;

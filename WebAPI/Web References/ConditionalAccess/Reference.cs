@@ -39,6 +39,8 @@ namespace WebAPI.ConditionalAccess {
         
         private System.Threading.SendOrPostCallback GetDomainSearchableRecordingsOperationCompleted;
         
+        private System.Threading.SendOrPostCallback BulkRecoveryForRenewSubscriptionsOperationCompleted;
+        
         private System.Threading.SendOrPostCallback GetUserPermittedItemsOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetDomainPermittedItemsOperationCompleted;
@@ -346,6 +348,9 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         public event GetDomainSearchableRecordingsCompletedEventHandler GetDomainSearchableRecordingsCompleted;
+        
+        /// <remarks/>
+        public event BulkRecoveryForRenewSubscriptionsCompletedEventHandler BulkRecoveryForRenewSubscriptionsCompleted;
         
         /// <remarks/>
         public event GetUserPermittedItemsCompletedEventHandler GetUserPermittedItemsCompleted;
@@ -873,6 +878,41 @@ namespace WebAPI.ConditionalAccess {
             if ((this.GetDomainSearchableRecordingsCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.GetDomainSearchableRecordingsCompleted(this, new GetDomainSearchableRecordingsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/BulkRecoveryForRenewSubscriptions", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public string BulkRecoveryForRenewSubscriptions(string sWSUserName, string sWSPassword, System.DateTime endDateStartRange, System.DateTime endDateEndRange) {
+            object[] results = this.Invoke("BulkRecoveryForRenewSubscriptions", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        endDateStartRange,
+                        endDateEndRange});
+            return ((string)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void BulkRecoveryForRenewSubscriptionsAsync(string sWSUserName, string sWSPassword, System.DateTime endDateStartRange, System.DateTime endDateEndRange) {
+            this.BulkRecoveryForRenewSubscriptionsAsync(sWSUserName, sWSPassword, endDateStartRange, endDateEndRange, null);
+        }
+        
+        /// <remarks/>
+        public void BulkRecoveryForRenewSubscriptionsAsync(string sWSUserName, string sWSPassword, System.DateTime endDateStartRange, System.DateTime endDateEndRange, object userState) {
+            if ((this.BulkRecoveryForRenewSubscriptionsOperationCompleted == null)) {
+                this.BulkRecoveryForRenewSubscriptionsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnBulkRecoveryForRenewSubscriptionsOperationCompleted);
+            }
+            this.InvokeAsync("BulkRecoveryForRenewSubscriptions", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        endDateStartRange,
+                        endDateEndRange}, this.BulkRecoveryForRenewSubscriptionsOperationCompleted, userState);
+        }
+        
+        private void OnBulkRecoveryForRenewSubscriptionsOperationCompleted(object arg) {
+            if ((this.BulkRecoveryForRenewSubscriptionsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.BulkRecoveryForRenewSubscriptionsCompleted(this, new BulkRecoveryForRenewSubscriptionsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -5716,7 +5756,7 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/SearchDomainRecordings", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public RecordingResponse SearchDomainRecordings(string sWSUserName, string sWSPassword, string userID, long domainID, TstvRecordingStatus[] recordingStatuses, string filter, int pageIndex, int pageSize, OrderObj orderBy) {
+        public RecordingResponse SearchDomainRecordings(string sWSUserName, string sWSPassword, string userID, long domainID, TstvRecordingStatus[] recordingStatuses, string filter, int pageIndex, int pageSize, OrderObj orderBy, bool shouldIgnorePaging) {
             object[] results = this.Invoke("SearchDomainRecordings", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -5726,17 +5766,18 @@ namespace WebAPI.ConditionalAccess {
                         filter,
                         pageIndex,
                         pageSize,
-                        orderBy});
+                        orderBy,
+                        shouldIgnorePaging});
             return ((RecordingResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void SearchDomainRecordingsAsync(string sWSUserName, string sWSPassword, string userID, long domainID, TstvRecordingStatus[] recordingStatuses, string filter, int pageIndex, int pageSize, OrderObj orderBy) {
-            this.SearchDomainRecordingsAsync(sWSUserName, sWSPassword, userID, domainID, recordingStatuses, filter, pageIndex, pageSize, orderBy, null);
+        public void SearchDomainRecordingsAsync(string sWSUserName, string sWSPassword, string userID, long domainID, TstvRecordingStatus[] recordingStatuses, string filter, int pageIndex, int pageSize, OrderObj orderBy, bool shouldIgnorePaging) {
+            this.SearchDomainRecordingsAsync(sWSUserName, sWSPassword, userID, domainID, recordingStatuses, filter, pageIndex, pageSize, orderBy, shouldIgnorePaging, null);
         }
         
         /// <remarks/>
-        public void SearchDomainRecordingsAsync(string sWSUserName, string sWSPassword, string userID, long domainID, TstvRecordingStatus[] recordingStatuses, string filter, int pageIndex, int pageSize, OrderObj orderBy, object userState) {
+        public void SearchDomainRecordingsAsync(string sWSUserName, string sWSPassword, string userID, long domainID, TstvRecordingStatus[] recordingStatuses, string filter, int pageIndex, int pageSize, OrderObj orderBy, bool shouldIgnorePaging, object userState) {
             if ((this.SearchDomainRecordingsOperationCompleted == null)) {
                 this.SearchDomainRecordingsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSearchDomainRecordingsOperationCompleted);
             }
@@ -5749,7 +5790,8 @@ namespace WebAPI.ConditionalAccess {
                         filter,
                         pageIndex,
                         pageSize,
-                        orderBy}, this.SearchDomainRecordingsOperationCompleted, userState);
+                        orderBy,
+                        shouldIgnorePaging}, this.SearchDomainRecordingsOperationCompleted, userState);
         }
         
         private void OnSearchDomainRecordingsOperationCompleted(object arg) {
@@ -12716,6 +12758,32 @@ namespace WebAPI.ConditionalAccess {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((SearchableRecording[])(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    public delegate void BulkRecoveryForRenewSubscriptionsCompletedEventHandler(object sender, BulkRecoveryForRenewSubscriptionsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class BulkRecoveryForRenewSubscriptionsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal BulkRecoveryForRenewSubscriptionsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public string Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((string)(this.results[0]));
             }
         }
     }

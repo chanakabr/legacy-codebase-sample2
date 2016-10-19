@@ -12,12 +12,5 @@ namespace WebAPI.Models.DMS
         STB = 4,
         CTV = 5,
         Other = 6
-    }
-
-    public enum KalturaConfigurationType
-    {        
-        All,
-        Default,
-        NotDefault
-    }
+    }  
 }

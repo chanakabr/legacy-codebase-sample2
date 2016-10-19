@@ -1417,7 +1417,7 @@ namespace WebAPI.Clients
                 {
                     // fire request
                     response = ConditionalAccess.SearchDomainRecordings(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, domainID, convertedRecordingStatuses.ToArray(),
-                                                                          ksqlFilter, pageIndex, pageSize.Value, order);
+                                                                          ksqlFilter, pageIndex, pageSize.Value, order, false);
                 }
             }
             catch (Exception ex)
@@ -1832,7 +1832,8 @@ namespace WebAPI.Clients
             //    };
 
             return kalturaResponse;
-        }
+        }        
+
     }
 }
 

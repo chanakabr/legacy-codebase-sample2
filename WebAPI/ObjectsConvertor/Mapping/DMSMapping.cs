@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.DMS;
+using WebAPI.Models.General;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -60,8 +61,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.PartnerId))
                 .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.Udid));
 
+            Mapper.CreateMap<BaseReport, KalturaReport>()
+                .Include<DMSDevice, KalturaDeviceReport>()
+                ;
+
             // from dms to local
-            Mapper.CreateMap<DMSDevice, KalturaConfigurationGroupDeviceReport>()
+            Mapper.CreateMap<DMSDevice, KalturaDeviceReport>()
                 .ForMember(dest => dest.ConfigurationGroupId, opt => opt.MapFrom(src => src.GroupConfigurationId))
                 .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.GroupId))
                 .ForMember(dest => dest.LastAccessDate, opt => opt.MapFrom(src => src.LastAccessDate))

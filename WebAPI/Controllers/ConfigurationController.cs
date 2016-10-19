@@ -13,9 +13,11 @@ namespace WebAPI.Controllers
     [RoutePrefix("_service/configuration/action")]
     public class ConfigurationController : ApiController
     {
+
         /// <summary>
         /// Return a device configuration applicable for a specific device (UDID), app name, software version, platform and optionally a configuration group’s tag
         /// </summary>
+        /// <param name="partnerId">Partner Id</param>
         /// <param name="applicationName">Application name</param>
         /// <param name="clientVersion">Client version</param>
         /// <param name="platform">platform</param>
@@ -23,17 +25,18 @@ namespace WebAPI.Controllers
         /// <param name="tag">Tag</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: IllegalQueryParams = 12001, Registered = 12006, VersionNotFound = 12007</remarks>        
-        [Route("serve"), HttpPost]
+        [Route("serveByDevice"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.Registered)]
         [Throws(eResponseStatus.VersionNotFound)]
-        public KalturaStringRenderer Serve(string applicationName, string clientVersion, string platform, string udid, string tag)
+        public KalturaStringRenderer ServeByDevice(int partnerId, string applicationName, string clientVersion, string platform, string udid, string tag)
         {
             string response = null;
 
-            int partnerId = KS.GetFromRequest().GroupId;
+            if (partnerId <= 0)
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "partnerId");
 
             if (string.IsNullOrWhiteSpace(applicationName))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "applicationName");
@@ -96,9 +99,9 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Return a list of device configurations of a configuration group
+        /// Return a list of device configurations of a configuration group 
         /// </summary>
-        /// <param name="filter">Filter option for configuration type (All/Default/NotDefault). in case of notDefault configuration in must be supplied </param>
+        /// <param name="filter">Filter option for configuration group id.</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001</remarks>        
         [Route("list"), HttpPost]
@@ -109,18 +112,15 @@ namespace WebAPI.Controllers
         {
             KalturaConfigurationListResponse response = null;
 
-            if (filter.ConfigurationTypeEqual == KalturaConfigurationType.NotDefault)
-            {
-                if (string.IsNullOrWhiteSpace(filter.ConfigurationIdEqual))
-                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "configurationId");
-            }
+            if (string.IsNullOrWhiteSpace(filter.ConfigurationGroupIdEqual))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "configurationGroupIdEqual");
 
             try
             {
                 int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
-                response = DMSClient.GetConfigurationList(partnerId, filter.ConfigurationTypeEqual, filter.ConfigurationIdEqual);
+                response = DMSClient.GetConfigurationList(partnerId, filter.ConfigurationGroupIdEqual);
             }
             catch (ClientException ex)
             {
@@ -144,6 +144,19 @@ namespace WebAPI.Controllers
         public KalturaConfiguration Add(KalturaConfiguration configuration)
         {
             KalturaConfiguration response = null;
+
+            if (string.IsNullOrWhiteSpace(configuration.ConfigurationGroupId))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "configurationGroupId");
+
+            if (string.IsNullOrWhiteSpace(configuration.AppName))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "appName");
+
+            if (string.IsNullOrWhiteSpace(configuration.ClientVersion))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "clientVersion");
+
+
+            if (string.IsNullOrWhiteSpace(configuration.Platform.ToString()))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "platform");
 
             try
             {
@@ -177,6 +190,20 @@ namespace WebAPI.Controllers
         public KalturaConfiguration Update(string id, KalturaConfiguration configuration)
         {
             KalturaConfiguration response = null;
+
+            if (string.IsNullOrWhiteSpace(configuration.ConfigurationGroupId))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "configurationGroupId");
+
+            if (string.IsNullOrWhiteSpace(configuration.AppName))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "appName");
+
+            if (string.IsNullOrWhiteSpace(configuration.ClientVersion))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "clientVersion");
+
+
+            if (string.IsNullOrWhiteSpace(configuration.Platform.ToString()))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "platform");
+
 
             try
             {

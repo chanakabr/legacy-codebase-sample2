@@ -705,6 +705,47 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
+        public static KalturaScheduledRecordingAssetType ConvertScheduledRecordingAssetType(ScheduledRecordingAssetType scheduledRecordingAssetType)
+        {
+            KalturaScheduledRecordingAssetType result;
+            switch (scheduledRecordingAssetType)
+            {
+                case ScheduledRecordingAssetType.SINGLE:
+                    result = KalturaScheduledRecordingAssetType.single;
+                    break;
+                case ScheduledRecordingAssetType.SERIES:
+                    result = KalturaScheduledRecordingAssetType.series;
+                    break;
+                case ScheduledRecordingAssetType.ALL:
+                    result = KalturaScheduledRecordingAssetType.all;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown ScheduledRecordingAssetType");                    
+            }
+
+            return result;
+        }
+
+        public static ScheduledRecordingAssetType ConvertKalturaScheduledRecordingAssetType(KalturaScheduledRecordingAssetType scheduledRecordingAssetType)
+        {
+            ScheduledRecordingAssetType result;
+            switch (scheduledRecordingAssetType)
+            {
+                case KalturaScheduledRecordingAssetType.single:
+                    result = ScheduledRecordingAssetType.SINGLE;
+                    break;
+                case KalturaScheduledRecordingAssetType.series:
+                    result = ScheduledRecordingAssetType.SERIES;
+                    break;
+                case KalturaScheduledRecordingAssetType.all:
+                    result = ScheduledRecordingAssetType.ALL;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown KalturaScheduledRecordingAssetType");                    
+            }
+
+            return result;
+        }
       
     }
 }
