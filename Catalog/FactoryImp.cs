@@ -249,6 +249,10 @@ namespace Catalog
             {
                 return (AssetCommentAddRequest)m_oBaseRequest;
             }
+            if (m_oBaseRequest is ScheduledRecordingsRequest)
+            {
+                return (ScheduledRecordingsRequest)m_oBaseRequest;
+            }
 
             return null;
         }

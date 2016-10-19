@@ -5524,7 +5524,7 @@ namespace ConditionalAccess
 
             catch (Exception ex)
             {
-                log.Error("Failed UnifiedSearchRequest Request To Catalog", ex);
+                log.Error("SearchSeriesRecordings - Failed UnifiedSearchRequest Request To Catalog", ex);
             }
 
             finally
@@ -5536,7 +5536,7 @@ namespace ConditionalAccess
             }
 
             return recordings;
-        }
+        }        
 
         internal static bool GetSeriesMetaTagsFieldsNamesForSearch(int groupId, out string seriesIdName, out string seasonNumberName, out string episodeNumberName)
         {
@@ -5998,7 +5998,8 @@ namespace ConditionalAccess
 
         }
 
-        internal static List<Recording> OrderRecordingWithoutCatalog(List<Recording> recordings, ApiObjects.SearchObjects.OrderObj orderBy, int pageIndex, int pageSize, ref int totalResults)
+        internal static List<Recording> OrderRecordingWithoutCatalog(List<Recording> recordings, ApiObjects.SearchObjects.OrderObj orderBy, int pageIndex, int pageSize,
+                                                                     ref int totalResults, bool shouldIgnorePaging = false)
         {
             List<Recording> orderedRecordings = new List<Recording>();
             switch (orderBy.m_eOrderBy)
@@ -6038,10 +6039,14 @@ namespace ConditionalAccess
                     break;
 	        }
             
-            totalResults = orderedRecordings.Count;            
-            int startIndexOnList = pageIndex * pageSize;
-            int rangeToGetFromList = (startIndexOnList + pageSize) > totalResults ? (totalResults - startIndexOnList) : pageSize;
-            orderedRecordings = orderedRecordings.GetRange(startIndexOnList, rangeToGetFromList);
+            totalResults = orderedRecordings.Count;
+            if (!shouldIgnorePaging)
+            {
+                int startIndexOnList = pageIndex * pageSize;
+                int rangeToGetFromList = (startIndexOnList + pageSize) > totalResults ? (totalResults - startIndexOnList) : pageSize;
+                orderedRecordings = orderedRecordings.GetRange(startIndexOnList, rangeToGetFromList);
+            }
+
             return orderedRecordings;
         }
 
