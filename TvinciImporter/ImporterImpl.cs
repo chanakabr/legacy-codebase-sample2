@@ -5232,7 +5232,7 @@ namespace TvinciImporter
                 }
                 return response.Status;
             }
-            catch (Exception ex)
+            catch 
             {
                 return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
             }
@@ -5446,7 +5446,7 @@ namespace TvinciImporter
                 }
                 return response.Status;
             }
-            catch (Exception ex)
+            catch 
             {
                 return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
             }

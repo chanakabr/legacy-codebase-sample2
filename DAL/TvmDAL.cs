@@ -1106,7 +1106,7 @@ namespace DAL
                     return ds.Tables[0];
                 return null;
             }
-            catch (Exception ex)
+            catch 
             {
                 return null;
             }

@@ -72,9 +72,9 @@ namespace Users
         public abstract void PostAddNewUser(ref UserResponseObject userResponse, ref List<KeyValuePair> keyValueList);
 
         // Welcome Mail
-        internal abstract void InitSendWelcomeMail(ref UserResponseObject userResponse, ref TvinciAPI.WelcomeMailRequest mailRequest, string firstName, string username, string password, string email, string facebookId);
-        public abstract void PreSendWelcomeMail(ref UserResponseObject userResponse, ref TvinciAPI.WelcomeMailRequest mailRequest, string firstName, string username, string password, string email, string facebookId, ref List<KeyValuePair> keyValueList);
-        internal abstract bool MidSendWelcomeMail(ref UserResponseObject userResponse, TvinciAPI.WelcomeMailRequest mailRequest);
+        internal abstract void InitSendWelcomeMail(ref UserResponseObject userResponse, ref WelcomeMailRequest mailRequest, string firstName, string username, string password, string email, string facebookId);
+        public abstract void PreSendWelcomeMail(ref UserResponseObject userResponse, ref WelcomeMailRequest mailRequest, string firstName, string username, string password, string email, string facebookId, ref List<KeyValuePair> keyValueList);
+        internal abstract bool MidSendWelcomeMail(ref UserResponseObject userResponse, WelcomeMailRequest mailRequest);
         public abstract void PostSendWelcomeMail(ref UserResponseObject userResponse, bool mailSent, ref List<KeyValuePair> keyValueList);
 
         // Default Rules

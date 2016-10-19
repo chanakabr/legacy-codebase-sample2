@@ -1,5 +1,5 @@
 ﻿using ApiObjects;
-using ConditionalAccess.TvinciPricing;
+using Pricing;
 using System;
 using System.Collections.Generic;
 using System.Linq;

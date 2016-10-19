@@ -3359,7 +3359,7 @@ namespace DAL
                 }
                 return new List<RegistrySettings>();
             }
-            catch (Exception ex)
+            catch
             {
                 return new List<RegistrySettings>();
             }
@@ -3620,7 +3620,7 @@ namespace DAL
                 bool isDelete = sp.ExecuteReturnValue<bool>();
                 return isDelete;
             }
-            catch (Exception ex)
+            catch
             {
                 return false;
             }

@@ -70,7 +70,6 @@ namespace CouchbaseManager
 
         #region Data Members
 
-        private string configurationSection;
         private string bucketName;
         private ClientConfiguration clientConfiguration;
 

@@ -1989,7 +1989,7 @@ namespace Users
 
                 User masterUser = new User(nGroupID, m_masterGUIDs[0]);
 
-                TvinciAPI.AddDeviceMailRequest sMailRequest = null;
+                AddDeviceMailRequest sMailRequest = null;
 
                 if (masterUser != null)
                 {
@@ -2385,7 +2385,7 @@ namespace Users
                 // Now we can send the activation mail to the Master
                 if (!string.IsNullOrEmpty(sActivationToken))
                 {
-                    TvinciAPI.AddUserMailRequest sMailRequest = MailFactory.GetAddUserMailRequest(nGroupID, masterUser.m_oBasicData.m_sFirstName, masterUser.m_oBasicData.m_sUserName, masterUser.m_oBasicData.m_sEmail,
+                    AddUserMailRequest sMailRequest = MailFactory.GetAddUserMailRequest(nGroupID, masterUser.m_oBasicData.m_sFirstName, masterUser.m_oBasicData.m_sUserName, masterUser.m_oBasicData.m_sEmail,
                                                                                                 sNewUsername, sNewFirstName, sActivationToken);
                     if (sMailRequest != null)
                     {

@@ -5,27 +5,23 @@ using System.Text;
 using TVinciShared;
 using MCGroupRules;
 using ApiObjects;
+using Pricing;
+using WS_Pricing;
 
 namespace ConditionalAccess
 {
     public class SocialInviteCampaignImpl : BaseCampaignActionImpl
     {
 
-        public override CampaignActionInfo ActivateCampaignWithInfo(TvinciPricing.Campaign camp, CampaignActionInfo cai, int groupID)
+        public override CampaignActionInfo ActivateCampaignWithInfo(Campaign camp, CampaignActionInfo cai, int groupID)
         {
             CampaignActionInfo retVal = null;
-            bool isValid = false;
             int numOfUses = 0;
 
             string sWSUserName = "";
             string sWSPass = "";
-            using (TvinciPricing.mdoule m = new global::ConditionalAccess.TvinciPricing.mdoule())
+            using (mdoule m = new mdoule())
             {
-                string sWSURL = Utils.GetWSURL("pricing_ws");
-                if (!string.IsNullOrEmpty(sWSURL))
-                {
-                    m.Url = sWSURL;
-                }
                 Utils.GetWSCredentials(groupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
                 PasswordGenerator p = new PasswordGenerator();
                 p.Maximum = 16;
@@ -44,7 +40,7 @@ namespace ConditionalAccess
                     long ownerSiteGuid = 0;
                     if (!string.IsNullOrEmpty(cai.m_socialInviteInfo.m_hashCode))
                     {
-                        TvinciPricing.CouponDataResponse cd = m.GetCouponStatus(sWSUserName, sWSPass, cai.m_socialInviteInfo.m_hashCode);
+                        CouponDataResponse cd = m.GetCouponStatus(sWSUserName, sWSPass, cai.m_socialInviteInfo.m_hashCode);
                         if (cd != null && cd.Coupon != null)
                         {
                             ownerSiteGuid = cd.Coupon.m_ownerGUID;
@@ -64,7 +60,6 @@ namespace ConditionalAccess
                         directQuery.Execute();
                         directQuery.Finish();
                         directQuery = null;
-                        isValid = true;
                         if (cai != null)
                         {
                             cai.m_socialInviteInfo = new CampaignActionInfo.SocialInviteInfo();
@@ -168,7 +163,7 @@ namespace ConditionalAccess
             return retVal;
         }
 
-        private void InitializeCampaignUses(TvinciPricing.Campaign camp, int siteGuid, int maxUses)
+        private void InitializeCampaignUses(Campaign camp, int siteGuid, int maxUses)
         {
             ODBCWrapper.InsertQuery insertQuery = null;
             try

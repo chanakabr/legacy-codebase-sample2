@@ -2,6 +2,7 @@
 using DAL;
 using System;
 using Newtonsoft.Json;
+using ApiObjects;
 
 namespace Users
 {
@@ -21,12 +22,12 @@ namespace Users
             return string.IsNullOrEmpty(oBasicData.m_sFacebookToken);
         }
 
-        protected override TvinciAPI.WelcomeMailRequest GetWelcomeMailRequest(string sFirstName, string sUserName, string sPassword, string sEmail, string sFacekookID)
+        protected override WelcomeMailRequest GetWelcomeMailRequest(string sFirstName, string sUserName, string sPassword, string sEmail, string sFacekookID)
         {
-            TvinciAPI.WelcomeMailRequest retVal = new TvinciAPI.WelcomeMailRequest();
+            WelcomeMailRequest retVal = new WelcomeMailRequest();
             string sMailData = string.Empty;
             string sActivation = string.Empty;
-            retVal.m_eMailType = TvinciAPI.eMailTemplateType.Welcome;
+            retVal.m_eMailType = eMailTemplateType.Welcome;
             retVal.m_sFirstName = sFirstName;
             retVal.m_sLastName = string.Empty;
             retVal.m_sSenderFrom = m_sMailFromAdd;

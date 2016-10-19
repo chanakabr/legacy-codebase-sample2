@@ -353,7 +353,7 @@ namespace QueueWrapper
 
                 return false;
             }
-            catch (Exception ex) { return false; }
+            catch { return false; }
             finally
             {
                 Close();

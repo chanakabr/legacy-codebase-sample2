@@ -8,6 +8,8 @@ using System.Linq;
 using System.Text;
 using KLogMonitor;
 using System.Reflection;
+using WS_Pricing;
+using Pricing;
 
 
 namespace ConditionalAccess
@@ -15,7 +17,6 @@ namespace ConditionalAccess
     public class VodafoneConditionalAccess : TvinciConditionalAccess
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly string VODAFONE_NPVR_LOG = "VodafoneNPVR";
         private static readonly DateTime UNIX_ZERO_TIME = new DateTime(1970, 1, 1, 0, 0, 0);
 
         public VodafoneConditionalAccess(Int32 nGroupID)
@@ -238,10 +239,10 @@ namespace ConditionalAccess
             try
             {
                 List<int> files = new List<int>();
-                TvinciPricing.mdoule objPricingModule = null;
+                mdoule objPricingModule = null;
                 string sPricingUsername = string.Empty;
                 string sPricingPassword = string.Empty;
-                TvinciPricing.MediaFilePPVContainer[] oModules = null;
+                MediaFilePPVContainer[] oModules = null;
 
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sPricingUsername, ref sPricingPassword);
                 base.InitializePricingModule(ref objPricingModule);
@@ -252,7 +253,7 @@ namespace ConditionalAccess
                     priceValidationPassed = true;
                 }
                 // Build list of filed that related to ppv module 
-                foreach (TvinciPricing.MediaFilePPVContainer module in oModules)
+                foreach (MediaFilePPVContainer module in oModules)
                 {
                     if (module.m_oPPVModules != null)
                     {

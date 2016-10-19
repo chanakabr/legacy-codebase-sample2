@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using Pricing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,9 +11,9 @@ namespace ConditionalAccess.Response
     {
         public ApiObjects.Response.Status Status { get; set; }
 
-        public List<ConditionalAccess.TvinciPricing.ServiceObject> Services { get; set; }
+        public List<ServiceObject> Services { get; set; }
 
-        public DomainServicesResponse(int code, List<ConditionalAccess.TvinciPricing.ServiceObject> services)
+        public DomainServicesResponse(int code, List<ServiceObject> services)
         {
             Status = new ApiObjects.Response.Status(code);
             Services = services;
@@ -21,13 +22,13 @@ namespace ConditionalAccess.Response
         public DomainServicesResponse()
         {
             Status = new ApiObjects.Response.Status();
-            Services = new List<TvinciPricing.ServiceObject>();
+            Services = new List<ServiceObject>();
         }
 
         public DomainServicesResponse(int code)
         {
             Status = new ApiObjects.Response.Status(code);
-            Services = new List<TvinciPricing.ServiceObject>();
+            Services = new List<ServiceObject>();
         }
     }
 }
