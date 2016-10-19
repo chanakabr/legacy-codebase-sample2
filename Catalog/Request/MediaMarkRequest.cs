@@ -387,12 +387,6 @@ namespace Catalog.Request
                                                         m_oMediaPlayRequestData.m_nLoc, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid,
                                                         m_oMediaPlayRequestData.m_sUDID, playCycleKey, nSwhoosh, contextData)));
                     }
-
-                    if (nActionID == (int)MediaPlayActions.HIT && UtilsDal.GetGroupFeatureStatus(m_nGroupID, GroupFeature.CROWDSOURCE))
-                    // log for mediahit for statistics
-                    {
-                        tasks.Add(Task.Factory.StartNew(() => WriteLiveViews(m_nGroupID, mediaId, nMediaTypeID, nPlayTime, contextData)));
-                    }
                 }
 
                 if (nActionID != -1)
@@ -402,6 +396,11 @@ namespace Catalog.Request
                         tasks.Add(Task.Factory.StartNew(() => Catalog.WriteNewWatcherMediaActionLog(nWatcherID, sSessionID, nBillingTypeID, nOwnerGroupID, nQualityID, nFormatID, mediaId,
                                                                                         m_oMediaPlayRequestData.m_nMediaFileID, m_nGroupID, nCDNID, nActionID, nCountryID, nPlayerID, m_oMediaPlayRequestData.m_nLoc,
                                                                                         nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, contextData)));
+                    }
+                    else if (UtilsDal.GetGroupFeatureStatus(m_nGroupID, GroupFeature.CROWDSOURCE))
+                    // log for mediahit for statistics
+                    {
+                        tasks.Add(Task.Factory.StartNew(() => WriteLiveViews(m_nGroupID, mediaId, nMediaTypeID, nPlayTime, contextData)));
                     }
 
                     if (IsFirstPlay(nActionID))
