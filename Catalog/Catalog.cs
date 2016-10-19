@@ -3326,7 +3326,12 @@ namespace Catalog
                 case StatsType.MEDIA:
                     {
                         BaseStaticticsBL staticticsBL = StatisticsBL.Utils.GetInstance(nGroupID);
-                        Dictionary<string, BuzzWeightedAverScore> buzzDict = staticticsBL.GetBuzzAverScore(lAssetIDs);
+                        Dictionary<string, BuzzWeightedAverScore> buzzDict = null;
+                        if (UtilsDal.GetGroupFeatureStatus(nGroupID, GroupFeature.BUZZFEED))
+                        {
+                            buzzDict = staticticsBL.GetBuzzAverScore(lAssetIDs);
+                        }
+
                         bool isBuzzNotEmpty = buzzDict != null && buzzDict.Count > 0;
 
                         if (IsBringAllStatsRegardlessDates(dStartDate, dEndDate))
