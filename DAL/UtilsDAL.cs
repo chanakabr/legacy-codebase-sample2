@@ -711,22 +711,30 @@ namespace DAL
             return string.Format("{0}_series{1}_season{2}_channel{3}", groupId, seriesId, seasonNumber, channelId);
         }
 
-        public static bool GetGroupFeatureStatus(int groupId, GroupFeature groupFeature)
+        public static Dictionary<GroupFeature, bool> GetGroupFeatures(int groupId)
         {
-            bool res = false;
-            ODBCWrapper.StoredProcedure spGetGroupFeatureStatus = new ODBCWrapper.StoredProcedure("GetGroupFeatureStatus");
+            Dictionary<GroupFeature, bool> groupFeatures = null;
+            ODBCWrapper.StoredProcedure spGetGroupFeatureStatus = new ODBCWrapper.StoredProcedure("GetGroupsFeatures");
             spGetGroupFeatureStatus.SetConnectionKey("MAIN_CONNECTION_STRING");
             spGetGroupFeatureStatus.AddParameter("@GroupId", groupId);
-            spGetGroupFeatureStatus.AddParameter("@Feature", groupFeature.ToString());
 
             DataTable dt = spGetGroupFeatureStatus.Execute();
-            if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+            if (dt != null && dt.Rows != null)
             {
-                int status = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "STATUS", 0);
-                res = status == 1;
+                groupFeatures = new Dictionary<GroupFeature, bool>();
+                foreach (DataRow dr in dt.Rows)
+                {
+                    string feature = ODBCWrapper.Utils.GetSafeStr(dr, "FEATURE");
+                    GroupFeature groupFeature;
+                    if (Enum.TryParse(feature, out groupFeature) && !groupFeatures.ContainsKey(groupFeature))
+                    {
+                        int status = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "STATUS", 0);
+                        groupFeatures.Add(groupFeature, status == 1);
+                    }
+                }               
             }
 
-            return res;
+            return groupFeatures;
         }
 
     }

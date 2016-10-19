@@ -3326,7 +3326,7 @@ namespace Catalog
                     {
                         BaseStaticticsBL staticticsBL = StatisticsBL.Utils.GetInstance(nGroupID);
                         Dictionary<string, BuzzWeightedAverScore> buzzDict = null;
-                        if (UtilsDal.GetGroupFeatureStatus(nGroupID, GroupFeature.BUZZFEED))
+                        if (TvinciCache.GroupsFeatures.GetGroupFeatureStatus(nGroupID, GroupFeature.BUZZFEED))
                         {
                             buzzDict = staticticsBL.GetBuzzAverScore(lAssetIDs);
                         }
