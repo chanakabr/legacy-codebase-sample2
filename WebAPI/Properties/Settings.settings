@@ -8,11 +8,8 @@
     <Setting Name="WebAPI_Social_module" Type="(Web Service URL)" Scope="Application">
       <Value Profile="(Default)">http://webservices/social_v4_0/module.asmx</Value>
     </Setting>
-    <Setting Name="WebAPI_Pricing_mdoule" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://webservices/pricing_v4_0/module.asmx</Value>
-    </Setting>
     <Setting Name="WebAPI_ConditionalAccess_module" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://webservices/cas_v4_0/module.asmx</Value>
+      <Value Profile="(Default)">http://localhost/WS_ConditionalAccess/module.asmx</Value>
     </Setting>
     <Setting Name="WebAPI_Billing_module" Type="(Web Service URL)" Scope="Application">
       <Value Profile="(Default)">http://localhost/WS_Billing/module.asmx</Value>

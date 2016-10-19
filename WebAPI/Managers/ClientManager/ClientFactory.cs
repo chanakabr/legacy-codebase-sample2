@@ -32,7 +32,7 @@ namespace WebAPI.ClientManagers.Client
                     client = new DomainsClient() { Module = new Domains.module() { Url = url } };
                     break;
                 case ClientType.Pricing:
-                    client = new PricingClient() { Module = new Pricing.mdoule() { Url = url } };
+                    client = new PricingClient() { Module = new WS_Pricing.mdoule() };
                     break;
                 case ClientType.Social:
                     client = new SocialClient() { Module = new Social.module() { Url = url } };

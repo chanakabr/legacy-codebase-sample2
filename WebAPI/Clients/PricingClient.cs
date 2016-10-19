@@ -11,10 +11,12 @@ using WebAPI.Managers.Models;
 using WebAPI.Mapping.ObjectsConvertor;
 using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
-using WebAPI.Pricing;
 using WebAPI.Utils;
 using System.Net;
 using System.ServiceModel;
+using Pricing;
+using ApiObjects.Response;
+using WS_Pricing;
 
 namespace WebAPI.Clients
 {
@@ -26,17 +28,17 @@ namespace WebAPI.Clients
         {
         }
 
-        protected WebAPI.Pricing.mdoule Pricing
+        protected mdoule Pricing
         {
             get
             {
-                return (Module as WebAPI.Pricing.mdoule);
+                return (Module as mdoule);
             }
         }
 
         internal List<KalturaSubscription> GetSubscriptionsData(int groupId, string[] subscriptionsIds, string udid, string languageCode, KalturaSubscriptionOrderBy orderBy)
         {
-            WebAPI.Pricing.SubscriptionsResponse response = null;
+            SubscriptionsResponse response = null;
             List<KalturaSubscription> subscriptions = new List<KalturaSubscription>();
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -52,7 +54,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling pricing service. ws address: {0}, exception: {1}", Pricing.Url, ex);
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -73,7 +75,7 @@ namespace WebAPI.Clients
 
         internal List<int> GetSubscriptionIDsContainingMediaFile(int groupId, int mediaFileID)
         {
-            WebAPI.Pricing.IdsResponse response = null;
+            IdsResponse response = null;
             List<int> subscriptions = new List<int>();
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -87,7 +89,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling pricing service. ws address: {0}, exception: {1}", Pricing.Url, ex);
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -108,7 +110,7 @@ namespace WebAPI.Clients
 
         internal KalturaCoupon GetCouponStatus(int groupId, string couponCode)
         {
-            WebAPI.Pricing.CouponDataResponse response = null;
+            CouponDataResponse response = null;
             KalturaCoupon coupon = new KalturaCoupon();
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -122,7 +124,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling pricing service. ws address: {0}, exception: {1}", Pricing.Url, ex);
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -143,7 +145,7 @@ namespace WebAPI.Clients
 
         internal KalturaPpv GetPPVModuleData(int groupId, long ppvCode)
         {
-            WebAPI.Pricing.PPVModuleDataResponse response = null;
+            PPVModuleDataResponse response = null;
             KalturaPpv result = new KalturaPpv();
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -157,7 +159,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling pricing service. ws address: {0}, exception: {1}", Pricing.Url, ex);
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -176,20 +178,6 @@ namespace WebAPI.Clients
             result = AutoMapper.Mapper.Map<KalturaPpv>(response.PPVModule);
 
             return result;
-        }
-    }
-}
-
-namespace WebAPI.Pricing
-{
-    // adding request ID to header
-    public partial class mdoule
-    {
-        protected override WebRequest GetWebRequest(Uri uri)
-        {
-            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
-            return request;
         }
     }
 }
