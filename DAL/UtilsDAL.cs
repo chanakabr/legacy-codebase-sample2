@@ -709,7 +709,25 @@ namespace DAL
         public static string GetFirstFollowerLockKey(int groupId, string seriesId, int seasonNumber, string channelId)
         {
             return string.Format("{0}_series{1}_season{2}_channel{3}", groupId, seriesId, seasonNumber, channelId);
-        }     
+        }
+
+        public static bool GetGroupFeatureStatus(int groupId, GroupFeature groupFeature)
+        {
+            bool res = false;
+            ODBCWrapper.StoredProcedure spGetGroupFeatureStatus = new ODBCWrapper.StoredProcedure("GetGroupFeatureStatus");
+            spGetGroupFeatureStatus.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spGetGroupFeatureStatus.AddParameter("@GroupId", groupId);
+            spGetGroupFeatureStatus.AddParameter("@Feature", groupFeature.ToString());
+
+            DataTable dt = spGetGroupFeatureStatus.Execute();
+            if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+            {
+                int status = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "STATUS", 0);
+                res = status == 1;
+            }
+
+            return res;
+        }
 
     }
 }

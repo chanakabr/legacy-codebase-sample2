@@ -26,7 +26,7 @@ namespace Catalog.Request
     [DataContract]
     public class MediaMarkRequest : BaseRequest, IRequestImp
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());        
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());         
 
         [DataMember]
         public MediaPlayRequestData m_oMediaPlayRequestData;
@@ -388,7 +388,7 @@ namespace Catalog.Request
                                                         m_oMediaPlayRequestData.m_sUDID, playCycleKey, nSwhoosh, contextData)));
                     }
 
-                    if (nActionID == (int)MediaPlayActions.HIT)
+                    if (nActionID == (int)MediaPlayActions.HIT && UtilsDal.GetGroupFeatureStatus(m_nGroupID, GroupFeature.CROWDSOURCE))
                     // log for mediahit for statistics
                     {
                         tasks.Add(Task.Factory.StartNew(() => WriteLiveViews(m_nGroupID, mediaId, nMediaTypeID, nPlayTime, contextData)));
