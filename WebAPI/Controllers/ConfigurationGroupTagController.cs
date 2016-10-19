@@ -93,6 +93,12 @@ namespace WebAPI.Controllers
         {
             KalturaConfigurationGroupTag response = null;
 
+            if (string.IsNullOrWhiteSpace(configurationGroupTag.ConfigurationGroupId))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "configurationGroupId");
+
+            if (string.IsNullOrWhiteSpace(configurationGroupTag.Tag))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "tag");
+
             try
             {
                 int partnerId = KS.GetFromRequest().GroupId;

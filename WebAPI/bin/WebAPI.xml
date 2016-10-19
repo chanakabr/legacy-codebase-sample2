@@ -446,7 +446,7 @@
             <summary>
             Return a list of device configurations of a configuration group 
             </summary>
-            <param name="filter">Filter option for configuration type (All/Default/NotDefault).</param>
+            <param name="filter">Filter option for configuration group id.</param>
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001</remarks>        
         </member>

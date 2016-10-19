@@ -145,6 +145,19 @@ namespace WebAPI.Controllers
         {
             KalturaConfiguration response = null;
 
+            if (string.IsNullOrWhiteSpace(configuration.ConfigurationGroupId))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "configurationGroupId");
+
+            if (string.IsNullOrWhiteSpace(configuration.AppName))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "appName");
+
+            if (string.IsNullOrWhiteSpace(configuration.ClientVersion))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "clientVersion");
+
+
+            if (string.IsNullOrWhiteSpace(configuration.Platform.ToString()))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "platform");
+
             try
             {
                 int partnerId = KS.GetFromRequest().GroupId;
@@ -177,6 +190,20 @@ namespace WebAPI.Controllers
         public KalturaConfiguration Update(string id, KalturaConfiguration configuration)
         {
             KalturaConfiguration response = null;
+
+            if (string.IsNullOrWhiteSpace(configuration.ConfigurationGroupId))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "configurationGroupId");
+
+            if (string.IsNullOrWhiteSpace(configuration.AppName))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "appName");
+
+            if (string.IsNullOrWhiteSpace(configuration.ClientVersion))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "clientVersion");
+
+
+            if (string.IsNullOrWhiteSpace(configuration.Platform.ToString()))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "platform");
+
 
             try
             {

@@ -98,6 +98,12 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
+            if (string.IsNullOrWhiteSpace(configurationGroupDevice.ConfigurationGroupId))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "configurationGroupId");
+
+            if (string.IsNullOrWhiteSpace(configurationGroupDevice.Udid))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "udid");
+
             try
             {
                 int partnerId = KS.GetFromRequest().GroupId;

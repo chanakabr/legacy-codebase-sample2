@@ -119,6 +119,9 @@ namespace WebAPI.Controllers
         {
             KalturaConfigurationGroup response = null;
 
+            if (string.IsNullOrWhiteSpace(id))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "id");
+
             try
             {
                 int partnerId = KS.GetFromRequest().GroupId;
