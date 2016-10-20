@@ -15,6 +15,8 @@ using AdapterControllers;
 using Pricing;
 using WS_Pricing;
 using WS_API;
+using WS_Billing;
+using Billing;
 
 
 namespace ConditionalAccess
@@ -118,11 +120,11 @@ namespace ConditionalAccess
             }
         }
 
-        protected override TvinciBilling.BillingResponse HandleBaseRenewMPPBillingCharge(string sSiteGuid, double dPrice, string sCurrency, string sUserIP,
+        protected override BillingResponse HandleBaseRenewMPPBillingCharge(string sSiteGuid, double dPrice, string sCurrency, string sUserIP,
             string sCustomData, int nPaymentNumber, int nRecPeriods, string sExtraParams, int nBillingMethod, long lPurchaseID, ConditionalAccess.eBillingProvider eBillingProvider)
         {
-            TvinciBilling.module wsBillingModule = null;
-            TvinciBilling.BillingResponse oResponse = null;
+            module wsBillingModule = null;
+            BillingResponse oResponse = null;
 
             try
             {
@@ -234,9 +236,9 @@ namespace ConditionalAccess
             return bSuccesful;
         }
 
-        protected override TvinciBilling.BillingResponse HandleCCChargeUser(string sWSUsername, string sWSPassword, string sSiteGuid,
+        protected override BillingResponse HandleCCChargeUser(string sWSUsername, string sWSPassword, string sSiteGuid,
             double dPrice, string sCurrency, string sUserIP, string sCustomData, int nPaymentNumber, int nNumOfPayments,
-            string sExtraParams, string sPaymentMethodID, string sEncryptedCVV, bool bIsDummy, bool bIsEntitledToPreviewModule, ref TvinciBilling.module wsBillingService)
+            string sExtraParams, string sPaymentMethodID, string sEncryptedCVV, bool bIsDummy, bool bIsEntitledToPreviewModule, ref module wsBillingService)
         {
             if (!bIsDummy && !bIsEntitledToPreviewModule)
             {
@@ -254,7 +256,7 @@ namespace ConditionalAccess
             }
         }
 
-        protected override bool UpdatePurchaseIDInBilling(string sWSUsername, string sWSPassword, long purchaseID, long billingRefTransactionID, ref TvinciBilling.module wsBillingService)
+        protected override bool UpdatePurchaseIDInBilling(string sWSUsername, string sWSPassword, long purchaseID, long billingRefTransactionID, ref module wsBillingService)
         {
             return wsBillingService.UpdatePurchaseIDInBilling(sWSUsername, sWSPassword, purchaseID, billingRefTransactionID);
 
@@ -262,8 +264,8 @@ namespace ConditionalAccess
 
         protected override bool HandleChargeUserForSubscriptionBillingSuccess(string sWSUsername, string sWSPassword, string sSiteGUID, int domianID, Subscription theSub,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
-            string sDeviceName, TvinciBilling.BillingResponse br, bool bIsEntitledToPreviewModule, string sSubscriptionCode,
-            string sCustomData, bool bIsRecurring, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, ref TvinciBilling.module wsBillingService)
+            string sDeviceName, BillingResponse br, bool bIsEntitledToPreviewModule, string sSubscriptionCode,
+            string sCustomData, bool bIsRecurring, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, ref module wsBillingService)
         {
             bool res = true;
             HandleCouponUses(theSub, string.Empty, sSiteGUID, dPrice, sCurrency, 0, sCouponCode, sUserIP, sCountryCd, sLanguageCode, sDeviceName, true, 0, 0);
@@ -333,8 +335,8 @@ namespace ConditionalAccess
 
         protected override bool HandleChargeUserForCollectionBillingSuccess(string sWSUsername, string sWSPassword, string sSiteGUID, int domianID, Collection theCol,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
-            string sDeviceName, TvinciBilling.BillingResponse br, string sCollectionCode,
-            string sCustomData, ref long lBillingTransactionID, ref long lPurchaseID, ref TvinciBilling.module wsBillingService)
+            string sDeviceName, BillingResponse br, string sCollectionCode,
+            string sCustomData, ref long lBillingTransactionID, ref long lPurchaseID, ref module wsBillingService)
         {
             bool res = true;
             Int32 nColCode;
@@ -403,8 +405,8 @@ namespace ConditionalAccess
 
         protected override bool HandleChargeUserForMediaFileBillingSuccess(string sWSUsername, string sWSPassword, string sSiteGUID, int domianID,
             Subscription relevantSub, double dPrice, string sCurrency, string sCouponCode, string sUserIP,
-            string sCountryCd, string sLanguageCode, string sDeviceName, TvinciBilling.BillingResponse br, string sCustomData,
-            PPVModule thePPVModule, long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, ref TvinciBilling.module wsBillingService, 
+            string sCountryCd, string sLanguageCode, string sDeviceName, BillingResponse br, string sCustomData,
+            PPVModule thePPVModule, long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, ref module wsBillingService, 
             string billingGuid = null, DateTime? startDate = null, DateTime? endDate = null)
         {
             bool res = true;

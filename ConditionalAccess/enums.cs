@@ -81,20 +81,6 @@ namespace ConditionalAccess
         CurrentSub = 5
     }
 
-    public enum BillingResponseStatus
-    {
-        Success = 0,
-        Fail = 1,
-        UnKnown = 2,
-        PriceNotCorrect = 3,
-        UnKnownUser = 4,
-        UnKnownPPVModule = 5,
-        ExpiredCard = 6,
-        ExternalError = 7,
-        CellularPermissionsError = 8,        
-        UnKnownBillingProvider = 9
-    }
-
     public enum TransactionHistoryOrderBy
     {
         CreateDateAsc = 0,
