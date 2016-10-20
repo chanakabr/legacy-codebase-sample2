@@ -354,7 +354,7 @@ public partial class adm_media : System.Web.UI.Page
 
         theTable += "and ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("m.group_id", "=", nGroupID);
-        theTable += " )q LEFT JOIN pics p ON p.id=q.pic_id and " + PageUtils.GetStatusQueryPart("p");
+        theTable += " )q LEFT JOIN pics p with (nolock) ON p.id=q.pic_id and " + PageUtils.GetStatusQueryPart("p");
         if (sOrderBy != "")
         {
             theTable += " order by ";
