@@ -60,7 +60,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.TopicExpirationDurationDays, opt => opt.MapFrom(src => src.TopicExpirationDurationDays))
                  ;
 
-            Mapper.CreateMap<UserNotificationSettings, KalturaNotificationsSettings>()
+            Mapper.CreateMap<UserNotificationSettings, KalturaNotificationSettings>()
                  .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.EnablePush))
                  .ForMember(dest => dest.PushFollowEnabled, opt => opt.MapFrom(src => src.FollowSettings.EnablePush));
 
