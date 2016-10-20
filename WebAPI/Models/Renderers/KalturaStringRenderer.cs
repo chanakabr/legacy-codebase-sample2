@@ -14,13 +14,13 @@ namespace WebAPI.Models.Renderers
     {
         private String _sContent;
 
-        public KalturaStringRenderer(HttpConfiguration httpConfiguration, string content, string contentType = "application/json")
-            : base(httpConfiguration, contentType)
+        public KalturaStringRenderer(string content)
+            : base()
         {
             _sContent = content;
         }
 
-        public override void Output(Stream writeStream, HttpContent content, TransportContext transportContext) 
+        public override void Output(Stream writeStream) 
         {
             var buf = Encoding.UTF8.GetBytes(_sContent);
             writeStream.Write(buf, 0, buf.Length);

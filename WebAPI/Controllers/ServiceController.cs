@@ -47,8 +47,7 @@ namespace WebAPI.Controllers
             if (methodInfo == null)
                 throw new BadRequestException(BadRequestException.INVALID_ACTION, serviceName, actionName);
 
-            classInstance = (ApiController) Activator.CreateInstance(controller, null);
-            classInstance.Configuration = Configuration;
+            classInstance = (ApiController)Activator.CreateInstance(controller, null);
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
