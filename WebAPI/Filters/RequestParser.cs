@@ -113,6 +113,7 @@ namespace WebAPI.Filters
         public const string REQUEST_ACTION = "requestAction";
         public const string REQUEST_TIME = "requestTime";
         public const string REQUEST_TYPE = "requestType";
+        public const string REQUEST_SERVE_CONTENT_TYPE = "requestServeContentType";
 
         public static object GetRequestPayload()
         {
@@ -158,6 +159,12 @@ namespace WebAPI.Filters
             if (authorization != null)
             {
                 authorization.IsAuthorized(serviceName, actionName);
+            }
+
+            SchemeServeAttribute serve = methodInfo.GetCustomAttribute<SchemeServeAttribute>(true);
+            if (serve != null)
+            {
+                HttpContext.Current.Items[REQUEST_SERVE_CONTENT_TYPE] = serve.ContentType;
             }
 
             return methodInfo;

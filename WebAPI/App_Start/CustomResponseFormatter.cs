@@ -14,19 +14,32 @@ using WebAPI.Models.Renderers;
 using System.Net.Http;
 using System.Net;
 using System.Web.Http;
+using System.Web.Http.Routing;
+using WebAPI.Filters;
+using System.Web;
 
 namespace WebAPI.App_Start
 {
     public class CustomResponseFormatter : MediaTypeFormatter
     {
-        private string _sContentType;
-
-        public CustomResponseFormatter(HttpConfiguration httpConfiguration, string contentType)
+        class ServeActionMapping : MediaTypeMapping
         {
-            _sContentType = contentType;
+            public ServeActionMapping() : base("application/json")
+            {
+            }
 
-            //httpConfiguration.Formatters.Clear();
-            //httpConfiguration.Formatters.Add(this);
+            public override double TryMatchMediaType(HttpRequestMessage request)
+            {
+                if (HttpContext.Current.Items[RequestParser.REQUEST_SERVE_CONTENT_TYPE] != null)
+                    return 1;
+
+                return 0;
+            }
+        }
+
+        public CustomResponseFormatter()
+        {
+            MediaTypeMappings.Add(new ServeActionMapping());
         }
 
         public override bool CanReadType(Type type)
@@ -45,7 +58,8 @@ namespace WebAPI.App_Start
         public override void SetDefaultContentHeaders(Type type, HttpContentHeaders headers, MediaTypeHeaderValue mediaType)
         {
             base.SetDefaultContentHeaders(type, headers, mediaType);
-            headers.ContentType = new MediaTypeHeaderValue(_sContentType);
+            string contentType = (string)HttpContext.Current.Items[RequestParser.REQUEST_SERVE_CONTENT_TYPE];
+            headers.ContentType = new MediaTypeHeaderValue(contentType);
         }
 
         public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, HttpContent content, TransportContext transportContext)
@@ -55,7 +69,8 @@ namespace WebAPI.App_Start
                 if (type == typeof(StatusWrapper) && ((StatusWrapper)value).Result != null && ((StatusWrapper)value).Result is KalturaRenderer)
                 {
                     KalturaRenderer renderer = (KalturaRenderer)((StatusWrapper)value).Result;
-                    renderer.Output(writeStream, content, transportContext);
+
+                    renderer.Output(writeStream);
                 }
             });
         }

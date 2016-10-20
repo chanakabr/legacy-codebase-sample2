@@ -27,6 +27,7 @@ namespace WebAPI.Controllers
         /// <remarks> Possible status codes: IllegalQueryParams = 12001, Registered = 12006, VersionNotFound = 12007</remarks>        
         [Route("serveByDevice"), HttpPost]
         [ApiAuthorize]
+        [SchemeServeAttribute]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.Registered)]
@@ -60,7 +61,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaStringRenderer(this.Configuration, response);
+            return new KalturaStringRenderer(response);
         }
 
         /// <summary>

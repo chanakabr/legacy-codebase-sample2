@@ -886,6 +886,7 @@
     <Compile Include="Controllers\ReportController.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Managers\Scheme\SchemeServe.cs" />
     <Compile Include="Models\API\KalturaMetaOrderBy.cs" />
     <Compile Include="Models\API\KalturaMetaFilter.cs" />
     <Compile Include="Models\API\KalturaMetaListResponse.cs" />
