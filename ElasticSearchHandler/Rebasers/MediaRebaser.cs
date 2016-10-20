@@ -34,17 +34,17 @@ namespace ElasticSearchHandler
             groupManager.RemoveGroup(groupId);
             Group group = groupManager.GetGroup(groupId);
 
-            var languages = group.GetLangauges();
-
             // Without the group we cannot advance at all - there must be an error in CB or something
             if (group == null)
             {
                 log.ErrorFormat("Could not load group {0} in media index rebaser", groupId);
                 return false;
             }
+            
+            var languages = group.GetLangauges();
 
             string indexName = ElasticSearchTaskUtils.GetMediaGroupAliasStr(groupId);
-
+            
             // Get ALL media in group
             var groupMediasDictionary = ElasticsearchTasksCommon.Utils.GetRebaseMediaInformation(groupId);
 
