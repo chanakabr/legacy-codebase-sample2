@@ -121,7 +121,7 @@ namespace ConditionalAccess
         }
 
         protected override BillingResponse HandleBaseRenewMPPBillingCharge(string sSiteGuid, double dPrice, string sCurrency, string sUserIP,
-            string sCustomData, int nPaymentNumber, int nRecPeriods, string sExtraParams, int nBillingMethod, long lPurchaseID, ConditionalAccess.eBillingProvider eBillingProvider)
+            string sCustomData, int nPaymentNumber, int nRecPeriods, string sExtraParams, int nBillingMethod, long lPurchaseID, eBillingProvider eBillingProvider)
         {
             module wsBillingModule = null;
             BillingResponse oResponse = null;

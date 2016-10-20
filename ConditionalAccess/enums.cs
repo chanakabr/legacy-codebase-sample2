@@ -121,16 +121,6 @@ namespace ConditionalAccess
         DASH
     }
 
-    public enum eBillingProvider
-    {
-       Unknown = 0,
-       Adyen = 10,
-       Dummy = 11,      
-       Cinepolis = 17,
-       M1 = 100,
-       Offline = 50
-    }
-
     public enum CinepolisConfirmationStatus : byte
     {
         NotSentYet = 0,

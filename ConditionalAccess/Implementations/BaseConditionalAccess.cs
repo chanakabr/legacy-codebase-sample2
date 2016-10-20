@@ -93,7 +93,7 @@ namespace ConditionalAccess
         #region Abstract methods
         protected abstract BillingResponse HandleBaseRenewMPPBillingCharge(string sSiteGuid, double dPrice,
             string sCurrency, string sUserIP, string sCustomData, int nPaymentNumber, int nRecPeriods, string sExtraParams,
-            int nBillingMethod, long lPurchaseID, ConditionalAccess.eBillingProvider bp);
+            int nBillingMethod, long lPurchaseID, eBillingProvider bp);
 
         protected abstract bool HandleMPPRenewalBillingSuccess(string sSiteGUID, string sSubscriptionCode, DateTime dtCurrentEndDate,
             bool bIsPurchasedWithPreviewModule, long lPurchaseID, string sCurrency, double dPrice, int nPaymentNumber,
@@ -2849,7 +2849,7 @@ namespace ConditionalAccess
         /// <returns></returns>
         public virtual BillingResponse DD_BaseRenewMultiUsageSubscription(string sSiteGUID, string sSubscriptionCode, string sUserIP, string sExtraParams,
             Int32 nPurchaseID, int nBillingMethod, Int32 nPaymentNumber, int nTotalPaymentsNumber, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME,
-            int nNumOfPayments, bool bIsPurchasedWithPreviewModule, DateTime dtCurrentEndDate, ConditionalAccess.eBillingProvider eBillingProvider)
+            int nNumOfPayments, bool bIsPurchasedWithPreviewModule, DateTime dtCurrentEndDate, eBillingProvider eBillingProvider)
         {
             BillingResponse oBillingResponse = new BillingResponse();
             oBillingResponse.m_oStatus = BillingResponseStatus.UnKnown;

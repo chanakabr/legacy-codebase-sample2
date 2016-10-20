@@ -294,7 +294,7 @@ namespace ConditionalAccess
             return TVinciShared.HashUtils.GetMD5HashUTF8EncodingInHexaString(String.Concat(DateTime.UtcNow.ToString("yyyy-MM-dd"), secret));
         }
 
-        protected override BillingResponse HandleBaseRenewMPPBillingCharge(string sSiteGuid, double dPrice, string sCurrency, string sUserIP, string sCustomData, int nPaymentNumber, int nRecPeriods, string sExtraParams, int nBillingMethod, long lPurchaseID, ConditionalAccess.eBillingProvider bp)
+        protected override BillingResponse HandleBaseRenewMPPBillingCharge(string sSiteGuid, double dPrice, string sCurrency, string sUserIP, string sCustomData, int nPaymentNumber, int nRecPeriods, string sExtraParams, int nBillingMethod, long lPurchaseID, eBillingProvider bp)
         {
             module bm = null;
             BillingResponse res = null;
