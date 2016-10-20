@@ -7,6 +7,7 @@ using DAL;
 using ConditionalAccess;
 using KLogMonitor;
 using System.Reflection;
+using Billing;
 /// ******************************************************
 /// Tvinci L.T.D
 /// Auto Renewer Scheduled Tasks
@@ -179,7 +180,7 @@ namespace TvinciRenewer
                                     {
                                         try
                                         {
-                                            ConditionalAccess.TvinciBilling.BillingResponse resp = t.DD_BaseRenewMultiUsageSubscription(sSiteGUID, sSubscriptionCode, "1.1.1.1", sExtraParams,
+                                            BillingResponse resp = t.DD_BaseRenewMultiUsageSubscription(sSiteGUID, sSubscriptionCode, "1.1.1.1", sExtraParams,
                                             nPurchaseID, nBillingMethod, nPaymentNumber, nTotalNumOfPayments, sCountryCd, sLanguageCode, sDeviceName, nNumOfPayments, bIsPurchasedWithPreviewModule, dtCurrentEndDate, billingProvider);
 
                                             StringBuilder strLog = new StringBuilder();
@@ -293,16 +294,16 @@ namespace TvinciRenewer
 
                                 eBillingProvider eBillingProvider = (eBillingProvider)(nTransactionBillingProvider);
 
-                                if ((eBillingProvider == ConditionalAccess.eBillingProvider.Adyen ||
-                                    eBillingProvider == ConditionalAccess.eBillingProvider.Cinepolis ||
-                                    eBillingProvider == ConditionalAccess.eBillingProvider.M1 ||
-                                    eBillingProvider == ConditionalAccess.eBillingProvider.Offline))
+                                if ((eBillingProvider == eBillingProvider.Adyen ||
+                                    eBillingProvider == eBillingProvider.Cinepolis ||
+                                    eBillingProvider == eBillingProvider.M1 ||
+                                    eBillingProvider == eBillingProvider.Offline))
                                 {
                                     try
                                     {
                                         log.DebugFormat("MPP Renewal : DoTheJobTest ", "purchase_id: {0}" + nPurchaseID);
 
-                                        ConditionalAccess.TvinciBilling.BillingResponse oBillingResponse = t.DD_BaseRenewMultiUsageSubscription(sSiteGUID, sSubscriptionCode, "1.1.1.1", sExtraParams,
+                                        BillingResponse oBillingResponse = t.DD_BaseRenewMultiUsageSubscription(sSiteGUID, sSubscriptionCode, "1.1.1.1", sExtraParams,
                                             nPurchaseID, nBillingMethod, nPaymentNumber, nTotalNumOfPayments, sCountryCd, sLanguageCode, sDeviceName, nNumOfPayments, bIsPurchasedWithPreviewModule, dtCurrentEndDate, eBillingProvider);
 
                                         StringBuilder strLog = new StringBuilder();
