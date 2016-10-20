@@ -1,8 +1,9 @@
-﻿using AutoMapper;
+﻿using ApiObjects;
+using ApiObjects.Billing;
+using AutoMapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using WebAPI.Billing;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Billing;
@@ -151,19 +152,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
         }
 
 
-        public static Billing.PaymentGatewaySettings[] ConvertPaymentGatewaySettings(Dictionary<string, KalturaStringValue> settings)
+        public static List<PaymentGatewaySettings> ConvertPaymentGatewaySettings(Dictionary<string, KalturaStringValue> settings)
         {
-            List<Billing.PaymentGatewaySettings> result = null;
+            List<PaymentGatewaySettings> result = null;
 
             if (settings != null && settings.Count > 0)
             {
                 result = new List<PaymentGatewaySettings>();
-                Billing.PaymentGatewaySettings pc;
+                PaymentGatewaySettings pc;
                 foreach (KeyValuePair<string, KalturaStringValue> data in settings)
                 {
                     if (!string.IsNullOrEmpty(data.Key))
                     {
-                        pc = new Billing.PaymentGatewaySettings();
+                        pc = new PaymentGatewaySettings();
                         pc.key = data.Key;
                         pc.value = data.Value.value;
                         result.Add(pc);
@@ -172,7 +173,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
             if (result != null && result.Count > 0)
             {
-                return result.ToArray();
+                return result;
             }
             else
             {
@@ -181,19 +182,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
         }
 
 
-        public static Billing.PaymentGatewaySettings[] ConvertPaymentGatewaySettings(SerializableDictionary<string, KalturaStringValue> settings)
+        public static List<PaymentGatewaySettings> ConvertPaymentGatewaySettings(SerializableDictionary<string, KalturaStringValue> settings)
         {
-            List<Billing.PaymentGatewaySettings> result = null;
+            List<PaymentGatewaySettings> result = null;
 
             if (settings != null && settings.Count > 0)
             {
                 result = new List<PaymentGatewaySettings>();
-                Billing.PaymentGatewaySettings pc;
+                PaymentGatewaySettings pc;
                 foreach (KeyValuePair<string, KalturaStringValue> data in settings)
                 {
                     if (!string.IsNullOrEmpty(data.Key))
                     {
-                        pc = new Billing.PaymentGatewaySettings();
+                        pc = new PaymentGatewaySettings();
                         pc.key = data.Key;
                         pc.value = data.Value.value;
                         result.Add(pc);
@@ -202,7 +203,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
             if (result != null && result.Count > 0)
             {
-                return result.ToArray();
+                return result;
             }
             else
             {
@@ -210,7 +211,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
         }
 
-        public static Dictionary<string, KalturaStringValue> ConvertPaymentGatewaySettings(Billing.PaymentGatewaySettings[] settings)
+        public static Dictionary<string, KalturaStringValue> ConvertPaymentGatewaySettings(List<PaymentGatewaySettings> settings)
         {
             Dictionary<string, KalturaStringValue> result = null;
 
@@ -228,19 +229,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static WebAPI.Models.Billing.KalturaHouseholdPaymentGatewaySelectedBy ConvertHouseholdPaymentGatewaySelectedBy(WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy? type)
+        private static WebAPI.Models.Billing.KalturaHouseholdPaymentGatewaySelectedBy ConvertHouseholdPaymentGatewaySelectedBy(eHouseholdPaymentGatewaySelectedBy? type)
         {
             WebAPI.Models.Billing.KalturaHouseholdPaymentGatewaySelectedBy result;
 
             switch (type)
             {
-                case WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy.Account:
+                case eHouseholdPaymentGatewaySelectedBy.Account:
                     result = WebAPI.Models.Billing.KalturaHouseholdPaymentGatewaySelectedBy.account;
                     break;
-                case WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy.Household:
+                case eHouseholdPaymentGatewaySelectedBy.Household:
                     result = WebAPI.Models.Billing.KalturaHouseholdPaymentGatewaySelectedBy.household;
                     break;
-                case WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy.None:
+                case eHouseholdPaymentGatewaySelectedBy.None:
                     result = WebAPI.Models.Billing.KalturaHouseholdPaymentGatewaySelectedBy.none;
                     break;
                 default:

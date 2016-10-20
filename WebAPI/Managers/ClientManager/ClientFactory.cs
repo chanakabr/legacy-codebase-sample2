@@ -23,7 +23,7 @@ namespace WebAPI.ClientManagers.Client
                     client = new ApiClient() { Module = new API() };
                     break;
                 case ClientType.Billing:
-                    client = new BillingClient() { Module = new Billing.module() { Url = url } };
+                    client = new BillingClient() { Module = new WS_Billing.module() };
                     break;
                 case ClientType.ConditionalAccess:
                     client = new ConditionalAccessClient() { Module = new ConditionalAccess.module() { Url = url } };

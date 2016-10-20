@@ -1,9 +1,9 @@
-﻿using AutoMapper;
+﻿using ApiObjects.Billing;
+using AutoMapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using WebAPI.Billing;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Partner;
