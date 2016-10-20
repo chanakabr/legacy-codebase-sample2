@@ -65,6 +65,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Billing">
+      <HintPath>..\..\..\ws_billing\Billing\bin\Debug\Billing.dll</HintPath>
+    </Reference>
     <Reference Include="Jil">
       <HintPath>..\..\..\tvincicommon\External\Jil.dll</HintPath>
     </Reference>
