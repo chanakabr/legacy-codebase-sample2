@@ -23,8 +23,11 @@ namespace ODBCWrapper
         private string GetCacheName()
         {
             string res = TCMClient.Settings.Instance.GetValue<string>("CACHE_NAME");
-            if (res.Length > 0)
+            if (!string.IsNullOrEmpty(res))
+            {
                 return res;
+            }
+
             return DEFAULT_CACHE_NAME;
         }
 
