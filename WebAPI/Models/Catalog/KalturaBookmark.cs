@@ -45,7 +45,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "positionOwner")]
         [JsonProperty("positionOwner")]
-        [XmlElement(ElementName = "positionOwner", IsNullable = true)]
+        [XmlElement(ElementName = "positionOwner")]
         [SchemeProperty(ReadOnly = true)]
         public KalturaPositionOwner PositionOwner { get; set; }
 
@@ -79,7 +79,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "action")]
         [JsonProperty(PropertyName = "action")]
-        [XmlArrayItem(ElementName = "action")]
+        [XmlElement(ElementName = "action")]
         public KalturaBookmarkActionType action { get; set; }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "averageBitrate")]
         [JsonProperty(PropertyName = "averageBitrate")]
-        [XmlArrayItem(ElementName = "averageBitrate")]
+        [XmlElement(ElementName = "averageBitrate")]
         public int? averageBitRate { get; set; }
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "totalBitrate")]
         [JsonProperty(PropertyName = "totalBitrate")]
-        [XmlArrayItem(ElementName = "totalBitrate")]
+        [XmlElement(ElementName = "totalBitrate")]
         public int? totalBitRate { get; set; }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "currentBitrate")]
         [JsonProperty(PropertyName = "currentBitrate")]
-        [XmlArrayItem(ElementName = "currentBitrate")]
+        [XmlElement(ElementName = "currentBitrate")]
         public int? currentBitRate { get; set; }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "fileId")]
         [JsonProperty(PropertyName = "fileId")]
-        [XmlArrayItem(ElementName = "fileId")]
+        [XmlElement(ElementName = "fileId")]
         public long? FileId { get; set; }
 
         internal int getAverageBitRate()
