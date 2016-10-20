@@ -190,13 +190,13 @@ namespace CCRenewer
                                     ConditionalAccess.Utils.GetBaseConditionalAccessImpl(ref t, nGroupID, "CA_CONNECTION_STRING");
                                     if (m_nBillingProvider == 10)
                                     {
-                                        ConditionalAccess.TvinciBilling.BillingResponse resp = t.DD_BaseRenewSubscription(sSiteGUID, dPrice, sCurrency, sSubscriptionCode, "1.1.1.1", sExtraParams,
+                                        var resp = t.DD_BaseRenewSubscription(sSiteGUID, dPrice, sCurrency, sSubscriptionCode, "1.1.1.1", sExtraParams,
                                        nPurchaseID, nBillingMethod, nPaymentNumber, sCountryCd, sLanguageCode, sDeviceName);
                                         log.Debug("renew - " + sLogStr + "status code: " + resp.m_oStatus.ToString() + " | status desc: " + resp.m_sStatusDescription + " | reciept: " + resp.m_sRecieptCode);
                                     }
                                     else
                                     {
-                                        ConditionalAccess.TvinciBilling.BillingResponse resp = t.CC_BaseRenewSubscription(sSiteGUID, dPrice, sCurrency, sSubscriptionCode, "1.1.1.1", sExtraParams,
+                                        var  resp = t.CC_BaseRenewSubscription(sSiteGUID, dPrice, sCurrency, sSubscriptionCode, "1.1.1.1", sExtraParams,
                                             nPurchaseID, nPaymentNumber, sCountryCd, sLanguageCode, sDeviceName);
                                         log.Debug("renew - " + sLogStr + "status code: " + resp.m_oStatus.ToString() + " | status desc: " + resp.m_sStatusDescription + " | reciept: " + resp.m_sRecieptCode);
                                     }

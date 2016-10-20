@@ -201,7 +201,7 @@ namespace InAppRenewer
 
                                     ConditionalAccess.Utils.GetBaseConditionalAccessImpl(ref t, nGroupID, "CA_CONNECTION_STRING");
 
-                                    ConditionalAccess.TvinciBilling.InAppBillingResponse resp = t.InApp_RenewSubscription(sSiteGUID, dPrice, sCurrency, sSubscriptionCode, nPurchaseID, 200,
+                                    var resp = t.InApp_RenewSubscription(sSiteGUID, dPrice, sCurrency, sSubscriptionCode, nPurchaseID, 200,
                                         nPaymentNumber, sCountryCd, sLanguageCode, sDeviceName, nInAppTransactionID);
 
                                     System.Threading.Thread.Sleep(10);

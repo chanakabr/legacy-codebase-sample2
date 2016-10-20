@@ -179,7 +179,7 @@ namespace TvinciRenewer
                                     {
                                         try
                                         {
-                                            ConditionalAccess.TvinciBilling.BillingResponse resp = t.DD_BaseRenewMultiUsageSubscription(sSiteGUID, sSubscriptionCode, "1.1.1.1", sExtraParams,
+                                            var resp = t.DD_BaseRenewMultiUsageSubscription(sSiteGUID, sSubscriptionCode, "1.1.1.1", sExtraParams,
                                             nPurchaseID, nBillingMethod, nPaymentNumber, nTotalNumOfPayments, sCountryCd, sLanguageCode, sDeviceName, nNumOfPayments, bIsPurchasedWithPreviewModule, dtCurrentEndDate, billingProvider);
 
                                             StringBuilder strLog = new StringBuilder();
@@ -302,7 +302,7 @@ namespace TvinciRenewer
                                     {
                                         log.DebugFormat("MPP Renewal : DoTheJobTest ", "purchase_id: {0}" + nPurchaseID);
 
-                                        ConditionalAccess.TvinciBilling.BillingResponse oBillingResponse = t.DD_BaseRenewMultiUsageSubscription(sSiteGUID, sSubscriptionCode, "1.1.1.1", sExtraParams,
+                                        var oBillingResponse = t.DD_BaseRenewMultiUsageSubscription(sSiteGUID, sSubscriptionCode, "1.1.1.1", sExtraParams,
                                             nPurchaseID, nBillingMethod, nPaymentNumber, nTotalNumOfPayments, sCountryCd, sLanguageCode, sDeviceName, nNumOfPayments, bIsPurchasedWithPreviewModule, dtCurrentEndDate, eBillingProvider);
 
                                         StringBuilder strLog = new StringBuilder();
