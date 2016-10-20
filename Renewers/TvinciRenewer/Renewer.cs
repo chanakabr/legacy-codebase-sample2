@@ -171,12 +171,12 @@ namespace TvinciRenewer
                                     ConditionalAccess.BaseConditionalAccess t = null;
                                     ConditionalAccess.Utils.GetBaseConditionalAccessImpl(ref t, nGroupID, "CA_CONNECTION_STRING");
 
-                                    Billing.eBillingProvider billingProvider = (Billing.eBillingProvider)nTransactionBillingProvider;
+                                    eBillingProvider billingProvider = (eBillingProvider)nTransactionBillingProvider;
 
-                                    if ((billingProvider == Billing.eBillingProvider.Adyen) ||
-                                        (billingProvider == Billing.eBillingProvider.Cinepolis) ||
-                                        (billingProvider == Billing.eBillingProvider.M1) ||
-                                        (billingProvider == Billing.eBillingProvider.Offline))
+                                    if ((billingProvider == eBillingProvider.Adyen) ||
+                                        (billingProvider == eBillingProvider.Cinepolis) ||
+                                        (billingProvider == eBillingProvider.M1) ||
+                                        (billingProvider == eBillingProvider.Offline))
                                     {
                                         try
                                         {
@@ -292,12 +292,12 @@ namespace TvinciRenewer
                                 ConditionalAccess.BaseConditionalAccess t = null;
                                 ConditionalAccess.Utils.GetBaseConditionalAccessImpl(ref t, nGroupID, "CA_CONNECTION_STRING");
 
-                                Billing.eBillingProvider eBillingProvider = (Billing.eBillingProvider)(nTransactionBillingProvider);
+                                eBillingProvider eBillingProvider = (eBillingProvider)(nTransactionBillingProvider);
 
-                                if ((eBillingProvider == Billing.eBillingProvider.Adyen ||
-                                    eBillingProvider == Billing.eBillingProvider.Cinepolis ||
-                                    eBillingProvider == Billing.eBillingProvider.M1 ||
-                                    eBillingProvider == Billing.eBillingProvider.Offline))
+                                if ((eBillingProvider == eBillingProvider.Adyen ||
+                                    eBillingProvider == eBillingProvider.Cinepolis ||
+                                    eBillingProvider == eBillingProvider.M1 ||
+                                    eBillingProvider == eBillingProvider.Offline))
                                 {
                                     try
                                     {
