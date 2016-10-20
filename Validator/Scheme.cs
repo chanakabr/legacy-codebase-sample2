@@ -668,8 +668,10 @@ namespace Validator.Managers.Scheme
             List<PropertyInfo> properties = type.GetProperties().ToList();
 
             //Remove properties from base
-            PropertyInfo[] baseProps = type.BaseType.GetProperties();
-            properties.RemoveAll(myProperty => baseProps.Where(baseProperty => baseProperty.Name == myProperty.Name).Count() > 0);
+            List<PropertyInfo> baseProps = type.BaseType.GetProperties().ToList();
+            baseProps.RemoveAll(myProperty => myProperty.GetCustomAttribute<ObsoleteAttribute>(false) != null);
+            List<string> basePropsNames = baseProps.Select(myProperty => myProperty.Name).ToList();
+            properties.RemoveAll(myProperty => basePropsNames.Contains(myProperty.Name));
 
             foreach (var property in properties)
             {
