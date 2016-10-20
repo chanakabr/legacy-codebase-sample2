@@ -25,8 +25,8 @@ namespace WebAPI.App_Start
         {
             _sContentType = contentType;
 
-            httpConfiguration.Formatters.Clear();
-            httpConfiguration.Formatters.Add(this);
+            //httpConfiguration.Formatters.Clear();
+            //httpConfiguration.Formatters.Add(this);
         }
 
         public override bool CanReadType(Type type)
