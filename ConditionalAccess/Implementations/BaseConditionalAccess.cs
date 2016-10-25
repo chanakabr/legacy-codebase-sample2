@@ -12756,12 +12756,12 @@ namespace ConditionalAccess
         /// Purchase
         /// </summary>
         public virtual TransactionResponse Purchase(string siteguid, long household, double price, string currency, int contentId, int productId,
-                                                 eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGwId, int paymentMethodId)
+                                                 eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGwId, int paymentMethodId, string adapterData)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // log request
-            string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, contentId {4}, productId {5}, productType {6}, coupon {7}, userIp {8}, deviceName {9}, paymentGwId {10}, paymentMethodId {11}",
+            string logString = string.Format("Purchase request: siteguid {0}, household {1}, ilprice {2}, currency {3}, contentId {4}, productId {5}, productType {6}, coupon {7}, userIp {8}, deviceName {9}, paymentGwId {10}, paymentMethodId {11}, adapterData {12}",
                 !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,     // {0}
                 household,                                                     // {1}
                 price,                                                         // {2}  
@@ -12772,7 +12772,7 @@ namespace ConditionalAccess
                 !string.IsNullOrEmpty(coupon) ? coupon : string.Empty,         // {7}
                 !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,         // {8}
                 !string.IsNullOrEmpty(deviceName) ? deviceName : string.Empty, // {9}
-                paymentGwId, paymentMethodId);                                 // {10,11}
+                paymentGwId, paymentMethodId, adapterData);                    // {10,11,12}
 
             log.Debug(logString);
 
@@ -12834,13 +12834,13 @@ namespace ConditionalAccess
                 switch (transactionType)
                 {
                     case eTransactionType.PPV:
-                        response = PurchasePPV(siteguid, household, price, currency, contentId, productId, coupon, userIp, deviceName, paymentGwId, paymentMethodId);
+                        response = PurchasePPV(siteguid, household, price, currency, contentId, productId, coupon, userIp, deviceName, paymentGwId, paymentMethodId, adapterData);
                         break;
                     case eTransactionType.Subscription:
-                        response = PurchaseSubscription(siteguid, household, price, currency, productId, coupon, userIp, deviceName, paymentGwId, paymentMethodId);
+                        response = PurchaseSubscription(siteguid, household, price, currency, productId, coupon, userIp, deviceName, paymentGwId, paymentMethodId, adapterData);
                         break;
                     case eTransactionType.Collection:
-                        response = PurchaseCollection(siteguid, household, price, currency, productId, coupon, userIp, deviceName, paymentGwId, paymentMethodId);
+                        response = PurchaseCollection(siteguid, household, price, currency, productId, coupon, userIp, deviceName, paymentGwId, paymentMethodId, adapterData);
                         break;
                     default:
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Illegal product ID");
@@ -12958,12 +12958,12 @@ namespace ConditionalAccess
         }
 
 
-        private TransactionResponse PurchaseCollection(string siteguid, long householdId, double price, string currency, int productId, string coupon, string userIp, string deviceName, int paymentGwId, int paymentMethodId)
+        private TransactionResponse PurchaseCollection(string siteguid, long householdId, double price, string currency, int productId, string coupon, string userIp, string deviceName, int paymentGwId, int paymentMethodId, string adapterData)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // log request
-            string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, productId {4}, coupon {5}, userIp {6}, deviceName {7}, paymentGwId {8}, paymentMethodId {9}",
+            string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, productId {4}, coupon {5}, userIp {6}, deviceName {7}, paymentGwId {8}, paymentMethodId {9}, adapterData {10}",
                 !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,     // {0}
                 householdId,                                                   // {1}
                 price,                                                         // {2}  
@@ -12972,7 +12972,7 @@ namespace ConditionalAccess
                 !string.IsNullOrEmpty(coupon) ? coupon : string.Empty,         // {5}
                 !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,         // {6}
                 !string.IsNullOrEmpty(deviceName) ? deviceName : string.Empty, // {7}
-                paymentGwId, paymentMethodId);                                 // {8,9}
+                paymentGwId, paymentMethodId, adapterData);                    // {8,9,10}
 
             try
             {
@@ -13008,7 +13008,7 @@ namespace ConditionalAccess
                         string billingGuid = Guid.NewGuid().ToString();
 
                         // purchase
-                        response = HandlePurchase(siteguid, householdId, price, currency, userIp, customData, productId, TvinciBilling.eTransactionType.Collection, billingGuid, paymentGwId, 0, paymentMethodId);
+                        response = HandlePurchase(siteguid, householdId, price, currency, userIp, customData, productId, TvinciBilling.eTransactionType.Collection, billingGuid, paymentGwId, 0, paymentMethodId, adapterData);
                         if (response != null &&
                             response.Status != null)
                         {
@@ -13093,12 +13093,12 @@ namespace ConditionalAccess
 
 
         private TransactionResponse PurchaseSubscription(string siteguid, long householdId, double price, string currency, int productId,
-                                                      string coupon, string userIp, string deviceName, int paymentGwId, int paymentMethodId)
+                                                      string coupon, string userIp, string deviceName, int paymentGwId, int paymentMethodId, string adapterData)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // log request
-            string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, productId {4}, coupon {5}, userIp {6}, deviceName {7}, paymentGwId {8}, paymentMethodId {9}",
+            string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, productId {4}, coupon {5}, userIp {6}, deviceName {7}, paymentGwId {8}, paymentMethodId {9}, adapterData {10}",
                 !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,     // {0}
                 householdId,                                                   // {1}
                 price,                                                         // {2}  
@@ -13107,7 +13107,7 @@ namespace ConditionalAccess
                 !string.IsNullOrEmpty(coupon) ? coupon : string.Empty,         // {5}
                 !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,         // {6}
                 !string.IsNullOrEmpty(deviceName) ? deviceName : string.Empty, // {7}
-                paymentGwId, paymentMethodId);
+                paymentGwId, paymentMethodId, adapterData);
 
             try
             {
@@ -13152,7 +13152,7 @@ namespace ConditionalAccess
                         else
                         {
                             response = HandlePurchase(siteguid, householdId, price, currency, userIp, customData, productId,
-                                                      TvinciBilling.eTransactionType.Subscription, billingGuid, paymentGwId, 0, paymentMethodId);
+                                                      TvinciBilling.eTransactionType.Subscription, billingGuid, paymentGwId, 0, paymentMethodId, adapterData);
                         }
                         if (response != null &&
                             response.Status != null)
@@ -13290,12 +13290,12 @@ namespace ConditionalAccess
 
 
         private TransactionResponse PurchasePPV(string siteguid, long householdId, double price, string currency, int contentId, int productId, string coupon,
-                                                string userIp, string deviceName, int paymentGwId, int paymentMethodId)
+                                                string userIp, string deviceName, int paymentGwId, int paymentMethodId, string adapterData)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // log request
-            string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, contentId {4}, productId {5}, coupon {6}, userIp {7}, deviceName {8}, paymentGwId {9}, paymentMethodId {10}",
+            string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, contentId {4}, productId {5}, coupon {6}, userIp {7}, deviceName {8}, paymentGwId {9}, paymentMethodId {10}, adapterData {11}",
                 !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,     // {0}
                 householdId,                                                   // {1}
                 price,                                                         // {2}  
@@ -13305,7 +13305,7 @@ namespace ConditionalAccess
                 !string.IsNullOrEmpty(coupon) ? coupon : string.Empty,         // {6}
                 !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,         // {7}
                 !string.IsNullOrEmpty(deviceName) ? deviceName : string.Empty, // {8}
-                paymentGwId, paymentMethodId);                                 // {9,10}
+                paymentGwId, paymentMethodId, adapterData);                                 // {9,10,11}
 
             try
             {
@@ -13376,7 +13376,7 @@ namespace ConditionalAccess
                         }
                         else
                         {
-                            response = HandlePurchase(siteguid, householdId, price, currency, userIp, customData, productId, TvinciBilling.eTransactionType.PPV, billingGuid, paymentGwId, contentId, paymentMethodId);
+                            response = HandlePurchase(siteguid, householdId, price, currency, userIp, customData, productId, TvinciBilling.eTransactionType.PPV, billingGuid, paymentGwId, contentId, paymentMethodId, adapterData);
                         }
                         if (response != null &&
                             response.Status != null)
@@ -13818,11 +13818,11 @@ namespace ConditionalAccess
         }
 
         protected TransactionResponse HandlePurchase(string siteGUID, long houseHoldID, double price, string currency, string userIP, string customData,
-                                                  int productID, TvinciBilling.eTransactionType transactionType, string billingGuid, int paymentGWId, int contentId, int paymentMethodId)
+                                                  int productID, TvinciBilling.eTransactionType transactionType, string billingGuid, int paymentGWId, int contentId, int paymentMethodId, string adapterData)
         {
             TransactionResponse response = new TransactionResponse();
 
-            string logString = string.Format("fail get response from billing service siteGUID={0}, houseHoldID={1}, price={2}, currency={3}, userIP={4}, customData={5}, productID={6}, (int)transactionType={7}, billingGuid={8}, paymentGWId={9}, paymentMethodId = {10}",
+            string logString = string.Format("fail get response from billing service siteGUID={0}, houseHoldID={1}, price={2}, currency={3}, userIP={4}, customData={5}, productID={6}, (int)transactionType={7}, billingGuid={8}, paymentGWId={9}, paymentMethodId = {10}, adapterData = {11}",
                                        !string.IsNullOrEmpty(siteGUID) ? siteGUID : string.Empty,              // {0}
                                        houseHoldID,                                                            // {1}
                                        price,                                                                  // {2}
@@ -13832,7 +13832,7 @@ namespace ConditionalAccess
                                        productID,                                                              // {6}
                                        (int)transactionType,                                                   // {7}
                                        !string.IsNullOrEmpty(billingGuid) ? billingGuid : string.Empty,        // {8}
-                                       paymentGWId, paymentMethodId);                                           // {9,10}
+                                       paymentGWId, paymentMethodId, adapterData);                             // {9,10,11}
 
             try
             {
@@ -13842,7 +13842,7 @@ namespace ConditionalAccess
                 InitializeBillingModule(ref wsBillingService, ref userName, ref password);
 
                 // call new billing method for charge adapter
-                var transactionResponse = wsBillingService.Transact(userName, password, siteGUID, (int)houseHoldID, price, currency, userIP, customData, productID, transactionType, contentId, billingGuid, paymentGWId, paymentMethodId);
+                var transactionResponse = wsBillingService.Transact(userName, password, siteGUID, (int)houseHoldID, price, currency, userIP, customData, productID, transactionType, contentId, billingGuid, paymentGWId, paymentMethodId, adapterData);
 
                 response = ConvertTransactResultToTransactionResponse(logString, transactionResponse);
             }
