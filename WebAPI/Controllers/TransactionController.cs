@@ -68,7 +68,8 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().Purchase(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), purchase.Price, purchase.Currency, purchase.getContentId(), purchase.ProductId, purchase.ProductType, purchase.getCoupon(), udid, purchase.getPaymentGatewayId(), purchase.getPaymentMethodId());
+                response = ClientsManager.ConditionalAccessClient().Purchase(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), purchase.Price, purchase.Currency, 
+                    purchase.getContentId(), purchase.ProductId, purchase.ProductType, purchase.getCoupon(), udid, purchase.getPaymentGatewayId(), purchase.getPaymentMethodId(), purchase.AdapterData);
             }
             catch (ClientException ex)
             {
@@ -87,6 +88,7 @@ namespace WebAPI.Controllers
         /// <param name="product_id">Identifier for the package from which this content is offered</param>        
         /// <param name="product_type">Package type. Possible values: PPV, Subscription, Collection</param>
         /// <param name="coupon">Coupon code</param> 
+        /// <param name="adapterData">Additional data for the adapter</param>
         /// <param name="payment_gateway_id">Identifier for a pre-associated payment gateway. If not provided – the account’s default payment gateway is used</param>
         /// <param name="payment_method_id">Identifier for a pre-entered payment method. If not provided – the household’s default payment method is used</param>
         /// <remarks>Possible status codes: 
@@ -104,7 +106,7 @@ namespace WebAPI.Controllers
         [SchemeArgument("product_id", MinInteger = 1)]
         [SchemeArgument("payment_method_id", MinInteger = 1)]
         public KalturaTransaction PurchaseOldStandard(double price, string currency, int product_id, KalturaTransactionType product_type, int content_id = 0, string coupon = null, int payment_gateway_id = 0,
-            int? payment_method_id = null)
+            int? payment_method_id = null, string adapterData = null)
         {
             KalturaTransaction response = new KalturaTransaction();
 
@@ -129,7 +131,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().Purchase(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), price, currency, content_id, product_id, product_type, coupon, udid, payment_gateway_id, payment_method_id.Value);
+                response = ClientsManager.ConditionalAccessClient().Purchase(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), price, currency, content_id, product_id, product_type, coupon, udid, payment_gateway_id, payment_method_id.Value, adapterData);
             }
             catch (ClientException ex)
             {

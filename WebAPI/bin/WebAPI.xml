@@ -3161,7 +3161,7 @@
              Payment method not exist = 6049       
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.TransactionController.PurchaseOldStandard(System.Double,System.String,System.Int32,WebAPI.Models.ConditionalAccess.KalturaTransactionType,System.Int32,System.String,System.Int32,System.Nullable{System.Int32})">
+        <member name="M:WebAPI.Controllers.TransactionController.PurchaseOldStandard(System.Double,System.String,System.Int32,WebAPI.Models.ConditionalAccess.KalturaTransactionType,System.Int32,System.String,System.Int32,System.Nullable{System.Int32},System.String)">
             <summary>
             Purchase specific product or subscription for a household. Upon successful charge entitlements to use the requested product or subscription are granted. 
             </summary>
@@ -3171,6 +3171,7 @@
             <param name="product_id">Identifier for the package from which this content is offered</param>        
             <param name="product_type">Package type. Possible values: PPV, Subscription, Collection</param>
             <param name="coupon">Coupon code</param> 
+            <param name="adapterData">Additional data for the adapter</param>
             <param name="payment_gateway_id">Identifier for a pre-associated payment gateway. If not provided – the account’s default payment gateway is used</param>
             <param name="payment_method_id">Identifier for a pre-entered payment method. If not provided – the household’s default payment method is used</param>
             <remarks>Possible status codes: 
@@ -4411,6 +4412,11 @@
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchase.Coupon">
             <summary>
             Coupon code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchase.AdapterData">
+            <summary>
+            Additional data for the adapter
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaPurchaseSession.PreviewModuleId">

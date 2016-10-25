@@ -87,7 +87,16 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("coupon")]
         [XmlElement(ElementName = "coupon")]
         public string Coupon { get; set; }
-        
+
+        /// <summary>
+        /// Additional data for the adapter
+        /// </summary>
+        [DataMember(Name = "adapterData")]
+        [JsonProperty("adapterData")]
+        [XmlElement(ElementName = "adapterData")]
+        [SchemeProperty(MaxLength = 1024)]
+        public string AdapterData { get; set; }
+
         internal void Validate()
         {
             // validate purchase token
