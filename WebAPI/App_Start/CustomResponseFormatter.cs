@@ -17,10 +17,11 @@ using System.Web.Http;
 using System.Web.Http.Routing;
 using WebAPI.Filters;
 using System.Web;
+using WebAPI.Utils;
 
 namespace WebAPI.App_Start
 {
-    public class CustomResponseFormatter : MediaTypeFormatter
+    public class CustomResponseFormatter : JilFormatter
     {
         class ServeActionMapping : MediaTypeMapping
         {
@@ -64,6 +65,9 @@ namespace WebAPI.App_Start
 
         public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, HttpContent content, TransportContext transportContext)
         {
+            if (type == typeof(StatusWrapper) && ((StatusWrapper)value).Result != null && ((StatusWrapper)value).Result is WebAPI.App_Start.WrappingHandler.KalturaAPIExceptionWrapper)
+                return base.WriteToStreamAsync(type, value, writeStream, content, transportContext);
+
             return Task.Factory.StartNew(() =>
             {
                 if (type == typeof(StatusWrapper) && ((StatusWrapper)value).Result != null && ((StatusWrapper)value).Result is KalturaRenderer)
