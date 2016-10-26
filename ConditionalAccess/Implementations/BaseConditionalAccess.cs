@@ -10220,8 +10220,7 @@ namespace ConditionalAccess
         /// <param name="p_sLANGUAGE_CODE"></param>
         /// <param name="p_sDEVICE_NAME"></param>
         /// <returns></returns>
-        public EntitlementResponse GetEntitlement(
-            string p_sMediaFileID, string p_sSiteGUID, bool p_bIsCoGuid, string p_sCOUNTRY_CODE, string p_sLANGUAGE_CODE, string p_sDEVICE_NAME)
+        public EntitlementResponse GetEntitlement(string p_sMediaFileID, string p_sSiteGUID, bool p_bIsCoGuid, string p_sCOUNTRY_CODE, string p_sLANGUAGE_CODE, string p_sDEVICE_NAME, bool isRecording = false)
         {
             EntitlementResponse objResponse = new EntitlementResponse();
 
@@ -10229,6 +10228,9 @@ namespace ConditionalAccess
             string strViewLifeCycle = TimeSpan.Zero.ToString();
             string strFullLifeCycle = TimeSpan.Zero.ToString();
             bool bIsOfflinePlayback = false;
+            bool shouldCheckEntitlement = false;
+            int domainID = 0;
+            List<int> lstUsersIds = null;
 
             try
             {
@@ -10249,113 +10251,173 @@ namespace ConditionalAccess
 
                 if (nMediaFileID > 0)
                 {
-                    int[] arrMediaFileIDs = { nMediaFileID };
-                    MediaFileItemPricesContainer[] arrPrices =
-                        GetItemsPrices(arrMediaFileIDs, p_sSiteGUID, string.Empty, true, p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME);
-
-                    if (arrPrices != null && arrPrices.Length > 0)
+                    if (isRecording)
                     {
-                        MediaFileItemPricesContainer objPrice = arrPrices[0];
-
-                        // If the item is free
-                        if (IsFreeItem(objPrice))
+                        lstUsersIds = Utils.GetAllUsersDomainBySiteGUID(p_sSiteGUID, m_nGroupID, ref domainID);
+                        if (IsServiceAllowed(m_nGroupID, (int)domainID, eService.NPVR))
                         {
-                            GetFreeItemLeftLifeCycle(ref strViewLifeCycle, ref strFullLifeCycle);
-                        }
-                        else if (IsItemPurchased(objPrice))
-                        // Item is not free and also not user is not suspended
-                        {
-                            bool bIsOfflineStatus = false;
-                            string sPPVMCode = string.Empty;
-                            int nViewLifeCycle = 0;
-                            int nFullLifeCycle = 0;
-                            DateTime dtViewDate = new DateTime();
-                            DateTime dtNow = DateTime.UtcNow;
-                            int domainID = 0;
-                            List<int> lstUsersIds = Utils.GetAllUsersDomainBySiteGUID(p_sSiteGUID, m_nGroupID, ref domainID);
-                            List<int> lstRelatedMediaFiles = GetRelatedMediaFiles(objPrice, nMediaFileID);
-                            DateTime? dtEntitlementStartDate = GetStartDate(objPrice);
-                            DateTime? dtEntitlementEndDate = GetEndDate(objPrice);
-
-                            string sPricingUsername = string.Empty;
-                            string sPricingPassword = string.Empty;
-
-                            Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sPricingUsername, ref sPricingPassword);
-
-                            // Get latest use (watch/download) of the media file. If there was one, continue.
-                            if (ConditionalAccessDAL.Get_LatestMediaFilesUse(lstUsersIds, lstRelatedMediaFiles, ref sPPVMCode, ref bIsOfflineStatus, ref dtNow,
-                                ref dtViewDate))
+                            DataTable dt = ConditionalAccessDAL.GetChannelByMediaFileId(m_nGroupID, nMediaFileID);
+                            if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
                             {
-                                if (bIsOfflineStatus)
+                                DataRow dr = dt.Rows[0];
+                                int enableCdvr = ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_CDVR", 0);
+                                int enableNonEntitled = ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_RECORDING_PLAYBACK_NON_ENTITLED", 0);
+                                int enableNonExisting = ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_RECORDING_PLAYBACK_NON_EXISTING", 0);
+
+                                if (enableCdvr == 0 || enableNonEntitled == 0 || enableNonExisting == 0)
                                 {
-                                    string sGroupUsageModuleCode = string.Empty;
-
-                                    if (PricingDAL.Get_GroupUsageModuleCode(m_nGroupID, "PRICING_CONNECTION", ref sGroupUsageModuleCode))
+                                    TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+                                    if (accountSettings != null)
                                     {
-                                        UsageModule objUsageModule = Utils.GetUsageModuleDataWithCaching(sGroupUsageModuleCode, sPricingUsername, sPricingPassword,
-                                            p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME, m_nGroupID, "GetOfflineUsageModuleData");
+                                        enableCdvr = enableCdvr == 0 ? (accountSettings.IsCdvrEnabled.HasValue && accountSettings.IsCdvrEnabled.Value ? 1 : 2) : enableCdvr;
+                                        enableNonEntitled = enableNonEntitled == 0 ? (accountSettings.IsRecordingPlaybackNonEntitledChannelEnabled.HasValue &&
+                                                                                      accountSettings.IsRecordingPlaybackNonEntitledChannelEnabled.Value ? 1 : 2) : enableNonEntitled;
+                                        enableNonExisting = enableNonExisting == 0 ? (accountSettings.IsRecordingPlaybackNonExistingChannelEnabled.HasValue &&
+                                                                                      accountSettings.IsRecordingPlaybackNonExistingChannelEnabled.Value ? 1 : 2) : enableNonExisting;
+                                    }
+                                }
 
-                                        if (objUsageModule != null)
+                                if (enableCdvr == 1)
+                                {
+                                    switch (enableNonEntitled)
+                                    {
+                                        case 1:
+                                            //shouldCheckEntitlement is already false
+                                            //bIsOfflinePlayback is already false so no need to assign 
+                                            GetFreeItemLeftLifeCycle(ref strViewLifeCycle, ref strFullLifeCycle);
+                                            break;
+                                        case 2:
+                                            shouldCheckEntitlement = true;
+                                            break;
+                                        default:                                            
+                                            break;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                    else
+                    {
+                        shouldCheckEntitlement = true;
+                    }
+
+                    if (shouldCheckEntitlement)
+                    {
+
+                        int[] arrMediaFileIDs = { nMediaFileID };
+                        MediaFileItemPricesContainer[] arrPrices = GetItemsPrices(arrMediaFileIDs, p_sSiteGUID, string.Empty, true, p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME);
+                        if (arrPrices != null && arrPrices.Length > 0)
+                        {
+                            MediaFileItemPricesContainer objPrice = arrPrices[0];
+
+                            // If the item is free
+                            if (IsFreeItem(objPrice))
+                            {
+                                GetFreeItemLeftLifeCycle(ref strViewLifeCycle, ref strFullLifeCycle);
+                            }
+                            else if (IsItemPurchased(objPrice))
+                            // Item is not free and also not user is not suspended
+                            {
+                                bool bIsOfflineStatus = false;
+                                string sPPVMCode = string.Empty;
+                                int nViewLifeCycle = 0;
+                                int nFullLifeCycle = 0;
+                                DateTime dtViewDate = new DateTime();
+                                DateTime dtNow = DateTime.UtcNow;
+                                if (domainID == 0 || lstUsersIds == null)
+                                {
+                                    lstUsersIds = Utils.GetAllUsersDomainBySiteGUID(p_sSiteGUID, m_nGroupID, ref domainID);
+                                }
+
+                                List<int> lstRelatedMediaFiles = GetRelatedMediaFiles(objPrice, nMediaFileID);
+                                DateTime? dtEntitlementStartDate = GetStartDate(objPrice);
+                                DateTime? dtEntitlementEndDate = GetEndDate(objPrice);
+
+                                string sPricingUsername = string.Empty;
+                                string sPricingPassword = string.Empty;
+
+                                Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sPricingUsername, ref sPricingPassword);
+
+                                // Get latest use (watch/download) of the media file. If there was one, continue.
+                                if (ConditionalAccessDAL.Get_LatestMediaFilesUse(lstUsersIds, lstRelatedMediaFiles, ref sPPVMCode, ref bIsOfflineStatus, ref dtNow,
+                                    ref dtViewDate))
+                                {
+                                    if (bIsOfflineStatus)
+                                    {
+                                        string sGroupUsageModuleCode = string.Empty;
+
+                                        if (PricingDAL.Get_GroupUsageModuleCode(m_nGroupID, "PRICING_CONNECTION", ref sGroupUsageModuleCode))
                                         {
-                                            nViewLifeCycle = objUsageModule.m_tsViewLifeCycle;
-                                            nFullLifeCycle = objUsageModule.m_tsMaxUsageModuleLifeCycle;
-                                            bIsOfflinePlayback = objUsageModule.m_bIsOfflinePlayBack;
+                                            UsageModule objUsageModule = Utils.GetUsageModuleDataWithCaching(sGroupUsageModuleCode, sPricingUsername, sPricingPassword,
+                                                p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME, m_nGroupID, "GetOfflineUsageModuleData");
+
+                                            if (objUsageModule != null)
+                                            {
+                                                nViewLifeCycle = objUsageModule.m_tsViewLifeCycle;
+                                                nFullLifeCycle = objUsageModule.m_tsMaxUsageModuleLifeCycle;
+                                                bIsOfflinePlayback = objUsageModule.m_bIsOfflinePlayBack;
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        bool bIsSuccess = GetLifeCycleByPPVMCode(p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME, ref bIsOfflinePlayback, sPPVMCode,
+                                            ref nViewLifeCycle, ref nFullLifeCycle, sPricingUsername, sPricingPassword);
+
+                                        // If getting didn't succeed for any reason, write to log
+                                        if (!bIsSuccess)
+                                        {
+                                            log.Error("Error - " + GetPricingErrLogMsg(sPPVMCode, p_sSiteGUID, p_sMediaFileID, p_bIsCoGuid,
+                                                p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME, eTransactionType.PPV));
                                         }
                                     }
                                 }
-                                else
-                                {
-                                    bool bIsSuccess = GetLifeCycleByPPVMCode(p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME, ref bIsOfflinePlayback, sPPVMCode,
-                                        ref nViewLifeCycle, ref nFullLifeCycle, sPricingUsername, sPricingPassword);
 
-                                    // If getting didn't succeed for any reason, write to log
-                                    if (!bIsSuccess)
+                                // If we found the view cycle (and there was a view), calculate what's left of it
+                                // Base date is the view date
+                                if (nViewLifeCycle > 0)
+                                {
+                                    DateTime dtViewEndDate = Utils.GetEndDateTime(dtViewDate, nViewLifeCycle);
+                                    TimeSpan tsViewLeftSpan = dtViewEndDate.Subtract(dtNow);
+                                    if (tsViewLeftSpan.TotalMilliseconds < 0)
+                                        tsViewLeftSpan = new TimeSpan();
+                                    strViewLifeCycle = tsViewLeftSpan.ToString();
+                                }
+
+                                eTransactionType eBusinessModuleType = GetBusinessModuleType(sPPVMCode);
+
+                                // If it is a subscription, use the end date that is saved in the DB and that was gotten in GetItemPrice
+                                if (eBusinessModuleType == eTransactionType.Subscription || eBusinessModuleType == eTransactionType.Collection)
+                                {
+                                    if (dtEntitlementEndDate.HasValue)
                                     {
-                                        log.Error("Error - " + GetPricingErrLogMsg(sPPVMCode, p_sSiteGUID, p_sMediaFileID, p_bIsCoGuid,
-                                            p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME, eTransactionType.PPV));
+                                        TimeSpan tsFullLeftSpan = dtEntitlementEndDate.Value.Subtract(dtNow);
+                                        if (tsFullLeftSpan.TotalMilliseconds < 0)
+                                            tsFullLeftSpan = new TimeSpan();
+                                        strFullLifeCycle = tsFullLeftSpan.ToString();
                                     }
                                 }
-                            }
-
-                            // If we found the view cycle (and there was a view), calculate what's left of it
-                            // Base date is the view date
-                            if (nViewLifeCycle > 0)
-                            {
-                                DateTime dtViewEndDate = Utils.GetEndDateTime(dtViewDate, nViewLifeCycle);
-                                TimeSpan tsViewLeftSpan = dtViewEndDate.Subtract(dtNow);
-                                if (tsViewLeftSpan.TotalMilliseconds < 0)
-                                    tsViewLeftSpan = new TimeSpan();
-                                strViewLifeCycle = tsViewLeftSpan.ToString();
-                            }
-
-                            eTransactionType eBusinessModuleType = GetBusinessModuleType(sPPVMCode);
-
-                            // If it is a subscription, use the end date that is saved in the DB and that was gotten in GetItemPrice
-                            if (eBusinessModuleType == eTransactionType.Subscription || eBusinessModuleType == eTransactionType.Collection)
-                            {
-                                if (dtEntitlementEndDate.HasValue)
+                                else if (eBusinessModuleType == eTransactionType.PPV)
                                 {
-                                    TimeSpan tsFullLeftSpan = dtEntitlementEndDate.Value.Subtract(dtNow);
-                                    if (tsFullLeftSpan.TotalMilliseconds < 0)
-                                        tsFullLeftSpan = new TimeSpan();
-                                    strFullLifeCycle = tsFullLeftSpan.ToString();
-                                }
-                            }
-                            else if (eBusinessModuleType == eTransactionType.PPV)
-                            {
-                                // If we found the full cycle, meaning the user purchased the media file, calculate what's left of it
-                                // Base date is purchase date
-                                if (nFullLifeCycle > 0 && dtEntitlementStartDate.HasValue)
-                                {
-                                    DateTime dtSubscriptionEndDate = Utils.GetEndDateTime(dtEntitlementStartDate.Value, nFullLifeCycle);
-                                    TimeSpan tsFullLeftSpan = dtSubscriptionEndDate.Subtract(dtNow);
-                                    if (tsFullLeftSpan.TotalMilliseconds < 0)
-                                        tsFullLeftSpan = new TimeSpan();
-                                    strFullLifeCycle = tsFullLeftSpan.ToString();
+                                    // If we found the full cycle, meaning the user purchased the media file, calculate what's left of it
+                                    // Base date is purchase date
+                                    if (nFullLifeCycle > 0 && dtEntitlementStartDate.HasValue)
+                                    {
+                                        DateTime dtSubscriptionEndDate = Utils.GetEndDateTime(dtEntitlementStartDate.Value, nFullLifeCycle);
+                                        TimeSpan tsFullLeftSpan = dtSubscriptionEndDate.Subtract(dtNow);
+                                        if (tsFullLeftSpan.TotalMilliseconds < 0)
+                                            tsFullLeftSpan = new TimeSpan();
+                                        strFullLifeCycle = tsFullLeftSpan.ToString();
+                                    }
                                 }
                             }
                         }
                     }
+
                 } // end if nMediaFileID > 0
             }
             catch (Exception ex)
@@ -19433,11 +19495,10 @@ namespace ConditionalAccess
                 }
 
                 EPGChannelProgrammeObject epg = epgs[0];
-
-                // get epg channel  
-                int linearMediaId = ApiDAL.GetLinearMediaIdByEpgChannelId(m_nGroupID, epg.EPG_CHANNEL_ID);
+                int linearMediaId = 0, mediaFileId = 0;
                 ConditionalAccess.WS_Catalog.MediaObj epgChannelLinearMedia = null;
-                if (linearMediaId != 0)
+                // get epg channel  
+                if (Utils.GetLinearMediaInfoByEpgChannelIdAndFileType(m_nGroupID, epg.EPG_CHANNEL_ID, fileType, ref linearMediaId, ref mediaFileId) && linearMediaId > 0 && mediaFileId > 0)
                 {
                     epgChannelLinearMedia = Utils.GetMediaById(m_nGroupID, linearMediaId);
                 }
@@ -19446,8 +19507,7 @@ namespace ConditionalAccess
                 var tstvSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
 
                 // validate recording channel exists or the settings allow it to not exist
-                if ((linearMediaId == 0 || epgChannelLinearMedia == null) &&
-                    (!tstvSettings.IsRecordingPlaybackNonExistingChannelEnabled.HasValue || !tstvSettings.IsRecordingPlaybackNonExistingChannelEnabled.Value))
+                if (epgChannelLinearMedia == null && (!tstvSettings.IsRecordingPlaybackNonExistingChannelEnabled.HasValue || !tstvSettings.IsRecordingPlaybackNonExistingChannelEnabled.Value))
                 {
                     log.ErrorFormat("EPG channel does not exist and TSTV settings do not allow playback in this case. groupId = {0}, userId = {1}, domainId = {2}, domainRecordingId = {3}, channelId = {4}, recordingId = {5}",
                         m_nGroupID, userId, domainId, domainRecordingId, recording.ChannelId, recording.Id);
@@ -19455,44 +19515,42 @@ namespace ConditionalAccess
                     return response;
                 }
 
+                MediaFileItemPricesContainer price = null;
+                bool isItemPurchased = false;
                 // validate entitlements if needed 
                 if ((epgChannelLinearMedia != null && !epgChannelLinearMedia.EnableRecordingPlaybackNonEntitledChannel))
                 {
-                    // get fileIds for epg 
-                    Dictionary<int, List<long>> fileIdsToEpgsMap = Utils.GetFileIdsToEpgIdsMap(m_nGroupID, new Dictionary<long, string>() { { recording.EpgId, recording.ChannelId.ToString() } });
-                    if (fileIdsToEpgsMap == null || fileIdsToEpgsMap.Count == 0)
-                    {
-                        log.ErrorFormat("No files were found for the requested EPG. groupId = {0}, userId = {1}, domainId = {2}, domainRecordingId = {3}, epgId = {4}, recordingId = {5}",
-                            m_nGroupID, userId, domainId, domainRecordingId, recording.EpgId, recording.Id);
-                        return response;
-                    }
-                    MediaFileItemPricesContainer[] prices = GetItemsPrices(fileIdsToEpgsMap.Keys.ToArray(), userId, true, string.Empty, string.Empty, udid);
-                    if (prices == null || prices.Length == 0)
+                    MediaFileItemPricesContainer[] prices = GetItemsPrices(new int[] { mediaFileId }, userId, true, string.Empty, string.Empty, udid);
+                    if (prices == null || prices.Length == 0 || prices[0] == null)
                     {
                         log.ErrorFormat("No prices were found for the requested file IDs. groupId = {0}, userId = {1}, domainId = {2}, domainRecordingId = {3}, epgId = {4}, recordingId = {5}",
                         m_nGroupID, userId, domainId, domainRecordingId, recording.EpgId, recording.Id);
                         return response;
                     }
 
-                    bool isEntitled = false;
-                    foreach (MediaFileItemPricesContainer price in prices)
-                    {
-                        if (IsFreeItem(price) || IsItemPurchased(price))
-                        {
-                            isEntitled = true;
-                            break;
-                        }
-                    }
-                    if (!isEntitled)
+                    price = prices[0];                       
+                    isItemPurchased = IsItemPurchased(price);                    
+                    if (!isItemPurchased && !IsFreeItem(price))
                     {
                         log.DebugFormat("User is not entitled for the EPG and TSTV settings do not allow playback. groupId = {0}, userId = {1}, domainId = {2}, domainRecordingId = {3}, epgId = {4}, recordingId = {5}",
                         m_nGroupID, userId, domainId, domainRecordingId, recording.EpgId, recording.Id);
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingPlaybackNotAllowedForNotEntitledEpgChannel, "Recording playback is not allowed for not entitled EPG channel");
                         return response;
                     }
-                }
-                // if we got here we everything is ok with the entitlements and settings - so get the link
 
+                    List<int> lRuleIDS = null;
+                    int householdId = (int)domainId;
+                    TvinciDomains.DomainResponseStatus mediaConcurrencyResponse = CheckMediaConcurrency(userId, mediaFileId, udid, prices, linearMediaId, userIp, ref lRuleIDS, ref householdId);
+                    if (mediaConcurrencyResponse != TvinciDomains.DomainResponseStatus.OK)
+                    {
+                        log.Debug("GetRecordingLicensedLink - " + string.Format("{0}, user:{1}, MFID:{2}", mediaConcurrencyResponse.ToString(), userId, mediaFileId));
+                        response = new LicensedLinkResponse(string.Empty, string.Empty, mediaConcurrencyResponse.ToString());
+                        response.Status = ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);
+                        return response;
+                    }
+                }
+
+                // if we got here we everything is ok with the entitlements and settings - so get the link
                 // TODO: cache?
                 int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(m_nGroupID);
                 CDVRAdapter cdvrAdapter = ConditionalAccessDAL.GetCDVRAdapter(m_nGroupID, adapterId);
@@ -19506,7 +19564,7 @@ namespace ConditionalAccess
 
                     if (recordResult == null || recordResult.Links == null || recordResult.Links.Count == 0)
                     {
-                        log.ErrorFormat("Failed to get recording links dynamicly from CDVR adapter. adapterId = {0}, groupId = {1}, userId = {2}, domainId = {3}, domainRecordingId = {4}, externalRecordingId = {5}, recordingId = {6}",
+                        log.ErrorFormat("Failed to get recording links dynamically from CDVR adapter. adapterId = {0}, groupId = {1}, userId = {2}, domainId = {3}, domainRecordingId = {4}, externalRecordingId = {5}, recordingId = {6}",
                             cdvrAdapter.ID, m_nGroupID, userId, domainId, domainRecordingId, recording.ExternalRecordingId, recording.Id);
                         return response;
                     }
@@ -19545,6 +19603,11 @@ namespace ConditionalAccess
                     log.ErrorFormat("failed to get link response from CDN adapter. adapterId = {0}, groupId = {1}. userId = {2}, domainId = {3}, domainRecordingId = {4}, recordingId = {5}",
                         adapterResponse.Adapter.ID, m_nGroupID, userId, domainId, domainRecordingId, recording.Id);
                     return response;
+                }
+
+                if (isItemPurchased)
+                {
+                    HandlePlayUses(price, userId, mediaFileId, userIp, string.Empty, string.Empty, udid, string.Empty);
                 }
 
                 response.mainUrl = link.Url;

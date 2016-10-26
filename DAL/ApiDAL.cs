@@ -3873,25 +3873,16 @@ namespace DAL
             return epgIds;
         }
 
-        public static int GetLinearMediaIdByEpgChannelId(int groupId, string epgChannelId)
+        public static DataTable GetLinearMediaInfoByEpgChannelIdAndFileType(int groupId, string epgChannelId, string fileType)
         {
-            int mediaId = 0;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetLinearMediaInfoByEpgChannelIdAndFileType");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@epgChannelId", epgChannelId);
+            sp.AddParameter("@fileType", fileType);
+            DataTable dt = sp.Execute();
 
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetLinearMediaIdByEpgChannelId");
-                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-                sp.AddParameter("@groupId", groupId);
-                sp.AddParameter("@epgChannelId", epgChannelId);
-
-                mediaId = sp.ExecuteReturnValue<int>();
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
-
-            return mediaId;
+            return dt;
         }
 
         public static DataTable GetDeviceFamilies()
