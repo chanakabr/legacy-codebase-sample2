@@ -6260,6 +6260,22 @@ namespace ConditionalAccess
 
             return result;
         }
+
+        internal static bool GetLinearMediaInfoByEpgChannelIdAndFileType(int groupId, string epgChannelId, string fileType, ref int linearMediaId, ref int mediaFileId)
+        {
+            bool res = false;
+            DataTable dt = ApiDAL.GetLinearMediaInfoByEpgChannelIdAndFileType(groupId, epgChannelId, fileType);
+            if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+            {
+                DataRow dr = dt.Rows[0];
+                linearMediaId = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_id", 0);
+                mediaFileId = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_file_id", 0);
+                res = true;
+            }
+
+            return res;
+        }
+
     }
 }
 
