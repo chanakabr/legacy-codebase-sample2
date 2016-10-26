@@ -82,7 +82,7 @@ namespace Catalog.Request
                         }
 
                         SeriesResponse seriesResponse = cas.GetFollowSeries(wsUserName, wsPassword, m_sSiteGuid, domainId, new SeriesRecordingOrderObj());
-                        if (seriesResponse != null && seriesResponse.Status != null && seriesResponse.Status.Code == (int)eResponseStatus.OK)
+                        if (seriesResponse != null && seriesResponse.Status != null && (seriesResponse.Status.Code == (int)eResponseStatus.OK || seriesResponse.Status.Code == (int)eResponseStatus.SeriesRecordingNotFound))
                         {
                             if (channelIds != null && channelIds.Count > 0)
                             {
