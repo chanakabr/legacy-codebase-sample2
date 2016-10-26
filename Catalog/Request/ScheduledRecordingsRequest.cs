@@ -135,7 +135,11 @@ namespace Catalog.Request
                         }
                     }
 
-                    response = SearchScheduledRecordings(m_nGroupID, epgIdsToOrderAndPage, excludedCrids, series, startDate, endDate);
+                    // if we need to get series episodes or if we have specific single episodes that need to be ordered and paged
+                    if (!isSingle || epgIdsToOrderAndPage.Count > 0)
+                    {
+                        response = SearchScheduledRecordings(m_nGroupID, epgIdsToOrderAndPage, excludedCrids, series, startDate, endDate);
+                    }
                 }
                 else
                 {
