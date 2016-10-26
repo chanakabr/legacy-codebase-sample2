@@ -421,7 +421,7 @@
             <returns></returns>
             <remarks>Possible status codes: CDN partner settings not found = 5025</remarks>   
         </member>
-        <member name="M:WebAPI.Controllers.ConfigurationController.ServeByDevice(System.Int32,System.String,System.String,System.String,System.String,System.String)">
+        <member name="M:WebAPI.Controllers.ConfigurationController.ServeByDevice(System.String,System.String,System.String,System.String,System.String,System.Int32)">
             <summary>
             Return a device configuration applicable for a specific device (UDID), app name, software version, platform and optionally a configuration group’s tag
             </summary>
