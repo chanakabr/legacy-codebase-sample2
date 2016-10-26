@@ -653,7 +653,7 @@ namespace WebAPI.Filters
                         }
                         value = res;
                     }
-                    else
+                    else if (reqParams[name] != null)
                     {
                         if (reqParams[name].GetType() == typeof(JObject) || reqParams[name].GetType().IsSubclassOf(typeof(JObject)))
                         {
