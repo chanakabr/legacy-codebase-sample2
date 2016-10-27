@@ -57,7 +57,7 @@ namespace WebAPI.Managers.Scheme
                 }
             }
 
-            if (DynamicMinInt > int.MinValue)
+            if (DynamicMaxInt < int.MaxValue)
             {
                 string sValue = (string)Convert.ChangeType(value, typeof(string));
                 if (!string.IsNullOrEmpty(sValue))
