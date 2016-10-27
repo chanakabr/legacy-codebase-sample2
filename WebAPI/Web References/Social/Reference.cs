@@ -23,7 +23,7 @@ namespace WebAPI.Social {
     
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Web.Services.WebServiceBindingAttribute(Name="moduleSoap", Namespace="http://social.tvinci.com/")]
@@ -519,12 +519,12 @@ namespace WebAPI.Social {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://social.tvinci.com/GetFriendsActions", RequestNamespace="http://social.tvinci.com/", ResponseNamespace="http://social.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public SocialActivityDoc[] GetFriendsActions(string sWUserName, string sWSPassword, GetFriendsActionsRequest oFriendActionRequest) {
+        public SocialActivityResponse GetFriendsActions(string sWUserName, string sWSPassword, GetFriendsActionsRequest oFriendActionRequest) {
             object[] results = this.Invoke("GetFriendsActions", new object[] {
                         sWUserName,
                         sWSPassword,
                         oFriendActionRequest});
-            return ((SocialActivityDoc[])(results[0]));
+            return ((SocialActivityResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -1386,7 +1386,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1431,7 +1431,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1464,7 +1464,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1485,7 +1485,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1531,7 +1531,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1576,7 +1576,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1633,7 +1633,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1882,7 +1882,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -1987,7 +1987,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
     public enum UserState {
@@ -2009,7 +2009,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
     public enum DomainSuspentionStatus {
@@ -2022,7 +2022,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2067,7 +2067,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
     public enum ResponseStatus {
@@ -2149,7 +2149,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2182,7 +2182,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2215,7 +2215,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2248,7 +2248,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2305,7 +2305,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2326,7 +2326,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2359,7 +2359,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2500,7 +2500,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2617,7 +2617,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2650,7 +2650,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2731,7 +2731,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2766,7 +2766,7 @@ namespace WebAPI.Social {
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(SocialObjectReponse))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DoSocialActionResponse))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2811,7 +2811,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2832,7 +2832,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2865,7 +2865,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
     public enum SocialActionResponseStatus {
@@ -2920,264 +2920,52 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
-    public partial class ActionProperties {
+    public partial class SocialActivityResponse {
         
-        private string propertyNameField;
+        private Status statusField;
         
-        private string propertyValueField;
+        private SocialActivityDoc[] socialActivityField;
+        
+        private int totalCountField;
         
         /// <remarks/>
-        public string PropertyName {
+        public Status Status {
             get {
-                return this.propertyNameField;
+                return this.statusField;
             }
             set {
-                this.propertyNameField = value;
+                this.statusField = value;
             }
         }
         
         /// <remarks/>
-        public string PropertyValue {
+        public SocialActivityDoc[] SocialActivity {
             get {
-                return this.propertyValueField;
+                return this.socialActivityField;
             }
             set {
-                this.propertyValueField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
-    public partial class SocialActivityVerb {
-        
-        private string socialActionIDField;
-        
-        private int actionTypeField;
-        
-        private string actionNameField;
-        
-        private int rateValueField;
-        
-        private ActionProperties[] actionPropertiesField;
-        
-        /// <remarks/>
-        public string SocialActionID {
-            get {
-                return this.socialActionIDField;
-            }
-            set {
-                this.socialActionIDField = value;
+                this.socialActivityField = value;
             }
         }
         
         /// <remarks/>
-        public int ActionType {
+        public int TotalCount {
             get {
-                return this.actionTypeField;
+                return this.totalCountField;
             }
             set {
-                this.actionTypeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string ActionName {
-            get {
-                return this.actionNameField;
-            }
-            set {
-                this.actionNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int RateValue {
-            get {
-                return this.rateValueField;
-            }
-            set {
-                this.rateValueField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public ActionProperties[] ActionProperties {
-            get {
-                return this.actionPropertiesField;
-            }
-            set {
-                this.actionPropertiesField = value;
+                this.totalCountField = value;
             }
         }
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
-    public partial class SocialActivitySubject {
-        
-        private string actorSiteGuidField;
-        
-        private string actorPicUrlField;
-        
-        private string actorTvinciUsernameField;
-        
-        private int groupIDField;
-        
-        private string deviceUdidField;
-        
-        /// <remarks/>
-        public string ActorSiteGuid {
-            get {
-                return this.actorSiteGuidField;
-            }
-            set {
-                this.actorSiteGuidField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string ActorPicUrl {
-            get {
-                return this.actorPicUrlField;
-            }
-            set {
-                this.actorPicUrlField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string ActorTvinciUsername {
-            get {
-                return this.actorTvinciUsernameField;
-            }
-            set {
-                this.actorTvinciUsernameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int GroupID {
-            get {
-                return this.groupIDField;
-            }
-            set {
-                this.groupIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string DeviceUdid {
-            get {
-                return this.deviceUdidField;
-            }
-            set {
-                this.deviceUdidField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
-    public partial class SocialActivityObject {
-        
-        private int assetIDField;
-        
-        private string objectIDField;
-        
-        private eAssetType assetTypeField;
-        
-        private string assetNameField;
-        
-        private string picUrlField;
-        
-        /// <remarks/>
-        public int AssetID {
-            get {
-                return this.assetIDField;
-            }
-            set {
-                this.assetIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string ObjectID {
-            get {
-                return this.objectIDField;
-            }
-            set {
-                this.objectIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public eAssetType AssetType {
-            get {
-                return this.assetTypeField;
-            }
-            set {
-                this.assetTypeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string AssetName {
-            get {
-                return this.assetNameField;
-            }
-            set {
-                this.assetNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string PicUrl {
-            get {
-                return this.picUrlField;
-            }
-            set {
-                this.picUrlField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.FlagsAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
-    public enum eAssetType {
-        
-        /// <remarks/>
-        UNKNOWN = 1,
-        
-        /// <remarks/>
-        MEDIA = 2,
-        
-        /// <remarks/>
-        PROGRAM = 4,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3318,7 +3106,264 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public partial class SocialActivityObject {
+        
+        private int assetIDField;
+        
+        private string objectIDField;
+        
+        private eAssetType assetTypeField;
+        
+        private string assetNameField;
+        
+        private string picUrlField;
+        
+        /// <remarks/>
+        public int AssetID {
+            get {
+                return this.assetIDField;
+            }
+            set {
+                this.assetIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string ObjectID {
+            get {
+                return this.objectIDField;
+            }
+            set {
+                this.objectIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public eAssetType AssetType {
+            get {
+                return this.assetTypeField;
+            }
+            set {
+                this.assetTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string AssetName {
+            get {
+                return this.assetNameField;
+            }
+            set {
+                this.assetNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string PicUrl {
+            get {
+                return this.picUrlField;
+            }
+            set {
+                this.picUrlField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.FlagsAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public enum eAssetType {
+        
+        /// <remarks/>
+        UNKNOWN = 1,
+        
+        /// <remarks/>
+        MEDIA = 2,
+        
+        /// <remarks/>
+        PROGRAM = 4,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public partial class SocialActivitySubject {
+        
+        private string actorSiteGuidField;
+        
+        private string actorPicUrlField;
+        
+        private string actorTvinciUsernameField;
+        
+        private int groupIDField;
+        
+        private string deviceUdidField;
+        
+        /// <remarks/>
+        public string ActorSiteGuid {
+            get {
+                return this.actorSiteGuidField;
+            }
+            set {
+                this.actorSiteGuidField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string ActorPicUrl {
+            get {
+                return this.actorPicUrlField;
+            }
+            set {
+                this.actorPicUrlField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string ActorTvinciUsername {
+            get {
+                return this.actorTvinciUsernameField;
+            }
+            set {
+                this.actorTvinciUsernameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int GroupID {
+            get {
+                return this.groupIDField;
+            }
+            set {
+                this.groupIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string DeviceUdid {
+            get {
+                return this.deviceUdidField;
+            }
+            set {
+                this.deviceUdidField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public partial class SocialActivityVerb {
+        
+        private string socialActionIDField;
+        
+        private int actionTypeField;
+        
+        private string actionNameField;
+        
+        private int rateValueField;
+        
+        private ActionProperties[] actionPropertiesField;
+        
+        /// <remarks/>
+        public string SocialActionID {
+            get {
+                return this.socialActionIDField;
+            }
+            set {
+                this.socialActionIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int ActionType {
+            get {
+                return this.actionTypeField;
+            }
+            set {
+                this.actionTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string ActionName {
+            get {
+                return this.actionNameField;
+            }
+            set {
+                this.actionNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int RateValue {
+            get {
+                return this.rateValueField;
+            }
+            set {
+                this.rateValueField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public ActionProperties[] ActionProperties {
+            get {
+                return this.actionPropertiesField;
+            }
+            set {
+                this.actionPropertiesField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public partial class ActionProperties {
+        
+        private string propertyNameField;
+        
+        private string propertyValueField;
+        
+        /// <remarks/>
+        public string PropertyName {
+            get {
+                return this.propertyNameField;
+            }
+            set {
+                this.propertyNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string PropertyValue {
+            get {
+                return this.propertyValueField;
+            }
+            set {
+                this.propertyValueField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3355,7 +3400,7 @@ namespace WebAPI.Social {
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(FacebookObjectRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(UserSocialActionQueryRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(GetFriendsActionsRequest))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3400,7 +3445,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
     public enum SocialPlatform {
@@ -3416,7 +3461,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3486,7 +3531,7 @@ namespace WebAPI.Social {
     
     /// <remarks/>
     [System.FlagsAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
     public enum eUserAction {
@@ -3523,7 +3568,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3568,7 +3613,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
     public enum eRequestType {
@@ -3585,7 +3630,7 @@ namespace WebAPI.Social {
     
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(GetFriendsActionsRequest))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3666,7 +3711,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3675,7 +3720,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
     public enum eSocialPrivacy {
@@ -3700,7 +3745,7 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
     public enum eSocialActionPrivacy {
@@ -3716,11 +3761,11 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void GetUsersLikedMediaCompletedEventHandler(object sender, GetUsersLikedMediaCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetUsersLikedMediaCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3742,11 +3787,11 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void GetAllFriendsWatchedCompletedEventHandler(object sender, GetAllFriendsWatchedCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetAllFriendsWatchedCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3768,11 +3813,11 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void GetFriendsWatchedByMediaCompletedEventHandler(object sender, GetFriendsWatchedByMediaCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetFriendsWatchedByMediaCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3794,11 +3839,11 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void GetUserSocialPrivacyCompletedEventHandler(object sender, GetUserSocialPrivacyCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetUserSocialPrivacyCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3820,11 +3865,11 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void GetUserAllowedSocialPrivacyListCompletedEventHandler(object sender, GetUserAllowedSocialPrivacyListCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetUserAllowedSocialPrivacyListCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3846,11 +3891,11 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void SetUserSocialPrivacyCompletedEventHandler(object sender, SetUserSocialPrivacyCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SetUserSocialPrivacyCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3872,11 +3917,11 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void GetUserFriendsCompletedEventHandler(object sender, GetUserFriendsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetUserFriendsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3898,11 +3943,11 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void GetUserActionsCompletedEventHandler(object sender, GetUserActionsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetUserActionsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3924,11 +3969,11 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void GetFriendsActionsCompletedEventHandler(object sender, GetFriendsActionsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetFriendsActionsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3941,20 +3986,20 @@ namespace WebAPI.Social {
         }
         
         /// <remarks/>
-        public SocialActivityDoc[] Result {
+        public SocialActivityResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((SocialActivityDoc[])(this.results[0]));
+                return ((SocialActivityResponse)(this.results[0]));
             }
         }
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void DoUserActionCompletedEventHandler(object sender, DoUserActionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class DoUserActionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3976,11 +4021,11 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void FBConfigCompletedEventHandler(object sender, FBConfigCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class FBConfigCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4002,11 +4047,11 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void FBUserDataCompletedEventHandler(object sender, FBUserDataCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class FBUserDataCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4028,11 +4073,11 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void FBUserDataByUserIdCompletedEventHandler(object sender, FBUserDataByUserIdCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class FBUserDataByUserIdCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4054,11 +4099,11 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void FBUserRegisterCompletedEventHandler(object sender, FBUserRegisterCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class FBUserRegisterCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4080,11 +4125,11 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void FBUserMergeCompletedEventHandler(object sender, FBUserMergeCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class FBUserMergeCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4106,11 +4151,11 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void FBUserMergeByUserIdCompletedEventHandler(object sender, FBUserMergeByUserIdCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class FBUserMergeByUserIdCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4132,11 +4177,11 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void FBObjectRequestCompletedEventHandler(object sender, FBObjectRequestCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class FBObjectRequestCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4158,11 +4203,11 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void SetUserExternalActionShareCompletedEventHandler(object sender, SetUserExternalActionShareCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SetUserExternalActionShareCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4184,11 +4229,11 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void SetUserInternalActionPrivacyCompletedEventHandler(object sender, SetUserInternalActionPrivacyCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SetUserInternalActionPrivacyCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4210,11 +4255,11 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void GetUserExternalActionShareCompletedEventHandler(object sender, GetUserExternalActionShareCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetUserExternalActionShareCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4236,11 +4281,11 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void GetUserInternalActionPrivacyCompletedEventHandler(object sender, GetUserInternalActionPrivacyCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetUserInternalActionPrivacyCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4262,11 +4307,11 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void GetAssetLikeCounterCompletedEventHandler(object sender, GetAssetLikeCounterCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetAssetLikeCounterCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4288,11 +4333,11 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void ShareCompletedEventHandler(object sender, ShareCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ShareCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4314,11 +4359,11 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void GetUserActivityFeedCompletedEventHandler(object sender, GetUserActivityFeedCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetUserActivityFeedCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4340,11 +4385,11 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void FBUserUnmergeCompletedEventHandler(object sender, FBUserUnmergeCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class FBUserUnmergeCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4366,11 +4411,11 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void FBUserUnmergeByUserIdCompletedEventHandler(object sender, FBUserUnmergeByUserIdCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class FBUserUnmergeByUserIdCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4392,11 +4437,11 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void FBTokenValidationCompletedEventHandler(object sender, FBTokenValidationCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class FBTokenValidationCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4418,11 +4463,11 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void FBUserSigninCompletedEventHandler(object sender, FBUserSigninCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class FBUserSigninCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4444,11 +4489,11 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void UpdateFriendsActivityFeedCompletedEventHandler(object sender, UpdateFriendsActivityFeedCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class UpdateFriendsActivityFeedCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4470,15 +4515,15 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void DeleteFriendsFeedCompletedEventHandler(object sender, System.ComponentModel.AsyncCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void DeleteUserFeedCompletedEventHandler(object sender, System.ComponentModel.AsyncCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1055.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void MergeFriendsActivityFeedCompletedEventHandler(object sender, System.ComponentModel.AsyncCompletedEventArgs e);
 }
 

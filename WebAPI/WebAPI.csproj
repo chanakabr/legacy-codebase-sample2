@@ -818,6 +818,9 @@
     <Content Include="Web References\Users\LongIdsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Social\SocialActivityResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Users\module.disco" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
@@ -879,6 +882,7 @@
     <Compile Include="Controllers\ConfigurationGroupTagController.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Controllers\SocialFriendActivityController.cs" />
     <Compile Include="Controllers\MetaController.cs" />
     <Compile Include="Controllers\DeviceBrandController.cs" />
     <Compile Include="Controllers\CountryController.cs" />
@@ -1270,7 +1274,10 @@
     <Compile Include="Models\Renderers\KalturaStringRenderer.cs" />
     <Compile Include="Models\Social\KalturaFacebookSocial.cs" />
     <Compile Include="Models\Social\KalturaSocial.cs" />
+    <Compile Include="Models\Social\KalturaSocialAction.cs" />
     <Compile Include="Models\Social\KalturaSocialConfig.cs" />
+    <Compile Include="Models\Social\KalturaSocialFriendActivity.cs" />
+    <Compile Include="Models\Social\KalturaSocialFriendActivityFilter.cs" />
     <Compile Include="Models\Social\KalturaSocialResponse.cs" />
     <Compile Include="Models\Social\KalturaSocialUser.cs" />
     <Compile Include="Models\Social\KalturaSocialNetwork.cs" />

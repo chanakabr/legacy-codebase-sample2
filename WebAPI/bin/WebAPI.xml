@@ -579,6 +579,13 @@
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001,  NotExist = 12003</remarks>        
         </member>
+        <member name="M:WebAPI.Controllers.SocialFriendActivityController.List(WebAPI.Models.Social.KalturaSocialFriendActivityFilter,WebAPI.Models.General.KalturaFilterPager)">
+            <summary>
+            Get a list of the social friends activity for a user
+            </summary>
+            <param name="filter">Country filter</param>
+            <remarks></remarks>
+        </member>
         <member name="M:WebAPI.Controllers.MetaController.List(WebAPI.Models.API.KalturaMetaFilter)">
             <summary>
             Get the list of meta mappings for the partner
@@ -7628,6 +7635,16 @@
             Profile picture URL
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialAction.ActionType">
+            <summary>
+            Action type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialActionRate.Value">
+            <summary>
+            The value of the rating
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Social.KalturaSocialConfig">
             <summary>
             Returns social configuration for the partner 
@@ -7641,6 +7658,56 @@
         <member name="P:WebAPI.Models.Social.KalturaSocialConfig.Permissions">
             <summary>
             List of application permissions
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivity.UserFullName">
+            <summary>
+            The full name of the user who did the social action
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivity.UserPictureUrl">
+            <summary>
+            The URL of the profile picture of the user who did the social action
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivity.ActionTime">
+            <summary>
+            EPOC based timestamp for when the action occurred
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivity.AssetId">
+            <summary>
+            ID of the asset that was acted upon
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivity.AssetType">
+            <summary>
+            Type of the asset that was acted upon, currently only VOD (media)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivity.SocialAction">
+            <summary>
+            The social action
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivityListResponse.Objects">
+            <summary>
+            Social friends activity
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivityFilter.AssetIdEqual">
+            <summary>
+            Asset ID to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivityFilter.AssetTypeEqual">
+            <summary>
+            Asset type to filter by, currently only VOD (media)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivityFilter.ActionIn">
+            <summary>
+            Comma separated list of social actions to filter by
             </summary>
         </member>
         <member name="P:WebAPI.Models.Social.KalturaSocialResponse.Status">
@@ -17472,79 +17539,16 @@
         <member name="F:WebAPI.Social.SocialActionResponseStatus.NOT_ALLOWED">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Social.ActionProperties">
+        <member name="T:WebAPI.Social.SocialActivityResponse">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Social.ActionProperties.PropertyName">
+        <member name="P:WebAPI.Social.SocialActivityResponse.Status">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Social.ActionProperties.PropertyValue">
+        <member name="P:WebAPI.Social.SocialActivityResponse.SocialActivity">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Social.SocialActivityVerb">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivityVerb.SocialActionID">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivityVerb.ActionType">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivityVerb.ActionName">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivityVerb.RateValue">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivityVerb.ActionProperties">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Social.SocialActivitySubject">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivitySubject.ActorSiteGuid">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivitySubject.ActorPicUrl">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivitySubject.ActorTvinciUsername">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivitySubject.GroupID">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivitySubject.DeviceUdid">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Social.SocialActivityObject">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivityObject.AssetID">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivityObject.ObjectID">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivityObject.AssetType">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivityObject.AssetName">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivityObject.PicUrl">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Social.eAssetType">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Social.eAssetType.UNKNOWN">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Social.eAssetType.MEDIA">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Social.eAssetType.PROGRAM">
+        <member name="P:WebAPI.Social.SocialActivityResponse.TotalCount">
             <remarks/>
         </member>
         <member name="T:WebAPI.Social.SocialActivityDoc">
@@ -17581,6 +17585,81 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Social.SocialActivityDoc.ActivityVerb">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.SocialActivityObject">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivityObject.AssetID">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivityObject.ObjectID">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivityObject.AssetType">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivityObject.AssetName">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivityObject.PicUrl">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.eAssetType">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Social.eAssetType.UNKNOWN">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Social.eAssetType.MEDIA">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Social.eAssetType.PROGRAM">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.SocialActivitySubject">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivitySubject.ActorSiteGuid">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivitySubject.ActorPicUrl">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivitySubject.ActorTvinciUsername">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivitySubject.GroupID">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivitySubject.DeviceUdid">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.SocialActivityVerb">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivityVerb.SocialActionID">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivityVerb.ActionType">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivityVerb.ActionName">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivityVerb.RateValue">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivityVerb.ActionProperties">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.ActionProperties">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.ActionProperties.PropertyName">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.ActionProperties.PropertyValue">
             <remarks/>
         </member>
         <member name="T:WebAPI.Social.KeyValuePair">
