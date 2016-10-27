@@ -120,5 +120,7 @@ namespace WebAPI.Managers.Models
         ObjectIdNotFound = 500055,
         ArgumentsCannotBeEmpty = 500056,
         InvalidVersion = 500057,
+        ArgumentShouldContainMinValueCrossed = 500058,
+        ArgumentShouldContainMaxValueCrossed = 500059
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
 
 namespace WebAPI.Models.Catalog
@@ -26,6 +27,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "channelsIn")]
         [JsonProperty(PropertyName = "channelsIn")]
         [XmlArray(ElementName = "channelsIn", IsNullable = true)]
+        [SchemeProperty(DynamicMinInt = 1)]
         public string ChannelsIn { get; set; }
 
         /// <summary>
