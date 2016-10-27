@@ -140,6 +140,10 @@ namespace Catalog.Request
                     {
                         response = SearchScheduledRecordings(m_nGroupID, epgIdsToOrderAndPage, excludedCrids, series, startDate, endDate);
                     }
+                    else
+                    {
+                        response.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
                 }
                 else
                 {
