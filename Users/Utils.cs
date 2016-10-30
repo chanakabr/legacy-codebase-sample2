@@ -28,6 +28,8 @@ namespace Users
 {
     public class Utils
     {
+        private static string USERS_CONNECTION = "users_connection_string";
+
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public const int USER_COGUID_LENGTH = 15;
@@ -100,7 +102,7 @@ namespace Users
 
         static public void GetBaseUsersImpl(ref Users.BaseUsers t, Int32 nGroupID)
         {
-            int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Users);
+            int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Users, USERS_CONNECTION);
 
             switch (nImplID)
             {
@@ -208,7 +210,7 @@ namespace Users
 
         static public void GetBaseDomainsImpl(ref Users.BaseDomain t, Int32 nGroupID)
         {
-            int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.DOMAINS, nGroupID, (int)ImplementationsModules.Domains);
+            int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.DOMAINS, nGroupID, (int)ImplementationsModules.Domains, USERS_CONNECTION);
 
             switch (nImplID)
             {
@@ -225,7 +227,7 @@ namespace Users
 
         static public void GetBaseDeviceImpl(ref Users.BaseDevice t, Int32 nGroupID)
         {
-            int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Domains);
+            int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Domains, USERS_CONNECTION);
             switch (nImplID)
             {
                 case 1:
