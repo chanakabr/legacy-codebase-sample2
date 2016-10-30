@@ -10,6 +10,7 @@ namespace WebAPI.Utils
 {
     public class Utils
     {
+
         internal static int GetLanguageId(int groupId, string language)
         {
             // get all group languages
@@ -96,5 +97,11 @@ namespace WebAPI.Utils
             var language = HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
             return language != null ? language.ToString() : null;
         }
+
+        public static bool ConvertStringToDateTimeByFormat(string dateInString, string convertToFormat, out DateTime dateTime)
+        {
+            return DateTime.TryParseExact(dateInString, convertToFormat, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dateTime);
+        }
+
     }
 }

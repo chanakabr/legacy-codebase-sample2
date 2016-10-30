@@ -26,7 +26,7 @@ namespace WebAPI.Clients
     public class CatalogClient : BaseClient
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
+        private const string EPG_DATETIME_FORMAT = "dd/MM/yyyy HH:mm:ss";
         public string Signature { get; set; }
         public string SignString { get; set; }
         public string SignatureKey
@@ -1097,9 +1097,20 @@ namespace WebAPI.Clients
 
             EpgProgramsResponse epgProgramResponse = null;
 
-            if (CatalogUtils.GetBaseResponse(CatalogClientModule, request, out epgProgramResponse) && epgProgramResponse != null)
+            if (CatalogUtils.GetBaseResponse(CatalogClientModule, request, out epgProgramResponse) && epgProgramResponse != null && epgProgramResponse.lEpgList != null)
             {
-                result.Objects = Mapper.Map<List<KalturaAsset>>(epgProgramResponse.lEpgList);
+                // get base objects list
+                DateTime updateDate;
+                List<BaseObject> assetsBaseDataList = epgProgramResponse.lEpgList.Select(x => new BaseObject()
+                {
+                    AssetId = x.EPG_ID.ToString(),
+                    AssetType = eAssetTypes.EPG,
+                    m_dUpdateDate = Utils.Utils.ConvertStringToDateTimeByFormat(x.UPDATE_DATE, EPG_DATETIME_FORMAT, out updateDate) ? updateDate : DateTime.MinValue
+                }).ToList();
+
+                // get assets from catalog/cache
+                result.Objects = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration);
+                result.TotalCount = epgProgramResponse.m_nTotalItems;
 
                 if (result.Objects != null)
                 {
