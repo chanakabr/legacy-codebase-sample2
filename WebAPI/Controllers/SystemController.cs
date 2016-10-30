@@ -72,7 +72,7 @@ namespace WebAPI.Controllers
         public long GetTime()
         {
             DateTime serverTime = (DateTime)HttpContext.Current.Items[RequestParser.REQUEST_TIME];
-            return Convert.ToInt64(serverTime);
+            return Utils.Utils.DateTimeToUnixTimestamp(serverTime, false);
         }
 
         /// <summary>

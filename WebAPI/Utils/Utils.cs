@@ -74,9 +74,16 @@ namespace WebAPI.Utils
             return dtDateTime;
         }
 
-        public static long DateTimeToUnixTimestamp(DateTime dateTime)
+        public static long DateTimeToUnixTimestamp(DateTime dateTime, bool isUniversal = true)
         {
-            return (long)(dateTime - new DateTime(1970, 1, 1).ToUniversalTime()).TotalSeconds;
+            if (isUniversal)
+            {
+                return (long)(dateTime - new DateTime(1970, 1, 1).ToUniversalTime()).TotalSeconds;
+            }
+            else
+            {
+                return (long)(dateTime - new DateTime(1970, 1, 1)).TotalSeconds;
+            }
         }
 
         public static long DateTimeToUnixTimestampMilliseconds(DateTime dateTime)
