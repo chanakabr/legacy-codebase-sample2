@@ -57,7 +57,7 @@ namespace WebAPI.Managers.Scheme
                 }
             }
 
-            if (DynamicMaxInt < int.MaxValue)
+            if (DynamicMinInt > int.MinValue)
             {
                 string sValue = (string)Convert.ChangeType(value, typeof(string));
                 if (!string.IsNullOrEmpty(sValue))
@@ -78,7 +78,7 @@ namespace WebAPI.Managers.Scheme
                 }
             }
 
-            if (DynamicMaxInt > int.MinValue)
+            if (DynamicMaxInt < int.MaxValue)
             {
                 string sValue = (string)Convert.ChangeType(value, typeof(string));
                 if (!string.IsNullOrEmpty(sValue))
