@@ -63,7 +63,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaParentalRuleListResponse() { ParentalRule = response, TotalCount = response.Count };
+            return new KalturaParentalRuleListResponse() { ParentalRule = response, TotalCount = response != null ? response.Count : 0 };
         }
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaParentalRuleListResponse() { ParentalRule = response, TotalCount = response.Count };
+            return new KalturaParentalRuleListResponse() { ParentalRule = response, TotalCount = response != null ? response.Count : 0 };
         }
 
         /// <summary>
