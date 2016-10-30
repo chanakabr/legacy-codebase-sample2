@@ -16,7 +16,8 @@ using WebAPI.Models.Users;
 using WebAPI.Utils;
 using System.Net;
 using System.ServiceModel;
-using WebAPI.Domains;
+using Users;
+using ApiObjects;
 
 namespace WebAPI.Clients
 {
@@ -30,11 +31,11 @@ namespace WebAPI.Clients
 
         #region Properties
 
-        protected WebAPI.Domains.module Domains
+        protected WS_Domains.module Domains
         {
             get
             {
-                return (Module as WebAPI.Domains.module);
+                return (Module as WS_Domains.module);
             }
         }
 
@@ -46,7 +47,7 @@ namespace WebAPI.Clients
             KalturaHousehold result = null;
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Domains.DomainResponse response = null;
+            DomainResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -56,7 +57,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -128,7 +129,7 @@ namespace WebAPI.Clients
             KalturaHousehold result = null;
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Domains.DomainStatusResponse response = null;
+            DomainStatusResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -145,7 +146,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -173,7 +174,7 @@ namespace WebAPI.Clients
         {
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Domains.DomainStatusResponse response = null;
+            DomainStatusResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -183,7 +184,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -209,7 +210,7 @@ namespace WebAPI.Clients
         {
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Domains.DomainStatusResponse response = null;
+            DomainStatusResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -219,7 +220,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -245,7 +246,7 @@ namespace WebAPI.Clients
         {
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Domains.DomainStatusResponse response = null;
+            DomainStatusResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -255,7 +256,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -280,7 +281,7 @@ namespace WebAPI.Clients
         internal KalturaHouseholdDevice RegisterDeviceByPin(int groupId, int domainId, string deviceName, string pin)
         {
             KalturaHouseholdDevice result = null;
-            WebAPI.Domains.DeviceResponse response = null;
+            DeviceResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -293,7 +294,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -320,7 +321,7 @@ namespace WebAPI.Clients
         internal KalturaDeviceRegistrationStatus GetDeviceRegistrationStatus(int groupId, int householdId, string udid)
         {
             KalturaDeviceRegistrationStatus result;
-            WebAPI.Domains.DeviceRegistrationStatusResponse response = null;
+            DeviceRegistrationStatusResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -333,7 +334,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -355,7 +356,7 @@ namespace WebAPI.Clients
         internal KalturaHouseholdDevice GetDevice(int groupId, int householdId, string udid)
         {
             KalturaHouseholdDevice result;
-            WebAPI.Domains.DeviceResponse response = null;
+            DeviceResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -368,7 +369,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -395,7 +396,7 @@ namespace WebAPI.Clients
         internal KalturaHousehold GetDomainByUser(int groupId, string userId)
         {
             KalturaHousehold result;
-            WebAPI.Domains.DomainResponse response = null;
+            DomainResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -408,7 +409,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -430,7 +431,7 @@ namespace WebAPI.Clients
         internal KalturaHousehold AddDeviceToDomain(int groupId, int domainId, string deviceName, string udid, int deviceBrandId)
         {
             KalturaHousehold result;
-            WebAPI.Domains.DomainStatusResponse response = null;
+            DomainStatusResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -443,7 +444,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -469,7 +470,7 @@ namespace WebAPI.Clients
 
         internal KalturaHouseholdDevice AddDevice(int groupId, int domainId, string deviceName, string udid, int deviceBrandId)
         {
-            WebAPI.Domains.DeviceResponse response = null;
+            DeviceResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -482,7 +483,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -509,7 +510,7 @@ namespace WebAPI.Clients
         internal KalturaDevicePin GetPinForDevice(int groupId, string udid, int deviceBrandId)
         {
             KalturaDevicePin result;
-            WebAPI.Domains.DevicePinResponse response = null;
+            DevicePinResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -522,7 +523,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -544,7 +545,7 @@ namespace WebAPI.Clients
         internal KalturaHouseholdLimitations GetDomainLimitationModule(int groupId, int dlmId)
         {
             KalturaHouseholdLimitations result;
-            WebAPI.Domains.DLMResponse response = null;
+            DLMResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -557,7 +558,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -579,7 +580,7 @@ namespace WebAPI.Clients
         internal KalturaHousehold ResetFrequency(int groupId, int domainId, KalturaHouseholdFrequencyType householdFrequency)
         {
             KalturaHousehold result;
-            WebAPI.Domains.DomainStatusResponse response = null;
+            DomainStatusResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -593,7 +594,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -620,7 +621,7 @@ namespace WebAPI.Clients
         internal KalturaHouseholdDevice SetDeviceInfo(int groupId, string deviceName, string udid)
         {
             KalturaHouseholdDevice result;
-            WebAPI.Domains.DeviceResponse response = null;
+            DeviceResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -633,7 +634,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -655,7 +656,7 @@ namespace WebAPI.Clients
         internal KalturaHousehold SetDomainInfo(int groupId, int domainId, string name, string description)
         {
             KalturaHousehold result = null;
-            WebAPI.Domains.DomainStatusResponse response = null;
+            DomainStatusResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
             try
@@ -667,7 +668,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -696,7 +697,7 @@ namespace WebAPI.Clients
             KalturaHousehold result = null;
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Domains.DomainStatusResponse response = null;
+            DomainStatusResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -706,7 +707,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -732,7 +733,7 @@ namespace WebAPI.Clients
 
         internal bool RemoveDomain(int groupId, int householdId)
         {
-            WebAPI.Domains.Status response = null;
+            ApiObjects.Response.Status response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -745,7 +746,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -764,7 +765,7 @@ namespace WebAPI.Clients
 
         internal bool RemoveDomain(int groupId, string externalId)
         {
-            WebAPI.Domains.Status response = null;
+            ApiObjects.Response.Status response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -777,7 +778,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -796,7 +797,7 @@ namespace WebAPI.Clients
 
         internal bool Suspend(int groupId, int domainId)
         {
-            WebAPI.Domains.Status response = null;
+            ApiObjects.Response.Status response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -809,7 +810,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -828,7 +829,7 @@ namespace WebAPI.Clients
 
         internal bool Resume(int groupId, int domainId)
         {
-            WebAPI.Domains.Status response = null;
+            ApiObjects.Response.Status response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -841,7 +842,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -861,7 +862,7 @@ namespace WebAPI.Clients
         internal KalturaHomeNetwork AddDomainHomeNetwork(int groupId, long domainId, string externalId, string name, string description, bool isActive)
         {
             KalturaHomeNetwork result;
-            WebAPI.Domains.HomeNetworkResponse response = null;
+            HomeNetworkResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -874,7 +875,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -896,7 +897,7 @@ namespace WebAPI.Clients
         internal List<KalturaHomeNetwork> GetDomainHomeNetworks(int groupId, long domainId)
         {
             List<KalturaHomeNetwork> result;
-            WebAPI.Domains.HomeNetworksResponse response = null;
+            HomeNetworksResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -909,7 +910,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -943,7 +944,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -963,7 +964,7 @@ namespace WebAPI.Clients
 
         internal bool RemoveDomainHomeNetwork(int groupId, long domainId, string externalId)
         {
-            WebAPI.Domains.Status response = null;
+            ApiObjects.Response.Status response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -976,7 +977,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -996,7 +997,7 @@ namespace WebAPI.Clients
         internal bool ChangeDeviceDomainStatus(int groupId, int domainId, string udid, KalturaDeviceStatus deviceStatus)
         {
             bool result;
-            WebAPI.Domains.DomainStatusResponse response = null;
+            DomainStatusResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -1010,7 +1011,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1029,7 +1030,7 @@ namespace WebAPI.Clients
 
         internal KalturaHouseholdDevice SubmitAddDeviceToDomain(int groupId, int domainId, string userId, string udid, string deviceName, int deviceBrandId)
         {
-            WebAPI.Domains.DeviceResponse response = null;
+            DeviceResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -1042,7 +1043,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1073,7 +1074,7 @@ namespace WebAPI.Clients
             Group group = GroupsManager.GetGroup(groupId);
 
 
-            WebAPI.Domains.DomainStatusResponse response = null;
+            DomainStatusResponse response = null;
             
             try
             {
@@ -1084,7 +1085,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1203,19 +1204,5 @@ namespace WebAPI.Clients
             return response;
         }
 
-    }
-}
-
-namespace WebAPI.Domains
-{
-    // adding request ID to header
-    public partial class module
-    {
-        protected override WebRequest GetWebRequest(Uri uri)
-        {
-            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
-            return request;
-        }
     }
 }
