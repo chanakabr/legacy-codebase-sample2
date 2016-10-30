@@ -101,7 +101,7 @@ namespace Catalog.Request
 
                 if (sro != null && sro.m_resultIDs != null && sro.m_resultIDs.Count > 0)
                 {
-                    response = Catalog.GetEPGProgramsFromCB(sro.m_resultIDs.Select(item => item.assetID).ToList<int>(), m_nGroupID, m_eSearchType == EpgSearchType.Current, m_nChannelIDs);
+                    response = Catalog.GetEPGProgramsFromCB(sro.m_resultIDs.Select(item => item.assetID).ToList<int>(), m_nGroupID, m_eSearchType == EpgSearchType.Current, m_nChannelIDs, oBaseRequest.m_oFilter.m_nLanguage);
                 }
             }
             catch (Exception ex)

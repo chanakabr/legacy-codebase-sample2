@@ -2970,10 +2970,10 @@ namespace Catalog
             return new List<EPGChannelProgrammeObject>();
         }
 
-        internal static EpgResponse GetEPGProgramsFromCB(List<int> epgIDs, int parentGroupID, bool isSortResults, List<int> epgChannelIDs)
+        internal static EpgResponse GetEPGProgramsFromCB(List<int> epgIDs, int parentGroupID, bool isSortResults, List<int> epgChannelIDs, int languageId)
         {
             EpgResponse res = new EpgResponse();
-            List<EPGChannelProgrammeObject> epgs = GetEpgsByGroupAndIDs(parentGroupID, epgIDs);
+            List<EPGChannelProgrammeObject> epgs = GetEpgsByGroupIdLanguageIdAndEpgIds(parentGroupID, epgIDs, languageId);
             if (epgs != null && epgs.Count > 0)
             {
                 int totalItems = 0;
@@ -3310,6 +3310,31 @@ namespace Catalog
         {
             BaseEpgBL epgBL = EpgBL.Utils.GetInstance(groupID);
             return epgBL.GetEpgs(epgIDs);
+        }
+
+        private static List<EPGChannelProgrammeObject> GetEpgsByGroupIdLanguageIdAndEpgIds(int groupID, List<int> epgIDs, int languageId)
+        {
+            LanguageObj lang = null;
+            string langCode = string.Empty;
+            if (languageId > 0)
+            {
+                lang = GetLanguage(groupID, languageId);
+            }
+
+            if (lang != null && !lang.IsDefault)
+            {
+                langCode = lang.Code;
+            }
+
+            if (string.IsNullOrEmpty(langCode))
+            {
+                return GetEpgsByGroupAndIDs(groupID, epgIDs);
+            }
+            else
+            {
+                BaseEpgBL epgBL = EpgBL.Utils.GetInstance(groupID);
+                return epgBL.GetEpgCBsWithLanguage(epgIDs, langCode);
+            }
         }
 
         internal static List<AssetStatsResult> GetAssetStatsResults(int nGroupID, List<int> lAssetIDs, DateTime dStartDate, DateTime dEndDate, StatsType eType)
