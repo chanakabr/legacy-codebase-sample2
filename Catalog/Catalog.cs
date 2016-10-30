@@ -3333,7 +3333,7 @@ namespace Catalog
             else
             {
                 BaseEpgBL epgBL = EpgBL.Utils.GetInstance(groupID);
-                return epgBL.GetEpgCBsWithLanguage(epgIDs, langCode);
+                return epgBL.GetEpgCBsWithLanguage(epgIDs.Select(x => (ulong)x).ToList(), langCode);
             }
         }
 
