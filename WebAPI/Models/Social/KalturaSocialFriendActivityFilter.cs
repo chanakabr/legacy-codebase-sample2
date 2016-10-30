@@ -32,17 +32,17 @@ namespace WebAPI.Models.Social
         /// <summary>
         /// Comma separated list of social actions to filter by
         /// </summary>
-        [DataMember(Name = "actionIn")]
-        [JsonProperty("actionIn")]
-        [XmlElement(ElementName = "actionIn")]
-        public string ActionIn { get; set; }
+        [DataMember(Name = "actionTypeIn")]
+        [JsonProperty("actionTypeIn")]
+        [XmlElement(ElementName = "actionTypeIn")]
+        public string ActionTypeIn { get; set; }
 
-        public List<KalturaSocialActionType> GetActionIn()
+        public List<KalturaSocialActionType> GetActionTypeIn()
         {
             List<KalturaSocialActionType> actions = new List<KalturaSocialActionType>();
-            if (!string.IsNullOrEmpty(ActionIn))
+            if (!string.IsNullOrEmpty(ActionTypeIn))
             {
-                string[] splitActions = ActionIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] splitActions = ActionTypeIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string action in splitActions)
                 {
                     KalturaSocialActionType parsedAction;

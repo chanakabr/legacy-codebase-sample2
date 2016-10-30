@@ -49,7 +49,7 @@ namespace WebAPI.Controllers
              try
              {
                  response = ClientsManager.SocialClient().GetFriendsActions(groupId, KS.GetFromRequest().UserId, filter.AssetIdEqual.HasValue ? filter.AssetIdEqual.Value : 0, 
-                     filter.AssetTypeEqual.HasValue ? filter.AssetTypeEqual.Value : 0, filter.GetActionIn(), pager.getPageSize(), pager.getPageIndex());
+                     filter.AssetTypeEqual.HasValue ? filter.AssetTypeEqual.Value : 0, filter.GetActionTypeIn(), pager.getPageSize(), pager.getPageIndex());
              }
              catch (ClientException ex)
              {
