@@ -3,22 +3,24 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using WebAPI.Models;
-using WebAPI.Utils;
+using Users;
+using DAL;
 using WebAPI.Models.Users;
+using WebAPI.Utils;
 using WebAPI.Models.General;
-using WebAPI.Exceptions;
 using WebAPI.Models.Catalog;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using ApiObjects;
 
-namespace WebAPI.ObjectsConvertor.Mapping
+namespace ObjectsConvertor.Mapping
 {
     public class UsersMappings
     {
         public static void RegisterMappings()
         {
             // PinCode
-            Mapper.CreateMap<Users.PinCodeResponse, KalturaUserLoginPin>()
+            Mapper.CreateMap<PinCodeResponse, KalturaUserLoginPin>()
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid))
                 .ForMember(dest => dest.PinCode, opt => opt.MapFrom(src => src.pinCode))
                 .ForMember(dest => dest.ExpirationTime, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.expiredDate)));
@@ -35,7 +37,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.m_sCountryCode));
 
             //// UserBasicData
-            //Mapper.CreateMap<Users.UserBasicData, KalturaUserBasicData>()
+            //Mapper.CreateMap<UserBasicData, KalturaUserBasicData>()
             //    .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.m_sAddress))
             //    .ForMember(dest => dest.AffiliateCode, opt => opt.MapFrom(src => src.m_sAffiliateCode))
             //    .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.m_sCity))
@@ -53,7 +55,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //    .ForMember(dest => dest.Zip, opt => opt.MapFrom(src => src.m_sZip));
 
             // User
-            Mapper.CreateMap<Users.UserResponseObject, KalturaOTTUser>()
+            Mapper.CreateMap<UserResponseObject, KalturaOTTUser>()
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sFirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sLastName))
                 .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sUserName))
@@ -79,7 +81,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UserState, opt => opt.MapFrom(src => ConvertResponseStatusToUserState(src.m_RespStatus, src.m_user.IsActivationGracePeriod)));
 
             // User
-            Mapper.CreateMap<Users.User, KalturaOTTUser>()
+            Mapper.CreateMap<User, KalturaOTTUser>()
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.m_oBasicData.m_sFirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.m_oBasicData.m_sLastName))
                 .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.m_oBasicData.m_sUserName))
@@ -115,7 +117,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src));
 
             // Rest UserBasicData ==> WS_Users UserBasicData
-            Mapper.CreateMap<KalturaOTTUser, Users.UserBasicData>()
+            Mapper.CreateMap<KalturaOTTUser, UserBasicData>()
                 .ForMember(dest => dest.m_sAddress, opt => opt.MapFrom(src => src.Address))
                 .ForMember(dest => dest.m_sAffiliateCode, opt => opt.MapFrom(src => src.AffiliateCode))
                 .ForMember(dest => dest.m_sCity, opt => opt.MapFrom(src => src.City))
@@ -143,7 +145,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
-            Mapper.CreateMap<Dictionary<string, KalturaStringValue>, Users.UserDynamicData>()
+            Mapper.CreateMap<Dictionary<string, KalturaStringValue>, UserDynamicData>()
                 .ForMember(dest => dest.m_sUserData, opt => opt.MapFrom(src => ConvertDynamicData(src)));
 
             // MediaId to AssetInfo
@@ -152,18 +154,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0));
 
             // Rest WS_Users FavoritObject ==>  Favorite  
-            Mapper.CreateMap<Users.FavoritObject, KalturaFavorite>()
+            Mapper.CreateMap<FavoritObject, KalturaFavorite>()
                 .ForMember(dest => dest.ExtraData, opt => opt.MapFrom(src => src.m_sExtraData))
                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.m_sItemCode))
                 .ForMember(dest => dest.Asset, opt => opt.MapFrom(src => src.m_sItemCode));
 
             // UserItemsList to KalturaUserAssetsList
-            Mapper.CreateMap<WebAPI.Users.UserItemsList, KalturaUserAssetsList>()
+            Mapper.CreateMap<UserItemsList, KalturaUserAssetsList>()
                 .ForMember(dest => dest.List, opt => opt.MapFrom(src => src.ItemsList))
                 .ForMember(dest => dest.ListType, opt => opt.MapFrom(src => ConvertUserAssetsListType(src.ListType)));
 
             // Item to KalturaUserAssetsListItem
-            Mapper.CreateMap<WebAPI.Users.Item, KalturaUserAssetsListItem>()
+            Mapper.CreateMap<Item, KalturaUserAssetsListItem>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ItemId))
                 .ForMember(dest => dest.OrderIndex, opt => opt.MapFrom(src => src.OrderIndex))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertUserAssetsListItemType(src.ItemType)))
@@ -171,7 +173,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
 
             // Item to KalturaUserAssetsListItem
-            Mapper.CreateMap<KalturaUserAssetsListItem, WebAPI.Users.Item>()
+            Mapper.CreateMap<KalturaUserAssetsListItem, Item>()
                 .ForMember(dest => dest.ItemId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.OrderIndex, opt => opt.MapFrom(src => src.OrderIndex))
                 .ForMember(dest => dest.ItemType, opt => opt.MapFrom(src => ConvertUserAssetsListItemType(src.Type)))
@@ -198,18 +200,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
         }
 
         // ListType to KalturaUserAssetsListType
-        private static KalturaUserAssetsListType ConvertUserAssetsListType(Users.ListType listType)
+        private static KalturaUserAssetsListType ConvertUserAssetsListType(ListType listType)
         {
             KalturaUserAssetsListType result;
             switch (listType)
             {
-                case WebAPI.Users.ListType.Watch:
+                case ListType.Watch:
                     result = KalturaUserAssetsListType.watch;
                     break;
-                case WebAPI.Users.ListType.Purchase:
+                case ListType.Purchase:
                     result = KalturaUserAssetsListType.purchase;
                     break;
-                case WebAPI.Users.ListType.Library:
+                case ListType.Library:
                     result = KalturaUserAssetsListType.library;
                     break;
                 default:
@@ -219,22 +221,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
         }
 
         // KalturaUserAssetsListType to ListType
-        public static Users.ListType ConvertUserAssetsListType(KalturaUserAssetsListType listType)
+        public static ListType ConvertUserAssetsListType(KalturaUserAssetsListType listType)
         {
-            Users.ListType result;
+            ListType result;
             switch (listType)
             {
                 case KalturaUserAssetsListType.all:
-                    result = Users.ListType.All;
+                    result = ListType.All;
                     break;
                 case KalturaUserAssetsListType.watch:
-                    result = Users.ListType.Watch;
+                    result = ListType.Watch;
                     break;
                 case KalturaUserAssetsListType.purchase:
-                    result = Users.ListType.Purchase;
+                    result = ListType.Purchase;
                     break;
                 case KalturaUserAssetsListType.library:
-                    result = Users.ListType.Library;
+                    result = ListType.Library;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown user assets list type");
@@ -242,17 +244,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        public static Users.ItemType ConvertUserAssetsListItemType(KalturaUserAssetsListItemType itemType)
+        public static ItemType ConvertUserAssetsListItemType(KalturaUserAssetsListItemType itemType)
         {
-            Users.ItemType result;
+            ItemType result;
 
             switch (itemType)
             {
                 case KalturaUserAssetsListItemType.all:
-                    result = Users.ItemType.All;
+                    result = ItemType.All;
                     break;
                 case KalturaUserAssetsListItemType.media:
-                    result = Users.ItemType.Media;
+                    result = ItemType.Media;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown user assets list item type");
@@ -260,13 +262,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static KalturaUserAssetsListItemType ConvertUserAssetsListItemType(Users.ItemType itemType)
+        private static KalturaUserAssetsListItemType ConvertUserAssetsListItemType(ItemType itemType)
         {
             KalturaUserAssetsListItemType result;
 
             switch (itemType)
             {
-                case Users.ItemType.Media:
+                case ItemType.Media:
                     result = KalturaUserAssetsListItemType.media;
                     break;
                 default:
@@ -284,7 +286,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         }
 
-        private static KalturaUserState ConvertResponseStatusToUserState(WebAPI.Users.ResponseStatus type, bool isActivationGracePeriod)
+        private static KalturaUserState ConvertResponseStatusToUserState(ResponseStatus type, bool isActivationGracePeriod)
         {
             KalturaUserState result;
             if (isActivationGracePeriod)
@@ -295,13 +297,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 switch (type)
                 {
-                    case WebAPI.Users.ResponseStatus.OK:
+                    case ResponseStatus.OK:
                         result = KalturaUserState.ok;
                         break;
-                    case WebAPI.Users.ResponseStatus.UserWithNoDomain:
+                    case ResponseStatus.UserWithNoDomain:
                         result = KalturaUserState.user_with_no_household;
                         break;
-                    case WebAPI.Users.ResponseStatus.UserCreatedWithNoRole:
+                    case ResponseStatus.UserCreatedWithNoRole:
                         result = KalturaUserState.user_created_with_no_role;
                         break;
                     default:
@@ -311,15 +313,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static KalturaHouseholdSuspentionState ConvertDomainSuspentionStatus(WebAPI.Users.DomainSuspentionStatus type)
+        private static KalturaHouseholdSuspentionState ConvertDomainSuspentionStatus(DomainSuspentionStatus type)
         {
             KalturaHouseholdSuspentionState result;
             switch (type)
             {
-                case WebAPI.Users.DomainSuspentionStatus.OK:
+                case DomainSuspentionStatus.OK:
                     result = KalturaHouseholdSuspentionState.not_suspended;
                     break;
-                case WebAPI.Users.DomainSuspentionStatus.Suspended:
+                case DomainSuspentionStatus.Suspended:
                     result = KalturaHouseholdSuspentionState.suspended;
                     break;
                 default:
@@ -328,18 +330,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static List<Users.UserDynamicDataContainer> ConvertDynamicData(Dictionary<string, KalturaStringValue> userDynamicData)
+        private static List<UserDynamicDataContainer> ConvertDynamicData(Dictionary<string, KalturaStringValue> userDynamicData)
         {
-            List<Users.UserDynamicDataContainer> result = null;
+            List<UserDynamicDataContainer> result = null;
 
             if (userDynamicData != null && userDynamicData.Count > 0)
             {
-                result = new List<Users.UserDynamicDataContainer>();
+                result = new List<UserDynamicDataContainer>();
                 foreach (KeyValuePair<string, KalturaStringValue> data in userDynamicData)
                 {
                     if (!string.IsNullOrEmpty(data.Key))
                     {
-                        result.Add(new Users.UserDynamicDataContainer() { m_sDataType = data.Key, m_sValue = data.Value.value });
+                        result.Add(new UserDynamicDataContainer() { m_sDataType = data.Key, m_sValue = data.Value.value });
                     }
                 }
             }
@@ -347,7 +349,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        public static Dictionary<string, KalturaStringValue> ConvertDynamicData(Users.UserDynamicData userDynamicData)
+        public static Dictionary<string, KalturaStringValue> ConvertDynamicData(UserDynamicData userDynamicData)
         {
             Dictionary<string, KalturaStringValue> result = null;
 
@@ -366,17 +368,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        public static Users.FavoriteOrderBy ConvertFavoriteOrderBy(KalturaFavoriteOrderBy orderBy)
+        public static FavoriteOrderBy ConvertFavoriteOrderBy(KalturaFavoriteOrderBy orderBy)
         {
-            Users.FavoriteOrderBy result;
+            FavoriteOrderBy result;
 
             switch (orderBy)
             {
                 case KalturaFavoriteOrderBy.CREATE_DATE_DESC:
-                    result = Users.FavoriteOrderBy.CreateDateDesc;
+                    result = FavoriteOrderBy.CreateDateDesc;
                     break;
                 case KalturaFavoriteOrderBy.CREATE_DATE_ASC:
-                    result = Users.FavoriteOrderBy.CreateDateAsc;
+                    result = FavoriteOrderBy.CreateDateAsc;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown export task order by");
