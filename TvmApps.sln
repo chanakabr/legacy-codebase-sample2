@@ -206,6 +206,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CDNTokenizers", "..\cdntoke
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Billing", "..\ws_billing\Billing\Billing.csproj", "{0B4A22F7-E733-4BF3-A77D-FC2CF4F61A5A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{C54D8139-3BA2-4CB6-8EDB-FFDD07BB3687}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
