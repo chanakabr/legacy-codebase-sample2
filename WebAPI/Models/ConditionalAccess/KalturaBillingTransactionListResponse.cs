@@ -43,6 +43,7 @@ namespace WebAPI.Models.ConditionalAccess
     [OldStandard("isRecurring", "is_recurring")]
     [OldStandard("billingProviderRef", "billing_provider_ref")]
     [OldStandard("purchaseId", "purchase_id")]
+    [XmlInclude(typeof(KalturaUserBillingTransaction))]
     public class KalturaBillingTransaction : KalturaOTTObject
     {
         /// <summary>
@@ -86,7 +87,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "billingAction")]
         [JsonProperty("billingAction")]
-        [XmlElement(ElementName = "billingAction", IsNullable = true)]
+        [XmlElement(ElementName = "billingAction")]
         [SchemeProperty(ReadOnly = true)]
         public KalturaBillingAction billingAction { get; set; }
 
@@ -131,7 +132,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "paymentMethod")]
         [JsonProperty("paymentMethod")]
-        [XmlElement(ElementName = "paymentMethod", IsNullable = true)]
+        [XmlElement(ElementName = "paymentMethod")]
         [SchemeProperty(ReadOnly = true)]
         public KalturaPaymentMethodType paymentMethod { get; set; }
 

@@ -46,12 +46,30 @@ namespace WebAPI.Models.Catalog
 
             List<int> values = new List<int>();
             string[] stringValues = TypeIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            bool containsEpg = false;
+            bool containsMedia = false;
             foreach (string stringValue in stringValues)
             {
                 int value;
                 if (int.TryParse(stringValue, out value))
                 {
-                    values.Add(value);
+                    if (value == 0)
+                    {
+                        containsEpg = true;
+                    }
+                    else
+                    {
+                        containsMedia = true;
+                    }
+
+                    if (containsEpg && containsMedia)
+                    {
+                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaSearchExternalFilter.typeIn can't contain both EPG and Media");
+                    }
+                    else
+                    {
+                        values.Add(value);
+                    }
                 }
                 else
                 {
@@ -61,5 +79,23 @@ namespace WebAPI.Models.Catalog
 
             return values;
         }
+
+        internal List<string> convertQueryToList()
+        {
+            if (string.IsNullOrEmpty(Query))
+                return null;
+
+            string[] stringValues = Query.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string stringValue in stringValues)
+            {
+                if (string.IsNullOrEmpty(stringValue))
+                {
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaSearchExternalFilter.query");
+                }
+            }
+
+            return stringValues.ToList();
+        }
+
     }
 }

@@ -642,45 +642,6 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\ConditionalAccess\module.disco" />
-    <Content Include="Web References\Domains\ChangeDLMObj.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Domains\DeviceResponseObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Domains\DLMResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Domains\Domain.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Domains\DomainResponseObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Domains\DomainResponseStatus.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Domains\DomainResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Domains\DomainStatusResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Domains\DeviceResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Domains\DeviceRegistrationStatusResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Domains\DevicePinResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Domains\HomeNetworkResponse1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Domains\HomeNetworksResponse1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
     <None Include="Web References\ConditionalAccess\module.wsdl" />
     <Content Include="Web References\ConditionalAccess\NPVRResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -755,7 +716,6 @@
     <Content Include="Web References\ConditionalAccess\SearchableRecording.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <None Include="Web References\Domains\module.disco" />
     <Content Include="Web References\Social\DoSocialActionResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -781,26 +741,6 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\Social\module.disco" />
-    <Content Include="Web References\Users\Country.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Users\KeyValuePair.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <None Include="Web References\Domains\module.wsdl" />
-    <Content Include="Web References\Domains\NetworkResponseObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <None Include="Web References\Domains\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <Content Include="Web References\Domains\Status.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Domains\ValidationResponseObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
     <None Include="Web References\Social\module.wsdl" />
     <None Include="Web References\Social\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
@@ -824,40 +764,6 @@
     <None Include="Web References\Users\module.disco" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Web References\Users\PinCodeResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <None Include="Web References\Users\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <Content Include="Web References\Users\ResponseStatus.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Users\State.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Users\User.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Users\UserBasicData.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Users\UserGroupRuleResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Users\UserOfflineObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Users\UserResponseObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Users\UserState.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Users\UserType.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
     </Content>
   </ItemGroup>
   <ItemGroup>
@@ -1413,42 +1319,13 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.map</DependentUpon>
     </Compile>
-    <Compile Include="Web References\Domains\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>
     <Compile Include="Web References\Social\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>
-    <Compile Include="Web References\Users\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.map</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Web References\Users\module.wsdl" />
-    <Content Include="Web References\Users\Status.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Users\UserResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Users\UsersResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Users\UserItemListsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Users\UsersItemsListsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Users\UsersListItemResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -1478,17 +1355,6 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>WebAPI_ConditionalAccess_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/ws_domains/module.asmx">
-      <UrlBehavior>Dynamic</UrlBehavior>
-      <RelPath>Web References\Domains\</RelPath>
-      <UpdateFromURL>http://localhost/ws_domains/module.asmx</UpdateFromURL>
-      <ServiceLocationURL>
-      </ServiceLocationURL>
-      <CachedDynamicPropName>
-      </CachedDynamicPropName>
-      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
-      <CachedSettingsPropName>WebAPI_Domains_module</CachedSettingsPropName>
-    </WebReferenceUrl>
     <WebReferenceUrl Include="http://localhost/ws_social/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\Social\</RelPath>
@@ -1500,17 +1366,6 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>WebAPI_Social_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/ws_Users/module.asmx">
-      <UrlBehavior>Dynamic</UrlBehavior>
-      <RelPath>Web References\Users\</RelPath>
-      <UpdateFromURL>http://localhost/ws_Users/module.asmx</UpdateFromURL>
-      <ServiceLocationURL>
-      </ServiceLocationURL>
-      <CachedDynamicPropName>
-      </CachedDynamicPropName>
-      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
-      <CachedSettingsPropName>WebAPI_Users_UsersService</CachedSettingsPropName>
-    </WebReferenceUrl>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadataStorage Include="Service References\Catalog\" />
@@ -1520,6 +1375,14 @@
     <ProjectReference Include="..\..\tvmcore\ApiObjects\ApiObjects.csproj">
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\DAL\DAL.csproj">
+      <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
+      <Name>DAL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\Users\Users.csproj">
+      <Project>{b21b1d6b-46af-40ca-9585-5506b1596aff}</Project>
+      <Name>Users</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\ws_api\WS_API.csproj">
       <Project>{bef1df84-21c1-47da-bb2d-bb607ee1978e}</Project>
@@ -1533,6 +1396,10 @@
       <Project>{944128c1-804a-4444-a697-37e019af5850}</Project>
       <Name>WS_Billing</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\ws_domains\WS_Domains.csproj">
+      <Project>{359cfa7e-bee9-4bc8-b1f7-e53e64f28aa7}</Project>
+      <Name>WS_Domains</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\ws_pricing\Pricing\Pricing.csproj">
       <Project>{143a9361-b461-42a7-b579-a75c0e7b1ea3}</Project>
       <Name>Pricing</Name>
@@ -1540,6 +1407,10 @@
     <ProjectReference Include="..\..\ws_pricing\WS_Pricing.csproj">
       <Project>{2c08f19b-40e0-4ef1-9f7d-5132c795a184}</Project>
       <Name>WS_Pricing</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ws_users\WS_Users.csproj">
+      <Project>{7a491492-fd8e-47da-ad3e-7fdc5fdf5e03}</Project>
+      <Name>WS_Users</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

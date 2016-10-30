@@ -13,7 +13,6 @@ namespace WebAPI.Controllers
     [RoutePrefix("_service/configuration/action")]
     public class ConfigurationController : ApiController
     {
-
         /// <summary>
         /// Return a device configuration applicable for a specific device (UDID), app name, software version, platform and optionally a configuration group’s tag
         /// </summary>
@@ -25,19 +24,29 @@ namespace WebAPI.Controllers
         /// <param name="tag">Tag</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: IllegalQueryParams = 12001, Registered = 12006, VersionNotFound = 12007</remarks>        
-        [Route("serveByDevice"), HttpPost]
-        [ApiAuthorize]
+        [Route("serveByDevice"), HttpPost]     
         [SchemeServeAttribute]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.Registered)]
         [Throws(eResponseStatus.VersionNotFound)]
-        public KalturaStringRenderer ServeByDevice(int partnerId, string applicationName, string clientVersion, string platform, string udid, string tag)
+        public KalturaStringRenderer ServeByDevice(string applicationName, string clientVersion, string platform, string udid, string tag, int partnerId = 0)
         {
             string response = null;
 
-            if (partnerId <= 0)
+
+            if (partnerId < 0)
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "partnerId");
+
+            if (partnerId == 0)
+            {
+                //check if KS was given
+                var ks = KS.GetFromRequest();
+                if (ks != null)
+                    partnerId = KS.GetFromRequest().GroupId;
+                else
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "partnerId");
+            }       
 
             if (string.IsNullOrWhiteSpace(applicationName))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "applicationName");

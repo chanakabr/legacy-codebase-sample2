@@ -6,8 +6,8 @@ using System.ServiceModel.Description;
 using System.Web;
 using WebAPI.Clients;
 using WebAPI.Notifications;
-using WebAPI.Users;
 using WS_API;
+using WS_Users;
 
 namespace WebAPI.ClientManagers.Client
 {
@@ -29,7 +29,7 @@ namespace WebAPI.ClientManagers.Client
                     client = new ConditionalAccessClient() { Module = new ConditionalAccess.module() { Url = url } };
                     break;
                 case ClientType.Domains:
-                    client = new DomainsClient() { Module = new Domains.module() { Url = url } };
+                    client = new DomainsClient() { Module = new WS_Domains.module() };
                     break;
                 case ClientType.Pricing:
                     client = new PricingClient() { Module = new WS_Pricing.mdoule() };
@@ -38,7 +38,7 @@ namespace WebAPI.ClientManagers.Client
                     client = new SocialClient() { Module = new Social.module() { Url = url } };
                     break;
                 case ClientType.Users:
-                    client = new UsersClient() { Module = new UsersService() { Url = url } };
+                    client = new UsersClient() { Module = new UsersService() };
                     break;
                 case ClientType.Notification:
 
