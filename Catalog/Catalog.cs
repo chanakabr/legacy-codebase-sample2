@@ -37,6 +37,8 @@ using ApiObjects.PlayCycle;
 using ApiObjects.Epg;
 using System.Net;
 using WS_API;
+using Users;
+using WS_Users;
 
 namespace Catalog
 {
@@ -1581,10 +1583,7 @@ namespace Catalog
 
             using (WS_Domains.module domainsWebService = new WS_Domains.module())
             {
-                string url = Utils.GetWSURL("ws_domains");
-                domainsWebService.Url = url;
-
-                WS_Domains.Domain domain = null;
+                Domain domain = null;
                 var domainRes = domainsWebService.GetDomainInfo(userName, password, domainId);
                 if (domainRes != null)
                 {
@@ -3877,23 +3876,20 @@ namespace Catalog
 
             using (WS_Domains.module domains = new WS_Domains.module())
             {
-                sWSUrl = Utils.GetWSURL("ws_domains");
-                if (sWSUrl.Length > 0)
-                    domains.Url = sWSUrl;
-                WS_Domains.ValidationResponseObject domainsResp = domains.ValidateLimitationModule(sWSUsername, sWSPassword, sUDID, 0, lSiteGuid, 0, WS_Domains.ValidationType.Concurrency, nMCRuleID, 0, nMediaID);
+                ValidationResponseObject domainsResp = domains.ValidateLimitationModule(sWSUsername, sWSPassword, sUDID, 0, lSiteGuid, 0, ValidationType.Concurrency, nMCRuleID, 0, nMediaID);
                 if (domainsResp != null)
                 {
                     nDomainID = (int)domainsResp.m_lDomainID;
                     switch (domainsResp.m_eStatus)
                     {
-                        case WS_Domains.DomainResponseStatus.ConcurrencyLimitation:
-                        case WS_Domains.DomainResponseStatus.MediaConcurrencyLimitation:
+                        case DomainResponseStatus.ConcurrencyLimitation:
+                        case DomainResponseStatus.MediaConcurrencyLimitation:
 
                             {
                                 res = true;
                                 break;
                             }
-                        case WS_Domains.DomainResponseStatus.OK:
+                        case DomainResponseStatus.OK:
                             {
                                 res = false;
                                 break;
@@ -4609,7 +4605,7 @@ namespace Catalog
         /*This method return all last position (desc order by create date) by domain and \ or user_id 
          * if userType is household and user is default - return all last positions of all users in domain by assetID (BY MEDIA ID)         
          else return last position of user_id (incase userType is not household or last position of user_id and default_user (incase userType is household) */
-        internal static AssetBookmarks GetAssetLastPosition(string assetID, eAssetTypes assetType, int userID, bool isDefaultUser, List<int> users, List<int> defaultUsers, Dictionary<string, ws_users.User> usersDictionary)
+        internal static AssetBookmarks GetAssetLastPosition(string assetID, eAssetTypes assetType, int userID, bool isDefaultUser, List<int> users, List<int> defaultUsers, Dictionary<string, User> usersDictionary)
         {
             AssetBookmarks response = null;
 
@@ -4815,14 +4811,11 @@ namespace Catalog
             if (!Int64.TryParse(siteGuid, out temp) || temp < 1)
                 return false;
             Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, groupID, ApiObjects.eWSModules.USERS);
-            string url = Utils.GetWSURL("users_ws");
             bool res = false;
-            using (ws_users.UsersService u = new ws_users.UsersService())
+            using (UsersService u = new UsersService())
             {
-                if (url.Length > 0)
-                    u.Url = url;
-                ws_users.UserResponseObject resp = u.GetUserData(oCredentials.m_sUsername, oCredentials.m_sPassword, siteGuid, string.Empty);
-                if (resp != null && resp.m_RespStatus == ws_users.ResponseStatus.OK && resp.m_user != null && resp.m_user.m_domianID > 0)
+                UserResponseObject resp = u.GetUserData(oCredentials.m_sUsername, oCredentials.m_sPassword, siteGuid, string.Empty);
+                if (resp != null && resp.m_RespStatus == ResponseStatus.OK && resp.m_user != null && resp.m_user.m_domianID > 0)
                 {
                     domainID = resp.m_user.m_domianID;
                     res = true;
@@ -4837,9 +4830,9 @@ namespace Catalog
             return res;
         }
 
-        internal static WS_Domains.DomainResponse GetDomain(int domainID, int groupID)
+        internal static DomainResponse GetDomain(int domainID, int groupID)
         {
-            WS_Domains.DomainResponse domainResponse = null;
+            DomainResponse domainResponse = null;
             if (domainID <= 0 || groupID <= 0)
             {
                 return domainResponse;
@@ -4858,8 +4851,7 @@ namespace Catalog
                     sWSUsername = oCredentials.m_sUsername;
                     sWSPassword = oCredentials.m_sPassword;
                 }
-                sWSUrl = Utils.GetWSURL("ws_domains");
-                if (string.IsNullOrEmpty(sWSUsername) || string.IsNullOrEmpty(sWSPassword) || string.IsNullOrEmpty(sWSUrl))
+                if (string.IsNullOrEmpty(sWSUsername) || string.IsNullOrEmpty(sWSPassword))
                 {
                     throw new Exception(string.Format("No WS_Domains login parameters were extracted from DB. domainID={0}, groupID={1}", domainID, groupID));
                 }
@@ -4867,7 +4859,6 @@ namespace Catalog
                 // get domain info - to have the users list in domain + default users in domain
                 using (WS_Domains.module domains = new WS_Domains.module())
                 {
-                    domains.Url = sWSUrl;
                     var domainRes = domains.GetDomainInfo(sWSUsername, sWSPassword, domainID);
                     if (domainRes != null)
                     {
@@ -4883,28 +4874,26 @@ namespace Catalog
             return domainResponse;
         }
 
-        internal static Dictionary<string, ws_users.User> GetUsers(int groupID, List<int> users)
+        internal static Dictionary<string, User> GetUsers(int groupID, List<int> users)
         {
-            Dictionary<string, ws_users.User> usersDictionary = new Dictionary<string, ws_users.User>();
-            ws_users.UsersResponse usersResponse = null;
+            Dictionary<string, User> usersDictionary = new Dictionary<string, User>();
+            UsersResponse usersResponse = null;
             Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, groupID, ApiObjects.eWSModules.USERS);
-            string url = Utils.GetWSURL("users_ws");
 
-            if (string.IsNullOrEmpty(oCredentials.m_sUsername) || string.IsNullOrEmpty(oCredentials.m_sPassword) || string.IsNullOrEmpty(url))
+            if (string.IsNullOrEmpty(oCredentials.m_sUsername) || string.IsNullOrEmpty(oCredentials.m_sPassword))
             {
                 return usersDictionary;
             }
 
-            using (ws_users.UsersService u = new ws_users.UsersService())
+            using (UsersService u = new UsersService())
             {
-                u.Url = url;
                 usersResponse = u.GetUsers(oCredentials.m_sUsername, oCredentials.m_sPassword, users.Select(i => i.ToString()).ToArray(), string.Empty);
             }
-            if (usersResponse != null && usersResponse.resp != null && usersResponse.resp.Code == (int)ws_users.ResponseStatus.OK && usersResponse.users != null)
+            if (usersResponse != null && usersResponse.resp != null && usersResponse.resp.Code == (int)ResponseStatus.OK && usersResponse.users != null)
             {
-                foreach (ws_users.UserResponseObject user in usersResponse.users)
+                foreach (UserResponseObject user in usersResponse.users)
                 {
-                    if (user != null && user.m_RespStatus == ws_users.ResponseStatus.OK)
+                    if (user != null && user.m_RespStatus == ResponseStatus.OK)
                     {
                         if (!usersDictionary.ContainsKey(user.m_user.m_sSiteGUID))
                         {
@@ -5015,9 +5004,9 @@ namespace Catalog
 
         #region External Channel Request
 
-        internal static Status GetExternalChannelAssets(ExternalChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResultsList, out string requestId)
+        internal static ApiObjects.Response.Status GetExternalChannelAssets(ExternalChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResultsList, out string requestId)
         {
-            Status status = new Status();
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
 
             searchResultsList = new List<UnifiedSearchResult>();
             totalItems = 0;
@@ -5222,9 +5211,9 @@ namespace Catalog
             return status;
         }
 
-        internal static Status GetExternalRelatedAssets(MediaRelatedExternalRequest request, out int totalItems, out List<RecommendationResult> resultsList, out string requestId)
+        internal static ApiObjects.Response.Status GetExternalRelatedAssets(MediaRelatedExternalRequest request, out int totalItems, out List<RecommendationResult> resultsList, out string requestId)
         {
-            Status status = new Status();
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
             totalItems = 0;
             requestId = "";
             resultsList = new List<RecommendationResult>();
@@ -5326,9 +5315,9 @@ namespace Catalog
             return status;
         }
 
-        internal static Status GetExternalSearchAssets(MediaSearchExternalRequest request, out int totalItems, out List<RecommendationResult> resultsList, out string requestId)
+        internal static ApiObjects.Response.Status GetExternalSearchAssets(MediaSearchExternalRequest request, out int totalItems, out List<RecommendationResult> resultsList, out string requestId)
         {
-            Status status = new Status();
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
             totalItems = 0;
             requestId = "";
             resultsList = new List<RecommendationResult>();
@@ -5623,13 +5612,13 @@ namespace Catalog
 
         #region Internal Channel Request
 
-        internal static Status GetInternalChannelAssets(InternalChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults)
+        internal static ApiObjects.Response.Status GetInternalChannelAssets(InternalChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults)
         {
             // Set default values for out parameters
             totalItems = 0;
             searchResults = new List<UnifiedSearchResult>();
 
-            Status status = null;
+            ApiObjects.Response.Status status = null;
 
             Group group = null;
             GroupsCacheManager.Channel channel = null;
@@ -5642,7 +5631,7 @@ namespace Catalog
 
             if (string.IsNullOrEmpty(request.internalChannelID))
             {
-                return new Status((int)eResponseStatus.Error, "Internal Channel ID was not provided");
+                return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Internal Channel ID was not provided");
             }
 
             int channelId = int.Parse(request.internalChannelID);
@@ -5651,7 +5640,7 @@ namespace Catalog
 
             if (channel == null)
             {
-                return new Status((int)eResponseStatus.ObjectNotExist, string.Format("Channel with identifier {1} does not exist for group {0}", parentGroupID, channelId));
+                return new ApiObjects.Response.Status((int)eResponseStatus.ObjectNotExist, string.Format("Channel with identifier {1} does not exist for group {0}", parentGroupID, channelId));
             }
 
             // Build search object
@@ -5674,7 +5663,7 @@ namespace Catalog
 
             if (searcher == null)
             {
-                return new Status((int)eResponseStatus.Error, "Failed getting instance of searcher");
+                return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed getting instance of searcher");
             }
 
             int to = 0;
@@ -5684,7 +5673,7 @@ namespace Catalog
 
             if (searchResults == null)
             {
-                return new Status((int)eResponseStatus.Error, "Failed performing channel search");
+                return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing channel search");
             }
 
             List<int> assetIDs = searchResults.Select(item => int.Parse(item.AssetId)).ToList();
@@ -5764,21 +5753,21 @@ namespace Catalog
             {
                 searchResults = null;
                 totalItems = 0;
-                return new Status((int)eResponseStatus.Error, "Failed performing channel search");
+                return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing channel search");
             }
 
-            status = new Status((int)eResponseStatus.OK);
+            status = new ApiObjects.Response.Status((int)eResponseStatus.OK);
 
             return status;
         }
 
-        internal static Status GetRelatedAssets(MediaRelatedRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults)
+        internal static ApiObjects.Response.Status GetRelatedAssets(MediaRelatedRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults)
         {
             // Set default values for out parameters
             totalItems = 0;
             searchResults = new List<UnifiedSearchResult>();
 
-            Status status = null;
+            ApiObjects.Response.Status status = null;
 
             Group group = null;
 
@@ -5800,7 +5789,7 @@ namespace Catalog
 
             if (searcher == null)
             {
-                return new Status((int)eResponseStatus.Error, "Failed getting instance of searcher");
+                return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed getting instance of searcher");
             }
 
             int to = 0;
@@ -5810,7 +5799,7 @@ namespace Catalog
 
             if (searchResults == null)
             {
-                return new Status((int)eResponseStatus.Error, "Failed performing related assets search");
+                return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing related assets search");
             }
 
             List<int> assetIDs = searchResults.Select(item => int.Parse(item.AssetId)).ToList();
@@ -5819,10 +5808,10 @@ namespace Catalog
             {
                 searchResults = null;
                 totalItems = 0;
-                return new Status((int)eResponseStatus.Error, "Failed performing related assets search");
+                return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing related assets search");
             }
 
-            status = new Status((int)eResponseStatus.OK);
+            status = new ApiObjects.Response.Status((int)eResponseStatus.OK);
 
             return status;
         }
@@ -7123,9 +7112,9 @@ namespace Catalog
             }
         }
 
-        public static Status ClearStatistics(int groupId, DateTime until)
+        public static ApiObjects.Response.Status ClearStatistics(int groupId, DateTime until)
         {
-            Status status = null;
+            ApiObjects.Response.Status status = null;
 
             var wrapper = new ElasticsearchWrapper();
             status = wrapper.DeleteStatistics(groupId, until);
@@ -7385,34 +7374,6 @@ namespace Catalog
             }
         }
 
-    }
-}
-
-namespace Catalog.WS_Domains
-{
-    // adding request ID to header
-    public partial class module
-    {
-        protected override WebRequest GetWebRequest(Uri uri)
-        {
-            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
-            return request;
-        }
-    }
-}
-
-namespace Catalog.ws_users
-{
-    // adding request ID to header
-    public partial class UsersService
-    {
-        protected override WebRequest GetWebRequest(Uri uri)
-        {
-            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
-            return request;
-        }
     }
 }
 

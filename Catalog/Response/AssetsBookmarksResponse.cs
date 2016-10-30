@@ -6,6 +6,7 @@ using System.Text;
 using ApiObjects.Response;
 using Catalog.Response;
 using ApiObjects;
+using Users;
 
 namespace Catalog.Response
 {
@@ -17,11 +18,11 @@ namespace Catalog.Response
         public List<AssetBookmarks> AssetsBookmarks;
 
         [DataMember]
-        public Status Status;
+        public ApiObjects.Response.Status Status;
 
         public AssetsBookmarksResponse()
         {
-            Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
         }
     }
 
@@ -53,7 +54,7 @@ namespace Catalog.Response
     public class Bookmark
     {
         [DataMember]
-        public ws_users.User User;
+        public User User;
 
         [DataMember]
         public eUserType UserType;
@@ -68,7 +69,7 @@ namespace Catalog.Response
         {
         }
 
-        public Bookmark(ws_users.User user, eUserType userType, int location, bool isFinishedWatching)
+        public Bookmark(User user, eUserType userType, int location, bool isFinishedWatching)
         {
             this.User = user;
             this.UserType = userType;

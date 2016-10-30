@@ -218,10 +218,6 @@
     <Compile Include="YesUsers.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\ws_api\WS_API.csproj">
-      <Project>{bef1df84-21c1-47da-bb2d-bb607ee1978e}</Project>
-      <Name>WS_API</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ApiObjects\ApiObjects.csproj">
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
@@ -241,6 +237,10 @@
     <ProjectReference Include="..\ElasticSearch\ElasticSearch.csproj">
       <Project>{c9718e6d-f866-4991-80cd-4bafdf4d8878}</Project>
       <Name>ElasticSearch</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Mailer\Mailer.csproj">
+      <Project>{8c082dfd-81ee-4623-8be9-32d34ded6407}</Project>
+      <Name>Mailer</Name>
     </ProjectReference>
     <ProjectReference Include="..\MCGroupRules\MCGroupRules.csproj">
       <Project>{7a9c7a82-02fa-4b2e-9391-175ca212012d}</Project>

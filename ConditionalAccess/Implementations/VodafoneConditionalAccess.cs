@@ -10,6 +10,7 @@ using KLogMonitor;
 using System.Reflection;
 using WS_Pricing;
 using Pricing;
+using Users;
 
 
 namespace ConditionalAccess
@@ -89,14 +90,14 @@ namespace ConditionalAccess
         public override RecordResponse RecordNPVR(string siteGuid, string assetID, bool isSeries)
         {
             RecordResponse res = new RecordResponse();
-            TvinciUsers.DomainSuspentionStatus suspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
+            DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
             try
             {
                 int domainID = 0;
                 if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0)
                 {
                     // validate user is not suspended
-                    if (suspendStatus != TvinciUsers.DomainSuspentionStatus.Suspended)
+                    if (suspendStatus != DomainSuspentionStatus.Suspended)
                     {
                         // validate that the service is allowed
                         if (IsServiceAllowed(m_nGroupID, domainID, eService.NPVR))
@@ -279,7 +280,7 @@ namespace ConditionalAccess
         public override NPVRResponse CancelNPVR(string siteGuid, string assetID, bool isSeries)
         {
             NPVRResponse res = new NPVRResponse();
-            TvinciUsers.DomainSuspentionStatus suspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
+            DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
             try
             {
                 int domainID = 0;
@@ -366,7 +367,7 @@ namespace ConditionalAccess
         public override NPVRResponse DeleteNPVR(string siteGuid, string assetID, bool isSeries)
         {
             NPVRResponse res = new NPVRResponse();
-            TvinciUsers.DomainSuspentionStatus suspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
+            DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
             try
             {
                 int domainID = 0;
@@ -446,7 +447,7 @@ namespace ConditionalAccess
         public override QuotaResponse GetNPVRQuota(string siteGuid)
         {
             QuotaResponse res = new QuotaResponse();
-            TvinciUsers.DomainSuspentionStatus suspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
+            DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
             try
             {
                 int domainID = 0;
@@ -495,7 +496,7 @@ namespace ConditionalAccess
         public override NPVRResponse SetNPVRProtectionStatus(string siteGuid, string assetID, bool isSeries, bool isProtect)
         {
             NPVRResponse res = new NPVRResponse();
-            TvinciUsers.DomainSuspentionStatus suspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
+            DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
             try
             {
                 int domainID = 0;
@@ -636,9 +637,9 @@ namespace ConditionalAccess
             if (IsCalcNPVRLicensedLinkInputValid(sProgramId, sSiteGUID, sDEVICE_NAME))
             {
                 int domainID = 0;
-                TvinciUsers.DomainSuspentionStatus suspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
+                DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
                 if (Utils.IsUserValid(sSiteGUID, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0
-                                                                && suspendStatus == TvinciUsers.DomainSuspentionStatus.OK)
+                                                                && suspendStatus == DomainSuspentionStatus.OK)
                 {
                     INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
                     if (npvr != null)
@@ -692,7 +693,7 @@ namespace ConditionalAccess
 
         private bool GetDeviceStreamTypeAndProfile(string udid, int domainID, ref string streamType, ref string profile)
         {
-            TvinciDomains.DeviceResponseObject resp = null;
+            DeviceResponseObject resp = null;
             bool res = false;
             string wsUsername = string.Empty, wsPassword = string.Empty;
             Utils.GetWSCredentials(m_nGroupID, eWSModules.DOMAINS, ref wsUsername, ref wsPassword);
@@ -701,15 +702,10 @@ namespace ConditionalAccess
                 log.Error("Error - " + string.Format("Failed to retrieve WS_Domains credentials. UDID: {0} , D ID: {1}", udid, domainID));
                 return false;
             }
-            using (TvinciDomains.module domains = new TvinciDomains.module())
+            using (WS_Domains.module domains = new WS_Domains.module())
             {
-                string domainURL = Utils.GetWSURL("domains_ws");
-                if (!string.IsNullOrEmpty(domainURL))
-                {
-                    domains.Url = domainURL;
-                }
                 resp = domains.GetDeviceInfo(wsUsername, wsPassword, udid, true);
-                if (resp != null && resp.m_oDeviceResponseStatus == TvinciDomains.DeviceResponseStatus.OK && resp.m_oDevice != null && resp.m_oDevice.m_state == TvinciDomains.DeviceState.Activated && domainID == resp.m_oDevice.m_domainID)
+                if (resp != null && resp.m_oDeviceResponseStatus == DeviceResponseStatus.OK && resp.m_oDevice != null && resp.m_oDevice.m_state == DeviceState.Activated && domainID == resp.m_oDevice.m_domainID)
                 {
                     streamType = resp.m_oDevice.m_sStreamType;
                     profile = resp.m_oDevice.m_sProfile;

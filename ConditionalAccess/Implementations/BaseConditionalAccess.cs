@@ -10,7 +10,6 @@ using ApiObjects.Response;
 using ApiObjects.TimeShiftedTv;
 using Billing;
 using ConditionalAccess.Response;
-using ConditionalAccess.TvinciUsers;
 using DAL;
 using EpgBL;
 using GroupsCacheManager;
@@ -30,9 +29,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using TVinciShared;
+using Users;
 using WS_API;
 using WS_Billing;
 using WS_Pricing;
+using WS_Users;
 
 namespace ConditionalAccess
 {
@@ -269,19 +270,14 @@ namespace ConditionalAccess
             PurchaseMailRequest retVal = new PurchaseMailRequest();
             string sFirstName = string.Empty;
             string sLastName = string.Empty;
-            using (TvinciUsers.UsersService u = new ConditionalAccess.TvinciUsers.UsersService())
+            using (UsersService u = new UsersService())
             {
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
 
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
-                string sWSURL = Utils.GetWSURL("users_ws");
-                if (!string.IsNullOrEmpty(sWSURL))
-                {
-                    u.Url = sWSURL;
-                }
-                ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sUserGUID, string.Empty);
-                if (uObj.m_RespStatus == ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+                UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sUserGUID, string.Empty);
+                if (uObj.m_RespStatus == ResponseStatus.OK)
                 {
                     if (uObj.m_user != null)
                     {
@@ -397,19 +393,13 @@ namespace ConditionalAccess
         /// </summary>
         protected void WriteToUserLog(string sSiteGUID, string sMessage)
         {
-            TvinciUsers.UsersService u = null;
+            UsersService u = null;
             try
             {
-                u = new ConditionalAccess.TvinciUsers.UsersService();
+                u = new UsersService();
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
-                string sWSURL = Utils.GetWSURL("users_ws");
-
-                if (!string.IsNullOrEmpty(sWSURL))
-                {
-                    u.Url = sWSURL;
-                }
 
                 if (!string.IsNullOrEmpty(sWSUserName))
                 {
@@ -491,7 +481,7 @@ namespace ConditionalAccess
             ret.m_oStatus = BillingResponseStatus.UnKnown;
             ret.m_sRecieptCode = string.Empty;
             ret.m_sStatusDescription = string.Empty;
-            TvinciUsers.UsersService u = null;
+            UsersService u = null;
             mdoule m = null;
             module bm = null;
             API apiWs = null;
@@ -509,17 +499,12 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    u = new ConditionalAccess.TvinciUsers.UsersService();
+                    u = new UsersService();
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
-                    string sWSURL = Utils.GetWSURL("users_ws");
-                    if (!string.IsNullOrEmpty(sWSURL))
-                    {
-                        u.Url = sWSURL;
-                    }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
-                    if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+                    UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
+                    if (uObj.m_RespStatus != ResponseStatus.OK)
                     {
                         ret.m_oStatus = BillingResponseStatus.UnKnownUser;
                         ret.m_sRecieptCode = string.Empty;
@@ -527,7 +512,7 @@ namespace ConditionalAccess
                     }
                     else
                     {
-                        if (uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                        if (uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
                         {
                             ret.m_oStatus = BillingResponseStatus.UserSuspended;
                             ret.m_sRecieptCode = string.Empty;
@@ -856,7 +841,7 @@ namespace ConditionalAccess
             InAppRes.m_oBillingResponse.m_oStatus = BillingResponseStatus.UnKnown;
             InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
             InAppRes.m_oBillingResponse.m_sStatusDescription = string.Empty;
-            TvinciUsers.UsersService u = null;
+            UsersService u = null;
             mdoule m = null;
             module bm = null;
             ODBCWrapper.InsertQuery insertQuery = null;
@@ -873,18 +858,13 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    u = new ConditionalAccess.TvinciUsers.UsersService();
+                    u = new UsersService();
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
-                    string sWSURL = Utils.GetWSURL("users_ws");
-                    if (!string.IsNullOrEmpty(sWSURL))
-                    {
-                        u.Url = sWSURL;
-                    }
                     //get user data
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
-                    if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+                    UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
+                    if (uObj.m_RespStatus != ResponseStatus.OK)
                     {
                         //return UnKnownUser 
                         InAppRes.m_oBillingResponse.m_oStatus = BillingResponseStatus.UnKnownUser;
@@ -892,7 +872,7 @@ namespace ConditionalAccess
                         InAppRes.m_oBillingResponse.m_sStatusDescription = "Cant charge an unknown user";
                         return InAppRes.m_oBillingResponse;
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
                     {
                         InAppRes.m_oBillingResponse.m_oStatus = BillingResponseStatus.UserSuspended;
                         InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
@@ -1177,7 +1157,7 @@ namespace ConditionalAccess
             InAppBillingResponse InAppRes = new InAppBillingResponse();
             InAppRes.m_oBillingResponse = new BillingResponse();
 
-            TvinciUsers.UsersService u = null;
+            UsersService u = null;
             module bm = null;
             ODBCWrapper.DataSetSelectQuery selectExistQuery = null;
             ODBCWrapper.UpdateQuery updateQuery = null;
@@ -1195,18 +1175,13 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    u = new ConditionalAccess.TvinciUsers.UsersService();
+                    u = new UsersService();
 
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
-                    string sWSURL = Utils.GetWSURL("users_ws");
-                    if (!string.IsNullOrEmpty(sWSURL))
-                    {
-                        u.Url = sWSURL;
-                    }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
-                    if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+                    UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
+                    if (uObj.m_RespStatus != ResponseStatus.OK)
                     {
                         InAppRes.m_oBillingResponse.m_oStatus = BillingResponseStatus.UnKnownUser;
                         InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
@@ -1849,7 +1824,7 @@ namespace ConditionalAccess
             try
             {
                 // Get domain info - both for validation and for getting users in domain
-                TvinciDomains.Domain oDomain = Utils.GetDomainInfo(p_nDomainId, this.m_nGroupID);
+                Domain oDomain = Utils.GetDomainInfo(p_nDomainId, this.m_nGroupID);
 
                 // Check if the domain is OK
                 if (oDomain == null)
@@ -1860,10 +1835,10 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    if (oDomain.m_DomainStatus != TvinciDomains.DomainStatus.OK &&
-                        oDomain.m_DomainStatus != TvinciDomains.DomainStatus.DomainCreatedWithoutNPVRAccount)
+                    if (oDomain.m_DomainStatus != DomainStatus.OK &&
+                        oDomain.m_DomainStatus != DomainStatus.DomainCreatedWithoutNPVRAccount)
                     {
-                        if (oDomain.m_DomainStatus == TvinciDomains.DomainStatus.DomainSuspended)
+                        if (oDomain.m_DomainStatus == DomainStatus.DomainSuspended)
                         {
                             oResult.Code = (int)eResponseStatus.DomainSuspended;
                             oResult.Message = "Domain suspended";
@@ -1877,7 +1852,7 @@ namespace ConditionalAccess
                     }
                     else
                     {
-                        int[] arrUsers = oDomain.m_UsersIDs;
+                        int[] arrUsers = oDomain.m_UsersIDs.ToArray();
 
                         DataRow drUserPurchase = GetSubscriptionPurchaseRow(p_sSubscriptionCode, arrUsers, p_nDomainId);
 
@@ -2114,7 +2089,7 @@ namespace ConditionalAccess
         {
             string sCouponCode = string.Empty;
             BillingResponse ret = new BillingResponse();
-            TvinciUsers.UsersService u = null;
+            UsersService u = null;
             mdoule m = null;
             module bm = null;
             ODBCWrapper.DirectQuery directQuery = null;
@@ -2132,19 +2107,14 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    u = new ConditionalAccess.TvinciUsers.UsersService();
+                    u = new UsersService();
 
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
-                    string sWSURL = Utils.GetWSURL("users_ws");
-                    if (!string.IsNullOrEmpty(sWSURL))
-                    {
-                        u.Url = sWSURL;
-                    }
 
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
-                    if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+                    UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
+                    if (uObj.m_RespStatus != ResponseStatus.OK)
                     {
                         ret.m_oStatus = BillingResponseStatus.UnKnownUser;
                         ret.m_sRecieptCode = string.Empty;
@@ -2352,7 +2322,7 @@ namespace ConditionalAccess
             log.Debug("Renew Fail - " + sSiteGUID + " " + sSubscriptionCode);
             string sCouponCode = string.Empty;
             InAppBillingResponse ret = new InAppBillingResponse(); // new ConditionalAccess.InAppBillingResponse();
-            TvinciUsers.UsersService u = null;
+            UsersService u = null;
             mdoule m = null;
             ODBCWrapper.DirectQuery directQuery = null;
             module bm = null;
@@ -2376,20 +2346,15 @@ namespace ConditionalAccess
                 else
                 {
                     #region Init useres web service
-                    u = new ConditionalAccess.TvinciUsers.UsersService();
+                    u = new UsersService();
 
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
-                    string sWSURL = Utils.GetWSURL("users_ws");
-                    if (!string.IsNullOrEmpty(sWSURL))
-                    {
-                        u.Url = sWSURL;
-                    }
                     #endregion
 
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
-                    if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+                    UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
+                    if (uObj.m_RespStatus != ResponseStatus.OK)
                     {
                         #region terminate if ResponseStatus NOT Ok.
                         ret.m_oBillingResponse = new BillingResponse();
@@ -2722,7 +2687,7 @@ namespace ConditionalAccess
             string sCouponCode = string.Empty;
             UserResponseObject ExistUser = Utils.GetExistUser(sSiteGUID, m_nGroupID);
 
-            if (ExistUser != null && ExistUser.m_RespStatus == ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+            if (ExistUser != null && ExistUser.m_RespStatus == ResponseStatus.OK)
             {
                 mdoule m = null;
                 try
@@ -2988,7 +2953,7 @@ namespace ConditionalAccess
         {
             string sCouponCode = string.Empty;
             BillingResponse ret = new BillingResponse();
-            TvinciUsers.UsersService u = null;
+            UsersService u = null;
             ODBCWrapper.DirectQuery directQuery1 = null;
             mdoule m = null;
             ODBCWrapper.DirectQuery directQuery2 = null;
@@ -3010,20 +2975,15 @@ namespace ConditionalAccess
                 else
                 {
                     #region Init useres web service
-                    u = new ConditionalAccess.TvinciUsers.UsersService();
+                    u = new UsersService();
 
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
-                    string sWSURL = Utils.GetWSURL("users_ws");
-                    if (!string.IsNullOrEmpty(sWSURL))
-                    {
-                        u.Url = sWSURL;
-                    }
                     #endregion
 
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
-                    if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+                    UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
+                    if (uObj.m_RespStatus != ResponseStatus.OK)
                     {
                         #region terminate if ResponseStatus NOT Ok.
                         ret.m_oStatus = BillingResponseStatus.UnKnownUser;
@@ -3364,22 +3324,17 @@ namespace ConditionalAccess
             log.Debug("CC Base Multi usage module renew subscription - " + sSiteGUID + " " + sSubscriptionCode);
             //create billing response resault object 
             BillingResponse ret = new BillingResponse();
-            TvinciUsers.UsersService u = null;
+            UsersService u = null;
             mdoule m = null;
             ODBCWrapper.DirectQuery directQuery = null;
             try
             {
                 #region Init useres web service
-                u = new ConditionalAccess.TvinciUsers.UsersService();
+                u = new UsersService();
 
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
-                string sWSURL = Utils.GetWSURL("users_ws");
-                if (!string.IsNullOrEmpty(sWSURL))
-                {
-                    u.Url = sWSURL;
-                }
                 #endregion
 
                 #region Check Exist User Guid ,terminate if site guid id empty or response status dose not OK.
@@ -3395,8 +3350,8 @@ namespace ConditionalAccess
                 {
 
 
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
-                    if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+                    UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
+                    if (uObj.m_RespStatus != ResponseStatus.OK)
                     {
                         #region terminate if ResponseStatus NOT Ok.
                         ret.m_oStatus = BillingResponseStatus.UnKnownUser;
@@ -3504,38 +3459,28 @@ namespace ConditionalAccess
 
 
 
-        protected bool isDevicePlayValid(string sSiteGUID, string sDEVICE_NAME, ref TvinciDomains.Domain userDomain)
+        protected bool isDevicePlayValid(string sSiteGUID, string sDEVICE_NAME, ref Domain userDomain)
         {
             if (Utils.IsAnonymousUser(sSiteGUID))
                 return true;
 
-            TvinciUsers.UsersService u = null;
-            TvinciDomains.module domainsWS = null;
+            UsersService u = null;
+            WS_Domains.module domainsWS = null;
             bool isDeviceRecognized = false;
             try
             {
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
-                u = new TvinciUsers.UsersService();
-                string sWSURL = Utils.GetWSURL("users_ws");
-                if (!string.IsNullOrEmpty(sWSURL))
-                {
-                    u.Url = sWSURL;
-                }
-                TvinciUsers.UserResponseObject userRepObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
+                u = new UsersService();
+                UserResponseObject userRepObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                 if (userRepObj != null && userRepObj.m_user != null && userRepObj.m_RespStatus == ResponseStatus.OK)
                 {
                     int domainID = userRepObj.m_user.m_domianID;
                     if (domainID != 0)
                     {
-                        domainsWS = new TvinciDomains.module();
+                        domainsWS = new WS_Domains.module();
                         Utils.GetWSCredentials(m_nGroupID, eWSModules.DOMAINS, ref sWSUserName, ref sWSPass);
-                        sWSURL = Utils.GetWSURL("domains_ws");
-                        if (!string.IsNullOrEmpty(sWSURL))
-                        {
-                            domainsWS.Url = sWSURL;
-                        }
                         var res = domainsWS.GetDomainInfo(sWSUserName, sWSPass, domainID);
                         if (res != null)
                         {
@@ -3543,13 +3488,13 @@ namespace ConditionalAccess
                         }
                         if (userDomain != null)
                         {
-                            TvinciDomains.DeviceContainer[] deviceContainers = userDomain.m_deviceFamilies;
+                            DeviceContainer[] deviceContainers = userDomain.m_deviceFamilies.ToArray();
                             if (deviceContainers != null && deviceContainers.Length > 0)
                             {
                                 List<int> familyIDs = new List<int>();
                                 for (int i = 0; i < deviceContainers.Length; i++)
                                 {
-                                    TvinciDomains.DeviceContainer container = deviceContainers[i];
+                                    DeviceContainer container = deviceContainers[i];
 
                                     if (container != null)
                                     {
@@ -3558,11 +3503,11 @@ namespace ConditionalAccess
                                             familyIDs.Add(container.m_deviceFamilyID);
                                         }
 
-                                        if (container.DeviceInstances != null && container.DeviceInstances.Length > 0)
+                                        if (container.DeviceInstances != null && container.DeviceInstances.Count > 0)
                                         {
-                                            for (int j = 0; j < container.DeviceInstances.Length; j++)
+                                            for (int j = 0; j < container.DeviceInstances.Count; j++)
                                             {
-                                                TvinciDomains.Device device = container.DeviceInstances[j];
+                                                Device device = container.DeviceInstances[j];
                                                 if (string.Compare(device.m_deviceUDID.Trim(), sDEVICE_NAME.Trim()) == 0)
                                                 {
                                                     isDeviceRecognized = true;
@@ -3575,11 +3520,11 @@ namespace ConditionalAccess
                                             familyIDs.Add(container.m_deviceFamilyID);
                                         }
 
-                                        if (container.DeviceInstances != null && container.DeviceInstances.Length > 0)
+                                        if (container.DeviceInstances != null && container.DeviceInstances.Count > 0)
                                         {
-                                            for (int j = 0; j < container.DeviceInstances.Length; j++)
+                                            for (int j = 0; j < container.DeviceInstances.Count; j++)
                                             {
-                                                TvinciDomains.Device device = container.DeviceInstances[j];
+                                                Device device = container.DeviceInstances[j];
                                                 if (string.Compare(device.m_deviceUDID.Trim(), sDEVICE_NAME.Trim()) == 0)
                                                 {
                                                     isDeviceRecognized = true;
@@ -4288,7 +4233,7 @@ namespace ConditionalAccess
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
             module bm = null;
-            TvinciUsers.UsersService u = null;
+            UsersService u = null;
             mdoule m = null;
 
             BillingResponse ret = new BillingResponse();
@@ -4311,26 +4256,21 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    u = new ConditionalAccess.TvinciUsers.UsersService();
+                    u = new UsersService();
 
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
-                    string sWSURL = Utils.GetWSURL("users_ws");
-                    if (!string.IsNullOrEmpty(sWSURL))
-                    {
-                        u.Url = sWSURL;
-                    }
 
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
-                    if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+                    UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
+                    if (uObj.m_RespStatus != ResponseStatus.OK)
                     {
                         ret.m_oStatus = BillingResponseStatus.UnKnownUser;
                         ret.m_sRecieptCode = "";
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                         return ret;
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
                     {
                         ret.m_oStatus = BillingResponseStatus.UserSuspended;
                         ret.m_sRecieptCode = string.Empty;
@@ -4495,7 +4435,7 @@ namespace ConditionalAccess
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
             BillingResponse ret = new BillingResponse();
-            TvinciUsers.UsersService u = null;
+            UsersService u = null;
             module bm = null;
             try
             {
@@ -4507,24 +4447,19 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    u = new ConditionalAccess.TvinciUsers.UsersService();
+                    u = new UsersService();
 
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
-                    string sWSURL = Utils.GetWSURL("users_ws");
-                    if (!string.IsNullOrEmpty(sWSURL))
-                    {
-                        u.Url = sWSURL;
-                    }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
-                    if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+                    UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
+                    if (uObj.m_RespStatus != ResponseStatus.OK)
                     {
                         ret.m_oStatus = BillingResponseStatus.UnKnownUser;
                         ret.m_sRecieptCode = "";
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
                     {
                         ret.m_oStatus = BillingResponseStatus.UserSuspended;
                         ret.m_sRecieptCode = string.Empty;
@@ -4765,20 +4700,15 @@ namespace ConditionalAccess
         /// </summary>
         private List<int> GetDomainsUsers(int nDomainID)
         {
-            using (TvinciDomains.module bm = new ConditionalAccess.TvinciDomains.module())
+            using (WS_Domains.module bm = new WS_Domains.module())
             {
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.DOMAINS, ref sWSUserName, ref sWSPass);
-                string sWSURL = Utils.GetWSURL("domains_ws");
-                if (!string.IsNullOrEmpty(sWSURL))
-                {
-                    bm.Url = sWSURL;
-                }
-                string[] usersList = bm.GetDomainUserList(sWSUserName, sWSPass, nDomainID);
+                List<string> usersList = bm.GetDomainUserList(sWSUserName, sWSPass, nDomainID);
                 List<int> intUsersList = new List<int>();
 
-                if (usersList != null && usersList.Length != 0)
+                if (usersList != null && usersList.Count != 0)
                 {
                     foreach (string str in usersList)
                     {
@@ -5130,7 +5060,7 @@ namespace ConditionalAccess
         {
             PermittedSubscriptionContainer[] response = null;
             int userId, domainID = 0;
-            TvinciUsers.DomainSuspentionStatus userSuspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
+            DomainSuspentionStatus userSuspendStatus = DomainSuspentionStatus.OK;
             if (int.TryParse(sSiteGUID, out userId) && Utils.IsUserValid(sSiteGUID, m_nGroupID, ref domainID, ref userSuspendStatus))
             {
                 response = GetUserPermittedSubscriptions(new List<int>() { int.Parse(sSiteGUID) }, false, 0, domainID);
@@ -5590,9 +5520,9 @@ namespace ConditionalAccess
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", sSubCode);
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_FILE_ID", "=", nMediaFileID);
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
-                        TvinciUsers.DomainSuspentionStatus suspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
+                        DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
                         int domainId = 0;
-                        if (Utils.IsUserValid(sSiteGUID, m_nGroupID, ref domainId, ref suspendStatus) && suspendStatus == TvinciUsers.DomainSuspentionStatus.OK)
+                        if (Utils.IsUserValid(sSiteGUID, m_nGroupID, ref domainId, ref suspendStatus) && suspendStatus == DomainSuspentionStatus.OK)
                         {
                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DOMAIN_ID", "=", domainId);
                         }
@@ -5782,9 +5712,9 @@ namespace ConditionalAccess
                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", sSubscription);
                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
-                            TvinciUsers.DomainSuspentionStatus suspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
+                            DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
                             int domainId = 0;
-                            if (Utils.IsUserValid(sSiteGUID, m_nGroupID, ref domainId, ref suspendStatus) && suspendStatus == TvinciUsers.DomainSuspentionStatus.OK)
+                            if (Utils.IsUserValid(sSiteGUID, m_nGroupID, ref domainId, ref suspendStatus) && suspendStatus == DomainSuspentionStatus.OK)
                             {
                                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DOMAIN_ID", "=", domainId);
                             }
@@ -5915,7 +5845,7 @@ namespace ConditionalAccess
             oResponse.m_sRecieptCode = string.Empty;
             oResponse.m_sStatusDescription = string.Empty;
 
-            TvinciUsers.UsersService wsUsersService = null;
+            UsersService wsUsersService = null;
             mdoule wsPricingService = null;
             module wsBillingService = null;
 
@@ -5941,25 +5871,20 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    wsUsersService = new ConditionalAccess.TvinciUsers.UsersService();
+                    wsUsersService = new UsersService();
 
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
-                    string sWSURL = Utils.GetWSURL("users_ws");
-                    if (!string.IsNullOrEmpty(sWSURL))
-                    {
-                        wsUsersService.Url = sWSURL;
-                    }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = wsUsersService.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
-                    if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+                    UserResponseObject uObj = wsUsersService.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
+                    if (uObj.m_RespStatus != ResponseStatus.OK)
                     {
                         oResponse.m_oStatus = BillingResponseStatus.UnKnownUser;
                         oResponse.m_sRecieptCode = string.Empty;
                         oResponse.m_sStatusDescription = "Cant charge an unknown user";
                         return oResponse;
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
                     {
                         oResponse.m_oStatus = BillingResponseStatus.UserSuspended;
                         oResponse.m_sRecieptCode = string.Empty;
@@ -6200,24 +6125,19 @@ namespace ConditionalAccess
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEndDate)
         {
             int retVal = 0;
-            TvinciUsers.UsersService u = null;
+            UsersService u = null;
             mdoule m = null;
 
             try
             {
                 log.Debug("GetPPVCustomDataID - " + GetGetCustomDataLogMsg("PPV", sSiteGUID, dPrice, nMediaFileID, nMediaID, sPPVModuleCode, sCouponCode, sPaymentMethod, sUserIP, string.Empty));
-                u = new ConditionalAccess.TvinciUsers.UsersService();
+                u = new UsersService();
 
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
-                string sWSURL = Utils.GetWSURL("users_ws");
-                if (!string.IsNullOrEmpty(sWSURL))
-                {
-                    u.Url = sWSURL;
-                }
-                ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
-                if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+                UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
+                if (uObj.m_RespStatus != ResponseStatus.OK)
                 {
                     retVal = 0;
                 }
@@ -6351,7 +6271,7 @@ namespace ConditionalAccess
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEnddate)
         {
             int retVal = 0;
-            TvinciUsers.UsersService u = null;
+            UsersService u = null;
             try
             {
                 if (string.IsNullOrEmpty(sSiteGUID))
@@ -6360,18 +6280,13 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    u = new ConditionalAccess.TvinciUsers.UsersService();
+                    u = new UsersService();
 
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
-                    string sWSURL = Utils.GetWSURL("users_ws");
-                    if (!string.IsNullOrEmpty(sWSURL))
-                    {
-                        u.Url = sWSURL;
-                    }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
-                    if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+                    UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
+                    if (uObj.m_RespStatus != ResponseStatus.OK)
                     {
                         retVal = 0;
                     }
@@ -6477,23 +6392,18 @@ namespace ConditionalAccess
             }
             else
             {
-                TvinciUsers.UsersService u = null;
+                UsersService u = null;
                 mdoule m = null;
                 try
                 {
                     log.Debug("GetBundleCustomDataID - " + GetGetCustomDataLogMsg("Bundle", sSiteGUID, dPrice, 0, 0, sBundleCode, sCouponCode, sPaymentMethod, sUserIP, sPreviewModuleID));
-                    u = new ConditionalAccess.TvinciUsers.UsersService();
+                    u = new UsersService();
 
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
-                    string sWSURL = Utils.GetWSURL("users_ws");
-                    if (!string.IsNullOrEmpty(sWSURL))
-                    {
-                        u.Url = sWSURL;
-                    }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
-                    if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+                    UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
+                    if (uObj.m_RespStatus != ResponseStatus.OK)
                     {
                         retVal = 0;
                     }
@@ -6637,7 +6547,7 @@ namespace ConditionalAccess
             ret.m_oStatus = BillingResponseStatus.UnKnown;
             ret.m_sRecieptCode = string.Empty;
             ret.m_sStatusDescription = string.Empty;
-            TvinciUsers.UsersService u = null;
+            UsersService u = null;
             mdoule m = null;
             module bm = null;
             try
@@ -6650,19 +6560,14 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    u = new ConditionalAccess.TvinciUsers.UsersService();
+                    u = new UsersService();
 
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
-                    string sWSURL = Utils.GetWSURL("users_ws");
-                    if (!string.IsNullOrEmpty(sWSURL))
-                    {
-                        u.Url = sWSURL;
-                    }
 
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
-                    if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+                    UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
+                    if (uObj.m_RespStatus != ResponseStatus.OK)
                     {
                         ret.m_oStatus = BillingResponseStatus.UnKnownUser;
                         ret.m_sRecieptCode = string.Empty;
@@ -6893,19 +6798,14 @@ namespace ConditionalAccess
             }
             else
             {
-                using (TvinciUsers.UsersService u = new ConditionalAccess.TvinciUsers.UsersService())
+                using (UsersService u = new UsersService())
                 {
 
                     string sWSUserName = "";
                     string sWSPass = "";
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
-                    string sWSURL = Utils.GetWSURL("users_ws");
-                    if (!string.IsNullOrEmpty(sWSURL))
-                    {
-                        u.Url = sWSURL;
-                    }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
-                    if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+                    UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
+                    if (uObj.m_RespStatus != ResponseStatus.OK)
                     {
                         ret.m_oStatus = BillingResponseStatus.UnKnownUser;
                         ret.m_sRecieptCode = "";
@@ -7064,7 +6964,7 @@ namespace ConditionalAccess
             ret.m_sStatusDescription = string.Empty;
 
             module bm = null;
-            TvinciUsers.UsersService u = null;
+            UsersService u = null;
 
             try
             {
@@ -7078,25 +6978,20 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    u = new ConditionalAccess.TvinciUsers.UsersService();
+                    u = new UsersService();
 
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
 
-                    string sWSURL = Utils.GetWSURL("users_ws");
-                    if (!string.IsNullOrEmpty(sWSURL))
-                    {
-                        u.Url = sWSURL;
-                    }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
-                    if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+                    UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
+                    if (uObj.m_RespStatus != ResponseStatus.OK)
                     {
                         ret.m_oStatus = BillingResponseStatus.UnKnownUser;
                         ret.m_sRecieptCode = string.Empty;
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
                     {
                         ret.m_oStatus = BillingResponseStatus.UserSuspended;
                         ret.m_sRecieptCode = string.Empty;
@@ -7653,11 +7548,11 @@ namespace ConditionalAccess
                     MeidaMaper[] mapper = null;
                     int domainID = 0;
                     List<int> allUsersInDomain = Utils.GetAllUsersDomainBySiteGUID(sUserGUID, m_nGroupID, ref domainID);
-                    TvinciUsers.DomainSuspentionStatus userSuspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
+                    DomainSuspentionStatus userSuspendStatus = DomainSuspentionStatus.OK;
                     UserEntitlementsObject userEntitlements = new UserEntitlementsObject();
 
                     // check if user is valid
-                    if (Utils.IsUserValid(sUserGUID, m_nGroupID, ref domainID, ref userSuspendStatus) && userSuspendStatus == TvinciUsers.DomainSuspentionStatus.OK)
+                    if (Utils.IsUserValid(sUserGUID, m_nGroupID, ref domainID, ref userSuspendStatus) && userSuspendStatus == DomainSuspentionStatus.OK)
                     {
                         // create mapper
                         mapper = Utils.GetMediaMapper(m_nGroupID, nMediaFiles, sAPIUsername, sAPIPassword);
@@ -9046,7 +8941,7 @@ namespace ConditionalAccess
             ret.m_oStatus = PrePaidResponseStatus.UnKnown;
             ret.m_sStatusDescription = "";
             API apiWs = null;
-            TvinciUsers.UsersService u = null;
+            UsersService u = null;
             mdoule m = null;
             ODBCWrapper.InsertQuery insertQuery = null;
             ODBCWrapper.DataSetSelectQuery selectQuery = null;
@@ -9062,24 +8957,19 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    u = new ConditionalAccess.TvinciUsers.UsersService();
+                    u = new UsersService();
 
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
-                    string sWSURL = Utils.GetWSURL("users_ws");
-                    if (!string.IsNullOrEmpty(sWSURL))
-                    {
-                        u.Url = sWSURL;
-                    }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
-                    if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+                    UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
+                    if (uObj.m_RespStatus != ResponseStatus.OK)
                     {
                         ret.m_oStatus = PrePaidResponseStatus.UnKnownUser;
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                         return ret;
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
                     {
                         ret.m_oStatus = PrePaidResponseStatus.UserSuspended;
                         ret.m_sStatusDescription = "Cannot charge a suspended user";
@@ -9401,7 +9291,7 @@ namespace ConditionalAccess
         {
             //string sCouponCode = "";
             PrePaidResponse ret = new PrePaidResponse();
-            TvinciUsers.UsersService u = null;
+            UsersService u = null;
             ODBCWrapper.UpdateQuery updateQuery1 = null;
             ODBCWrapper.InsertQuery insertQuery = null;
             ODBCWrapper.DataSetSelectQuery selectQuery = null;
@@ -9415,23 +9305,18 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    u = new ConditionalAccess.TvinciUsers.UsersService();
+                    u = new UsersService();
 
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
-                    string sWSURL = Utils.GetWSURL("users_ws");
-                    if (!string.IsNullOrEmpty(sWSURL))
-                    {
-                        u.Url = sWSURL;
-                    }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
-                    if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+                    UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
+                    if (uObj.m_RespStatus != ResponseStatus.OK)
                     {
                         ret.m_oStatus = PrePaidResponseStatus.UnKnownUser;
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
                     {
                         ret.m_oStatus = PrePaidResponseStatus.UserSuspended;
                         ret.m_sStatusDescription = "Cannot charge a suspended user";
@@ -10537,7 +10422,7 @@ namespace ConditionalAccess
             ret.m_sRecieptCode = string.Empty;
             ret.m_sStatusDescription = string.Empty;
 
-            TvinciUsers.UsersService u = null;
+            UsersService u = null;
             mdoule m = null;
             module bm = null;
 
@@ -10555,18 +10440,13 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    u = new ConditionalAccess.TvinciUsers.UsersService();
+                    u = new UsersService();
 
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
-                    string sWSURL = Utils.GetWSURL("users_ws");
-                    if (!string.IsNullOrEmpty(sWSURL))
-                    {
-                        u.Url = sWSURL;
-                    }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
-                    if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+                    UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
+                    if (uObj.m_RespStatus != ResponseStatus.OK)
                     {
                         ret.m_oStatus = BillingResponseStatus.UnKnownUser;
                         ret.m_sRecieptCode = string.Empty;
@@ -10574,7 +10454,7 @@ namespace ConditionalAccess
                         WriteToUserLog(sSiteGUID, "while trying to purchase media file id(Cellular): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                         return ret;
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
                     {
                         ret.m_oStatus = BillingResponseStatus.UserSuspended;
                         ret.m_sRecieptCode = string.Empty;
@@ -10800,7 +10680,7 @@ namespace ConditionalAccess
             ret.m_sRecieptCode = string.Empty;
             ret.m_sStatusDescription = string.Empty;
 
-            TvinciUsers.UsersService u = null;
+            UsersService u = null;
             module bm = null;
             try
             {
@@ -10816,24 +10696,19 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    u = new ConditionalAccess.TvinciUsers.UsersService();
+                    u = new UsersService();
 
                     string sWSUserName = string.Empty;
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
-                    string sWSURL = Utils.GetWSURL("users_ws");
-                    if (!string.IsNullOrEmpty(sWSURL))
-                    {
-                        u.Url = sWSURL;
-                    }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
-                    if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+                    UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
+                    if (uObj.m_RespStatus != ResponseStatus.OK)
                     {
                         ret.m_oStatus = BillingResponseStatus.UnKnownUser;
                         ret.m_sRecieptCode = string.Empty;
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
                     {
                         ret.m_oStatus = BillingResponseStatus.UserSuspended;
                         ret.m_sRecieptCode = string.Empty;
@@ -11054,7 +10929,7 @@ namespace ConditionalAccess
             try
             {
                 //check if user exists
-                TvinciUsers.DomainSuspentionStatus suspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
+                DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
                 int domainID = 0;
 
                 if (!Utils.IsUserValid(sSiteGuid, m_nGroupID, ref domainID, ref suspendStatus))
@@ -11063,7 +10938,7 @@ namespace ConditionalAccess
                     return ChangeSubscriptionStatus.UserNotExists;
                 }
 
-                if (suspendStatus == TvinciUsers.DomainSuspentionStatus.Suspended)
+                if (suspendStatus == DomainSuspentionStatus.Suspended)
                 {
                     log.Debug("ChangeSubscription - User with siteGuid: " + sSiteGuid + " Suspended. Subscription was not changed");
                     return ChangeSubscriptionStatus.UserSuspended;
@@ -11325,7 +11200,7 @@ namespace ConditionalAccess
             try
             {
                 // Start with getting domain info for validation
-                TvinciDomains.Domain oDomain = Utils.GetDomainInfo(p_nDomainID, this.m_nGroupID);
+                Domain oDomain = Utils.GetDomainInfo(p_nDomainID, this.m_nGroupID);
 
 
                 // Check if the domain is OK
@@ -11337,10 +11212,10 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    if (oDomain.m_DomainStatus != TvinciDomains.DomainStatus.OK &&
-                        oDomain.m_DomainStatus != TvinciDomains.DomainStatus.DomainCreatedWithoutNPVRAccount)
+                    if (oDomain.m_DomainStatus != DomainStatus.OK &&
+                        oDomain.m_DomainStatus != DomainStatus.DomainCreatedWithoutNPVRAccount)
                     {
-                        if (oDomain.m_DomainStatus == TvinciDomains.DomainStatus.DomainSuspended)
+                        if (oDomain.m_DomainStatus == DomainStatus.DomainSuspended)
                         {
                             oResult.Code = (int)eResponseStatus.DomainSuspended;
                             oResult.Message = "Domain suspended";
@@ -11817,7 +11692,7 @@ namespace ConditionalAccess
                 {
                     int nMediaID = 0;
                     List<int> lRuleIDS = new List<int>();
-                    TvinciDomains.DomainResponseStatus mediaConcurrencyResponse;
+                    DomainResponseStatus mediaConcurrencyResponse;
 
                     string fileMainUrl = string.Empty;
                     string fileAltUrl = string.Empty;
@@ -11864,7 +11739,7 @@ namespace ConditionalAccess
                     int domainID = 0;
                     mediaConcurrencyResponse = CheckMediaConcurrency(sSiteGuid, nMediaFileID, sDeviceName, prices, nMediaID, sUserIP, ref lRuleIDS, ref domainID);
 
-                    if (mediaConcurrencyResponse != TvinciDomains.DomainResponseStatus.OK)
+                    if (mediaConcurrencyResponse != DomainResponseStatus.OK)
                     {
                         log.Debug("GetLicensedLinks - " + string.Format("{0}, user:{1}, MFID:{2}", mediaConcurrencyResponse.ToString(), sSiteGuid, nMediaFileID));
                         res = new LicensedLinkResponse(string.Empty, string.Empty, mediaConcurrencyResponse.ToString());
@@ -11977,40 +11852,40 @@ namespace ConditionalAccess
             return res;
         }
 
-        private ApiObjects.Response.Status ConcurrencyResponseToResponseStatus(TvinciDomains.DomainResponseStatus mediaConcurrencyResponse)
+        private ApiObjects.Response.Status ConcurrencyResponseToResponseStatus(DomainResponseStatus mediaConcurrencyResponse)
         {
             ApiObjects.Response.Status res;
 
             switch (mediaConcurrencyResponse)
             {
-                case ConditionalAccess.TvinciDomains.DomainResponseStatus.LimitationPeriod:
+                case DomainResponseStatus.LimitationPeriod:
                     res = new ApiObjects.Response.Status((int)eResponseStatus.LimitationPeriod, "Limitation period");
                     break;
-                case ConditionalAccess.TvinciDomains.DomainResponseStatus.Error:
+                case DomainResponseStatus.Error:
                     res = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     break;
-                case ConditionalAccess.TvinciDomains.DomainResponseStatus.ExceededLimit:
+                case DomainResponseStatus.ExceededLimit:
                     res = new ApiObjects.Response.Status((int)eResponseStatus.ExceededLimit, "Exceeded limit");
                     break;
-                case ConditionalAccess.TvinciDomains.DomainResponseStatus.DeviceTypeNotAllowed:
+                case DomainResponseStatus.DeviceTypeNotAllowed:
                     res = new ApiObjects.Response.Status((int)eResponseStatus.DeviceTypeNotAllowed, "Device type not allowed");
                     break;
-                case ConditionalAccess.TvinciDomains.DomainResponseStatus.DeviceNotInDomain:
+                case DomainResponseStatus.DeviceNotInDomain:
                     res = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotInDomain, "Device not in household");
                     break;
-                case ConditionalAccess.TvinciDomains.DomainResponseStatus.DeviceAlreadyExists:
+                case DomainResponseStatus.DeviceAlreadyExists:
                     res = new ApiObjects.Response.Status((int)eResponseStatus.DeviceAlreadyExists, "Device already exists");
                     break;
-                case ConditionalAccess.TvinciDomains.DomainResponseStatus.OK:
+                case DomainResponseStatus.OK:
                     res = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     break;
-                case ConditionalAccess.TvinciDomains.DomainResponseStatus.DeviceExistsInOtherDomains:
+                case DomainResponseStatus.DeviceExistsInOtherDomains:
                     res = new ApiObjects.Response.Status((int)eResponseStatus.DeviceExistsInOtherDomains, "Device exists in other household");
                     break;
-                case ConditionalAccess.TvinciDomains.DomainResponseStatus.ConcurrencyLimitation:
+                case DomainResponseStatus.ConcurrencyLimitation:
                     res = new ApiObjects.Response.Status((int)eResponseStatus.ConcurrencyLimitation, "Concurrency limitation");
                     break;
-                case ConditionalAccess.TvinciDomains.DomainResponseStatus.MediaConcurrencyLimitation:
+                case DomainResponseStatus.MediaConcurrencyLimitation:
                     res = new ApiObjects.Response.Status((int)eResponseStatus.MediaConcurrencyLimitation, "Media concurrency limitation");
                     break;
                 default:
@@ -12050,11 +11925,11 @@ namespace ConditionalAccess
             Tvinci.Core.DAL.CatalogDAL.InsertPlayCycleKey(sSiteGuid, nMediaID, nMediaFileID, sDeviceName, 0, nCountryID, ruleID, m_nGroupID, sPlayCycleKey);
         }
 
-        private TvinciDomains.DomainResponseStatus CheckMediaConcurrency(string sSiteGuid, Int32 nMediaFileID, string sDeviceName, MediaFileItemPricesContainer[] prices,
+        private DomainResponseStatus CheckMediaConcurrency(string sSiteGuid, Int32 nMediaFileID, string sDeviceName, MediaFileItemPricesContainer[] prices,
             int nMediaID, string sUserIP, ref List<int> lRuleIDS, ref int domainID)
         {
-            TvinciDomains.DomainResponseStatus response = TvinciDomains.DomainResponseStatus.OK;
-            TvinciDomains.module domainsWS = null;
+            DomainResponseStatus response = DomainResponseStatus.OK;
+            WS_Domains.module domainsWS = null;
             API apiWs = null;
 
             if (Utils.IsAnonymousUser(sSiteGuid))
@@ -12090,18 +11965,13 @@ namespace ConditionalAccess
                 }
 
                 List<MediaConcurrencyRule> mcRules = apiWs.GetMediaConcurrencyRules(sWSUserName, sWSPass, nMediaID, sUserIP, bmID, eBM);
-                TvinciDomains.ValidationResponseObject validationResponse = new TvinciDomains.ValidationResponseObject();
+                ValidationResponseObject validationResponse = new ValidationResponseObject();
                 /*MediaConurrency Check */
-                domainsWS = new TvinciDomains.module();
+                domainsWS = new WS_Domains.module();
                 sWSUserName = string.Empty;
                 sWSPass = string.Empty;
 
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.DOMAINS, ref sWSUserName, ref sWSPass);
-                string sWSURL = Utils.GetWSURL("domains_ws");
-                if (!string.IsNullOrEmpty(sWSURL))
-                {
-                    domainsWS.Url = sWSURL;
-                }
                 int nDeviceFamilyBrand = 0;
                 long lSiteGuid = 0;
                 long.TryParse(sSiteGuid, out lSiteGuid);
@@ -12113,8 +11983,8 @@ namespace ConditionalAccess
                         lRuleIDS.Add(mcRule.RuleID); // for future use
 
                         validationResponse = domainsWS.ValidateLimitationModule(sWSUserName, sWSPass, sDeviceName, nDeviceFamilyBrand, lSiteGuid, 0,
-                            TvinciDomains.ValidationType.Concurrency, mcRule.RuleID, 0, nMediaID);
-                        if (response == TvinciDomains.DomainResponseStatus.OK && validationResponse != null) // when there is more then one rule  - change response status only when status is still OK (that mean that this is the first time it's change)
+                            Users.ValidationType.Concurrency, mcRule.RuleID, 0, nMediaID);
+                        if (response == DomainResponseStatus.OK && validationResponse != null) // when there is more then one rule  - change response status only when status is still OK (that mean that this is the first time it's change)
                         {
                             response = validationResponse.m_eStatus;
                         }
@@ -12123,7 +11993,7 @@ namespace ConditionalAccess
                 else
                 {
                     validationResponse = domainsWS.ValidateLimitationModule(sWSUserName, sWSPass, sDeviceName, nDeviceFamilyBrand, lSiteGuid, 0,
-                           TvinciDomains.ValidationType.Concurrency, 0, 0, nMediaID);
+                           Users.ValidationType.Concurrency, 0, 0, nMediaID);
                     response = validationResponse.m_eStatus;
                 }
 
@@ -12148,7 +12018,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
                 log.Error("Exception - " + sb.ToString(), ex);
                 #endregion
-                response = TvinciDomains.DomainResponseStatus.Error;
+                response = DomainResponseStatus.Error;
             }
             finally
             {
@@ -12325,7 +12195,7 @@ namespace ConditionalAccess
             if (dlm == 0)
             {
                 long lastDomainDLM = ConditionalAccessDAL.Get_LastDomainDLM(m_nGroupID, domainID);
-                ConditionalAccess.TvinciDomains.ChangeDLMObj changeDlmObj = Utils.ChangeDLM(m_nGroupID, domainID, (int)lastDomainDLM);
+                ChangeDLMObj changeDlmObj = Utils.ChangeDLM(m_nGroupID, domainID, (int)lastDomainDLM);
                 if (changeDlmObj.resp == null || changeDlmObj.resp.Code != (int)eResponseStatus.OK)
                 {
                     #region Logging
@@ -12340,7 +12210,7 @@ namespace ConditionalAccess
             }
             else
             {
-                ConditionalAccess.TvinciDomains.ChangeDLMObj changeDlmObj = Utils.ChangeDLM(m_nGroupID, domainID, dlm);
+                ChangeDLMObj changeDlmObj = Utils.ChangeDLM(m_nGroupID, domainID, dlm);
                 if (changeDlmObj.resp == null || changeDlmObj.resp.Code != (int)eResponseStatus.OK)
                 {
                     #region Logging
@@ -12571,7 +12441,7 @@ namespace ConditionalAccess
         public virtual Entitlements GetUserEntitlements(string siteGuid, eTransactionType type, bool isExpired = false, int pageSize = 500, int pageIndex = 0, EntitlementOrderBy orderBy = EntitlementOrderBy.PurchaseDateAsc)
         {
             int userId, domainID = 0;
-            TvinciUsers.DomainSuspentionStatus userSuspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
+            DomainSuspentionStatus userSuspendStatus = DomainSuspentionStatus.OK;
             if (int.TryParse(siteGuid, out userId) && Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref userSuspendStatus))
             {
                 return GetUsersEntitlements(domainID, new List<int>() { userId }, type, isExpired, 0, false, pageSize, pageIndex, orderBy);
@@ -14658,8 +14528,8 @@ namespace ConditionalAccess
                 string masterSiteGuid = string.Empty;
                 if (householdId > 0)
                 {
-                    TvinciDomains.Domain domain = Utils.GetDomainInfo((int)householdId, m_nGroupID);
-                    if (domain != null && domain.m_masterGUIDs != null && domain.m_masterGUIDs.Length > 0)
+                    Domain domain = Utils.GetDomainInfo((int)householdId, m_nGroupID);
+                    if (domain != null && domain.m_masterGUIDs != null && domain.m_masterGUIDs.Count > 0)
                     {
                         masterSiteGuid = domain.m_masterGUIDs.First().ToString();
                     }
@@ -16823,7 +16693,7 @@ namespace ConditionalAccess
                 bool res = false;
                 if (shouldValidateUserAndDomain)
                 {
-                    ConditionalAccess.TvinciDomains.Domain domain;
+                    Domain domain;
                     ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userId, ref domainId, out domain);
 
                     if (validationStatus.Code != (int)eResponseStatus.OK)
@@ -16924,7 +16794,7 @@ namespace ConditionalAccess
             try
             {
                 bool isSingleRecording = recordingType == RecordingType.Single;
-                ConditionalAccess.TvinciDomains.Domain domain;
+                Domain domain;
                 ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userID, ref domainID, out domain);
 
                 if (validationStatus.Code != (int)eResponseStatus.OK)
@@ -17715,7 +17585,7 @@ namespace ConditionalAccess
             Recording recording = new Recording() { Id = domainRecordingID };
             try
             {
-                ConditionalAccess.TvinciDomains.Domain domain;
+                Domain domain;
                 long domainID = 0;
                 ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userID, ref domainID, out domain);
 
@@ -18529,7 +18399,7 @@ namespace ConditionalAccess
                     seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     return seriesRecording;
                 }
-                ConditionalAccess.TvinciDomains.Domain domain;
+                Domain domain;
                 ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userId, ref domainId, out domain);
 
                 if (validationStatus.Code != (int)eResponseStatus.OK)
@@ -18753,7 +18623,7 @@ namespace ConditionalAccess
                 };
             try
             {
-                ConditionalAccess.TvinciDomains.Domain domain;
+                Domain domain;
                 ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userId, ref domainId, out domain);
 
                 if (validationStatus.Code != (int)eResponseStatus.OK)
@@ -19200,7 +19070,7 @@ namespace ConditionalAccess
             try
             {
                 // validate user
-                ConditionalAccess.TvinciDomains.Domain domain;
+                Domain domain;
                 long domainId = 0;
                 ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userId, ref domainId, out domain);
 
@@ -19293,8 +19163,8 @@ namespace ConditionalAccess
 
                     List<int> lRuleIDS = null;
                     int householdId = (int)domainId;
-                    TvinciDomains.DomainResponseStatus mediaConcurrencyResponse = CheckMediaConcurrency(userId, mediaFileId, udid, prices, linearMediaId, userIp, ref lRuleIDS, ref householdId);
-                    if (mediaConcurrencyResponse != TvinciDomains.DomainResponseStatus.OK)
+                    DomainResponseStatus mediaConcurrencyResponse = CheckMediaConcurrency(userId, mediaFileId, udid, prices, linearMediaId, userIp, ref lRuleIDS, ref householdId);
+                    if (mediaConcurrencyResponse != DomainResponseStatus.OK)
                     {
                         log.Debug("GetRecordingLicensedLink - " + string.Format("{0}, user:{1}, MFID:{2}", mediaConcurrencyResponse.ToString(), userId, mediaFileId));
                         response = new LicensedLinkResponse(string.Empty, string.Empty, mediaConcurrencyResponse.ToString());
@@ -19390,7 +19260,7 @@ namespace ConditionalAccess
         {
             ApiObjects.Response.Status result = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
-            ConditionalAccess.TvinciDomains.Domain domain;
+            Domain domain;
             ApiObjects.Response.Status status = Utils.ValidateDomain(m_nGroupID, domainId, out domain);
             if (status == null)
             {
@@ -19407,7 +19277,7 @@ namespace ConditionalAccess
             {
                 case UserTaskType.Delete:
                     {
-                        if (domain != null && domain.m_masterGUIDs != null && domain.m_masterGUIDs.Length > 0)
+                        if (domain != null && domain.m_masterGUIDs != null && domain.m_masterGUIDs.Count > 0)
                         {
                             if (Utils.UpdateDomainSeriesRecordingsUserToMaster(m_nGroupID, domainId, userId, domain.m_masterGUIDs[0].ToString()) &&
                                 Utils.UpdateScheduledRecordingsUserToMaster(m_nGroupID, domainId, userId, domain.m_masterGUIDs[0].ToString()))

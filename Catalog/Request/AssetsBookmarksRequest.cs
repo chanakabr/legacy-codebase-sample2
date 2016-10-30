@@ -8,6 +8,7 @@ using ApiObjects;
 using ApiObjects.Response;
 using Catalog.Response;
 using KLogMonitor;
+using Users;
 
 
 namespace Catalog.Request
@@ -52,7 +53,7 @@ namespace Catalog.Request
                         bool isDefaultUser = false;                        
                         int userDomainID = 0;
                         int userID;
-                        WS_Domains.DomainResponse domainResponse = null;
+                        DomainResponse domainResponse = null;
                         if (Catalog.IsUserValid(request.m_sSiteGuid, request.m_nGroupID, ref userDomainID) && int.TryParse(request.m_sSiteGuid, out userID))
                         {
                             if(userDomainID == request.domainId)
@@ -65,7 +66,7 @@ namespace Catalog.Request
                                     List<int> usersToGet = new List<int>();
                                     usersToGet.AddRange(users);
                                     usersToGet.AddRange(defaultUsers);
-                                    Dictionary<string, ws_users.User> usersDictionary = Catalog.GetUsers(request.m_nGroupID, usersToGet);
+                                    Dictionary<string, User> usersDictionary = Catalog.GetUsers(request.m_nGroupID, usersToGet);
                                     foreach (AssetBookmarkRequest asset in request.Data.Assets)
                                     {
                                         AssetBookmarks assetPositionResponseInfo = null;
@@ -76,7 +77,7 @@ namespace Catalog.Request
                                         }
                                         else
                                         {
-                                            response.Status = new Status((int)eResponseStatus.InvalidAssetType, "Invalid Asset Type");
+                                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.InvalidAssetType, "Invalid Asset Type");
                                             return response;
                                         }
                                         if (assetPositionResponseInfo != null)
@@ -88,35 +89,35 @@ namespace Catalog.Request
                                 }
                                 else
                                 {
-                                    response.Status = new Status((int)eResponseStatus.Error, "Invalid Parameters In Request");
+                                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Invalid Parameters In Request");
                                     return response;
                                 }                            
                             }
                             else
                             {
-                                response.Status = new Status((int)eResponseStatus.UserNotExistsInDomain, eResponseStatus.UserNotExistsInDomain.ToString());
+                                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.UserNotExistsInDomain, eResponseStatus.UserNotExistsInDomain.ToString());
                                 return response;
                             }
                         }
                         else
                         {
-                            response.Status = new Status((int)eResponseStatus.InvalidUser, eResponseStatus.InvalidUser.ToString());
+                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.InvalidUser, eResponseStatus.InvalidUser.ToString());
                             return response;
                         }
                     }
                     else
                     {
-                        response.Status = new Status((int)eResponseStatus.Error, "Request Is Null");
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Request Is Null");
                         return response;
                     }
                 }
                 else
                 {
-                    response.Status = new Status((int)eResponseStatus.Error, "Request Is Null");
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Request Is Null");
                     return response;
                 }
 
-                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());                
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());                
                 return response;
             }
             catch (Exception ex)
@@ -126,21 +127,21 @@ namespace Catalog.Request
             }
         }
 
-        private void GetUsersInfo(int userID, WS_Domains.Domain domain, ref List<int> users, ref List<int> defaultUsers, ref bool isDefaultUser)
+        private void GetUsersInfo(int userID, Domain domain, ref List<int> users, ref List<int> defaultUsers, ref bool isDefaultUser)
         {
             users = new List<int>();
             defaultUsers = new List<int>();            
-            if (domain.m_DefaultUsersIDs != null && domain.m_DefaultUsersIDs.Length > 0)
+            if (domain.m_DefaultUsersIDs != null && domain.m_DefaultUsersIDs.Count > 0)
             {
-                defaultUsers = domain.m_DefaultUsersIDs.ToList();
+                defaultUsers = domain.m_DefaultUsersIDs;
                 isDefaultUser = defaultUsers.Contains(userID);
             }
-                
-            if (domain.m_UsersIDs != null && domain.m_UsersIDs.Length > 0)
+
+            if (domain.m_UsersIDs != null && domain.m_UsersIDs.Count > 0)
             {
                 if (isDefaultUser)
                 {
-                    users = domain.m_UsersIDs.ToList();
+                    users = domain.m_UsersIDs;
                 }
                 else
                 {

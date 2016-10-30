@@ -8,6 +8,7 @@ using DAL;
 using KLogMonitor;
 using Newtonsoft.Json;
 using TVinciShared;
+using ApiObjects;
 
 namespace Users
 {

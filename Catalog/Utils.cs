@@ -21,6 +21,7 @@ using ApiObjects;
 using Catalog.Request;
 using KLogMonitor;
 using KlogMonitorHelper;
+using WS_Users;
 
 namespace Catalog
 {
@@ -777,14 +778,10 @@ namespace Catalog
         internal static int GetUserType(string sSiteGuid, int nGroupID)
         {
             int nUserTypeID = 0;
-            ws_users.UsersService u = null;
+            UsersService u = null;
             try
             {
-                u = new ws_users.UsersService();
-                string sWSURL = Utils.GetWSURL("users_ws");
-                if (sWSURL.Length > 0)
-                    u.Url = sWSURL;
-
+                u = new UsersService();
                 //get username + password from wsCache
                 Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, nGroupID, ApiObjects.eWSModules.USERS);
                 if (oCredentials != null)
