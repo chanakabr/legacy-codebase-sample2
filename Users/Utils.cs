@@ -23,7 +23,6 @@ using ApiObjects.Notification;
 using System.Threading.Tasks;
 using System.Web;
 using System.ServiceModel;
-using WS_API;
 
 namespace Users
 {
@@ -376,22 +375,17 @@ namespace Users
             return retVal;
         }
 
+        static public bool SendMailTemplate(MailRequestObj request)
+        {
+            bool retVal = false;
+            Mailer.IMailer mailer = Mailer.MailFactory.GetMailer(Mailer.MailImplementors.MCMailer);
+            retVal = mailer.SendMailTemplate(request);
+            return retVal;
+        }
+
         static public bool SendMail(int nGroupID, MailRequestObj request)
         {
-            using (API client = new API())
-            {
-                string sWSUserName = string.Empty;
-                string sWSPass = string.Empty;
-
-                Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(eWSModules.USERS, nGroupID, eWSModules.API);
-                if (oCredentials != null)
-                {
-                    sWSUserName = oCredentials.m_sUsername;
-                    sWSPass = oCredentials.m_sPassword;
-                }
-                bool result = client.SendMailTemplate(sWSUserName, sWSPass, request);
-                return result;
-            }
+            return SendMailTemplate(request);
         }
 
         static public bool GetUserOperatorAndHouseholdIDs(int nGroupID, string sCoGuid, ref int nOperatorID, ref string sOperatorCoGuid, ref int nOperatorGroupID, ref int nHouseholdID)

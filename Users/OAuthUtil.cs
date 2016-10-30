@@ -10,6 +10,7 @@ using Users;
 using System.Configuration;
 using KLogMonitor;
 using System.Reflection;
+using ApiObjects;
 
 namespace TVinciShared
 {

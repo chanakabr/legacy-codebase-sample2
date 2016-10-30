@@ -492,11 +492,11 @@ namespace ConditionalAccess
             LicensedLinkResponse response = new LicensedLinkResponse();
             // validate user state (suspended or not)
             int domainId = 0;
-            TvinciUsers.DomainSuspentionStatus domainStatus = TvinciUsers.DomainSuspentionStatus.OK;
+            DomainSuspentionStatus domainStatus = DomainSuspentionStatus.OK;
             Utils.IsUserValid(sSiteGUID, m_nGroupID, ref domainId, ref domainStatus);
 
             // check if domain is suspended
-            if (domainStatus == TvinciUsers.DomainSuspentionStatus.Suspended)
+            if (domainStatus == DomainSuspentionStatus.Suspended)
             {
                 StringBuilder sb = new StringBuilder("GetEPGLink: domain is suspended.");
                 sb.Append(String.Concat(" sSiteGUID: ", sSiteGUID));

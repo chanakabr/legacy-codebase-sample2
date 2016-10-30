@@ -771,4 +771,34 @@ namespace ApiObjects
         CROWDSOURCE = 0,
         BUZZFEED = 1
     }
+
+    public enum ResponseStatus
+    {
+        OK = 0,
+        UserExists = 1,
+        UserDoesNotExist = 2,
+        WrongPasswordOrUserName = 3,
+        InsideLockTime = 4,
+        NotImplementedYet = 5,
+        UserNotActivated = 6,
+        UserAllreadyLoggedIn = 7,
+        UserDoubleLogIn = 8,
+        SessionLoggedOut = 9,
+        DeviceNotRegistered = 10,
+        ErrorOnSendingMail = 11,
+        UserEmailAlreadyExists = 12,
+        ErrorOnUpdatingUserType = 13,
+        UserTypeNotExist = 14,
+        UserNotMasterApproved = 15,
+        ErrorOnInitUser = 16,
+        ErrorOnSaveUser = 17,
+        UserNotIndDomain = 18,
+        TokenNotFound = 19,
+        UserAlreadyMasterApproved = 20,
+        UserWithNoDomain = 21,
+        InternalError = 999,
+        LoginServerDown = 22,
+        UserSuspended = 23,
+        UserCreatedWithNoRole = 24
+    }
 }
