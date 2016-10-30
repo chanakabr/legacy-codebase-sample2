@@ -729,47 +729,47 @@ namespace Users
             return res;
         }
 
-        public virtual ValidationResponseObject ValidateLimitationModule(string sUDID, int nDeviceBrandID, long lSiteGuid, long lDomainID, ValidationType eValidationType,
-            int nRuleID = 0, int nMediaConcurrencyLimit = 0, int nMediaID = 0)
+        public virtual ValidationResponseObject ValidateLimitationModule(string udid, int deviceBrandID, long siteGuid, long domainID, ValidationType validationType,
+            int ruleID = 0, int mediaConcurrencyLimit = 0, int mediaID = 0)
         {
             ValidationResponseObject res = new ValidationResponseObject();
 
-            Domain domain = GetDomainForValidation(lSiteGuid, lDomainID);
+            Domain domain = GetDomainForValidation(siteGuid, domainID);
             if (domain != null && domain.m_DomainStatus != DomainStatus.Error)
             {
                 //to add here isDevicePlayValid
-                bool bisDevicePlayValid = IsDevicePlayValid(lSiteGuid.ToString(), sUDID, domain);
+                bool bisDevicePlayValid = IsDevicePlayValid(siteGuid.ToString(), udid, domain);
 
-                res.m_lDomainID = lDomainID > 0 ? lDomainID : domain.m_nDomainID;
+                res.m_lDomainID = domainID > 0 ? domainID : domain.m_nDomainID;
                 if (!bisDevicePlayValid)
                 {
                     res.m_eStatus = DomainResponseStatus.DeviceNotInDomain;
                     return res;
                 }
 
-                switch (eValidationType)
+                switch (validationType)
                 {
                     case ValidationType.Concurrency:
                         {
-                            if (nRuleID > 0)
+                            if (ruleID > 0)
                             {
-                                res.m_eStatus = domain.ValidateMediaConcurrency(nRuleID, nMediaConcurrencyLimit, res.m_lDomainID, nMediaID, sUDID);
+                                res.m_eStatus = domain.ValidateAssetConcurrency(ruleID, mediaConcurrencyLimit, res.m_lDomainID, mediaID, udid);
                             }
                             if (res.m_eStatus == DomainResponseStatus.OK || res.m_eStatus == DomainResponseStatus.UnKnown) // if it's MediaConcurrencyLimitation no need to check this one 
                             {
-                                res.m_eStatus = domain.ValidateConcurrency(sUDID, nDeviceBrandID, res.m_lDomainID);
+                                res.m_eStatus = domain.ValidateConcurrency(udid, deviceBrandID, res.m_lDomainID);
                             }
                             break;
                         }
                     case ValidationType.Frequency:
                         {
-                            res.m_eStatus = domain.ValidateFrequency(sUDID, nDeviceBrandID);
+                            res.m_eStatus = domain.ValidateFrequency(udid, deviceBrandID);
                             break;
                         }
                     default:
                         {
                             // Quantity
-                            res.m_eStatus = domain.ValidateQuantity(sUDID, nDeviceBrandID);
+                            res.m_eStatus = domain.ValidateQuantity(udid, deviceBrandID);
                             break;
                         }
                 }

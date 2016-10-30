@@ -26,6 +26,13 @@ namespace ApiObjects.MediaMarks
         [JsonProperty("assetTypeId")]
         public int AssetTypeId { get; set; }
 
+        [JsonProperty("recordingId")]
+        public int RecordingId
+        {
+            get;
+            set;
+        }
+
         public bool IsFinishedWatching { get; set; }
 
         public DateTime UpdateDate { get; set; }

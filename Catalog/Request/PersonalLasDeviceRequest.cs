@@ -81,7 +81,7 @@ namespace Catalog.Request
                             {
                                 oPersonalLastWatched = new PersonalLastDevice();
 
-                                oPersonalLastWatched.m_nID = lastMediaMarksList[i].MediaID;
+                                oPersonalLastWatched.m_nID = lastMediaMarksList[i].AssetID;
 
                                 oPersonalLastWatched.m_dLastWatchedDate = lastMediaMarksList[i].CreatedAt;
 

@@ -65,7 +65,6 @@ namespace Catalog.Request
                     {
                         oMediaHitResponse = ProcessNpvrHitRequest(oMediaHitRequest);
                     }
-
                 }
                 else
                 {
@@ -83,13 +82,12 @@ namespace Catalog.Request
             }
         }
 
-        private MediaHitResponse ProcessNpvrHitRequest(MediaHitRequest oMediaHitRequest)
+        private MediaHitResponse ProcessNpvrHitRequest(MediaHitRequest request)
         {
-            MediaHitResponse oMediaHitResponse = new MediaHitResponse();
+            MediaHitResponse response = new MediaHitResponse();
 
-            int nPlayTime = 30;
-            int nMediaDuration = 0;
-            DateTime dNow = DateTime.UtcNow;
+            int playTime = 30;
+            DateTime now = DateTime.UtcNow;
             int fileDuration = 0;
 
             string sSessionID = string.Empty;
@@ -100,49 +98,59 @@ namespace Catalog.Request
 
             if (m_oMediaPlayRequestData.m_nLoc > 0)
             {
-                nPlayTime = m_oMediaPlayRequestData.m_nLoc;
+                playTime = m_oMediaPlayRequestData.m_nLoc;
             }
-            int.TryParse(m_oMediaPlayRequestData.m_sMediaDuration, out nMediaDuration);
 
             if (this.m_oFilter != null)
             {
                 int.TryParse(m_oFilter.m_sPlatform, out nPlatform);
             }
 
-
             bool resultParse = Enum.TryParse(m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out action);
-
-            int nSiteGuid;
-            int.TryParse(m_oMediaPlayRequestData.m_sSiteGuid, out nSiteGuid);
 
             if (m_oMediaPlayRequestData.m_eAssetType == eAssetTypes.MEDIA || m_oMediaPlayRequestData.m_eAssetType == eAssetTypes.EPG)
             {
                 int t;
                 if (!int.TryParse(m_oMediaPlayRequestData.m_sAssetID, out t))
                 {
-                    oMediaHitResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.ERROR);
-                    oMediaHitResponse.m_sDescription = "Media id not a number";
-                    return oMediaHitResponse;
+                    response.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.ERROR);
+                    response.m_sDescription = "Media id not a number";
+                    return response;
+                }
+            }
+
+            long recordingId = 0;
+
+            if (m_oMediaPlayRequestData.m_eAssetType == eAssetTypes.NPVR)
+            {
+                bool result = Catalog.GetNPVRMarkHitInitialData(long.Parse(this.m_oMediaPlayRequestData.m_sAssetID), ref fileDuration, ref recordingId,
+                    this.m_nGroupID, this.domainId);
+
+                if (!result)
+                {
+                    response.m_sStatus = "Recording doesn't exist";
+                    return response;
                 }
             }
 
             //anonymous user - can't play npvr
             if (Catalog.IsAnonymousUser(m_oMediaPlayRequestData.m_sSiteGuid))
             {
-                oMediaHitResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.ERROR);
-                oMediaHitResponse.m_sDescription = "Anonymous User Can't watch nPVR";
+                response.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.ERROR);
+                response.m_sDescription = "Anonymous User Can't watch nPVR";
             }
             else
             {
                 if (!resultParse || action != MediaPlayActions.BITRATE_CHANGE)
                 {
-                    Catalog.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_sAssetID, m_oMediaPlayRequestData.m_sSiteGuid, nPlayTime, m_oMediaPlayRequestData.m_sUDID, fileDuration, 
-                        MediaPlayResponse.HIT.ToString(), (int)eAssetTypes.NPVR, 0, ApiObjects.ePlayType.NPVR);
+                    Catalog.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_sAssetID, m_oMediaPlayRequestData.m_sSiteGuid, playTime, m_oMediaPlayRequestData.m_sUDID, fileDuration, 
+                        MediaPlayResponse.HIT.ToString(), (int)eAssetTypes.NPVR, 0, ApiObjects.ePlayType.NPVR, false, false, recordingId);
                 }
 
-                oMediaHitResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.HIT);
+                response.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.HIT);
             }
-            return oMediaHitResponse;
+
+            return response;
         }
 
         private MediaHitResponse ProcessMediaHitRequest(MediaHitRequest mediaHitRequest)

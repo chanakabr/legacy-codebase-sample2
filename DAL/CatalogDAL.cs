@@ -137,7 +137,7 @@ namespace Tvinci.Core.DAL
             int nSiteGuid = 0;
             int.TryParse(sSiteGuid, out nSiteGuid);
             List<UserMediaMark> mediaMarksList = GetMediaMarksLastDateByUsers(new List<int> { nSiteGuid });
-            List<int> nMediaIDs = mediaMarksList.Where(x => x.CreatedAt >= DateTime.UtcNow.AddDays(-8)).Select(x => x.MediaID).ToList();
+            List<int> nMediaIDs = mediaMarksList.Where(x => x.CreatedAt >= DateTime.UtcNow.AddDays(-8)).Select(x => x.AssetID).ToList();
             bool bContunueWithCB = (nMediaIDs != null && nMediaIDs.Count > 0) ? true : false;
 
             if (bContunueWithCB)
@@ -232,7 +232,7 @@ namespace Tvinci.Core.DAL
             int.TryParse(sSiteGuid, out nSiteGuid);
 
             List<UserMediaMark> mediaMarksList = GetMediaMarksLastDateByUsers(new List<int> { nSiteGuid });
-            List<int> nMediaIDs = mediaMarksList.OrderByDescending(x => x.CreatedAt).Select(x => x.MediaID).ToList();
+            List<int> nMediaIDs = mediaMarksList.OrderByDescending(x => x.CreatedAt).Select(x => x.AssetID).ToList();
 
             if (nMediaIDs != null && nMediaIDs.Count > 0)
             {
@@ -303,7 +303,7 @@ namespace Tvinci.Core.DAL
             bool bContunueWithCB = (sortedMediaMarksList != null && sortedMediaMarksList.Count > 0) ? true : false;
             if (bContunueWithCB)
             {
-                Dictionary<int, int> dictMediaWatchersCount = sortedMediaMarksList.Where(x => x.UserID != nSiteGuid).GroupBy(g => g.MediaID).ToDictionary(k => k.Key, k => k.Count());
+                Dictionary<int, int> dictMediaWatchersCount = sortedMediaMarksList.Where(x => x.UserID != nSiteGuid).GroupBy(g => g.AssetID).ToDictionary(k => k.Key, k => k.Count());
                 List<int> otherMediasList = dictMediaWatchersCount.OrderByDescending(x => x.Value).Take(nNumOfMedias).ToDictionary(x => x.Key, x => x.Value).Keys.ToList();
 
                 ODBCWrapper.StoredProcedure spPWWAWProtocol = new ODBCWrapper.StoredProcedure("Get_PWWAWProtocol_C");
@@ -560,7 +560,7 @@ namespace Tvinci.Core.DAL
             {
                 Location = nLoactionSec,
                 UDID = sUDID,
-                MediaID = nMediaID,
+                AssetID = nMediaID,
                 UserID = nSiteUserGuid,
                 CreatedAt = currentDate,
                 CreatedAtEpoch = Utils.DateTimeToUnixTimestamp(currentDate),
@@ -632,13 +632,19 @@ namespace Tvinci.Core.DAL
             else
             {
                 domainMediaMark = JsonConvert.DeserializeObject<DomainMediaMark>(data);
-                UserMediaMark existdev = domainMediaMark.devices.Where(x => x.UDID == udid).FirstOrDefault();
 
+                // Get the current device's media mark, if it exists
+                UserMediaMark existdev = domainMediaMark.devices.Where(x => x.UDID == udid).FirstOrDefault();
+                
+                // If it exists, replace it
                 if (existdev != null)
+                {
                     domainMediaMark.devices.Remove(existdev);
+                }
 
                 domainMediaMark.devices.Add(userMediaMark);
             }
+
             bool res = couchbase.SetWithVersion(documentKey, JsonConvert.SerializeObject(domainMediaMark, Formatting.None), version);
             return res;
         }
@@ -1229,7 +1235,7 @@ namespace Tvinci.Core.DAL
             {
                 List<int> mediaUsersList = sortedMediaMarksList.Select(x => x.UserID).ToList();
                 List<int> operatorUsersList = DomainDal.GetOperatorUsers(nOperatorID, mediaUsersList);
-                Dictionary<int, int> dictMediaWatchersCount = sortedMediaMarksList.Where(x => x.UserID != nSiteGuid && operatorUsersList.Contains(x.UserID)).GroupBy(g => g.MediaID).ToDictionary(k => k.Key, k => k.Count());
+                Dictionary<int, int> dictMediaWatchersCount = sortedMediaMarksList.Where(x => x.UserID != nSiteGuid && operatorUsersList.Contains(x.UserID)).GroupBy(g => g.AssetID).ToDictionary(k => k.Key, k => k.Count());
                 List<int> otherMediasList = dictMediaWatchersCount.OrderByDescending(x => x.Value).Take(nNumOfMedias).ToDictionary(x => x.Key, x => x.Value).Keys.ToList();
 
                 if (otherMediasList != null && otherMediasList.Count > 0)
@@ -1471,13 +1477,13 @@ namespace Tvinci.Core.DAL
 
             if (sortedMediaMarksList != null && sortedMediaMarksList.Count > 0)
             {
-                List<int> mediasList = sortedMediaMarksList.Select(x => x.MediaID).ToList();
+                List<int> mediasList = sortedMediaMarksList.Select(x => x.AssetID).ToList();
                 List<int> mediaIds = null;
 
                 if (mediasList.Count > 1)
                 {
                     List<int> operatorUsersList = DomainDal.GetOperatorUsers(nOperatorID, sortedMediaMarksList.Select(x => x.UserID).ToList());
-                    mediaIds = sortedMediaMarksList.Where(x => operatorUsersList.Contains(x.UserID)).Select(x => x.MediaID).ToList();
+                    mediaIds = sortedMediaMarksList.Where(x => operatorUsersList.Contains(x.UserID)).Select(x => x.AssetID).ToList();
                 }
                 else
                 {
@@ -1641,7 +1647,7 @@ namespace Tvinci.Core.DAL
 
                     UserMediaMark objUserMediaMark = new UserMediaMark
                     {
-                        MediaID = nMediaID,
+                        AssetID = nMediaID,
                         UserID = nUserID,
                         CreatedAt = lastDate
                     };
@@ -1711,7 +1717,7 @@ namespace Tvinci.Core.DAL
                                 DateTime.TryParse(arUserDates[1].ToString(), out lastDate);
                                 UserMediaMark objUserMediaMark = new UserMediaMark
                                 {
-                                    MediaID = nMediaID,
+                                    AssetID = nMediaID,
                                     UserID = nUserID,
                                     CreatedAt = lastDate
                                 };
@@ -2129,7 +2135,7 @@ namespace Tvinci.Core.DAL
                                 {
                                     UserID = siteGuid,
                                     UDID = udid,
-                                    MediaID = mediaID,
+                                    AssetID = mediaID,
                                     CreatedAt = createdAt,
                                     Location = locationSec
                                 };
@@ -2283,7 +2289,7 @@ namespace Tvinci.Core.DAL
         }
 
         public static void UpdateOrInsert_UsersNpvrMark(int nDomainID, int nSiteUserGuid, string sUDID, string sAssetID, int nGroupID, int nLoactionSec,
-            int fileDuration, string action, bool isFirstPlay = false, int finishedPercent = 95)
+            int fileDuration, string action, long recordingId, bool isFirstPlay = false, int finishedPercent = 95)
         {
             var mediaMarkManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             var mediaHitManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIA_HITS);
@@ -2300,12 +2306,12 @@ namespace Tvinci.Core.DAL
             {
                 Location = nLoactionSec,
                 UDID = sUDID,
-                MediaID = 0,
+                AssetID = int.Parse(sAssetID),
                 UserID = nSiteUserGuid,
                 CreatedAt = currentDate,
                 CreatedAtEpoch = Utils.DateTimeToUnixTimestamp(currentDate),
                 playType = ApiObjects.ePlayType.NPVR.ToString(),
-                NpvrID = sAssetID,
+                NpvrID = recordingId.ToString(),
                 AssetAction = action,
                 FileDuration = fileDuration,
                 AssetTypeId = (int)eAssetTypes.NPVR
@@ -2329,7 +2335,7 @@ namespace Tvinci.Core.DAL
             {
                 Location = nLoactionSec,
                 UDID = sUDID,
-                MediaID = 0,
+                AssetID = 0,
                 UserID = nSiteUserGuid,
                 CreatedAt = currentDate,
                 CreatedAtEpoch = Utils.DateTimeToUnixTimestamp(currentDate),
@@ -2343,19 +2349,20 @@ namespace Tvinci.Core.DAL
             limitRetries = RETRY_LIMIT;
 
             bool success = false;
+            bool finishedWatchingChanged = false;
 
-            if (isFirstPlay)
+            success = false;
+            while (limitRetries >= 0 && !success)
+            {
+                finishedWatchingChanged = UpdateOrInsert_UsersMediaMarkOrHit(mediaHitManager, sUDID, ref limitRetries, r, mmKey, ref success, userMediaMark);
+            }
+
+            if (isFirstPlay || finishedWatchingChanged)
             {
                 while (limitRetries >= 0 && !success)
                 {
                     UpdateOrInsert_UsersMediaMarkOrHit(mediaMarkManager, sUDID, ref limitRetries, r, mmKey, ref success, userMediaMark);
                 }
-            }
-
-            success = false;
-            while (limitRetries >= 0 && !success)
-            {
-                UpdateOrInsert_UsersMediaMarkOrHit(mediaHitManager, sUDID, ref limitRetries, r, mmKey, ref success, userMediaMark);
             }
         }
 
@@ -2376,7 +2383,7 @@ namespace Tvinci.Core.DAL
             {
                 Location = nLoactionSec,
                 UDID = sUDID,
-                MediaID = nAssetID,
+                AssetID = nAssetID,
                 UserID = nSiteUserGuid,
                 CreatedAt = currentDate,
                 CreatedAtEpoch = Utils.DateTimeToUnixTimestamp(currentDate),
@@ -2472,7 +2479,7 @@ namespace Tvinci.Core.DAL
 
             // get all last position order by desc              
             var dmm = JsonConvert.DeserializeObject<DomainMediaMark>(data);
-            dmm.devices = dmm.devices.Where(x => x.MediaID == mediaID).ToList();
+            dmm.devices = dmm.devices.Where(x => x.AssetID == mediaID).ToList();
             return dmm;
         }
 
