@@ -1182,12 +1182,12 @@ namespace Users
                 int tempOperatorID = 0;
                 DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
                 int domainID = 0;
-                try 
-	            {
+                try
+                {
                     // try getting user from cache
                     User user = null;
                     UsersCache usersCache = UsersCache.Instance();
-                    user = usersCache.GetUser(Convert.ToInt32(lSiteGuid), m_nGroupID);                    
+                    user = usersCache.GetUser(Convert.ToInt32(lSiteGuid), m_nGroupID);
                     if (user != null)
                     {
                         domainID = user.m_domianID;
@@ -1199,7 +1199,7 @@ namespace Users
                     log.Error("Failed getting user from cache", ex);
                 }
 
-                if(domainID==0)
+                if (domainID == 0)
                 {
                     domainID = DomainDal.GetDomainIDBySiteGuid(m_nGroupID, (int)lSiteGuid, ref tempOperatorID, ref tempIsMaster, ref eSuspendStat);
                 }
