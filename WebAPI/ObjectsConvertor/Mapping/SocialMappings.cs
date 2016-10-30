@@ -114,23 +114,23 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ActionTime, opt => opt.MapFrom(src => src.LastUpdate))
                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.ActivityObject.AssetID))
                 .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertToKalturaAssetType(src.ActivityObject.AssetType)))
-                .ForMember(dest => dest.SocialAction, opt => opt.MapFrom(src => src.ActivityVerb))
+                .ForMember(dest => dest.SocialAction, opt => opt.MapFrom(src => src))
                 .ForMember(dest => dest.UserFullName, opt => opt.MapFrom(src => src.ActivitySubject.ActorTvinciUsername))
                 .ForMember(dest => dest.UserPictureUrl, opt => opt.MapFrom(src => src.ActivitySubject.ActorPicUrl));
 
             // ActivityVerb to KalturaSocialAction
-            Mapper.CreateMap<Social.SocialActivityVerb, KalturaSocialAction>().ConstructUsing(ConvertToKalturaSocialAction);
+            Mapper.CreateMap<Social.SocialActivityDoc, KalturaSocialAction>().ConstructUsing(ConvertToKalturaSocialAction);
         }
 
         private static KalturaSocialAction ConvertToKalturaSocialAction(ResolutionContext context)
         {
             KalturaSocialAction result;
-            var action = (Social.SocialActivityVerb)context.SourceValue;
-            var actionType = ConvertToKalturaSocialActionType(action.ActionType);
+            var action = (Social.SocialActivityDoc)context.SourceValue;
+            var actionType = ConvertToKalturaSocialActionType(action.ActivityVerb.ActionType);
 
             if (actionType == KalturaSocialActionType.RATE)
             {
-                result = new KalturaSocialActionRate(action.RateValue);
+                result = new KalturaSocialActionRate(action.ActivityVerb.RateValue);
             }
             else
             {
@@ -139,6 +139,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     ActionType = actionType
                 };
             }
+
+            result.ActionTime = action.LastUpdate;
 
             return result;
         }
