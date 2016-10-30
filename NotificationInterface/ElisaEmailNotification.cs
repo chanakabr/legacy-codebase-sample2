@@ -8,6 +8,8 @@ using KLogMonitor;
 using NotificationObj;
 using ApiObjects;
 using WS_API;
+using WS_Users;
+using Users;
 
 namespace NotificationInterface
 {
@@ -45,16 +47,13 @@ namespace NotificationInterface
             {
                 #region Get all user Details by userID frm WS_USERS
 
-                WS_Users.UsersService usersService = new WS_Users.UsersService();
-                string sWSURL = Utils.GetWSURL("users_ws");
-                if (sWSURL != "")
-                    usersService.Url = sWSURL;
+                UsersService usersService = new UsersService();
                 string sIP = "1.1.1.1";
                 string sWSUserName = "";
                 string sWSPass = "";
                 int nGroupID = ODBCWrapper.Utils.GetIntSafeVal(message.nGroupID); //TVinciShared.LoginManager.GetLoginGroupID();                
                 TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "00000", "users", sIP, ref sWSUserName, ref sWSPass);
-                WS_Users.UserResponseObject userObj = usersService.GetUserData(sWSUserName, sWSPass, ODBCWrapper.Utils.GetSafeStr(message.UserID));
+                UserResponseObject userObj = usersService.GetUserData(sWSUserName, sWSPass, ODBCWrapper.Utils.GetSafeStr(message.UserID), sIP);
 
                 #endregion
 

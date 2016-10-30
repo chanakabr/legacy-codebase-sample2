@@ -4,8 +4,8 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using GroupsCacheManager;
-using Catalog.ws_users;
 using ApiObjects.Response;
+using Users;
 
 namespace Catalog.Response
 {

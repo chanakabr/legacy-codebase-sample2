@@ -23,6 +23,7 @@ using ComponentSpace.SAML2.Protocols;
 using ComponentSpace.SAML2.Metadata;
 using KLogMonitor;
 using System.Reflection;
+using ApiObjects;
 
 
 namespace Users

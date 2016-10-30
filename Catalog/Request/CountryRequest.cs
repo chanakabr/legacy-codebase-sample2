@@ -6,13 +6,13 @@ using System.Runtime.Serialization;
 using System.Text;
 using GroupsCacheManager;
 using Catalog.Response;
-using Catalog.ws_users;
 using Tvinci.Core.DAL;
 using System.Data;
 using DAL;
 using ApiObjects.Response;
 using KLogMonitor;
 using System.Reflection;
+using Users;
 
 namespace Catalog.Request
 {

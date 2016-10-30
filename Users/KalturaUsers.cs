@@ -8,7 +8,6 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using WS_API;
 
 namespace Users
 {
@@ -357,22 +356,8 @@ namespace Users
 
         internal override bool MidCreateDefaultRules(ref UserResponseObject userResponse, string siteGuid, int groupId, ref User userBo)
         {
-            using (API client = new API())
-            {
-                string wsUserName = "";
-                string wSPass = "";
-
-                Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.USERS, groupId, ApiObjects.eWSModules.API);
-
-                if (oCredentials != null)
-                {
-                    wsUserName = oCredentials.m_sUsername;
-                    wSPass = oCredentials.m_sPassword;
-                }
-                log.Debug("Default Rules - " + wsUserName + " " + wSPass);
-
-                return client.SetDefaultRules(wsUserName, wSPass, siteGuid);
-            }
+            // return client.SetDefaultRules(wsUserName, wSPass, siteGuid);
+            return true;
         }
 
         public override void PostDefaultRules(ref UserResponseObject userResponse, bool passed, string siteGuid, int groupId, ref User userBo, ref List<KeyValuePair> keyValueList) { }

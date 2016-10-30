@@ -16,6 +16,8 @@ using WS_Pricing;
 using WS_API;
 using Billing;
 using WS_Billing;
+using Users;
+using WS_Users;
 
 namespace ConditionalAccess
 {
@@ -92,7 +94,7 @@ namespace ConditionalAccess
             string sWSUserName = string.Empty;
             string sWSPass = string.Empty;
             string sWSURL = string.Empty;
-            TvinciUsers.UsersService u = null;
+            UsersService u = null;
             WS_Billing.module bm = null;
             mdoule m = null;
 
@@ -125,16 +127,11 @@ namespace ConditionalAccess
 
 
                 // Check user validity
-                u = new ConditionalAccess.TvinciUsers.UsersService();
+                u = new UsersService();
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
-                sWSURL = Utils.GetWSURL("users_ws");
-                if (!string.IsNullOrEmpty(sWSURL))
-                {
-                    u.Url = sWSURL;
-                }
 
-                ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
-                if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+                UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
+                if (uObj.m_RespStatus != ResponseStatus.OK)
                 {
                     ret.m_oStatus = BillingResponseStatus.UnKnownUser;
                     ret.m_sRecieptCode = string.Empty;
@@ -142,7 +139,7 @@ namespace ConditionalAccess
 
                     return ret;
                 }
-                else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
                 {
                     ret.m_oStatus = BillingResponseStatus.UserSuspended;
                     ret.m_sRecieptCode = string.Empty;
@@ -638,7 +635,7 @@ namespace ConditionalAccess
             string sExtraParams, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bDummy, string sPaymentMethodID, string sEncryptedCVV, eBundleType bundleType)
         {
             BillingResponse ret = new BillingResponse();
-            TvinciUsers.UsersService u = null;
+            UsersService u = null;
 
             try
             {
@@ -665,18 +662,13 @@ namespace ConditionalAccess
                     return ret;
                 }
 
-                u = new ConditionalAccess.TvinciUsers.UsersService();
+                u = new UsersService();
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
-                string sWSURL = Utils.GetWSURL("users_ws");
-                if (!string.IsNullOrEmpty(sWSURL))
-                {
-                    u.Url = sWSURL;
-                }
 
-                ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
-                if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
+                UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
+                if (uObj.m_RespStatus != ResponseStatus.OK)
                 {
                     ret.m_oStatus = BillingResponseStatus.UnKnownUser;
                     ret.m_sRecieptCode = string.Empty;
@@ -685,7 +677,7 @@ namespace ConditionalAccess
                     return ret;
                 }
 
-                else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == TvinciUsers.DomainSuspentionStatus.Suspended)
+                else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
                 {
                     ret.m_oStatus = BillingResponseStatus.UserSuspended;
                     ret.m_sRecieptCode = string.Empty;

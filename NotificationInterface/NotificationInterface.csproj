@@ -111,11 +111,6 @@
     <Compile Include="TagIDValue.cs" />
     <Compile Include="UserSettings.cs" />
     <Compile Include="Utils.cs" />
-    <Compile Include="Web References\WS_Users\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
@@ -132,71 +127,18 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </None>
-    <None Include="Web References\WS_Users\Country.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\WS_Users\FavoritObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\WS_Users\KeyValuePair.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\WS_Users\module.wsdl" />
-    <None Include="Web References\WS_Users\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <None Include="Web References\WS_Users\ResponseStatus.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\WS_Users\State.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\WS_Users\User.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\WS_Users\UserGroupRuleResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\WS_Users\UserItemList.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\WS_Users\UserOfflineObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\WS_Users\UserResponseObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\WS_Users\UserState.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\WS_Users\UserType.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadataStorage Include="Service References\MessageBox_WCF\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://localhost/ws_users/module.asmx">
-      <UrlBehavior>Dynamic</UrlBehavior>
-      <RelPath>Web References\WS_Users\</RelPath>
-      <UpdateFromURL>http://localhost/ws_users/module.asmx</UpdateFromURL>
-      <ServiceLocationURL>
-      </ServiceLocationURL>
-      <CachedDynamicPropName>
-      </CachedDynamicPropName>
-      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
-      <CachedSettingsPropName>NotificationInterface_WS_Users_UsersService</CachedSettingsPropName>
-    </WebReferenceUrl>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Web References\WS_Users\module.disco" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\ws_api\WS_API.csproj">
       <Project>{bef1df84-21c1-47da-bb2d-bb607ee1978e}</Project>
       <Name>WS_API</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ws_users\WS_Users.csproj">
+      <Project>{7a491492-fd8e-47da-ad3e-7fdc5fdf5e03}</Project>
+      <Name>WS_Users</Name>
     </ProjectReference>
     <ProjectReference Include="..\ApiObjects\ApiObjects.csproj">
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
@@ -217,6 +159,10 @@
     <ProjectReference Include="..\TVinciShared\TVinciShared.csproj">
       <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
       <Name>TVinciShared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Users\Users.csproj">
+      <Project>{b21b1d6b-46af-40ca-9585-5506b1596aff}</Project>
+      <Name>Users</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
