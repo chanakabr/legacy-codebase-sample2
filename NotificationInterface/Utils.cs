@@ -99,17 +99,3 @@ namespace NotificationInterface
         }
     }
 }
-
-namespace NotificationInterface.WS_Users
-{
-    // adding request ID to header
-    public partial class UsersService
-    {
-        protected override WebRequest GetWebRequest(Uri uri)
-        {
-            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
-            return request;
-        }
-    }
-}

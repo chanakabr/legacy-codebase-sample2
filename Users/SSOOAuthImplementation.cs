@@ -7,6 +7,7 @@ using System.Web.Script.Serialization;
 using System.IO;
 using System.Data;
 using TVinciShared;
+using ApiObjects;
 
 namespace Users
 {

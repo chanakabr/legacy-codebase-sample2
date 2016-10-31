@@ -82,7 +82,7 @@ namespace Catalog.Request
                         }
 
                         SeriesResponse seriesResponse = cas.GetFollowSeries(wsUserName, wsPassword, m_sSiteGuid, domainId, new SeriesRecordingOrderObj());
-                        if (seriesResponse != null && seriesResponse.Status != null && seriesResponse.Status.Code == (int)eResponseStatus.OK)
+                        if (seriesResponse != null && seriesResponse.Status != null && (seriesResponse.Status.Code == (int)eResponseStatus.OK || seriesResponse.Status.Code == (int)eResponseStatus.SeriesRecordingNotFound))
                         {
                             if (channelIds != null && channelIds.Count > 0)
                             {
@@ -135,7 +135,15 @@ namespace Catalog.Request
                         }
                     }
 
-                    response = SearchScheduledRecordings(m_nGroupID, epgIdsToOrderAndPage, excludedCrids, series, startDate, endDate);
+                    // if we need to get series episodes or if we have specific single episodes that need to be ordered and paged
+                    if ((series != null && series.Length > 0) || epgIdsToOrderAndPage.Count > 0)
+                    {
+                        response = SearchScheduledRecordings(m_nGroupID, epgIdsToOrderAndPage, excludedCrids, series, startDate, endDate);
+                    }
+                    else
+                    {
+                        response.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
                 }
                 else
                 {

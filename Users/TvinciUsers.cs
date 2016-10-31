@@ -10,7 +10,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using WS_API;
 
 namespace Users
 {
@@ -659,22 +658,8 @@ namespace Users
 
         public bool CreateDefaultRules(string sSiteGuid, int nGroupID)
         {
-            using (API client = new API())
-            {
-                string sWSUserName = "";
-                string sWSPass = "";
-
-                Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.USERS, nGroupID, ApiObjects.eWSModules.API);
-
-                if (oCredentials != null)
-                {
-                    sWSUserName = oCredentials.m_sUsername;
-                    sWSPass = oCredentials.m_sPassword;
-                }
-                log.Debug("Default Rules - " + sWSUserName + " " + sWSPass);
-
-                return client.SetDefaultRules(sWSUserName, sWSPass, sSiteGuid);
-            }
+            // return client.SetDefaultRules(sWSUserName, sWSPass, sSiteGuid);
+            return true;
         }
 
         public override bool ResendActivationMail(string username)
@@ -1368,7 +1353,7 @@ namespace Users
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
                     if (nCount > 0)
                     {
-                        List<GroupRule> groupRulesList = GetUserGroupsRules(sSiteGuid);
+                        List<GroupRule> groupRulesList = GetUserGroupsRules(m_nGroupID, sSiteGuid);
                         GroupRule groupRule = groupRulesList.Find(
                                                         delegate(GroupRule rule)
                                                         {
@@ -1574,22 +1559,123 @@ namespace Users
             return false;
         }
 
-        protected List<GroupRule> GetUserGroupsRules(string sSiteGuid)
+        protected List<GroupRule> GetUserGroupsRules(Int32 nGroupID, string sSiteGuid)
         {
-            API client = new API();
-            string sWSUserName = string.Empty;
-            string sWSPass = string.Empty;
-
-            Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(eWSModules.USERS, m_nGroupID, eWSModules.API);
-            if (oCredentials != null)
-            {
-                sWSUserName = oCredentials.m_sUsername;
-                sWSPass = oCredentials.m_sPassword;
-            }
-
-            List<GroupRule> groupRules = client.GetUserGroupRules(sWSUserName, sWSPass, sSiteGuid);
+            List<GroupRule> groupRules = GetUserDomainGroupRules(nGroupID, sSiteGuid, 0);
             return groupRules;
         }
+
+        private static List<GroupRule> ConvertParentalToGroupRule(List<ParentalRule> parentalRules)
+        {
+            List<GroupRule> groupRules = new List<GroupRule>();
+
+            foreach (var parentalRule in parentalRules)
+            {
+                if (parentalRule.mediaTagTypeId > 0)
+                {
+                    // Convert parental rule into group rule
+                    GroupRule groupRule = new GroupRule()
+                    {
+                        RuleID = (int)parentalRule.id,
+                        IsActive = true,
+                        Name = parentalRule.name,
+                        TagTypeID = parentalRule.mediaTagTypeId,
+                        OrderNum = parentalRule.order,
+                        GroupRuleType = eGroupRuleType.Parental,
+                        AllTagValues = parentalRule.mediaTagValues,
+                        BlockAnonymous = parentalRule.blockAnonymousAccess,
+                        BlockType = eBlockType.Validation
+                    };
+
+                    groupRules.Add(groupRule);
+                }
+
+                if (parentalRule.epgTagTypeId > 0)
+                {
+                    // Convert parental rule into group rule
+                    GroupRule groupRule = new GroupRule()
+                    {
+                        RuleID = (int)parentalRule.id,
+                        IsActive = true,
+                        Name = parentalRule.name,
+                        TagTypeID = parentalRule.epgTagTypeId,
+                        OrderNum = parentalRule.order,
+                        GroupRuleType = eGroupRuleType.EPG,
+                        AllTagValues = parentalRule.epgTagValues,
+                        BlockAnonymous = parentalRule.blockAnonymousAccess,
+                        BlockType = eBlockType.Validation
+                    };
+
+                    groupRules.Add(groupRule);
+                }
+            }
+
+            return groupRules;
+        }
+
+        private static GroupRule CreateSettingsGroupRule(ePurchaeSettingsType type)
+        {
+            GroupRule settingsRule = new GroupRule()
+            {
+                RuleID = (int)0,
+                IsActive = true,
+                Name = "Purchase",
+                OrderNum = 0,
+                GroupRuleType = eGroupRuleType.Purchase,
+                BlockType = eBlockType.Validation
+            };
+
+            return settingsRule;
+        }
+
+        public static List<GroupRule> GetUserDomainGroupRules(int groupId, string siteGuid, int domainId)
+        {
+            List<GroupRule> groupRules = new List<GroupRule>();
+
+            if (!string.IsNullOrEmpty(siteGuid))
+            {
+                // Get parental rule from new DAL method
+                var parentalRules = DAL.ApiDAL.Get_User_ParentalRules(groupId, siteGuid);
+
+                groupRules.AddRange(ConvertParentalToGroupRule(parentalRules));
+
+                eRuleLevel ruleLevel = eRuleLevel.User;
+                ePurchaeSettingsType type = ePurchaeSettingsType.Block;
+
+                bool hasPurchaseSetting = DAL.ApiDAL.Get_PurchaseSettings(groupId, domainId, siteGuid, out ruleLevel, out type);
+
+                // Create purchase rule if setting is ask or block (block = known backward compatibility issue)
+                if (hasPurchaseSetting && (type == ePurchaeSettingsType.Ask || type == ePurchaeSettingsType.Block))
+                {
+                    GroupRule settingsRule = CreateSettingsGroupRule(type);
+
+                    groupRules.Add(settingsRule);
+                }
+            }
+            else
+            {
+                // Get parental rule from new DAL method
+                var parentalRules = DAL.ApiDAL.Get_Domain_ParentalRules(groupId, domainId);
+
+                groupRules.AddRange(ConvertParentalToGroupRule(parentalRules));
+
+                eRuleLevel ruleLevel = eRuleLevel.User;
+                ePurchaeSettingsType type = ePurchaeSettingsType.Block;
+
+                bool hasPurchaseSetting = DAL.ApiDAL.Get_PurchaseSettings(groupId, domainId, "0", out ruleLevel, out type);
+
+                // Create purchase rule if setting is ask or block (block = known backward compatibility issue)
+                if (hasPurchaseSetting && (type == ePurchaeSettingsType.Ask || type == ePurchaeSettingsType.Block))
+                {
+                    GroupRule settingsRule = CreateSettingsGroupRule(type);
+
+                    groupRules.Add(settingsRule);
+                }
+            }
+
+            return groupRules;
+        }
+
 
         public override bool WriteToLog(string sSiteGUID, string sMessage, string sWriter)
         {

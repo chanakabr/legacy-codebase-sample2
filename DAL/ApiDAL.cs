@@ -1008,7 +1008,7 @@ namespace DAL
 
                 if (sortedMediaMarksList != null && sortedMediaMarksList.Count > 0)
                 {
-                    List<int> mediaIdsList = sortedMediaMarksList.Select(x => x.LastMark.MediaID).ToList();
+                    List<int> mediaIdsList = sortedMediaMarksList.Select(x => x.LastMark.AssetID).ToList();
                     DataTable dtMediasMaxDurations = ApiDAL.Get_MediasMaxDuration(mediaIdsList);
 
                     if (dtMediasMaxDurations != null && dtMediasMaxDurations.Rows.Count > 0)
@@ -1025,9 +1025,9 @@ namespace DAL
 
                         foreach (MediaMarkLog mediaMarkLogObject in sortedMediaMarksList)
                         {
-                            if (dictMediasMaxDuration.ContainsKey(mediaMarkLogObject.LastMark.MediaID))
+                            if (dictMediasMaxDuration.ContainsKey(mediaMarkLogObject.LastMark.AssetID))
                             {
-                                double dMaxDuration = Math.Round((0.95 * dictMediasMaxDuration[mediaMarkLogObject.LastMark.MediaID]));
+                                double dMaxDuration = Math.Round((0.95 * dictMediasMaxDuration[mediaMarkLogObject.LastMark.AssetID]));
 
                                 // If it started (not 0) and it is before 95%
                                 if (mediaMarkLogObject.LastMark.Location > 1 && mediaMarkLogObject.LastMark.Location <= dMaxDuration)
@@ -1037,7 +1037,7 @@ namespace DAL
                                         break;
                                     }
 
-                                    resultList.Add(mediaMarkLogObject.LastMark.MediaID);
+                                    resultList.Add(mediaMarkLogObject.LastMark.AssetID);
                                     i++;
                                 }
                             }
@@ -1077,7 +1077,7 @@ namespace DAL
 
                     if (sortedMediaMarksList != null && sortedMediaMarksList.Count > 0)
                     {
-                        lMediaIDs = sortedMediaMarksList.Select(x => x.LastMark.MediaID).ToList();
+                        lMediaIDs = sortedMediaMarksList.Select(x => x.LastMark.AssetID).ToList();
                     }
                 }
 
@@ -3873,25 +3873,16 @@ namespace DAL
             return epgIds;
         }
 
-        public static int GetLinearMediaIdByEpgChannelId(int groupId, string epgChannelId)
+        public static DataTable GetLinearMediaInfoByEpgChannelIdAndFileType(int groupId, string epgChannelId, string fileType)
         {
-            int mediaId = 0;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetLinearMediaInfoByEpgChannelIdAndFileType");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@epgChannelId", epgChannelId);
+            sp.AddParameter("@fileType", fileType);
+            DataTable dt = sp.Execute();
 
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetLinearMediaIdByEpgChannelId");
-                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-                sp.AddParameter("@groupId", groupId);
-                sp.AddParameter("@epgChannelId", epgChannelId);
-
-                mediaId = sp.ExecuteReturnValue<int>();
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
-
-            return mediaId;
+            return dt;
         }
 
         public static DataTable GetDeviceFamilies()

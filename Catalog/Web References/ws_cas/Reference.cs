@@ -6601,7 +6601,7 @@ namespace Catalog.ws_cas {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class ServiceObject {
         
         private long idField;
@@ -7207,7 +7207,7 @@ namespace Catalog.ws_cas {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class Price {
         
         private double m_dPriceField;
@@ -7240,7 +7240,7 @@ namespace Catalog.ws_cas {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class Currency {
         
         private string m_sCurrencyCD3Field;
@@ -7635,7 +7635,7 @@ namespace Catalog.ws_cas {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum BillingResponseStatus {
         
         /// <remarks/>
@@ -8212,7 +8212,7 @@ namespace Catalog.ws_cas {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class Subscription : PPVModule {
         
         private BundleCodeContainer[] m_sCodesField;
@@ -8486,7 +8486,7 @@ namespace Catalog.ws_cas {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class BundleCodeContainer {
         
         private string m_sCodeField;
@@ -8520,7 +8520,7 @@ namespace Catalog.ws_cas {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class PriceCode {
         
         private string m_sCodeField;
@@ -8577,7 +8577,7 @@ namespace Catalog.ws_cas {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class LanguageContainer {
         
         private string m_sLanguageCode3Field;
@@ -8610,7 +8610,7 @@ namespace Catalog.ws_cas {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class DiscountModule : PriceCode {
         
         private double m_dPercentField;
@@ -8622,6 +8622,8 @@ namespace Catalog.ws_cas {
         private System.DateTime m_dEndDateField;
         
         private WhenAlgo m_oWhenAlgoField;
+        
+        private string aliasField;
         
         /// <remarks/>
         public double m_dPercent {
@@ -8672,12 +8674,22 @@ namespace Catalog.ws_cas {
                 this.m_oWhenAlgoField = value;
             }
         }
+        
+        /// <remarks/>
+        public string alias {
+            get {
+                return this.aliasField;
+            }
+            set {
+                this.aliasField = value;
+            }
+        }
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum RelationTypes {
         
         /// <remarks/>
@@ -8692,7 +8704,7 @@ namespace Catalog.ws_cas {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class WhenAlgo {
         
         private WhenAlgoType m_eAlgoTypeField;
@@ -8723,7 +8735,7 @@ namespace Catalog.ws_cas {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum WhenAlgoType {
         
         /// <remarks/>
@@ -8738,7 +8750,7 @@ namespace Catalog.ws_cas {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class UsageModule {
         
         private int m_nObjectIDField;
@@ -8951,7 +8963,7 @@ namespace Catalog.ws_cas {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class UserType {
         
         private System.Nullable<int> idField;
@@ -8997,7 +9009,7 @@ namespace Catalog.ws_cas {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class PreviewModule {
         
         private long m_nIDField;
@@ -9007,6 +9019,8 @@ namespace Catalog.ws_cas {
         private int m_tsFullLifeCycleField;
         
         private int m_tsNonRenewPeriodField;
+        
+        private string aliasField;
         
         /// <remarks/>
         public long m_nID {
@@ -9047,6 +9061,16 @@ namespace Catalog.ws_cas {
                 this.m_tsNonRenewPeriodField = value;
             }
         }
+        
+        /// <remarks/>
+        public string alias {
+            get {
+                return this.aliasField;
+            }
+            set {
+                this.aliasField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -9056,7 +9080,7 @@ namespace Catalog.ws_cas {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class PPVModule {
         
         private PriceCode m_oPriceCodeField;
@@ -9080,6 +9104,8 @@ namespace Catalog.ws_cas {
         private string m_Product_CodeField;
         
         private bool m_bFirstDeviceLimitationField;
+        
+        private string aliasField;
         
         /// <remarks/>
         public PriceCode m_oPriceCode {
@@ -9190,6 +9216,16 @@ namespace Catalog.ws_cas {
                 this.m_bFirstDeviceLimitationField = value;
             }
         }
+        
+        /// <remarks/>
+        public string alias {
+            get {
+                return this.aliasField;
+            }
+            set {
+                this.aliasField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -9197,7 +9233,7 @@ namespace Catalog.ws_cas {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class CouponsGroup {
         
         private DiscountModule m_oDiscountCodeField;
@@ -9219,6 +9255,8 @@ namespace Catalog.ws_cas {
         private int m_nFinancialEntityIDField;
         
         private int m_nMaxRecurringUsesCountForCouponField;
+        
+        private string aliasField;
         
         /// <remarks/>
         public DiscountModule m_oDiscountCode {
@@ -9319,6 +9357,16 @@ namespace Catalog.ws_cas {
                 this.m_nMaxRecurringUsesCountForCouponField = value;
             }
         }
+        
+        /// <remarks/>
+        public string alias {
+            get {
+                return this.aliasField;
+            }
+            set {
+                this.aliasField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -9326,7 +9374,7 @@ namespace Catalog.ws_cas {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class Collection : PPVModule {
         
         private BundleCodeContainer[] m_sCodesField;
@@ -9467,7 +9515,7 @@ namespace Catalog.ws_cas {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class PrePaidModule {
         
         private PriceCode m_PriceCodeField;
@@ -9582,7 +9630,7 @@ namespace Catalog.ws_cas {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum CouponsStatus {
         
         /// <remarks/>

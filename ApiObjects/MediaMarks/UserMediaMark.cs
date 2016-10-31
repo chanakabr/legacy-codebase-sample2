@@ -13,7 +13,7 @@ namespace ApiObjects.MediaMarks
         [JsonProperty("udid")]
         public string UDID { get; set; }
         [JsonProperty("mid")]
-        public int MediaID { get; set; }
+        public int AssetID { get; set; }
         [JsonProperty("uid")]
         public int UserID { get; set; }
         [JsonProperty("loc")]
@@ -64,7 +64,7 @@ namespace ApiObjects.MediaMarks
 
             public int Compare(UserMediaMark x, UserMediaMark y)
             {
-                return x.MediaID.CompareTo(y.MediaID);
+                return x.AssetID.CompareTo(y.AssetID);
             }
         }
     }

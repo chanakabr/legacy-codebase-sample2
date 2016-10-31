@@ -35,7 +35,7 @@ namespace ODBCWrapper
         {
             double res = 0d;
             string timeStr = TCMClient.Settings.Instance.GetValue<string>("CACHE_TIME_IN_MINUTES");
-            if (timeStr.Length > 0 && Double.TryParse(timeStr, out res) && res > 0)
+            if (timeStr != null && timeStr.Length > 0 && Double.TryParse(timeStr, out res) && res > 0)
                 return res;
             return DEFAULT_TIME_IN_CACHE_MINUTES;
         }

@@ -2507,5 +2507,18 @@ namespace DAL
 
             return dt;
         }
+
+        public static DataTable GetChannelByMediaFileId(int groupId, int mediaFileId)
+        {
+            DataTable dt = null;
+            StoredProcedure spGetRenewSubscriptionsToRecover = new StoredProcedure("GetChannelByMediaFileId");
+            spGetRenewSubscriptionsToRecover.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spGetRenewSubscriptionsToRecover.AddParameter("@GroupId", groupId);
+            spGetRenewSubscriptionsToRecover.AddParameter("@MediaFileId", mediaFileId);
+            dt = spGetRenewSubscriptionsToRecover.Execute();
+
+            return dt;
+        }
+
     }
 }

@@ -22,15 +22,5 @@ namespace NotificationInterface.Properties {
                 return defaultInstance;
             }
         }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://webservices-us.tvinci.com/users_v1_7/module.asmx")]
-        public string NotificationInterface_WS_Users_UsersService {
-            get {
-                return ((string)(this["NotificationInterface_WS_Users_UsersService"]));
-            }
-        }
     }
 }

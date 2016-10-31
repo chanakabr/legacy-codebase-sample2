@@ -73,7 +73,16 @@ namespace Catalog.Request
                 // get results
                 int totalItems = 0;
 
-                List<WatchHistory> res = Catalog.GetUserWatchHistory(m_nGroupID, m_sSiteGuid, AssetTypes, AssetIds, new List<int>() { (int)eAssetTypes.NPVR, (int)eAssetTypes.EPG }, FilterStatus, NumOfDays,
+                List<int> excludedAssetTypes = new List<int>() { (int)eAssetTypes.EPG };
+
+                // If asset types contains NPVR explicitly, don't exlcude it.
+                if (!AssetTypes.Contains((int)eAssetTypes.NPVR))
+                {
+                    excludedAssetTypes.Add((int)eAssetTypes.NPVR);
+                }
+
+                List<WatchHistory> res = Catalog.GetUserWatchHistory(
+                    m_nGroupID, m_sSiteGuid, AssetTypes, AssetIds, excludedAssetTypes, FilterStatus, NumOfDays,
                     OrderDir, m_nPageIndex, m_nPageSize, finishedPercentThreshold, out totalItems);
 
                 // convert to client response

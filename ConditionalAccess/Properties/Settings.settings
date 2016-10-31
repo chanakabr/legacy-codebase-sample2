@@ -2,14 +2,8 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="ConditionalAccess.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="ConditionalAccess_TvinciUsers_UsersService" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://54.72.1.39:8030/users_v3_7/module.asmx</Value>
-    </Setting>
     <Setting Name="ConditionalAccess_tikle_Service" Type="(Web Service URL)" Scope="Application">
       <Value Profile="(Default)">https://www.sinema.com/wswebtv/Service.asmx</Value>
-    </Setting>
-    <Setting Name="ConditionalAccess_TvinciDomains_module" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://54.72.1.39:8030/domains_v3_7/module.asmx</Value>
     </Setting>
     <Setting Name="ConditionalAccess_NotificationService_NotificationService" Type="(Web Service URL)" Scope="Application">
       <Value Profile="(Default)">http://54.72.1.39:8030/notification_v3_7/NotificationService.svc</Value>
