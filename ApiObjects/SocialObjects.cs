@@ -422,4 +422,13 @@ namespace ApiObjects
         [JsonProperty("prop_value", NullValueHandling = NullValueHandling.Ignore)]
         public string PropertyValue { get; set; }
     }
+
+    public class SocialActivityResponse
+    {
+        public Status Status { get; set; }
+
+        public List<SocialActivityDoc> SocialActivity { get; set; }
+
+        public int TotalCount { get; set; }
+    }
 }
