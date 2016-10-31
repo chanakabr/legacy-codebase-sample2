@@ -131,7 +131,7 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.m_sLastName, opt => opt.MapFrom(src => src.LastName))
                 .ForMember(dest => dest.m_sPhone, opt => opt.MapFrom(src => src.Phone))
                 .ForMember(dest => dest.m_sUserName, opt => opt.MapFrom(src => src.Username))
-                .ForMember(dest => dest.m_UserType, opt => opt.MapFrom(src => src.UserType))
+                .ForMember(dest => dest.m_UserType, opt => opt.ResolveUsing(src => src.UserType == null ? null : src.UserType))
                 .ForMember(dest => dest.m_sZip, opt => opt.MapFrom(src => src.Zip));
 
             // Country
