@@ -226,6 +226,11 @@ namespace GroupsCacheManager
                                         group = tempGroup;
                                     }
                                 }
+
+                                if (!bInsert)
+                                {
+                                    log.ErrorFormat("GroupsCache - could not insert group {0} after 3 retries", cacheKey);
+                                }
                             }
                         }
                         catch (Exception ex)
