@@ -43,6 +43,7 @@ namespace WebAPI.Models.ConditionalAccess
     [OldStandard("isRecurring", "is_recurring")]
     [OldStandard("billingProviderRef", "billing_provider_ref")]
     [OldStandard("purchaseId", "purchase_id")]
+    [XmlInclude(typeof(KalturaUserBillingTransaction))]
     public class KalturaBillingTransaction : KalturaOTTObject
     {
         /// <summary>

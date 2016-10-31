@@ -13,6 +13,8 @@ namespace WebAPI.Managers.Scheme
     public class SchemeInputAttribute : Attribute
     {
         public Type DynamicType { get; set; }
+        public int DynamicMinInt { get; set; }
+        public int DynamicMaxInt { get; set; }
         public int MaxLength { get; set; }
         public int MinLength { get; set; }
         public int MaxInteger { get; set; }
@@ -26,6 +28,8 @@ namespace WebAPI.Managers.Scheme
         {
             MaxLength  = -1;
             MinLength  = -1;
+            DynamicMinInt = int.MinValue;
+            DynamicMaxInt = int.MaxValue;
             MaxInteger  = int.MaxValue;
             MinInteger  = int.MinValue;
             MaxLong = long.MaxValue;
@@ -50,6 +54,48 @@ namespace WebAPI.Managers.Scheme
                 catch (ArgumentException e)
                 {
                     throw new BadRequestException(BadRequestException.ARGUMENT_STRING_SHOULD_BE_ENUM, name, DynamicType.Name);
+                }
+            }
+
+            if (DynamicMinInt > int.MinValue)
+            {
+                string sValue = (string)Convert.ChangeType(value, typeof(string));
+                if (!string.IsNullOrEmpty(sValue))
+                {
+                    string[] splitNumbers = sValue.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (string number in splitNumbers)
+                    {
+                        long parsedNumber;
+                        if (!long.TryParse(number, out parsedNumber) || parsedNumber < DynamicMinInt)
+                        {
+                            throw new BadRequestException(BadRequestException.ARGUMENT_STRING_CONTAINED_MIN_VALUE_CROSSED, name, DynamicMinInt);
+                        }
+                    }
+                }
+                else
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, name);
+                }
+            }
+
+            if (DynamicMaxInt < int.MaxValue)
+            {
+                string sValue = (string)Convert.ChangeType(value, typeof(string));
+                if (!string.IsNullOrEmpty(sValue))
+                {
+                    string[] splitNumbers = sValue.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (string number in splitNumbers)
+                    {
+                        long parsedNumber;
+                        if (!long.TryParse(number, out parsedNumber) || parsedNumber > DynamicMaxInt)
+                        {
+                            throw new BadRequestException(BadRequestException.ARGUMENT_STRING_CONTAINED_MAX_VALUE_CROSSED, name, DynamicMaxInt);
+                        }
+                    }
+                }
+                else
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, name);
                 }
             }
 

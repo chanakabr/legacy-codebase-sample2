@@ -58,7 +58,6 @@ namespace WebAPI.Controllers
         /// Returns true
         /// </summary>
         [Route("ping"), HttpPost]
-        [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         public bool Ping()
         {
@@ -70,18 +69,16 @@ namespace WebAPI.Controllers
         /// </summary>
         [Route("getTime"), HttpPost]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [ApiAuthorize]
         public long GetTime()
         {
             DateTime serverTime = (DateTime)HttpContext.Current.Items[RequestParser.REQUEST_TIME];
-            return Convert.ToInt64(serverTime);
+            return Utils.Utils.DateTimeToUnixTimestamp(serverTime, false);
         }
 
         /// <summary>
         /// Returns current server version
         /// </summary>
         [Route("getVersion"), HttpPost]
-        [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         public string GetVersion()
         {

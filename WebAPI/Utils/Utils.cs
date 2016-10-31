@@ -10,6 +10,7 @@ namespace WebAPI.Utils
 {
     public class Utils
     {
+
         internal static int GetLanguageId(int groupId, string language)
         {
             // get all group languages
@@ -74,9 +75,16 @@ namespace WebAPI.Utils
             return dtDateTime;
         }
 
-        public static long DateTimeToUnixTimestamp(DateTime dateTime)
+        public static long DateTimeToUnixTimestamp(DateTime dateTime, bool isUniversal = true)
         {
-            return (long)(dateTime - new DateTime(1970, 1, 1).ToUniversalTime()).TotalSeconds;
+            if (isUniversal)
+            {
+                return (long)(dateTime - new DateTime(1970, 1, 1).ToUniversalTime()).TotalSeconds;
+            }
+            else
+            {
+                return (long)(dateTime - new DateTime(1970, 1, 1)).TotalSeconds;
+            }
         }
 
         public static long DateTimeToUnixTimestampMilliseconds(DateTime dateTime)
@@ -89,5 +97,11 @@ namespace WebAPI.Utils
             var language = HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
             return language != null ? language.ToString() : null;
         }
+
+        public static bool ConvertStringToDateTimeByFormat(string dateInString, string convertToFormat, out DateTime dateTime)
+        {
+            return DateTime.TryParseExact(dateInString, convertToFormat, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dateTime);
+        }
+
     }
 }

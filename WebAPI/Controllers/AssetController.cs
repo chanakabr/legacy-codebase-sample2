@@ -209,8 +209,17 @@ namespace WebAPI.Controllers
                     if (pager == null)
                         pager = new KalturaFilterPager() { PageIndex = 0, PageSize = 5 };
 
-                    response = ClientsManager.CatalogClient().GetSearchMediaExternal(groupId, userID, domainId, udid,
-                        language, pager.getPageIndex(), pager.PageSize, searchExternalFilter.Query, searchExternalFilter.getTypeIn(), searchExternalFilter.UtcOffsetEqual);
+                    List<int> typeIn = searchExternalFilter.getTypeIn();
+                    if (typeIn.Contains(0))
+                    {
+                        response = ClientsManager.CatalogClient().GetEPGByExternalIds(groupId, userID, domainId, udid, language, pager.getPageIndex(),
+                                                                                       pager.PageSize, searchExternalFilter.convertQueryToList(), searchExternalFilter.OrderBy);
+                    }
+                    else
+                    {
+                        response = ClientsManager.CatalogClient().GetSearchMediaExternal(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize,
+                                                                                        searchExternalFilter.Query, searchExternalFilter.getTypeIn(), searchExternalFilter.UtcOffsetEqual);
+                    }
                 }
                 // Returns assets that belong to a channel
                 else if (filter is KalturaChannelFilter)

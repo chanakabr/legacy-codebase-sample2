@@ -142,7 +142,7 @@ namespace WebAPI.Models.ConditionalAccess
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaPurchaseSession.productId");
             }
 
-            if (ProductType == KalturaTransactionType.ppv && (!ContentId.HasValue && ContentId == 0))
+            if (ProductType == KalturaTransactionType.ppv && (!ContentId.HasValue || ContentId.Value == 0))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaPurchaseSession.contentId");
             }

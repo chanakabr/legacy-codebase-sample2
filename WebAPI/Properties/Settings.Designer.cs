@@ -26,16 +26,6 @@ namespace WebAPI.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://webservices/domains_v4_0/module.asmx")]
-        public string WebAPI_Domains_module {
-            get {
-                return ((string)(this["WebAPI_Domains_module"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
         [global::System.Configuration.DefaultSettingValueAttribute("http://webservices/social_v4_0/module.asmx")]
         public string WebAPI_Social_module {
             get {
@@ -50,16 +40,6 @@ namespace WebAPI.Properties {
         public string WebAPI_ConditionalAccess_module {
             get {
                 return ((string)(this["WebAPI_ConditionalAccess_module"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://webservices/users_v4_0/module.asmx")]
-        public string WebAPI_Users_UsersService {
-            get {
-                return ((string)(this["WebAPI_Users_UsersService"]));
             }
         }
     }

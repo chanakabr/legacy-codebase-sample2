@@ -714,6 +714,11 @@ namespace Validator.Managers.Scheme
                     if (schemeProperty.DynamicType != null)
                         writer.WriteAttributeString("valuesEnumType", schemeProperty.DynamicType.Name);
 
+                    if (schemeProperty.DynamicMinInt > int.MinValue)
+                        writer.WriteAttributeString("valuesMinValue", schemeProperty.DynamicMinInt.ToString());
+                    if (schemeProperty.DynamicMaxInt < int.MaxValue)
+                        writer.WriteAttributeString("valuesMaxValue", schemeProperty.DynamicMaxInt.ToString());
+
                     if (schemeProperty.RequiresPermission > 0)
                     {
                         RequestType[] validPermissions = new RequestType[] { RequestType.READ, RequestType.UPDATE, RequestType.INSERT };
