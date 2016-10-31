@@ -1435,7 +1435,7 @@ namespace WebAPI.Social {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
     public partial class UserDynamicDataContainer {
         
         private string m_sDataTypeField;
@@ -1468,7 +1468,7 @@ namespace WebAPI.Social {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
     public partial class UserDynamicData {
         
         private UserDynamicDataContainer[] m_sUserDataField;
@@ -1489,7 +1489,7 @@ namespace WebAPI.Social {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
     public partial class UserType {
         
         private System.Nullable<int> idField;
@@ -1535,7 +1535,7 @@ namespace WebAPI.Social {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
     public partial class Country {
         
         private int m_nObjecrtIDField;
@@ -1580,7 +1580,7 @@ namespace WebAPI.Social {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
     public partial class State {
         
         private int m_nObjecrtIDField;
@@ -1637,7 +1637,7 @@ namespace WebAPI.Social {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
     public partial class UserBasicData {
         
         private string m_sUserNameField;
@@ -1886,12 +1886,16 @@ namespace WebAPI.Social {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
     public partial class User {
         
         private UserBasicData m_oBasicDataField;
         
         private UserDynamicData m_oDynamicDataField;
+        
+        private UserState m_eUserStateField;
+        
+        private DomainSuspentionStatus m_eSuspendStateField;
         
         private string m_sSiteGUIDField;
         
@@ -1899,11 +1903,9 @@ namespace WebAPI.Social {
         
         private bool m_isDomainMasterField;
         
-        private UserState m_eUserStateField;
-        
         private int m_nSSOOperatorIDField;
         
-        private DomainSuspentionStatus m_eSuspendStateField;
+        private bool isActivationGracePeriodField;
         
         /// <remarks/>
         public UserBasicData m_oBasicData {
@@ -1922,6 +1924,26 @@ namespace WebAPI.Social {
             }
             set {
                 this.m_oDynamicDataField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public UserState m_eUserState {
+            get {
+                return this.m_eUserStateField;
+            }
+            set {
+                this.m_eUserStateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public DomainSuspentionStatus m_eSuspendState {
+            get {
+                return this.m_eSuspendStateField;
+            }
+            set {
+                this.m_eSuspendStateField = value;
             }
         }
         
@@ -1956,16 +1978,6 @@ namespace WebAPI.Social {
         }
         
         /// <remarks/>
-        public UserState m_eUserState {
-            get {
-                return this.m_eUserStateField;
-            }
-            set {
-                this.m_eUserStateField = value;
-            }
-        }
-        
-        /// <remarks/>
         public int m_nSSOOperatorID {
             get {
                 return this.m_nSSOOperatorIDField;
@@ -1976,12 +1988,12 @@ namespace WebAPI.Social {
         }
         
         /// <remarks/>
-        public DomainSuspentionStatus m_eSuspendState {
+        public bool IsActivationGracePeriod {
             get {
-                return this.m_eSuspendStateField;
+                return this.isActivationGracePeriodField;
             }
             set {
-                this.m_eSuspendStateField = value;
+                this.isActivationGracePeriodField = value;
             }
         }
     }
@@ -1989,7 +2001,7 @@ namespace WebAPI.Social {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
     public enum UserState {
         
         /// <remarks/>
@@ -2011,7 +2023,7 @@ namespace WebAPI.Social {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
     public enum DomainSuspentionStatus {
         
         /// <remarks/>
@@ -2026,7 +2038,7 @@ namespace WebAPI.Social {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
     public partial class UserResponseObject {
         
         private ResponseStatus m_RespStatusField;
@@ -2069,7 +2081,7 @@ namespace WebAPI.Social {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
     public enum ResponseStatus {
         
         /// <remarks/>
@@ -2146,6 +2158,9 @@ namespace WebAPI.Social {
         
         /// <remarks/>
         UserSuspended,
+        
+        /// <remarks/>
+        UserCreatedWithNoRole,
     }
     
     /// <remarks/>
@@ -3649,6 +3664,8 @@ namespace WebAPI.Social {
         
         private eAssetType m_eAssetTypeField;
         
+        private eUserAction[] userActionsField;
+        
         /// <remarks/>
         public eUserAction m_eUserActions {
             get {
@@ -3706,6 +3723,16 @@ namespace WebAPI.Social {
             }
             set {
                 this.m_eAssetTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public eUserAction[] UserActions {
+            get {
+                return this.userActionsField;
+            }
+            set {
+                this.userActionsField = value;
             }
         }
     }

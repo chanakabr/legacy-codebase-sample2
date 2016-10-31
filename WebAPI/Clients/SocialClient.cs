@@ -468,7 +468,7 @@ namespace WebAPI.Clients
 
         internal KalturaSocialFriendActivityListResponse GetFriendsActions(int groupId, string userId, long assetId, KalturaAssetType assetType, List<KalturaSocialActionType> actions, int pageSize, int pageIndex)
         {
-            KalturaSocialFriendActivityListResponse friendsActivity = null;
+            KalturaSocialFriendActivityListResponse friendsActivity = new KalturaSocialFriendActivityListResponse();
             SocialActivityResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -484,11 +484,17 @@ namespace WebAPI.Clients
             eUserAction wsAction;
             if (actions != null && actions.Count > 0)
             {
+                var userActions = new List<eUserAction>();
                 foreach (var action in actions)
-	            {
+                {
                     wsAction = SocialMappings.ConvertSocialAction(action);
-                    request.m_eUserActions = request.m_eUserActions | wsAction;
+                    userActions.Add(wsAction);
                 }
+                request.UserActions = userActions.ToArray();
+            }
+            else
+            {
+                request.UserActions = new eUserAction[3] { eUserAction.LIKE, eUserAction.RATES, eUserAction.WATCHES };
             }
 
             try
