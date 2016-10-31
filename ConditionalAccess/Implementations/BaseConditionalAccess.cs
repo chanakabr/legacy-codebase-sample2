@@ -19327,10 +19327,18 @@ namespace ConditionalAccess
         {
             SearchableRecording[] result = null;
             List<TstvRecordingStatus> recordingStatuses = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recorded };
-            Dictionary<long, Recording> DomainRecordingIdToRecordingMap = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, domainId, recordingStatuses);
-            if (DomainRecordingIdToRecordingMap != null && DomainRecordingIdToRecordingMap.Count > 0)
+            Dictionary<long, Recording> domainRecordingIdToRecordingMap = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, domainId, recordingStatuses);
+
+            if (domainRecordingIdToRecordingMap != null)
             {
-                result = DomainRecordingIdToRecordingMap.Select(x => new SearchableRecording(x.Key, x.Value.Id, x.Value.EpgId)).ToArray();
+                if (domainRecordingIdToRecordingMap.Count > 0)
+                {
+                    result = domainRecordingIdToRecordingMap.Select(x => new SearchableRecording(x.Key, x.Value.Id, x.Value.EpgId)).ToArray();
+                }
+                else
+                {
+                    result = new SearchableRecording[0];
+                }
             }
 
             return result;
