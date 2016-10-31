@@ -33,7 +33,7 @@ namespace WebAPI.Models.Users
         /// </summary>
         [DataMember(Name = "assetId")]
         [JsonProperty(PropertyName = "assetId")]
-        [XmlElement(ElementName = "assetId", IsNullable = true)]
+        [XmlElement(ElementName = "assetId")]
         public long AssetId { get; set; }
 
         /// <summary>

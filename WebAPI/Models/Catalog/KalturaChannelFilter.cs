@@ -12,6 +12,9 @@ namespace WebAPI.Models.Catalog
 {
     public class KalturaChannelFilter : KalturaAssetFilter
     {
+
+        private bool shouldUseChannelDefault = true;
+
         /// <summary>
         ///Channel Id
         /// </summary>
@@ -26,5 +29,28 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "kSql", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public string KSql { get; set; }
+
+        /// <summary>
+        /// order by
+        /// </summary>
+        [DataMember(Name = "orderBy")]
+        [JsonProperty("orderBy")]
+        [XmlElement(ElementName = "orderBy", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public KalturaAssetOrderBy OrderBy
+        {
+            get { return base.OrderBy; }
+            set
+            {
+                base.OrderBy = value;
+                shouldUseChannelDefault = false;
+            }
+        }
+
+        public bool GetShouldUseChannelDefault()
+        {
+            return shouldUseChannelDefault;
+        }
+
     }
 }

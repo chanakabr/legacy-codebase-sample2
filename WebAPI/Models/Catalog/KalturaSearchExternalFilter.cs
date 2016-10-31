@@ -36,13 +36,13 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "typeIn")]
         [JsonProperty("typeIn")]
-        [XmlElement(ElementName = "typeIn", IsNullable = true)]
+        [XmlElement(ElementName = "typeIn")]
         public string TypeIn { get; set; }
 
         internal List<int> getTypeIn()
         {
             if (string.IsNullOrEmpty(TypeIn))
-                return null;
+                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaSearchExternalFilter.typeIn");
 
             List<int> values = new List<int>();
             string[] stringValues = TypeIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
