@@ -93,6 +93,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModifiedRecordingsHandler",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserTaskHandler", "UserTaskHandler\UserTaskHandler.csproj", "{A1D8F832-293A-4A0C-944A-A5419896A0CB}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{111B7AD1-A425-4184-9849-9169EEB3A8E4}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
