@@ -5423,14 +5423,18 @@ namespace ConditionalAccess
             string seriesId = epgFieldMappings[SERIES_ID];
             int seasonNumber = 0, episodeNumber = 0;
 
-            if (recordingType == RecordingType.Season && !int.TryParse(epgFieldMappings[SEASON_NUMBER], out seasonNumber))
+            if (recordingType == RecordingType.Season && (!epgFieldMappings.ContainsKey(SEASON_NUMBER) || !int.TryParse(epgFieldMappings[SEASON_NUMBER], out seasonNumber)))
             {
                 log.ErrorFormat("failed parsing SEASON_NUMBER, groupId: {0}, epgId: {1}, recordingType: {2}", groupId, epg.EPG_ID, recordingType.ToString());
                 return seriesRecording;
             }
 
             // currently we don't care about episode number so no log + error if we can't parse it
-            int.TryParse(epgFieldMappings[EPISODE_NUMBER], out episodeNumber);
+            if (epgFieldMappings.ContainsKey(EPISODE_NUMBER))
+            {
+                int.TryParse(epgFieldMappings[EPISODE_NUMBER], out episodeNumber);
+            }
+
             long channelId;
             if (!long.TryParse(epg.EPG_CHANNEL_ID, out channelId))
             {
