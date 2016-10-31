@@ -53,6 +53,7 @@ namespace Users
             {
                 Int32 nID = 0;
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 selectQuery.SetCachedSec(0);
                 selectQuery += "SELECT ID FROM USERS_DYNAMIC_DATA WITH (NOLOCK) WHERE STATUS=0 AND ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("USER_ID", "=", nUserID);
@@ -126,8 +127,9 @@ namespace Users
             KeyValuePair<string, string> kvp;
             try
             {
-                nGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("users", "group_id", nUserID).ToString());               
+                nGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("users", "group_id", nUserID).ToString());
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 selectQuery.SetCachedSec(0);
                 selectQuery += "SELECT ID, DATA_TYPE, DATA_VALUE FROM USERS_DYNAMIC_DATA WITH (NOLOCK) WHERE STATUS=1 AND "; 
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("USER_ID", "=", nUserID);                
@@ -354,6 +356,7 @@ namespace Users
             try
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 selectQuery += "SELECT DATA_TYPE, DATA_VALUE FROM USERS_DYNAMIC_DATA WITH (NOLOCK) WHERE IS_ACTIVE=1 AND STATUS=1 AND ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
                 selectQuery += "AND";

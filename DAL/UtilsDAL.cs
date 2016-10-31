@@ -33,6 +33,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 selectQuery += "select IMPLEMENTATION_ID from groups_modules_implementations WITH (nolock) where is_active=1 and status=1 and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
                 selectQuery += "and";
@@ -64,6 +65,7 @@ namespace DAL
             try
             {
                 selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 selectQuery += "select implementation_id from groups_modules_implementations with (nolock) where is_active=1 and status=1 and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
                 selectQuery += "and";
@@ -99,6 +101,7 @@ namespace DAL
                 if (operatorId == -1)
                 {
                     // regular user
+                    selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                     selectQuery += "SELECT module_name FROM groups_modules_implementations with (nolock) WHERE is_active=1 AND status=1 AND ";
                     selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
                     selectQuery += " AND ";
@@ -143,6 +146,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 selectQuery += "select ENCRYPTER_IMPLEMENTATION from groups_parameters WITH (nolock) where is_active=1 and status=1 and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
                 if (selectQuery.Execute("query", true) != null)
@@ -204,6 +208,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 selectQuery += " select ID from states WITH (nolock) where ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("country_id", "=", nCountryID);
                 selectQuery += " order by STATE_NAME";
@@ -240,6 +245,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 selectQuery += " select ID from countries WITH (nolock) order by COUNTRY_NAME";
                 selectQuery.SetCachedSec(2678400);
                 if (selectQuery.Execute("query", true) != null)
@@ -275,6 +281,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 selectQuery += "select group_id from groups_modules_ips WITH (nolock) where is_active=1 and status=1 and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("USERNAME", "=", sUN);
                 selectQuery += "and";
@@ -313,6 +320,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 selectQuery += "select group_id from groups_modules_ips WITH (nolock) where is_active=1 and status=1 and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("USERNAME", "=", sUN);
                 selectQuery += "and";
@@ -346,6 +354,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 selectQuery += "select group_id,secret_code from groups_modules_ips WITH (nolock) where is_active=1 and status=1 and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("USERNAME", "=", sUN);
                 selectQuery += "and (";
@@ -390,6 +399,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 selectQuery += "select USERNAME,PASSWORD from groups_modules_ips WITH (nolock) where is_active=1 and status=1 and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
                 selectQuery += "and";
@@ -431,6 +441,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 selectQuery += "select USERNAME,PASSWORD from groups_modules_ips WITH (nolock) where is_active=1 and status=1 and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
                 selectQuery += "and";
@@ -467,6 +478,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 selectQuery += "select DISTINCT GROUP_ID, WS_NAME, USERNAME, PASSWORD from groups_modules_ips WITH (nolock) where is_active=1 and status=1 and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("IP", "=", sIP);
                 if (selectQuery.Execute("query", true) != null)
