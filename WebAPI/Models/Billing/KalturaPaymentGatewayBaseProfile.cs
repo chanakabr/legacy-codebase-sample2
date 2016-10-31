@@ -48,7 +48,7 @@ namespace WebAPI.Models.Billing
         /// </summary>
         [DataMember(Name = "selectedBy")]
         [JsonProperty("selectedBy")]
-        [XmlElement(ElementName = "selectedBy", IsNullable = true)]
+        [XmlElement(ElementName = "selectedBy")]
         public KalturaHouseholdPaymentGatewaySelectedBy? selectedBy { get; set; }
 
         /// <summary>
