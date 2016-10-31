@@ -1780,13 +1780,13 @@ namespace WebAPI.Clients
         }
 
         internal KalturaAssetListResponse GetChannelAssets(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, int id, 
-            KalturaAssetOrderBy? orderBy, string filterQuery)
+            KalturaAssetOrderBy? orderBy, string filterQuery, bool shouldUseChannelDefault)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
             // Create catalog order object
             OrderObj order = new OrderObj();
-            if (orderBy == null)
+            if (orderBy == null || shouldUseChannelDefault)
             {
                 order.m_eOrderBy = OrderBy.NONE;
             }

@@ -228,8 +228,8 @@ namespace WebAPI.Controllers
                     if (pager == null)
                         pager = new KalturaFilterPager();
 
-                    response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, domainId, udid, language,
-                        pager.getPageIndex(), pager.PageSize, channelFilter.IdEqual, channelFilter.OrderBy, channelFilter.KSql);
+                    response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(),
+                        pager.PageSize, channelFilter.IdEqual, channelFilter.OrderBy, channelFilter.KSql, channelFilter.GetShouldUseChannelDefault());
                 }
                 else if (filter is KalturaBundleFilter)
                 {
