@@ -279,13 +279,11 @@ namespace TVinciShared
         {
             if (HttpContext.Current.Session["error_msg"] == null && HttpContext.Current.Session["ok_msg"] == null)
                 return;
-            string sClass = "alert_text";
             string sText = "";
             if (HttpContext.Current.Session["error_msg"] != null)
                 sText = HttpContext.Current.Session["error_msg"].ToString();
             else if (HttpContext.Current.Session["ok_msg"] != null)
             {
-                sClass = "ok_text";
                 sText = HttpContext.Current.Session["ok_msg"].ToString();
             }
 
@@ -994,7 +992,6 @@ namespace TVinciShared
             }
             else
             {
-                Int32 nCountry = 0;
                 if (HttpContext.Current.Session["tvinci_geo_" + sIP] != null)
                 {
                     try

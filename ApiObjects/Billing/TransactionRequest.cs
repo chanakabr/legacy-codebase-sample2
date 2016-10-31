@@ -25,5 +25,6 @@ namespace ApiObjects.Billing
         public string billingGuid;
         public string customData;
         public string productCode;
+        public string adapterData;
     }
 }

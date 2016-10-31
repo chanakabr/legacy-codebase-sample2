@@ -81,20 +81,6 @@ namespace ConditionalAccess
         CurrentSub = 5
     }
 
-    public enum BillingResponseStatus
-    {
-        Success = 0,
-        Fail = 1,
-        UnKnown = 2,
-        PriceNotCorrect = 3,
-        UnKnownUser = 4,
-        UnKnownPPVModule = 5,
-        ExpiredCard = 6,
-        ExternalError = 7,
-        CellularPermissionsError = 8,        
-        UnKnownBillingProvider = 9
-    }
-
     public enum TransactionHistoryOrderBy
     {
         CreateDateAsc = 0,
@@ -135,16 +121,6 @@ namespace ConditionalAccess
         DASH
     }
 
-    public enum eBillingProvider
-    {
-       Unknown = 0,
-       Adyen = 10,
-       Dummy = 11,      
-       Cinepolis = 17,
-       M1 = 100,
-       Offline = 50
-    }
-
     public enum CinepolisConfirmationStatus : byte
     {
         NotSentYet = 0,
@@ -169,17 +145,6 @@ namespace ConditionalAccess
         UserHadNewSub = 6,
         Error = 7,
         UserSuspended = 8,
-    }
-    
-    [Serializable]
-    public enum eTransactionType
-    {
-        [EnumMember]
-        PPV,
-        [EnumMember]
-        Subscription,
-        [EnumMember]
-        Collection
     }
     
     internal enum BundleToUse : byte

@@ -36,6 +36,9 @@ using System.IO;
 using ApiObjects.PlayCycle;
 using ApiObjects.Epg;
 using System.Net;
+using WS_API;
+using Users;
+using WS_Users;
 
 namespace Catalog
 {
@@ -43,6 +46,7 @@ namespace Catalog
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly KLogger statisticsLog = new KLogger("MediaEohLogger", true);
+        private static readonly KLogger newWatcherMediaActionLog = new KLogger("NewWatcherMediaActionLogger", true);
 
         private static readonly string TAGS = "tags";
         private static readonly string METAS = "metas";
@@ -1045,11 +1049,8 @@ namespace Catalog
             }
 
             // Initialize web service
-            using (ws_api.API apiWebService = new ws_api.API())
+            using (API apiWebService = new API())
             {
-                string url = Utils.GetWSURL("ws_api");
-                apiWebService.Url = url;
-
                 // Call webservice method
                 var serviceResponse = apiWebService.GetUserParentalRuleTags(userName, password, siteGuid, 0);
 
@@ -1064,7 +1065,7 @@ namespace Catalog
                 if (serviceResponse.status.Code != 0)
                 {
                     throw new Exception(string.Format(
-                        "Error when getting user parental rule tags from WS_API. code ={0}, message = {1}, user_id = {2}, group_id = {3}",
+                        "Error when getting user parental rule tags from  code ={0}, message = {1}, user_id = {2}, group_id = {3}",
                         serviceResponse.status.Code, serviceResponse.status.Message,
                         siteGuid, groupId));
                 }
@@ -1582,10 +1583,7 @@ namespace Catalog
 
             using (WS_Domains.module domainsWebService = new WS_Domains.module())
             {
-                string url = Utils.GetWSURL("ws_domains");
-                domainsWebService.Url = url;
-
-                WS_Domains.Domain domain = null;
+                Domain domain = null;
                 var domainRes = domainsWebService.GetDomainInfo(userName, password, domainId);
                 if (domainRes != null)
                 {
@@ -2042,7 +2040,7 @@ namespace Catalog
 
         public static void UpdateFollowMe(int nGroupID, string sAssetID, string sSiteGUID, int nPlayTime, string sUDID, int duration,
             string assetAction, int mediaTypeId,
-            int nDomainID = 0, ePlayType ePlayType = ePlayType.MEDIA, bool isFirstPlay = false, bool isLinearChannel = false)
+            int nDomainID = 0, ePlayType ePlayType = ePlayType.MEDIA, bool isFirstPlay = false, bool isLinearChannel = false, long recordingId = 0)
         {
             if (Catalog.IsAnonymousUser(sSiteGUID))
             {
@@ -2076,7 +2074,7 @@ namespace Catalog
                         nPlayTime, duration, assetAction, mediaTypeId, isFirstPlay, isLinearChannel, finishedPercentThreshold);
                         break;
                     case ePlayType.NPVR:
-                        CatalogDAL.UpdateOrInsert_UsersNpvrMark(nDomainID, int.Parse(sSiteGUID), sUDID, sAssetID, nGroupID, nPlayTime, duration, assetAction, isFirstPlay);
+                        CatalogDAL.UpdateOrInsert_UsersNpvrMark(nDomainID, int.Parse(sSiteGUID), sUDID, sAssetID, nGroupID, nPlayTime, duration, assetAction, recordingId, isFirstPlay);
                         break;
                     case ePlayType.EPG:
                         CatalogDAL.UpdateOrInsert_UsersEpgMark(nDomainID, int.Parse(sSiteGUID), sUDID, int.Parse(sAssetID), nGroupID, nPlayTime, duration, assetAction, isFirstPlay);
@@ -2972,10 +2970,10 @@ namespace Catalog
             return new List<EPGChannelProgrammeObject>();
         }
 
-        internal static EpgResponse GetEPGProgramsFromCB(List<int> epgIDs, int parentGroupID, bool isSortResults, List<int> epgChannelIDs)
+        internal static EpgResponse GetEPGProgramsFromCB(List<int> epgIDs, int parentGroupID, bool isSortResults, List<int> epgChannelIDs, int languageId)
         {
             EpgResponse res = new EpgResponse();
-            List<EPGChannelProgrammeObject> epgs = GetEpgsByGroupAndIDs(parentGroupID, epgIDs);
+            List<EPGChannelProgrammeObject> epgs = GetEpgsByGroupIdLanguageIdAndEpgIds(parentGroupID, epgIDs, languageId);
             if (epgs != null && epgs.Count > 0)
             {
                 int totalItems = 0;
@@ -3314,6 +3312,31 @@ namespace Catalog
             return epgBL.GetEpgs(epgIDs);
         }
 
+        private static List<EPGChannelProgrammeObject> GetEpgsByGroupIdLanguageIdAndEpgIds(int groupID, List<int> epgIDs, int languageId)
+        {
+            LanguageObj lang = null;
+            string langCode = string.Empty;
+            if (languageId > 0)
+            {
+                lang = GetLanguage(groupID, languageId);
+            }
+
+            if (lang != null && !lang.IsDefault)
+            {
+                langCode = lang.Code;
+            }
+
+            if (string.IsNullOrEmpty(langCode))
+            {
+                return GetEpgsByGroupAndIDs(groupID, epgIDs);
+            }
+            else
+            {
+                BaseEpgBL epgBL = EpgBL.Utils.GetInstance(groupID);
+                return epgBL.GetEpgCBsWithLanguage(epgIDs.Select(x => (ulong)x).ToList(), langCode);
+            }
+        }
+
         internal static List<AssetStatsResult> GetAssetStatsResults(int nGroupID, List<int> lAssetIDs, DateTime dStartDate, DateTime dEndDate, StatsType eType)
         {
             // Data structures here are used for returning List<AssetStatsResult> in the same order asset ids are given in lAssetIDs
@@ -3326,7 +3349,12 @@ namespace Catalog
                 case StatsType.MEDIA:
                     {
                         BaseStaticticsBL staticticsBL = StatisticsBL.Utils.GetInstance(nGroupID);
-                        Dictionary<string, BuzzWeightedAverScore> buzzDict = staticticsBL.GetBuzzAverScore(lAssetIDs);
+                        Dictionary<string, BuzzWeightedAverScore> buzzDict = null;
+                        if (TvinciCache.GroupsFeatures.GetGroupFeatureStatus(nGroupID, GroupFeature.BUZZFEED))
+                        {
+                            buzzDict = staticticsBL.GetBuzzAverScore(lAssetIDs);
+                        }
+
                         bool isBuzzNotEmpty = buzzDict != null && buzzDict.Count > 0;
 
                         if (IsBringAllStatsRegardlessDates(dStartDate, dEndDate))
@@ -3827,16 +3855,18 @@ namespace Catalog
             return CatalogDAL.GetLastPosition(mediaID, userID);
         }
 
-        internal static bool IsConcurrent(string sSiteGuid, string sUDID, int nGroupID, ref int nDomainID, int nMediaID, int nMediaFileID, int nPlatform, int nCountryID, PlayCycleSession playCycleSession)
+        internal static bool IsConcurrent(string siteGuid, string udid, int groupID, ref int domainID, 
+            int mediaID, int mediaFileID, int platform, int countryID, PlayCycleSession playCycleSession, ePlayType playType = ePlayType.MEDIA)
         {
-            bool res = true;
-            long lSiteGuid = 0;
-            if (!Int64.TryParse(sSiteGuid, out lSiteGuid))
+            bool result = true;
+            long siteGuidLong = 0;
+
+            if (!Int64.TryParse(siteGuid, out siteGuidLong))
             {
-                throw new Exception(GetIsConcurrentLogMsg("SiteGuid is in incorrect format.", sSiteGuid, sUDID, nGroupID));
+                throw new Exception(GetIsConcurrentLogMsg("SiteGuid is in incorrect format.", siteGuid, udid, groupID));
             }
 
-            if (lSiteGuid == 0)
+            if (siteGuidLong == 0)
             {
                 // concurrency limitation does not apply for anonymous users.
                 // anonymous user is identified by receiving SiteGuid=0 from the clients.
@@ -3844,69 +3874,73 @@ namespace Catalog
             }
 
             // Get MCRuleID from PlayCycleSession on CB
-            int nMCRuleID = 0;
-            if (playCycleSession != null)
+            int mediaConcurrencyRuleID = 0;
+
+            if (playType == ePlayType.MEDIA)
             {
-                nMCRuleID = playCycleSession.MediaConcurrencyRuleID;
-            }
-            else // get from DB incase getting from CB failed
-            {
-                nMCRuleID = CatalogDAL.GetRuleIDPlayCycleKey(sSiteGuid, nMediaID, nMediaFileID, sUDID, nPlatform);
+                if (playCycleSession != null)
+                {
+                    mediaConcurrencyRuleID = playCycleSession.MediaConcurrencyRuleID;
+                }
+                else // get from DB incase getting from CB failed
+                {
+                    mediaConcurrencyRuleID = CatalogDAL.GetRuleIDPlayCycleKey(siteGuid, mediaID, mediaFileID, udid, platform);
+                }
             }
 
-            string sWSUsername = string.Empty;
-            string sWSPassword = string.Empty;
-            string sWSUrl = string.Empty;
+            string domainsUsername = string.Empty;
+            string domainsPassword = string.Empty;
+            string domainsUrl = string.Empty;
 
             //get username + password from wsCache
-            Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, nGroupID, ApiObjects.eWSModules.DOMAINS);
-            if (oCredentials != null)
+            Credentials credentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, groupID, ApiObjects.eWSModules.DOMAINS);
+            if (credentials != null)
             {
-                sWSUsername = oCredentials.m_sUsername;
-                sWSPassword = oCredentials.m_sPassword;
+                domainsUsername = credentials.m_sUsername;
+                domainsPassword = credentials.m_sPassword;
             }
 
-            if (sWSUsername.Length == 0 || sWSPassword.Length == 0)
+            if (domainsUsername.Length == 0 || domainsPassword.Length == 0)
             {
-                throw new Exception(GetIsConcurrentLogMsg("No WS_Domains login parameters were extracted from DB.", sSiteGuid, sUDID, nGroupID));
+                throw new Exception(GetIsConcurrentLogMsg("No WS_Domains login parameters were extracted from DB.", siteGuid, udid, groupID));
             }
 
             using (WS_Domains.module domains = new WS_Domains.module())
             {
-                sWSUrl = Utils.GetWSURL("ws_domains");
-                if (sWSUrl.Length > 0)
-                    domains.Url = sWSUrl;
-                WS_Domains.ValidationResponseObject domainsResp = domains.ValidateLimitationModule(sWSUsername, sWSPassword, sUDID, 0, lSiteGuid, 0, WS_Domains.ValidationType.Concurrency, nMCRuleID, 0, nMediaID);
+
+                ValidationResponseObject domainsResp = domains.ValidateLimitationModule(
+                    domainsUsername, domainsPassword, udid, 0, siteGuidLong, 0, ValidationType.Concurrency, mediaConcurrencyRuleID, 0, mediaID);
+
                 if (domainsResp != null)
                 {
-                    nDomainID = (int)domainsResp.m_lDomainID;
+                    domainID = (int)domainsResp.m_lDomainID;
                     switch (domainsResp.m_eStatus)
                     {
-                        case WS_Domains.DomainResponseStatus.ConcurrencyLimitation:
-                        case WS_Domains.DomainResponseStatus.MediaConcurrencyLimitation:
+                        case DomainResponseStatus.ConcurrencyLimitation:
+                        case DomainResponseStatus.MediaConcurrencyLimitation:
 
                             {
-                                res = true;
+                                result = true;
                                 break;
                             }
-                        case WS_Domains.DomainResponseStatus.OK:
+                        case DomainResponseStatus.OK:
                             {
-                                res = false;
+                                result = false;
                                 break;
                             }
                         default:
                             {
-                                throw new Exception(GetIsConcurrentLogMsg(String.Concat("WS_Domains returned status: ", domainsResp.m_eStatus.ToString()), sSiteGuid, sUDID, nGroupID));
+                                throw new Exception(GetIsConcurrentLogMsg(String.Concat("WS_Domains returned status: ", domainsResp.m_eStatus.ToString()), siteGuid, udid, groupID));
                             }
                     }
                 }
                 else
                 {
-                    throw new Exception(GetIsConcurrentLogMsg("WS_Domains response is null.", sSiteGuid, sUDID, nGroupID));
+                    throw new Exception(GetIsConcurrentLogMsg("WS_Domains response is null.", siteGuid, udid, groupID));
                 }
             }
 
-            return res;
+            return result;
         }
 
         private static string GetIsConcurrentLogMsg(string sMessage, string sSiteGuid, string sUDID, int nGroupID)
@@ -4305,6 +4339,99 @@ namespace Catalog
             lMedia.Add(new KeyValuePair<string, int>("fileDuration", fileDuration));
         }
 
+        internal static bool GetNPVRMarkHitInitialData(long domainRecordingId, ref int fileDuration, ref long recordingId, int groupId, int domainId)
+        {
+            bool result = false;
+            bool shouldGoToCas = false;
+            bool shouldCache = false;
+            recordingId = 0;
+
+            CatalogCache catalogCache = CatalogCache.Instance();
+            string key = string.Format("Recording_{0}", domainRecordingId);
+
+            if (!TVinciShared.WS_Utils.GetTcmBoolValue("CATALOG_HIT_CACHE"))
+            {
+                shouldGoToCas = true;
+            }
+            else
+            {
+                shouldCache = true;
+
+                object cacheDuration = catalogCache.Get(key);
+
+                if (cacheDuration != null)
+                {
+                    fileDuration = Convert.ToInt32(cacheDuration);
+                    result = true;
+                }
+                else
+                {
+                    shouldGoToCas = true;
+                }
+            }
+
+            if (shouldGoToCas)
+            {
+                string userName = string.Empty;
+                string password = string.Empty;
+
+                //get username + password from wsCache
+                Credentials credentials =
+                    TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, groupId, ApiObjects.eWSModules.CONDITIONALACCESS);
+
+                if (credentials != null)
+                {
+                    userName = credentials.m_sUsername;
+                    password = credentials.m_sPassword;
+                }
+
+                // validate user name and password length
+                if (userName.Length == 0 || password.Length == 0)
+                {
+                    throw new Exception(string.Format(
+                        "No WS_CAS login parameters were extracted from DB. domainId = {0}, groupid={1}",
+                        domainId, groupId));
+                }
+
+                using (ws_cas.module cas = new ws_cas.module())
+                {
+                    string url = Utils.GetWSURL("ws_cas");
+                    cas.Url = url;
+
+                    var recording = cas.GetRecordingByID(userName, password, domainId, domainRecordingId);
+                    
+                    // Validate recording
+                    if (recording != null && recording.Status != null && recording.Status.Code == 0)
+                    {
+                        fileDuration = (int)((recording.EpgEndDate - recording.EpgStartDate).TotalSeconds);
+                        recordingId = recording.Id;
+
+                        if (shouldCache)
+                        {
+                            double timeInCache = (double)(fileDuration / 60);
+
+                            bool setResult = catalogCache.Set(key, fileDuration, timeInCache);
+
+                            if (!setResult)
+                            {
+                                log.ErrorFormat("Failed setting file duration of recording {0} in cache", domainRecordingId);
+                            }
+                        }
+
+                        result = true;
+                    }
+                    else
+                    {
+                        // if recording is invalid, still cache that this recording is invalid
+
+                        result = false;
+                        catalogCache.Set(key, 0, 10);
+                    }
+                }
+            }
+
+            return result;
+        }
 
 
         private static long ParseIPOutOfString(string userIP)
@@ -4605,7 +4732,7 @@ namespace Catalog
         /*This method return all last position (desc order by create date) by domain and \ or user_id 
          * if userType is household and user is default - return all last positions of all users in domain by assetID (BY MEDIA ID)         
          else return last position of user_id (incase userType is not household or last position of user_id and default_user (incase userType is household) */
-        internal static AssetBookmarks GetAssetLastPosition(string assetID, eAssetTypes assetType, int userID, bool isDefaultUser, List<int> users, List<int> defaultUsers, Dictionary<string, ws_users.User> usersDictionary)
+        internal static AssetBookmarks GetAssetLastPosition(string assetID, eAssetTypes assetType, int userID, bool isDefaultUser, List<int> users, List<int> defaultUsers, Dictionary<string, User> usersDictionary)
         {
             AssetBookmarks response = null;
 
@@ -4811,14 +4938,11 @@ namespace Catalog
             if (!Int64.TryParse(siteGuid, out temp) || temp < 1)
                 return false;
             Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, groupID, ApiObjects.eWSModules.USERS);
-            string url = Utils.GetWSURL("users_ws");
             bool res = false;
-            using (ws_users.UsersService u = new ws_users.UsersService())
+            using (UsersService u = new UsersService())
             {
-                if (url.Length > 0)
-                    u.Url = url;
-                ws_users.UserResponseObject resp = u.GetUserData(oCredentials.m_sUsername, oCredentials.m_sPassword, siteGuid, string.Empty);
-                if (resp != null && resp.m_RespStatus == ws_users.ResponseStatus.OK && resp.m_user != null && resp.m_user.m_domianID > 0)
+                UserResponseObject resp = u.GetUserData(oCredentials.m_sUsername, oCredentials.m_sPassword, siteGuid, string.Empty);
+                if (resp != null && resp.m_RespStatus == ResponseStatus.OK && resp.m_user != null && resp.m_user.m_domianID > 0)
                 {
                     domainID = resp.m_user.m_domianID;
                     res = true;
@@ -4833,9 +4957,9 @@ namespace Catalog
             return res;
         }
 
-        internal static WS_Domains.DomainResponse GetDomain(int domainID, int groupID)
+        internal static DomainResponse GetDomain(int domainID, int groupID)
         {
-            WS_Domains.DomainResponse domainResponse = null;
+            DomainResponse domainResponse = null;
             if (domainID <= 0 || groupID <= 0)
             {
                 return domainResponse;
@@ -4854,8 +4978,7 @@ namespace Catalog
                     sWSUsername = oCredentials.m_sUsername;
                     sWSPassword = oCredentials.m_sPassword;
                 }
-                sWSUrl = Utils.GetWSURL("ws_domains");
-                if (string.IsNullOrEmpty(sWSUsername) || string.IsNullOrEmpty(sWSPassword) || string.IsNullOrEmpty(sWSUrl))
+                if (string.IsNullOrEmpty(sWSUsername) || string.IsNullOrEmpty(sWSPassword))
                 {
                     throw new Exception(string.Format("No WS_Domains login parameters were extracted from DB. domainID={0}, groupID={1}", domainID, groupID));
                 }
@@ -4863,7 +4986,6 @@ namespace Catalog
                 // get domain info - to have the users list in domain + default users in domain
                 using (WS_Domains.module domains = new WS_Domains.module())
                 {
-                    domains.Url = sWSUrl;
                     var domainRes = domains.GetDomainInfo(sWSUsername, sWSPassword, domainID);
                     if (domainRes != null)
                     {
@@ -4879,28 +5001,26 @@ namespace Catalog
             return domainResponse;
         }
 
-        internal static Dictionary<string, ws_users.User> GetUsers(int groupID, List<int> users)
+        internal static Dictionary<string, User> GetUsers(int groupID, List<int> users)
         {
-            Dictionary<string, ws_users.User> usersDictionary = new Dictionary<string, ws_users.User>();
-            ws_users.UsersResponse usersResponse = null;
+            Dictionary<string, User> usersDictionary = new Dictionary<string, User>();
+            UsersResponse usersResponse = null;
             Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, groupID, ApiObjects.eWSModules.USERS);
-            string url = Utils.GetWSURL("users_ws");
 
-            if (string.IsNullOrEmpty(oCredentials.m_sUsername) || string.IsNullOrEmpty(oCredentials.m_sPassword) || string.IsNullOrEmpty(url))
+            if (string.IsNullOrEmpty(oCredentials.m_sUsername) || string.IsNullOrEmpty(oCredentials.m_sPassword))
             {
                 return usersDictionary;
             }
 
-            using (ws_users.UsersService u = new ws_users.UsersService())
+            using (UsersService u = new UsersService())
             {
-                u.Url = url;
                 usersResponse = u.GetUsers(oCredentials.m_sUsername, oCredentials.m_sPassword, users.Select(i => i.ToString()).ToArray(), string.Empty);
             }
-            if (usersResponse != null && usersResponse.resp != null && usersResponse.resp.Code == (int)ws_users.ResponseStatus.OK && usersResponse.users != null)
+            if (usersResponse != null && usersResponse.resp != null && usersResponse.resp.Code == (int)ResponseStatus.OK && usersResponse.users != null)
             {
-                foreach (ws_users.UserResponseObject user in usersResponse.users)
+                foreach (UserResponseObject user in usersResponse.users)
                 {
-                    if (user != null && user.m_RespStatus == ws_users.ResponseStatus.OK)
+                    if (user != null && user.m_RespStatus == ResponseStatus.OK)
                     {
                         if (!usersDictionary.ContainsKey(user.m_user.m_sSiteGUID))
                         {
@@ -5011,9 +5131,9 @@ namespace Catalog
 
         #region External Channel Request
 
-        internal static Status GetExternalChannelAssets(ExternalChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResultsList, out string requestId)
+        internal static ApiObjects.Response.Status GetExternalChannelAssets(ExternalChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResultsList, out string requestId)
         {
-            Status status = new Status();
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
 
             searchResultsList = new List<UnifiedSearchResult>();
             totalItems = 0;
@@ -5218,9 +5338,9 @@ namespace Catalog
             return status;
         }
 
-        internal static Status GetExternalRelatedAssets(MediaRelatedExternalRequest request, out int totalItems, out List<RecommendationResult> resultsList, out string requestId)
+        internal static ApiObjects.Response.Status GetExternalRelatedAssets(MediaRelatedExternalRequest request, out int totalItems, out List<RecommendationResult> resultsList, out string requestId)
         {
-            Status status = new Status();
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
             totalItems = 0;
             requestId = "";
             resultsList = new List<RecommendationResult>();
@@ -5322,9 +5442,9 @@ namespace Catalog
             return status;
         }
 
-        internal static Status GetExternalSearchAssets(MediaSearchExternalRequest request, out int totalItems, out List<RecommendationResult> resultsList, out string requestId)
+        internal static ApiObjects.Response.Status GetExternalSearchAssets(MediaSearchExternalRequest request, out int totalItems, out List<RecommendationResult> resultsList, out string requestId)
         {
-            Status status = new Status();
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
             totalItems = 0;
             requestId = "";
             resultsList = new List<RecommendationResult>();
@@ -5619,13 +5739,13 @@ namespace Catalog
 
         #region Internal Channel Request
 
-        internal static Status GetInternalChannelAssets(InternalChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults)
+        internal static ApiObjects.Response.Status GetInternalChannelAssets(InternalChannelRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults)
         {
             // Set default values for out parameters
             totalItems = 0;
             searchResults = new List<UnifiedSearchResult>();
 
-            Status status = null;
+            ApiObjects.Response.Status status = null;
 
             Group group = null;
             GroupsCacheManager.Channel channel = null;
@@ -5638,7 +5758,7 @@ namespace Catalog
 
             if (string.IsNullOrEmpty(request.internalChannelID))
             {
-                return new Status((int)eResponseStatus.Error, "Internal Channel ID was not provided");
+                return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Internal Channel ID was not provided");
             }
 
             int channelId = int.Parse(request.internalChannelID);
@@ -5647,7 +5767,7 @@ namespace Catalog
 
             if (channel == null)
             {
-                return new Status((int)eResponseStatus.ObjectNotExist, string.Format("Channel with identifier {1} does not exist for group {0}", parentGroupID, channelId));
+                return new ApiObjects.Response.Status((int)eResponseStatus.ObjectNotExist, string.Format("Channel with identifier {1} does not exist for group {0}", parentGroupID, channelId));
             }
 
             // Build search object
@@ -5670,7 +5790,7 @@ namespace Catalog
 
             if (searcher == null)
             {
-                return new Status((int)eResponseStatus.Error, "Failed getting instance of searcher");
+                return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed getting instance of searcher");
             }
 
             int to = 0;
@@ -5680,7 +5800,7 @@ namespace Catalog
 
             if (searchResults == null)
             {
-                return new Status((int)eResponseStatus.Error, "Failed performing channel search");
+                return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing channel search");
             }
 
             List<int> assetIDs = searchResults.Select(item => int.Parse(item.AssetId)).ToList();
@@ -5760,21 +5880,21 @@ namespace Catalog
             {
                 searchResults = null;
                 totalItems = 0;
-                return new Status((int)eResponseStatus.Error, "Failed performing channel search");
+                return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing channel search");
             }
 
-            status = new Status((int)eResponseStatus.OK);
+            status = new ApiObjects.Response.Status((int)eResponseStatus.OK);
 
             return status;
         }
 
-        internal static Status GetRelatedAssets(MediaRelatedRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults)
+        internal static ApiObjects.Response.Status GetRelatedAssets(MediaRelatedRequest request, out int totalItems, out List<UnifiedSearchResult> searchResults)
         {
             // Set default values for out parameters
             totalItems = 0;
             searchResults = new List<UnifiedSearchResult>();
 
-            Status status = null;
+            ApiObjects.Response.Status status = null;
 
             Group group = null;
 
@@ -5796,7 +5916,7 @@ namespace Catalog
 
             if (searcher == null)
             {
-                return new Status((int)eResponseStatus.Error, "Failed getting instance of searcher");
+                return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed getting instance of searcher");
             }
 
             int to = 0;
@@ -5806,7 +5926,7 @@ namespace Catalog
 
             if (searchResults == null)
             {
-                return new Status((int)eResponseStatus.Error, "Failed performing related assets search");
+                return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing related assets search");
             }
 
             List<int> assetIDs = searchResults.Select(item => int.Parse(item.AssetId)).ToList();
@@ -5815,10 +5935,10 @@ namespace Catalog
             {
                 searchResults = null;
                 totalItems = 0;
-                return new Status((int)eResponseStatus.Error, "Failed performing related assets search");
+                return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing related assets search");
             }
 
-            status = new Status((int)eResponseStatus.OK);
+            status = new ApiObjects.Response.Status((int)eResponseStatus.OK);
 
             return status;
         }
@@ -6922,9 +7042,8 @@ namespace Catalog
                 }
                 return true;
             }
-            catch (Exception ex)
+            catch
             {
-                return false;
             }
             return false;
         }
@@ -7120,9 +7239,9 @@ namespace Catalog
             }
         }
 
-        public static Status ClearStatistics(int groupId, DateTime until)
+        public static ApiObjects.Response.Status ClearStatistics(int groupId, DateTime until)
         {
-            Status status = null;
+            ApiObjects.Response.Status status = null;
 
             var wrapper = new ElasticsearchWrapper();
             status = wrapper.DeleteStatistics(groupId, until);
@@ -7196,25 +7315,37 @@ namespace Catalog
                                                                                              x.AssetTypeId != (int)eAssetTypes.NPVR)
                                                                                              .Select(x => x.AssetId).ToList());
 
+                        searchDefinitions.specificAssets.Add(eAssetTypes.NPVR, unFilteredresult.Where(x => x.AssetTypeId == (int)eAssetTypes.NPVR)
+                                                                                             .Select(x => x.RecordingId.ToString()).ToList());
+
                         ElasticsearchWrapper esWrapper = new ElasticsearchWrapper();
                         int esTotalItems = 0, to = 0;
                         var searchResults = esWrapper.UnifiedSearch(searchDefinitions, ref esTotalItems, ref to);
 
                         List<int> activeMediaIds = new List<int>();
+                        List<string> activeRecordingIds = new List<string>();
 
                         if (searchResults != null && searchResults.Count > 0)
                         {
-                            int mediaId;
-
-                            foreach (var media in searchResults)
+                            foreach (var searchResult in searchResults)
                             {
-                                mediaId = int.Parse(media.AssetId);
-                                activeMediaIds.Add(mediaId);
-                                unFilteredresult.First(x => int.Parse(x.AssetId) == mediaId &&
-                                                            x.AssetTypeId != (int)eAssetTypes.EPG &&
-                                                            x.AssetTypeId != (int)eAssetTypes.NPVR)
-                                                            .UpdateDate = media.m_dUpdateDate;
+                                int assetId = int.Parse(searchResult.AssetId);
 
+                                if (searchResult.AssetType == eAssetTypes.MEDIA)
+                                {
+                                    activeMediaIds.Add(assetId);
+                                    unFilteredresult.First(x => int.Parse(x.AssetId) == assetId &&
+                                                                x.AssetTypeId != (int)eAssetTypes.EPG &&
+                                                                x.AssetTypeId != (int)eAssetTypes.NPVR)
+                                                                .UpdateDate = searchResult.m_dUpdateDate;
+                                }
+                                else if (searchResult.AssetType == eAssetTypes.NPVR)
+                                {
+                                    activeRecordingIds.Add(searchResult.AssetId);
+                                    unFilteredresult.First(x => x.AssetId == searchResult.AssetId &&
+                                                                x.AssetTypeId == (int)eAssetTypes.NPVR)
+                                                                .UpdateDate = searchResult.m_dUpdateDate;
+                                }
                             }
                         }
 
@@ -7222,6 +7353,11 @@ namespace Catalog
                         unFilteredresult.RemoveAll(x => x.AssetTypeId != (int)eAssetTypes.EPG &&
                             x.AssetTypeId != (int)eAssetTypes.NPVR &&
                             !activeMediaIds.Contains(int.Parse(x.AssetId)));
+
+                        //remove recordings that are not active
+                        unFilteredresult.RemoveAll(x =>
+                            x.AssetTypeId == (int)eAssetTypes.NPVR &&
+                            !activeRecordingIds.Contains(x.AssetId));
                     }
 
                     // filter status 
@@ -7300,7 +7436,6 @@ namespace Catalog
                                     }
                                 }
                             }
-
                         }
                     }
 
@@ -7363,49 +7498,23 @@ namespace Catalog
             string key = string.Format("u{0}_{1}{2}", currentResult.UserID, assetType, currentResult.AssetId);
             return key;
         }
-    }
-}
 
-namespace Catalog.ws_api
-{
-    // adding request ID to header
-    public partial class API
-    {
-        protected override WebRequest GetWebRequest(Uri uri)
+        public static void WriteNewWatcherMediaActionLog(int nWatcherID, string sSessionID, int nBillingTypeID, int nOwnerGroupID, int nQualityID, int nFormatID, int nMediaID, int nMediaFileID, int nGroupID,
+                                                        int nCDNID, int nActionID, int nCountryID, int nPlayerID, int nLoc, int nBrowser, int nPlatform, string sSiteGUID, string sUDID, ContextData context)
         {
-            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
-            return request;
-        }
-
-    }
-}
-
-
-namespace Catalog.WS_Domains
-{
-    // adding request ID to header
-    public partial class module
-    {
-        protected override WebRequest GetWebRequest(Uri uri)
-        {
-            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
-            return request;
-        }
-    }
-}
-
-namespace Catalog.ws_users
-{
-    // adding request ID to header
-    public partial class UsersService
-    {
-        protected override WebRequest GetWebRequest(Uri uri)
-        {
-            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
-            return request;
+            try
+            {
+                context.Load();
+                // We write an empty string as the first parameter to split the start of the log from the mediaEoh row data
+                string infoToLog = string.Join(",", new object[] { " ", nWatcherID, sSessionID, nBillingTypeID, nOwnerGroupID, nQualityID, nFormatID, nMediaID, nMediaFileID, nGroupID, nCDNID,
+                                                                        nActionID, nCountryID, nPlayerID, nLoc, nBrowser, nPlatform, sSiteGUID, sUDID });
+                newWatcherMediaActionLog.Info(infoToLog);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in WriteNewWatcherMediaActionLog, nWatcherID: {0}, mediaID: {1}, mediaFileID: {2}, groupID: {3}, actionID: {4}, userId: {5}",
+                                         nMediaID, nMediaFileID, nGroupID, nActionID, sSiteGUID), ex);
+            }
         }
     }
 }

@@ -8,7 +8,6 @@ using DAL;
 using System.Security.Cryptography;
 using System.Security;
 using System.Security.Cryptography.X509Certificates;
-using System.Security;
 using System.Xml;
 using System.Security.Cryptography.Xml;
 using Users.Saml;
@@ -24,6 +23,7 @@ using ComponentSpace.SAML2.Protocols;
 using ComponentSpace.SAML2.Metadata;
 using KLogMonitor;
 using System.Reflection;
+using ApiObjects;
 
 
 namespace Users
@@ -75,8 +75,6 @@ namespace Users
 
         public static SamlResponseObject AddNewUser(SamlProviderObject prov, SamlCredentialObject credsObj)
         {
-
-            bool bRes = false;
             int domain_id = 0;
 
             string sWSUserName = string.Empty;

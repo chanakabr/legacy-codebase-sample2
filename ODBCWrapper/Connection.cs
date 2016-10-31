@@ -16,7 +16,7 @@ namespace ODBCWrapper
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static List<string> db_Slaves = (!string.IsNullOrEmpty(TCMClient.Settings.Instance.GetValue<string>("DB_Slaves_IPs"))) ? TCMClient.Settings.Instance.GetValue<string>("DB_Slaves_List").Split(':').ToList<string>() : null;
         public static bool m_bIsWritable;
-        private const string DB_NAME_CONNECTION_STRING_TEMAPLTE = "{dbname}";
+        private const string DB_NAME_CONNECTION_STRING_TEMAPLTE = "{dbname}";        
 
         public Connection()
         {
@@ -46,7 +46,7 @@ namespace ODBCWrapper
         //TODO : add connection string for WRITABLE 
         static public string GetConnectionStringByKey(string sKey, bool bIsWritable)
         {
-            string sRet = "";
+            string sRet = "";            
             string applicationIntent = (bIsWritable) ? "ReadWrite" : "ReadOnly";
             m_bIsWritable = bIsWritable;
 
@@ -355,7 +355,6 @@ namespace ODBCWrapper
 
             return con;
         }
-
 
     }
 }

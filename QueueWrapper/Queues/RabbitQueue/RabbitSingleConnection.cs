@@ -31,6 +31,7 @@ namespace QueueWrapper
         public RabbitSingleConnection(RabbitConfigurationData configuration)
         {
             m_Configuration = configuration;
+            m_lock = new ReaderWriterLockSlim();
         }
 
         public bool Start()

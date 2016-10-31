@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -12,7 +13,6 @@ namespace Users
     {
         OSamlUserDetails userDetails = null;
         SamlProviderObject prov = null;
-        SamlCredentialObject creds = null;
 
         public SSOOSamlImplementation(int nGroupID, int operatorId)
             : base(nGroupID, operatorId)

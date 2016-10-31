@@ -28,6 +28,8 @@ namespace Users
 {
     public class Utils
     {
+        private static string USERS_CONNECTION = "users_connection_string";
+
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public const int USER_COGUID_LENGTH = 15;
@@ -100,7 +102,7 @@ namespace Users
 
         static public void GetBaseUsersImpl(ref Users.BaseUsers t, Int32 nGroupID)
         {
-            int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Users);
+            int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Users, USERS_CONNECTION);
 
             switch (nImplID)
             {
@@ -208,7 +210,7 @@ namespace Users
 
         static public void GetBaseDomainsImpl(ref Users.BaseDomain t, Int32 nGroupID)
         {
-            int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.DOMAINS, nGroupID, (int)ImplementationsModules.Domains);
+            int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.DOMAINS, nGroupID, (int)ImplementationsModules.Domains, USERS_CONNECTION);
 
             switch (nImplID)
             {
@@ -225,7 +227,7 @@ namespace Users
 
         static public void GetBaseDeviceImpl(ref Users.BaseDevice t, Int32 nGroupID)
         {
-            int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Domains);
+            int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Domains, USERS_CONNECTION);
             switch (nImplID)
             {
                 case 1:
@@ -375,28 +377,17 @@ namespace Users
             return retVal;
         }
 
-        static public bool SendMail(int nGroupID, TvinciAPI.MailRequestObj request)
+        static public bool SendMailTemplate(MailRequestObj request)
         {
-            using (TvinciAPI.API client = new TvinciAPI.API())
-            {
-                string sWSUserName = string.Empty;
-                string sWSPass = string.Empty;
-                string sWSURL = Utils.GetTcmConfigValue("api_ws");
+            bool retVal = false;
+            Mailer.IMailer mailer = Mailer.MailFactory.GetMailer(Mailer.MailImplementors.MCMailer);
+            retVal = mailer.SendMailTemplate(request);
+            return retVal;
+        }
 
-                if (sWSURL.Length > 0)
-                {
-                    client.Url = sWSURL;
-                }
-
-                Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(eWSModules.USERS, nGroupID, eWSModules.API);
-                if (oCredentials != null)
-                {
-                    sWSUserName = oCredentials.m_sUsername;
-                    sWSPass = oCredentials.m_sPassword;
-                }
-                bool result = client.SendMailTemplate(sWSUserName, sWSPass, request);
-                return result;
-            }
+        static public bool SendMail(int nGroupID, MailRequestObj request)
+        {
+            return SendMailTemplate(request);
         }
 
         static public bool GetUserOperatorAndHouseholdIDs(int nGroupID, string sCoGuid, ref int nOperatorID, ref string sOperatorCoGuid, ref int nOperatorGroupID, ref int nHouseholdID)
@@ -1118,18 +1109,4 @@ namespace Users
         }
     }
 
-}
-
-namespace Users.TvinciAPI
-{
-    // adding request ID to header
-    public partial class API
-    {
-        protected override WebRequest GetWebRequest(Uri uri)
-        {
-            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
-            return request;
-        }
-    }
 }

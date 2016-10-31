@@ -597,7 +597,7 @@ namespace Users
             }
             else
             {
-                TvinciAPI.WelcomeMailRequest sMailReq = GetWelcomeMailRequest(GetUniqueTitle(oBasicData, sDynamicData), oBasicData.m_sUserName, sPassword, oBasicData.m_sEmail, oBasicData.m_sFacebookID);
+                WelcomeMailRequest sMailReq = GetWelcomeMailRequest(GetUniqueTitle(oBasicData, sDynamicData), oBasicData.m_sUserName, sPassword, oBasicData.m_sEmail, oBasicData.m_sFacebookID);
 
                 bool sendingMailResult = Utils.SendMail(m_nGroupID, sMailReq);
             }
@@ -658,26 +658,8 @@ namespace Users
 
         public bool CreateDefaultRules(string sSiteGuid, int nGroupID)
         {
-            using (TvinciAPI.API client = new TvinciAPI.API())
-            {
-                string sWSUserName = "";
-                string sWSPass = "";
-                string sWSURL = Utils.GetTcmConfigValue("api_ws");
-
-                if (sWSURL != "")
-                    client.Url = sWSURL;
-
-                Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.USERS, nGroupID, ApiObjects.eWSModules.API);
-
-                if (oCredentials != null)
-                {
-                    sWSUserName = oCredentials.m_sUsername;
-                    sWSPass = oCredentials.m_sPassword;
-                }
-                log.Debug("Default Rules - " + sWSUserName + " " + sWSPass + " " + client.Url);
-
-                return client.SetDefaultRules(sWSUserName, sWSPass, sSiteGuid);
-            }
+            // return client.SetDefaultRules(sWSUserName, sWSPass, sSiteGuid);
+            return true;
         }
 
         public override bool ResendActivationMail(string username)
@@ -692,7 +674,7 @@ namespace Users
 
             if (u != null && u.m_oBasicData != null && !string.IsNullOrEmpty(u.m_oBasicData.m_sPassword))
             {
-                TvinciAPI.WelcomeMailRequest mailReq = GetWelcomeMailRequest(u.m_oBasicData.m_sFirstName, u.m_oBasicData.m_sUserName, u.m_oBasicData.m_sPassword, u.m_oBasicData.m_sEmail, u.m_oBasicData.m_sFacebookID);
+                WelcomeMailRequest mailReq = GetWelcomeMailRequest(u.m_oBasicData.m_sFirstName, u.m_oBasicData.m_sUserName, u.m_oBasicData.m_sPassword, u.m_oBasicData.m_sEmail, u.m_oBasicData.m_sFacebookID);
                 if (Utils.SendMail(m_nGroupID, mailReq))
                     return true;
             }
@@ -713,7 +695,7 @@ namespace Users
                 }
                 else
                 {
-                    TvinciAPI.WelcomeMailRequest sMailReq = GetWelcomeMailRequest(u.m_oBasicData.m_sFirstName, u.m_oBasicData.m_sUserName, u.m_oBasicData.m_sPassword, u.m_oBasicData.m_sEmail, u.m_oBasicData.m_sFacebookID);
+                    WelcomeMailRequest sMailReq = GetWelcomeMailRequest(u.m_oBasicData.m_sFirstName, u.m_oBasicData.m_sUserName, u.m_oBasicData.m_sPassword, u.m_oBasicData.m_sEmail, u.m_oBasicData.m_sFacebookID);
                     bool sendingMailResult = Utils.SendMail(m_nGroupID, sMailReq);
                     return true;
                 }
@@ -1310,7 +1292,7 @@ namespace Users
             if (UserGenerateToken(sUN, ref sEmail, ref nID, ref sFirstName, ref sToken) == true)
             {
                 //Send ForgotPasswordMail
-                TvinciAPI.ForgotPasswordMailRequest sMailRequest = GetForgotPasswordMailRequest(sFirstName, sEmail, sToken);
+                ForgotPasswordMailRequest sMailRequest = GetForgotPasswordMailRequest(sFirstName, sEmail, sToken);
 
                 log.Debug("Forgot Pass - Start send to " + sEmail + " from" + m_sForgotPasswordMail);
 
@@ -1339,7 +1321,7 @@ namespace Users
             if (UserGenerateToken(sUN, ref sEmail, ref nID, ref sFirstName, ref sToken) == true)
             {
                 //Send ChangePassword
-                TvinciAPI.ChangePasswordMailRequest sMailRequest = GetChangePasswordMailRequest(sFirstName, sEmail, sToken);
+                ChangePasswordMailRequest sMailRequest = GetChangePasswordMailRequest(sFirstName, sEmail, sToken);
 
                 log.Debug("Change Password - Start send to " + sEmail + " from" + m_sForgotPasswordMail);
 
@@ -1371,9 +1353,9 @@ namespace Users
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
                     if (nCount > 0)
                     {
-                        List<TvinciAPI.GroupRule> groupRulesList = GetUserGroupsRules(sSiteGuid);
-                        TvinciAPI.GroupRule groupRule = groupRulesList.Find(
-                                                        delegate(TvinciAPI.GroupRule rule)
+                        List<GroupRule> groupRulesList = GetUserGroupsRules(m_nGroupID, sSiteGuid);
+                        GroupRule groupRule = groupRulesList.Find(
+                                                        delegate(GroupRule rule)
                                                         {
                                                             return rule.RuleID == nUserRuleID;
                                                         }
@@ -1392,7 +1374,7 @@ namespace Users
                         string changePinToken = System.Guid.NewGuid().ToString();
                         DateTime changePinTokenLastDate = DateTime.UtcNow.AddHours(m_nChangePinTokenValidityHours);
                         ApiDAL.Update_UserGroupRule_Token(nSiteGuid, nUserRuleID, changePinToken, changePinTokenLastDate);
-                        TvinciAPI.ChangedPinMailRequest sMailRequest = GetChangedPinMailRequest(sUn, sEmail, nSiteGuid.ToString(), changePinToken, ruleName);
+                        ChangedPinMailRequest sMailRequest = GetChangedPinMailRequest(sUn, sEmail, nSiteGuid.ToString(), changePinToken, ruleName);
                         log.Debug("Change pin code - Start send to " + sEmail + " from" + m_sChangedPinMail);
 
                         bool sendingMailResult = Utils.SendMail(m_nGroupID, sMailRequest);
@@ -1480,9 +1462,9 @@ namespace Users
             return response;
         }
 
-        protected TvinciAPI.ForgotPasswordMailRequest GetForgotPasswordMailRequest(string sFirstName, string sEmail, string sToken)
+        protected ForgotPasswordMailRequest GetForgotPasswordMailRequest(string sFirstName, string sEmail, string sToken)
         {
-            TvinciAPI.ForgotPasswordMailRequest retVal = new TvinciAPI.ForgotPasswordMailRequest();
+            ForgotPasswordMailRequest retVal = new ForgotPasswordMailRequest();
             retVal.m_sToken = sToken;
             retVal.m_sTemplateName = m_sForgotPasswordMail;
             retVal.m_sSubject = m_sForgotPassMailSubject;
@@ -1490,13 +1472,13 @@ namespace Users
             retVal.m_sSenderName = m_sMailFromName;
             retVal.m_sSenderFrom = m_sMailFromAdd;
             retVal.m_sFirstName = sFirstName;
-            retVal.m_eMailType = TvinciAPI.eMailTemplateType.ForgotPassword;
+            retVal.m_eMailType = eMailTemplateType.ForgotPassword;
             return retVal;
         }
 
-        protected TvinciAPI.ChangePasswordMailRequest GetChangePasswordMailRequest(string sFirstName, string sEmail, string sToken)
+        protected ChangePasswordMailRequest GetChangePasswordMailRequest(string sFirstName, string sEmail, string sToken)
         {
-            TvinciAPI.ChangePasswordMailRequest retVal = new TvinciAPI.ChangePasswordMailRequest();
+            ChangePasswordMailRequest retVal = new ChangePasswordMailRequest();
             retVal.m_sToken = sToken;
             retVal.m_sTemplateName = m_sChangePasswordMail;
             retVal.m_sSubject = m_sChangePassMailSubject;
@@ -1504,13 +1486,13 @@ namespace Users
             retVal.m_sSenderName = m_sMailFromName;
             retVal.m_sSenderFrom = m_sMailFromAdd;
             retVal.m_sFirstName = sFirstName;
-            retVal.m_eMailType = TvinciAPI.eMailTemplateType.ChangePassword;
+            retVal.m_eMailType = eMailTemplateType.ChangePassword;
             return retVal;
         }
 
-        protected TvinciAPI.ChangedPinMailRequest GetChangedPinMailRequest(string sUserName, string sEmail, string sSiteGuid, string sToken, string sRuleName)
+        protected ChangedPinMailRequest GetChangedPinMailRequest(string sUserName, string sEmail, string sSiteGuid, string sToken, string sRuleName)
         {
-            TvinciAPI.ChangedPinMailRequest retVal = new TvinciAPI.ChangedPinMailRequest();
+            ChangedPinMailRequest retVal = new ChangedPinMailRequest();
             retVal.m_sSiteGuid = sSiteGuid;
             retVal.m_sRuleName = sRuleName;
             retVal.m_sToken = sToken;
@@ -1520,17 +1502,17 @@ namespace Users
             retVal.m_sSenderName = m_sMailFromName;
             retVal.m_sSenderFrom = m_sMailFromAdd;
             retVal.m_sFirstName = sUserName;
-            retVal.m_eMailType = TvinciAPI.eMailTemplateType.ChangedPin;
+            retVal.m_eMailType = eMailTemplateType.ChangedPin;
             return retVal;
         }
 
-        protected virtual TvinciAPI.WelcomeMailRequest GetWelcomeMailRequest(string sFirstName, string sUserName, string sPassword, string sEmail, string sFacekookID)
+        protected virtual WelcomeMailRequest GetWelcomeMailRequest(string sFirstName, string sUserName, string sPassword, string sEmail, string sFacekookID)
         {
             string sMailData = string.Empty;
 
-            TvinciAPI.WelcomeMailRequest retVal = new TvinciAPI.WelcomeMailRequest();
+            WelcomeMailRequest retVal = new WelcomeMailRequest();
             retVal.m_sTemplateName = m_sWelcomeMailTemplate;
-            retVal.m_eMailType = TvinciAPI.eMailTemplateType.Welcome;
+            retVal.m_eMailType = eMailTemplateType.Welcome;
             retVal.m_sFirstName = sFirstName;
             retVal.m_sLastName = string.Empty;
             retVal.m_sSenderFrom = m_sMailFromAdd;
@@ -1546,9 +1528,9 @@ namespace Users
             return retVal;
         }
 
-        protected virtual TvinciAPI.SendPasswordMailRequest GetSendPasswordMailRequest(string sFirstName, string sPassword, string sEmail)
+        protected virtual SendPasswordMailRequest GetSendPasswordMailRequest(string sFirstName, string sPassword, string sEmail)
         {
-            TvinciAPI.SendPasswordMailRequest retVal = new TvinciAPI.SendPasswordMailRequest();
+            SendPasswordMailRequest retVal = new SendPasswordMailRequest();
             retVal.m_sTemplateName = string.Format("PasswordReminder_{0}.html", m_nGroupID);
             retVal.m_sSubject = "Uw Ximon wachtwoord";
             retVal.m_sSenderTo = sEmail;
@@ -1556,7 +1538,7 @@ namespace Users
             retVal.m_sSenderFrom = m_sMailFromAdd;
             retVal.m_sFirstName = sFirstName;
             retVal.m_sPassword = sPassword;
-            retVal.m_eMailType = TvinciAPI.eMailTemplateType.SendPassword;
+            retVal.m_eMailType = eMailTemplateType.SendPassword;
             return retVal;
         }
 
@@ -1568,7 +1550,7 @@ namespace Users
 
             if (!string.IsNullOrEmpty(u.m_oBasicData.m_sPassword))
             {
-                TvinciAPI.SendPasswordMailRequest sMailReq = GetSendPasswordMailRequest(u.m_oBasicData.m_sFirstName, u.m_oBasicData.m_sPassword, u.m_oBasicData.m_sEmail);
+                SendPasswordMailRequest sMailReq = GetSendPasswordMailRequest(u.m_oBasicData.m_sFirstName, u.m_oBasicData.m_sPassword, u.m_oBasicData.m_sEmail);
 
                 bool sent = Utils.SendMail(m_nGroupID, sMailReq);
                 return sent;
@@ -1577,27 +1559,123 @@ namespace Users
             return false;
         }
 
-        protected List<TvinciAPI.GroupRule> GetUserGroupsRules(string sSiteGuid)
+        protected List<GroupRule> GetUserGroupsRules(Int32 nGroupID, string sSiteGuid)
         {
-            TvinciAPI.API client = new TvinciAPI.API();
-            string sWSUserName = string.Empty;
-            string sWSPass = string.Empty;
-
-            string sWSURL = Utils.GetTcmConfigValue("api_ws");
-            if (sWSURL != "")
-            {
-                client.Url = sWSURL;
-            }
-            Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(eWSModules.USERS, m_nGroupID, eWSModules.API);
-            if (oCredentials != null)
-            {
-                sWSUserName = oCredentials.m_sUsername;
-                sWSPass = oCredentials.m_sPassword;
-            }
-
-            TvinciAPI.GroupRule[] groupRules = client.GetUserGroupRules(sWSUserName, sWSPass, sSiteGuid);
-            return groupRules.ToList();
+            List<GroupRule> groupRules = GetUserDomainGroupRules(nGroupID, sSiteGuid, 0);
+            return groupRules;
         }
+
+        private static List<GroupRule> ConvertParentalToGroupRule(List<ParentalRule> parentalRules)
+        {
+            List<GroupRule> groupRules = new List<GroupRule>();
+
+            foreach (var parentalRule in parentalRules)
+            {
+                if (parentalRule.mediaTagTypeId > 0)
+                {
+                    // Convert parental rule into group rule
+                    GroupRule groupRule = new GroupRule()
+                    {
+                        RuleID = (int)parentalRule.id,
+                        IsActive = true,
+                        Name = parentalRule.name,
+                        TagTypeID = parentalRule.mediaTagTypeId,
+                        OrderNum = parentalRule.order,
+                        GroupRuleType = eGroupRuleType.Parental,
+                        AllTagValues = parentalRule.mediaTagValues,
+                        BlockAnonymous = parentalRule.blockAnonymousAccess,
+                        BlockType = eBlockType.Validation
+                    };
+
+                    groupRules.Add(groupRule);
+                }
+
+                if (parentalRule.epgTagTypeId > 0)
+                {
+                    // Convert parental rule into group rule
+                    GroupRule groupRule = new GroupRule()
+                    {
+                        RuleID = (int)parentalRule.id,
+                        IsActive = true,
+                        Name = parentalRule.name,
+                        TagTypeID = parentalRule.epgTagTypeId,
+                        OrderNum = parentalRule.order,
+                        GroupRuleType = eGroupRuleType.EPG,
+                        AllTagValues = parentalRule.epgTagValues,
+                        BlockAnonymous = parentalRule.blockAnonymousAccess,
+                        BlockType = eBlockType.Validation
+                    };
+
+                    groupRules.Add(groupRule);
+                }
+            }
+
+            return groupRules;
+        }
+
+        private static GroupRule CreateSettingsGroupRule(ePurchaeSettingsType type)
+        {
+            GroupRule settingsRule = new GroupRule()
+            {
+                RuleID = (int)0,
+                IsActive = true,
+                Name = "Purchase",
+                OrderNum = 0,
+                GroupRuleType = eGroupRuleType.Purchase,
+                BlockType = eBlockType.Validation
+            };
+
+            return settingsRule;
+        }
+
+        public static List<GroupRule> GetUserDomainGroupRules(int groupId, string siteGuid, int domainId)
+        {
+            List<GroupRule> groupRules = new List<GroupRule>();
+
+            if (!string.IsNullOrEmpty(siteGuid))
+            {
+                // Get parental rule from new DAL method
+                var parentalRules = DAL.ApiDAL.Get_User_ParentalRules(groupId, siteGuid);
+
+                groupRules.AddRange(ConvertParentalToGroupRule(parentalRules));
+
+                eRuleLevel ruleLevel = eRuleLevel.User;
+                ePurchaeSettingsType type = ePurchaeSettingsType.Block;
+
+                bool hasPurchaseSetting = DAL.ApiDAL.Get_PurchaseSettings(groupId, domainId, siteGuid, out ruleLevel, out type);
+
+                // Create purchase rule if setting is ask or block (block = known backward compatibility issue)
+                if (hasPurchaseSetting && (type == ePurchaeSettingsType.Ask || type == ePurchaeSettingsType.Block))
+                {
+                    GroupRule settingsRule = CreateSettingsGroupRule(type);
+
+                    groupRules.Add(settingsRule);
+                }
+            }
+            else
+            {
+                // Get parental rule from new DAL method
+                var parentalRules = DAL.ApiDAL.Get_Domain_ParentalRules(groupId, domainId);
+
+                groupRules.AddRange(ConvertParentalToGroupRule(parentalRules));
+
+                eRuleLevel ruleLevel = eRuleLevel.User;
+                ePurchaeSettingsType type = ePurchaeSettingsType.Block;
+
+                bool hasPurchaseSetting = DAL.ApiDAL.Get_PurchaseSettings(groupId, domainId, "0", out ruleLevel, out type);
+
+                // Create purchase rule if setting is ask or block (block = known backward compatibility issue)
+                if (hasPurchaseSetting && (type == ePurchaeSettingsType.Ask || type == ePurchaeSettingsType.Block))
+                {
+                    GroupRule settingsRule = CreateSettingsGroupRule(type);
+
+                    groupRules.Add(settingsRule);
+                }
+            }
+
+            return groupRules;
+        }
+
 
         public override bool WriteToLog(string sSiteGUID, string sMessage, string sWriter)
         {
@@ -1994,7 +2072,7 @@ namespace Users
             if (response.Code != (int)eResponseStatus.OK)
                 return response;
 
-            TvinciAPI.WelcomeMailRequest mailReq = GetWelcomeMailRequest(user.m_user.m_oBasicData.m_sFirstName, user.m_user.m_oBasicData.m_sUserName, user.m_user.m_oBasicData.m_sPassword,
+            WelcomeMailRequest mailReq = GetWelcomeMailRequest(user.m_user.m_oBasicData.m_sFirstName, user.m_user.m_oBasicData.m_sUserName, user.m_user.m_oBasicData.m_sPassword,
                 user.m_user.m_oBasicData.m_sEmail, user.m_user.m_oBasicData.m_sFacebookID);
 
             if (Utils.SendMail(m_nGroupID, mailReq))

@@ -15,8 +15,6 @@ namespace DalCB
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private static readonly string sEndMaxValue = @"\uefff";
-        private static readonly string LOGGER_FILENAME = "SocialDal";
         private static readonly string CB_FEED_DESGIN = Utils.GetValFromConfig("cb_feed_design");
 
         CouchbaseManager.CouchbaseManager cbManager;

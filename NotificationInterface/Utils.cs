@@ -99,31 +99,3 @@ namespace NotificationInterface
         }
     }
 }
-
-namespace NotificationInterface.WS_Api
-{
-    // adding request ID to header
-    public partial class API
-    {
-        protected override WebRequest GetWebRequest(Uri uri)
-        {
-            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
-            return request;
-        }
-    }
-}
-
-namespace NotificationInterface.WS_Users
-{
-    // adding request ID to header
-    public partial class UsersService
-    {
-        protected override WebRequest GetWebRequest(Uri uri)
-        {
-            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
-            return request;
-        }
-    }
-}

@@ -13,7 +13,7 @@ namespace Tvinci.Core.DAL
 
         public static DataTable GetGroupsTree(long groupID)
         {
-            return GetGroupsTree(groupID, string.Empty);
+            return GetGroupsTree(groupID, "MAIN_CONNECTION_STRING");
         }
 
         public static DataTable GetGroupsTree(long groupID, string sConnectionKey)

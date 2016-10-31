@@ -1683,7 +1683,6 @@ namespace TVinciShared
                                 else
                                 {
                                     #region useUploader
-                                    bool isOverridePic = false;
                                     int mediaID = 0;
                                     if (HttpContext.Current.Session["media_id"] != null)
                                     {
@@ -1699,7 +1698,6 @@ namespace TVinciShared
                                     if (mediaID > 0)
                                     {
                                         sPicBaseName = ImageUtils.GetDateImageName(mediaID);
-                                        isOverridePic = true;
                                     }
                                     else
                                     {

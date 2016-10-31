@@ -1,4 +1,5 @@
 ﻿using ApiObjects.Response;
+using Pricing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +25,7 @@ namespace ConditionalAccess
         public string m_sPurchasedItemCode;
         public BillingItemsType m_eItemType;
         public BillingAction m_eBillingAction;
-        public TvinciPricing.Price m_Price;
+        public Price m_Price;
         public DateTime m_dtActionDate;
         public DateTime m_dtStartDate;
         public DateTime m_dtEndDate;
@@ -69,9 +70,9 @@ namespace ConditionalAccess
             m_sPurchasedItemCode = sPurchasedItemCode;
             m_eItemType = eItemType;
             m_eBillingAction = eBillingAction;
-            m_Price = new ConditionalAccess.TvinciPricing.Price();
+            m_Price = new Price();
             m_Price.m_dPrice = dPrice;
-            m_Price.m_oCurrency = new ConditionalAccess.TvinciPricing.Currency();
+            m_Price.m_oCurrency = new Currency();
             //m_Price.m_oCurrency.
             m_dtActionDate = new DateTime(2000, 1, 1);
             m_dtStartDate = new DateTime(2000, 1, 1);
@@ -108,8 +109,8 @@ namespace ConditionalAccess
         public string m_sPurchasedItemName;
         public string m_sPurchasedItemCode;
         public BillingItemsType m_eItemType;
-        public TvinciPricing.Price m_oPrice;
-        public TvinciPricing.Price m_oCredit;
+        public Price m_oPrice;
+        public Price m_oCredit;
         public DateTime m_dtActionDate;
 
         public PrePaidHistoryContainer()

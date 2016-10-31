@@ -5,15 +5,6 @@
     <Setting Name="Catalog_Lucene_WCF_Service" Type="(Web Service URL)" Scope="Application">
       <Value Profile="(Default)">http://localhost/LuceneWCF2.0/Service.svc</Value>
     </Setting>
-    <Setting Name="Catalog_ws_users_UsersService" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://localhost/ws_users/module.asmx</Value>
-    </Setting>
-    <Setting Name="Catalog_WS_Domains_module" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://localhost/ws_domains/module.asmx</Value>
-    </Setting>
-    <Setting Name="Catalog_api_API" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://localhost:82/WS_API/api.asmx</Value>
-    </Setting>
     <Setting Name="Catalog_ws_cas_module" Type="(Web Service URL)" Scope="Application">
       <Value Profile="(Default)">http://localhost:82/ws_cas/module.asmx</Value>
     </Setting>

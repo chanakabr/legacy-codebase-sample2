@@ -979,7 +979,7 @@ namespace TVinciShared
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 imageUrl = string.Empty;
             }

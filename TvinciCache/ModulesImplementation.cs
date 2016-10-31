@@ -31,7 +31,7 @@ namespace TvinciCache
             return nImplID;
         }
 
-        public static int GetModuleIDAndName(eWSModules eMainWSModule, int nGroupID, int nModuleID)
+        public static int GetModuleIDAndName(eWSModules eMainWSModule, int nGroupID, int nModuleID, string connectionKey = "")
         {
             int nImplID = 0;
 
@@ -43,7 +43,7 @@ namespace TvinciCache
                 {
                     if ((nImplID = WSCache.Instance.Get<int>(key)) == 0)
                     {
-                        nImplID = WS_Utils.GetModuleImplID(nGroupID, nModuleID);
+                        nImplID = WS_Utils.GetModuleImplID(nGroupID, nModuleID, connectionKey);
                         WSCache.Instance.Add(key, nImplID);
                     }
                 }

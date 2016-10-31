@@ -6,6 +6,10 @@ using System.Reflection;
 using System.Text;
 using KLogMonitor;
 using NotificationObj;
+using ApiObjects;
+using WS_API;
+using WS_Users;
+using Users;
 
 namespace NotificationInterface
 {
@@ -43,30 +47,21 @@ namespace NotificationInterface
             {
                 #region Get all user Details by userID frm WS_USERS
 
-                WS_Users.UsersService usersService = new WS_Users.UsersService();
-                string sWSURL = Utils.GetWSURL("users_ws");
-                if (sWSURL != "")
-                    usersService.Url = sWSURL;
+                UsersService usersService = new UsersService();
                 string sIP = "1.1.1.1";
                 string sWSUserName = "";
                 string sWSPass = "";
                 int nGroupID = ODBCWrapper.Utils.GetIntSafeVal(message.nGroupID); //TVinciShared.LoginManager.GetLoginGroupID();                
                 TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "00000", "users", sIP, ref sWSUserName, ref sWSPass);
-                WS_Users.UserResponseObject userObj = usersService.GetUserData(sWSUserName, sWSPass, ODBCWrapper.Utils.GetSafeStr(message.UserID));
+                UserResponseObject userObj = usersService.GetUserData(sWSUserName, sWSPass, ODBCWrapper.Utils.GetSafeStr(message.UserID), sIP);
 
                 #endregion
 
-                WS_Api.API clientAPI = new WS_Api.API();
-                sWSURL = Utils.GetWSURL("api_ws");
-                if (sWSURL != "")
-                    clientAPI.Url = sWSURL;
-
-                log.Debug("SendMail - api_ws = " + clientAPI.Url);
-
+                API clientAPI = new API();
                 //Build mailRequest from the message 
-                WS_Api.EmailNotificationRequest emailRequest = new WS_Api.EmailNotificationRequest();
+                EmailNotificationRequest emailRequest = new EmailNotificationRequest();
 
-                emailRequest.m_eMailType = WS_Api.eMailTemplateType.Notification;
+                emailRequest.m_eMailType = eMailTemplateType.Notification;
                 if (userObj != null && userObj.m_user != null && userObj.m_user.m_oBasicData != null)
                 {
                     emailRequest.m_sFirstName = userObj.m_user.m_oBasicData.m_sFirstName;
@@ -88,7 +83,7 @@ namespace NotificationInterface
 
                     //get all tags for media
                     DataTable dtMediaTags = DAL.NotificationDal.GetTagsNotificationByMedia(message.TagNotificationParams.mediaID, null);
-                    List<WS_Api.TagPair> lMediaTagsMetas = new List<WS_Api.TagPair>();
+                    List<TagPair> lMediaTagsMetas = new List<TagPair>();
                     Dictionary<string, string> tags = new Dictionary<string, string>();
                     if (dtMediaTags != null && dtMediaTags.DefaultView.Count > 0)
                     {
@@ -96,7 +91,7 @@ namespace NotificationInterface
                         {
                             string tagType = ODBCWrapper.Utils.GetSafeStr(dr["tag_type_name"]);
                             string tagValue = ODBCWrapper.Utils.GetSafeStr(dr["value"]);
-                            WS_Api.TagPair tagPair = new WS_Api.TagPair();
+                            TagPair tagPair = new TagPair();
                             tagPair.key = tagType.Replace("(", string.Empty).Replace(")", string.Empty);
                             tagPair.value = tagValue;
 
@@ -107,7 +102,7 @@ namespace NotificationInterface
                         }
                         foreach (KeyValuePair<string, string> item in tags)
                         {
-                            WS_Api.TagPair tagPair = new WS_Api.TagPair();
+                            TagPair tagPair = new TagPair();
                             tagPair.key = item.Key;
                             tagPair.value = item.Value;
                             lMediaTagsMetas.Add(tagPair);
@@ -142,7 +137,7 @@ namespace NotificationInterface
             }
         }
 
-        private static void GetMediaDetails(NotificationMessage message, ref WS_Api.EmailNotificationRequest emailRequest, List<WS_Api.TagPair> lMediaTagsMetas)
+        private static void GetMediaDetails(NotificationMessage message, ref EmailNotificationRequest emailRequest, List<TagPair> lMediaTagsMetas)
         {
             //get Media Details from Tvinci DB 
             DataSet ds = DAL.NotificationDal.GetMediaForEmail(message.TagNotificationParams.mediaID);
@@ -162,7 +157,7 @@ namespace NotificationInterface
                     DataTable dtMetaNames = DAL.NotificationDal.Get_MetasByGroup(group_id);
                     //get all metas for media 
                     lMediaTagsMetas = GetMetas(lMediaTagsMetas, ds, group_id, dtMetaNames);
-                    emailRequest.m_tagList = lMediaTagsMetas.ToArray<WS_Api.TagPair>();
+                    emailRequest.m_tagList = lMediaTagsMetas;
                 }
                 if (ds.Tables[1] != null && ds.Tables[1].DefaultView.Count > 0) //Media  Pictures
                 {
@@ -189,7 +184,7 @@ namespace NotificationInterface
             }
         }
 
-        private static List<WS_Api.TagPair> GetMetas(List<WS_Api.TagPair> lMediaTagsMetas, DataSet ds, int group_id, DataTable dtMetaNames)
+        private static List<TagPair> GetMetas(List<TagPair> lMediaTagsMetas, DataSet ds, int group_id, DataTable dtMetaNames)
         {
             DataRow[] drMetaNames = dtMetaNames.Select("Id = " + group_id);
             //get all metas
@@ -205,7 +200,7 @@ namespace NotificationInterface
                         metaValue = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0][metaFiled]);
                         if (!string.IsNullOrEmpty(metaValue))
                         {
-                            WS_Api.TagPair metaPair = new WS_Api.TagPair();
+                            TagPair metaPair = new TagPair();
                             metaPair.key = metaName;
                             metaPair.value = metaValue;
                             lMediaTagsMetas.Add(metaPair);

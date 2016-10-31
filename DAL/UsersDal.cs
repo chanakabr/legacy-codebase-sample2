@@ -1725,6 +1725,7 @@ namespace DAL
             try
             {
                 StoredProcedure spUpdateUserDynamicData = new StoredProcedure("Update_UserDynamicData");
+                spUpdateUserDynamicData.SetConnectionKey("USERS_CONNECTION_STRING");
 
                 spUpdateUserDynamicData.AddParameter("@doc", xmlTypeValue);
                 spUpdateUserDynamicData.AddParameter("@group_id", nGroupID);
@@ -1744,6 +1745,7 @@ namespace DAL
             try
             {
                 StoredProcedure sp = new StoredProcedure("Insert_LoginPIN");
+                sp.SetConnectionKey("USERS_CONNECTION_STRING");
                 sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@siteGuid", siteGuid);
                 sp.AddParameter("@pinCode", pinCode);
@@ -1767,6 +1769,7 @@ namespace DAL
             try
             {
                 StoredProcedure sp = new StoredProcedure("Is_PinCodeExsits");
+                sp.SetConnectionKey("USERS_CONNECTION_STRING");
                 sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@newPIN", newPIN);
                 sp.AddParameter("@expired_date", expired_date);
@@ -1787,6 +1790,7 @@ namespace DAL
             try
             {
                 StoredProcedure sp = new StoredProcedure("Get_UserByPIN");
+                sp.SetConnectionKey("USERS_CONNECTION_STRING");
                 sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@pinCode", pinCode);
                 sp.AddParameter("@secret", secret);
@@ -1835,6 +1839,7 @@ namespace DAL
             try
             {
                 StoredProcedure sp = new StoredProcedure("Is_ExpirePIN");
+                sp.SetConnectionKey("USERS_CONNECTION_STRING");
                 sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@PIN", PIN);
                 bool res = sp.ExecuteReturnValue<bool>();
@@ -1853,6 +1858,7 @@ namespace DAL
             try
             {
                 StoredProcedure sp = new StoredProcedure("Get_LoginSettings");
+                sp.SetConnectionKey("USERS_CONNECTION_STRING");
                 sp.AddParameter("@groupID", groupID);
                 DataSet ds = sp.ExecuteDataSetWithListParam();
 
@@ -1876,6 +1882,7 @@ namespace DAL
             try
             {
                 StoredProcedure sp = new StoredProcedure("Update_ExpirePINByUserID");
+                sp.SetConnectionKey("USERS_CONNECTION_STRING");
                 sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@siteGuid", siteGuid);
                 bool res = sp.ExecuteReturnValue<bool>();
@@ -1892,6 +1899,7 @@ namespace DAL
             try
             {
                 StoredProcedure sp = new StoredProcedure("Update_LoginPinStatusByPinCode");
+                sp.SetConnectionKey("USERS_CONNECTION_STRING");
                 sp.AddParameter("@group_id", groupID);
                 sp.AddParameter("@site_guid", siteGuid);
                 sp.AddParameter("@pin_code", pinCode);
@@ -1909,6 +1917,7 @@ namespace DAL
             try
             {
                 StoredProcedure sp = new StoredProcedure("Get_FavoriteMediaIds");
+                sp.SetConnectionKey("USERS_CONNECTION_STRING");
                 sp.AddParameter("@user_id", userId);
                 sp.AddParameter("@udid", !string.IsNullOrEmpty(udid) ? udid : null);
                 sp.AddParameter("@media_type", !string.IsNullOrEmpty(mediaType) ? mediaType : null);
@@ -1934,6 +1943,7 @@ namespace DAL
             try
             {
                 StoredProcedure sp = new StoredProcedure("Get_UserRoleIds");
+                sp.SetConnectionKey("USERS_CONNECTION_STRING");
                 sp.AddParameter("@user_id", userId);
                 sp.AddParameter("@group_id", groupId);
                 DataSet ds = sp.ExecuteDataSet();
@@ -1967,6 +1977,7 @@ namespace DAL
             try
             {
                 StoredProcedure sp = new StoredProcedure("Insert_UserRole");
+                sp.SetConnectionKey("USERS_CONNECTION_STRING");
                 sp.AddParameter("@user_id", userId);
                 sp.AddParameter("@group_id", groupId);
                 sp.AddParameter("@role_id", roleId);
@@ -2012,6 +2023,7 @@ namespace DAL
             try
             {
                 StoredProcedure sp = new StoredProcedure("IsUserDomainMaster");
+                sp.SetConnectionKey("USERS_CONNECTION_STRING");
                 sp.AddParameter("@user_id", userId);
                 sp.AddParameter("@group_id", groupId);
                 DataSet ds = sp.ExecuteDataSet();
@@ -2041,6 +2053,7 @@ namespace DAL
         public static DataTable Get_UserFavorites(string sUserGUID, string sUDID, int nType, int orderBy = 0)
         {
             StoredProcedure sp = new StoredProcedure("Get_UserFavorites");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@SiteGUID", sUserGUID);
             sp.AddParameter("@MediaTypeID", nType);
             sp.AddParameter("@order_by", orderBy);

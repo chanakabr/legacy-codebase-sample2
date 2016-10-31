@@ -19,7 +19,6 @@ namespace CachingProvider
          * 2. MemoryCache should be properly disposed.
          */
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly string SINGLE_IN_MEM_CACHE_LOG_FILE = "SingleInMemoryCache";
         private MemoryCache cache = null;
 
         public string CacheName

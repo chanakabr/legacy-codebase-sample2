@@ -215,11 +215,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.map</DependentUpon>
     </Compile>
-    <Compile Include="Web References\TvinciAPI\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>
     <Compile Include="YesUsers.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -242,6 +237,10 @@
     <ProjectReference Include="..\ElasticSearch\ElasticSearch.csproj">
       <Project>{c9718e6d-f866-4991-80cd-4bafdf4d8878}</Project>
       <Name>ElasticSearch</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Mailer\Mailer.csproj">
+      <Project>{8c082dfd-81ee-4623-8be9-32d34ded6407}</Project>
+      <Name>Mailer</Name>
     </ProjectReference>
     <ProjectReference Include="..\MCGroupRules\MCGroupRules.csproj">
       <Project>{7a9c7a82-02fa-4b2e-9391-175ca212012d}</Project>
@@ -306,71 +305,6 @@
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
     <None Include="Web References\OrcaProxy\service.wsdl" />
-    <None Include="Web References\TvinciAPI\AdminAccountUserResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\api.wsdl" />
-    <None Include="Web References\TvinciAPI\CategoryObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\ChannelObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\DeviceAvailabiltyRule.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\EPGChannelObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\EPGChannelProgrammeObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\FileTypeContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\GenericWriteResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\GroupInfo.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\GroupOperator.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\GroupRule.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\MediaInfoStructObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\MediaMarkObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\MeidaMaper.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\RateMediaObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <None Include="Web References\TvinciAPI\Scheduling.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\Scheduling1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\TagResponseObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\UserIMRequestObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\UserStatus.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <WebReferences Include="Web References\" />
@@ -390,20 +324,6 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>Users_OrcaProxy_Service</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/ws_api/api.asmx">
-      <UrlBehavior>Dynamic</UrlBehavior>
-      <RelPath>Web References\TvinciAPI\</RelPath>
-      <UpdateFromURL>http://localhost/ws_api/api.asmx</UpdateFromURL>
-      <ServiceLocationURL>
-      </ServiceLocationURL>
-      <CachedDynamicPropName>
-      </CachedDynamicPropName>
-      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
-      <CachedSettingsPropName>Users_TvinciAPI_API</CachedSettingsPropName>
-    </WebReferenceUrl>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Web References\TvinciAPI\api.disco" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Web References\OrcaProxy\service.disco" />

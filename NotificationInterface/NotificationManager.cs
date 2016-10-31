@@ -8,11 +8,12 @@ using System.Web.Script.Serialization;
 using System.Threading.Tasks;
 using System.Reflection;
 using NotificationObj;
-using System.Linq;
 using System.Threading;
 using System.Text.RegularExpressions;
 using KLogMonitor;
 using KlogMonitorHelper;
+using Users;
+using WS_Users;
 //using CouchbaseManager;
 //using Couchbase;
 //using NotificationBL;
@@ -1165,7 +1166,6 @@ namespace NotificationInterface
             try
             {
                 int tagTypeId = 0;
-                int isAll = 1;
                 Dictionary<string, List<string>> notificationTags = null;
                 Dictionary<string, List<string>> notificationTagsAll = null;
                 Dictionary<int, List<int>> lTag = new Dictionary<int, List<int>>();
@@ -1702,16 +1702,13 @@ namespace NotificationInterface
         {
             try
             {
-                WS_Users.UsersService usersService = new WS_Users.UsersService();
-                string sWSURL = Utils.GetWSURL("users_ws");
-                if (sWSURL != "")
-                    usersService.Url = sWSURL;
+                UsersService usersService = new UsersService();
                 string sIP = "1.1.1.1";
                 string sWSUserName = "";
                 string sWSPass = "";
                 int nGroupID = ODBCWrapper.Utils.GetIntSafeVal(groupID); //TVinciShared.LoginManager.GetLoginGroupID();                
                 TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "00000", "users", sIP, ref sWSUserName, ref sWSPass);
-                WS_Users.UserResponseObject userObj = usersService.GetUserData(sWSUserName, sWSPass, ODBCWrapper.Utils.GetSafeStr(userID));
+                UserResponseObject userObj = usersService.GetUserData(sWSUserName, sWSPass, ODBCWrapper.Utils.GetSafeStr(userID), sIP);
 
                 if (userObj != null && userObj.m_user != null && userObj.m_user.m_oBasicData != null)
                 {
@@ -1726,7 +1723,7 @@ namespace NotificationInterface
             }
         }
 
-        private void ReplaceName(ref string messageText, WS_Users.UserBasicData user)
+        private void ReplaceName(ref string messageText, UserBasicData user)
         {
             ReplaceText(ref messageText, "{FirstName}", user.m_sFirstName);
             ReplaceText(ref messageText, "{LastName}", user.m_sLastName);

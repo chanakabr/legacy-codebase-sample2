@@ -51,6 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GroupsFeatures.cs" />
     <Compile Include="ModulesImplementation.cs" />
     <Compile Include="WSCache.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -64,6 +65,10 @@
     <ProjectReference Include="..\CachingProvider\CachingProvider.csproj">
       <Project>{4191d9e7-8502-4b00-a488-771240e2cf40}</Project>
       <Name>CachingProvider</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DAL\DAL.csproj">
+      <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
+      <Name>DAL</Name>
     </ProjectReference>
     <ProjectReference Include="..\TVinciShared\TVinciShared.csproj">
       <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>

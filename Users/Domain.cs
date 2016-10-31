@@ -1226,35 +1226,36 @@ namespace Users
             }
         }
 
-        public DomainResponseStatus ValidateConcurrency(string sUDID, int nDeviceBrandID, long lDomainID)
+        public DomainResponseStatus ValidateConcurrency(string udid, int nDeviceBrandID, long domainID)
         {
-            DomainResponseStatus res = DomainResponseStatus.UnKnown;
-            if (!string.IsNullOrEmpty(sUDID))
+            DomainResponseStatus result = DomainResponseStatus.UnKnown;
+
+            if (!string.IsNullOrEmpty(udid))
             {
-                Device device = new Device(sUDID, nDeviceBrandID, m_nGroupID, string.Empty, (int)lDomainID);
+                Device device = new Device(udid, nDeviceBrandID, m_nGroupID, string.Empty, (int)domainID);
                 DeviceContainer dc = GetDeviceContainer(device.m_deviceFamilyID);
                 if (dc != null)
                 {
                     if (m_oLimitationsManager.Concurrency <= 0 || IsAgnosticToDeviceLimitation(ValidationType.Concurrency, device.m_deviceFamilyID))
                     {
                         // there are no concurrency limitations at all.
-                        res = DomainResponseStatus.OK;
+                        result = DomainResponseStatus.OK;
                     }
                     else
                     {
                         int nTotalStreams = 0;
-                        Dictionary<int, int> deviceFamiliesStreams = GetConcurrentCount(lDomainID, sUDID, ref nTotalStreams);
+                        Dictionary<int, int> deviceFamiliesStreams = GetConcurrentCount(domainID, udid, ref nTotalStreams);
                         if (deviceFamiliesStreams == null)
                         {
                             // no active streams at all
-                            res = DomainResponseStatus.OK;
+                            result = DomainResponseStatus.OK;
                         }
                         else
                         {
                             if (nTotalStreams >= m_oLimitationsManager.Concurrency)
                             {
                                 // Cannot allow a new stream. Domain reached its max limitation
-                                res = DomainResponseStatus.ConcurrencyLimitation;
+                                result = DomainResponseStatus.ConcurrencyLimitation;
                             }
                             else
                             {
@@ -1263,18 +1264,18 @@ namespace Users
                                     if (deviceFamiliesStreams[device.m_deviceFamilyID] >= dc.m_oLimitationsManager.Concurrency)
                                     {
                                         // device family reached its max limit. Cannot allow a new stream
-                                        res = DomainResponseStatus.ConcurrencyLimitation;
+                                        result = DomainResponseStatus.ConcurrencyLimitation;
                                     }
                                     else
                                     {
                                         // User is able to watch through this device. Hasn't reach the device family max limitation
-                                        res = DomainResponseStatus.OK;
+                                        result = DomainResponseStatus.OK;
                                     }
                                 }
                                 else
                                 {
                                     // no active streams at the device's family.
-                                    res = DomainResponseStatus.OK;
+                                    result = DomainResponseStatus.OK;
                                 }
                             }
                         }
@@ -1282,15 +1283,15 @@ namespace Users
                 }
                 else
                 {
-                    res = DomainResponseStatus.DeviceTypeNotAllowed;
+                    result = DomainResponseStatus.DeviceTypeNotAllowed;
                 }
             }
             else
             {
-                res = DomainResponseStatus.OK;
+                result = DomainResponseStatus.OK;
             }
 
-            return res;
+            return result;
         }
 
         public DomainResponseStatus ValidateFrequency(string sUDID, int nDeviceBrandID)
@@ -1991,7 +1992,7 @@ namespace Users
 
                 User masterUser = new User(nGroupID, m_masterGUIDs[0]);
 
-                TvinciAPI.AddDeviceMailRequest sMailRequest = null;
+                AddDeviceMailRequest sMailRequest = null;
 
                 if (masterUser != null)
                 {
@@ -2387,7 +2388,7 @@ namespace Users
                 // Now we can send the activation mail to the Master
                 if (!string.IsNullOrEmpty(sActivationToken))
                 {
-                    TvinciAPI.AddUserMailRequest sMailRequest = MailFactory.GetAddUserMailRequest(nGroupID, masterUser.m_oBasicData.m_sFirstName, masterUser.m_oBasicData.m_sUserName, masterUser.m_oBasicData.m_sEmail,
+                    AddUserMailRequest sMailRequest = MailFactory.GetAddUserMailRequest(nGroupID, masterUser.m_oBasicData.m_sFirstName, masterUser.m_oBasicData.m_sUserName, masterUser.m_oBasicData.m_sEmail,
                                                                                                 sNewUsername, sNewFirstName, sActivationToken);
                     if (sMailRequest != null)
                     {
@@ -2532,33 +2533,36 @@ namespace Users
          * This method get MediaConcurrencyLimit (int) , domain and mediaID 
          * Get from CB all media play at the last 
          ************************************************************************************************************* */
-        internal DomainResponseStatus ValidateMediaConcurrency(int nRuleID, int nMediaConcurrencyLimit, long lDomainID, int nMediaID, string sUDID)
+        internal DomainResponseStatus ValidateAssetConcurrency(int nRuleID, int mediaConcurrencyLimit, long lDomainID, int assetID, string sUDID)
         {
-            DomainResponseStatus res = DomainResponseStatus.OK;
-            if (nMediaConcurrencyLimit == 0)
+            DomainResponseStatus response = DomainResponseStatus.OK;
+
+            if (mediaConcurrencyLimit == 0)
             {
                 // get limitation from DB
                 DataTable dt = ApiDAL.GetMCRulesByID(nRuleID);
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
-                    nMediaConcurrencyLimit = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "media_concurrency_limit");
+                    mediaConcurrencyLimit = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "media_concurrency_limit");
                 }
             }
 
-            if (nMediaConcurrencyLimit > 0) // check concurrency only if limitation  > 0 
+            if (mediaConcurrencyLimit > 0) // check concurrency only if limitation  > 0 
             {
                 List<UserMediaMark> lUserMediaMark = CatalogDAL.GetDomainLastPositions((int)lDomainID, Utils.CONCURRENCY_MILLISEC_THRESHOLD,
                         new List<ePlayType>() { ApiObjects.ePlayType.NPVR, ApiObjects.ePlayType.MEDIA });
                 if (lUserMediaMark != null)
                 {
-                    List<UserMediaMark> lMediaConcurrency = lUserMediaMark.Where(c => !c.UDID.Equals(sUDID) && c.MediaID == nMediaID && c.CreatedAt.AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow).ToList();
-                    if (lMediaConcurrency != null && lMediaConcurrency.Count >= nMediaConcurrencyLimit)
+                    List<UserMediaMark> assetConcurrency = lUserMediaMark.Where(currentMark => !currentMark.UDID.Equals(sUDID) && currentMark.AssetID == assetID && 
+
+                        currentMark.CreatedAt.AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow).ToList();
+                    if (assetConcurrency != null && assetConcurrency.Count >= mediaConcurrencyLimit)
                     {
-                        res = DomainResponseStatus.MediaConcurrencyLimitation;
+                        response = DomainResponseStatus.MediaConcurrencyLimitation;
                     }
                 }
             }
-            return res;
+            return response;
         }
 
         /***************************************************************************************************************
@@ -2732,7 +2736,5 @@ namespace Users
                 return false;
             }
         }
-
-       
     }
 }

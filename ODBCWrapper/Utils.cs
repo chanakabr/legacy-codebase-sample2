@@ -7,18 +7,22 @@ using System.Reflection;
 using System.Data.SqlClient;
 using System.Text.RegularExpressions;
 using System.Linq;
+using CachingProvider;
 
 namespace ODBCWrapper
 {
     public class Utils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
+        
+        private const string DB_SP_ROUTING_KEY = "db_sp_routing";
+        private const int DB_SP_ROUTING_EXPIRY_HOURS = 24;        
         private const string REGEX_TABLE_NAME = @"\bjoin\s+(?<Retrieve>[a-zA-Z\._\d]+)\b|\bfrom\s+(?<Retrieve>[a-zA-Z\._\d]+)\b|\bupdate\s+(?<Update>[a-zA-Z\._\d]+)\b|\binsert\s+(?:\binto\b)?\s+(?<Insert>[a-zA-Z\._\d]+)\b|\btruncate\s+table\s+(?<Delete>[a-zA-Z\._\d]+)\b|\bdelete\s+(?:\bfrom\b)?\s+(?<Delete>[a-zA-Z\._\d]+)\b";
         public static readonly DateTime FICTIVE_DATE = new DateTime(2000, 1, 1);
         static List<string> dbWriteLockParams = (!string.IsNullOrEmpty(TCMClient.Settings.Instance.GetValue<string>("DB_WriteLock_Params"))) ? TCMClient.Settings.Instance.GetValue<string>("DB_WriteLock_Params").Split(';').ToList<string>() : null;
         static public string dBVersionPrefix = (!string.IsNullOrEmpty(TCMClient.Settings.Instance.GetValue<string>("DB_Settings.prefix"))) ? string.Concat("__", TCMClient.Settings.Instance.GetValue<string>("DB_Settings.prefix"), "__") : string.Empty;
-        static bool UseReadWriteLockMechanism = TCMClient.Settings.Instance.GetValue<bool>("DB_WriteLock_Use");
+        static bool UseReadWriteLockMechanism = TCMClient.Settings.Instance.GetValue<bool>("DB_WriteLock_Use");        
+        private static object locker = new object();        
         [ThreadStatic]
         public static bool UseWritable;
 
@@ -185,7 +189,6 @@ namespace ODBCWrapper
             return GetTableSingleVal(sTable, sFieldName, nID, "");
         }
 
-
         static public object GetTableSingleVal(string sTable, string sFieldName, Int32 nID, string sConnectionKey)
         {
             return GetTableSingleVal(sTable, sFieldName, "id", "=", nID, sConnectionKey);
@@ -205,7 +208,6 @@ namespace ODBCWrapper
         {
             return GetTableSingleVal(sTable, sFieldName, sWhereField, sWhereSign, sWhereVal, nCachSec, "");
         }
-
 
         static public object GetTableSingleVal(string sTable, string sFieldName, string sWhereField, string sWhereSign, object sWhereVal, Int32 nCachSec, string sConnectionKey)
         {
@@ -309,7 +311,6 @@ namespace ODBCWrapper
             }
         }
 
-
         static public Int32 GetIntSafeVal(ODBCWrapper.DataSetSelectQuery selectQuery, string sField, Int32 nIndex)
         {
             try
@@ -340,7 +341,6 @@ namespace ODBCWrapper
                 return 0;
             }
         }
-
 
         static public double GetDoubleSafeVal(object o)
         {
@@ -481,7 +481,6 @@ namespace ODBCWrapper
             }
         }
 
-
         public static string GetDelimitedStringFromDataTable(DataTable dt, string delimiter, string columnName, string prefix, string suffix)
         {
             string result = GetDelimitedStringFromDataTable(dt, delimiter, columnName);
@@ -509,7 +508,6 @@ namespace ODBCWrapper
             }
             return sb.ToString();
         }
-
 
         public static string GetTcmConfigValue(string sKey)
         {
@@ -545,6 +543,7 @@ namespace ODBCWrapper
 
             return res;
         }
+
         public static int GetIntSafeVal(DataRow dr, string sField, int returnThisInCaseOfFail)
         {
             int res = returnThisInCaseOfFail;
@@ -1000,9 +999,27 @@ namespace ODBCWrapper
             if (!useWriteable)
             {
                 Utils.UseWritable = ReadWriteLock(sKey, oValue, executer, isWritable);
-
-                //if (useWriteable) Logger.Logger.Log("DBLock ", "m_bUseWritable changed to '" + Utils.UseWritable + "', for: " + executer, "ODBC_DBLock");
             }
+
+            DbProceduresRouting dbSpRouting = GetDbProceduresRouting();
+            if (dbSpRouting != null)
+            {
+                string procedureName = (executer as string).ToLower();                
+                if (!string.IsNullOrEmpty(procedureName) && dbSpRouting.ProceduresMapping.ContainsKey(procedureName))
+                {                    
+                    ProcedureRoutingInfo procedureRoutingInfo = dbSpRouting.ProceduresMapping[procedureName];
+                    if (procedureRoutingInfo.VersionsToExclude.Contains(dBVersionPrefix.ToLower()))
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        Utils.UseWritable = procedureRoutingInfo.IsWritable;
+                    }                    
+                }
+            }
+                
+            //if (useWriteable) Logger.Logger.Log("DBLock ", "m_bUseWritable changed to '" + Utils.UseWritable + "', for: " + executer, "ODBC_DBLock");            
         }
 
         public static bool ReadWriteLock(string sKey, object oValue, object executer, bool isWritable)
@@ -1057,7 +1074,7 @@ namespace ODBCWrapper
                                     }
                                 }
                             }
-                            catch (Exception ex)
+                            catch 
                             {
                                 //Logger.Logger.Log("DBLock; Executer=" + executer + ", isWritable=" + isWritable, ex.ToString(), "ODBC_DBLock");
                             }
@@ -1082,7 +1099,7 @@ namespace ODBCWrapper
                                     //Logger.Logger.Log("DBLock ", "Created (" + res + ") for " + executer + ", with Key: " + cbKeyPrefix + oValue, "ODBC_DBLock");
                                 }
                             }
-                            catch (Exception ex)
+                            catch 
                             {
                                 //Logger.Logger.Log("DBLock; Executer=" + executer + ", isWritable=" + isWritable, ex.ToString(), "ODBC_DBLock");
                             }
@@ -1092,11 +1109,92 @@ namespace ODBCWrapper
                     }
                 }
             }
-            catch (Exception ex)
+            catch 
             {
                 //Logger.Logger.Log("DBLock", ex.ToString(), "ODBC_DBLock");
             }
             return bRet;
         }
+
+        public static DbProceduresRouting GetDbProceduresRouting()
+        {
+            string key = GetDbSpRoutingKey();
+            DbProceduresRouting dbProceduresRouting = null;
+            try
+            {
+                if (!ODBCWrapperCache.Instance.TryGet(key, out dbProceduresRouting))
+                {
+                    lock (locker)
+                    {
+                        if (!ODBCWrapperCache.Instance.TryGet(key, out dbProceduresRouting))
+                        {
+                            log.Debug("Getting DB Procedures Routing from DB");
+                            dbProceduresRouting = InitializeDbProceduresRouting();
+                            if (dbProceduresRouting != null)
+                            {
+                                ODBCWrapperCache.Instance.Add(key, dbProceduresRouting, DB_SP_ROUTING_EXPIRY_HOURS * 60);
+                            }
+                        }
+                    }
+                }
+                else if (dbProceduresRouting == null)
+                {
+                    log.Error("DB Procedures Routing is null");
+                }                
+            }
+
+            catch (Exception ex)
+            {
+                log.Error("Error in GetDbProceduresRouting", ex);
+            }
+
+            return dbProceduresRouting;
+
+        }        
+
+        public static bool RemoveDatabaseStoredProcedureRouting()
+        {            
+            ODBCWrapperCache.ClearAll();
+            string key = GetDbSpRoutingKey();
+            DbProceduresRouting dbProceduresRouting = null;
+            return !ODBCWrapperCache.Instance.TryGet(key, out dbProceduresRouting);            
+        }
+
+        private static string GetDbSpRoutingKey()
+        {
+            return DB_SP_ROUTING_KEY;
+        }
+
+        private static DbProceduresRouting InitializeDbProceduresRouting()
+        {
+            DbProceduresRouting routing = new DbProceduresRouting();            
+            StoredProcedure spInitializeDbProceduresRouting = new StoredProcedure("InitializeDbProceduresRouting");
+            spInitializeDbProceduresRouting.SetConnectionKey("MAIN_CONNECTION_STRING");
+            try
+            {
+                DataTable dt = spInitializeDbProceduresRouting.Execute();
+                if (dt != null && dt.Rows != null)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        string procedureName = GetSafeStr(dr, "NAME");
+                        if (!string.IsNullOrEmpty(procedureName))
+                        {
+                            bool isWritable = ExtractBoolean(dr, "IS_WRITABLE");
+                            string versionsToExclude = GetSafeStr(dr, "VERSIONS_TO_EXCLUDE");
+                            routing.ProceduresMapping.Add(procedureName.ToLower(), new ProcedureRoutingInfo(isWritable, versionsToExclude));
+                        }
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error("Failed InitializeDbProceduresRouting from DB", ex);
+            }
+
+            return routing;
+        }
+
     }
 }

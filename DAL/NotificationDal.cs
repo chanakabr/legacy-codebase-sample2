@@ -1486,7 +1486,7 @@ namespace DAL
         {
             bool result = false;
             UserNotification userNotification = null;
-            ResponseStatus status = ResponseStatus.None;
+            Couchbase.IO.ResponseStatus status = Couchbase.IO.ResponseStatus.None;
             isDocumentExist = true;
             ulong cas = 0;
             string cbKey = string.Empty;

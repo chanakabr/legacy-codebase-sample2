@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using KLogMonitor;
+using ApiObjects;
 
 namespace Users
 {
@@ -84,7 +85,7 @@ namespace Users
             }
             else
             {
-                TvinciAPI.WelcomeMailRequest sMailReq = GetWelcomeMailRequest(GetUniqueTitle(oBasicData, sDynamicData), oBasicData.m_sUserName, sPassword, oBasicData.m_sEmail, oBasicData.m_sFacebookID);
+                WelcomeMailRequest sMailReq = GetWelcomeMailRequest(GetUniqueTitle(oBasicData, sDynamicData), oBasicData.m_sUserName, sPassword, oBasicData.m_sEmail, oBasicData.m_sFacebookID);
 
                 bool sendingMailResult = Utils.SendMail(m_nGroupID, sMailReq);
             }
@@ -208,9 +209,9 @@ namespace Users
             return resp;
         }
 
-        protected override TvinciAPI.SendPasswordMailRequest GetSendPasswordMailRequest(string sFirstName, string sPassword, string sEmail)
+        protected override SendPasswordMailRequest GetSendPasswordMailRequest(string sFirstName, string sPassword, string sEmail)
         {
-            TvinciAPI.SendPasswordMailRequest retVal = new TvinciAPI.SendPasswordMailRequest();
+            SendPasswordMailRequest retVal = new SendPasswordMailRequest();
             retVal.m_sTemplateName = m_sSendPasswordMailTemplate;
             retVal.m_sSubject = m_sSendPasswordMailSubject;
             retVal.m_sSenderTo = sEmail;
@@ -218,7 +219,7 @@ namespace Users
             retVal.m_sSenderFrom = m_sMailFromAdd;
             retVal.m_sFirstName = sFirstName;
             retVal.m_sPassword = sPassword;
-            retVal.m_eMailType = TvinciAPI.eMailTemplateType.SendPassword;
+            retVal.m_eMailType = eMailTemplateType.SendPassword;
             return retVal;
         }
 
@@ -240,7 +241,7 @@ namespace Users
 
             if ((u.m_oBasicData != null) && (!string.IsNullOrEmpty(u.m_oBasicData.m_sPassword)))
             {
-                TvinciAPI.SendPasswordMailRequest sMailReq = GetSendPasswordMailRequest(u.m_oBasicData.m_sFirstName, u.m_oBasicData.m_sPassword, u.m_oBasicData.m_sEmail);
+                SendPasswordMailRequest sMailReq = GetSendPasswordMailRequest(u.m_oBasicData.m_sFirstName, u.m_oBasicData.m_sPassword, u.m_oBasicData.m_sEmail);
 
                 bool sent = Utils.SendMail(m_nGroupID, sMailReq);
                 return sent;
@@ -260,7 +261,7 @@ namespace Users
             }
             else
             {
-                TvinciAPI.WelcomeMailRequest sMailReq =
+                WelcomeMailRequest sMailReq =
                     GetWelcomeMailRequest(GetUniqueTitle(user.m_user.m_oBasicData, user.m_user.m_oDynamicData),
                                         user.m_user.m_oBasicData.m_sUserName, user.m_user.m_oBasicData.m_sPassword,
                                         user.m_user.m_oBasicData.m_sEmail, user.m_user.m_oBasicData.m_sFacebookID);

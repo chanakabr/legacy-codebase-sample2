@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Pricing;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -36,13 +37,13 @@ namespace ConditionalAccess
     public class SubscriptionsPricesContainer
     {
         public string m_sSubscriptionCode;
-        public TvinciPricing.Price m_oPrice;
+        public Price m_oPrice;
         public PriceReason m_PriceReason;
 
         public SubscriptionsPricesContainer()
         { }
 
-        public void Initialize(string sSubscriptionCode, TvinciPricing.Price oPrice, PriceReason ePriceReason)
+        public void Initialize(string sSubscriptionCode, Price oPrice, PriceReason ePriceReason)
         {
             m_sSubscriptionCode = sSubscriptionCode;
             m_oPrice = oPrice;
@@ -54,13 +55,13 @@ namespace ConditionalAccess
     public class CollectionsPricesContainer
     {
         public string m_sCollectionCode;
-        public TvinciPricing.Price m_oPrice;
+        public Price m_oPrice;
         public PriceReason m_PriceReason;
 
         public CollectionsPricesContainer()
         { }
 
-        public void Initialize(string sCollectionCode, TvinciPricing.Price oPrice, PriceReason ePriceReason)
+        public void Initialize(string sCollectionCode, Price oPrice, PriceReason ePriceReason)
         {
             m_sCollectionCode = sCollectionCode;
             m_oPrice = oPrice;
@@ -72,13 +73,13 @@ namespace ConditionalAccess
     public class PrePaidPricesContainer
     {
         public string m_sPrePaidCode;
-        public TvinciPricing.Price m_oPrice;
+        public Price m_oPrice;
         public PriceReason m_PriceReason;
 
         public PrePaidPricesContainer()
         { }
 
-        public void Initialize(string sPrePaidCode, TvinciPricing.Price oPrice, PriceReason ePriceReason)
+        public void Initialize(string sPrePaidCode, Price oPrice, PriceReason ePriceReason)
         {
             m_sPrePaidCode = sPrePaidCode;
             m_oPrice = oPrice;
@@ -91,14 +92,14 @@ namespace ConditionalAccess
     {
         public string m_sPPVModuleCode;
         public bool m_bSubscriptionOnly;
-        public TvinciPricing.Price m_oPrice;
-        public TvinciPricing.Price m_oFullPrice;
+        public Price m_oPrice;
+        public Price m_oFullPrice;
         public PriceReason m_PriceReason;
-        public TvinciPricing.Subscription m_relevantSub;
-        public TvinciPricing.Collection m_relevantCol;
-        public TvinciPricing.PrePaidModule m_relevantPP;
-        public TvinciPricing.LanguageContainer[] m_oPPVDescription;
-        public TvinciPricing.CouponsStatus m_couponStatus;
+        public Subscription m_relevantSub;
+        public Collection m_relevantCol;
+        public PrePaidModule m_relevantPP;
+        public LanguageContainer[] m_oPPVDescription;
+        public CouponsStatus m_couponStatus;
         public string m_sFirstDeviceNameFound;
         public bool m_bCancelWindow;
         public string m_sPurchasedBySiteGuid;
@@ -129,9 +130,9 @@ namespace ConditionalAccess
             m_sProductCode = string.Empty;
         }
 
-        public void Initialize(TvinciPricing.Price oPrice, TvinciPricing.Price oFullPrice, string sPPVModuleCode,
-            TvinciPricing.LanguageContainer[] oPPVDescription, PriceReason theReason, TvinciPricing.Subscription relevantSub,
-            TvinciPricing.Collection relevantCol, bool bSubscriptionOnly, TvinciPricing.PrePaidModule relevantPP, string sFirstDeviceFound,
+        public void Initialize(Price oPrice, Price oFullPrice, string sPPVModuleCode,
+            LanguageContainer[] oPPVDescription, PriceReason theReason, Subscription relevantSub,
+            Collection relevantCol, bool bSubscriptionOnly, PrePaidModule relevantPP, string sFirstDeviceFound,
             bool bCancelWindow, string purchasedBySiteGuid, int purchasedAsMediaFileID, IEnumerable<int> relatedMediaFileIDs, string productCode, DateTime? dtStartDate = null, 
             DateTime? dtEndDate = null, DateTime? dtDiscountEndDate = null)
         {

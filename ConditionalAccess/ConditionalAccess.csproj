@@ -117,7 +117,6 @@
     <Compile Include="UserEntitlementsObject.cs" />
     <Compile Include="Implementations\BaseConditionalAccess.cs" />
     <Compile Include="Commands\BaseNPVRCommand.cs" />
-    <Compile Include="Response\BillingResponse.cs" />
     <Compile Include="BillingTransactionContainer.cs" />
     <Compile Include="CampaignActionInfo.cs" />
     <Compile Include="Response\BillingStatusResponse.cs" />
@@ -132,9 +131,6 @@
     <Compile Include="Response\DomainServicesResponse.cs" />
     <Compile Include="Response\Entitlement.cs" />
     <Compile Include="Response\EntitlementResponse.cs" />
-    <Compile Include="iTunesReceipt.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Commands\LicensedLinkNPVRCommand.cs" />
     <Compile Include="Response\LicensedLinkNPVRResponse.cs" />
     <Compile Include="Response\LicensedLinkResponse.cs" />
@@ -157,7 +153,6 @@
     <Compile Include="Implementations\ElisaConditionalAccess.cs" />
     <Compile Include="enums.cs" />
     <Compile Include="Implementations\FilmoConditionalAccess.cs" />
-    <Compile Include="InAppReceipt.cs" />
     <Compile Include="ItemPriceContainer.cs" />
     <Compile Include="LicenseContainer.cs" />
     <Compile Include="PermittedMediaContainer.cs" />
@@ -186,31 +181,6 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Compile>
     <Compile Include="Web References\tikle\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>
-    <Compile Include="Web References\TvinciAPI\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>
-    <Compile Include="Web References\TvinciBilling\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>
-    <Compile Include="Web References\TvinciDomains\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>
-    <Compile Include="Web References\TvinciPricing\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>
-    <Compile Include="Web References\TvinciUsers\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.map</DependentUpon>
@@ -306,314 +276,8 @@
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-    <None Include="Web References\TvinciAPI\AdminAccountUserResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\api.wsdl" />
-    <None Include="Web References\TvinciAPI\BulkExportTaskResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\BulkExportTasksResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\CategoryObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\ChannelObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\DeviceAvailabiltyRule.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\EPGChannelObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\EPGChannelProgrammeObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\ExternalChannelResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\ExternalChannelResponseList.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\FileTypeContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\GenericRuleResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\GenericWriteResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\GroupInfo.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\GroupOperator.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\GroupRule.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\KSQLChannelResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\KSQLChannelResponseList.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\LanguageObj.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\MediaConcurrencyRule.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\MediaInfoStructObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\MediaMarkObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\MeidaMaper.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\OSSAdapterBillingDetailsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\OSSAdapterEntitlementsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\OSSAdapterResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\OSSAdapterResponseList.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\OSSAdapterSettingsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\ParentalRulesResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\ParentalRulesTagsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\PermissionResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\PermissionsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\PinResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\PurchaseSettingsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\RateMediaObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\RecommendationEngineResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\RecommendationEngineSettinsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\RecommendationEnginesResponseList.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <None Include="Web References\TvinciAPI\RegionsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\RolesResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\Scheduling.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\Status.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\StatusErrorCodesResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\TagResponseObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\UnifiedSearchResult.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\UserIMRequestObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciAPI\UserStatus.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciBilling\AdyenBillingDetail1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciBilling\HouseholdPaymentGatewayResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciBilling\PaymentGateway.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciBilling\PaymentGatewayChargeIDResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciBilling\PaymentGatewayConfigurationResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciBilling\PaymentGatewayItemResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciBilling\PaymentGatewayResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciBilling\PaymentGatewaySettingsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciBilling\PurchaseAdapterResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciBilling\Status.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciBilling\TransactResult1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciBilling\UpdatePendingResponse1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciDomains\ChangeDLMObj.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciDomains\DevicePinResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciDomains\DeviceRegistrationStatusResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciDomains\DeviceResponse1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciDomains\DeviceResponseObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciDomains\DLMResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciDomains\Domain.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciDomains\DomainResponse1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciDomains\DomainResponseObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciDomains\DomainResponseStatus.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciDomains\DomainStatusResponse1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciDomains\HomeNetworkResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciDomains\HomeNetworksResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciDomains\module.wsdl" />
-    <None Include="Web References\TvinciDomains\NetworkResponseObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciDomains\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <None Include="Web References\TvinciDomains\ResponseDLMStatus.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciDomains\Status1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciDomains\StatusObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciDomains\ValidationResponseObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciPricing\Collection.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciPricing\CouponDataResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciPricing\IdsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciPricing\MediaFilePPVContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciPricing\PPVModuleResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciPricing\PreviewModule.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciPricing\SubscriptionsResponse1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciUsers\KeyValuePair.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciUsers\PinCodeResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciUsers\ResponseStatus.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciUsers\Status.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciUsers\UserBasicData.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciUsers\UserGroupRuleResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciUsers\UserItemList.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciUsers\UserResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciUsers\UsersResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciUsers\UserState.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciUsers\UserType.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://192.168.192.146/webservices/api/api.asmx">
-      <UrlBehavior>Dynamic</UrlBehavior>
-      <RelPath>Web References\TvinciAPI\</RelPath>
-      <UpdateFromURL>http://192.168.192.146/webservices/api/api.asmx</UpdateFromURL>
-      <ServiceLocationURL>
-      </ServiceLocationURL>
-      <CachedDynamicPropName>
-      </CachedDynamicPropName>
-      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
-      <CachedSettingsPropName>ConditionalAccess_TvinciAPI_API</CachedSettingsPropName>
-    </WebReferenceUrl>
     <WebReferenceUrl Include="http://localhost/ws_notification/NotificationService.svc">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\NotificationService\</RelPath>
@@ -624,55 +288,6 @@
       </CachedDynamicPropName>
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>ConditionalAccess_NotificationService_NotificationService</CachedSettingsPropName>
-    </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/ws_domains/module.asmx">
-      <UrlBehavior>Dynamic</UrlBehavior>
-      <RelPath>Web References\TvinciDomains\</RelPath>
-      <UpdateFromURL>http://localhost/ws_domains/module.asmx</UpdateFromURL>
-      <ServiceLocationURL>
-      </ServiceLocationURL>
-      <CachedDynamicPropName>
-      </CachedDynamicPropName>
-      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
-      <CachedSettingsPropName>ConditionalAccess_TvinciDomains_module</CachedSettingsPropName>
-    </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost:81/WS_Billing/module.asmx">
-      <UrlBehavior>Static</UrlBehavior>
-      <RelPath>Web References\TvinciBilling\</RelPath>
-      <UpdateFromURL>http://localhost:81/WS_Billing/module.asmx</UpdateFromURL>
-      <ServiceLocationURL>
-      </ServiceLocationURL>
-      <CachedDynamicPropName>
-      </CachedDynamicPropName>
-      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
-      <CachedSettingsPropName>ConditionalAccess_TvinciBilling_module</CachedSettingsPropName>
-    </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/ws_Pricing/module.asmx">
-      <UrlBehavior>Dynamic</UrlBehavior>
-      <RelPath>Web References\TvinciPricing\</RelPath>
-      <UpdateFromURL>http://localhost/ws_Pricing/module.asmx</UpdateFromURL>
-    </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/Pricing_For_Sunny/module.asmx">
-      <UrlBehavior>Dynamic</UrlBehavior>
-      <RelPath>Web References\TvinciPricing\</RelPath>
-      <UpdateFromURL>http://localhost/Pricing_For_Sunny/module.asmx</UpdateFromURL>
-      <ServiceLocationURL>
-      </ServiceLocationURL>
-      <CachedDynamicPropName>
-      </CachedDynamicPropName>
-      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
-      <CachedSettingsPropName>ConditionalAccess_TvinciPricing_mdoule</CachedSettingsPropName>
-    </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/WS_Users/module.asmx">
-      <UrlBehavior>Dynamic</UrlBehavior>
-      <RelPath>Web References\TvinciUsers\</RelPath>
-      <UpdateFromURL>http://localhost/WS_Users/module.asmx</UpdateFromURL>
-      <ServiceLocationURL>
-      </ServiceLocationURL>
-      <CachedDynamicPropName>
-      </CachedDynamicPropName>
-      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
-      <CachedSettingsPropName>ConditionalAccess_TvinciUsers_UsersService</CachedSettingsPropName>
     </WebReferenceUrl>
     <WebReferenceUrl Include="https://www.sinema.com/wswebtv/Service.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
@@ -710,100 +325,39 @@
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\tikle\Service.wsdl" />
-    <None Include="Web References\TvinciBilling\InAppBillingResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciBilling\module.wsdl" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Web References\TvinciBilling\BillingResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciBilling\module.disco" />
-    <None Include="Web References\TvinciBilling\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Web References\TvinciPricing\Campaign.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciPricing\module.wsdl" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Web References\TvinciPricing\CouponData.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciPricing\CouponsGroup.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciPricing\CouponsStatus.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciPricing\DiscountModule.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciPricing\MediaFilePPVModule.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciPricing\module.disco" />
-    <None Include="Web References\TvinciPricing\PPVModule.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciPricing\PPVModuleContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciPricing\PrePaidModule.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciPricing\PriceCode.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciPricing\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <None Include="Web References\TvinciPricing\Subscription.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciPricing\UsageModule.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciUsers\module.wsdl" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Web References\TvinciPricing\Currency.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciUsers\Country.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciUsers\FavoritObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciUsers\module.disco" />
-    <None Include="Web References\TvinciUsers\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <None Include="Web References\TvinciUsers\State.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciUsers\User.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciUsers\UserOfflineObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\TvinciUsers\UserResponseObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cdntokenizers\CDNTokenizers\CDNTokenizers.csproj">
       <Project>{add7636b-71db-494d-9dbd-4af9538d3edf}</Project>
       <Name>CDNTokenizers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ws_api\WS_API.csproj">
+      <Project>{bef1df84-21c1-47da-bb2d-bb607ee1978e}</Project>
+      <Name>WS_API</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ws_billing\Billing\Billing.csproj">
+      <Project>{0b4a22f7-e733-4bf3-a77d-fc2cf4f61a5a}</Project>
+      <Name>Billing</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ws_billing\WS_Billing.csproj">
+      <Project>{944128c1-804a-4444-a697-37e019af5850}</Project>
+      <Name>WS_Billing</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ws_domains\WS_Domains.csproj">
+      <Project>{359cfa7e-bee9-4bc8-b1f7-e53e64f28aa7}</Project>
+      <Name>WS_Domains</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ws_pricing\Pricing\Pricing.csproj">
+      <Project>{143a9361-b461-42a7-b579-a75c0e7b1ea3}</Project>
+      <Name>Pricing</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ws_pricing\WS_Pricing.csproj">
+      <Project>{2c08f19b-40e0-4ef1-9f7d-5132c795a184}</Project>
+      <Name>WS_Pricing</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ws_users\WS_Users.csproj">
+      <Project>{7a491492-fd8e-47da-ad3e-7fdc5fdf5e03}</Project>
+      <Name>WS_Users</Name>
     </ProjectReference>
     <ProjectReference Include="..\AdapterControllers\AdapterControllers.csproj">
       <Project>{a1fbded5-52fe-4b67-9aab-e71cc366d5cd}</Project>
@@ -889,6 +443,10 @@
       <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
       <Name>TVinciShared</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Users\Users.csproj">
+      <Project>{b21b1d6b-46af-40ca-9585-5506b1596aff}</Project>
+      <Name>Users</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -917,13 +475,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Web References\TvinciDomains\module.disco" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Web References\NotificationService\NotificationService.disco" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Web References\TvinciAPI\api.disco" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadataStorage Include="Service References\WS_Catalog\" />
