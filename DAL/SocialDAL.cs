@@ -567,6 +567,30 @@ namespace DAL
 
         //}
 
+    
+
+        public bool SetSocialPrivacySettings( DataTable dt)
+        {
+
+            try
+            {
+                bool res = false;
+
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("SetSocialPrivacySettings");
+                sp.SetConnectionKey("users_connection");
+                sp.AddDataTableParameter("@DT", dt);
+
+                res = sp.ExecuteReturnValue<bool>();
+
+                return res;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+
     }
 }
 
