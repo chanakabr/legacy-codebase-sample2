@@ -5245,8 +5245,8 @@ namespace ConditionalAccess
                 }
             }
             
-            Dictionary<string, string> epgFieldMappings = null;
-            if (!GetEpgFieldTypeEntitys(groupId, epg, recordingType, out epgFieldMappings) || epgFieldMappings == null || epgFieldMappings.Count == 0)
+            Dictionary<string, string> epgFieldMappings = GetEpgFieldTypeEntitys(groupId, epg, recordingType);
+            if (epgFieldMappings == null || epgFieldMappings.Count == 0)
             {
                 log.ErrorFormat("failed GetEpgFieldTypeEntitys, groupId: {0}, epgId: {1}, recordingType: {2}", groupId, epg.EPG_ID, recordingType.ToString());
                 return seriesRecording;
@@ -5297,22 +5297,21 @@ namespace ConditionalAccess
             return seriesRecording;
         }
 
-        internal static bool GetEpgFieldTypeEntitys(int groupId, EPGChannelProgrammeObject epg, RecordingType recordingType, out Dictionary<string, string> epgFieldMappings)
+        internal static Dictionary<string, string> GetEpgFieldTypeEntitys(int groupId, EPGChannelProgrammeObject epg, RecordingType recordingType)
         {
-            bool result = false;
-            epgFieldMappings = new Dictionary<string, string>();
+            Dictionary<string, string> epgFieldMappings = new Dictionary<string, string>();
             List<ApiObjects.Epg.FieldTypeEntity> metaTagsMappings = Tvinci.Core.DAL.CatalogDAL.GetAliasMappingFields(groupId);
             if (metaTagsMappings == null || metaTagsMappings.Count == 0)
             {
-                log.ErrorFormat("failed to 'GetAliasMappingFields' for seriesId. groupId = {0} ", groupId);
-                return result;
+                log.DebugFormat("No alias mapping returned from 'GetAliasMappingFields'. groupId = {0} ", groupId);
+                return epgFieldMappings;          
             }
 
             ApiObjects.Epg.FieldTypeEntity field = metaTagsMappings.Where(m => m.Alias.ToLower() == SERIES_ALIAS).FirstOrDefault();
             if (field == null)
             {
-                log.ErrorFormat("alias for series_id was not found. group_id = {0}", groupId);
-                return result;
+                log.DebugFormat("alias for series_id was not found. group_id = {0}", groupId);
+                return epgFieldMappings;
             }
             else if (field.FieldType == FieldTypes.Meta)
             {
@@ -5322,8 +5321,8 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    log.ErrorFormat("alias for series_id was not found - no metas on epg. group_id = {0}", groupId);
-                    return result;
+                    log.DebugFormat("alias for series_id was not found - no metas on epg. group_id = {0}", groupId);
+                    return epgFieldMappings;
                 }
             }
             else if (field.FieldType == FieldTypes.Tag) 
@@ -5334,16 +5333,16 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    log.ErrorFormat("alias for series_id was not found - no tags on epg. group_id = {0}", groupId);
-                    return result;
+                    log.DebugFormat("alias for series_id was not found - no tags on epg. group_id = {0}", groupId);
+                    return epgFieldMappings;
                 }
             }
 
             field = metaTagsMappings.Where(m => m.Alias.ToLower() == SEASON_ALIAS).FirstOrDefault();
             if (recordingType == RecordingType.Season && field == null)
             {
-                log.ErrorFormat("alias for season_number was not found. group_id = {0}", groupId);
-                return result;
+                log.DebugFormat("alias for season_number was not found. group_id = {0}", groupId);
+                return epgFieldMappings;
             }
             else if (field != null)
             {
@@ -5370,7 +5369,7 @@ namespace ConditionalAccess
                 }
             }
 
-            return true;
+            return epgFieldMappings;
         }
 
         internal static List<ExtendedSearchResult> SearchSeriesRecordings(int groupID, List<string> excludedCrids, List<DomainSeriesRecording> series, SearchSeriesRecordingsTimeOptions SearchSeriesRecordingsTimeOption)
@@ -5903,8 +5902,8 @@ namespace ConditionalAccess
         internal static ApiObjects.Response.Status IsFollowingEpgAsSeriesOrSeason(int groupId, EPGChannelProgrammeObject epg, long domainId, RecordingType recordingType)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            Dictionary<string, string> epgFieldMappings = null;
-            if (!Utils.GetEpgFieldTypeEntitys(groupId, epg, RecordingType.Single, out epgFieldMappings) || epgFieldMappings == null || epgFieldMappings.Count == 0)
+            Dictionary<string, string> epgFieldMappings = Utils.GetEpgFieldTypeEntitys(groupId, epg, RecordingType.Single);
+            if (epgFieldMappings == null || epgFieldMappings.Count == 0)
             {
                 log.ErrorFormat("failed GetEpgFieldTypeEntitys, groupId: {0}, epgId: {1}", groupId, epg.EPG_ID);
                 response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
