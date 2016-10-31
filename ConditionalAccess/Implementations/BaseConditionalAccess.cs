@@ -17387,8 +17387,8 @@ namespace ConditionalAccess
                                     if (action == eAction.On || (currentStatus != null && currentStatus.Code == (int)eResponseStatus.OK))
                                     {
                                         // check if the epg is series by getting the fields mappings for the epg
-                                        Dictionary<string, string> epgFieldMappings = null;
-                                        if (Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, RecordingType.Series, out epgFieldMappings) && epgFieldMappings != null && epgFieldMappings.Count > 0)
+                                        Dictionary<string, string> epgFieldMappings = Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, RecordingType.Series);
+                                        if (epgFieldMappings != null && epgFieldMappings.Count > 0)
                                         {
                                             long channelId;
                                             if (!long.TryParse(epg.EPG_CHANNEL_ID, out channelId))
@@ -18770,8 +18770,7 @@ namespace ConditionalAccess
                 }
                 else if (seriesRecording.Status.Code != (int)eResponseStatus.OK)
                 {
-                    log.DebugFormat("seriesRecording status after FollowSeasonOrSeries is not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, seriesRecording.ToString());
-                    seriesRecording.Status = recordingResponse.Status;
+                    log.DebugFormat("seriesRecording status after FollowSeasonOrSeries is not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, seriesRecording.ToString());                    
                     return seriesRecording;
                 }
                 // successfully followed season or series and we have found future recordings, if the domain has programs of this season or series scheduled, they need to be canceled
@@ -18862,8 +18861,8 @@ namespace ConditionalAccess
             }
 
             EPGChannelProgrammeObject epg = epgs.First();
-            Dictionary<string, string> epgFieldMappings = null;
-            if (!Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, RecordingType.Series, out epgFieldMappings) || epgFieldMappings == null || epgFieldMappings.Count == 0)
+            Dictionary<string, string> epgFieldMappings = Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, RecordingType.Series);
+            if (epgFieldMappings == null || epgFieldMappings.Count == 0)
             {
                 log.ErrorFormat("failed GetEpgFieldTypeEntitys, groupId: {0}, epgId: {1}", m_nGroupID, epg.EPG_ID);
                 return result;
@@ -19304,8 +19303,8 @@ namespace ConditionalAccess
             }
 
             EPGChannelProgrammeObject epg = epgs.First();
-            Dictionary<string, string> epgFieldMappings = null;
-            if (!Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, RecordingType.Series, out epgFieldMappings) || epgFieldMappings == null || epgFieldMappings.Count == 0)
+            Dictionary<string, string> epgFieldMappings = Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, RecordingType.Series);
+            if (epgFieldMappings == null || epgFieldMappings.Count == 0)
             {
                 log.ErrorFormat("failed GetEpgFieldTypeEntitys, groupId: {0}, epgId: {1}", m_nGroupID, epg.EPG_ID);
                 return new ApiObjects.KeyValuePair();
@@ -19327,10 +19326,18 @@ namespace ConditionalAccess
         {
             SearchableRecording[] result = null;
             List<TstvRecordingStatus> recordingStatuses = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recorded };
-            Dictionary<long, Recording> DomainRecordingIdToRecordingMap = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, domainId, recordingStatuses);
-            if (DomainRecordingIdToRecordingMap != null && DomainRecordingIdToRecordingMap.Count > 0)
+            Dictionary<long, Recording> domainRecordingIdToRecordingMap = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, domainId, recordingStatuses);
+
+            if (domainRecordingIdToRecordingMap != null)
             {
-                result = DomainRecordingIdToRecordingMap.Select(x => new SearchableRecording(x.Key, x.Value.Id, x.Value.EpgId)).ToArray();
+                if (domainRecordingIdToRecordingMap.Count > 0)
+                {
+                    result = domainRecordingIdToRecordingMap.Select(x => new SearchableRecording(x.Key, x.Value.Id, x.Value.EpgId)).ToArray();
+                }
+                else
+                {
+                    result = new SearchableRecording[0];
+                }
             }
 
             return result;
