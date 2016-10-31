@@ -5245,8 +5245,8 @@ namespace ConditionalAccess
                 }
             }
             
-            Dictionary<string, string> epgFieldMappings = null;
-            if (!GetEpgFieldTypeEntitys(groupId, epg, recordingType, out epgFieldMappings) || epgFieldMappings == null || epgFieldMappings.Count == 0)
+            Dictionary<string, string> epgFieldMappings = GetEpgFieldTypeEntitys(groupId, epg, recordingType);
+            if (epgFieldMappings == null || epgFieldMappings.Count == 0)
             {
                 log.ErrorFormat("failed GetEpgFieldTypeEntitys, groupId: {0}, epgId: {1}, recordingType: {2}", groupId, epg.EPG_ID, recordingType.ToString());
                 return seriesRecording;
@@ -5255,14 +5255,18 @@ namespace ConditionalAccess
             string seriesId = epgFieldMappings[SERIES_ID];
             int seasonNumber = 0, episodeNumber = 0;
 
-            if (recordingType == RecordingType.Season && !int.TryParse(epgFieldMappings[SEASON_NUMBER], out seasonNumber))
+            if (recordingType == RecordingType.Season && (!epgFieldMappings.ContainsKey(SEASON_NUMBER) || !int.TryParse(epgFieldMappings[SEASON_NUMBER], out seasonNumber)))
             {
                 log.ErrorFormat("failed parsing SEASON_NUMBER, groupId: {0}, epgId: {1}, recordingType: {2}", groupId, epg.EPG_ID, recordingType.ToString());
                 return seriesRecording;
             }
 
             // currently we don't care about episode number so no log + error if we can't parse it
-            int.TryParse(epgFieldMappings[EPISODE_NUMBER], out episodeNumber);
+            if (epgFieldMappings.ContainsKey(EPISODE_NUMBER))
+            {
+                int.TryParse(epgFieldMappings[EPISODE_NUMBER], out episodeNumber);
+            }
+
             long channelId;
             if (!long.TryParse(epg.EPG_CHANNEL_ID, out channelId))
             {
@@ -5297,80 +5301,87 @@ namespace ConditionalAccess
             return seriesRecording;
         }
 
-        internal static bool GetEpgFieldTypeEntitys(int groupId, EPGChannelProgrammeObject epg, RecordingType recordingType, out Dictionary<string, string> epgFieldMappings)
+        internal static Dictionary<string, string> GetEpgFieldTypeEntitys(int groupId, EPGChannelProgrammeObject epg, RecordingType recordingType)
         {
-            bool result = false;
-            epgFieldMappings = new Dictionary<string, string>();
-            List<ApiObjects.Epg.FieldTypeEntity> metaTagsMappings = Tvinci.Core.DAL.CatalogDAL.GetAliasMappingFields(groupId);
-            if (metaTagsMappings == null || metaTagsMappings.Count == 0)
+            Dictionary<string, string> epgFieldMappings = new Dictionary<string, string>();
+            try
             {
-                log.ErrorFormat("failed to 'GetAliasMappingFields' for seriesId. groupId = {0} ", groupId);
-                return result;
+                List<ApiObjects.Epg.FieldTypeEntity> metaTagsMappings = Tvinci.Core.DAL.CatalogDAL.GetAliasMappingFields(groupId);
+                if (metaTagsMappings == null || metaTagsMappings.Count == 0)
+                {
+                    log.DebugFormat("No alias mapping returned from 'GetAliasMappingFields'. groupId = {0} ", groupId);
+                    return epgFieldMappings;
+                }
+
+                ApiObjects.Epg.FieldTypeEntity field = metaTagsMappings.Where(m => m.Alias.ToLower() == SERIES_ALIAS).FirstOrDefault();
+                if (field == null)
+                {
+                    log.DebugFormat("alias for series_id was not found. group_id = {0}", groupId);
+                    return epgFieldMappings;
+                }
+                else if (field.FieldType == FieldTypes.Meta)
+                {
+                    if (epg.EPG_Meta != null && epg.EPG_Meta.Count > 0)
+                    {
+                        epgFieldMappings.Add(SERIES_ID, epg.EPG_Meta.Where(x => x.Key == field.Name).First().Value);
+                    }
+                    else
+                    {
+                        log.DebugFormat("alias for series_id was not found - no metas on epg. group_id = {0}", groupId);
+                        return epgFieldMappings;
+                    }
+                }
+                else if (field.FieldType == FieldTypes.Tag)
+                {
+                    if (epg.EPG_TAGS != null && epg.EPG_TAGS.Count > 0)
+                    {
+                        epgFieldMappings.Add(SERIES_ID, epg.EPG_TAGS.Where(x => x.Key == field.Name).First().Value);
+                    }
+                    else
+                    {
+                        log.DebugFormat("alias for series_id was not found - no tags on epg. group_id = {0}", groupId);
+                        return epgFieldMappings;
+                    }
+                }
+
+                field = metaTagsMappings.Where(m => m.Alias.ToLower() == SEASON_ALIAS).FirstOrDefault();
+                if (recordingType == RecordingType.Season && field == null)
+                {
+                    log.DebugFormat("alias for season_number was not found. group_id = {0}", groupId);
+                    return epgFieldMappings;
+                }
+                else if (field != null)
+                {
+                    if (field.FieldType == FieldTypes.Meta && epg.EPG_Meta != null && epg.EPG_Meta.Count > 0)
+                    {
+                        epgFieldMappings.Add(SEASON_NUMBER, epg.EPG_Meta.Where(x => x.Key == field.Name).First().Value);
+                    }
+                    else if (field.FieldType == FieldTypes.Tag && epg.EPG_TAGS != null && epg.EPG_TAGS.Count > 0)
+                    {
+                        epgFieldMappings.Add(SEASON_NUMBER, epg.EPG_TAGS.Where(x => x.Key == field.Name).First().Value);
+                    }
+                }
+
+                field = metaTagsMappings.Where(m => m.Alias.ToLower() == EPISODE_ALIAS).FirstOrDefault();
+                if (field != null)
+                {
+                    if (field.FieldType == FieldTypes.Meta && epg.EPG_Meta != null && epg.EPG_Meta.Count > 0)
+                    {
+                        epgFieldMappings.Add(EPISODE_NUMBER, epg.EPG_Meta.Where(x => x.Key == field.Name).First().Value);
+                    }
+                    else if (field.FieldType == FieldTypes.Tag && epg.EPG_TAGS != null && epg.EPG_TAGS.Count > 0)
+                    {
+                        epgFieldMappings.Add(EPISODE_NUMBER, epg.EPG_TAGS.Where(x => x.Key == field.Name).First().Value);
+                    }
+                }
             }
 
-            ApiObjects.Epg.FieldTypeEntity field = metaTagsMappings.Where(m => m.Alias.ToLower() == SERIES_ALIAS).FirstOrDefault();
-            if (field == null)
+            catch (Exception ex)
             {
-                log.ErrorFormat("alias for series_id was not found. group_id = {0}", groupId);
-                return result;
-            }
-            else if (field.FieldType == FieldTypes.Meta)
-            {
-                if (epg.EPG_Meta != null && epg.EPG_Meta.Count > 0)
-                {
-                    epgFieldMappings.Add(SERIES_ID, epg.EPG_Meta.Where(x => x.Key == field.Name).First().Value);
-                }
-                else
-                {
-                    log.ErrorFormat("alias for series_id was not found - no metas on epg. group_id = {0}", groupId);
-                    return result;
-                }
-            }
-            else if (field.FieldType == FieldTypes.Tag) 
-            {
-                if (epg.EPG_TAGS != null && epg.EPG_TAGS.Count > 0)
-                {
-                    epgFieldMappings.Add(SERIES_ID, epg.EPG_TAGS.Where(x => x.Key == field.Name).First().Value);
-                }
-                else
-                {
-                    log.ErrorFormat("alias for series_id was not found - no tags on epg. group_id = {0}", groupId);
-                    return result;
-                }
+                log.Error("Failed GetEpgFieldTypeEntitys", ex);
             }
 
-            field = metaTagsMappings.Where(m => m.Alias.ToLower() == SEASON_ALIAS).FirstOrDefault();
-            if (recordingType == RecordingType.Season && field == null)
-            {
-                log.ErrorFormat("alias for season_number was not found. group_id = {0}", groupId);
-                return result;
-            }
-            else if (field != null)
-            {
-                if (field.FieldType == FieldTypes.Meta && epg.EPG_Meta != null && epg.EPG_Meta.Count > 0)
-                {
-                    epgFieldMappings.Add(SEASON_NUMBER, epg.EPG_Meta.Where(x => x.Key == field.Name).First().Value);
-                }
-                else if (field.FieldType == FieldTypes.Tag && epg.EPG_TAGS != null && epg.EPG_TAGS.Count > 0)
-                {
-                    epgFieldMappings.Add(SEASON_NUMBER, epg.EPG_TAGS.Where(x => x.Key == field.Name).First().Value);
-                }
-            }
-
-            field = metaTagsMappings.Where(m => m.Alias.ToLower() == EPISODE_ALIAS).FirstOrDefault();
-            if (field != null)
-            {
-                if (field.FieldType == FieldTypes.Meta && epg.EPG_Meta != null && epg.EPG_Meta.Count > 0)
-                {
-                    epgFieldMappings.Add(EPISODE_NUMBER, epg.EPG_Meta.Where(x => x.Key == field.Name).First().Value);
-                }
-                else if (field.FieldType == FieldTypes.Tag && epg.EPG_TAGS != null && epg.EPG_TAGS.Count > 0)
-                {
-                    epgFieldMappings.Add(EPISODE_NUMBER, epg.EPG_TAGS.Where(x => x.Key == field.Name).First().Value);
-                }
-            }
-
-            return true;
+            return epgFieldMappings;
         }
 
         internal static List<ExtendedSearchResult> SearchSeriesRecordings(int groupID, List<string> excludedCrids, List<DomainSeriesRecording> series, SearchSeriesRecordingsTimeOptions SearchSeriesRecordingsTimeOption)
@@ -5903,11 +5914,12 @@ namespace ConditionalAccess
         internal static ApiObjects.Response.Status IsFollowingEpgAsSeriesOrSeason(int groupId, EPGChannelProgrammeObject epg, long domainId, RecordingType recordingType)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            Dictionary<string, string> epgFieldMappings = null;
-            if (!Utils.GetEpgFieldTypeEntitys(groupId, epg, RecordingType.Single, out epgFieldMappings) || epgFieldMappings == null || epgFieldMappings.Count == 0)
+            Dictionary<string, string> epgFieldMappings = Utils.GetEpgFieldTypeEntitys(groupId, epg, RecordingType.Single);
+            if (epgFieldMappings == null || epgFieldMappings.Count == 0)
             {
-                log.ErrorFormat("failed GetEpgFieldTypeEntitys, groupId: {0}, epgId: {1}", groupId, epg.EPG_ID);
-                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.DebugFormat("no epgFieldMappings found, groupId: {0}, epgId: {1}", groupId, epg.EPG_ID);
+                // if no mapping found we assume the user is not following the epg's season/series
+                response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 return response;
             }
             else
