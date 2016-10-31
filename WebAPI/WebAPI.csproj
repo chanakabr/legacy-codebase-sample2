@@ -752,18 +752,8 @@
     <Content Include="Web References\Social\SocialObjectReponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Users\FavoriteResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Users\LongIdsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
     <Content Include="Web References\Social\SocialActivityResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <None Include="Web References\Users\module.disco" />
-    <Content Include="Web.config">
-      <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
