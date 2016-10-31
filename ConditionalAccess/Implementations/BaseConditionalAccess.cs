@@ -18770,8 +18770,7 @@ namespace ConditionalAccess
                 }
                 else if (seriesRecording.Status.Code != (int)eResponseStatus.OK)
                 {
-                    log.DebugFormat("seriesRecording status after FollowSeasonOrSeries is not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, seriesRecording.ToString());
-                    seriesRecording.Status = recordingResponse.Status;
+                    log.DebugFormat("seriesRecording status after FollowSeasonOrSeries is not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, seriesRecording.ToString());                    
                     return seriesRecording;
                 }
                 // successfully followed season or series and we have found future recordings, if the domain has programs of this season or series scheduled, they need to be canceled
