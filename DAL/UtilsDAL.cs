@@ -441,7 +441,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+                //selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 selectQuery += "select USERNAME,PASSWORD from groups_modules_ips WITH (nolock) where is_active=1 and status=1 and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
                 selectQuery += "and";
