@@ -1366,6 +1366,10 @@
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
       <Name>DAL</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\TvinciCache\TvinciCache.csproj">
+      <Project>{d57b2371-da31-4035-8b00-6a6d0256ec00}</Project>
+      <Name>TvinciCache</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\Users\Users.csproj">
       <Project>{b21b1d6b-46af-40ca-9585-5506b1596aff}</Project>
       <Name>Users</Name>
