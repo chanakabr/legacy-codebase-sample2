@@ -27,6 +27,7 @@ using WebAPI.Models.Billing;
 using WebAPI.Models.MultiRequest;
 using System.Collections.Specialized;
 using System.Threading.Tasks;
+using WebAPI.Reflection;
 
 namespace WebAPI.Filters
 {
@@ -155,16 +156,11 @@ namespace WebAPI.Filters
                 throw new RequestParserException(RequestParserException.INVALID_ACTION, serviceName, actionName);
             }
 
-            ApiAuthorizeAttribute authorization = methodInfo.GetCustomAttribute<ApiAuthorizeAttribute>(true);
-            if (authorization != null)
+            DataModel.validateAuthorization(methodInfo, serviceName, actionName);
+            string contentType = DataModel.getServeActionContentType(methodInfo);
+            if (contentType != null)
             {
-                authorization.IsAuthorized(serviceName, actionName);
-            }
-
-            SchemeServeAttribute serve = methodInfo.GetCustomAttribute<SchemeServeAttribute>(true);
-            if (serve != null)
-            {
-                HttpContext.Current.Items[REQUEST_SERVE_CONTENT_TYPE] = serve.ContentType;
+                HttpContext.Current.Items[REQUEST_SERVE_CONTENT_TYPE] = contentType;
             }
 
             return methodInfo;
@@ -730,11 +726,7 @@ namespace WebAPI.Filters
 
         private static string getApiName(PropertyInfo property)
         {
-            DataMemberAttribute dataMember = property.GetCustomAttribute<DataMemberAttribute>();
-            if (dataMember == null)
-                return null;
-
-            return dataMember.Name;
+            return DataModel.getApiName(property);
         }
 
         private static KalturaOTTObject buildObject(Type type, Dictionary<string, object> parameters)

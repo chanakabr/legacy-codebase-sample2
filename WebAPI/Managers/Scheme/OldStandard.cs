@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Web;
 using WebAPI.Filters;
+using WebAPI.Reflection;
 
 namespace WebAPI.Managers.Scheme
 {
@@ -36,38 +37,18 @@ namespace WebAPI.Managers.Scheme
 
         public static Dictionary<string, string> getOldMembers(MethodInfo action)
         {
-            if (!isCurrentRequestOldVersion())
-                return null;
-
-            Dictionary<string, string> map = new Dictionary<string, string>();
-            OldStandardAttribute[] attributes = (OldStandardAttribute[])Attribute.GetCustomAttributes(action, typeof(OldStandardAttribute));
-            foreach (OldStandardAttribute attribute in attributes)
-            {
-                map.Add(attribute.newMember, attribute.oldMember);
-            }
-
-            if (map.Count == 0)
-                return null;
-
-            return map;
+            if (isCurrentRequestOldVersion())
+                return DataModel.getOldMembers(action);
+                
+            return null;
         }
 
         public static Dictionary<string, string> getOldMembers(Type type)
         {
-            if (!isCurrentRequestOldVersion())
-                return null;
+            if (isCurrentRequestOldVersion())
+                return DataModel.getOldMembers(type);
 
-            Dictionary<string, string> map = new Dictionary<string, string>();
-            OldStandardAttribute[] attributes = (OldStandardAttribute[])Attribute.GetCustomAttributes(type, typeof(OldStandardAttribute));
-            foreach (OldStandardAttribute attribute in attributes)
-            {
-                map.Add(attribute.newMember, attribute.oldMember);
-            }
-
-            if (map.Count == 0)
-                return null;
-
-            return map;
+            return null;
         }
     }
 

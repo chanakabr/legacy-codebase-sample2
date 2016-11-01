@@ -21,6 +21,7 @@ using WebAPI.Filters;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 using WebAPI.Models.MultiRequest;
+using WebAPI.Reflection;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -34,11 +35,7 @@ namespace WebAPI.Controllers
 
         private string getApiName(PropertyInfo property)
         {
-            System.Runtime.Serialization.DataMemberAttribute dataMember = property.GetCustomAttribute<System.Runtime.Serialization.DataMemberAttribute>();
-            if (dataMember == null)
-                return null;
-
-            return dataMember.Name;
+            return DataModel.getApiName(property);
         }
 
         private object translateToken(object parameter, List<string> tokens)

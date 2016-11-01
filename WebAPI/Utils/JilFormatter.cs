@@ -19,6 +19,7 @@ using WebAPI.Managers.Scheme;
 using System.Dynamic;
 using Newtonsoft.Json;
 using WebAPI.App_Start;
+using WebAPI.Reflection;
 
 namespace WebAPI.Utils
 {
@@ -90,11 +91,7 @@ namespace WebAPI.Utils
 
         private string getApiName(PropertyInfo property)
         {
-            System.Runtime.Serialization.DataMemberAttribute dataMember = property.GetCustomAttribute<System.Runtime.Serialization.DataMemberAttribute>();
-            if (dataMember == null)
-                return null;
-
-            return dataMember.Name;
+            return DataModel.getApiName(property);
         }
 
         public override IEnumerable<string> GetDynamicMemberNames()
