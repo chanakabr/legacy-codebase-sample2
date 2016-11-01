@@ -28,7 +28,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaPersonalFeedListResponse List(KalturaPersonalFeedFilter filter = null, KalturaFilterPager pager = null)
+        public KalturaPersonalFeedListResponse List(KalturaPersonalFeedFilter filter, KalturaFilterPager pager = null)
         {
             KalturaPersonalFeedListResponse response = null;
 
@@ -70,7 +70,7 @@ namespace WebAPI.Controllers
 
             if (pager == null)
                 pager = new KalturaFilterPager();
-            
+
             try
             {
                 response = ClientsManager.NotificationClient().GetUserFeeder(groupId, userID, pager.getPageSize(), pager.getPageIndex(), order_by);
