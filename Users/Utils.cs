@@ -130,7 +130,7 @@ namespace Users
         {
             try
             {
-                string moduleName = TvinciCache.ModulesImplementation.GetModuleName(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Users, operatorId);
+                string moduleName = TvinciCache.ModulesImplementation.GetModuleName(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Users, USERS_CONNECTION, operatorId);
 
                 if (String.IsNullOrEmpty(moduleName))
                     user = new KalturaUsers(nGroupID);

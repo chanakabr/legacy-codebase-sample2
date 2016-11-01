@@ -110,14 +110,14 @@ namespace TVinciShared
             return res;
         }
 
-        static public int GetModuleImplID(int nGroupID, int nModuleID, string connectionKey = "")
+        static public int GetModuleImplID(int nGroupID, int nModuleID, string connectionKey)
         {
             return DAL.UtilsDal.GetModuleImplID(nGroupID, nModuleID, connectionKey);
         }
 
-        static public string GetModuleImplName(int nGroupID, int nModuleID, int operatorId = -1)
+        static public string GetModuleImplName(int nGroupID, int nModuleID, string connectionKey, int operatorId = -1)
         {
-            return DAL.UtilsDal.GetModuleImplName(nGroupID, nModuleID, operatorId);
+            return DAL.UtilsDal.GetModuleImplName(nGroupID, nModuleID, connectionKey, operatorId);
         }
 
         static public string SendXMLHttpReq(string sUrl, string sToSend, string sSoapHeader, string contentType = "text/xml; charset=utf-8",

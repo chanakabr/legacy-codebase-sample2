@@ -52,7 +52,7 @@ namespace TvinciCache
             return nImplID;
         }
 
-        public static string GetModuleName(eWSModules eMainWSModule, int nGroupID, int nModuleID, int operatorId = -1)
+        public static string GetModuleName(eWSModules eMainWSModule, int nGroupID, int nModuleID, string connectionKey, int operatorId = -1)
         {
             string moduleName = string.Empty;
 
@@ -64,7 +64,7 @@ namespace TvinciCache
                 {
                     if (string.IsNullOrEmpty(moduleName = WSCache.Instance.Get<string>(key)))
                     {
-                        moduleName = WS_Utils.GetModuleImplName(nGroupID, nModuleID, operatorId);
+                        moduleName = WS_Utils.GetModuleImplName(nGroupID, nModuleID, connectionKey, operatorId);
 
                         if (!string.IsNullOrEmpty(moduleName))
                             WSCache.Instance.Add(key, moduleName);
