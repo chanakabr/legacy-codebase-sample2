@@ -73,9 +73,6 @@ namespace M1BL
             List<int> transactionsIDsList = new List<int>();
             DateTime dFileCreatedDate = DateTime.UtcNow;
             string sContentProviderID = string.Empty;
-            bool bAsciiCreationResult = false;
-            bool bFtpSentResult = false;
-
 
             try
             {
@@ -98,10 +95,10 @@ namespace M1BL
                     sFtpFolder = m_sFtp_subscription_folder;
                 }
                 sFileName = GetFileName(fileType, sContentProviderID, GetFormattedShortDateTime(dFileCreatedDate), sNextCounter);
-                bAsciiCreationResult = CreateAsciiFile(sFolderPath, sFileName, sData);
+                bool bAsciiCreationResult = CreateAsciiFile(sFolderPath, sFileName, sData);
                 if (bAsciiCreationResult)
                 {
-                    bFtpSentResult = SendFileViaFtp(sFileName, sFtpFolder);
+                    bool bFtpSentResult = SendFileViaFtp(sFileName, sFtpFolder);
                     if (bFtpSentResult)
                     {
                         int nFileID = SaveFileHistoryRecord(fileType, nNextFileCounter, sFileName);
@@ -296,6 +293,7 @@ namespace M1BL
             if (m_dtTransactions != null && m_dtTransactions.Rows.Count > 0)
             {
                 DataRow[] ppvTransactionsRows = m_dtTransactions.Select("item_type=" + (int)M1ItemType.PPV);
+                
                 foreach (DataRow rowPPV in ppvTransactionsRows)
                 {
                     int nM1TransactionID = ODBCWrapper.Utils.GetIntSafeVal(rowPPV["id"]);
@@ -306,14 +304,14 @@ namespace M1BL
                     DateTime dCallDateTime = ODBCWrapper.Utils.GetDateSafeVal(rowPPV["create_date"]);
                     dCallDateTime = dCallDateTime.AddHours(m_nHoursOffset);
 
-                    string sServiceDescription = ODBCWrapper.Utils.GetSafeStr(rowPPV["item_description"]);
+                    //string sServiceDescription = ODBCWrapper.Utils.GetSafeStr(rowPPV["item_description"]);
                     double nPrice = ODBCWrapper.Utils.GetDoubleSafeVal(rowPPV["price"]);
                     nPrice = nPrice / (1 + (m_dGst / 100));
 
                     string sFormattedChargedNumber = string.Empty;
                     string sRateCode = string.Empty;
                     string sAnnotation = string.Empty;
-                    string sSpareField = string.Empty;
+                    //string sSpareField = string.Empty;
                     string sFormattedBillDescription = GetFormattedBillDescription(nBillingTransactionID);
 
                     sbData.Append(ParseStringToSize(m_sPPVBodyRecordType, PPVFileStructure.BODY_RECORD_TYPE));
