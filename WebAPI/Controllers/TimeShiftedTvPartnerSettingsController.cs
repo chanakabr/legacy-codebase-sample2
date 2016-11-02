@@ -32,8 +32,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;
+                int groupId = KS.GetFromRequest().GroupId;                
                 // call client                
                 response = ClientsManager.ApiClient().GetTimeShiftedTvPartnerSettings(groupId);
             }

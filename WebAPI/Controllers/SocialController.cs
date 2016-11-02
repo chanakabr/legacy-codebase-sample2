@@ -39,8 +39,6 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.MinFriendsLimitation)]
         public KalturaSocial GetByToken(int partnerId, string token, KalturaSocialNetwork type)
         {
-            KalturaSocialResponse response = new KalturaSocialResponse();
-
             if (string.IsNullOrEmpty(token))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "token");
 

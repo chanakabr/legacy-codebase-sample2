@@ -85,7 +85,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Token, opt => opt.MapFrom(src => src.Token));
 
             // from dms to local
-            Mapper.CreateMap<DMSAppVersion, KalturaConfiguration>()
+            Mapper.CreateMap<DMSAppVersion, KalturaConfigurations>()
                 .ForMember(dest => dest.AppName, opt => opt.MapFrom(src => src.AppName))
                 .ForMember(dest => dest.ClientVersion, opt => opt.MapFrom(src => src.ClientVersion))
                 .ForMember(dest => dest.IsForceUpdate, opt => opt.MapFrom(src => src.IsForceUpdate))
@@ -97,7 +97,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
 
             // from local to dms 
-            Mapper.CreateMap<KalturaConfiguration, DMSAppVersion>()
+            Mapper.CreateMap<KalturaConfigurations, DMSAppVersion>()
                 .ForMember(dest => dest.AppName, opt => opt.MapFrom(src => src.AppName))
                 .ForMember(dest => dest.ClientVersion, opt => opt.MapFrom(src => src.ClientVersion))
                 .ForMember(dest => dest.IsForceUpdate, opt => opt.MapFrom(src => src.IsForceUpdate))
