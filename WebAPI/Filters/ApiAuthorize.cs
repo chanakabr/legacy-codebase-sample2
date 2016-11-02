@@ -17,23 +17,22 @@ using WebAPI.Filters;
 
 namespace WebAPI.Controllers
 {
-    internal class ApiAuthorizeAttribute : Attribute
+    public class ApiAuthorizeAttribute : Attribute
     {
         [Flags]
         public enum eRole { /* Placeholder */ }
         public eRole Role { get; set; }
+        public bool Silent { get; set; }
         
-        private bool silent;
-        
-        public ApiAuthorizeAttribute(bool Silent = false)
+        public ApiAuthorizeAttribute(bool silent = false)
             : base()
         {
-            silent = Silent;
+            Silent = silent;
         }
 
         public bool IsAuthorized(string service, string action)
         {
-            RolesManager.ValidateActionPermitted(service, action, silent);
+            RolesManager.ValidateActionPermitted(service, action, Silent);
             return true;
         }
     }
