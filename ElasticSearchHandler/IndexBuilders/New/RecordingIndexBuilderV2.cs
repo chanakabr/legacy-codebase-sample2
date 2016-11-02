@@ -116,6 +116,20 @@ namespace ElasticSearchHandler.IndexBuilders
             return (ulong)(epgToRecordingMapping[(int)epgId]);
         }
 
+        /// <summary>
+        /// Document ID will be the recording ID and not the EPG ID
+        /// </summary>
+        /// <param name="epg"></param>
+        /// <returns></returns>
+        protected override ulong GetDocumentId(ApiObjects.EpgCB epg)
+        {
+            ulong result = base.GetDocumentId(epg);
+
+            result = (ulong)(epgToRecordingMapping[(long)epg.EpgID]);
+
+            return result;
+        }
+
         protected override string GetIndexType(LanguageObj language)
         {
             return (language.IsDefault) ? RECORDING : string.Concat(RECORDING, "_", language.Code);
