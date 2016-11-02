@@ -478,9 +478,9 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal static KalturaConfiguration GetConfiguration(int partnerId, string configurationId)
+        internal static KalturaConfigurations GetConfiguration(int partnerId, string configurationId)
         {
-            KalturaConfiguration configuration = null;
+            KalturaConfigurations configuration = null;
             string url = string.Format("{0}/{1}/{2}", DMSControllers.Configuration.ToString(), partnerId, configurationId);
             string result = string.Empty;
 
@@ -507,14 +507,14 @@ namespace WebAPI.Clients
                 throw new ClientException((int)DMSMapping.ConvertDMSStatus(response.Result.Status), response.Result.Message);
             }
 
-            configuration = Mapper.Map<KalturaConfiguration>(response.Configuration);
+            configuration = Mapper.Map<KalturaConfigurations>(response.Configuration);
 
             return configuration;
         }
 
-        internal static KalturaConfigurationListResponse GetConfigurationList(int partnerId, string configurationGroupId)
+        internal static KalturaConfigurationsListResponse GetConfigurationList(int partnerId, string configurationGroupId)
         {
-            KalturaConfigurationListResponse result = new KalturaConfigurationListResponse() { TotalCount = 0 };
+            KalturaConfigurationsListResponse result = new KalturaConfigurationsListResponse() { TotalCount = 0 };
 
             string url = string.Format("{0}/List/{1}/{2}", DMSControllers.Configuration.ToString(), partnerId, configurationGroupId);
             string dmsResult = string.Empty;
@@ -546,13 +546,13 @@ namespace WebAPI.Clients
             {
                 result.TotalCount = response.Configurations.Count;
                 // convert configuration
-                result.Objects = Mapper.Map<List<KalturaConfiguration>>(response.Configurations);
+                result.Objects = Mapper.Map<List<KalturaConfigurations>>(response.Configurations);
             }
 
             return result;
         }
 
-        internal static KalturaConfiguration AddConfiguration(int partnerId, KalturaConfiguration configuration)
+        internal static KalturaConfigurations AddConfiguration(int partnerId, KalturaConfigurations configuration)
         {
             string url = string.Format("{0}/{1}", DMSControllers.Configuration.ToString(), partnerId);
             string dmsResult = string.Empty;
@@ -584,12 +584,12 @@ namespace WebAPI.Clients
                 throw new ClientException((int)DMSMapping.ConvertDMSStatus(response.Result.Status), response.Result.Message);
             }
 
-            configuration = Mapper.Map<KalturaConfiguration>(response.Configuration);
+            configuration = Mapper.Map<KalturaConfigurations>(response.Configuration);
 
             return configuration;
         }
 
-        internal static KalturaConfiguration UpdateConfiguration(int partnerId, string configurationId, KalturaConfiguration configuration)
+        internal static KalturaConfigurations UpdateConfiguration(int partnerId, string configurationId, KalturaConfigurations configuration)
         {
             DMSAppVersion dmsAppVersion = null;
 
@@ -625,7 +625,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)DMSMapping.ConvertDMSStatus(response.Result.Status), response.Result.Message);
             }
 
-            configuration = Mapper.Map<KalturaConfiguration>(response.Configuration);
+            configuration = Mapper.Map<KalturaConfigurations>(response.Configuration);
 
             return configuration;
         }
