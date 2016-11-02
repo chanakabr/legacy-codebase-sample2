@@ -35,33 +35,36 @@ namespace DalCB
                 object[] startKey = new object[] { sSiteGuid, epochTime };
                 object[] endKey = new object[] { sSiteGuid, 0 };
 
-                List<SocialActivityDoc> retval;
+                List<string> retval;
+
                 if (nNumOfRecords > 0)
                 {
-                    retval = cbManager.View<SocialActivityDoc>(new ViewManager(CB_FEED_DESGIN, "UserFeed")
+                    retval = cbManager.View<string>(new ViewManager(CB_FEED_DESGIN, "UserFeed")
                     {
                         startKey = startKey,
                         endKey = endKey,
                         isDescending = true,
                         skip = nSkip,
                         limit = nNumOfRecords,
-                        asJson = true
                     });
                 }
                 else
                 {
-                    retval = cbManager.View<SocialActivityDoc>(new ViewManager(CB_FEED_DESGIN, "UserFeed")
+                    retval = cbManager.View<string>(new ViewManager(CB_FEED_DESGIN, "UserFeed")
                     {
                         startKey = startKey,
                         endKey = endKey,
                         isDescending = true,
-                        asJson = true
                     });
                 }
 
                 if (retval != null)
                 {
-                    lResult = retval.ToList();
+                    var cbRes = cbManager.GetValues<SocialActivityDoc>(retval, true, true);
+                    if (cbRes != null)
+                    {
+                        lResult = cbRes.Values.ToList();
+                    }
                 }
                 bResult = true;
             }

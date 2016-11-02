@@ -18770,8 +18770,7 @@ namespace ConditionalAccess
                 }
                 else if (seriesRecording.Status.Code != (int)eResponseStatus.OK)
                 {
-                    log.DebugFormat("seriesRecording status after FollowSeasonOrSeries is not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, seriesRecording.ToString());
-                    seriesRecording.Status = recordingResponse.Status;
+                    log.DebugFormat("seriesRecording status after FollowSeasonOrSeries is not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, seriesRecording.ToString());                    
                     return seriesRecording;
                 }
                 // successfully followed season or series and we have found future recordings, if the domain has programs of this season or series scheduled, they need to be canceled
@@ -19325,20 +19324,22 @@ namespace ConditionalAccess
 
         public SearchableRecording[] GetDomainSearchableRecordings(int groupID, long domainId)
         {
-            SearchableRecording[] result = null;
+            SearchableRecording[] result = new SearchableRecording[0];
             List<TstvRecordingStatus> recordingStatuses = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recorded };
-            Dictionary<long, Recording> domainRecordingIdToRecordingMap = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, domainId, recordingStatuses);
 
-            if (domainRecordingIdToRecordingMap != null)
+            try
             {
-                if (domainRecordingIdToRecordingMap.Count > 0)
+                Dictionary<long, Recording> domainRecordingIdToRecordingMap = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, domainId, recordingStatuses);
+
+                if (domainRecordingIdToRecordingMap != null && domainRecordingIdToRecordingMap.Count > 0)
                 {
                     result = domainRecordingIdToRecordingMap.Select(x => new SearchableRecording(x.Key, x.Value.Id, x.Value.EpgId)).ToArray();
                 }
-                else
-                {
-                    result = new SearchableRecording[0];
-                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("GetDomainSearchableRecordings - exception occurred. groupId = {0}, domainId = {1}, ex = {2}", groupID, domainId, ex);
+                result = null;
             }
 
             return result;
