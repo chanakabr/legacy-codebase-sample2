@@ -3154,6 +3154,13 @@
             <param name="partnerId">Partner identifier</param>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.SocialController.UpdateConfiguration(WebAPI.Models.Social.KalturaSocialConfig)">
+            <summary>
+            Set the user social network’s configuration information 
+            </summary>      
+            <param name="configuration">The social action settings</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.TransactionController.Purchase(WebAPI.Models.ConditionalAccess.KalturaPurchase)">
             <summary>
             Purchase specific product or subscription for a household. Upon successful charge entitlements to use the requested product or subscription are granted. 
@@ -7589,6 +7596,17 @@
             List of permitted user types for the subscription
             </summary>
         </member>
+        <!-- Badly formed XML comment ignored for member "P:WebAPI.Models.Social.KalturaActionPermissionItem.Network" -->
+        <member name="P:WebAPI.Models.Social.KalturaActionPermissionItem.SocialActionPrivacy">
+            <summary>
+            SocialActionPrivacy 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaActionPermissionItem.SocialPrivacy">
+            <summary>
+            SocialPrivacy 
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Social.KalturaSocial.ID">
             <summary>
             Facebook identifier
@@ -7899,6 +7917,11 @@
         <member name="P:WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings.NonExistingChannelPlaybackEnabled">
             <summary>
              Is recording playback for non-existing channel enables 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialUserConfig.PermissionItems">
+            <summary>
+            List of action permission items
             </summary>
         </member>
         <member name="T:WebAPI.Models.Users.KalturaFavoriteFilter">
@@ -10643,6 +10666,33 @@
         <member name="M:WebAPI.Social.module.MergeFriendsActivityFeedAsync(System.String,System.String,System.Int32,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.Social.module.GetSocialConfiguration(System.String,System.String,System.String,System.Nullable{WebAPI.Social.SocialPlatform})">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Social.module.GetSocialConfigurationAsync(System.String,System.String,System.String,System.Nullable{WebAPI.Social.SocialPlatform})">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Social.module.GetSocialConfigurationAsync(System.String,System.String,System.String,System.Nullable{WebAPI.Social.SocialPlatform},System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Social.module.SetUserSocialPrivacySettings(System.String,System.String,System.String,WebAPI.Social.SocialPrivacySettings)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Social.module.SetUserSocialPrivacySettingsAsync(System.String,System.String,System.String,WebAPI.Social.SocialPrivacySettings)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Social.module.SetUserSocialPrivacySettingsAsync(System.String,System.String,System.String,WebAPI.Social.SocialPrivacySettings,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Social.module.testSetUserSocialPrivacySettings">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Social.module.testSetUserSocialPrivacySettingsAsync">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Social.module.testSetUserSocialPrivacySettingsAsync(System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.Social.module.CancelAsync(System.Object)">
             <remarks/>
         </member>
@@ -10740,6 +10790,15 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.Social.module.MergeFriendsActivityFeedCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Social.module.GetSocialConfigurationCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Social.module.SetUserSocialPrivacySettingsCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Social.module.testSetUserSocialPrivacySettingsCompleted">
             <remarks/>
         </member>
         <member name="T:WebAPI.Controllers.OttUserController">
@@ -14396,6 +14455,123 @@
         <member name="P:WebAPI.Social.FriendWatchedObject.UpdateDate">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Social.SocialPrivacySettingsResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialPrivacySettingsResponse.settings">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialPrivacySettingsResponse.Status">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.SocialPrivacySettings">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialPrivacySettings.SocialNetworks">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialPrivacySettings.InternalPrivacy">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.SocialNetwork">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialNetwork.Network">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialNetwork.Privacy">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialNetwork.SocialPrivacy">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.SocialPlatform">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Social.SocialPlatform.UNKNOWN">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Social.SocialPlatform.FACEBOOK">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Social.SocialPlatform.GOOGLE">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.eSocialActionPrivacy">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Social.eSocialActionPrivacy.UNKNOWN">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Social.eSocialActionPrivacy.ALLOW">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Social.eSocialActionPrivacy.DONT_ALLOW">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.eSocialPrivacy">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Social.eSocialPrivacy.UNKNOWN">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Social.eSocialPrivacy.EVERYONE">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Social.eSocialPrivacy.ALL_FRIENDS">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Social.eSocialPrivacy.FRIENDS_OF_FRIENDS">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Social.eSocialPrivacy.SELF">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Social.eSocialPrivacy.CUSTOM">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.Status.Code">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.Status.Message">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.SocialConfig">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialConfig.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialConfig.PlatformConfig">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.PlatformConfig">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.FacebookConfig">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.FacebookConfig.sFBKey">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.FacebookConfig.sFBSecret">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.FacebookConfig.sFBCallback">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.FacebookConfig.nFBMinFriends">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.FacebookConfig.sFBPermissions">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.FacebookConfig.sFBRedirect">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Social.UserDynamicDataContainer">
             <remarks/>
         </member>
@@ -14672,15 +14848,6 @@
         <member name="P:WebAPI.Social.FBSignin.user">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Social.Status">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.Status.Code">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.Status.Message">
-            <remarks/>
-        </member>
         <member name="T:WebAPI.Social.FacebookTokenResponse">
             <remarks/>
         </member>
@@ -14793,27 +14960,6 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Social.FacebookResponse.Status">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Social.FacebookConfig">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.FacebookConfig.sFBKey">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.FacebookConfig.sFBSecret">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.FacebookConfig.sFBCallback">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.FacebookConfig.nFBMinFriends">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.FacebookConfig.sFBPermissions">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.FacebookConfig.sFBRedirect">
             <remarks/>
         </member>
         <member name="T:WebAPI.Social.FacebookConfigResponse">
@@ -15047,18 +15193,6 @@
         <member name="P:WebAPI.Social.SocialBaseRequestWrapper.m_oKeyValue">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Social.SocialPlatform">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Social.SocialPlatform.UNKNOWN">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Social.SocialPlatform.FACEBOOK">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Social.SocialPlatform.GOOGLE">
-            <remarks/>
-        </member>
         <member name="T:WebAPI.Social.BaseDoUserActionRequest">
             <remarks/>
         </member>
@@ -15159,39 +15293,6 @@
             <remarks/>
         </member>
         <member name="T:WebAPI.Social.GetFriendsActionsRequest">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Social.eSocialPrivacy">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Social.eSocialPrivacy.UNKNOWN">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Social.eSocialPrivacy.EVERYONE">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Social.eSocialPrivacy.ALL_FRIENDS">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Social.eSocialPrivacy.FRIENDS_OF_FRIENDS">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Social.eSocialPrivacy.SELF">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Social.eSocialPrivacy.CUSTOM">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Social.eSocialActionPrivacy">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Social.eSocialActionPrivacy.UNKNOWN">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Social.eSocialActionPrivacy.ALLOW">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Social.eSocialActionPrivacy.DONT_ALLOW">
             <remarks/>
         </member>
         <member name="T:WebAPI.Social.GetUsersLikedMediaCompletedEventHandler">
@@ -15462,6 +15563,33 @@
             <remarks/>
         </member>
         <member name="T:WebAPI.Social.MergeFriendsActivityFeedCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.GetSocialConfigurationCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.GetSocialConfigurationCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.GetSocialConfigurationCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.SetUserSocialPrivacySettingsCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.SetUserSocialPrivacySettingsCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SetUserSocialPrivacySettingsCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.testSetUserSocialPrivacySettingsCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.testSetUserSocialPrivacySettingsCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.testSetUserSocialPrivacySettingsCompletedEventArgs.Result">
             <remarks/>
         </member>
     </members>

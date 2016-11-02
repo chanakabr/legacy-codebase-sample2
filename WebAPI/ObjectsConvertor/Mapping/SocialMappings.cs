@@ -8,6 +8,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Social;
 using WebAPI.Models.General;
+using WebAPI.Social;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -282,6 +283,157 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return result;
+        }
+
+        internal static Social.SocialNetwork[] ConvertSocialNetwork(KalturaSocialUserConfig config)
+        {
+            List<Social.SocialNetwork> socialNetworkList = new List<Social.SocialNetwork>();
+            WebAPI.Social.SocialNetwork socialnetwork;
+
+            WebAPI.Social.SocialPrivacySettings settings = new Social.SocialPrivacySettings();
+
+            foreach (KalturaActionPermissionItem permissionItem in config.PermissionItems)
+            {
+                socialnetwork = new Social.SocialNetwork();
+                if (permissionItem.Network == null) // internal seetings
+                {
+                    switch (permissionItem.SocialActionPrivacy)
+                    {
+                        case KalturaSocialActionPrivacy.ALLOW:
+                            settings.InternalPrivacy = eSocialActionPrivacy.ALLOW;
+                            break;
+                        case KalturaSocialActionPrivacy.DONT_ALLOW:
+                            settings.InternalPrivacy = eSocialActionPrivacy.DONT_ALLOW;
+                            break;
+                        default:
+                            settings.InternalPrivacy = eSocialActionPrivacy.ALLOW;
+                            break;
+                    }
+                }
+                else
+                {
+                    switch (permissionItem.Network)
+                    {
+                        case KalturaSocialNetwork.facebook:
+                            socialnetwork.Network = SocialPlatform.FACEBOOK;
+                            break;
+                        default:
+                            break;
+                    }
+                    switch (permissionItem.SocialActionPrivacy)
+                    {
+                        case KalturaSocialActionPrivacy.ALLOW:
+                            socialnetwork.Privacy = eSocialActionPrivacy.ALLOW;
+                            break;
+                        case KalturaSocialActionPrivacy.DONT_ALLOW:
+                            socialnetwork.Privacy = eSocialActionPrivacy.DONT_ALLOW;
+                            break;
+                        default:
+                            socialnetwork.Privacy = eSocialActionPrivacy.DONT_ALLOW;
+                            break;
+                    }
+                    switch (permissionItem.SocialPrivacy)
+                    {
+                        case KalturaSocialPrivacy.UNKNOWN:
+                            socialnetwork.SocialPrivacy = eSocialPrivacy.UNKNOWN;
+                            break;
+                        case KalturaSocialPrivacy.EVERYONE:
+                            socialnetwork.SocialPrivacy = eSocialPrivacy.EVERYONE;
+                            break;
+                        case KalturaSocialPrivacy.ALL_FRIENDS:
+                            socialnetwork.SocialPrivacy = eSocialPrivacy.ALL_FRIENDS;
+                            break;
+                        case KalturaSocialPrivacy.FRIENDS_OF_FRIENDS:
+                            socialnetwork.SocialPrivacy = eSocialPrivacy.FRIENDS_OF_FRIENDS;
+                            break;
+                        case KalturaSocialPrivacy.SELF:
+                            socialnetwork.SocialPrivacy = eSocialPrivacy.SELF;
+                            break;
+                        case KalturaSocialPrivacy.CUSTOM:
+                            socialnetwork.SocialPrivacy = eSocialPrivacy.CUSTOM;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    socialNetworkList.Add(socialnetwork);
+                }
+            }
+            return socialNetworkList.ToArray();
+        }
+
+        internal static KalturaSocialConfig ConvertSocialNetwork(Social.SocialPrivacySettings socialPrivacySettings)
+        {
+            KalturaSocialUserConfig ksc = new KalturaSocialUserConfig();
+            KalturaActionPermissionItem kapi = new KalturaActionPermissionItem();
+            if (socialPrivacySettings != null)
+            {
+                ksc.PermissionItems = new List<KalturaActionPermissionItem>();
+                switch (socialPrivacySettings.InternalPrivacy)
+                {
+                    case WebAPI.Social.eSocialActionPrivacy.ALLOW:
+                        kapi.SocialActionPrivacy = KalturaSocialActionPrivacy.ALLOW;
+                        break;
+                    case WebAPI.Social.eSocialActionPrivacy.DONT_ALLOW:
+                        kapi.SocialActionPrivacy = KalturaSocialActionPrivacy.DONT_ALLOW;
+                        break;
+                    default:
+                        kapi.SocialActionPrivacy = KalturaSocialActionPrivacy.ALLOW;
+                        break;
+                }
+                kapi.Network = null;
+
+                ksc.PermissionItems.Add(kapi);
+
+                foreach (var item in socialPrivacySettings.SocialNetworks)
+                {
+                    kapi = new KalturaActionPermissionItem();
+                    switch (item.Network)
+                    {
+                        case WebAPI.Social.SocialPlatform.FACEBOOK:
+                            kapi.Network = KalturaSocialNetwork.facebook;
+                            break;
+                    }
+                    switch (item.SocialPrivacy)
+                    {
+                        case WebAPI.Social.eSocialPrivacy.UNKNOWN:
+                            kapi.SocialPrivacy = KalturaSocialPrivacy.UNKNOWN;
+                            break;
+                        case WebAPI.Social.eSocialPrivacy.EVERYONE:
+                            kapi.SocialPrivacy = KalturaSocialPrivacy.EVERYONE;
+                            break;
+                        case WebAPI.Social.eSocialPrivacy.ALL_FRIENDS:
+                            kapi.SocialPrivacy = KalturaSocialPrivacy.ALL_FRIENDS;
+                            break;
+                        case WebAPI.Social.eSocialPrivacy.FRIENDS_OF_FRIENDS:
+                            kapi.SocialPrivacy = KalturaSocialPrivacy.FRIENDS_OF_FRIENDS;
+                            break;
+                        case WebAPI.Social.eSocialPrivacy.SELF:
+                            kapi.SocialPrivacy = KalturaSocialPrivacy.SELF;
+                            break;
+                        case WebAPI.Social.eSocialPrivacy.CUSTOM:
+                            kapi.SocialPrivacy = KalturaSocialPrivacy.CUSTOM;
+                            break;
+                        default:
+                            break;
+                    }
+                    switch (item.Privacy)
+                    {
+                        case WebAPI.Social.eSocialActionPrivacy.ALLOW:
+                            kapi.SocialActionPrivacy = KalturaSocialActionPrivacy.ALLOW;
+                            break;
+                        case WebAPI.Social.eSocialActionPrivacy.DONT_ALLOW:
+                            kapi.SocialActionPrivacy = KalturaSocialActionPrivacy.DONT_ALLOW;
+                            break;
+                        default:
+                            kapi.SocialActionPrivacy = KalturaSocialActionPrivacy.DONT_ALLOW;
+                            break;
+                    }
+
+                    ksc.PermissionItems.Add(kapi);
+                }
+            }
+            return ksc;
         }
     }
 }

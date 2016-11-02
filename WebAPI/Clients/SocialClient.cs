@@ -525,6 +525,47 @@ namespace WebAPI.Clients
 
             return friendsActivity;
         }
+
+        internal KalturaSocialConfig SetUserActionShareAndPrivacy(int groupId, string userId, KalturaSocialUserConfig socialActionConfig)
+        {
+            KalturaSocialConfig socialConfig = new KalturaSocialConfig();
+            WebAPI.Social.SocialPrivacySettingsResponse response = new Social.SocialPrivacySettingsResponse();
+            WebAPI.Social.SocialPrivacySettings settings = new Social.SocialPrivacySettings();
+
+            settings.SocialNetworks = SocialMappings.ConvertSocialNetwork(socialActionConfig);
+
+
+
+            Group group = GroupsManager.GetGroup(groupId);
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // change status to Status - first in social ws 
+                    response = Client.SetUserSocialPrivacySettings(group.SocialCredentials.Username, group.SocialCredentials.Password, userId, settings);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while SetUserActionShare.  groupID: {0}, userId: {1}, exception: {2}", groupId, userId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            socialConfig = SocialMappings.ConvertSocialNetwork(response.settings);
+            //AutoMapper.Mapper.Map<KalturaSocialConfig>(response.settings);
+            return socialConfig;
+
+        }
     }
 }
 

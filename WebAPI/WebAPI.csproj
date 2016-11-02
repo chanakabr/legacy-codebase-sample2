@@ -1168,18 +1168,22 @@
     <Compile Include="Models\Pricing\KalturaSubscription.cs" />
     <Compile Include="Models\Renderers\KalturaRenderer.cs" />
     <Compile Include="Models\Renderers\KalturaStringRenderer.cs" />
+    <Compile Include="Models\Social\KalturaActionPermissionItem.cs" />
     <Compile Include="Models\Social\KalturaFacebookSocial.cs" />
     <Compile Include="Models\Social\KalturaSocial.cs" />
     <Compile Include="Models\Social\KalturaSocialAction.cs" />
+    <Compile Include="Models\Social\KalturaSocialActionPrivacy.cs" />
     <Compile Include="Models\Social\KalturaSocialConfig.cs" />
     <Compile Include="Models\Social\KalturaSocialFriendActivity.cs" />
     <Compile Include="Models\Social\KalturaSocialFriendActivityFilter.cs" />
+    <Compile Include="Models\Social\KalturaSocialPrivacy.cs" />
     <Compile Include="Models\Social\KalturaSocialResponse.cs" />
     <Compile Include="Models\Social\KalturaSocialUser.cs" />
     <Compile Include="Models\Social\KalturaSocialNetwork.cs" />
     <Compile Include="Models\API\KalturaTimeShiftedTvPartnerSettings.cs">
       <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
     </Compile>
+    <Compile Include="Models\Social\KalturaSocialUserConfig.cs" />
     <Compile Include="Models\Users\KalturaHouseholdSuspensionState.cs" />
     <Compile Include="Models\Users\KalturaFavoriteFilter.cs" />
     <Compile Include="Models\Users\KalturaLoginResponse.cs" />
@@ -1316,6 +1320,15 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Web References\Social\SocialConfig.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Social\SocialPrivacySettingsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
