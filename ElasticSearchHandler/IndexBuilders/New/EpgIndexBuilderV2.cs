@@ -407,7 +407,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                         bulkRequests.Add(new ESBulkRequestObj<ulong>()
                         {
-                            docID = epg.EpgID,
+                            docID = GetDocumentId(epg),
                             document = serializedEpg,
                             index = index,
                             Operation = eOperation.index,
@@ -455,6 +455,11 @@ namespace ElasticSearchHandler.IndexBuilders
         protected virtual ulong GetDocumentId(ulong epgId)
         {
             return epgId;
+        }
+
+        protected virtual ulong GetDocumentId(EpgCB epg)
+        {
+            return epg.EpgID;
         }
 
         #endregion
