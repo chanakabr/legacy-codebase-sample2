@@ -768,7 +768,6 @@
     <Compile Include="Controllers\CDNAdapterProfileController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
     <Compile Include="Controllers\CDNPartnerSettingsController.cs" />
-    <Compile Include="Controllers\ConfigurationController.cs" />
     <Compile Include="Controllers\ConfigurationGroupController.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -778,6 +777,7 @@
     <Compile Include="Controllers\ConfigurationGroupTagController.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Controllers\ConfigurationsController.cs" />
     <Compile Include="Controllers\SocialFriendActivityController.cs" />
     <Compile Include="Controllers\MetaController.cs" />
     <Compile Include="Controllers\DeviceBrandController.cs" />
@@ -797,14 +797,15 @@
     <Compile Include="Models\API\KalturaCountryListResponse.cs" />
     <Compile Include="Models\API\KalturaCountryOrderBy.cs" />
     <Compile Include="Models\API\KalturaMetaType.cs" />
+    <Compile Include="Models\DMS\KalturaConfigurations.cs" />
+    <Compile Include="Models\DMS\KalturaConfigurationsFilter.cs" />
+    <Compile Include="Models\DMS\KalturaConfigurationsListResponse.cs" />
     <Compile Include="Models\DMS\KalturaDeviceReportFilter.cs" />
     <Compile Include="Models\DMS\KalturaDeviceReport.cs" />
     <Compile Include="Models\DMS\KalturaConfigurationGroupTagFilter.cs" />
     <Compile Include="Models\DMS\DMSConfigurationListResponse.cs" />
     <Compile Include="Models\DMS\DMSConfigurationResponse.cs" />
     <Compile Include="Models\DMS\DMSEnums.cs" />
-    <Compile Include="Models\DMS\KalturaConfiguration.cs" />
-    <Compile Include="Models\DMS\KalturaConfigurationFilter.cs" />
     <Compile Include="Models\DMS\KalturaConfigurationGroupDeviceFilter.cs" />
     <Compile Include="Models\DMS\KalturaPushParams.cs" />
     <Compile Include="Models\DMS\DMSReportDeviceGetResponse.cs" />
@@ -830,7 +831,6 @@
     <Compile Include="Models\DMS\DMSTagMapping.cs" />
     <Compile Include="Models\DMS\KalturaConfigurationIdentifier.cs" />
     <Compile Include="Models\DMS\DMSPushParams.cs" />
-    <Compile Include="Models\DMS\KalturaConfigurationListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaRecordingAssetFilter.cs" />
     <Compile Include="Models\Catalog\KalturaScheduledRecordingAssetType.cs" />
     <Compile Include="Models\Domains\KalturaDeviceBrand.cs" />
