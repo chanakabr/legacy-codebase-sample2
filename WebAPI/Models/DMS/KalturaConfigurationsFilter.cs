@@ -5,23 +5,23 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.DMS
 {
-    public enum KalturaConfigurationOrderBy
+    public enum KalturaConfigurationsOrderBy
     {
         NONE
     }
     /// <summary>
     /// Configuration filter
     /// </summary>
-    public class KalturaConfigurationFilter : KalturaFilter<KalturaConfigurationOrderBy>
+    public class KalturaConfigurationsFilter : KalturaFilter<KalturaConfigurationsOrderBy>
     {
         [DataMember(Name = "configurationGroupIdEqual")]
         [JsonProperty("configurationGroupIdEqual")]
         [XmlElement(ElementName = "configurationGroupIdEqual")]
         public string ConfigurationGroupIdEqual { get; set; }
 
-        public override KalturaConfigurationOrderBy GetDefaultOrderByValue()
+        public override KalturaConfigurationsOrderBy GetDefaultOrderByValue()
         {
-            return KalturaConfigurationOrderBy.NONE;
+            return KalturaConfigurationsOrderBy.NONE;
         }
     }
 }

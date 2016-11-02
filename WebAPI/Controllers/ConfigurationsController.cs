@@ -10,8 +10,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/configuration/action")]
-    public class ConfigurationController : ApiController
+    [RoutePrefix("_service/configurations/action")]
+    public class ConfigurationsController : ApiController
     {
         /// <summary>
         /// Return a device configuration applicable for a specific device (UDID), app name, software version, platform and optionally a configuration group’s tag
@@ -86,9 +86,9 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.NotExist)]
         [Throws(eResponseStatus.PartnerMismatch)]
-        public KalturaConfiguration Get(string id)
+        public KalturaConfigurations Get(string id)
         {
-            KalturaConfiguration response = null;
+            KalturaConfigurations response = null;
 
             int partnerId = KS.GetFromRequest().GroupId;
 
@@ -118,9 +118,9 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
-        public KalturaConfigurationListResponse List(KalturaConfigurationFilter filter)
+        public KalturaConfigurationsListResponse List(KalturaConfigurationsFilter filter)
         {
-            KalturaConfigurationListResponse response = null;
+            KalturaConfigurationsListResponse response = null;
 
             if (string.IsNullOrWhiteSpace(filter.ConfigurationGroupIdEqual))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "configurationGroupIdEqual");
@@ -142,7 +142,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Add a new device configuration to a configuration group
         /// </summary>
-        /// <param name="configuration">Device configuration</param>
+        /// <param name="configurations">Device configuration</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002, AlreadyExist = 12008</remarks>        
         [Route("add"), HttpPost]
@@ -151,21 +151,21 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.IllegalPostData)]
         [Throws(eResponseStatus.AlreadyExist)]
-        public KalturaConfiguration Add(KalturaConfiguration configuration)
+        public KalturaConfigurations Add(KalturaConfigurations configurations)
         {
-            KalturaConfiguration response = null;
+            KalturaConfigurations response = null;
 
-            if (string.IsNullOrWhiteSpace(configuration.ConfigurationGroupId))
+            if (string.IsNullOrWhiteSpace(configurations.ConfigurationGroupId))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "configurationGroupId");
 
-            if (string.IsNullOrWhiteSpace(configuration.AppName))
+            if (string.IsNullOrWhiteSpace(configurations.AppName))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "appName");
 
-            if (string.IsNullOrWhiteSpace(configuration.ClientVersion))
+            if (string.IsNullOrWhiteSpace(configurations.ClientVersion))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "clientVersion");
 
 
-            if (string.IsNullOrWhiteSpace(configuration.Platform.ToString()))
+            if (string.IsNullOrWhiteSpace(configurations.Platform.ToString()))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "platform");
 
             try
@@ -173,7 +173,7 @@ namespace WebAPI.Controllers
                 int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client        
-                response = DMSClient.AddConfiguration(partnerId, configuration);
+                response = DMSClient.AddConfiguration(partnerId, configurations);
             }
             catch (ClientException ex)
             {
@@ -186,7 +186,7 @@ namespace WebAPI.Controllers
         /// Update device configuration
         /// </summary>
         /// <param name="id">Configuration identifier</param>
-        /// <param name="configuration">configuration to update</param>
+        /// <param name="configurations">configuration to update</param>
         /// <returns></returns>
         /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002, NotExist = 12003, PartnerMismatch = 12004, AlreadyExist = 12008</remarks>        
         [Route("update"), HttpPost]
@@ -197,21 +197,21 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.IllegalPostData)]
         [Throws(eResponseStatus.PartnerMismatch)]
         [Throws(eResponseStatus.AlreadyExist)]
-        public KalturaConfiguration Update(string id, KalturaConfiguration configuration)
+        public KalturaConfigurations Update(string id, KalturaConfigurations configurations)
         {
-            KalturaConfiguration response = null;
+            KalturaConfigurations response = null;
 
-            if (string.IsNullOrWhiteSpace(configuration.ConfigurationGroupId))
+            if (string.IsNullOrWhiteSpace(configurations.ConfigurationGroupId))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "configurationGroupId");
 
-            if (string.IsNullOrWhiteSpace(configuration.AppName))
+            if (string.IsNullOrWhiteSpace(configurations.AppName))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "appName");
 
-            if (string.IsNullOrWhiteSpace(configuration.ClientVersion))
+            if (string.IsNullOrWhiteSpace(configurations.ClientVersion))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "clientVersion");
 
 
-            if (string.IsNullOrWhiteSpace(configuration.Platform.ToString()))
+            if (string.IsNullOrWhiteSpace(configurations.Platform.ToString()))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "platform");
 
 
@@ -220,7 +220,7 @@ namespace WebAPI.Controllers
                 int partnerId = KS.GetFromRequest().GroupId;
 
                 // call client                        
-                response = DMSClient.UpdateConfiguration(partnerId, id, configuration);
+                response = DMSClient.UpdateConfiguration(partnerId, id, configurations);
             }
             catch (ClientException ex)
             {

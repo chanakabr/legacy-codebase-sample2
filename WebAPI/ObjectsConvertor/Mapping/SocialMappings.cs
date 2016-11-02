@@ -108,6 +108,40 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<Social.FacebookConfig, KalturaSocialConfig>()
                 .ForMember(dest => dest.AppId, opt => opt.MapFrom(src => src.sFBKey))
                 .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src => src.sFBPermissions));
+
+            // SocialActivityDoc to KalturaSocialFriendActivity
+            Mapper.CreateMap<Social.SocialActivityDoc, KalturaSocialFriendActivity>()
+                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.ActivityObject.AssetID))
+                .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertToKalturaAssetType(src.ActivityObject.AssetType)))
+                .ForMember(dest => dest.SocialAction, opt => opt.MapFrom(src => src))
+                .ForMember(dest => dest.UserFullName, opt => opt.MapFrom(src => src.ActivitySubject.ActorTvinciUsername))
+                .ForMember(dest => dest.UserPictureUrl, opt => opt.MapFrom(src => src.ActivitySubject.ActorPicUrl));
+
+            // ActivityVerb to KalturaSocialAction
+            Mapper.CreateMap<Social.SocialActivityDoc, KalturaSocialAction>().ConstructUsing(ConvertToKalturaSocialAction);
+        }
+
+        private static KalturaSocialAction ConvertToKalturaSocialAction(ResolutionContext context)
+        {
+            KalturaSocialAction result;
+            var action = (Social.SocialActivityDoc)context.SourceValue;
+            var actionType = ConvertToKalturaSocialActionType(action.ActivityVerb.ActionType);
+
+            if (actionType == KalturaSocialActionType.RATE)
+            {
+                result = new KalturaSocialActionRate(action.ActivityVerb.RateValue);
+            }
+            else
+            {
+                result = new KalturaSocialAction()
+                {
+                    ActionType = actionType
+                };
+            }
+
+            result.ActionTime = action.LastUpdate;
+
+            return result;
         }
 
         public static WebAPI.Social.KeyValuePair[] ConvertDictionaryToKeyValue(Dictionary<string, string> dictionary)
@@ -181,6 +215,71 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown user state");
             }
+            return result;
+        }
+
+        internal static Social.eUserAction ConvertSocialAction(KalturaSocialActionType action)
+        {
+            Social.eUserAction result;
+
+            switch (action)
+            {
+                case KalturaSocialActionType.LIKE:
+                    result = Social.eUserAction.LIKE;
+                    break;
+                case KalturaSocialActionType.WATCH:
+                    result = Social.eUserAction.WATCHES;
+                    break;
+                case KalturaSocialActionType.RATE:
+                    result = Social.eUserAction.RATES;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown social action");
+                    break;
+            }
+
+            return result;
+        }
+
+        //eAssetType to KalturaAssetType
+        public static WebAPI.Models.Catalog.KalturaAssetType ConvertToKalturaAssetType(WebAPI.Social.eAssetType assetType)
+        {
+            WebAPI.Models.Catalog.KalturaAssetType result;
+            switch (assetType)
+            {
+                case WebAPI.Social.eAssetType.PROGRAM:
+                    result = WebAPI.Models.Catalog.KalturaAssetType.epg;
+                    break;
+                case WebAPI.Social.eAssetType.MEDIA:
+                    result = WebAPI.Models.Catalog.KalturaAssetType.media;
+                    break;
+                case WebAPI.Social.eAssetType.UNKNOWN:
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown Asset Type");
+            }
+
+            return result;
+        }
+
+        //int (eUserAction) to KalturaSocialActionType
+        public static KalturaSocialActionType ConvertToKalturaSocialActionType(int action)
+        {
+            KalturaSocialActionType result;
+            switch (action)
+            {
+                case 2:
+                    result = KalturaSocialActionType.LIKE;
+                    break;
+                case 32:
+                    result = KalturaSocialActionType.WATCH;
+                    break;
+                case 128:
+                    result = KalturaSocialActionType.RATE;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown social action");
+            }
+
             return result;
         }
     }

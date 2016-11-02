@@ -421,60 +421,6 @@
             <returns></returns>
             <remarks>Possible status codes: CDN partner settings not found = 5025</remarks>   
         </member>
-        <member name="M:WebAPI.Controllers.ConfigurationController.ServeByDevice(System.String,System.String,System.String,System.String,System.String,System.Int32)">
-            <summary>
-            Return a device configuration applicable for a specific device (UDID), app name, software version, platform and optionally a configuration group’s tag
-            </summary>
-            <param name="partnerId">Partner Id</param>
-            <param name="applicationName">Application name</param>
-            <param name="clientVersion">Client version</param>
-            <param name="platform">platform</param>
-            <param name="udid">Device UDID</param>
-            <param name="tag">Tag</param>
-            <returns></returns>
-            <remarks> Possible status codes: IllegalQueryParams = 12001, Registered = 12006, VersionNotFound = 12007</remarks>        
-        </member>
-        <member name="M:WebAPI.Controllers.ConfigurationController.Get(System.String)">
-            <summary>
-            Return the device configuration
-            </summary>
-            <param name="id">Configuration identifier</param>
-            <returns></returns>
-            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
-        </member>
-        <member name="M:WebAPI.Controllers.ConfigurationController.List(WebAPI.Models.DMS.KalturaConfigurationFilter)">
-            <summary>
-            Return a list of device configurations of a configuration group 
-            </summary>
-            <param name="filter">Filter option for configuration group id.</param>
-            <returns></returns>
-            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001</remarks>        
-        </member>
-        <member name="M:WebAPI.Controllers.ConfigurationController.Add(WebAPI.Models.DMS.KalturaConfiguration)">
-            <summary>
-            Add a new device configuration to a configuration group
-            </summary>
-            <param name="configuration">Device configuration</param>
-            <returns></returns>
-            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002, AlreadyExist = 12008</remarks>        
-        </member>
-        <member name="M:WebAPI.Controllers.ConfigurationController.Update(System.String,WebAPI.Models.DMS.KalturaConfiguration)">
-            <summary>
-            Update device configuration
-            </summary>
-            <param name="id">Configuration identifier</param>
-            <param name="configuration">configuration to update</param>
-            <returns></returns>
-            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002, NotExist = 12003, PartnerMismatch = 12004, AlreadyExist = 12008</remarks>        
-        </member>
-        <member name="M:WebAPI.Controllers.ConfigurationController.Delete(System.String)">
-            <summary>
-            Delete a device configuration
-            </summary>
-            <param name="id">Configuration identifier</param>
-            <returns></returns>
-            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
-        </member>
         <member name="M:WebAPI.Controllers.ConfigurationGroupController.Get(System.String)">
             <summary>
             Return the configuration group details, including group identifiers, tags, and number of associated devices, and list of device configuration
@@ -578,6 +524,67 @@
             <param name="tag">Tag</param>
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001,  NotExist = 12003</remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.ConfigurationsController.ServeByDevice(System.String,System.String,System.String,System.String,System.String,System.Int32)">
+            <summary>
+            Return a device configuration applicable for a specific device (UDID), app name, software version, platform and optionally a configuration group’s tag
+            </summary>
+            <param name="partnerId">Partner Id</param>
+            <param name="applicationName">Application name</param>
+            <param name="clientVersion">Client version</param>
+            <param name="platform">platform</param>
+            <param name="udid">Device UDID</param>
+            <param name="tag">Tag</param>
+            <returns></returns>
+            <remarks> Possible status codes: IllegalQueryParams = 12001, Registered = 12006, VersionNotFound = 12007</remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.ConfigurationsController.Get(System.String)">
+            <summary>
+            Return the device configuration
+            </summary>
+            <param name="id">Configuration identifier</param>
+            <returns></returns>
+            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.ConfigurationsController.List(WebAPI.Models.DMS.KalturaConfigurationsFilter)">
+            <summary>
+            Return a list of device configurations of a configuration group 
+            </summary>
+            <param name="filter">Filter option for configuration group id.</param>
+            <returns></returns>
+            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001</remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.ConfigurationsController.Add(WebAPI.Models.DMS.KalturaConfigurations)">
+            <summary>
+            Add a new device configuration to a configuration group
+            </summary>
+            <param name="configurations">Device configuration</param>
+            <returns></returns>
+            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002, AlreadyExist = 12008</remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.ConfigurationsController.Update(System.String,WebAPI.Models.DMS.KalturaConfigurations)">
+            <summary>
+            Update device configuration
+            </summary>
+            <param name="id">Configuration identifier</param>
+            <param name="configurations">configuration to update</param>
+            <returns></returns>
+            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, IllegalPostData = 12002, NotExist = 12003, PartnerMismatch = 12004, AlreadyExist = 12008</remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.ConfigurationsController.Delete(System.String)">
+            <summary>
+            Delete a device configuration
+            </summary>
+            <param name="id">Configuration identifier</param>
+            <returns></returns>
+            <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.SocialFriendActivityController.List(WebAPI.Models.Social.KalturaSocialFriendActivityFilter,WebAPI.Models.General.KalturaFilterPager)">
+            <summary>
+            Get a list of the social friends activity for a user
+            </summary>
+            <param name="filter">Country filter</param>
+            <remarks></remarks>
         </member>
         <member name="M:WebAPI.Controllers.MetaController.List(WebAPI.Models.API.KalturaMetaFilter)">
             <summary>
@@ -725,6 +732,66 @@
             
             </summary>
         </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurations.Id">
+            <summary>
+            Configuration id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurations.PartnerId">
+            <summary>
+            Partner id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurations.ConfigurationGroupId">
+            <summary>
+            Configuration group id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurations.AppName">
+            <summary>
+            Application name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurations.ClientVersion">
+            <summary>
+            Client version
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurations.Platform">
+            <summary>
+            Platform: Android/iOS/WindowsPhone/Blackberry/STB/CTV/Other
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurations.ExternalPushId">
+            <summary>
+            External push id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurations.IsForceUpdate">
+            <summary>
+            Is force update
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurations.Content">
+            <summary>
+            Content
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.DMS.KalturaConfigurationsFilter">
+            <summary>
+            Configuration filter
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.DMS.KalturaConfigurationsListResponse">
+            <summary>
+            Configurations info wrapper
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurationsListResponse.Objects">
+            <summary>
+            Configurations
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.DMS.KalturaDeviceReportFilter">
             <summary>
             Report filter
@@ -793,56 +860,6 @@
         <member name="T:WebAPI.Models.DMS.KalturaConfigurationGroupTagFilter">
             <summary>
             Configuration group tag filter
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.DMS.KalturaConfiguration.Id">
-            <summary>
-            Configuration id
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.DMS.KalturaConfiguration.PartnerId">
-            <summary>
-            Partner id
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.DMS.KalturaConfiguration.ConfigurationGroupId">
-            <summary>
-            Configuration group id
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.DMS.KalturaConfiguration.AppName">
-            <summary>
-            Application name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.DMS.KalturaConfiguration.ClientVersion">
-            <summary>
-            Client version
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.DMS.KalturaConfiguration.Platform">
-            <summary>
-            Platform: Android/iOS/WindowsPhone/Blackberry/STB/CTV/Other
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.DMS.KalturaConfiguration.ExternalPushId">
-            <summary>
-            External push id
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.DMS.KalturaConfiguration.IsForceUpdate">
-            <summary>
-            Is force update
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.DMS.KalturaConfiguration.Content">
-            <summary>
-            Content
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.DMS.KalturaConfigurationFilter">
-            <summary>
-            Configuration filter
             </summary>
         </member>
         <member name="T:WebAPI.Models.DMS.KalturaConfigurationGroupDeviceFilter">
@@ -953,16 +970,6 @@
         <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroupListResponse.Objects">
             <summary>
             Configuration groups
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.DMS.KalturaConfigurationListResponse">
-            <summary>
-            Configurations info wrapper
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.DMS.KalturaConfigurationListResponse.Objects">
-            <summary>
-            Configurations
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaScheduledRecordingProgramFilter.RecordingTypeEqual">
@@ -4141,6 +4148,11 @@
             Channel Id
              </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannelFilter.OrderBy">
+            <summary>
+            order by
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetCommentListResponse">
             <summary>
             Asset Comment Response
@@ -4218,7 +4230,7 @@
         <member name="P:WebAPI.Models.Catalog.KalturaSearchAssetFilter.TypeIn">
             <summary>
             Comma separated list of asset types to search within. 
-            Possible values: 0 – EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).
+            Possible values: 0 – EPG linear programs entries; 1 - Recordings; Any media type ID (according to media type IDs defined dynamically in the system).
             If omitted – all types should be included.
             </summary>
         </member>
@@ -7628,6 +7640,21 @@
             Profile picture URL
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialAction.ActionType">
+            <summary>
+            Action type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialAction.ActionTime">
+            <summary>
+            EPOC based timestamp for when the action occurred
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialActionRate.Rate">
+            <summary>
+            The value of the rating
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Social.KalturaSocialConfig">
             <summary>
             Returns social configuration for the partner 
@@ -7641,6 +7668,56 @@
         <member name="P:WebAPI.Models.Social.KalturaSocialConfig.Permissions">
             <summary>
             List of application permissions
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivity.UserFullName">
+            <summary>
+            The full name of the user who did the social action
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivity.UserPictureUrl">
+            <summary>
+            The URL of the profile picture of the user who did the social action
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivity.ActionTime">
+            <summary>
+            EPOC based timestamp for when the action occurred
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivity.AssetId">
+            <summary>
+            ID of the asset that was acted upon
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivity.AssetType">
+            <summary>
+            Type of the asset that was acted upon, currently only VOD (media)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivity.SocialAction">
+            <summary>
+            The social action
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivityListResponse.Objects">
+            <summary>
+            Social friends activity
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivityFilter.AssetIdEqual">
+            <summary>
+            Asset ID to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivityFilter.AssetTypeEqual">
+            <summary>
+            Asset type to filter by, currently only VOD (media)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivityFilter.ActionTypeIn">
+            <summary>
+            Comma separated list of social actions to filter by
             </summary>
         </member>
         <member name="P:WebAPI.Models.Social.KalturaSocialResponse.Status">
@@ -14445,6 +14522,12 @@
         <member name="P:WebAPI.Social.User.m_oDynamicData">
             <remarks/>
         </member>
+        <member name="P:WebAPI.Social.User.m_eUserState">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.User.m_eSuspendState">
+            <remarks/>
+        </member>
         <member name="P:WebAPI.Social.User.m_sSiteGUID">
             <remarks/>
         </member>
@@ -14454,13 +14537,10 @@
         <member name="P:WebAPI.Social.User.m_isDomainMaster">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Social.User.m_eUserState">
-            <remarks/>
-        </member>
         <member name="P:WebAPI.Social.User.m_nSSOOperatorID">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Social.User.m_eSuspendState">
+        <member name="P:WebAPI.Social.User.IsActivationGracePeriod">
             <remarks/>
         </member>
         <member name="T:WebAPI.Social.UserState">
@@ -14578,6 +14658,9 @@
             <remarks/>
         </member>
         <member name="F:WebAPI.Social.ResponseStatus.UserSuspended">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Social.ResponseStatus.UserCreatedWithNoRole">
             <remarks/>
         </member>
         <member name="T:WebAPI.Social.FBSignin">
@@ -14820,79 +14903,16 @@
         <member name="F:WebAPI.Social.SocialActionResponseStatus.NOT_ALLOWED">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Social.ActionProperties">
+        <member name="T:WebAPI.Social.SocialActivityResponse">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Social.ActionProperties.PropertyName">
+        <member name="P:WebAPI.Social.SocialActivityResponse.Status">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Social.ActionProperties.PropertyValue">
+        <member name="P:WebAPI.Social.SocialActivityResponse.SocialActivity">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Social.SocialActivityVerb">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivityVerb.SocialActionID">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivityVerb.ActionType">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivityVerb.ActionName">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivityVerb.RateValue">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivityVerb.ActionProperties">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Social.SocialActivitySubject">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivitySubject.ActorSiteGuid">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivitySubject.ActorPicUrl">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivitySubject.ActorTvinciUsername">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivitySubject.GroupID">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivitySubject.DeviceUdid">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Social.SocialActivityObject">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivityObject.AssetID">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivityObject.ObjectID">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivityObject.AssetType">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivityObject.AssetName">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialActivityObject.PicUrl">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Social.eAssetType">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Social.eAssetType.UNKNOWN">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Social.eAssetType.MEDIA">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Social.eAssetType.PROGRAM">
+        <member name="P:WebAPI.Social.SocialActivityResponse.TotalCount">
             <remarks/>
         </member>
         <member name="T:WebAPI.Social.SocialActivityDoc">
@@ -14929,6 +14949,81 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Social.SocialActivityDoc.ActivityVerb">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.SocialActivityObject">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivityObject.AssetID">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivityObject.ObjectID">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivityObject.AssetType">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivityObject.AssetName">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivityObject.PicUrl">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.eAssetType">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Social.eAssetType.UNKNOWN">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Social.eAssetType.MEDIA">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Social.eAssetType.PROGRAM">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.SocialActivitySubject">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivitySubject.ActorSiteGuid">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivitySubject.ActorPicUrl">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivitySubject.ActorTvinciUsername">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivitySubject.GroupID">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivitySubject.DeviceUdid">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.SocialActivityVerb">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivityVerb.SocialActionID">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivityVerb.ActionType">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivityVerb.ActionName">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivityVerb.RateValue">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialActivityVerb.ActionProperties">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.ActionProperties">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.ActionProperties.PropertyName">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.ActionProperties.PropertyValue">
             <remarks/>
         </member>
         <member name="T:WebAPI.Social.KeyValuePair">
@@ -15058,6 +15153,9 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Social.UserSocialActionQueryRequest.m_eAssetType">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.UserSocialActionQueryRequest.UserActions">
             <remarks/>
         </member>
         <member name="T:WebAPI.Social.GetFriendsActionsRequest">
