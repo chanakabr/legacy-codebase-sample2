@@ -10,6 +10,7 @@ using System.Web.Http;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Controllers;
+using Newtonsoft.Json;
 
 namespace Reflector
 {
@@ -64,6 +65,7 @@ namespace Reflector
             wrtiePropertyApiName();
             wrtieValidateAuthorization();
             wrtieServeActionContentType();
+            wrtieIsNewStandardOnly();
         }
 
         static void wrtieServeActionContentType()
@@ -133,18 +135,24 @@ namespace Reflector
 
             bool authNeeded;
             bool nonSilentNeeded;
+            bool returnNeeded;
 
             foreach (Type controller in controllers)
             {
                 authNeeded = false;
                 nonSilentNeeded = false;
+                returnNeeded = false;
                 foreach (MethodInfo action in controller.GetMethods())
                 {
                     if (action.DeclaringType != controller)
                         continue;
 
                     ApiAuthorizeAttribute authorization = action.GetCustomAttribute<ApiAuthorizeAttribute>(true);
-                    if (authorization != null)
+                    if (authorization == null)
+                    {
+                        returnNeeded = true;
+                    }
+                    else
                     {
                         authNeeded = true;
                         nonSilentNeeded = nonSilentNeeded || authorization.Silent;
@@ -158,7 +166,7 @@ namespace Reflector
                     continue;
                 }
 
-                if (!nonSilentNeeded)
+                if (!nonSilentNeeded && !returnNeeded)
                     continue;
 
                 file.WriteLine("                case \"" + controller.Name + "\":");
@@ -198,6 +206,61 @@ namespace Reflector
             file.WriteLine("        ");
         }
 
+        static void wrtieIsNewStandardOnly()
+        {
+            file.WriteLine("        public static bool isNewStandardOnly(PropertyInfo property)");
+            file.WriteLine("        {");
+            file.WriteLine("            switch (property.DeclaringType.Name)");
+            file.WriteLine("            {");
+
+            bool needed = false;
+
+            foreach (Type type in types)
+            {
+                needed = false;
+                foreach (PropertyInfo property in type.GetProperties())
+                {
+                    if (property.DeclaringType != type)
+                        continue;
+
+                    OnlyNewStandardAttribute onlyNewStandard = property.GetCustomAttribute<OnlyNewStandardAttribute>();
+                    if (onlyNewStandard != null)
+                    {
+                        needed = true;
+                    }
+                }
+                if (!needed)
+                    continue;
+
+                file.WriteLine("                case \"" + type.Name + "\":");
+                file.WriteLine("                    switch(property.Name)");
+                file.WriteLine("                    {");
+
+                foreach (PropertyInfo property in type.GetProperties())
+                {
+                    if (property.DeclaringType != type)
+                        continue;
+
+                    OnlyNewStandardAttribute onlyNewStandard = property.GetCustomAttribute<OnlyNewStandardAttribute>();
+                    if (onlyNewStandard != null)
+                    {
+                        file.WriteLine("                        case \"" + property.Name + "\":");
+                        file.WriteLine("                            return true;");
+                    }
+                }
+
+                file.WriteLine("                    }");
+                file.WriteLine("                    break;");
+                file.WriteLine("                    ");
+            }
+
+            file.WriteLine("            }");
+            file.WriteLine("            ");
+            file.WriteLine("            return false;");
+            file.WriteLine("        }");
+            file.WriteLine("        ");
+        }
+
         static void wrtiePropertyApiName()
         {
             file.WriteLine("        public static string getApiName(PropertyInfo property)");
@@ -212,6 +275,9 @@ namespace Reflector
                 needed = false;
                 foreach (PropertyInfo property in type.GetProperties())
                 {
+                    if (property.DeclaringType != type)
+                        continue;
+
                     DataMemberAttribute dataMember = property.GetCustomAttribute<DataMemberAttribute>();
                     if (dataMember != null && !dataMember.Name.Equals(property.Name))
                     {
@@ -227,6 +293,9 @@ namespace Reflector
 
                 foreach (PropertyInfo property in type.GetProperties())
                 {
+                    if (property.DeclaringType != type)
+                        continue;
+
                     DataMemberAttribute dataMember = property.GetCustomAttribute<DataMemberAttribute>();
                     if (dataMember != null && !dataMember.Name.Equals(property.Name))
                     {

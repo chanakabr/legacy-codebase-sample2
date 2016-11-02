@@ -39,11 +39,8 @@ namespace WebAPI.Utils
             foreach (PropertyInfo property in properties)
             {
                 object value = property.GetValue(ottObject);
-                if (value == null || 
-                    (property.CustomAttributes != null && property.CustomAttributes.Where(a => a.AttributeType == typeof(OnlyNewStandardAttribute)).FirstOrDefault() != null))
+                if (value == null || DataModel.isNewStandardOnly(property))
                     continue;
-
-                
 
                 string name = getApiName(property);
 
@@ -96,10 +93,7 @@ namespace WebAPI.Utils
 
         public override IEnumerable<string> GetDynamicMemberNames()
         {
-            var membersNames = GetType().GetProperties().Where(propInfo => propInfo.CustomAttributes
-                .All(ca => ca.AttributeType != typeof(JsonIgnoreAttribute)))
-                .Select(propInfo => propInfo.Name);
-            return Extra.Keys.Union(membersNames);
+            return Extra.Keys;
         }
 
         public override bool TryGetMember(GetMemberBinder binder, out object result)

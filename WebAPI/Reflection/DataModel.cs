@@ -1,4 +1,4 @@
-﻿// NOTICE: This is a generated file, to modify it, edit Program.cs in Reflector project
+// NOTICE: This is a generated file, to modify it, edit Program.cs in Reflector project
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -73,12 +73,12 @@ namespace WebAPI.Reflection
                     {
                        case "GetOldStandard":
                             return new Dictionary<string, string>() { 
+                                {"streamType", "stream_type"},
                                 {"assetType", "asset_type"},
                                 {"contentId", "content_id"},
                                 {"baseUrl", "base_url"},
                                 {"assetId", "asset_id"},
                                 {"startDate", "start_date"},
-                                {"streamType", "stream_type"},
                            };
                     }
                     break;
@@ -208,8 +208,8 @@ namespace WebAPI.Reflection
                            };
                        case "ForceCancel":
                             return new Dictionary<string, string>() { 
-                                {"transactionType", "transaction_type"},
                                 {"assetId", "asset_id"},
+                                {"transactionType", "transaction_type"},
                            };
                        case "CancelRenewal":
                             return new Dictionary<string, string>() { 
@@ -217,17 +217,17 @@ namespace WebAPI.Reflection
                            };
                        case "Grant":
                             return new Dictionary<string, string>() { 
+                                {"productId", "product_id"},
                                 {"productType", "product_type"},
                                 {"contentId", "content_id"},
-                                {"productId", "product_id"},
                            };
                        case "Buy":
                             return new Dictionary<string, string>() { 
-                                {"couponCode", "coupon_code"},
-                                {"extraParams", "extra_params"},
+                                {"itemId", "item_id"},
                                 {"encryptedCvv", "encrypted_cvv"},
                                 {"fileId", "file_id"},
-                                {"itemId", "item_id"},
+                                {"couponCode", "coupon_code"},
+                                {"extraParams", "extra_params"},
                                 {"isSubscription", "is_subscription"},
                            };
                     }
@@ -256,8 +256,8 @@ namespace WebAPI.Reflection
                            };
                        case "UpdateOldStandard":
                             return new Dictionary<string, string>() { 
-                                {"paymentGateway", "payment_gateway"},
                                 {"paymentGatewayId", "payment_gateway_id"},
+                                {"paymentGateway", "payment_gateway"},
                            };
                        case "GenerateSharedSecret":
                             return new Dictionary<string, string>() { 
@@ -275,8 +275,8 @@ namespace WebAPI.Reflection
                     {
                        case "SetWaiver":
                             return new Dictionary<string, string>() { 
-                                {"assetId", "asset_id"},
                                 {"transactionType", "transaction_type"},
+                                {"assetId", "asset_id"},
                            };
                     }
                     break;
@@ -338,8 +338,8 @@ namespace WebAPI.Reflection
                            };
                        case "UpdateLoginData":
                             return new Dictionary<string, string>() { 
-                                {"oldPassword", "old_password"},
                                 {"newPassword", "new_password"},
+                                {"oldPassword", "old_password"},
                            };
                        case "AddRole":
                             return new Dictionary<string, string>() { 
@@ -404,59 +404,59 @@ namespace WebAPI.Reflection
                     
                 case "KalturaCDVRAdapterProfile":
                     return new Dictionary<string, string>() { 
-                        {"dynamicLinksSupport", "dynamic_links_support"},
                         {"isActive", "is_active"},
                         {"adapterUrl", "adapter_url"},
                         {"externalIdentifier", "external_identifier"},
                         {"sharedSecret", "shared_secret"},
+                        {"dynamicLinksSupport", "dynamic_links_support"},
                     };
                     
                 case "KalturaExportTask":
                     return new Dictionary<string, string>() { 
-                        {"isActive", "is_active"},
-                        {"vodTypes", "vod_types"},
+                        {"notificationUrl", "notification_url"},
                         {"dataType", "data_type"},
                         {"exportType", "export_type"},
-                        {"notificationUrl", "notification_url"},
+                        {"isActive", "is_active"},
+                        {"vodTypes", "vod_types"},
                     };
                     
                 case "KalturaExternalChannelProfile":
                     return new Dictionary<string, string>() { 
-                        {"recommendationEngineId", "recommendation_engine_id"},
                         {"filterExpression", "filter_expression"},
-                        {"isActive", "is_active"},
                         {"externalIdentifier", "external_identifier"},
+                        {"recommendationEngineId", "recommendation_engine_id"},
+                        {"isActive", "is_active"},
                     };
                     
                 case "KalturaGenericRuleFilter":
                     return new Dictionary<string, string>() { 
-                        {"assetId", "asset_id"},
                         {"assetType", "asset_type"},
+                        {"assetId", "asset_id"},
                     };
                     
                 case "KalturaOSSAdapterProfile":
                     return new Dictionary<string, string>() { 
-                        {"externalIdentifier", "external_identifier"},
                         {"sharedSecret", "shared_secret"},
                         {"isActive", "is_active"},
                         {"adapterUrl", "adapter_url"},
                         {"ossAdapterSettings", "oss_adapter_settings"},
+                        {"externalIdentifier", "external_identifier"},
                     };
                     
                 case "KalturaRecommendationProfile":
                     return new Dictionary<string, string>() { 
                         {"sharedSecret", "shared_secret"},
-                        {"externalIdentifier", "external_identifier"},
                         {"isActive", "is_active"},
                         {"adapterUrl", "adapter_url"},
                         {"recommendationEngineSettings", "recommendation_engine_settings"},
+                        {"externalIdentifier", "external_identifier"},
                     };
                     
                 case "KalturaChannelProfile":
                     return new Dictionary<string, string>() { 
+                        {"assetTypes", "asset_types"},
                         {"isActive", "is_active"},
                         {"filterExpression", "filter_expression"},
-                        {"assetTypes", "asset_types"},
                     };
                     
                 case "KalturaPaymentMethod":
@@ -477,8 +477,8 @@ namespace WebAPI.Reflection
                     
                 case "KalturaAssetBookmark":
                     return new Dictionary<string, string>() { 
-                        {"finishedWatching", "finished_watching"},
                         {"positionOwner", "position_owner"},
+                        {"finishedWatching", "finished_watching"},
                     };
                     
                 case "KalturaAssetsFilter":
@@ -504,9 +504,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaAssetHistoryFilter":
                     return new Dictionary<string, string>() { 
-                        {"daysLessThanOrEqual", "days"},
                         {"filterTypes", "filter_types"},
                         {"statusEqual", "filter_status"},
+                        {"daysLessThanOrEqual", "days"},
                     };
                     
                 case "KalturaAssetInfoFilter":
@@ -516,28 +516,28 @@ namespace WebAPI.Reflection
                     
                 case "KalturaPaymentGatewayBaseProfile":
                     return new Dictionary<string, string>() { 
-                        {"paymentMethods", "payment_methods"},
-                        {"isDefault", "is_default"},
                         {"selectedBy", "selected_by"},
+                        {"isDefault", "is_default"},
+                        {"paymentMethods", "payment_methods"},
                     };
                     
                 case "KalturaPaymentGatewayProfile":
                     return new Dictionary<string, string>() { 
-                        {"isActive", "is_active"},
                         {"renewStartMinutes", "renew_start_minutes"},
-                        {"renewIntervalMinutes", "renew_interval_minutes"},
-                        {"pendingRetries", "pending_retries"},
-                        {"adapterUrl", "adapter_url"},
+                        {"isActive", "is_active"},
                         {"transactUrl", "transact_url"},
-                        {"externalIdentifier", "external_identifier"},
-                        {"statusUrl", "status_url"},
-                        {"paymentGatewayeSettings", "payment_gateway_settings"},
+                        {"renewIntervalMinutes", "renew_interval_minutes"},
                         {"renewUrl", "renew_url"},
-                        {"pendingInterval", "pending_interval"},
+                        {"paymentGatewayeSettings", "payment_gateway_settings"},
                         {"sharedSecret", "shared_secret"},
-                        {"paymentMethods", "payment_methods"},
-                        {"isDefault", "is_default"},
+                        {"adapterUrl", "adapter_url"},
+                        {"pendingRetries", "pending_retries"},
+                        {"pendingInterval", "pending_interval"},
+                        {"statusUrl", "status_url"},
+                        {"externalIdentifier", "external_identifier"},
                         {"selectedBy", "selected_by"},
+                        {"isDefault", "is_default"},
+                        {"paymentMethods", "payment_methods"},
                     };
                     
                 case "KalturaPersonalAssetRequest":
@@ -560,37 +560,37 @@ namespace WebAPI.Reflection
                 case "KalturaBillingTransaction":
                     return new Dictionary<string, string>() { 
                         {"recieptCode", "reciept_code"},
-                        {"actionDate", "action_date"},
-                        {"purchaseId", "purchase_id"},
-                        {"billingProviderRef", "billing_provider_ref"},
-                        {"purchasedItemName", "purchased_item_name"},
                         {"purchasedItemCode", "purchased_item_code"},
                         {"itemType", "item_type"},
-                        {"billingAction", "billing_action"},
                         {"startDate", "start_date"},
+                        {"purchaseId", "purchase_id"},
+                        {"purchasedItemName", "purchased_item_name"},
+                        {"billingAction", "billing_action"},
+                        {"actionDate", "action_date"},
                         {"endDate", "end_date"},
                         {"paymentMethod", "payment_method"},
                         {"paymentMethodExtraDetails", "payment_method_extra_details"},
                         {"isRecurring", "is_recurring"},
+                        {"billingProviderRef", "billing_provider_ref"},
                     };
                     
                 case "KalturaUserBillingTransaction":
                     return new Dictionary<string, string>() { 
-                        {"userId", "user_id"},
                         {"userFullName", "user_full_name"},
+                        {"userId", "user_id"},
                         {"recieptCode", "reciept_code"},
-                        {"actionDate", "action_date"},
-                        {"purchaseId", "purchase_id"},
-                        {"billingProviderRef", "billing_provider_ref"},
-                        {"purchasedItemName", "purchased_item_name"},
                         {"purchasedItemCode", "purchased_item_code"},
                         {"itemType", "item_type"},
-                        {"billingAction", "billing_action"},
                         {"startDate", "start_date"},
+                        {"purchaseId", "purchase_id"},
+                        {"purchasedItemName", "purchased_item_name"},
+                        {"billingAction", "billing_action"},
+                        {"actionDate", "action_date"},
                         {"endDate", "end_date"},
                         {"paymentMethod", "payment_method"},
                         {"paymentMethodExtraDetails", "payment_method_extra_details"},
                         {"isRecurring", "is_recurring"},
+                        {"billingProviderRef", "billing_provider_ref"},
                     };
                     
                 case "KalturaEntitlementsFilter":
@@ -600,22 +600,22 @@ namespace WebAPI.Reflection
                     
                 case "KalturaPricesFilter":
                     return new Dictionary<string, string>() { 
-                        {"shouldGetOnlyLowest", "should_get_only_lowest"},
                         {"filesIds", "files_ids"},
+                        {"shouldGetOnlyLowest", "should_get_only_lowest"},
                         {"subscriptionsIds", "subscriptions_ids"},
                     };
                     
                 case "KalturaHouseholdLimitations":
                     return new Dictionary<string, string>() { 
-                        {"usersLimit", "users_limit"},
-                        {"deviceFamiliesLimitations", "device_families_limitations"},
-                        {"concurrentLimit", "concurrent_limit"},
                         {"deviceLimit", "device_limit"},
+                        {"concurrentLimit", "concurrent_limit"},
+                        {"deviceFamiliesLimitations", "device_families_limitations"},
                         {"deviceFrequency", "device_frequency"},
                         {"deviceFrequencyDescription", "device_frequency_description"},
                         {"userFrequency", "user_frequency"},
                         {"userFrequencyDescription", "user_frequency_description"},
                         {"npvrQuotaInSeconds", "npvr_quota_in_seconds"},
+                        {"usersLimit", "users_limit"},
                     };
                     
                 case "KalturaTransaction":
@@ -651,21 +651,21 @@ namespace WebAPI.Reflection
                     
                 case "KalturaFollowDataBase":
                     return new Dictionary<string, string>() { 
-                        {"announcementId", "announcement_id"},
                         {"followPhrase", "follow_phrase"},
+                        {"announcementId", "announcement_id"},
                     };
                     
                 case "KalturaFollowDataTvSeries":
                     return new Dictionary<string, string>() { 
                         {"assetId", "asset_id"},
-                        {"announcementId", "announcement_id"},
                         {"followPhrase", "follow_phrase"},
+                        {"announcementId", "announcement_id"},
                     };
                     
                 case "KalturaFollowTvSeries":
                     return new Dictionary<string, string>() { 
-                        {"announcementId", "announcement_id"},
                         {"followPhrase", "follow_phrase"},
+                        {"announcementId", "announcement_id"},
                     };
                     
                 case "KalturaMessageTemplate":
@@ -688,18 +688,18 @@ namespace WebAPI.Reflection
                     
                 case "KalturaNotificationsPartnerSettings":
                     return new Dictionary<string, string>() { 
+                        {"pushStartHour", "push_start_hour"},
                         {"pushEndHour", "push_end_hour"},
                         {"pushNotificationEnabled", "push_notification_enabled"},
                         {"pushSystemAnnouncementsEnabled", "push_system_announcements_enabled"},
-                        {"pushStartHour", "push_start_hour"},
                     };
                     
                 case "KalturaPartnerNotificationSettings":
                     return new Dictionary<string, string>() { 
+                        {"pushStartHour", "push_start_hour"},
                         {"pushEndHour", "push_end_hour"},
                         {"pushNotificationEnabled", "push_notification_enabled"},
                         {"pushSystemAnnouncementsEnabled", "push_system_announcements_enabled"},
-                        {"pushStartHour", "push_start_hour"},
                     };
                     
                 case "KalturaPersonalFollowFeed":
@@ -736,17 +736,17 @@ namespace WebAPI.Reflection
                     
                 case "KalturaPPVItemPriceDetails":
                     return new Dictionary<string, string>() { 
-                        {"isSubscriptionOnly", "is_subscription_only"},
-                        {"ppvProductCode", "ppv_product_code"},
                         {"ppvModuleId", "ppv_module_id"},
+                        {"subscriptionId", "subscription_id"},
+                        {"collectionId", "collection_id"},
+                        {"ppvProductCode", "ppv_product_code"},
+                        {"ppvDescriptions", "ppv_descriptions"},
+                        {"purchaseUserId", "purchase_user_id"},
                         {"isInCancelationPeriod", "is_in_cancelation_period"},
                         {"fullPrice", "full_price"},
                         {"purchaseStatus", "purchase_status"},
-                        {"subscriptionId", "subscription_id"},
-                        {"collectionId", "collection_id"},
                         {"prePaidId", "pre_paid_id"},
-                        {"ppvDescriptions", "ppv_descriptions"},
-                        {"purchaseUserId", "purchase_user_id"},
+                        {"isSubscriptionOnly", "is_subscription_only"},
                         {"purchasedMediaFileId", "purchased_media_file_id"},
                         {"relatedMediaFileIds", "related_media_file_ids"},
                         {"startDate", "start_date"},
@@ -779,17 +779,17 @@ namespace WebAPI.Reflection
                     
                 case "KalturaPreviewModule":
                     return new Dictionary<string, string>() { 
-                        {"nonRenewablePeriod", "non_renewable_period"},
                         {"lifeCycle", "life_cycle"},
+                        {"nonRenewablePeriod", "non_renewable_period"},
                     };
                     
                 case "KalturaUsageModule":
                     return new Dictionary<string, string>() { 
                         {"maxViewsNumber", "max_views_number"},
-                        {"isOfflinePlayback", "is_offline_playback"},
-                        {"viewLifeCycle", "view_life_cycle"},
                         {"fullLifeCycle", "full_life_cycle"},
                         {"couponId", "coupon_id"},
+                        {"isOfflinePlayback", "is_offline_playback"},
+                        {"viewLifeCycle", "view_life_cycle"},
                         {"waiverPeriod", "waiver_period"},
                         {"isWaiverEnabled", "is_waiver_enabled"},
                     };
@@ -801,10 +801,10 @@ namespace WebAPI.Reflection
                         {"renewalsNumber", "renewals_number"},
                         {"priceId", "price_id"},
                         {"maxViewsNumber", "max_views_number"},
-                        {"isOfflinePlayback", "is_offline_playback"},
-                        {"viewLifeCycle", "view_life_cycle"},
                         {"fullLifeCycle", "full_life_cycle"},
                         {"couponId", "coupon_id"},
+                        {"isOfflinePlayback", "is_offline_playback"},
+                        {"viewLifeCycle", "view_life_cycle"},
                         {"waiverPeriod", "waiver_period"},
                         {"isWaiverEnabled", "is_waiver_enabled"},
                     };
@@ -849,12 +849,11 @@ namespace WebAPI.Reflection
                     
                 case "KalturaHousehold":
                     return new Dictionary<string, string>() { 
-                        {"frequencyNextUserAction", "frequency_next_user_action"},
-                        {"deviceFamilies", "device_families"},
+                        {"usersLimit", "users_limit"},
                         {"externalId", "external_id"},
                         {"householdLimitationsId", "household_limitations_id"},
                         {"devicesLimit", "devices_limit"},
-                        {"usersLimit", "users_limit"},
+                        {"deviceFamilies", "device_families"},
                         {"concurrentLimit", "concurrent_limit"},
                         {"masterUsers", "master_users"},
                         {"defaultUsers", "default_users"},
@@ -862,6 +861,7 @@ namespace WebAPI.Reflection
                         {"regionId", "region_id"},
                         {"isFrequencyEnabled", "is_frequency_enabled"},
                         {"frequencyNextDeviceAction", "frequency_next_device_action"},
+                        {"frequencyNextUserAction", "frequency_next_user_action"},
                     };
                     
                 case "KalturaHomeNetwork":
@@ -877,8 +877,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaSubscription":
                     return new Dictionary<string, string>() { 
-                        {"startDate", "start_date"},
+                        {"isWaiverEnabled", "is_waiver_enabled"},
                         {"userTypes", "user_types"},
+                        {"startDate", "start_date"},
                         {"endDate", "end_date"},
                         {"fileTypes", "file_types"},
                         {"isRenewable", "is_renewable"},
@@ -897,7 +898,6 @@ namespace WebAPI.Reflection
                         {"maxViewsNumber", "max_views_number"},
                         {"viewLifeCycle", "view_life_cycle"},
                         {"waiverPeriod", "waiver_period"},
-                        {"isWaiverEnabled", "is_waiver_enabled"},
                     };
                     
                 case "KalturaSocialConfig":
@@ -908,10 +908,10 @@ namespace WebAPI.Reflection
                 case "KalturaSocialResponse":
                     return new Dictionary<string, string>() { 
                         {"socialUser", "social_user"},
-                        {"minFriendsLimitation", "min_friends_limitation"},
                         {"userId", "user_id"},
                         {"kalturaUsername", "kaltura_username"},
                         {"socialUsername", "social_username"},
+                        {"minFriendsLimitation", "min_friends_limitation"},
                     };
                     
                 case "KalturaSocialUser":
@@ -972,8 +972,8 @@ namespace WebAPI.Reflection
                     
                 case "KalturaOTTCategory":
                     return new Dictionary<string, string>() { 
-                        {"childCategories", "child_categories"},
                         {"parentCategoryId", "parent_category_id"},
+                        {"childCategories", "child_categories"},
                     };
                     
                 case "KalturaChannel":
@@ -984,13 +984,13 @@ namespace WebAPI.Reflection
                     
                 case "KalturaParentalRule":
                     return new Dictionary<string, string>() { 
-                        {"epgTagValues", "epg_tag_values"},
+                        {"mediaTagValues", "media_tag_values"},
                         {"isDefault", "is_default"},
+                        {"epgTagValues", "epg_tag_values"},
                         {"mediaTag", "media_tag"},
                         {"epgTag", "epg_tag"},
                         {"blockAnonymousAccess", "block_anonymous_access"},
                         {"ruleType", "rule_type"},
-                        {"mediaTagValues", "media_tag_values"},
                     };
                     
                 case "KalturaEntitlement":
@@ -1017,24 +1017,24 @@ namespace WebAPI.Reflection
                     
                 case "KalturaUserLoginPin":
                     return new Dictionary<string, string>() { 
-                        {"expirationTime", "expiration_time"},
                         {"userId", "user_id"},
+                        {"expirationTime", "expiration_time"},
                         {"pinCode", "pin_code"},
                     };
                     
                 case "KalturaOTTUser":
                     return new Dictionary<string, string>() { 
+                        {"householdId", "household_id"},
+                        {"facebookToken", "facebook_token"},
+                        {"affiliateCode", "affiliate_code"},
                         {"externalId", "external_id"},
                         {"userType", "user_type"},
-                        {"facebookImage", "facebook_image"},
-                        {"facebookToken", "facebook_token"},
-                        {"householdId", "household_id"},
-                        {"affiliateCode", "affiliate_code"},
                         {"dynamicData", "dynamic_data"},
                         {"isHouseholdMaster", "is_household_master"},
                         {"suspentionState", "suspention_state"},
                         {"userState", "user_state"},
                         {"facebookId", "facebook_id"},
+                        {"facebookImage", "facebook_image"},
                         {"firstName", "first_name"},
                         {"lastName", "last_name"},
                     };
@@ -1046,9 +1046,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaUserAssetsListItem":
                     return new Dictionary<string, string>() { 
-                        {"userId", "user_id"},
                         {"listType", "list_type"},
                         {"orderIndex", "order_index"},
+                        {"userId", "user_id"},
                     };
                     
                 case "KalturaAssetInfoListResponse":
@@ -1058,24 +1058,24 @@ namespace WebAPI.Reflection
                     
                 case "KalturaAssetInfo":
                     return new Dictionary<string, string>() { 
-                        {"extraParams", "extra_params"},
                         {"startDate", "start_date"},
                         {"endDate", "end_date"},
+                        {"extraParams", "extra_params"},
                         {"mediaFiles", "media_files"},
                     };
                     
                 case "KalturaAssetStatistics":
                     return new Dictionary<string, string>() { 
                         {"buzzScore", "buzz_score"},
-                        {"ratingCount", "rating_count"},
                         {"assetId", "asset_id"},
+                        {"ratingCount", "rating_count"},
                     };
                     
                 case "KalturaBuzzScore":
                     return new Dictionary<string, string>() { 
-                        {"updateDate", "update_date"},
                         {"avgScore", "avg_score"},
                         {"normalizedAvgScore", "normalized_avg_score"},
+                        {"updateDate", "update_date"},
                     };
                     
                 case "KalturaMediaFile":
@@ -1091,16 +1091,16 @@ namespace WebAPI.Reflection
                     
                 case "KalturaWatchHistoryAsset":
                     return new Dictionary<string, string>() { 
-                        {"watchedDate", "watched_date"},
                         {"finishedWatching", "finished_watching"},
+                        {"watchedDate", "watched_date"},
                     };
                     
                 case "AnnouncementController":
                     return new Dictionary<string, string>() { 
                         {"listOldStandard", "list"},
+                        {"addOldStandard", "add"},
                         {"enableSystemAnnouncements", "createannouncement"},
                         {"updateOldStandard", "update"},
-                        {"addOldStandard", "add"},
                     };
                     
                 case "AssetController":
@@ -1139,20 +1139,20 @@ namespace WebAPI.Reflection
                     
                 case "HomeNetworkController":
                     return new Dictionary<string, string>() { 
-                        {"listOldStandard", "list"},
                         {"updateOldStandard", "update"},
+                        {"listOldStandard", "list"},
                     };
                     
                 case "NotificationsPartnerSettingsController":
                     return new Dictionary<string, string>() { 
-                        {"updateOldStandard", "update"},
                         {"getOldStandard", "get"},
+                        {"updateOldStandard", "update"},
                     };
                     
                 case "NotificationsSettingsController":
                     return new Dictionary<string, string>() { 
-                        {"getOldStandard", "get"},
                         {"updateOldStandard", "update"},
+                        {"getOldStandard", "get"},
                     };
                     
                 case "PaymentMethodProfileController":
@@ -1186,14 +1186,14 @@ namespace WebAPI.Reflection
                     
                 case "ExportTaskController":
                     return new Dictionary<string, string>() { 
-                        {"updateOldStandard", "update"},
                         {"listOldStandard", "list"},
+                        {"updateOldStandard", "update"},
                     };
                     
                 case "ExternalChannelProfileController":
                     return new Dictionary<string, string>() { 
-                        {"updateOldStandard", "update"},
                         {"listOldStandard", "list"},
+                        {"updateOldStandard", "update"},
                     };
                     
                 case "OssAdapterProfileController":
@@ -1203,8 +1203,8 @@ namespace WebAPI.Reflection
                     
                 case "RecommendationProfileController":
                     return new Dictionary<string, string>() { 
-                        {"updateOldStandard", "update"},
                         {"listOldStandard", "list"},
+                        {"updateOldStandard", "update"},
                     };
                     
                 case "SessionController":
@@ -1230,14 +1230,14 @@ namespace WebAPI.Reflection
                     
                 case "BookmarkController":
                     return new Dictionary<string, string>() { 
-                        {"addOldStandard", "add"},
                         {"listOldStandard", "list"},
+                        {"addOldStandard", "add"},
                     };
                     
                 case "PurchaseSettingsController":
                     return new Dictionary<string, string>() { 
-                        {"updateOldStandard", "update"},
                         {"getOldStandard", "get"},
+                        {"updateOldStandard", "update"},
                     };
                     
                 case "HouseholdUserController":
@@ -1252,8 +1252,8 @@ namespace WebAPI.Reflection
                     
                 case "ChannelController":
                     return new Dictionary<string, string>() { 
-                        {"addOldStandard", "add"},
                         {"updateOldStandard", "update"},
+                        {"addOldStandard", "add"},
                     };
                     
                 case "PaymentGatewayProfileSettingsController":
@@ -1275,31 +1275,31 @@ namespace WebAPI.Reflection
                     
                 case "PaymentGatewayProfileController":
                     return new Dictionary<string, string>() { 
-                        {"addOldStandard", "add"},
-                        {"updateOldStandard", "update"},
                         {"listOldStandard", "list"},
+                        {"updateOldStandard", "update"},
+                        {"addOldStandard", "add"},
                     };
                     
                 case "SocialController":
                     return new Dictionary<string, string>() { 
-                        {"mergeOldStandard", "merge"},
-                        {"unmergeOldStandard", "unmerge"},
                         {"registerOldStandard", "register"},
                         {"getByTokenOldStandard", "getbytoken"},
                         {"getConfiguration", "config"},
+                        {"mergeOldStandard", "merge"},
+                        {"unmergeOldStandard", "unmerge"},
                     };
                     
                 case "TransactionController":
                     return new Dictionary<string, string>() { 
                         {"purchaseSessionIdOldStandard", "purchasesessionid"},
-                        {"setWaiver", "waiver"},
                         {"purchaseOldStandard", "purchase"},
+                        {"setWaiver", "waiver"},
                     };
                     
                 case "PinController":
                     return new Dictionary<string, string>() { 
-                        {"updateOldStandard", "update"},
                         {"getOldStandard", "get"},
+                        {"updateOldStandard", "update"},
                     };
                     
                 case "ParentalRuleController":
@@ -1326,9 +1326,9 @@ namespace WebAPI.Reflection
                     
                 case "OttUserController":
                     return new Dictionary<string, string>() { 
-                        {"resetPassword", "sendpassword"},
-                        {"setPassword", "resetpassword"},
                         {"getOldStandard", "get"},
+                        {"setPassword", "resetpassword"},
+                        {"resetPassword", "sendpassword"},
                         {"register", "add"},
                         {"updateLoginData", "changepassword"},
                     };
@@ -1361,8 +1361,6 @@ namespace WebAPI.Reflection
                             return "typeEqual";
                         case "AssetTypeEqual":
                             return "assetTypeEqual";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -1379,8 +1377,6 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -1403,8 +1399,6 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -1413,8 +1407,6 @@ namespace WebAPI.Reflection
                     {
                         case "IdIn":
                             return "idIn";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -1423,16 +1415,46 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
-                case "KalturaReportFilter":
+                case "KalturaConfigurations":
                     switch(property.Name)
                     {
-                        case "OrderBy":
-                            return "orderBy";
+                        case "Id":
+                            return "id";
+                        case "PartnerId":
+                            return "partnerId";
+                        case "ConfigurationGroupId":
+                            return "configurationGroupId";
+                        case "AppName":
+                            return "appName";
+                        case "ClientVersion":
+                            return "clientVersion";
+                        case "Platform":
+                            return "platform";
+                        case "ExternalPushId":
+                            return "externalPushId";
+                        case "IsForceUpdate":
+                            return "isForceUpdate";
+                        case "Content":
+                            return "content";
+                    }
+                    break;
+                    
+                case "KalturaConfigurationsFilter":
+                    switch(property.Name)
+                    {
+                        case "ConfigurationGroupIdEqual":
+                            return "configurationGroupIdEqual";
+                    }
+                    break;
+                    
+                case "KalturaConfigurationsListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
                     }
                     break;
                     
@@ -1441,8 +1463,6 @@ namespace WebAPI.Reflection
                     {
                         case "LastAccessDateGreaterThanOrEqual":
                             return "lastAccessDateGreaterThanOrEqual";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -1479,42 +1499,6 @@ namespace WebAPI.Reflection
                     {
                         case "ConfigurationGroupIdEqual":
                             return "configurationGroupIdEqual";
-                        case "OrderBy":
-                            return "orderBy";
-                    }
-                    break;
-                    
-                case "KalturaConfiguration":
-                    switch(property.Name)
-                    {
-                        case "Id":
-                            return "id";
-                        case "PartnerId":
-                            return "partnerId";
-                        case "ConfigurationGroupId":
-                            return "configurationGroupId";
-                        case "AppName":
-                            return "appName";
-                        case "ClientVersion":
-                            return "clientVersion";
-                        case "Platform":
-                            return "platform";
-                        case "ExternalPushId":
-                            return "externalPushId";
-                        case "IsForceUpdate":
-                            return "isForceUpdate";
-                        case "Content":
-                            return "content";
-                    }
-                    break;
-                    
-                case "KalturaConfigurationFilter":
-                    switch(property.Name)
-                    {
-                        case "ConfigurationGroupIdEqual":
-                            return "configurationGroupIdEqual";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -1523,8 +1507,6 @@ namespace WebAPI.Reflection
                     {
                         case "ConfigurationGroupIdEqual":
                             return "configurationGroupIdEqual";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -1555,8 +1537,6 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -1565,8 +1545,6 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -1607,8 +1585,6 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -1619,24 +1595,6 @@ namespace WebAPI.Reflection
                             return "id";
                         case "Name":
                             return "name";
-                    }
-                    break;
-                    
-                case "KalturaConfigurationListResponse":
-                    switch(property.Name)
-                    {
-                        case "Objects":
-                            return "objects";
-                        case "TotalCount":
-                            return "totalCount";
-                    }
-                    break;
-                    
-                case "KalturaAssetFilter":
-                    switch(property.Name)
-                    {
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -1651,8 +1609,6 @@ namespace WebAPI.Reflection
                             return "startDateGreaterThanOrNull";
                         case "EndDateLessThanOrNull":
                             return "endDateLessThanOrNull";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -1675,8 +1631,6 @@ namespace WebAPI.Reflection
                             return "householdIdEqual";
                         case "DeviceFamilyIdIn":
                             return "deviceFamilyIdIn";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -1685,8 +1639,6 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -1695,8 +1647,6 @@ namespace WebAPI.Reflection
                     {
                         case "ExternalIdIn":
                             return "externalIdIn";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -1705,8 +1655,6 @@ namespace WebAPI.Reflection
                     {
                         case "Regions":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -1737,12 +1685,6 @@ namespace WebAPI.Reflection
                     {
                         case "Permission":
                             return "permission";
-                        case "PIN":
-                            return "pin";
-                        case "Origin":
-                            return "origin";
-                        case "Type":
-                            return "type";
                     }
                     break;
                     
@@ -1769,8 +1711,6 @@ namespace WebAPI.Reflection
                             return "assetIdEqual";
                         case "AssetTypeEqual":
                             return "assetTypeEqual";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -1779,8 +1719,6 @@ namespace WebAPI.Reflection
                     {
                         case "Rules":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -1803,8 +1741,6 @@ namespace WebAPI.Reflection
                     {
                         case "EntityReferenceEqual":
                             return "entityReferenceEqual";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -1813,8 +1749,6 @@ namespace WebAPI.Reflection
                     {
                         case "IdIn":
                             return "idIn";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -1855,8 +1789,6 @@ namespace WebAPI.Reflection
                     {
                         case "Adapters":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -1903,8 +1835,6 @@ namespace WebAPI.Reflection
                             return "assetIdEqual";
                         case "AssetTypeEqual":
                             return "assetTypeEqual";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -1917,8 +1847,6 @@ namespace WebAPI.Reflection
                             return "assetIdIn";
                         case "AssetTypeEqual":
                             return "assetTypeEqual";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -1947,10 +1875,6 @@ namespace WebAPI.Reflection
                             return "finishedWatching";
                         case "PlayerData":
                             return "playerData";
-                        case "Id":
-                            return "id";
-                        case "Type":
-                            return "type";
                     }
                     break;
                     
@@ -1973,8 +1897,6 @@ namespace WebAPI.Reflection
                     {
                         case "AssetsBookmarks":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -1983,8 +1905,6 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -2027,20 +1947,6 @@ namespace WebAPI.Reflection
                             return "enableStartOver";
                         case "EnableTrickPlay":
                             return "enableTrickPlay";
-                        case "Id":
-                            return "id";
-                        case "Type":
-                            return "type";
-                        case "Name":
-                            return "name";
-                        case "Description":
-                            return "description";
-                        case "Images":
-                            return "images";
-                        case "MediaFiles":
-                            return "mediaFiles";
-                        case "Statistics":
-                            return "stats";
                     }
                     break;
                     
@@ -2055,36 +1961,6 @@ namespace WebAPI.Reflection
                             return "relatedMediaId";
                         case "Crid":
                             return "crid";
-                        case "Metas":
-                            return "metas";
-                        case "Tags":
-                            return "tags";
-                        case "StartDate":
-                            return "startDate";
-                        case "EndDate":
-                            return "endDate";
-                        case "EnableCdvr":
-                            return "enableCdvr";
-                        case "EnableCatchUp":
-                            return "enableCatchUp";
-                        case "EnableStartOver":
-                            return "enableStartOver";
-                        case "EnableTrickPlay":
-                            return "enableTrickPlay";
-                        case "Id":
-                            return "id";
-                        case "Type":
-                            return "type";
-                        case "Name":
-                            return "name";
-                        case "Description":
-                            return "description";
-                        case "Images":
-                            return "images";
-                        case "MediaFiles":
-                            return "mediaFiles";
-                        case "Statistics":
-                            return "stats";
                     }
                     break;
                     
@@ -2101,36 +1977,6 @@ namespace WebAPI.Reflection
                             return "enableRecordingPlaybackNonEntitledChannel";
                         case "EnableRecordingPlaybackNonExistingChannel":
                             return "enableRecordingPlaybackNonExistingChannel";
-                        case "Metas":
-                            return "metas";
-                        case "Tags":
-                            return "tags";
-                        case "StartDate":
-                            return "startDate";
-                        case "EndDate":
-                            return "endDate";
-                        case "EnableCdvr":
-                            return "enableCdvr";
-                        case "EnableCatchUp":
-                            return "enableCatchUp";
-                        case "EnableStartOver":
-                            return "enableStartOver";
-                        case "EnableTrickPlay":
-                            return "enableTrickPlay";
-                        case "Id":
-                            return "id";
-                        case "Type":
-                            return "type";
-                        case "Name":
-                            return "name";
-                        case "Description":
-                            return "description";
-                        case "Images":
-                            return "images";
-                        case "MediaFiles":
-                            return "mediaFiles";
-                        case "Statistics":
-                            return "stats";
                     }
                     break;
                     
@@ -2139,44 +1985,6 @@ namespace WebAPI.Reflection
                     {
                         case "RecordingId":
                             return "recordingId";
-                        case "EpgChannelId":
-                            return "epgChannelId";
-                        case "EpgId":
-                            return "epgId";
-                        case "RelatedMediaId":
-                            return "relatedMediaId";
-                        case "Crid":
-                            return "crid";
-                        case "Metas":
-                            return "metas";
-                        case "Tags":
-                            return "tags";
-                        case "StartDate":
-                            return "startDate";
-                        case "EndDate":
-                            return "endDate";
-                        case "EnableCdvr":
-                            return "enableCdvr";
-                        case "EnableCatchUp":
-                            return "enableCatchUp";
-                        case "EnableStartOver":
-                            return "enableStartOver";
-                        case "EnableTrickPlay":
-                            return "enableTrickPlay";
-                        case "Id":
-                            return "id";
-                        case "Type":
-                            return "type";
-                        case "Name":
-                            return "name";
-                        case "Description":
-                            return "description";
-                        case "Images":
-                            return "images";
-                        case "MediaFiles":
-                            return "mediaFiles";
-                        case "Statistics":
-                            return "stats";
                     }
                     break;
                     
@@ -2189,8 +1997,6 @@ namespace WebAPI.Reflection
                             return "typeIn";
                         case "BundleTypeEqual":
                             return "bundleTypeEqual";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -2203,8 +2009,6 @@ namespace WebAPI.Reflection
                             return "utcOffsetEqual";
                         case "FreeText":
                             return "freeText";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -2225,8 +2029,6 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -2239,8 +2041,6 @@ namespace WebAPI.Reflection
                             return "idEqual";
                         case "TypeIn":
                             return "typeIn";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -2255,8 +2055,6 @@ namespace WebAPI.Reflection
                             return "utcOffsetEqual";
                         case "FreeText":
                             return "freeText";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -2269,8 +2067,6 @@ namespace WebAPI.Reflection
                             return "typeIn";
                         case "IdIn":
                             return "idIn";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -2283,8 +2079,6 @@ namespace WebAPI.Reflection
                             return "utcOffsetEqual";
                         case "TypeIn":
                             return "typeIn";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -2303,8 +2097,6 @@ namespace WebAPI.Reflection
                             return "contentId";
                         case "BaseUrl":
                             return "baseUrl";
-                        case "AssetId":
-                            return "assetId";
                     }
                     break;
                     
@@ -2315,12 +2107,6 @@ namespace WebAPI.Reflection
                             return "streamType";
                         case "StartDate":
                             return "startDate";
-                        case "ContentId":
-                            return "contentId";
-                        case "BaseUrl":
-                            return "baseUrl";
-                        case "AssetId":
-                            return "assetId";
                     }
                     break;
                     
@@ -2329,8 +2115,6 @@ namespace WebAPI.Reflection
                     {
                         case "FileType":
                             return "fileType";
-                        case "AssetId":
-                            return "assetId";
                     }
                     break;
                     
@@ -2370,21 +2154,11 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaSeriesRecordingFilter":
-                    switch(property.Name)
-                    {
-                        case "OrderBy":
-                            return "orderBy";
-                    }
-                    break;
-                    
                 case "KalturaSeriesRecordingListResponse":
                     switch(property.Name)
                     {
                         case "Objects":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -2431,12 +2205,6 @@ namespace WebAPI.Reflection
                             return "coupon";
                         case "AdapterData":
                             return "adapterData";
-                        case "ProductId":
-                            return "productId";
-                        case "ContentId":
-                            return "contentId";
-                        case "ProductType":
-                            return "productType";
                     }
                     break;
                     
@@ -2445,24 +2213,6 @@ namespace WebAPI.Reflection
                     {
                         case "PreviewModuleId":
                             return "previewModuleId";
-                        case "Currency":
-                            return "currency";
-                        case "Price":
-                            return "price";
-                        case "PaymentMethodId":
-                            return "paymentMethodId";
-                        case "PaymentGatewayId":
-                            return "paymentGatewayId";
-                        case "Coupon":
-                            return "coupon";
-                        case "AdapterData":
-                            return "adapterData";
-                        case "ProductId":
-                            return "productId";
-                        case "ContentId":
-                            return "contentId";
-                        case "ProductType":
-                            return "productType";
                     }
                     break;
                     
@@ -2473,26 +2223,10 @@ namespace WebAPI.Reflection
                             return "receiptId";
                         case "PaymentGatewayName":
                             return "paymentGatewayName";
-                        case "ProductId":
-                            return "productId";
-                        case "ContentId":
-                            return "contentId";
-                        case "ProductType":
-                            return "productType";
                     }
                     break;
                     
                 case "KalturaPremiumService":
-                    switch(property.Name)
-                    {
-                        case "Id":
-                            return "id";
-                        case "Name":
-                            return "name";
-                    }
-                    break;
-                    
-                case "KalturaHouseholdPremiumService":
                     switch(property.Name)
                     {
                         case "Id":
@@ -2507,8 +2241,6 @@ namespace WebAPI.Reflection
                     {
                         case "PremiumServices":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -2521,8 +2253,6 @@ namespace WebAPI.Reflection
                             return "fileIdIn";
                         case "CouponCodeEqual":
                             return "couponCodeEqual";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -2535,8 +2265,6 @@ namespace WebAPI.Reflection
                             return "entityReferenceEqual";
                         case "IsExpiredEqual":
                             return "isExpiredEqual";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -2549,8 +2277,6 @@ namespace WebAPI.Reflection
                             return "startDateGreaterThanOrEqual";
                         case "EndDateLessThanOrEqual":
                             return "endDateLessThanOrEqual";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -2559,8 +2285,6 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -2591,14 +2315,6 @@ namespace WebAPI.Reflection
                     {
                         case "Ids":
                             return "ids";
-                    }
-                    break;
-                    
-                case "KalturaExportFilter":
-                    switch(property.Name)
-                    {
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -2633,8 +2349,6 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -2643,8 +2357,6 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -2697,8 +2409,6 @@ namespace WebAPI.Reflection
                     {
                         case "GenericRules":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -2725,10 +2435,6 @@ namespace WebAPI.Reflection
                             return "externalIdentifier";
                         case "SharedSecret":
                             return "sharedSecret";
-                        case "Id":
-                            return "id";
-                        case "Name":
-                            return "name";
                     }
                     break;
                     
@@ -2737,8 +2443,6 @@ namespace WebAPI.Reflection
                     {
                         case "RecommendationProfiles":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -2767,8 +2471,6 @@ namespace WebAPI.Reflection
                     {
                         case "RegistrySettings":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -2789,8 +2491,6 @@ namespace WebAPI.Reflection
                             return "ids";
                         case "IdIn":
                             return "idIn";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -2843,8 +2543,6 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -2885,8 +2583,6 @@ namespace WebAPI.Reflection
                     {
                         case "PaymentMethodProfiles":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -2895,8 +2591,6 @@ namespace WebAPI.Reflection
                     {
                         case "PaymentGatewayIdEqual":
                             return "paymentGatewayIdEqual";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -2941,8 +2635,6 @@ namespace WebAPI.Reflection
                     {
                         case "Channels":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -2953,8 +2645,6 @@ namespace WebAPI.Reflection
                             return "objects";
                         case "ChannelID":
                             return "channelId";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -2981,8 +2671,6 @@ namespace WebAPI.Reflection
                             return "statusEqual";
                         case "DaysLessThanOrEqual":
                             return "daysLessThanOrEqual";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -3015,8 +2703,6 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -3077,8 +2763,6 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -3109,14 +2793,6 @@ namespace WebAPI.Reflection
                             return "renewIntervalMinutes";
                         case "RenewStartMinutes":
                             return "renewStartMinutes";
-                        case "Id":
-                            return "id";
-                        case "Name":
-                            return "name";
-                        case "IsDefault":
-                            return "isDefault";
-                        case "PaymentMethods":
-                            return "paymentMethods";
                     }
                     break;
                     
@@ -3125,8 +2801,6 @@ namespace WebAPI.Reflection
                     {
                         case "PaymentGatewayProfiles":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -3135,8 +2809,6 @@ namespace WebAPI.Reflection
                     {
                         case "ParentalRule":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -3157,8 +2829,6 @@ namespace WebAPI.Reflection
                     {
                         case "AssetsBookmarks":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -3167,10 +2837,6 @@ namespace WebAPI.Reflection
                     {
                         case "Bookmarks":
                             return "objects";
-                        case "Id":
-                            return "id";
-                        case "Type":
-                            return "type";
                     }
                     break;
                     
@@ -3227,8 +2893,6 @@ namespace WebAPI.Reflection
                     {
                         case "AssetIdIn":
                             return "assetIdIn";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -3237,8 +2901,6 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -3249,8 +2911,6 @@ namespace WebAPI.Reflection
                             return "statusIn";
                         case "FilterExpression":
                             return "filterExpression";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -3259,8 +2919,6 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -3289,8 +2947,6 @@ namespace WebAPI.Reflection
                     {
                         case "transactions":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -3309,8 +2965,6 @@ namespace WebAPI.Reflection
                             return "userId";
                         case "UserFullName":
                             return "userFullNName";
-                        case "purchaseID":
-                            return "purchaseId";
                     }
                     break;
                     
@@ -3341,8 +2995,6 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -3351,8 +3003,6 @@ namespace WebAPI.Reflection
                     {
                         case "HouseholdIdEqual":
                             return "householdIdEqual";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -3361,8 +3011,6 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -3439,10 +3087,6 @@ namespace WebAPI.Reflection
                             return "action";
                         case "Parameter":
                             return "parameter";
-                        case "Id":
-                            return "id";
-                        case "Name":
-                            return "name";
                     }
                     break;
                     
@@ -3455,10 +3099,6 @@ namespace WebAPI.Reflection
                             return "parameter";
                         case "Action":
                             return "action";
-                        case "Id":
-                            return "id";
-                        case "Name":
-                            return "name";
                     }
                     break;
                     
@@ -3469,10 +3109,6 @@ namespace WebAPI.Reflection
                             return "service";
                         case "Action":
                             return "action";
-                        case "Id":
-                            return "id";
-                        case "Name":
-                            return "name";
                     }
                     break;
                     
@@ -3519,12 +3155,6 @@ namespace WebAPI.Reflection
                     {
                         case "Group":
                             return "group";
-                        case "Id":
-                            return "id";
-                        case "Name":
-                            return "name";
-                        case "PermissionItems":
-                            return "permissionItems";
                     }
                     break;
                     
@@ -3575,10 +3205,6 @@ namespace WebAPI.Reflection
                             return "startDate";
                         case "EndDate":
                             return "endDate";
-                        case "PageSize":
-                            return "pageSize";
-                        case "PageIndex":
-                            return "pageIndex";
                     }
                     break;
                     
@@ -3613,8 +3239,6 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -3645,8 +3269,6 @@ namespace WebAPI.Reflection
                     {
                         case "UserRoles":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -3679,8 +3301,6 @@ namespace WebAPI.Reflection
                     {
                         case "InboxMessages":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -3689,8 +3309,6 @@ namespace WebAPI.Reflection
                     {
                         case "InboxMessages":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -3745,16 +3363,6 @@ namespace WebAPI.Reflection
                     {
                         case "AssetId":
                             return "assetId";
-                        case "AnnouncementId":
-                            return "announcementId";
-                        case "Status":
-                            return "status";
-                        case "Title":
-                            return "title";
-                        case "Timestamp":
-                            return "timestamp";
-                        case "FollowPhrase":
-                            return "followPhrase";
                     }
                     break;
                     
@@ -3763,24 +3371,6 @@ namespace WebAPI.Reflection
                     {
                         case "AssetId":
                             return "assetId";
-                        case "AnnouncementId":
-                            return "announcementId";
-                        case "Status":
-                            return "status";
-                        case "Title":
-                            return "title";
-                        case "Timestamp":
-                            return "timestamp";
-                        case "FollowPhrase":
-                            return "followPhrase";
-                    }
-                    break;
-                    
-                case "KalturaFollowTvSeriesFilter":
-                    switch(property.Name)
-                    {
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -3811,8 +3401,6 @@ namespace WebAPI.Reflection
                             return "createdAtGreaterThanOrEqual";
                         case "CreatedAtLessThanOrEqual":
                             return "createdAtLessThanOrEqual";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -3839,8 +3427,6 @@ namespace WebAPI.Reflection
                     {
                         case "FollowDataList":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -3849,8 +3435,6 @@ namespace WebAPI.Reflection
                     {
                         case "FollowDataList":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -3859,16 +3443,6 @@ namespace WebAPI.Reflection
                     {
                         case "Announcements":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
-                    }
-                    break;
-                    
-                case "KalturaAnnouncementFilter":
-                    switch(property.Name)
-                    {
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -3877,22 +3451,10 @@ namespace WebAPI.Reflection
                     {
                         case "Announcements":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
                 case "KalturaNotificationsSettings":
-                    switch(property.Name)
-                    {
-                        case "PushNotificationEnabled":
-                            return "pushNotificationEnabled";
-                        case "PushFollowEnabled":
-                            return "pushFollowEnabled";
-                    }
-                    break;
-                    
-                case "KalturaNotificationSettings":
                     switch(property.Name)
                     {
                         case "PushNotificationEnabled":
@@ -3924,51 +3486,11 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaPartnerNotificationSettings":
-                    switch(property.Name)
-                    {
-                        case "PushNotificationEnabled":
-                            return "pushNotificationEnabled";
-                        case "PushSystemAnnouncementsEnabled":
-                            return "pushSystemAnnouncementsEnabled";
-                        case "PushStartHour":
-                            return "pushStartHour";
-                        case "PushEndHour":
-                            return "pushEndHour";
-                        case "InboxEnabled":
-                            return "inboxEnabled";
-                        case "MessageTTLDays":
-                            return "messageTTLDays";
-                        case "AutomaticIssueFollowNotification":
-                            return "automaticIssueFollowNotification";
-                        case "TopicExpirationDurationDays":
-                            return "topicExpirationDurationDays";
-                    }
-                    break;
-                    
-                case "KalturaPersonalFollowFeed":
-                    switch(property.Name)
-                    {
-                        case "AssetId":
-                            return "assetId";
-                    }
-                    break;
-                    
-                case "KalturaPersonalFeed":
-                    switch(property.Name)
-                    {
-                        case "AssetId":
-                            return "assetId";
-                    }
-                    break;
-                    
                 case "KalturaPersonalFollowFeedResponse":
                     switch(property.Name)
                     {
                         case "PersonalFollowFeed":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -3977,16 +3499,6 @@ namespace WebAPI.Reflection
                     {
                         case "PersonalFollowFeed":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
-                    }
-                    break;
-                    
-                case "KalturaPersonalFeedFilter":
-                    switch(property.Name)
-                    {
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -3999,14 +3511,6 @@ namespace WebAPI.Reflection
                             return "key";
                         case "Url":
                             return "url";
-                    }
-                    break;
-                    
-                case "KalturaTopicFilter":
-                    switch(property.Name)
-                    {
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -4031,8 +3535,6 @@ namespace WebAPI.Reflection
                     {
                         case "Topics":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -4041,8 +3543,6 @@ namespace WebAPI.Reflection
                     {
                         case "Topics":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -4109,14 +3609,6 @@ namespace WebAPI.Reflection
                             return "isInCancelationPeriod";
                         case "ProductCode":
                             return "ppvProductCode";
-                        case "ProductId":
-                            return "productId";
-                        case "ProductType":
-                            return "productType";
-                        case "Price":
-                            return "price";
-                        case "PurchaseStatus":
-                            return "purchaseStatus";
                     }
                     break;
                     
@@ -4125,8 +3617,6 @@ namespace WebAPI.Reflection
                     {
                         case "ProductsPrices":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -4137,8 +3627,6 @@ namespace WebAPI.Reflection
                             return "subscriptionIdIn";
                         case "MediaFileIdEqual":
                             return "mediaFileIdEqual";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -4169,8 +3657,6 @@ namespace WebAPI.Reflection
                     {
                         case "ItemPrice":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -4293,14 +3779,6 @@ namespace WebAPI.Reflection
                             return "fileId";
                         case "PPVPriceDetails":
                             return "ppvPriceDetails";
-                        case "ProductId":
-                            return "productId";
-                        case "ProductType":
-                            return "productType";
-                        case "Price":
-                            return "price";
-                        case "PurchaseStatus":
-                            return "purchaseStatus";
                     }
                     break;
                     
@@ -4365,24 +3843,6 @@ namespace WebAPI.Reflection
                             return "priceId";
                         case "DiscountId":
                             return "discountId";
-                        case "Id":
-                            return "id";
-                        case "Name":
-                            return "name";
-                        case "MaxViewsNumber":
-                            return "maxViewsNumber";
-                        case "ViewLifeCycle":
-                            return "viewLifeCycle";
-                        case "FullLifeCycle":
-                            return "fullLifeCycle";
-                        case "CouponId":
-                            return "couponId";
-                        case "WaiverPeriod":
-                            return "waiverPeriod";
-                        case "IsWaiverEnabled":
-                            return "isWaiverEnabled";
-                        case "IsOfflinePlayback":
-                            return "isOfflinePlayback";
                     }
                     break;
                     
@@ -4391,8 +3851,6 @@ namespace WebAPI.Reflection
                     {
                         case "Subscriptions":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -4403,10 +3861,6 @@ namespace WebAPI.Reflection
                             return "price";
                         case "PurchaseStatus":
                             return "purchaseStatus";
-                        case "ProductId":
-                            return "productId";
-                        case "ProductType":
-                            return "productType";
                     }
                     break;
                     
@@ -4425,8 +3879,6 @@ namespace WebAPI.Reflection
                     {
                         case "ProductsPrices":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -4435,36 +3887,10 @@ namespace WebAPI.Reflection
                     {
                         case "Entitlements":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
                 case "KalturaHouseholdDevice":
-                    switch(property.Name)
-                    {
-                        case "HouseholdId":
-                            return "householdId";
-                        case "Udid":
-                            return "udid";
-                        case "Name":
-                            return "name";
-                        case "Brand":
-                            return "brand";
-                        case "BrandId":
-                            return "brandId";
-                        case "ActivatedOn":
-                            return "activatedOn";
-                        case "State":
-                            return "state";
-                        case "Status":
-                            return "status";
-                        case "DeviceFamilyId":
-                            return "deviceFamilyId";
-                    }
-                    break;
-                    
-                case "KalturaDevice":
                     switch(property.Name)
                     {
                         case "HouseholdId":
@@ -4507,14 +3933,6 @@ namespace WebAPI.Reflection
                     {
                         case "Devices":
                             return "devices";
-                        case "Id":
-                            return "id";
-                        case "Name":
-                            return "name";
-                        case "DeviceLimit":
-                            return "deviceLimit";
-                        case "ConcurrentLimit":
-                            return "concurrentLimit";
                     }
                     break;
                     
@@ -4527,10 +3945,6 @@ namespace WebAPI.Reflection
                             return "deviceLimit";
                         case "ConcurrentLimit":
                             return "concurrentLimit";
-                        case "Id":
-                            return "id";
-                        case "Name":
-                            return "name";
                     }
                     break;
                     
@@ -4583,8 +3997,6 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -4698,29 +4110,21 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaFacebookSocial":
+                case "KalturaSocialAction":
                     switch(property.Name)
                     {
-                        case "ID":
-                            return "id";
-                        case "Name":
-                            return "name";
-                        case "FirstName":
-                            return "firstName";
-                        case "LastName":
-                            return "lastName";
-                        case "Email":
-                            return "email";
-                        case "Gender":
-                            return "gender";
-                        case "UserId":
-                            return "userId";
-                        case "Birthday":
-                            return "birthday";
-                        case "Status":
-                            return "status";
-                        case "PictureUrl":
-                            return "pictureUrl";
+                        case "ActionType":
+                            return "actionType";
+                        case "ActionTime":
+                            return "actionTime";
+                    }
+                    break;
+                    
+                case "KalturaSocialActionRate":
+                    switch(property.Name)
+                    {
+                        case "Rate":
+                            return "rate";
                     }
                     break;
                     
@@ -4731,6 +4135,42 @@ namespace WebAPI.Reflection
                             return "appId";
                         case "Permissions":
                             return "permissions";
+                    }
+                    break;
+                    
+                case "KalturaSocialFriendActivity":
+                    switch(property.Name)
+                    {
+                        case "UserFullName":
+                            return "userFullName";
+                        case "UserPictureUrl":
+                            return "userPictureUrl";
+                        case "AssetId":
+                            return "assetId";
+                        case "AssetType":
+                            return "assetType";
+                        case "SocialAction":
+                            return "socialAction";
+                    }
+                    break;
+                    
+                case "KalturaSocialFriendActivityListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
+                    }
+                    break;
+                    
+                case "KalturaSocialFriendActivityFilter":
+                    switch(property.Name)
+                    {
+                        case "AssetIdEqual":
+                            return "assetIdEqual";
+                        case "AssetTypeEqual":
+                            return "assetTypeEqual";
+                        case "ActionTypeIn":
+                            return "actionTypeIn";
                     }
                     break;
                     
@@ -4833,8 +4273,6 @@ namespace WebAPI.Reflection
                             return "media_ids";
                         case "MediaIdIn":
                             return "mediaIdIn";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -4857,8 +4295,6 @@ namespace WebAPI.Reflection
                             return "externalIdEqual";
                         case "IdIn":
                             return "idIn";
-                        case "OrderBy":
-                            return "orderBy";
                     }
                     break;
                     
@@ -4893,8 +4329,6 @@ namespace WebAPI.Reflection
                     {
                         case "Favorites":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -4939,12 +4373,6 @@ namespace WebAPI.Reflection
                     {
                         case "PurchaseSettingsType":
                             return "purchaseSettingsType";
-                        case "PIN":
-                            return "pin";
-                        case "Origin":
-                            return "origin";
-                        case "Type":
-                            return "type";
                     }
                     break;
                     
@@ -4981,10 +4409,6 @@ namespace WebAPI.Reflection
                             return "isActive";
                         case "Order":
                             return "order";
-                        case "Id":
-                            return "id";
-                        case "Name":
-                            return "name";
                     }
                     break;
                     
@@ -5109,14 +4533,6 @@ namespace WebAPI.Reflection
                             return "suspensionState";
                         case "UserState":
                             return "userState";
-                        case "Id":
-                            return "id";
-                        case "Username":
-                            return "username";
-                        case "FirstName":
-                            return "firstName";
-                        case "LastName":
-                            return "lastName";
                     }
                     break;
                     
@@ -5151,8 +4567,6 @@ namespace WebAPI.Reflection
                     {
                         case "Users":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -5173,8 +4587,6 @@ namespace WebAPI.Reflection
                             return "objects";
                         case "RequestId":
                             return "requestId";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -5191,20 +4603,6 @@ namespace WebAPI.Reflection
                             return "endDate";
                         case "ExtraParams":
                             return "extraParams";
-                        case "Id":
-                            return "id";
-                        case "Type":
-                            return "type";
-                        case "Name":
-                            return "name";
-                        case "Description":
-                            return "description";
-                        case "Images":
-                            return "images";
-                        case "MediaFiles":
-                            return "mediaFiles";
-                        case "Statistics":
-                            return "stats";
                     }
                     break;
                     
@@ -5231,8 +4629,6 @@ namespace WebAPI.Reflection
                     {
                         case "AssetsStatistics":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -5291,8 +4687,6 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -5301,8 +4695,6 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -5327,8 +4719,6 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
-                        case "TotalCount":
-                            return "totalCount";
                     }
                     break;
                     
@@ -5358,6 +4748,30 @@ namespace WebAPI.Reflection
             bool silent = false;
             switch (action.DeclaringType.Name)
             {
+                case "ConfigurationsController":
+                    switch(action.Name)
+                    {
+                        case "ServeByDevice":
+                            return;
+                            
+                    }
+                    break;
+                    
+                case "SystemController":
+                    switch(action.Name)
+                    {
+                        case "Ping":
+                            return;
+                            
+                        case "GetTime":
+                            return;
+                            
+                        case "GetVersion":
+                            return;
+                            
+                    }
+                    break;
+                    
                 case "VersionController":
                     return;
                     
@@ -5383,6 +4797,15 @@ namespace WebAPI.Reflection
                     
                 case "ServiceController":
                     return;
+                    
+                case "SocialController":
+                    switch(action.Name)
+                    {
+                        case "Login":
+                            return;
+                            
+                    }
+                    break;
                     
                 case "OttUserController":
                     switch(action.Name)
@@ -5436,7 +4859,7 @@ namespace WebAPI.Reflection
         {
             switch (action.DeclaringType.Name)
             {
-                case "ConfigurationController":
+                case "ConfigurationsController":
                     switch(action.Name)
                     {
                         case "ServeByDevice":
@@ -5448,6 +4871,25 @@ namespace WebAPI.Reflection
             }
             
             return null;
+        }
+        
+        public static bool isNewStandardOnly(PropertyInfo property)
+        {
+            switch (property.DeclaringType.Name)
+            {
+                case "KalturaProductPrice":
+                    switch(property.Name)
+                    {
+                        case "Price":
+                            return true;
+                        case "PurchaseStatus":
+                            return true;
+                    }
+                    break;
+                    
+            }
+            
+            return false;
         }
         
     }

@@ -7680,11 +7680,6 @@
             The URL of the profile picture of the user who did the social action
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivity.ActionTime">
-            <summary>
-            EPOC based timestamp for when the action occurred
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivity.AssetId">
             <summary>
             ID of the asset that was acted upon
