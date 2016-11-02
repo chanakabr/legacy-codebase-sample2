@@ -29,14 +29,6 @@ namespace WebAPI.Models.Social
         public string UserPictureUrl { get; set; }
 
         /// <summary>
-        /// EPOC based timestamp for when the action occurred
-        /// </summary>
-        [DataMember(Name = "actionTime")]
-        [JsonProperty("actionTime")]
-        [XmlElement(ElementName = "actionTime")]
-        public long? ActionTime { get; set; }
-
-        /// <summary>
         /// ID of the asset that was acted upon
         /// </summary>
         [DataMember(Name = "assetId")]
