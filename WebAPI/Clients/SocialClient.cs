@@ -434,7 +434,7 @@ namespace WebAPI.Clients
 
         internal KalturaSocialConfig GetFacebookConfig(int groupId)
         {
-            KalturaSocialConfig config = null;
+            KalturaSocialFacebookConfig config = null;
             FacebookConfigResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -461,7 +461,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            config = AutoMapper.Mapper.Map<KalturaSocialConfig>(response.FacebookConfig);
+            config = AutoMapper.Mapper.Map<KalturaSocialFacebookConfig>(response.FacebookConfig);
 
             return config;
         }
@@ -532,7 +532,11 @@ namespace WebAPI.Clients
             WebAPI.Social.SocialPrivacySettingsResponse response = new Social.SocialPrivacySettingsResponse();
             WebAPI.Social.SocialPrivacySettings settings = new Social.SocialPrivacySettings();
 
-            settings.SocialNetworks = SocialMappings.ConvertSocialNetwork(socialActionConfig);
+            //settings.SocialNetworks = SocialMappings.ConvertSocialNetwork(socialActionConfig);
+
+            settings.SocialNetworks = AutoMapper.Mapper.Map<Social.SocialNetwork[]>(socialActionConfig);
+
+           // Mapper.CreateMap<Social.SocialPrivacySettings, KalturaSocialConfig>().ConstructUsing(ConvertSocialNetwork);
 
 
 
@@ -561,10 +565,46 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            socialConfig = SocialMappings.ConvertSocialNetwork(response.settings);
-            //AutoMapper.Mapper.Map<KalturaSocialConfig>(response.settings);
+            //socialConfig = SocialMappings.ConvertSocialNetwork(response.settings);
+            socialConfig = AutoMapper.Mapper.Map<KalturaSocialConfig>(response.settings);
+           
             return socialConfig;
 
+        }
+
+        internal KalturaSocialConfig GetUserSocialPrivacySettings(string userId, int groupId)
+        {
+            KalturaSocialConfig socialConfig = new KalturaSocialConfig();
+
+            WebAPI.Social.SocialPrivacySettingsResponse response = new Social.SocialPrivacySettingsResponse();
+          
+            Group group = GroupsManager.GetGroup(groupId);
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // change status to Status - first in social ws 
+                    response = Client.GetUserSocialPrivacySettings(group.SocialCredentials.Username, group.SocialCredentials.Password, userId);                    
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetUserSocialPrivacySettings groupID: {0}, userId: {1}, exception: {2}", groupId, userId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+            
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+            //socialConfig = SocialMappings.ConvertSocialNetwork(response.settings);
+            socialConfig = AutoMapper.Mapper.Map<KalturaSocialConfig>(response.settings);
+            return socialConfig;
         }
     }
 }

@@ -1174,6 +1174,7 @@
     <Compile Include="Models\Social\KalturaSocialAction.cs" />
     <Compile Include="Models\Social\KalturaSocialActionPrivacy.cs" />
     <Compile Include="Models\Social\KalturaSocialConfig.cs" />
+    <Compile Include="Models\Social\KalturaSocialFacebookConfig.cs" />
     <Compile Include="Models\Social\KalturaSocialFriendActivity.cs" />
     <Compile Include="Models\Social\KalturaSocialFriendActivityFilter.cs" />
     <Compile Include="Models\Social\KalturaSocialPrivacy.cs" />

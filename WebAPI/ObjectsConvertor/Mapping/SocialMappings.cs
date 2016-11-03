@@ -106,7 +106,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UserState, opt => opt.MapFrom(src => ConvertResponseStatusToUserState(src.m_RespStatus)));
 
             // FacebookConfig to KalturaFacebookConfig
-            Mapper.CreateMap<Social.FacebookConfig, KalturaSocialConfig>()
+            Mapper.CreateMap<Social.FacebookConfig, KalturaSocialFacebookConfig>()
                 .ForMember(dest => dest.AppId, opt => opt.MapFrom(src => src.sFBKey))
                 .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src => src.sFBPermissions));
 
@@ -121,6 +121,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // ActivityVerb to KalturaSocialAction
             Mapper.CreateMap<Social.SocialActivityDoc, KalturaSocialAction>().ConstructUsing(ConvertToKalturaSocialAction);
+
+            Mapper.CreateMap<KalturaSocialUserConfig, Social.SocialNetwork[]>().ConstructUsing(ConvertSocialNetwork);
+
+            Mapper.CreateMap<Social.SocialPrivacySettings, KalturaSocialConfig>().ConstructUsing(ConvertSocialNetwork);
+
         }
 
         private static KalturaSocialAction ConvertToKalturaSocialAction(ResolutionContext context)
@@ -285,7 +290,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        internal static Social.SocialNetwork[] ConvertSocialNetwork(KalturaSocialUserConfig config)
+        private static Social.SocialNetwork[] ConvertSocialNetwork(KalturaSocialUserConfig config)
         {
             List<Social.SocialNetwork> socialNetworkList = new List<Social.SocialNetwork>();
             WebAPI.Social.SocialNetwork socialnetwork;
@@ -297,7 +302,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 socialnetwork = new Social.SocialNetwork();
                 if (permissionItem.Network == null) // internal seetings
                 {
-                    switch (permissionItem.SocialActionPrivacy)
+                    switch (permissionItem.ActionPrivacy)
                     {
                         case KalturaSocialActionPrivacy.ALLOW:
                             settings.InternalPrivacy = eSocialActionPrivacy.ALLOW;
@@ -320,7 +325,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         default:
                             break;
                     }
-                    switch (permissionItem.SocialActionPrivacy)
+                    switch (permissionItem.ActionPrivacy)
                     {
                         case KalturaSocialActionPrivacy.ALLOW:
                             socialnetwork.Privacy = eSocialActionPrivacy.ALLOW;
@@ -332,7 +337,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             socialnetwork.Privacy = eSocialActionPrivacy.DONT_ALLOW;
                             break;
                     }
-                    switch (permissionItem.SocialPrivacy)
+                    switch (permissionItem.Privacy)
                     {
                         case KalturaSocialPrivacy.UNKNOWN:
                             socialnetwork.SocialPrivacy = eSocialPrivacy.UNKNOWN;
@@ -358,11 +363,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
                     socialNetworkList.Add(socialnetwork);
                 }
-            }
+            }           
             return socialNetworkList.ToArray();
         }
 
-        internal static KalturaSocialConfig ConvertSocialNetwork(Social.SocialPrivacySettings socialPrivacySettings)
+        private static KalturaSocialConfig ConvertSocialNetwork(Social.SocialPrivacySettings socialPrivacySettings)
         {
             KalturaSocialUserConfig ksc = new KalturaSocialUserConfig();
             KalturaActionPermissionItem kapi = new KalturaActionPermissionItem();
@@ -372,13 +377,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 switch (socialPrivacySettings.InternalPrivacy)
                 {
                     case WebAPI.Social.eSocialActionPrivacy.ALLOW:
-                        kapi.SocialActionPrivacy = KalturaSocialActionPrivacy.ALLOW;
+                        kapi.ActionPrivacy = KalturaSocialActionPrivacy.ALLOW;
                         break;
                     case WebAPI.Social.eSocialActionPrivacy.DONT_ALLOW:
-                        kapi.SocialActionPrivacy = KalturaSocialActionPrivacy.DONT_ALLOW;
+                        kapi.ActionPrivacy = KalturaSocialActionPrivacy.DONT_ALLOW;
                         break;
                     default:
-                        kapi.SocialActionPrivacy = KalturaSocialActionPrivacy.ALLOW;
+                        kapi.ActionPrivacy = KalturaSocialActionPrivacy.ALLOW;
                         break;
                 }
                 kapi.Network = null;
@@ -397,22 +402,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     switch (item.SocialPrivacy)
                     {
                         case WebAPI.Social.eSocialPrivacy.UNKNOWN:
-                            kapi.SocialPrivacy = KalturaSocialPrivacy.UNKNOWN;
+                            kapi.Privacy = KalturaSocialPrivacy.UNKNOWN;
                             break;
                         case WebAPI.Social.eSocialPrivacy.EVERYONE:
-                            kapi.SocialPrivacy = KalturaSocialPrivacy.EVERYONE;
+                            kapi.Privacy = KalturaSocialPrivacy.EVERYONE;
                             break;
                         case WebAPI.Social.eSocialPrivacy.ALL_FRIENDS:
-                            kapi.SocialPrivacy = KalturaSocialPrivacy.ALL_FRIENDS;
+                            kapi.Privacy = KalturaSocialPrivacy.ALL_FRIENDS;
                             break;
                         case WebAPI.Social.eSocialPrivacy.FRIENDS_OF_FRIENDS:
-                            kapi.SocialPrivacy = KalturaSocialPrivacy.FRIENDS_OF_FRIENDS;
+                            kapi.Privacy = KalturaSocialPrivacy.FRIENDS_OF_FRIENDS;
                             break;
                         case WebAPI.Social.eSocialPrivacy.SELF:
-                            kapi.SocialPrivacy = KalturaSocialPrivacy.SELF;
+                            kapi.Privacy = KalturaSocialPrivacy.SELF;
                             break;
                         case WebAPI.Social.eSocialPrivacy.CUSTOM:
-                            kapi.SocialPrivacy = KalturaSocialPrivacy.CUSTOM;
+                            kapi.Privacy = KalturaSocialPrivacy.CUSTOM;
                             break;
                         default:
                             break;
@@ -420,13 +425,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     switch (item.Privacy)
                     {
                         case WebAPI.Social.eSocialActionPrivacy.ALLOW:
-                            kapi.SocialActionPrivacy = KalturaSocialActionPrivacy.ALLOW;
+                            kapi.ActionPrivacy = KalturaSocialActionPrivacy.ALLOW;
                             break;
                         case WebAPI.Social.eSocialActionPrivacy.DONT_ALLOW:
-                            kapi.SocialActionPrivacy = KalturaSocialActionPrivacy.DONT_ALLOW;
+                            kapi.ActionPrivacy = KalturaSocialActionPrivacy.DONT_ALLOW;
                             break;
                         default:
-                            kapi.SocialActionPrivacy = KalturaSocialActionPrivacy.DONT_ALLOW;
+                            kapi.ActionPrivacy = KalturaSocialActionPrivacy.DONT_ALLOW;
                             break;
                     }
 

@@ -22,21 +22,21 @@ namespace WebAPI.Models.Social
         public KalturaSocialNetwork? Network { get; set; }
 
         /// <summary>
-        /// SocialActionPrivacy 
+        /// ActionPrivacy 
         /// </summary>
-        [DataMember(Name = "socialActionPrivacy")]
-        [JsonProperty("socialActionPrivacy")]
-        [XmlElement(ElementName = "socialActionPrivacy")]
+        [DataMember(Name = "actionPrivacy")]
+        [JsonProperty("actionPrivacy")]
+        [XmlElement(ElementName = "actionPrivacy")]
         [SchemeProperty()]
-        public KalturaSocialActionPrivacy SocialActionPrivacy { get; set; }
+        public KalturaSocialActionPrivacy ActionPrivacy { get; set; }
 
         /// <summary>
-        /// SocialPrivacy 
+        /// Privacy
         /// </summary>
-        [DataMember(Name = "socialPrivacy")]
-        [JsonProperty("socialPrivacy")]
-        [XmlElement(ElementName = "socialPrivacy")]
+        [DataMember(Name = "privacy")]
+        [JsonProperty("privacy")]
+        [XmlElement(ElementName = "privacy")]
         [SchemeProperty()]
-        public KalturaSocialPrivacy SocialPrivacy { get; set; }
+        public KalturaSocialPrivacy Privacy { get; set; }
     }
 }

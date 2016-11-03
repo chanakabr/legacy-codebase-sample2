@@ -1097,6 +1097,22 @@
           <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
         </s:sequence>
       </s:complexType>
+      <s:element name="GetUserSocialPrivacySettings">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGUID" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserSocialPrivacySettingsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserSocialPrivacySettingsResult" type="tns:SocialPrivacySettingsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="testSetUserSocialPrivacySettings">
         <s:complexType />
       </s:element>
@@ -1325,6 +1341,12 @@
   </wsdl:message>
   <wsdl:message name="SetUserSocialPrivacySettingsSoapOut">
     <wsdl:part name="parameters" element="tns:SetUserSocialPrivacySettingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserSocialPrivacySettingsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserSocialPrivacySettings" />
+  </wsdl:message>
+  <wsdl:message name="GetUserSocialPrivacySettingsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserSocialPrivacySettingsResponse" />
   </wsdl:message>
   <wsdl:message name="testSetUserSocialPrivacySettingsSoapIn">
     <wsdl:part name="parameters" element="tns:testSetUserSocialPrivacySettings" />
@@ -1582,6 +1604,14 @@
     <wsdl:part name="siteGuid" type="s:string" />
   </wsdl:message>
   <wsdl:message name="MergeFriendsActivityFeedHttpPostOut" />
+  <wsdl:message name="GetUserSocialPrivacySettingsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="siteGUID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserSocialPrivacySettingsHttpPostOut">
+    <wsdl:part name="Body" element="tns:SocialPrivacySettingsResponse" />
+  </wsdl:message>
   <wsdl:message name="testSetUserSocialPrivacySettingsHttpPostIn" />
   <wsdl:message name="testSetUserSocialPrivacySettingsHttpPostOut">
     <wsdl:part name="Body" element="tns:SocialPrivacySettingsResponse" />
@@ -1723,6 +1753,10 @@
       <wsdl:input message="tns:SetUserSocialPrivacySettingsSoapIn" />
       <wsdl:output message="tns:SetUserSocialPrivacySettingsSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetUserSocialPrivacySettings">
+      <wsdl:input message="tns:GetUserSocialPrivacySettingsSoapIn" />
+      <wsdl:output message="tns:GetUserSocialPrivacySettingsSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="testSetUserSocialPrivacySettings">
       <wsdl:input message="tns:testSetUserSocialPrivacySettingsSoapIn" />
       <wsdl:output message="tns:testSetUserSocialPrivacySettingsSoapOut" />
@@ -1836,6 +1870,10 @@
     <wsdl:operation name="MergeFriendsActivityFeed">
       <wsdl:input message="tns:MergeFriendsActivityFeedHttpPostIn" />
       <wsdl:output message="tns:MergeFriendsActivityFeedHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserSocialPrivacySettings">
+      <wsdl:input message="tns:GetUserSocialPrivacySettingsHttpPostIn" />
+      <wsdl:output message="tns:GetUserSocialPrivacySettingsHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="testSetUserSocialPrivacySettings">
       <wsdl:input message="tns:testSetUserSocialPrivacySettingsHttpPostIn" />
@@ -2143,6 +2181,15 @@
     </wsdl:operation>
     <wsdl:operation name="SetUserSocialPrivacySettings">
       <soap:operation soapAction="http://social.tvinci.com/SetUserSocialPrivacySettings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserSocialPrivacySettings">
+      <soap:operation soapAction="http://social.tvinci.com/GetUserSocialPrivacySettings" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2468,6 +2515,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetUserSocialPrivacySettings">
+      <soap12:operation soapAction="http://social.tvinci.com/GetUserSocialPrivacySettings" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="testSetUserSocialPrivacySettings">
       <soap12:operation soapAction="http://social.tvinci.com/testSetUserSocialPrivacySettings" style="document" />
       <wsdl:input>
@@ -2716,6 +2772,15 @@
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
       <wsdl:output />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserSocialPrivacySettings">
+      <http:operation location="/GetUserSocialPrivacySettings" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="testSetUserSocialPrivacySettings">
       <http:operation location="/testSetUserSocialPrivacySettings" />

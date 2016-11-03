@@ -99,6 +99,8 @@ namespace WebAPI.Social {
         
         private System.Threading.SendOrPostCallback SetUserSocialPrivacySettingsOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetUserSocialPrivacySettingsOperationCompleted;
+        
         private System.Threading.SendOrPostCallback testSetUserSocialPrivacySettingsOperationCompleted;
         
         private bool useDefaultCredentialsSetExplicitly;
@@ -240,6 +242,9 @@ namespace WebAPI.Social {
         
         /// <remarks/>
         public event SetUserSocialPrivacySettingsCompletedEventHandler SetUserSocialPrivacySettingsCompleted;
+        
+        /// <remarks/>
+        public event GetUserSocialPrivacySettingsCompletedEventHandler GetUserSocialPrivacySettingsCompleted;
         
         /// <remarks/>
         public event testSetUserSocialPrivacySettingsCompletedEventHandler testSetUserSocialPrivacySettingsCompleted;
@@ -1448,6 +1453,39 @@ namespace WebAPI.Social {
             if ((this.SetUserSocialPrivacySettingsCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.SetUserSocialPrivacySettingsCompleted(this, new SetUserSocialPrivacySettingsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://social.tvinci.com/GetUserSocialPrivacySettings", RequestNamespace="http://social.tvinci.com/", ResponseNamespace="http://social.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public SocialPrivacySettingsResponse GetUserSocialPrivacySettings(string sWSUserName, string sWSPassword, string siteGUID) {
+            object[] results = this.Invoke("GetUserSocialPrivacySettings", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGUID});
+            return ((SocialPrivacySettingsResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetUserSocialPrivacySettingsAsync(string sWSUserName, string sWSPassword, string siteGUID) {
+            this.GetUserSocialPrivacySettingsAsync(sWSUserName, sWSPassword, siteGUID, null);
+        }
+        
+        /// <remarks/>
+        public void GetUserSocialPrivacySettingsAsync(string sWSUserName, string sWSPassword, string siteGUID, object userState) {
+            if ((this.GetUserSocialPrivacySettingsOperationCompleted == null)) {
+                this.GetUserSocialPrivacySettingsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetUserSocialPrivacySettingsOperationCompleted);
+            }
+            this.InvokeAsync("GetUserSocialPrivacySettings", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGUID}, this.GetUserSocialPrivacySettingsOperationCompleted, userState);
+        }
+        
+        private void OnGetUserSocialPrivacySettingsOperationCompleted(object arg) {
+            if ((this.GetUserSocialPrivacySettingsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetUserSocialPrivacySettingsCompleted(this, new GetUserSocialPrivacySettingsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -4858,6 +4896,32 @@ namespace WebAPI.Social {
         private object[] results;
         
         internal SetUserSocialPrivacySettingsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public SocialPrivacySettingsResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((SocialPrivacySettingsResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetUserSocialPrivacySettingsCompletedEventHandler(object sender, GetUserSocialPrivacySettingsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetUserSocialPrivacySettingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetUserSocialPrivacySettingsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }

@@ -98,6 +98,10 @@ namespace WebAPI.ClientManagers.Client
             {
                 string serviceTcmConfigurationKey = string.Format("WebServices.{0}", clientType);
                 string serviceUrl = TCMClient.Settings.Instance.GetValue<string>(string.Format("{0}.{1}", serviceTcmConfigurationKey, "URL"));
+                if (clientType ==ClientType.Social)
+                {
+                    serviceUrl = "http://localhost/ws_social/module.asmx";
+                }
 
                 client = ClientFactory.GetService(serviceUrl, clientType);
 

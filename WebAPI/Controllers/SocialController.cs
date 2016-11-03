@@ -438,7 +438,7 @@ namespace WebAPI.Controllers
         [Route("getConfiguration"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public KalturaSocialConfig GetConfiguration(int partnerId, KalturaSocialNetwork type)
+        public KalturaSocialConfig GetConfiguration( KalturaSocialNetwork? type, int? partnerId = null)
         {
             KalturaSocialConfig response = null;
 
@@ -451,7 +451,7 @@ namespace WebAPI.Controllers
                 if (type == null)
                 {
                     // to do return KalturaSocialUserConfig
-                    response = ClientsManager.SocialClient().GetFacebookConfig(groupId);
+                    response = ClientsManager.SocialClient().GetUserSocialPrivacySettings(userID, groupId);
                 }
                 else
                 {
@@ -479,7 +479,7 @@ namespace WebAPI.Controllers
         [Route("UpdateConfiguration"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public KalturaSocialConfig UpdateConfiguration(KalturaSocialConfig configuration)//, List<KalturaActionPermissionItem> settings = null)
+        public KalturaSocialConfig UpdateConfiguration(KalturaSocialConfig configuration)
         {
             KalturaSocialConfig response = null;
 
@@ -487,23 +487,12 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string userID = KS.GetFromRequest().UserId;
-
-                //if (configuration == null)
-                //{
-                //    configuration = new KalturaSocialConfig();
-                //}
-                //else
-                //{
+                
                 if (configuration is KalturaSocialUserConfig)
                 {
                     KalturaSocialUserConfig socialActionConfig = (KalturaSocialUserConfig)configuration;
                     response = ClientsManager.SocialClient().SetUserActionShareAndPrivacy(groupId, userID, socialActionConfig);
                 }
-                //else
-                //{
-                //    response = ClientsManager.SocialClient().GetFacebookConfig(groupId);
-                //}
-                // }
             }
             catch (ClientException ex)
             {
