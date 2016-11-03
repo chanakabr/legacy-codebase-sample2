@@ -26,7 +26,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "utcOffsetEqual")]
         [JsonProperty("utcOffsetEqual")]
-        [XmlElement(ElementName = "utcOffsetEqual", IsNullable = true)]
+        [XmlElement(ElementName = "utcOffsetEqual")]
         public int UtcOffsetEqual { get; set; }
 
         /// <summary>

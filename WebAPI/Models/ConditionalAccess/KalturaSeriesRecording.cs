@@ -17,7 +17,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "id")]
         [JsonProperty("id")]
-        [XmlElement(ElementName = "id", IsNullable = true)]
+        [XmlElement(ElementName = "id")]
         [SchemeProperty(ReadOnly = true)]
         public long Id { get; set; }
 
@@ -26,7 +26,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "epgId")]
         [JsonProperty("epgId")]
-        [XmlElement(ElementName = "epgId", IsNullable = true)]
+        [XmlElement(ElementName = "epgId")]
         public long EpgId { get; set; }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "channelId")]
         [JsonProperty("channelId")]
-        [XmlElement(ElementName = "channelId", IsNullable = true)]
+        [XmlElement(ElementName = "channelId")]
         public long ChannelId { get; set; }
 
         /// <summary>

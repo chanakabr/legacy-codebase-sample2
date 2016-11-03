@@ -19,6 +19,7 @@ using WebAPI.Managers.Scheme;
 using System.Dynamic;
 using Newtonsoft.Json;
 using WebAPI.App_Start;
+using WebAPI.Reflection;
 
 namespace WebAPI.Utils
 {
@@ -38,11 +39,8 @@ namespace WebAPI.Utils
             foreach (PropertyInfo property in properties)
             {
                 object value = property.GetValue(ottObject);
-                if (value == null || 
-                    (property.CustomAttributes != null && property.CustomAttributes.Where(a => a.AttributeType == typeof(OnlyNewStandardAttribute)).FirstOrDefault() != null))
+                if (value == null || DataModel.isNewStandardOnly(property))
                     continue;
-
-                
 
                 string name = getApiName(property);
 
@@ -90,19 +88,12 @@ namespace WebAPI.Utils
 
         private string getApiName(PropertyInfo property)
         {
-            System.Runtime.Serialization.DataMemberAttribute dataMember = property.GetCustomAttribute<System.Runtime.Serialization.DataMemberAttribute>();
-            if (dataMember == null)
-                return null;
-
-            return dataMember.Name;
+            return DataModel.getApiName(property);
         }
 
         public override IEnumerable<string> GetDynamicMemberNames()
         {
-            var membersNames = GetType().GetProperties().Where(propInfo => propInfo.CustomAttributes
-                .All(ca => ca.AttributeType != typeof(JsonIgnoreAttribute)))
-                .Select(propInfo => propInfo.Name);
-            return Extra.Keys.Union(membersNames);
+            return Extra.Keys;
         }
 
         public override bool TryGetMember(GetMemberBinder binder, out object result)

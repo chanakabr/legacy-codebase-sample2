@@ -18,7 +18,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "householdId")]
         [JsonProperty("householdId")]
-        [XmlElement(ElementName = "householdId", IsNullable = true)]
+        [XmlElement(ElementName = "householdId")]
         [SchemeProperty(ReadOnly = true)]
         public long HouseholdId { get; set; }
 

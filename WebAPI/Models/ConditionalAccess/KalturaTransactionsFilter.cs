@@ -23,7 +23,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "by")]
         [JsonProperty("by")]
-        [XmlElement(ElementName = "by", IsNullable = true)]
+        [XmlElement(ElementName = "by")]
         public KalturaEntityReferenceBy By
         {
             get;
