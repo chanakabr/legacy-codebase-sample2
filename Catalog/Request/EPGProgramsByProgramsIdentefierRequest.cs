@@ -45,7 +45,8 @@ namespace Catalog.Request
                  EpgProgramsResponse response = new EpgProgramsResponse();
                  BaseEpgBL epgBL = EpgBL.Utils.GetInstance(request.m_nGroupID);
 
-                 List<EPGChannelProgrammeObject> retList = epgBL.GetEPGPrograms(request.m_nGroupID,  request.pids, request.eLang, request.duration);
+                 string[] filteredEpgIds = FilterEpgIds(request.pids, request.m_nPageIndex, request.m_nPageSize);
+                 List<EPGChannelProgrammeObject> retList = epgBL.GetEPGPrograms(request.m_nGroupID, filteredEpgIds, request.eLang, request.duration);
                  if (retList != null && retList.Count > 0)
                  {
                      // get all linear settings about channel + group
@@ -61,6 +62,28 @@ namespace Catalog.Request
                  log.Error("", ex);
                  return new BaseResponse();
              }
+         }
+
+         private string[] FilterEpgIds(string[] epgIdsToFilter, int pageIndex, int pageSize)
+         {
+             List<string> filteredEpgIds = new List<string>();
+             if (epgIdsToFilter != null && epgIdsToFilter.Length > 0)
+             {
+                 filteredEpgIds = epgIdsToFilter.OrderBy(x => x).ToList();
+                 int totalResults = filteredEpgIds.Count;
+                 int startIndexOnList = pageIndex * pageSize;
+                 int rangeToGetFromList = (startIndexOnList + pageSize) > totalResults ? (totalResults - startIndexOnList) > 0 ? (totalResults - startIndexOnList) : 0 : pageSize;
+                 if (rangeToGetFromList > 0)
+                 {
+                     filteredEpgIds = filteredEpgIds.GetRange(startIndexOnList, rangeToGetFromList);
+                 }
+                 else
+                 {
+                     filteredEpgIds.Clear();
+                 }
+             }
+
+             return filteredEpgIds.ToArray();
          }
 
     }
