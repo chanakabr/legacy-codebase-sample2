@@ -778,6 +778,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Controllers\ConfigurationsController.cs" />
+    <Compile Include="Controllers\SocialCommentController.cs" />
     <Compile Include="Controllers\SocialFriendActivityController.cs" />
     <Compile Include="Controllers\MetaController.cs" />
     <Compile Include="Controllers\DeviceBrandController.cs" />
@@ -1168,12 +1169,15 @@
     <Compile Include="Models\Pricing\KalturaSubscription.cs" />
     <Compile Include="Models\Renderers\KalturaRenderer.cs" />
     <Compile Include="Models\Renderers\KalturaStringRenderer.cs" />
+    <Compile Include="Models\Social\KalturaSocialCommentFilter.cs" />
     <Compile Include="Models\Social\KalturaFacebookSocial.cs" />
     <Compile Include="Models\Social\KalturaSocial.cs" />
     <Compile Include="Models\Social\KalturaSocialAction.cs" />
+    <Compile Include="Models\Social\KalturaSocialComment.cs" />
     <Compile Include="Models\Social\KalturaSocialConfig.cs" />
     <Compile Include="Models\Social\KalturaSocialFriendActivity.cs" />
     <Compile Include="Models\Social\KalturaSocialFriendActivityFilter.cs" />
+    <Compile Include="Models\Social\KalturaSocialPlatform.cs" />
     <Compile Include="Models\Social\KalturaSocialResponse.cs" />
     <Compile Include="Models\Social\KalturaSocialUser.cs" />
     <Compile Include="Models\Social\KalturaSocialNetwork.cs" />
