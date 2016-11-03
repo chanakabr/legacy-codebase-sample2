@@ -11,7 +11,7 @@ namespace WebAPI.Models.DMS
     /// Configurations info wrapper
     /// </summary>
     [Serializable]
-    public class KalturaConfigurationListResponse : KalturaListResponse
+    public class KalturaConfigurationsListResponse : KalturaListResponse
     {
         /// <summary>
         /// Configurations
@@ -20,8 +20,6 @@ namespace WebAPI.Models.DMS
         [JsonProperty(PropertyName = "objects")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem("item")]
-        public List<KalturaConfiguration> Objects { get; set; }
-
+        public List<KalturaConfigurations> Objects { get; set; }
     }
-
 }

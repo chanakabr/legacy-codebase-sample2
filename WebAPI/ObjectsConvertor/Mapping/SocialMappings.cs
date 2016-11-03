@@ -112,7 +112,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // SocialActivityDoc to KalturaSocialFriendActivity
             Mapper.CreateMap<Social.SocialActivityDoc, KalturaSocialFriendActivity>()
-                .ForMember(dest => dest.ActionTime, opt => opt.MapFrom(src => src.LastUpdate))
                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.ActivityObject.AssetID))
                 .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertToKalturaAssetType(src.ActivityObject.AssetType)))
                 .ForMember(dest => dest.SocialAction, opt => opt.MapFrom(src => src))
