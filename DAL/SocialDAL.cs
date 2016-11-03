@@ -476,49 +476,6 @@ namespace DAL
             return null;
         }
 
-        //public DataTable GetGroupDefaultActionPrivacy(int nActionID)
-        //{
-        //    ODBCWrapper.StoredProcedure spDefaultGroupActionPrivacy = new ODBCWrapper.StoredProcedure("GetGroupDefaultActionPrivacy");
-        //    spDefaultGroupActionPrivacy.SetConnectionKey("MAIN_CONNECTION_STRING");
-        //    spDefaultGroupActionPrivacy.AddParameter("@GroupID", m_nGroupID);
-        //    spDefaultGroupActionPrivacy.AddParameter("@ActionID", nActionID);
-
-        //    DataSet ds = spDefaultGroupActionPrivacy.ExecuteDataSet();
-
-        //    if (ds != null)
-        //        return ds.Tables[0];
-
-        //    return null;
-        //}
-
-        //public int UpdateGroupDefaultActionPrivacy(int nActionID, int nActionPrivacy)
-        //{
-        //    ODBCWrapper.StoredProcedure spDefaultGroupActionPrivacy = new ODBCWrapper.StoredProcedure("GetGroupDefaultActionPrivacy");
-        //    spDefaultGroupActionPrivacy.SetConnectionKey("MAIN_CONNECTION_STRING");
-        //    spDefaultGroupActionPrivacy.AddParameter("@GroupID", m_nGroupID);
-        //    spDefaultGroupActionPrivacy.AddParameter("@ActionID", nActionID);
-        //    spDefaultGroupActionPrivacy.AddParameter("@ActionPrivacy", nActionPrivacy);
-        //    int retVal = spDefaultGroupActionPrivacy.ExecuteReturnValue<int>();
-
-        //    return retVal;
-        //}
-
-        //public int SetUserFBActionPrivacy(string sUserSiteGuid, int nSocialPlatform, int nSocialAction, int nActionPrivacy)
-        //{
-
-        //    ODBCWrapper.StoredProcedure spUpdateUserActionPrivacy = new ODBCWrapper.StoredProcedure("SetUserFBActionPrivacy");
-        //    spUpdateUserActionPrivacy.SetConnectionKey("users_connection");
-        //    spUpdateUserActionPrivacy.AddParameter("@UserSiteGuid", sUserSiteGuid);
-        //    spUpdateUserActionPrivacy.AddParameter("@GroupID", m_nGroupID);
-        //    spUpdateUserActionPrivacy.AddParameter("@SocialPlatform", nSocialPlatform);
-        //    spUpdateUserActionPrivacy.AddParameter("@Action", nSocialAction);
-        //    spUpdateUserActionPrivacy.AddParameter("@FBPrivacy", nActionPrivacy);
-
-        //    int retVal = spUpdateUserActionPrivacy.ExecuteReturnValue<int>();
-
-        //    return retVal;
-        //}
-
         public int SetUserInternalActionPrivacy(string sUserSiteGuid, int nSocialPlatform, int nSocialAction, int nActionPrivacy)
         {
             ODBCWrapper.StoredProcedure spUpdateUserActionPrivacy = new ODBCWrapper.StoredProcedure("SetUserInternalActionPrivacy");
@@ -549,29 +506,9 @@ namespace DAL
             return retVal;
         }
 
-        //public DataTable GetUserSocialActionPrivacy(string sUserSiteGuid, int nSocialPlatform, int nSocialAction)
-        //{
-        //    ODBCWrapper.StoredProcedure spGetUserActionPrivacy = new ODBCWrapper.StoredProcedure("GetUserSocialActionPrivacy");
-        //    spGetUserActionPrivacy.SetConnectionKey("users_connection");
-        //    spGetUserActionPrivacy.AddParameter("@UserSiteGuid", sUserSiteGuid);
-        //    spGetUserActionPrivacy.AddParameter("@GroupID", m_nGroupID);
-        //    spGetUserActionPrivacy.AddParameter("@SocialPlatform", nSocialPlatform);
-        //    spGetUserActionPrivacy.AddParameter("@Action", nSocialAction);
-
-        //    DataSet ds = spGetUserActionPrivacy.ExecuteDataSet();
-
-        //    if (ds != null)
-        //        return ds.Tables[0];
-
-        //    return null;
-
-        //}
-
-    
 
         public bool SetSocialPrivacySettings( DataTable dt)
         {
-
             try
             {
                 bool res = false;
@@ -591,6 +528,28 @@ namespace DAL
         }
 
 
+
+        public DataTable GetSocialPrivacySettings(string siteGUID, int groupID)
+        {            
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSocialPrivacySettings");
+                sp.SetConnectionKey("users_connection");
+                sp.AddParameter("@siteGUID", siteGUID);
+                sp.AddParameter("@groupID", groupID);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null)
+                    return ds.Tables[0];
+
+                return null;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
     }
 }
 
