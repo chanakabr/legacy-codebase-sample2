@@ -45,7 +45,7 @@ namespace Catalog.Request
 
                 if (lMediaRes != null)
                 {
-                    oMediaResponse.m_nMediaIds = new List<SearchResult>(lMediaRes);
+                    oMediaResponse.m_nMediaIds = FilterResult(lMediaRes, request.m_nPageIndex, request.m_nPageSize);
                     oMediaResponse.m_nTotalItems = lMediaRes.Count;
                 }
                 return (BaseResponse)oMediaResponse;
@@ -55,6 +55,21 @@ namespace Catalog.Request
                 log.Error("MediaUpdateDateRequest.GetResponse", ex);
                 throw ex;
             }
-        }       
+        }
+
+        private List<SearchResult> FilterResult(List<SearchResult> mediasToFilter, int pageIndex, int pageSize)
+        {            
+            List<SearchResult> filteredMedias = new List<SearchResult>();
+            if (mediasToFilter != null && mediasToFilter.Count > 0)
+            {
+                filteredMedias = mediasToFilter.OrderBy(x => x.assetID).ToList();
+                int totalResults = filteredMedias.Count;
+                int startIndexOnList = pageIndex * pageSize;
+                int rangeToGetFromList = (startIndexOnList + pageSize) > totalResults ? (totalResults - startIndexOnList) : pageSize;
+                filteredMedias = filteredMedias.GetRange(startIndexOnList, rangeToGetFromList);
+            }
+
+            return filteredMedias;
+        }
     }
 }
