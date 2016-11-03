@@ -143,7 +143,7 @@ namespace Catalog.Request
             else if (assetType == eAssetTypes.NPVR)
             {
                 bool result = Catalog.GetNPVRMarkHitInitialData(long.Parse(this.m_oMediaPlayRequestData.m_sAssetID), ref fileDuration, ref recordingId,
-                    this.m_nGroupID, this.domainId);
+                    this.m_nGroupID, oMediaMarkRequest.domainId);
 
                 if (!result)
                 {
