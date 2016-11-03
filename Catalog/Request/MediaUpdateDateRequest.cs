@@ -40,15 +40,12 @@ namespace Catalog.Request
                 if (sCheckSignature != request.m_sSignature)
                     throw new Exception("Signatures dosen't match");
 
-                //Filter MediaIds according to pageSize and PageIndex
-                List<int> filteredMediaIds = FilterMediaIds(request.m_lMediaIds, request.m_nPageIndex, request.m_nPageSize);
-
                 //Complete max updatedate per mediaId
-                List<SearchResult> lMediaRes = GetMediaUpdateDate(filteredMediaIds, request.m_nGroupID);
+                List<SearchResult> lMediaRes = GetMediaUpdateDate(request.m_lMediaIds, request.m_nGroupID);
 
                 if (lMediaRes != null)
                 {
-                    oMediaResponse.m_nMediaIds = lMediaRes;
+                    oMediaResponse.m_nMediaIds = FilterResult(lMediaRes, request.m_nPageIndex, request.m_nPageSize);
                     oMediaResponse.m_nTotalItems = lMediaRes.Count;
                 }
                 return (BaseResponse)oMediaResponse;
@@ -60,26 +57,20 @@ namespace Catalog.Request
             }
         }
 
-        private List<int> FilterMediaIds(List<int> mediaIdsToFilter, int pageIndex, int pageSize)
+        private List<SearchResult> FilterResult(List<SearchResult> mediasToFilter, int pageIndex, int pageSize)
         {
-            List<int> filteredMediaIds = new List<int>();
-            if (mediaIdsToFilter != null && mediaIdsToFilter.Count > 0)
+            List<SearchResult> filteredMedias = new List<SearchResult>();
+            if (mediasToFilter != null && mediasToFilter.Count > 0)
             {
-                filteredMediaIds = mediaIdsToFilter.OrderBy(x => x).ToList();
-                int totalResults = filteredMediaIds.Count;
+                filteredMedias = mediasToFilter.OrderBy(x => x.assetID).ToList();
+                int totalResults = filteredMedias.Count;
                 int startIndexOnList = pageIndex * pageSize;
-                int rangeToGetFromList = (startIndexOnList + pageSize) > totalResults ? (totalResults - startIndexOnList) > 0 ? (totalResults - startIndexOnList): 0 : pageSize;
-                if (rangeToGetFromList > 0)
-                {
-                    filteredMediaIds = filteredMediaIds.GetRange(startIndexOnList, rangeToGetFromList);
-                }
-                else
-                {
-                    filteredMediaIds.Clear();
-                }
+                int rangeToGetFromList = (startIndexOnList + pageSize) > totalResults ? (totalResults - startIndexOnList) > 0 ? (totalResults - startIndexOnList) : 0 : pageSize;
+                filteredMedias = filteredMedias.GetRange(startIndexOnList, rangeToGetFromList);
             }
 
-            return filteredMediaIds;
+            return filteredMedias;
         }
+        
     }
 }
