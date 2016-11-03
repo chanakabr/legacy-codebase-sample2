@@ -66,7 +66,15 @@ namespace Catalog.Request
                 int totalResults = filteredMedias.Count;
                 int startIndexOnList = pageIndex * pageSize;
                 int rangeToGetFromList = (startIndexOnList + pageSize) > totalResults ? (totalResults - startIndexOnList) > 0 ? (totalResults - startIndexOnList) : 0 : pageSize;
-                filteredMedias = filteredMedias.GetRange(startIndexOnList, rangeToGetFromList);
+                if (rangeToGetFromList > 0)
+                {
+                    filteredMedias = filteredMedias.GetRange(startIndexOnList, rangeToGetFromList);
+                }
+                else
+                {
+                    filteredMedias.Clear();
+                }
+
             }
 
             return filteredMedias;
