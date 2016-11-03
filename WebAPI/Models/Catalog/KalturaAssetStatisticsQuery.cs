@@ -25,7 +25,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "assetTypeEqual")]
         [JsonProperty(PropertyName = "assetTypeEqual")]
-        [XmlElement(ElementName = "assetTypeEqual", IsNullable = true)]
+        [XmlElement(ElementName = "assetTypeEqual")]
         public KalturaAssetType AssetTypeEqual { get; set; }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "startDateGreaterThanOrEqual")]
         [JsonProperty(PropertyName = "startDateGreaterThanOrEqual")]
-        [XmlElement(ElementName = "startDateGreaterThanOrEqual", IsNullable = true)]
+        [XmlElement(ElementName = "startDateGreaterThanOrEqual")]
         public long StartDateGreaterThanOrEqual { get; set; }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "endDateGreaterThanOrEqual")]
         [JsonProperty(PropertyName = "endDateGreaterThanOrEqual")]
-        [XmlElement(ElementName = "endDateGreaterThanOrEqual", IsNullable = true)]
+        [XmlElement(ElementName = "endDateGreaterThanOrEqual")]
         public long EndDateGreaterThanOrEqual { get; set; }
 
         internal void Validate()

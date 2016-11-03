@@ -31,7 +31,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "entityReferenceEqual")]
         [JsonProperty("entityReferenceEqual")]
-        [XmlElement(ElementName = "entityReferenceEqual", IsNullable = true)]
+        [XmlElement(ElementName = "entityReferenceEqual")]
         public KalturaEntityReferenceBy EntityReferenceEqual
         {
             get;

@@ -32,7 +32,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "origin")]
         [JsonProperty(PropertyName = "origin")]
-        [XmlElement(ElementName = "origin", IsNullable = true)]
+        [XmlElement(ElementName = "origin")]
         public KalturaRuleLevel Origin
         {
             get;

@@ -16,7 +16,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "assetIdEqual")]
         [JsonProperty("assetIdEqual")]
-        [XmlElement(ElementName = "assetIdEqual", IsNullable = true)]
+        [XmlElement(ElementName = "assetIdEqual")]
         [SchemeProperty(MinInteger = 1)]
         public int AssetIdEqual { get; set; }
 
@@ -25,7 +25,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "assetTypeEqual")]
         [JsonProperty("assetTypeEqual")]
-        [XmlElement(ElementName = "assetTypeEqual", IsNullable = true)]
+        [XmlElement(ElementName = "assetTypeEqual")]
         public KalturaAssetType AssetTypeEqual { get; set; }
 
 

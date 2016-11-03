@@ -18,7 +18,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "code")]
         [JsonProperty("code")]
-        [XmlElement(ElementName = "code", IsNullable = true)]
+        [XmlElement(ElementName = "code")]
         public int Code { get; set; }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "assetId")]
         [JsonProperty("assetId")]
-        [XmlElement(ElementName = "assetId", IsNullable = true)]
+        [XmlElement(ElementName = "assetId")]
         public long AssetId { get; set; }
 
         /// <summary>
