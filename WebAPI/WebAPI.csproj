@@ -1330,10 +1330,10 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://localhost/WS_ConditionalAccess/module.asmx">
+    <WebReferenceUrl Include="http://localhost/ws_conditionalaccess/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\ConditionalAccess\</RelPath>
-      <UpdateFromURL>http://localhost/WS_ConditionalAccess/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/ws_conditionalaccess/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

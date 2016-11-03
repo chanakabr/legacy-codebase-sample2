@@ -386,7 +386,7 @@ namespace WebAPI.Clients
                 {
                     // fire request
                     wsResponse = ConditionalAccess.Purchase(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, siteguid, houshold, price,
-                                                            currency, contentId, productId, transactionType, coupon, Utils.Utils.GetClientIP(), udid, paymentGatewayId, paymentMethodId);
+                                                            currency, contentId, productId, transactionType, coupon, Utils.Utils.GetClientIP(), udid, paymentGatewayId, paymentMethodId, adapterData);
                 }
             }
             catch (Exception ex)
@@ -1810,7 +1810,7 @@ namespace WebAPI.Clients
                 {
                     // fire request
                     response = ConditionalAccess.GetEntitlement(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, fileId.ToString(),
-                        userID, false, string.Empty, language, udid);
+                        userID, false, string.Empty, language, udid, false);
                 }
             }
             catch (Exception ex)
