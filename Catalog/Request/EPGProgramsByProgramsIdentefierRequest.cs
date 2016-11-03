@@ -45,14 +45,13 @@ namespace Catalog.Request
                  EpgProgramsResponse response = new EpgProgramsResponse();
                  BaseEpgBL epgBL = EpgBL.Utils.GetInstance(request.m_nGroupID);
 
-                 string[] filteredEpgIds = FilterEpgIds(request.pids, request.m_nPageIndex, request.m_nPageSize);
-                 List<EPGChannelProgrammeObject> retList = epgBL.GetEPGPrograms(request.m_nGroupID, filteredEpgIds, request.eLang, request.duration);
+                 List<EPGChannelProgrammeObject> retList = epgBL.GetEPGPrograms(request.m_nGroupID, request.pids, request.eLang, request.duration);
                  if (retList != null && retList.Count > 0)
                  {
                      // get all linear settings about channel + group
                      Catalog.GetLinearChannelSettings(request.m_nGroupID, retList);
 
-                     response.lEpgList = retList;
+                     response.lEpgList = FilterResult(retList, request.m_nPageIndex, request.m_nPageSize);
                      response.m_nTotalItems = retList.Count;
                  }
                  return response;
@@ -64,26 +63,19 @@ namespace Catalog.Request
              }
          }
 
-         private string[] FilterEpgIds(string[] epgIdsToFilter, int pageIndex, int pageSize)
+         private List<EPGChannelProgrammeObject> FilterResult(List<EPGChannelProgrammeObject> epgsToFilter, int pageIndex, int pageSize)
          {
-             List<string> filteredEpgIds = new List<string>();
-             if (epgIdsToFilter != null && epgIdsToFilter.Length > 0)
+             List<EPGChannelProgrammeObject> filteredEpgs = new List<EPGChannelProgrammeObject>();
+             if (epgsToFilter != null && epgsToFilter.Count > 0)
              {
-                 filteredEpgIds = epgIdsToFilter.OrderBy(x => x).ToList();
-                 int totalResults = filteredEpgIds.Count;
+                 filteredEpgs = epgsToFilter.OrderBy(x => x.EPG_ID).ToList();
+                 int totalResults = filteredEpgs.Count;
                  int startIndexOnList = pageIndex * pageSize;
                  int rangeToGetFromList = (startIndexOnList + pageSize) > totalResults ? (totalResults - startIndexOnList) > 0 ? (totalResults - startIndexOnList) : 0 : pageSize;
-                 if (rangeToGetFromList > 0)
-                 {
-                     filteredEpgIds = filteredEpgIds.GetRange(startIndexOnList, rangeToGetFromList);
-                 }
-                 else
-                 {
-                     filteredEpgIds.Clear();
-                 }
+                 filteredEpgs = filteredEpgs.GetRange(startIndexOnList, rangeToGetFromList);
              }
 
-             return filteredEpgIds.ToArray();
+             return filteredEpgs;
          }
 
     }
