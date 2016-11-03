@@ -72,7 +72,14 @@ namespace Catalog.Request
                  int totalResults = filteredEpgs.Count;
                  int startIndexOnList = pageIndex * pageSize;
                  int rangeToGetFromList = (startIndexOnList + pageSize) > totalResults ? (totalResults - startIndexOnList) > 0 ? (totalResults - startIndexOnList) : 0 : pageSize;
-                 filteredEpgs = filteredEpgs.GetRange(startIndexOnList, rangeToGetFromList);
+                 if (rangeToGetFromList > 0)
+                 {
+                     filteredEpgs = filteredEpgs.GetRange(startIndexOnList, rangeToGetFromList);
+                 }
+                 else
+                 {
+                     filteredEpgs.Clear();
+                 }
              }
 
              return filteredEpgs;
