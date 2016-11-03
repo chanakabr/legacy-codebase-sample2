@@ -41,7 +41,7 @@ namespace Catalog.Request
                     throw new Exception("Signatures dosen't match");
 
                 //Complete max updatedate per mediaId
-                List<SearchResult> lMediaRes = GetMediaUpdateDate(m_lMediaIds, request.m_nGroupID);
+                List<SearchResult> lMediaRes = GetMediaUpdateDate(request.m_lMediaIds, request.m_nGroupID);
 
                 if (lMediaRes != null)
                 {
