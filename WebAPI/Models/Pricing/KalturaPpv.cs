@@ -85,7 +85,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "isSubscriptionOnly")]
         [JsonProperty("isSubscriptionOnly")]
-        [XmlElement(ElementName = "isSubscriptionOnly")]
+        [XmlElement(ElementName = "isSubscriptionOnly", IsNullable = true)]
         public bool? IsSubscriptionOnly { get; set; }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "firstDeviceLimitation")]
         [JsonProperty("firstDeviceLimitation")]
-        [XmlElement(ElementName = "firstDeviceLimitation")]
+        [XmlElement(ElementName = "firstDeviceLimitation", IsNullable = true)]
         public bool? FirstDeviceLimitation { get; set; }
 
         /// <summary>
@@ -101,8 +101,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "usageModule")]
         [JsonProperty("usageModule")]
-        [XmlArray(ElementName = "usageModule", IsNullable = true)]
-        [XmlArrayItem("item")]
+        [XmlElement(ElementName = "usageModule", IsNullable = true)]
         public KalturaUsageModule UsageModule { get; set; }
     }
 }

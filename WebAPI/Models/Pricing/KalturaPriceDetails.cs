@@ -19,7 +19,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "id")]
         [JsonProperty("id")]
-        [XmlElement(ElementName = "id")]
+        [XmlElement(ElementName = "id", IsNullable = true)]
         public int? Id { get; set; }
 
         /// <summary>
