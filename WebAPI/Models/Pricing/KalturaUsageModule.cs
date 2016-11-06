@@ -27,7 +27,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "id")]
         [JsonProperty("id")]
-        [XmlElement(ElementName = "id")]
+        [XmlElement(ElementName = "id", IsNullable = true)]
         [SchemeProperty(ReadOnly = true)]
         public long? Id { get; set; }
 
@@ -44,7 +44,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "maxViewsNumber")]
         [JsonProperty("maxViewsNumber")]
-        [XmlElement(ElementName = "maxViewsNumber")]
+        [XmlElement(ElementName = "maxViewsNumber", IsNullable = true)]
         public int? MaxViewsNumber { get; set; }
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "viewLifeCycle")]
         [JsonProperty("viewLifeCycle")]
-        [XmlElement(ElementName = "viewLifeCycle")]
+        [XmlElement(ElementName = "viewLifeCycle", IsNullable = true)]
         public int? ViewLifeCycle { get; set; }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "fullLifeCycle")]
         [JsonProperty("fullLifeCycle")]
-        [XmlElement(ElementName = "fullLifeCycle")]
+        [XmlElement(ElementName = "fullLifeCycle", IsNullable = true)]
         public int? FullLifeCycle { get; set; }
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "couponId")]
         [JsonProperty("couponId")]
-        [XmlElement(ElementName = "couponId")]
+        [XmlElement(ElementName = "couponId", IsNullable = true)]
         public int? CouponId { get; set; }
                 
         /// <summary>
@@ -76,7 +76,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "waiverPeriod")]
         [JsonProperty("waiverPeriod")]
-        [XmlElement(ElementName = "waiverPeriod")]
+        [XmlElement(ElementName = "waiverPeriod", IsNullable = true)]
         public int? WaiverPeriod { get; set; }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "isWaiverEnabled")]
         [JsonProperty("isWaiverEnabled")]
-        [XmlElement(ElementName = "isWaiverEnabled")]
+        [XmlElement(ElementName = "isWaiverEnabled", IsNullable = true)]
         public bool? IsWaiverEnabled { get; set; }
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "isOfflinePlayback")]
         [JsonProperty("isOfflinePlayback")]
-        [XmlElement(ElementName = "isOfflinePlayback")]
+        [XmlElement(ElementName = "isOfflinePlayback", IsNullable = true)]
         public bool? IsOfflinePlayback { get; set; }
     }
 }
