@@ -16,6 +16,7 @@ namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/ossAdapterProfile/action")]
     [OldStandardAction("updateOldStandard", "update")]
+    [OldStandardAction("listOldStandard", "list")]
     public class OssAdapterProfileController : ApiController
     {
         /// <summary>
@@ -25,10 +26,41 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        [Obsolete]
-        public List<KalturaOSSAdapterBaseProfile> List()
+        public KalturaOSSAdapterProfileListResponse List()
         {
-            List<KalturaOSSAdapterBaseProfile> response = null;
+            List<KalturaOSSAdapterProfile> list = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                list = ClientsManager.ApiClient().GetOSSAdapter(groupId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            KalturaOSSAdapterProfileListResponse response = new KalturaOSSAdapterProfileListResponse() { 
+                OSSAdapterProfiles = list,
+                TotalCount = list.Count
+            };
+
+            return response;
+        }
+
+        /// <summary>
+        /// Returns all OSS adapters for partner : id + name
+        /// </summary>
+        /// <remarks>       
+        /// </remarks>
+        [Route("listOldStandard"), HttpPost]
+        [ApiAuthorize]
+        [Obsolete]
+        public List<KalturaOSSAdapterProfile> ListOldStandard()
+        {
+            List<KalturaOSSAdapterProfile> response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 

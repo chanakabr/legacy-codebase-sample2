@@ -732,6 +732,16 @@
             
             </summary>
         </member>
+        <member name="T:WebAPI.Models.API.KalturaOSSAdapterProfileListResponse">
+            <summary>
+            OSS adapter-profiles list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaOSSAdapterProfileListResponse.OSSAdapterProfiles">
+            <summary>
+            A list of OSS adapter-profiles
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.DMS.KalturaConfigurations.Id">
             <summary>
             Configuration id
@@ -2142,6 +2152,13 @@
             </param>
         </member>
         <member name="M:WebAPI.Controllers.OssAdapterProfileController.List">
+            <summary>
+            Returns all OSS adapters for partner : id + name
+            </summary>
+            <remarks>       
+            </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.OssAdapterProfileController.ListOldStandard">
             <summary>
             Returns all OSS adapters for partner : id + name
             </summary>

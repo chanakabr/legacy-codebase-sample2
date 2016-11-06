@@ -1374,9 +1374,9 @@ namespace WebAPI.Clients
 
         #region OSS Adapter
 
-        internal List<KalturaOSSAdapterBaseProfile> GetOSSAdapter(int groupId)
+        internal List<KalturaOSSAdapterProfile> GetOSSAdapter(int groupId)
         {
-            List<Models.API.KalturaOSSAdapterBaseProfile> KalturaOSSAdapterBaseProfileList = null;
+            List<KalturaOSSAdapterProfile> KalturaOSSAdapterBaseProfileList = null;
             OSSAdapterResponseList response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -1404,7 +1404,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            KalturaOSSAdapterBaseProfileList = Mapper.Map<List<Models.API.KalturaOSSAdapterBaseProfile>>(response.OSSAdapters);
+            KalturaOSSAdapterBaseProfileList = Mapper.Map<List<KalturaOSSAdapterProfile>>(response.OSSAdapters);
 
             return KalturaOSSAdapterBaseProfileList;
         }
