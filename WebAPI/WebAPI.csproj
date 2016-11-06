@@ -800,6 +800,7 @@
     <Compile Include="Models\API\KalturaCountryListResponse.cs" />
     <Compile Include="Models\API\KalturaCountryOrderBy.cs" />
     <Compile Include="Models\API\KalturaMetaType.cs" />
+    <Compile Include="Models\API\KalturaOSSAdapterProfileListResponse.cs" />
     <Compile Include="Models\DMS\KalturaConfigurations.cs" />
     <Compile Include="Models\DMS\KalturaConfigurationsFilter.cs" />
     <Compile Include="Models\DMS\KalturaConfigurationsListResponse.cs" />
