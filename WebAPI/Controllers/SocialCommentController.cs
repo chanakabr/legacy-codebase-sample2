@@ -29,14 +29,9 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaSocialCommentListResponse List(KalturaSocialCommentFilter filter = null, KalturaFilterPager pager = null)
+        public KalturaSocialCommentListResponse List(KalturaSocialCommentFilter filter, KalturaFilterPager pager = null)
         {
             KalturaSocialCommentListResponse response = null;
-
-            if (filter == null)
-            {
-                filter = new KalturaSocialCommentFilter();
-            }
 
             if (pager == null)
             {
@@ -48,8 +43,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                //response = ClientsManager.SocialClient().GetFriendsActions(groupId, KS.GetFromRequest().UserId, filter.AssetIdEqual.HasValue ? filter.AssetIdEqual.Value : 0,
-                //    filter.AssetTypeEqual.HasValue ? filter.AssetTypeEqual.Value : 0, filter.GetActionTypeIn(), pager.getPageSize(), pager.getPageIndex());
+                response = ClientsManager.SocialClient().GetSocialFeed(groupId, KS.GetFromRequest().UserId, filter.AssetIdEqual, filter.AssetTypeEqual, filter.GetSocialPlatfomIn(),
+                    pager.getPageSize(), pager.getPageIndex(), filter.CreateDateGreaterThan, filter.OrderBy);
             }
             catch (ClientException ex)
             {

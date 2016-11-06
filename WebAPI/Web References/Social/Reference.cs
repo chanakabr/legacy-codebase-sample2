@@ -95,6 +95,8 @@ namespace WebAPI.Social {
         
         private System.Threading.SendOrPostCallback MergeFriendsActivityFeedOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetSocialFeedOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -228,6 +230,9 @@ namespace WebAPI.Social {
         
         /// <remarks/>
         public event MergeFriendsActivityFeedCompletedEventHandler MergeFriendsActivityFeedCompleted;
+        
+        /// <remarks/>
+        public event GetSocialFeedCompletedEventHandler GetSocialFeedCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://social.tvinci.com/GetUsersLikedMedia", RequestNamespace="http://social.tvinci.com/", ResponseNamespace="http://social.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -1367,6 +1372,53 @@ namespace WebAPI.Social {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://social.tvinci.com/GetSocialFeed", RequestNamespace="http://social.tvinci.com/", ResponseNamespace="http://social.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public SocialFeedResponse GetSocialFeed(string sWSUserName, string sWSPassword, string userId, int assetId, eAssetType assetType, eSocialPlatform[] socialPlatforms, int pageSize, int pageIndex, long epochStartTime, SocialFeedOrderBy orderBy) {
+            object[] results = this.Invoke("GetSocialFeed", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userId,
+                        assetId,
+                        assetType,
+                        socialPlatforms,
+                        pageSize,
+                        pageIndex,
+                        epochStartTime,
+                        orderBy});
+            return ((SocialFeedResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetSocialFeedAsync(string sWSUserName, string sWSPassword, string userId, int assetId, eAssetType assetType, eSocialPlatform[] socialPlatforms, int pageSize, int pageIndex, long epochStartTime, SocialFeedOrderBy orderBy) {
+            this.GetSocialFeedAsync(sWSUserName, sWSPassword, userId, assetId, assetType, socialPlatforms, pageSize, pageIndex, epochStartTime, orderBy, null);
+        }
+        
+        /// <remarks/>
+        public void GetSocialFeedAsync(string sWSUserName, string sWSPassword, string userId, int assetId, eAssetType assetType, eSocialPlatform[] socialPlatforms, int pageSize, int pageIndex, long epochStartTime, SocialFeedOrderBy orderBy, object userState) {
+            if ((this.GetSocialFeedOperationCompleted == null)) {
+                this.GetSocialFeedOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetSocialFeedOperationCompleted);
+            }
+            this.InvokeAsync("GetSocialFeed", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userId,
+                        assetId,
+                        assetType,
+                        socialPlatforms,
+                        pageSize,
+                        pageIndex,
+                        epochStartTime,
+                        orderBy}, this.GetSocialFeedOperationCompleted, userState);
+        }
+        
+        private void OnGetSocialFeedOperationCompleted(object arg) {
+            if ((this.GetSocialFeedCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetSocialFeedCompleted(this, new GetSocialFeedCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -1426,6 +1478,251 @@ namespace WebAPI.Social {
             }
             set {
                 this.updateDateField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(SocialFeedItem))]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public partial class SocialFeedItemComment {
+        
+        private string titleField;
+        
+        private string bodyField;
+        
+        private string creatorNameField;
+        
+        private long createDateField;
+        
+        private string creatorImageUrlField;
+        
+        private int popularityCounterField;
+        
+        /// <remarks/>
+        public string Title {
+            get {
+                return this.titleField;
+            }
+            set {
+                this.titleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Body {
+            get {
+                return this.bodyField;
+            }
+            set {
+                this.bodyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string CreatorName {
+            get {
+                return this.creatorNameField;
+            }
+            set {
+                this.creatorNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long CreateDate {
+            get {
+                return this.createDateField;
+            }
+            set {
+                this.createDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string CreatorImageUrl {
+            get {
+                return this.creatorImageUrlField;
+            }
+            set {
+                this.creatorImageUrlField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int PopularityCounter {
+            get {
+                return this.popularityCounterField;
+            }
+            set {
+                this.popularityCounterField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public partial class SocialFeedItem : SocialFeedItemComment {
+        
+        private SocialFeedItemComment[] commentsField;
+        
+        private string feedItemLinkField;
+        
+        /// <remarks/>
+        public SocialFeedItemComment[] Comments {
+            get {
+                return this.commentsField;
+            }
+            set {
+                this.commentsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string FeedItemLink {
+            get {
+                return this.feedItemLinkField;
+            }
+            set {
+                this.feedItemLinkField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public partial class SocialPlatformFeedList {
+        
+        private SocialFeedItem[] socialFeedField;
+        
+        private eSocialPlatform socialPlatformField;
+        
+        /// <remarks/>
+        public SocialFeedItem[] SocialFeed {
+            get {
+                return this.socialFeedField;
+            }
+            set {
+                this.socialFeedField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public eSocialPlatform SocialPlatform {
+            get {
+                return this.socialPlatformField;
+            }
+            set {
+                this.socialPlatformField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public enum eSocialPlatform {
+        
+        /// <remarks/>
+        Unknown,
+        
+        /// <remarks/>
+        InApp,
+        
+        /// <remarks/>
+        Facebook,
+        
+        /// <remarks/>
+        Twitter,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public partial class SocialFeedResponse {
+        
+        private SocialPlatformFeedList[] socialFeedsField;
+        
+        private int totalCountField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public SocialPlatformFeedList[] SocialFeeds {
+            get {
+                return this.socialFeedsField;
+            }
+            set {
+                this.socialFeedsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int TotalCount {
+            get {
+                return this.totalCountField;
+            }
+            set {
+                this.totalCountField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public partial class Status {
+        
+        private int codeField;
+        
+        private string messageField;
+        
+        /// <remarks/>
+        public int Code {
+            get {
+                return this.codeField;
+            }
+            set {
+                this.codeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Message {
+            get {
+                return this.messageField;
+            }
+            set {
+                this.messageField = value;
             }
         }
     }
@@ -2192,39 +2489,6 @@ namespace WebAPI.Social {
             }
             set {
                 this.userField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
-    public partial class Status {
-        
-        private int codeField;
-        
-        private string messageField;
-        
-        /// <remarks/>
-        public int Code {
-            get {
-                return this.codeField;
-            }
-            set {
-                this.codeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Message {
-            get {
-                return this.messageField;
-            }
-            set {
-                this.messageField = value;
             }
         }
     }
@@ -3788,6 +4052,19 @@ namespace WebAPI.Social {
     }
     
     /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public enum SocialFeedOrderBy {
+        
+        /// <remarks/>
+        CreateDateAsc,
+        
+        /// <remarks/>
+        CreateDateDesc,
+    }
+    
+    /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void GetUsersLikedMediaCompletedEventHandler(object sender, GetUsersLikedMediaCompletedEventArgs e);
     
@@ -4552,6 +4829,32 @@ namespace WebAPI.Social {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void MergeFriendsActivityFeedCompletedEventHandler(object sender, System.ComponentModel.AsyncCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
+    public delegate void GetSocialFeedCompletedEventHandler(object sender, GetSocialFeedCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetSocialFeedCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetSocialFeedCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public SocialFeedResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((SocialFeedResponse)(this.results[0]));
+            }
+        }
+    }
 }
 
 #pragma warning restore 1591

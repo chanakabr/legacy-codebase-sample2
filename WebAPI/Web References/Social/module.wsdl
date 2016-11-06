@@ -1028,6 +1028,96 @@
       <s:element name="MergeFriendsActivityFeedResponse">
         <s:complexType />
       </s:element>
+      <s:element name="GetSocialFeed">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="assetId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="assetType" type="tns:eAssetType" />
+            <s:element minOccurs="0" maxOccurs="1" name="socialPlatforms" type="tns:ArrayOfESocialPlatform" />
+            <s:element minOccurs="1" maxOccurs="1" name="pageSize" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="pageIndex" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="epochStartTime" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="orderBy" type="tns:SocialFeedOrderBy" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfESocialPlatform">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="eSocialPlatform" type="tns:eSocialPlatform" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="eSocialPlatform">
+        <s:restriction base="s:string">
+          <s:enumeration value="Unknown" />
+          <s:enumeration value="InApp" />
+          <s:enumeration value="Facebook" />
+          <s:enumeration value="Twitter" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="SocialFeedOrderBy">
+        <s:restriction base="s:string">
+          <s:enumeration value="CreateDateAsc" />
+          <s:enumeration value="CreateDateDesc" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="GetSocialFeedResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetSocialFeedResult" type="tns:SocialFeedResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="SocialFeedResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="SocialFeeds" type="tns:ArrayOfSocialPlatformFeedList" />
+          <s:element minOccurs="1" maxOccurs="1" name="TotalCount" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfSocialPlatformFeedList">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="SocialPlatformFeedList" nillable="true" type="tns:SocialPlatformFeedList" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="SocialPlatformFeedList">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="SocialFeed" type="tns:ArrayOfSocialFeedItem" />
+          <s:element minOccurs="1" maxOccurs="1" name="SocialPlatform" type="tns:eSocialPlatform" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfSocialFeedItem">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="SocialFeedItem" nillable="true" type="tns:SocialFeedItem" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="SocialFeedItem">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:SocialFeedItemComment">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="Comments" type="tns:ArrayOfSocialFeedItemComment" />
+              <s:element minOccurs="0" maxOccurs="1" name="FeedItemLink" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="SocialFeedItemComment">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Title" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Body" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="CreatorName" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="CreateDate" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="CreatorImageUrl" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="PopularityCounter" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfSocialFeedItemComment">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="SocialFeedItemComment" nillable="true" type="tns:SocialFeedItemComment" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="ArrayOfString" nillable="true" type="tns:ArrayOfString" />
       <s:element name="ArrayOfFriendWatchedObject" nillable="true" type="tns:ArrayOfFriendWatchedObject" />
       <s:element name="eSocialPrivacy" type="tns:eSocialPrivacy" />
@@ -1233,6 +1323,12 @@
   </wsdl:message>
   <wsdl:message name="MergeFriendsActivityFeedSoapOut">
     <wsdl:part name="parameters" element="tns:MergeFriendsActivityFeedResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetSocialFeedSoapIn">
+    <wsdl:part name="parameters" element="tns:GetSocialFeed" />
+  </wsdl:message>
+  <wsdl:message name="GetSocialFeedSoapOut">
+    <wsdl:part name="parameters" element="tns:GetSocialFeedResponse" />
   </wsdl:message>
   <wsdl:message name="GetUsersLikedMediaHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1612,6 +1708,10 @@
     <wsdl:operation name="MergeFriendsActivityFeed">
       <wsdl:input message="tns:MergeFriendsActivityFeedSoapIn" />
       <wsdl:output message="tns:MergeFriendsActivityFeedSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSocialFeed">
+      <wsdl:input message="tns:GetSocialFeedSoapIn" />
+      <wsdl:output message="tns:GetSocialFeedSoapOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="moduleHttpPost">
@@ -2014,6 +2114,15 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetSocialFeed">
+      <soap:operation soapAction="http://social.tvinci.com/GetSocialFeed" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="moduleSoap12" type="tns:moduleSoap">
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
@@ -2298,6 +2407,15 @@
     </wsdl:operation>
     <wsdl:operation name="MergeFriendsActivityFeed">
       <soap12:operation soapAction="http://social.tvinci.com/MergeFriendsActivityFeed" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSocialFeed">
+      <soap12:operation soapAction="http://social.tvinci.com/GetSocialFeed" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>

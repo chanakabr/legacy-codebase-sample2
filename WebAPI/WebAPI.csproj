@@ -755,6 +755,9 @@
     <Content Include="Web References\Social\SocialActivityResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Social\SocialFeedResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\CustomResponseFormatter.cs" />

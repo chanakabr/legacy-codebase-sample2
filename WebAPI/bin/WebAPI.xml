@@ -7606,9 +7606,14 @@
             Asset type to filter by, currently only VOD (media)
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Social.KalturaSocialCommentFilter.SocialPlatformEqual">
+        <member name="P:WebAPI.Models.Social.KalturaSocialCommentFilter.SocialPlatfomIn">
             <summary>
-            Comma separated list of social actions to filter by
+            Comma separated list of social platforms to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialCommentFilter.CreateDateGreaterThan">
+            <summary>
+            The create date from which to get the comments 
             </summary>
         </member>
         <member name="P:WebAPI.Models.Social.KalturaSocial.ID">
@@ -10685,6 +10690,15 @@
         <member name="M:WebAPI.Social.module.MergeFriendsActivityFeedAsync(System.String,System.String,System.Int32,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.Social.module.GetSocialFeed(System.String,System.String,System.String,System.Int32,WebAPI.Social.eAssetType,WebAPI.Social.eSocialPlatform[],System.Int32,System.Int32,System.Int64,WebAPI.Social.SocialFeedOrderBy)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Social.module.GetSocialFeedAsync(System.String,System.String,System.String,System.Int32,WebAPI.Social.eAssetType,WebAPI.Social.eSocialPlatform[],System.Int32,System.Int32,System.Int64,WebAPI.Social.SocialFeedOrderBy)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Social.module.GetSocialFeedAsync(System.String,System.String,System.String,System.Int32,WebAPI.Social.eAssetType,WebAPI.Social.eSocialPlatform[],System.Int32,System.Int32,System.Int64,WebAPI.Social.SocialFeedOrderBy,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.Social.module.CancelAsync(System.Object)">
             <remarks/>
         </member>
@@ -10782,6 +10796,9 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.Social.module.MergeFriendsActivityFeedCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Social.module.GetSocialFeedCompleted">
             <remarks/>
         </member>
         <member name="T:WebAPI.Controllers.OttUserController">
@@ -14438,6 +14455,81 @@
         <member name="P:WebAPI.Social.FriendWatchedObject.UpdateDate">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Social.SocialFeedItemComment">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialFeedItemComment.Title">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialFeedItemComment.Body">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialFeedItemComment.CreatorName">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialFeedItemComment.CreateDate">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialFeedItemComment.CreatorImageUrl">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialFeedItemComment.PopularityCounter">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.SocialFeedItem">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialFeedItem.Comments">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialFeedItem.FeedItemLink">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.SocialPlatformFeedList">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialPlatformFeedList.SocialFeed">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialPlatformFeedList.SocialPlatform">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.eSocialPlatform">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Social.eSocialPlatform.Unknown">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Social.eSocialPlatform.InApp">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Social.eSocialPlatform.Facebook">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Social.eSocialPlatform.Twitter">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.SocialFeedResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialFeedResponse.SocialFeeds">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialFeedResponse.TotalCount">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialFeedResponse.Status">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.Status.Code">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.Status.Message">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Social.UserDynamicDataContainer">
             <remarks/>
         </member>
@@ -14712,15 +14804,6 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Social.FBSignin.user">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Social.Status">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.Status.Code">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.Status.Message">
             <remarks/>
         </member>
         <member name="T:WebAPI.Social.FacebookTokenResponse">
@@ -15236,6 +15319,15 @@
         <member name="F:WebAPI.Social.eSocialActionPrivacy.DONT_ALLOW">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Social.SocialFeedOrderBy">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Social.SocialFeedOrderBy.CreateDateAsc">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Social.SocialFeedOrderBy.CreateDateDesc">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Social.GetUsersLikedMediaCompletedEventHandler">
             <remarks/>
         </member>
@@ -15504,6 +15596,15 @@
             <remarks/>
         </member>
         <member name="T:WebAPI.Social.MergeFriendsActivityFeedCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.GetSocialFeedCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.GetSocialFeedCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.GetSocialFeedCompletedEventArgs.Result">
             <remarks/>
         </member>
     </members>

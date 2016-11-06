@@ -525,6 +525,62 @@ namespace WebAPI.Clients
 
             return friendsActivity;
         }
+
+        internal KalturaSocialCommentListResponse GetSocialFeed(int groupId, string userId, long assetId, KalturaAssetType assetType, List<KalturaSocialPlatform> socialPlatforms,
+            int pageSize, int pageIndex, long createDateSince, KalturaSocialCommentOrderBy orderBy)
+        {
+            KalturaSocialCommentListResponse friendsActivity = new KalturaSocialCommentListResponse();
+            SocialFeedResponse response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            eSocialPlatform wsPlatform;
+            List<eSocialPlatform> platforms;
+            if (socialPlatforms != null && socialPlatforms.Count > 0)
+            {
+                platforms = new List<eSocialPlatform>();
+                foreach (var platform in socialPlatforms)
+                {
+                    wsPlatform = eSocialPlatform.Twitter;//SocialMappings.ConvertSocialPlatform(platform);
+                    platforms.Add(wsPlatform);
+                }
+            }
+            else
+            {
+                platforms = new List<eSocialPlatform> { eSocialPlatform.Facebook, eSocialPlatform.InApp, eSocialPlatform.Twitter };
+            }
+
+            eAssetType wsAssetType = eAssetType.MEDIA; //SocialMappings.ConvertAssetType(assetType);
+            SocialFeedOrderBy wsOrderBy = SocialFeedOrderBy.CreateDateAsc; // SocialMappings.ConvertSocialFeedOrderBy(orderBy);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Client.GetSocialFeed(group.SocialCredentials.Username, group.SocialCredentials.Password, userId, (int)assetId, wsAssetType, platforms.ToArray(),
+                        pageSize, pageIndex, createDateSince, wsOrderBy);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling social service. ws address: {0}, exception: {1}", Client.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            friendsActivity.Objects = AutoMapper.Mapper.Map<List<KalturaSocialComment>>(response.SocialFeeds);
+            friendsActivity.TotalCount = response.TotalCount;
+
+            return friendsActivity;
+        }
     }
 }
 
