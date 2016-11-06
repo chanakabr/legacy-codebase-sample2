@@ -22,7 +22,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "percent")]
         [JsonProperty("percent")]
-        [XmlElement(ElementName = "percent")]
+        [XmlElement(ElementName = "percent", IsNullable = true)]
         public double? Percent { get; set; }
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "startDate")]
         [JsonProperty("startDate")]
-        [XmlElement(ElementName = "startDate")]
+        [XmlElement(ElementName = "startDate", IsNullable = true)]
         public long? StartDate { get; set; }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "endDate")]
         [JsonProperty("endDate")]
-        [XmlElement(ElementName = "endDate")]
+        [XmlElement(ElementName = "endDate", IsNullable = true)]
         public long? EndDate { get; set; }
     }
 }

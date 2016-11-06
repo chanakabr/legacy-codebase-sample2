@@ -50,7 +50,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "startDate")]
         [JsonProperty("startDate")]
-        [XmlElement(ElementName = "startDate")]
+        [XmlElement(ElementName = "startDate", IsNullable = true)]
         public long? StartDate { get; set; }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "endDate")]
         [JsonProperty("endDate")]
-        [XmlElement(ElementName = "endDate")]
+        [XmlElement(ElementName = "endDate", IsNullable = true)]
         public long? EndDate { get; set; }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "maxUsesNumber")]
         [JsonProperty("maxUsesNumber")]
-        [XmlElement(ElementName = "maxUsesNumber")]
+        [XmlElement(ElementName = "maxUsesNumber", IsNullable = true)]
         public int? MaxUsesNumber { get; set; }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "maxUsesNumberOnRenewableSub")]
         [JsonProperty("maxUsesNumberOnRenewableSub")]
-        [XmlElement(ElementName = "maxUsesNumberOnRenewableSub")]
+        [XmlElement(ElementName = "maxUsesNumberOnRenewableSub", IsNullable = true)]
         public int? MaxUsesNumberOnRenewableSub { get; set; }
     }
 }
