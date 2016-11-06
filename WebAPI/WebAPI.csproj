@@ -407,11 +407,14 @@
     <None Include="Service References\Catalog\Service78.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\Catalog\Service79.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\Catalog\Service9.wsdl" />
     <None Include="Service References\Catalog\Service2.disco" />
     <None Include="Service References\Catalog\Service5.disco" />
     <None Include="Service References\Catalog\Service1.disco" />
-    <None Include="Service References\Catalog\Service.disco" />
+    <None Include="Service References\Catalog\Service11.disco" />
     <Content Include="Service References\Catalog\WebAPI.Catalog.BaseResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
