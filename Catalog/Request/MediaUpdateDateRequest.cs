@@ -14,7 +14,7 @@ namespace Catalog.Request
     [DataContract]
     public class MediaUpdateDateRequest : BaseRequest, IRequestImp
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());        
 
         [DataMember]
         public List<int> m_lMediaIds;
@@ -38,9 +38,9 @@ namespace Catalog.Request
                 //Check signature - security 
                 string sCheckSignature = Utils.GetSignature(request.m_sSignString, request.m_nGroupID);
                 if (sCheckSignature != request.m_sSignature)
-                    throw new Exception("Signatures dosen't match");
+                    throw new Exception("Signatures doesn't match");
 
-                //Complete max updatedate per mediaId
+                //Complete max update date per mediaId
                 List<SearchResult> lMediaRes = GetMediaUpdateDate(request.m_lMediaIds, request.m_nGroupID);
 
                 if (lMediaRes != null)
@@ -62,6 +62,12 @@ namespace Catalog.Request
             List<SearchResult> filteredMedias = new List<SearchResult>();
             if (mediasToFilter != null && mediasToFilter.Count > 0)
             {
+                // in order to support old requests that are sent with pageSize=0 and pageIndex=0 and expect to get all the media's in the response
+                if (pageSize <= 0)
+                {
+                    pageSize = mediasToFilter.Count;
+                }
+
                 filteredMedias = mediasToFilter.OrderBy(x => x.assetID).ToList();
                 int totalResults = filteredMedias.Count;
                 int startIndexOnList = pageIndex * pageSize;
