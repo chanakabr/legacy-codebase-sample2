@@ -567,6 +567,18 @@ namespace DAL
 
         //}
 
+        public DataTable GetSocialFeedMediaTags(int mediaId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSocialFeedMediaTags");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@mediaId", mediaId);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables.Count > 0)
+                return ds.Tables[0];
+
+            return null;
+        }
     }
 }
 
