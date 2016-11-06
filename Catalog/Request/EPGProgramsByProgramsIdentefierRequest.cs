@@ -68,6 +68,12 @@ namespace Catalog.Request
              List<EPGChannelProgrammeObject> filteredEpgs = new List<EPGChannelProgrammeObject>();
              if (epgsToFilter != null && epgsToFilter.Count > 0)
              {
+                 // in order to support old requests that are sent with pageSize=0 and pageIndex=0 and expect to get all the epg's in the response
+                 if (pageSize <= 0)
+                 {
+                     pageSize = filteredEpgs.Count;
+                 }
+
                  filteredEpgs = epgsToFilter.OrderBy(x => x.EPG_ID).ToList();
                  int totalResults = filteredEpgs.Count;
                  int startIndexOnList = pageIndex * pageSize;
