@@ -165,10 +165,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             //User to KalturaBaseOTTUser
             Mapper.CreateMap<User, WebAPI.Models.Users.KalturaBaseOTTUser>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_sSiteGUIDField))
-                .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.m_oBasicDataField.m_sUserNameField))
-                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.m_oBasicDataField.m_sFirstNameField))
-                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.m_oBasicDataField.m_sLastNameField));
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_sSiteGUID))
+                .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.m_oBasicData.m_sUserName))
+                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.m_oBasicData.m_sFirstName))
+                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.m_oBasicData.m_sLastName));
 
             //UnifiedSearchResuannounclt to KalturaSlimAsset
             Mapper.CreateMap<UnifiedSearchResult, WebAPI.Models.Catalog.KalturaSlimAsset>()
@@ -177,9 +177,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // Country
             Mapper.CreateMap<Catalog.Country, WebAPI.Models.Users.KalturaCountry>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nObjecrtIDField))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sCountryNameField))
-                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.m_sCountryCodeField));
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nObjecrtID))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sCountryName))
+                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.m_sCountryCode));
 
             //BaseObject to KalturaAsset
             Mapper.CreateMap<BaseObject, KalturaAsset>()
@@ -581,7 +581,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 Position = catalogBookmark.Location,
                 PositionOwner = ConvertPositionOwner(catalogBookmark.UserType),
                 Type = ConvertAssetType(assetBookmark.AssetType),
-                UserId = catalogBookmark.User.m_sSiteGUIDField,
+                UserId = catalogBookmark.User.m_sSiteGUID,
                 User = Mapper.Map<WebAPI.Models.Users.KalturaBaseOTTUser>(catalogBookmark.User)
             };
         }
