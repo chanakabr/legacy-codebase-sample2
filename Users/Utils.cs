@@ -69,7 +69,7 @@ namespace Users
             Int32 nGroupID = TvinciCache.WSCredentials.GetGroupID(eWSModules.USERS, oCredentials);
 
             if (nGroupID != 0)
-                Utils.GetBaseUsersImplModuleName(ref user, nGroupID, "User", operatorId);
+                Users.Utils.GetBaseUsersImplModuleName(ref user, nGroupID, "User", operatorId);
             else
                 log.Debug("WS ignored - eWSModules: eWSModules.USERS " + " UN: " + sWSUserName + " Pass: " + sPass);
 

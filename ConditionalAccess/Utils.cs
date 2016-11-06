@@ -6008,8 +6008,15 @@ namespace ConditionalAccess
             if (!shouldIgnorePaging)
             {
                 int startIndexOnList = pageIndex * pageSize;
-                int rangeToGetFromList = (startIndexOnList + pageSize) > totalResults ? (totalResults - startIndexOnList) : pageSize;
-                orderedRecordings = orderedRecordings.GetRange(startIndexOnList, rangeToGetFromList);
+                int rangeToGetFromList = (startIndexOnList + pageSize) > totalResults ? (totalResults - startIndexOnList) > 0 ? (totalResults - startIndexOnList) : 0 : pageSize;
+                if (rangeToGetFromList > 0)
+                {
+                    orderedRecordings = orderedRecordings.GetRange(startIndexOnList, rangeToGetFromList);
+                }
+                else
+                {
+                    orderedRecordings.Clear();
+                }
             }
 
             return orderedRecordings;
