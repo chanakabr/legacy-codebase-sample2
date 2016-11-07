@@ -3628,7 +3628,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    if (filter.Length > 1024)
+                    if (filter.Length > 2048)
                     {
                         response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
                         response.Status = ResponseUtils.ReturnBadRequestStatus("too long filter");
