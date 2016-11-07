@@ -1994,7 +1994,7 @@ namespace Catalog
                 for (int i = 1; i < 11; i++)
                 {
                     sFieldName = "META" + i.ToString() + "_BOOL_NAME";
-                    sFieldVal = "META" + i.ToString() + "BOOL";
+                    sFieldVal = "META" + i.ToString() + "_BOOL";
                     sFieldRelated = "IS_META" + i.ToString() + "_BOOL_RELATED";
                     if (dtMeta.Rows[0][sFieldName] != DBNull.Value)
                     {
