@@ -1348,7 +1348,7 @@ namespace TVPApiServices
                 try
                 {
                     //ConnectionHelper.InitServiceConfigs(groupID, initObj.Platform);
-                    Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes assetType = string.IsNullOrEmpty(NPVRID) ? 
+                    Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes assetType = string.IsNullOrEmpty(NPVRID) ?
                         Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.MEDIA : Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.NPVR;
                     sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, Action, iMediaID, iFileID, iLocation, NPVRID, assetType, 0, 0, 0);
                 }
@@ -1410,7 +1410,7 @@ namespace TVPApiServices
                         }
                     }
 
-                    sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, action, mediaId, fileID, PlayerAssetData.location, npvrId, eAssetType, 
+                    sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, action, mediaId, fileID, PlayerAssetData.location, npvrId, eAssetType,
                         PlayerAssetData.averageBitRate, PlayerAssetData.currentBitRate, PlayerAssetData.totalBitRate);
                 }
                 catch (Exception ex)
@@ -1506,8 +1506,14 @@ namespace TVPApiServices
                             }
                         }
                     }
-                    mediaMark = new MediaMarkObject() { nGroupID = groupID, nMediaID = int.Parse(assetRequestID), sDeviceID = initObj.UDID, 
-                                                        sSiteGUID = initObj.SiteGuid, sDeviceName = string.Empty };
+                    mediaMark = new MediaMarkObject()
+                    {
+                        nGroupID = groupID,
+                        nMediaID = int.Parse(assetRequestID),
+                        sDeviceID = initObj.UDID,
+                        sSiteGUID = initObj.SiteGuid,
+                        sDeviceName = string.Empty
+                    };
                     if (isBookmarkFound)
                     {
                         mediaMark.nLocationSec = usersBookmark.Location;
@@ -2740,7 +2746,7 @@ namespace TVPApiServices
                 {
                     APIEPGLoader loader;
                     List<int> channelIDs = sEPGChannelID.Distinct().Select(c => int.Parse(c)).ToList();
-                    
+
                     DateTime _offsetNow = DateTime.UtcNow.AddHours(iUTCOffSet);
                     switch (oUnit)
                     {
@@ -3487,7 +3493,7 @@ namespace TVPApiServices
                 HttpContext.Current.Items["Error"] = "Unknown group";
 
             return sRet;
-        }        
+        }
 
         [WebMethod(EnableSession = true, Description = "Get Domain Media Assets")]
         [PrivateMethod]
@@ -3533,7 +3539,7 @@ namespace TVPApiServices
 
                     sRet = new DomainLastPositionResponse()
                     {
-                        m_lPositions = mediaBookmarks,                        
+                        m_lPositions = mediaBookmarks,
                         m_sStatus = res.Status.Message
                     };
                 }
@@ -3721,12 +3727,12 @@ namespace TVPApiServices
 
                     response = new APIUnifiedSearchLoader(groupId, initObj.Platform, initObj.DomainID, SiteHelper.GetClientIP(), (int)page_size, page_index,
                         filter_types, filter, with, personalFilters, initObj.Locale.LocaleLanguage)
-                        {
-                            Order = order,
-                            SiteGuid = initObj.SiteGuid,
-                            DomainId = initObj.DomainID,
-                            DeviceId = initObj.UDID
-                        }.Execute() as TVPApiModule.Objects.Responses.UnifiedSearchResponse;
+                    {
+                        Order = order,
+                        SiteGuid = initObj.SiteGuid,
+                        DomainId = initObj.DomainID,
+                        DeviceId = initObj.UDID
+                    }.Execute() as TVPApiModule.Objects.Responses.UnifiedSearchResponse;
                 }
                 catch (Exception ex)
                 {
@@ -4256,22 +4262,22 @@ namespace TVPApiServices
                     switch (asset.type.ToLower())
                     {
                         case "unknown":
-                        {
-                            type = TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.eAssetTypes.UNKNOWN;
-                            break;
-                        }
+                            {
+                                type = TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.eAssetTypes.UNKNOWN;
+                                break;
+                            }
                         case "npvr":
-                        {
-                            type = TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.eAssetTypes.NPVR;
-                            break;
-                        }
+                            {
+                                type = TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.eAssetTypes.NPVR;
+                                break;
+                            }
                         case "media":
-                        {
-                            type = TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.eAssetTypes.MEDIA;
-                            break;
-                        }
+                            {
+                                type = TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.eAssetTypes.MEDIA;
+                                break;
+                            }
                         default:
-                        break;
+                            break;
                     }
                 }
 
@@ -4283,7 +4289,7 @@ namespace TVPApiServices
                 };
 
                 string dictionaryKey = string.Format("{0}.{1}", asset.type.ToString().ToLower(), asset.Id);
-                
+
                 if (assetIdToPersonalAsset.ContainsKey(dictionaryKey))
                 {
                     response.Status = ResponseUtils.ReturnBadRequestStatus(string.Format("Duplicate asset: Id = {0} type = {1}", asset.Id, asset.type));
@@ -4318,7 +4324,7 @@ namespace TVPApiServices
                 {
                     AssetId = asset.Id.ToString(),
                     AssetType = type,
-                    FileIds = asset.FileIds.ToArray()                
+                    FileIds = asset.FileIds.ToArray()
                 });
             }
 
@@ -4337,19 +4343,19 @@ namespace TVPApiServices
                 var ctx = HttpContext.Current;
 
                 System.Threading.Thread threadPricing = new Thread(() =>
+                {
+                    try
                     {
-                        try
-                        {
-                            HttpContext.Current = ctx;
+                        HttpContext.Current = ctx;
 
-                            pricingsResponse = new ApiConditionalAccessService(groupId, initObj.Platform).GetAssetsPrices(initObj.SiteGuid,
-                                string.Empty, initObj.UDID, assetFiles);
-                        }
-                        catch (Exception ex)
-                        {
-                            ctx.Items["Error"] = ex;
-                        }
-                    });
+                        pricingsResponse = new ApiConditionalAccessService(groupId, initObj.Platform).GetAssetsPrices(initObj.SiteGuid,
+                            string.Empty, initObj.UDID, assetFiles);
+                    }
+                    catch (Exception ex)
+                    {
+                        ctx.Items["Error"] = ex;
+                    }
+                });
 
                 System.Threading.Thread threadBookmarks = new Thread(() =>
                 {
@@ -4370,27 +4376,27 @@ namespace TVPApiServices
                                 switch (asset.type.ToLower())
                                 {
                                     case "unknown":
-                                    {
-                                        type = Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.UNKNOWN;
-                                        break;
-                                    }
+                                        {
+                                            type = Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.UNKNOWN;
+                                            break;
+                                        }
                                     case "npvr":
-                                    {
-                                        type = Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.NPVR;
-                                        break;
-                                    }
+                                        {
+                                            type = Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.NPVR;
+                                            break;
+                                        }
                                     case "media":
-                                    {
-                                        type = Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.MEDIA;
-                                        break;
-                                    }
+                                        {
+                                            type = Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.MEDIA;
+                                            break;
+                                        }
                                     case "epg":
-                                    {
-                                        type = eAssetTypes.EPG;
-                                        break;
-                                    }
+                                        {
+                                            type = eAssetTypes.EPG;
+                                            break;
+                                        }
                                     default:
-                                    break;
+                                        break;
                                 }
                             }
                             assetToAdd.AssetType = type;
