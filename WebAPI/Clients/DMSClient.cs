@@ -448,8 +448,8 @@ namespace WebAPI.Clients
         internal static string Serve(int partnerId, string applicationName, string clientVersion, string platform, string UDID, string tag)
         {
             string result = string.Empty;
-            string url = string.Format("getconfig?username=dms&password=tvinci&appname={0}&cver={1}&platform={2}&udid={3}&partnerId={4}&tag={5}",
-                applicationName, clientVersion, platform, UDID, partnerId, tag);
+            string url = string.Format("getconfig?appname={0}&cver={1}&platform={2}&udid={3}&partnerId={4}&tag={5}",
+               applicationName, clientVersion, platform, UDID, partnerId, tag);
 
             try
             {
