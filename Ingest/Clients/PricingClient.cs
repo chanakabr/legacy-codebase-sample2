@@ -1,12 +1,13 @@
-﻿using Ingest.Clients.ClientManager;
+﻿using ApiObjects;
+using Ingest.Clients.ClientManager;
 using Ingest.Models;
-using Ingest.Pricing;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Web;
+using WS_Pricing;
 
 namespace Ingest.Clients
 {
@@ -18,17 +19,17 @@ namespace Ingest.Clients
         {
         }
 
-        protected Ingest.Pricing.mdoule Pricing
+        protected mdoule Pricing
         {
             get
             {
-                return (Module as Ingest.Pricing.mdoule);
+                return (Module as mdoule);
             }
         }
 
-        internal Ingest.Pricing.BusinessModuleResponse InsertPricePlan(int groupId, Ingest.Pricing.IngestPricePlan pricePlan)
+        internal BusinessModuleResponse InsertPricePlan(int groupId, IngestPricePlan pricePlan)
         {
-            Ingest.Pricing.BusinessModuleResponse response = null;
+            BusinessModuleResponse response = null;
 
             try
             {
@@ -39,15 +40,15 @@ namespace Ingest.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling pricing service. ws address: {0}, exception: {1}", Pricing.Url, ex);
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
             }
 
             return response;
         }
 
-        internal Ingest.Pricing.BusinessModuleResponse UpdatePricePlan(int groupId, Ingest.Pricing.IngestPricePlan pricePlan)
+        internal BusinessModuleResponse UpdatePricePlan(int groupId, IngestPricePlan pricePlan)
         {
-            Ingest.Pricing.BusinessModuleResponse response = null;
+            BusinessModuleResponse response = null;
 
             try
             {
@@ -58,15 +59,15 @@ namespace Ingest.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling pricing service. ws address: {0}, exception: {1}", Pricing.Url, ex);
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
             }
 
             return response;
         }
 
-        internal Ingest.Pricing.BusinessModuleResponse DeletePricePlan(int groupId, string pricePlanCode)
+        internal BusinessModuleResponse DeletePricePlan(int groupId, string pricePlanCode)
         {
-            Ingest.Pricing.BusinessModuleResponse response = null;
+            BusinessModuleResponse response = null;
 
             try
             {
@@ -77,15 +78,15 @@ namespace Ingest.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling pricing service. ws address: {0}, exception: {1}", Pricing.Url, ex);
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
             }
 
             return response;
         }
 
-        internal Ingest.Pricing.BusinessModuleResponse InsertMultiPricePlan(int groupId, Ingest.Pricing.IngestMultiPricePlan multiPricePlan)
+        internal BusinessModuleResponse InsertMultiPricePlan(int groupId, IngestMultiPricePlan multiPricePlan)
         {
-            Ingest.Pricing.BusinessModuleResponse response = null;
+            BusinessModuleResponse response = null;
 
             try
             {
@@ -96,15 +97,15 @@ namespace Ingest.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling pricing service. ws address: {0}, exception: {1}", Pricing.Url, ex);
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
             }
 
             return response;
         }
 
-        internal Ingest.Pricing.BusinessModuleResponse UpdateMultiPricePlan(int groupId, Ingest.Pricing.IngestMultiPricePlan multiPricePlan)
+        internal BusinessModuleResponse UpdateMultiPricePlan(int groupId, IngestMultiPricePlan multiPricePlan)
         {
-            Ingest.Pricing.BusinessModuleResponse response = null;
+            BusinessModuleResponse response = null;
 
             try
             {
@@ -115,15 +116,15 @@ namespace Ingest.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling pricing service. ws address: {0}, exception: {1}", Pricing.Url, ex);
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
             }
 
             return response;
         }
 
-        internal Ingest.Pricing.BusinessModuleResponse DeleteMultiPricePlan(int groupId, string multiPricePlanCode)
+        internal BusinessModuleResponse DeleteMultiPricePlan(int groupId, string multiPricePlanCode)
         {
-            Ingest.Pricing.BusinessModuleResponse response = null;
+            BusinessModuleResponse response = null;
 
             try
             {
@@ -134,15 +135,15 @@ namespace Ingest.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling pricing service. ws address: {0}, exception: {1}", Pricing.Url, ex);
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
             }
 
             return response;
         }
 
-        internal Ingest.Pricing.BusinessModuleResponse InsertPPV(int groupId, Ingest.Pricing.IngestPPV ppv)
+        internal BusinessModuleResponse InsertPPV(int groupId, IngestPPV ppv)
         {
-            Ingest.Pricing.BusinessModuleResponse response = null;
+            BusinessModuleResponse response = null;
 
             try
             {
@@ -153,15 +154,15 @@ namespace Ingest.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling pricing service. ws address: {0}, exception: {1}", Pricing.Url, ex);
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
             }
 
             return response;
         }
 
-        internal Ingest.Pricing.BusinessModuleResponse UpdatePPV(int groupId, Ingest.Pricing.IngestPPV ppv)
+        internal BusinessModuleResponse UpdatePPV(int groupId, IngestPPV ppv)
         {
-            Ingest.Pricing.BusinessModuleResponse response = null;
+            BusinessModuleResponse response = null;
 
             try
             {
@@ -172,15 +173,15 @@ namespace Ingest.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling pricing service. ws address: {0}, exception: {1}", Pricing.Url, ex);
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
             }
 
             return response;
         }
 
-        internal Ingest.Pricing.BusinessModuleResponse DeletePPV(int groupId, string ppvCode)
+        internal BusinessModuleResponse DeletePPV(int groupId, string ppvCode)
         {
-            Ingest.Pricing.BusinessModuleResponse response = null;
+            BusinessModuleResponse response = null;
 
             try
             {
@@ -191,7 +192,7 @@ namespace Ingest.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling pricing service. ws address: {0}, exception: {1}", Pricing.Url, ex);
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
             }
 
             return response;

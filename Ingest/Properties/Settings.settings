@@ -2,12 +2,6 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Ingest.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="Ingest_Pricing_mdoule" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://localhost/ws_pricing/module.asmx</Value>
-    </Setting>
-    <Setting Name="Ingest_Api_API" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://localhost/ws_api/api.asmx</Value>
-    </Setting>
     <Setting Name="Ingest_ws_cas_module" Type="(Web Service URL)" Scope="Application">
       <Value Profile="(Default)">http://localhost/CAS_v4_0/module.asmx</Value>
     </Setting>

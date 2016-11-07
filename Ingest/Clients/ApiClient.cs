@@ -5,6 +5,7 @@ using System.Reflection;
 
 using System.Linq;
 using Ingest.Clients.ClientManager;
+using WS_API;
 
 namespace Ingest.Clients
 {
@@ -16,11 +17,11 @@ namespace Ingest.Clients
         {
         }
 
-        protected Ingest.Api.API Api
+        protected API Api
         {
             get
             {
-                return (Module as Ingest.Api.API);
+                return (Module as API);
             }
         }
 
@@ -37,7 +38,7 @@ namespace Ingest.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
             }
 
             return groupId;
@@ -56,7 +57,7 @@ namespace Ingest.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
             }
 
             return result;

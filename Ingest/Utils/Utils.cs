@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -7,13 +8,13 @@ namespace Ingest.Utils
 {
     public class Utils
     {
-        public static string GetBusinessModuleName(Ingest.Pricing.IngestModule module)
+        public static string GetBusinessModuleName(IngestModule module)
         {
-            if (module is Ingest.Pricing.IngestMultiPricePlan)
+            if (module is IngestMultiPricePlan)
                 return "multi price plan";
-            if (module is Ingest.Pricing.IngestPricePlan)
+            if (module is IngestPricePlan)
                 return "price plan";
-            if (module is Ingest.Pricing.IngestPPV)
+            if (module is IngestPPV)
                 return "ppv";
 
             return string.Empty;
