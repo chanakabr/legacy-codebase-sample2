@@ -209,7 +209,7 @@ namespace TVPApiModule.Manager
                 view.RefreshTokenExpiration = apiToken.RefreshTokenExpiration;
 
                 // save new view
-                if (!cbManager.Add(view.Id, view, (uint)(apiToken.RefreshTokenExpiration - TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow)), true))
+                if (!cbManager.Set(view.Id, view, (uint)(apiToken.RefreshTokenExpiration - TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow)), true))
                 {
                     logger.ErrorFormat("GenerateAccessToken: failed to to save user-device tokens view for {0}", sessionInfoString);
                 }
