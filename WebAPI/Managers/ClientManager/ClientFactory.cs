@@ -26,7 +26,7 @@ namespace WebAPI.ClientManagers.Client
                     client = new BillingClient() { Module = new WS_Billing.module() };
                     break;
                 case ClientType.ConditionalAccess:
-                    client = new ConditionalAccessClient() { Module = new ConditionalAccess.module() { Url = url } };
+                    client = new ConditionalAccessClient() { Module = new WS_ConditionalAccess.module() };
                     break;
                 case ClientType.Domains:
                     client = new DomainsClient() { Module = new WS_Domains.module() };
@@ -35,7 +35,7 @@ namespace WebAPI.ClientManagers.Client
                     client = new PricingClient() { Module = new WS_Pricing.mdoule() };
                     break;
                 case ClientType.Social:
-                    client = new SocialClient() { Module = new Social.module() { Url = url } };
+                    client = new SocialClient() { Module = new WS_Social.module() };
                     break;
                 case ClientType.Users:
                     client = new UsersClient() { Module = new UsersService() };

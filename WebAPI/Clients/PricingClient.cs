@@ -17,6 +17,7 @@ using System.ServiceModel;
 using Pricing;
 using ApiObjects.Response;
 using WS_Pricing;
+using WebAPI.ObjectsConvertor.Mapping;
 
 namespace WebAPI.Clients
 {

@@ -3,13 +3,22 @@ using AutoMapper;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using WebAPI.Models.ConditionalAccess;
-using WebAPI.Models.General;
 using WebAPI.Utils;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Catalog;
+using ApiObjects;
+using ApiObjects.SearchObjects;
+using ApiObjects.TimeShiftedTv;
+using ConditionalAccess;
+using Pricing;
+using WebAPI.Models.ConditionalAccess;
+using WebAPI.Models.General;
+using Billing;
+using ConditionalAccess.Response;
+using WebAPI.Models.Pricing;
 using WebAPI.Models.Catalog;
-using WebAPI.ConditionalAccess;
+using ApiObjects.Billing;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -17,9 +26,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
     {
         public static void RegisterMappings()
         {
-            // WebAPI.ConditionalAccess.Entitlements(WS) to  WebAPI.Models.ConditionalAccess.Entitlement(REST)
+            // Entitlements(WS) to  WebAPI.Entitlement(REST)
             #region Entitlement
-            Mapper.CreateMap<ConditionalAccess.Entitlement, KalturaEntitlement>()
+            Mapper.CreateMap<Entitlement, KalturaEntitlement>()
                .ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.entitlementId))
                .ForMember(dest => dest.CurrentUses, opt => opt.MapFrom(src => src.currentUses))
                .ForMember(dest => dest.CurrentDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.currentDate)))
@@ -41,9 +50,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => src.mediaID));
             #endregion
 
-            // WebAPI.ConditionalAccess.BillingTransactions(WS) to  Models.ConditionalAccess.BillingTransactions(REST)
+            // BillingTransactions(WS) to  BillingTransactions(REST)
             #region Billing Transaction Container
-            Mapper.CreateMap<ConditionalAccess.BillingTransactionContainer, KalturaBillingTransaction>()
+            Mapper.CreateMap<BillingTransactionContainer, KalturaBillingTransaction>()
                .ForMember(dest => dest.actionDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dtActionDate)))
                .ForMember(dest => dest.startDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dtStartDate)))
                .ForMember(dest => dest.endDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dtEndDate)))
@@ -64,15 +73,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #endregion
 
-            // WebAPI.ConditionalAccess.BillingTransactions(WS) to  Models.ConditionalAccess.BillingTransactions(REST)
+            // BillingTransactions(WS) to  BillingTransactions(REST)
             #region Billing Transaction List
-            Mapper.CreateMap<ConditionalAccess.BillingTransactionsResponse, KalturaBillingTransactionListResponse>()
+            Mapper.CreateMap<BillingTransactionsResponse, KalturaBillingTransactionListResponse>()
                .ForMember(dest => dest.TotalCount, opt => opt.MapFrom(src => src.m_nTransactionsCount))
                .ForMember(dest => dest.transactions, opt => opt.MapFrom(src => src.m_Transactions));
             #endregion
 
             #region Price
-            Mapper.CreateMap<WebAPI.ConditionalAccess.Price, Models.Pricing.KalturaPrice>()
+            Mapper.CreateMap<Price, KalturaPrice>()
               .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.m_dPrice))
               .ForMember(dest => dest.Currency, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencyCD3))
               .ForMember(dest => dest.CurrencySign, opt => opt.MapFrom(src => src.m_oCurrency.m_sCurrencySign));
@@ -80,14 +89,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // BillingResponse
             #region Billing
-            Mapper.CreateMap<ConditionalAccess.BillingResponse, KalturaBillingResponse>()
+            Mapper.CreateMap<BillingResponse, KalturaBillingResponse>()
                .ForMember(dest => dest.ReceiptCode, opt => opt.MapFrom(src => src.m_sRecieptCode))
                .ForMember(dest => dest.ExternalReceiptCode, opt => opt.MapFrom(src => src.m_sExternalReceiptCode));
             #endregion
 
             // TransactionResponse to KalturaTransactionResponse
             #region Transaction
-            Mapper.CreateMap<ConditionalAccess.TransactionResponse, KalturaTransaction>()
+            Mapper.CreateMap<TransactionResponse, KalturaTransaction>()
                .ForMember(dest => dest.PGReferenceID, opt => opt.MapFrom(src => src.PGReferenceID))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.TransactionID))
                .ForMember(dest => dest.State, opt => opt.MapFrom(src => src.State.ToString()))
@@ -97,7 +106,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
 
             #region Billing Transaction Container to User Billing Transaciton
-            Mapper.CreateMap<ConditionalAccess.BillingTransactionContainer, KalturaUserBillingTransaction>()
+            Mapper.CreateMap<BillingTransactionContainer, KalturaUserBillingTransaction>()
                .ForMember(dest => dest.actionDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dtActionDate)))
                .ForMember(dest => dest.startDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dtStartDate)))
                .ForMember(dest => dest.endDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dtEndDate)))
@@ -119,7 +128,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
 
             #region TransactionHistoryContainer to KalturaUserBillingTransaction
-            Mapper.CreateMap<ConditionalAccess.TransactionHistoryContainer, KalturaUserBillingTransaction>()
+            Mapper.CreateMap<TransactionHistoryContainer, KalturaUserBillingTransaction>()
                .ForMember(dest => dest.actionDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dtActionDate)))
                .ForMember(dest => dest.startDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dtStartDate)))
                .ForMember(dest => dest.endDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dtEndDate)))
@@ -141,25 +150,25 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
 
             //#region Domains Billing Transactions
-            //Mapper.CreateMap<ConditionalAccess.DomainsBillingTransactionsResponse, KalturaHouseholdsBillingTransactions>()
+            //Mapper.CreateMap<DomainsBillingTransactionsResponse, KalturaHouseholdsBillingTransactions>()
             //    .ForMember(dest => dest.DomainsBillingTransactions, opt => opt.MapFrom(src => src.billingTransactions));
 
             //#endregion
 
             //#region Domain Billing Transactions
-            //Mapper.CreateMap<ConditionalAccess.DomainBillingTransactionsResponse, >()
+            //Mapper.CreateMap<DomainBillingTransactionsResponse, >()
             //    .ForMember(dest => dest.UsersBillingTransactions, opt => opt.MapFrom(src => src.m_BillingTransactionResponses))
             //    .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.m_nDomainID));
             //#endregion
 
             //#region User Billing Transactions
-            //Mapper.CreateMap<ConditionalAccess.UserBillingTransactionsResponse, KalturaUserBillingTransactions>()
+            //Mapper.CreateMap<UserBillingTransactionsResponse, KalturaUserBillingTransactions>()
             //    .ForMember(dest => dest.SiteGuid, opt => opt.MapFrom(src => src.m_sSiteGUID))
             //    .ForMember(dest => dest.BillingTransactions, opt => opt.MapFrom(src => src.m_BillingTransactionResponse));
             //#endregion
 
             #region Asset Item Prices
-            Mapper.CreateMap<WebAPI.ConditionalAccess.AssetItemPrices, Models.Pricing.KalturaAssetPrice>()
+            Mapper.CreateMap<AssetItemPrices, KalturaAssetPrice>()
               .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
               .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.AssetType))
               .ForMember(dest => dest.FilePrices, opt => opt.MapFrom(src => src.PriceContainers))
@@ -167,7 +176,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
 
             #region Asset Files
-            Mapper.CreateMap<KalturaPersonalAssetRequest, WebAPI.ConditionalAccess.AssetFiles>()
+            Mapper.CreateMap<KalturaPersonalAssetRequest, AssetFiles>()
               .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.Type))
               .ForMember(dest => dest.FileIds, opt => opt.MapFrom(src => 
@@ -187,11 +196,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
 
             // ServiceObject to KalturaPremiumService
-            Mapper.CreateMap<ConditionalAccess.ServiceObject, Models.ConditionalAccess.KalturaPremiumService>()
+            Mapper.CreateMap<ServiceObject, KalturaPremiumService>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
-            Mapper.CreateMap<KalturaCDVRAdapterProfile, WebAPI.ConditionalAccess.CDVRAdapter>()
+            Mapper.CreateMap<KalturaCDVRAdapterProfile, CDVRAdapter>()
                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
@@ -201,7 +210,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.DynamicLinksSupport, opt => opt.MapFrom(src => src.DynamicLinksSupport))
                .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
 
-            Mapper.CreateMap<WebAPI.ConditionalAccess.CDVRAdapter, KalturaCDVRAdapterProfile>()
+            Mapper.CreateMap<CDVRAdapter, KalturaCDVRAdapterProfile>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
@@ -213,14 +222,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
   
             // LicensedLinkResponse to KalturaLicensedUrls
-            Mapper.CreateMap<ConditionalAccess.LicensedLinkResponse, Models.ConditionalAccess.KalturaLicensedUrl>()
+            Mapper.CreateMap<LicensedLinkResponse, KalturaLicensedUrl>()
                .ForMember(dest => dest.MainUrl, opt => opt.MapFrom(src => src.mainUrl))
                .ForMember(dest => dest.AltUrl, opt => opt.MapFrom(src => src.altUrl));
 
             #region Recordings
 
             // KalturaRecording to Recording
-            Mapper.CreateMap<KalturaRecording, WebAPI.ConditionalAccess.Recording>()
+            Mapper.CreateMap<KalturaRecording, Recording>()
                .ForMember(dest => dest.EpgId, opt => opt.MapFrom(src => src.AssetId))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.RecordingStatus, opt => opt.MapFrom(src => ConvertKalturaRecordingStatus(src.Status)))
@@ -230,7 +239,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.UpdateDate)));
 
             // Recording to KalturaRecording
-            Mapper.CreateMap<WebAPI.ConditionalAccess.Recording, KalturaRecording>()
+            Mapper.CreateMap<Recording, KalturaRecording>()
                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.EpgId))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertTstvRecordingStatus(src.RecordingStatus)))
@@ -241,7 +250,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.UpdateDate)));
             
             // KalturaSeriesRecording to SeriesRecording
-            Mapper.CreateMap<KalturaSeriesRecording, WebAPI.ConditionalAccess.SeriesRecording>()
+            Mapper.CreateMap<KalturaSeriesRecording, SeriesRecording>()
                .ForMember(dest => dest.EpgId, opt => opt.MapFrom(src => src.EpgId))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.EpgChannelId, opt => opt.MapFrom(src => src.ChannelId))
@@ -251,7 +260,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.CreateDate)));
 
             // SeriesRecording to KalturaSeriesRecording
-            Mapper.CreateMap<WebAPI.ConditionalAccess.SeriesRecording, KalturaSeriesRecording>()
+            Mapper.CreateMap<SeriesRecording, KalturaSeriesRecording>()
                .ForMember(dest => dest.EpgId, opt => opt.MapFrom(src => src.EpgId))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.ChannelId, opt => opt.MapFrom(src => src.EpgChannelId))
@@ -264,25 +273,25 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
 
             #region Household Quota
-            Mapper.CreateMap<WebAPI.ConditionalAccess.DomainQuotaResponse, KalturaHouseholdQuota>()
+            Mapper.CreateMap<DomainQuotaResponse, KalturaHouseholdQuota>()
                .ForMember(dest => dest.AvailableQuota, opt => opt.MapFrom(src => src.AvailableQuota))
                .ForMember(dest => dest.TotalQuota, opt => opt.MapFrom(src => src.TotalQuota));
                
             #endregion
 
             //KalturaHouseholdPremiumService
-            Mapper.CreateMap<ConditionalAccess.ServiceObject, Models.ConditionalAccess.KalturaHouseholdPremiumService>()
+            Mapper.CreateMap<ServiceObject, KalturaHouseholdPremiumService>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
             // KalturaAssetFileContext to EntitlementResponse
-            Mapper.CreateMap<KalturaAssetFileContext, WebAPI.ConditionalAccess.EntitlementResponse>()
+            Mapper.CreateMap<KalturaAssetFileContext, EntitlementResponse>()
               .ForMember(dest => dest.ViewLifeCycle, opt => opt.MapFrom(src => src.ViewLifeCycle))
               .ForMember(dest => dest.FullLifeCycle, opt => opt.MapFrom(src => src.FullLifeCycle))
             .ForMember(dest => dest.IsOfflinePlayBack, opt => opt.MapFrom(src => src.IsOfflinePlayBack));
 
             // EntitlementResponse to KalturaAssetFileContext
-            Mapper.CreateMap<WebAPI.ConditionalAccess.EntitlementResponse, KalturaAssetFileContext>()
+            Mapper.CreateMap<EntitlementResponse, KalturaAssetFileContext>()
               .ForMember(dest => dest.ViewLifeCycle, opt => opt.MapFrom(src => src.ViewLifeCycle))
               .ForMember(dest => dest.FullLifeCycle, opt => opt.MapFrom(src => src.FullLifeCycle))
             .ForMember(dest => dest.IsOfflinePlayBack, opt => opt.MapFrom(src => src.IsOfflinePlayBack));
@@ -302,28 +311,28 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return protectedUntilEpoch.Value > currentUtcTime;
         }
 
-        public static WebAPI.ConditionalAccess.TstvRecordingStatus ConvertKalturaRecordingStatus(KalturaRecordingStatus recordingStatus)
+        public static TstvRecordingStatus ConvertKalturaRecordingStatus(KalturaRecordingStatus recordingStatus)
         {
-            WebAPI.ConditionalAccess.TstvRecordingStatus result;
+            TstvRecordingStatus result;
             switch (recordingStatus)
             {
                 case KalturaRecordingStatus.CANCELED:
-                    result = WebAPI.ConditionalAccess.TstvRecordingStatus.Canceled;
+                    result = TstvRecordingStatus.Canceled;
                     break;
                 case KalturaRecordingStatus.DELETED:
-                    result = WebAPI.ConditionalAccess.TstvRecordingStatus.Deleted;
+                    result = TstvRecordingStatus.Deleted;
                     break;
                 case KalturaRecordingStatus.FAILED:
-                    result = WebAPI.ConditionalAccess.TstvRecordingStatus.Failed;
+                    result = TstvRecordingStatus.Failed;
                     break;
                 case KalturaRecordingStatus.RECORDED:
-                    result = WebAPI.ConditionalAccess.TstvRecordingStatus.Recorded;
+                    result = TstvRecordingStatus.Recorded;
                     break;
                 case KalturaRecordingStatus.RECORDING:
-                    result = WebAPI.ConditionalAccess.TstvRecordingStatus.Recording;
+                    result = TstvRecordingStatus.Recording;
                     break;
                 case KalturaRecordingStatus.SCHEDULED:
-                    result = WebAPI.ConditionalAccess.TstvRecordingStatus.Scheduled;
+                    result = TstvRecordingStatus.Scheduled;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown recordingStatus type");
@@ -331,29 +340,29 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        public static KalturaRecordingStatus ConvertTstvRecordingStatus(WebAPI.ConditionalAccess.TstvRecordingStatus recordingStatus)
+        public static KalturaRecordingStatus ConvertTstvRecordingStatus(TstvRecordingStatus recordingStatus)
         {
             KalturaRecordingStatus result;
             switch (recordingStatus)
             {
-                case WebAPI.ConditionalAccess.TstvRecordingStatus.SeriesCancel:
-                case WebAPI.ConditionalAccess.TstvRecordingStatus.Canceled:
+                case TstvRecordingStatus.SeriesCancel:
+                case TstvRecordingStatus.Canceled:
                     result = KalturaRecordingStatus.CANCELED;
                     break;
-                case WebAPI.ConditionalAccess.TstvRecordingStatus.SeriesDelete:
-                case WebAPI.ConditionalAccess.TstvRecordingStatus.Deleted:
+                case TstvRecordingStatus.SeriesDelete:
+                case TstvRecordingStatus.Deleted:
                     result = KalturaRecordingStatus.DELETED;
                     break;
-                case WebAPI.ConditionalAccess.TstvRecordingStatus.Failed:
+                case TstvRecordingStatus.Failed:
                     result = KalturaRecordingStatus.FAILED;
                     break;
-                case WebAPI.ConditionalAccess.TstvRecordingStatus.Recorded:
+                case TstvRecordingStatus.Recorded:
                     result = KalturaRecordingStatus.RECORDED;
                     break;
-                case WebAPI.ConditionalAccess.TstvRecordingStatus.Recording:
+                case TstvRecordingStatus.Recording:
                     result = KalturaRecordingStatus.RECORDING;
                     break;
-                case WebAPI.ConditionalAccess.TstvRecordingStatus.Scheduled:
+                case TstvRecordingStatus.Scheduled:
                     result = KalturaRecordingStatus.SCHEDULED;
                     break;
                 default:
@@ -362,19 +371,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        public static WebAPI.ConditionalAccess.RecordingType ConvertKalturaRecordingType(KalturaRecordingType recordingType)
+        public static RecordingType ConvertKalturaRecordingType(KalturaRecordingType recordingType)
         {
-            WebAPI.ConditionalAccess.RecordingType result;
+            RecordingType result;
             switch (recordingType)
             {
                 case KalturaRecordingType.SINGLE:
-                    result = WebAPI.ConditionalAccess.RecordingType.Single;
+                    result = RecordingType.Single;
                     break;
                 case KalturaRecordingType.SEASON:
-                    result = WebAPI.ConditionalAccess.RecordingType.Season;
+                    result = RecordingType.Season;
                     break;
                 case KalturaRecordingType.SERIES:
-                    result = WebAPI.ConditionalAccess.RecordingType.Series;
+                    result = RecordingType.Series;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown recordingType type");
@@ -382,18 +391,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        public static KalturaRecordingType ConvertRecordingType(WebAPI.ConditionalAccess.RecordingType recordingType)
+        public static KalturaRecordingType ConvertRecordingType(RecordingType recordingType)
         {
             KalturaRecordingType result;
             switch (recordingType)
             {
-                case WebAPI.ConditionalAccess.RecordingType.Single:
+                case RecordingType.Single:
                     result = KalturaRecordingType.SINGLE;
                     break;
-                case WebAPI.ConditionalAccess.RecordingType.Season:
+                case RecordingType.Season:
                     result = KalturaRecordingType.SEASON;
                     break;
-                case WebAPI.ConditionalAccess.RecordingType.Series:
+                case RecordingType.Series:
                     result = KalturaRecordingType.SERIES;
                     break;
                 default:
@@ -402,27 +411,27 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        public static OrderObj ConvertOrderToOrderObj(KalturaRecordingOrderBy order)
+        public static ApiObjects.SearchObjects.OrderObj ConvertOrderToOrderObj(KalturaRecordingOrderBy order)
         {
-            OrderObj result = new OrderObj();
+            ApiObjects.SearchObjects.OrderObj result = new ApiObjects.SearchObjects.OrderObj();
 
             switch (order)
             {
                 case KalturaRecordingOrderBy.TITLE_ASC:
-                    result.m_eOrderBy = OrderBy.NAME;
-                    result.m_eOrderDir = OrderDir.ASC;
+                    result.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.NAME;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
                     break;
                 case KalturaRecordingOrderBy.TITLE_DESC:
-                    result.m_eOrderBy = OrderBy.NAME;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.NAME;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case KalturaRecordingOrderBy.START_DATE_ASC:
-                    result.m_eOrderBy = OrderBy.START_DATE;
-                    result.m_eOrderDir = OrderDir.ASC;
+                    result.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.START_DATE;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
                     break;
                 case KalturaRecordingOrderBy.START_DATE_DESC:
-                    result.m_eOrderBy = OrderBy.START_DATE;
-                    result.m_eOrderDir = OrderDir.DESC;
+                    result.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.START_DATE;
+                    result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
             }
             return result;
@@ -435,27 +444,27 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 case KalturaSeriesRecordingOrderBy.START_DATE_ASC:
                     result.OrderBy = SeriesOrderBy.START_DATE;
-                    result.OrderDir = OrderDir.ASC;
+                    result.OrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
                     break;
                 case KalturaSeriesRecordingOrderBy.START_DATE_DESC:
                     result.OrderBy = SeriesOrderBy.START_DATE;
-                    result.OrderDir = OrderDir.DESC;
+                    result.OrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case KalturaSeriesRecordingOrderBy.ID_ASC:
                     result.OrderBy = SeriesOrderBy.ID;
-                    result.OrderDir = OrderDir.ASC;
+                    result.OrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
                     break;
                 case KalturaSeriesRecordingOrderBy.ID_DESC:
                     result.OrderBy = SeriesOrderBy.ID;
-                    result.OrderDir = OrderDir.DESC;
+                    result.OrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case KalturaSeriesRecordingOrderBy.SERIES_ID_ASC:
                     result.OrderBy = SeriesOrderBy.SERIES_ID;
-                    result.OrderDir = OrderDir.ASC;
+                    result.OrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
                     break;
                 case KalturaSeriesRecordingOrderBy.SERIES_ID_DESC:
                     result.OrderBy = SeriesOrderBy.SERIES_ID;
-                    result.OrderDir = OrderDir.DESC;
+                    result.OrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
             }
             return result;
@@ -464,19 +473,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
         #endregion
 
         // TransactionType to eTransactionType
-        public static WebAPI.ConditionalAccess.eTransactionType ConvertTransactionType(KalturaTransactionType clientTransactionType)
+        public static eTransactionType ConvertTransactionType(KalturaTransactionType clientTransactionType)
         {
-            WebAPI.ConditionalAccess.eTransactionType result;
+            eTransactionType result;
             switch (clientTransactionType)
             {
                 case KalturaTransactionType.ppv:
-                    result = WebAPI.ConditionalAccess.eTransactionType.PPV;
+                    result = eTransactionType.PPV;
                     break;
                 case KalturaTransactionType.subscription:
-                    result = WebAPI.ConditionalAccess.eTransactionType.Subscription;
+                    result = eTransactionType.Subscription;
                     break;
                 case KalturaTransactionType.collection:
-                    result = WebAPI.ConditionalAccess.eTransactionType.Collection;
+                    result = eTransactionType.Collection;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown transaction type");
@@ -484,19 +493,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        internal static WebAPI.ConditionalAccess.CDVRAdapterSettings[] ConvertCDVRAdapterSettings(SerializableDictionary<string, KalturaStringValue> settings)
+        internal static List<CDVRAdapterSettings> ConvertCDVRAdapterSettings(SerializableDictionary<string, KalturaStringValue> settings)
         {
-            List<WebAPI.ConditionalAccess.CDVRAdapterSettings> result = null;
+            List<CDVRAdapterSettings> result = null;
 
             if (settings != null && settings.Count > 0)
             {
-                result = new List<WebAPI.ConditionalAccess.CDVRAdapterSettings>();
-                WebAPI.ConditionalAccess.CDVRAdapterSettings pc;
+                result = new List<CDVRAdapterSettings>();
+                CDVRAdapterSettings pc;
                 foreach (KeyValuePair<string, KalturaStringValue> data in settings)
                 {
                     if (!string.IsNullOrEmpty(data.Key))
                     {
-                        pc = new WebAPI.ConditionalAccess.CDVRAdapterSettings();
+                        pc = new CDVRAdapterSettings();
                         pc.key = data.Key;
                         pc.value = data.Value.value;
                         result.Add(pc);
@@ -505,7 +514,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
             if (result != null && result.Count > 0)
             {
-                return result.ToArray();
+                return result;
             }
             else
             {
@@ -513,7 +522,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
         }
 
-        public static Dictionary<string, KalturaStringValue> ConvertCDVRAdapterSettings(WebAPI.ConditionalAccess.CDVRAdapterSettings[] settings)
+        public static Dictionary<string, KalturaStringValue> ConvertCDVRAdapterSettings(List<CDVRAdapterSettings> settings)
         {
             Dictionary<string, KalturaStringValue> result = null;
 
