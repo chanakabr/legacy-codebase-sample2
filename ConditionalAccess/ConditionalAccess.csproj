@@ -175,11 +175,6 @@
     <Compile Include="Utils.cs" />
     <Compile Include="Implementations\VodafoneConditionalAccess.cs" />
     <Compile Include="VoucherCampaignImpl.cs" />
-    <Compile Include="Web References\NotificationService\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>
     <Compile Include="Web References\tikle\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -253,42 +248,8 @@
     <None Include="Service References\WS_Catalog\Service9.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Web References\NotificationService\ArrayOfKeyValueOfstringArrayOfstringty7Ep6D1KeyValueOfstringArrayOfstringty7Ep6D1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\NotificationService\NotificationMessage.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\NotificationService\NotificationService.wsdl" />
-    <None Include="Web References\NotificationService\NotificationService.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Web References\NotificationService\NotificationService0.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Web References\NotificationService\NotificationService1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Web References\NotificationService\NotificationService2.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Web References\NotificationService\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://localhost/ws_notification/NotificationService.svc">
-      <UrlBehavior>Dynamic</UrlBehavior>
-      <RelPath>Web References\NotificationService\</RelPath>
-      <UpdateFromURL>http://localhost/ws_notification/NotificationService.svc</UpdateFromURL>
-      <ServiceLocationURL>
-      </ServiceLocationURL>
-      <CachedDynamicPropName>
-      </CachedDynamicPropName>
-      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
-      <CachedSettingsPropName>ConditionalAccess_NotificationService_NotificationService</CachedSettingsPropName>
-    </WebReferenceUrl>
     <WebReferenceUrl Include="https://www.sinema.com/wswebtv/Service.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\tikle\</RelPath>
@@ -473,9 +434,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Web References\NotificationService\NotificationService.disco" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadataStorage Include="Service References\WS_Catalog\" />
