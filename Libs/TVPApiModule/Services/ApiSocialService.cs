@@ -114,7 +114,9 @@ namespace TVPApiModule.Services
 
                     using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                     {
-                        res = m_Module.GetFriendsActions(m_wsUserName, m_wsPassword, friendActionRequest);
+                        var response = m_Module.GetFriendsActions(m_wsUserName, m_wsPassword, friendActionRequest);
+                        if (response != null)
+                            res = response.SocialActivity;
                     }
                 }
                 else
@@ -429,7 +431,9 @@ namespace TVPApiModule.Services
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    res = m_Module.GetFriendsActions(m_wsUserName, m_wsPassword, request);
+                    var response = m_Module.GetFriendsActions(m_wsUserName, m_wsPassword, request);
+                    if (response != null)
+                        res = response.SocialActivity;
                 }
             }
             catch (Exception ex)
