@@ -672,13 +672,13 @@ namespace Tvinci.Core.DAL
                     previousLocation = umm.LastMark.Location;
                     int duration = umm.LastMark.FileDuration;
 
-                    if ((duration != 0) && (((float)previousLocation / (float)duration * 100) >= finishedPercent))
+                    if ((duration != 0) && (((float)previousLocation / (float)duration * 100) > finishedPercent))
                     {
                         wasFinishedBefore = true;
                     }
                 }
 
-                if ((userMediaMark.FileDuration != 0) && (((float)userMediaMark.Location / (float)userMediaMark.FileDuration * 100) >= finishedPercent))
+                if ((userMediaMark.FileDuration != 0) && (((float)userMediaMark.Location / (float)userMediaMark.FileDuration * 100) > finishedPercent))
                 {
                     isFinishedNow = true;
                 }
