@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
-using WebAPI.ConditionalAccess;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
@@ -19,6 +18,13 @@ using WebAPI.Utils;
 using System.Net;
 using System.Web;
 using System.ServiceModel;
+using ApiObjects.SearchObjects;
+using ApiObjects.TimeShiftedTv;
+using ApiObjects;
+using ConditionalAccess.Response;
+using ApiObjects.Response;
+using ApiObjects.Billing;
+using ConditionalAccess;
 
 namespace WebAPI.Clients
 {
@@ -33,11 +39,11 @@ namespace WebAPI.Clients
 
         #region Properties
 
-        protected WebAPI.ConditionalAccess.module ConditionalAccess
+        protected WS_ConditionalAccess.module ConditionalAccess
         {
             get
             {
-                return (Module as WebAPI.ConditionalAccess.module);
+                return (Module as WS_ConditionalAccess.module);
             }
         }
 
@@ -45,14 +51,14 @@ namespace WebAPI.Clients
 
         public bool CancelServiceNow(int groupId, int domain_id, int asset_id, Models.ConditionalAccess.KalturaTransactionType transaction_type, bool bIsForce)
         {
-            WebAPI.ConditionalAccess.Status response = null;
+            Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // convert local enu, to ws enum
-                    WebAPI.ConditionalAccess.eTransactionType eTransactionType = Mapper.Map<WebAPI.ConditionalAccess.eTransactionType>(transaction_type);
+                    eTransactionType eTransactionType = Mapper.Map<eTransactionType>(transaction_type);
 
                     response = ConditionalAccess.CancelServiceNow(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, domain_id, asset_id, eTransactionType, bIsForce);
                 }
@@ -78,7 +84,7 @@ namespace WebAPI.Clients
 
         public void CancelSubscriptionRenewal(int groupId, int domain_id, string subscription_code)
         {
-            WebAPI.ConditionalAccess.Status response = null;
+            Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
             try
             {
@@ -107,7 +113,7 @@ namespace WebAPI.Clients
         public List<Models.ConditionalAccess.KalturaEntitlement> GetUserSubscriptions(int groupId, string user_id)
         {
             List<WebAPI.Models.ConditionalAccess.KalturaEntitlement> entitlements = null;
-            WebAPI.ConditionalAccess.Entitlements response = null;
+            Entitlements response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
             try
@@ -141,7 +147,7 @@ namespace WebAPI.Clients
         public Models.ConditionalAccess.KalturaBillingTransactionListResponse GetUserTransactionHistory(int groupId, string userid, int page_number, int page_size, KalturaTransactionHistoryOrderBy orderBy)
         {
             Models.ConditionalAccess.KalturaBillingTransactionListResponse transactions = null;
-            WebAPI.ConditionalAccess.BillingTransactions response = null;
+            BillingTransactions response = null;
             Group group = GroupsManager.GetGroup(groupId);
             TransactionHistoryOrderBy wsOrderBy = ConditionalAccessMappings.ConvertTransactionHistoryOrderBy(orderBy);
 
@@ -177,7 +183,7 @@ namespace WebAPI.Clients
             string extraParams, string udid, string encryptedCvv)
         {
             KalturaBillingResponse result = null;
-            WebAPI.ConditionalAccess.BillingStatusResponse response = null;
+            BillingStatusResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -191,7 +197,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling conditional access service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling conditional access service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -218,7 +224,7 @@ namespace WebAPI.Clients
         internal KalturaBillingResponse ChargeUserForSubscription(int groupId, string siteGuid, double price, string currency, string subscriptionId, string couponCode, string extraParams, string udid, string encryptedCvv)
         {
             KalturaBillingResponse result = null;
-            WebAPI.ConditionalAccess.BillingStatusResponse response = null;
+            BillingStatusResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -232,7 +238,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling conditional access service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling conditional access service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -258,7 +264,7 @@ namespace WebAPI.Clients
 
         internal List<KalturaSubscriptionPrice> GetSubscriptionsPrices(int groupId, IEnumerable<int> subscriptionsIds, string userId, string couponCode, string udid, string languageCode, bool shouldGetOnlyLowest)
         {
-            WebAPI.ConditionalAccess.SubscriptionsPricesResponse response = null;
+            SubscriptionsPricesResponse response = null;
             List<KalturaSubscriptionPrice> prices = new List<KalturaSubscriptionPrice>();
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -273,7 +279,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling web service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling web service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -298,7 +304,7 @@ namespace WebAPI.Clients
         [Obsolete]
         internal List<KalturaItemPrice> GetItemsPrices(int groupId, List<int> mediaFileIds, string userId, string couponCode, string udid, string languageCode, bool shouldGetOnlyLowest)
         {
-            WebAPI.ConditionalAccess.MediaFileItemPricesContainerResponse response = null;
+            MediaFileItemPricesContainerResponse response = null;
             List<KalturaItemPrice> prices = new List<KalturaItemPrice>();
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -313,7 +319,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling web service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling web service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -334,7 +340,7 @@ namespace WebAPI.Clients
 
         internal List<KalturaPpvPrice> GetPpvPrices(int groupId, List<int> mediaFileIds, string userId, string couponCode, string udid, string languageCode, bool shouldGetOnlyLowest)
         {
-            WebAPI.ConditionalAccess.MediaFileItemPricesContainerResponse response = null;
+            MediaFileItemPricesContainerResponse response = null;
             List<KalturaPpvPrice> prices = new List<KalturaPpvPrice>();
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -349,7 +355,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling web service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling web service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -363,7 +369,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            prices = WebAPI.Mapping.ObjectsConvertor.PricingMappings.ConvertPpvPrice(response.ItemsPrices);
+            prices = PricingMappings.ConvertPpvPrice(response.ItemsPrices);
 
             return prices;
         }
@@ -380,7 +386,7 @@ namespace WebAPI.Clients
             try
             {
                 // convert local enumerator, to web service enumerator
-                WebAPI.ConditionalAccess.eTransactionType transactionType = ConditionalAccessMappings.ConvertTransactionType(clientTransactionType);
+                eTransactionType transactionType = ConditionalAccessMappings.ConvertTransactionType(clientTransactionType);
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -391,7 +397,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -425,7 +431,7 @@ namespace WebAPI.Clients
             try
             {
                 // convert local enumerator, to web service enumerator
-                WebAPI.ConditionalAccess.eTransactionType transactionType = ConditionalAccessMappings.ConvertTransactionType(clientTransactionType);
+                eTransactionType transactionType = ConditionalAccessMappings.ConvertTransactionType(clientTransactionType);
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -435,7 +441,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -477,7 +483,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -512,7 +518,7 @@ namespace WebAPI.Clients
         //    }
         //    catch (Exception ex)
         //    {
-        //        log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+        //        log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
         //        ErrorUtils.HandleWSException(ex);
         //    }
 
@@ -559,7 +565,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -607,7 +613,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -631,7 +637,7 @@ namespace WebAPI.Clients
 
         internal bool GrantEntitlements(int groupId, string user_id, long household_id, int content_id, int product_id, KalturaTransactionType product_type, bool history, string deviceName)
         {
-            WebAPI.ConditionalAccess.Status response = null;
+            Status response = null;
 
             // get group ID
             Group group = GroupsManager.GetGroup(groupId);
@@ -639,7 +645,7 @@ namespace WebAPI.Clients
             try
             {
                 // convert local enumerator, to web service enumerator
-                WebAPI.ConditionalAccess.eTransactionType transactionType = ConditionalAccessMappings.ConvertTransactionType(product_type);
+                eTransactionType transactionType = ConditionalAccessMappings.ConvertTransactionType(product_type);
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -650,7 +656,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -685,7 +691,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -737,7 +743,7 @@ namespace WebAPI.Clients
             string userId, string couponCode, string languageCode, string udid, List<KalturaPersonalAssetRequest> assets)
         {
             List<KalturaAssetPrice> assetPrices = new List<KalturaAssetPrice>();
-            WebAPI.ConditionalAccess.AssetItemPriceResponse response = null;
+            AssetItemPriceResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -748,12 +754,12 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = ConditionalAccess.GetAssetPrices(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password,
-                        userId, couponCode, string.Empty, languageCode, udid, Utils.Utils.GetClientIP(), assetFiles.ToArray());
+                        userId, couponCode, string.Empty, languageCode, udid, Utils.Utils.GetClientIP(), assetFiles);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling web service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling web service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -774,7 +780,7 @@ namespace WebAPI.Clients
 
         internal bool ReconcileEntitlements(int groupId, string userId)
         {
-            WebAPI.ConditionalAccess.Status response = null;
+            Status response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -787,7 +793,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -807,7 +813,7 @@ namespace WebAPI.Clients
         internal KalturaHouseholdPremiumServiceListResponse GetDomainServices(int groupId, int domainId)
         {
             KalturaHouseholdPremiumServiceListResponse result;
-            WebAPI.ConditionalAccess.DomainServicesResponse response = null;
+            DomainServicesResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -820,7 +826,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -837,7 +843,7 @@ namespace WebAPI.Clients
             result = new KalturaHouseholdPremiumServiceListResponse()
             {
                 PremiumServices = Mapper.Map<List<KalturaHouseholdPremiumService>>(response.Services),
-                TotalCount = response.Services.Length
+                TotalCount = response.Services.Count
             };
 
             return result;
@@ -847,7 +853,7 @@ namespace WebAPI.Clients
         internal List<KalturaPremiumService> GetDomainServicesOldStandart(int groupId, int domainId)
         {
             List<KalturaPremiumService> result;
-            WebAPI.ConditionalAccess.DomainServicesResponse response = null;
+            DomainServicesResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -860,7 +866,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling domains service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -881,7 +887,7 @@ namespace WebAPI.Clients
 
         internal bool WaiverTransaction(int groupId, int householdID, string userId, int assetId, KalturaTransactionType kalTuraTransactioType)
         {
-            WebAPI.ConditionalAccess.Status response = null;
+            Status response = null;
 
             // get group ID
             Group group = GroupsManager.GetGroup(groupId);
@@ -889,7 +895,7 @@ namespace WebAPI.Clients
             try
             {
                 // convert local enumerator, to web service enumerator
-                WebAPI.ConditionalAccess.eTransactionType transactionType = ConditionalAccessMappings.ConvertTransactionType(kalTuraTransactioType);
+                eTransactionType transactionType = ConditionalAccessMappings.ConvertTransactionType(kalTuraTransactioType);
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -899,7 +905,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -918,7 +924,7 @@ namespace WebAPI.Clients
 
         internal long GetCustomDataId(int groupId, string userId, string udid, double price, string currency, int productId, int contentId, string coupon, KalturaTransactionType clientTransactionType, int previewModuleId)
         {
-            WebAPI.ConditionalAccess.PurchaseSessionIdResponse response = null;
+            PurchaseSessionIdResponse response = null;
 
             // get group ID
             Group group = GroupsManager.GetGroup(groupId);
@@ -926,7 +932,7 @@ namespace WebAPI.Clients
             try
             {
                 // convert local enumerator, to web service enumerator
-                WebAPI.ConditionalAccess.eTransactionType transactionType = ConditionalAccessMappings.ConvertTransactionType(clientTransactionType);
+                eTransactionType transactionType = ConditionalAccessMappings.ConvertTransactionType(clientTransactionType);
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -937,7 +943,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -956,7 +962,7 @@ namespace WebAPI.Clients
 
         internal KalturaLicensedUrl GetLicensedLinks(int groupId, string userId, string udid, int contentId, string basicLink)
         {
-            WebAPI.ConditionalAccess.LicensedLinkResponse response = null;
+            LicensedLinkResponse response = null;
             KalturaLicensedUrl urls = null;
 
             // get group ID
@@ -973,7 +979,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -994,7 +1000,7 @@ namespace WebAPI.Clients
 
         internal KalturaLicensedUrl GetEPGLicensedLink(int groupId, string userId, string udid, int epgId, int contentId, string baseUrl, long startDate, KalturaStreamType streamType)
         {
-            WebAPI.ConditionalAccess.LicensedLinkResponse response = null;
+            LicensedLinkResponse response = null;
             KalturaLicensedUrl urls = null;
 
             // get group ID
@@ -1013,7 +1019,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1034,7 +1040,7 @@ namespace WebAPI.Clients
 
         internal KalturaLicensedUrl GetRecordingLicensedLink(int groupId, string userId, string udid, int recordingId, string fileType)
         {
-            WebAPI.ConditionalAccess.LicensedLinkResponse response = null;
+            LicensedLinkResponse response = null;
             KalturaLicensedUrl urls = null;
 
             // get group ID
@@ -1051,7 +1057,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1086,7 +1092,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling conditional access service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling conditional access service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1100,7 +1106,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            if (response.Adapters.Length > 0)
+            if (response.Adapters.Count > 0)
             {
                 adapters = AutoMapper.Mapper.Map<List<KalturaCDVRAdapterProfile>>(response.Adapters);
             }
@@ -1122,7 +1128,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling conditional access service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling conditional access service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1158,7 +1164,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling conditional access service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling conditional access service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1196,7 +1202,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling conditional access service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling conditional access service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1231,7 +1237,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling conditional access service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling conditional access service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1268,7 +1274,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1308,7 +1314,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1324,7 +1330,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            if (response.Recordings != null && response.Recordings.Length > 0)
+            if (response.Recordings != null && response.Recordings.Count > 0)
             {
                 result = new KalturaRecordingContextListResponse() { Objects = new List<KalturaRecordingContext>(), TotalCount = 0 };
                 result.TotalCount = response.TotalItems;
@@ -1361,7 +1367,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1406,7 +1412,7 @@ namespace WebAPI.Clients
                 recordingStatuses = new List<KalturaRecordingStatus>() { KalturaRecordingStatus.SCHEDULED, KalturaRecordingStatus.RECORDING, KalturaRecordingStatus.RECORDED, KalturaRecordingStatus.CANCELED, KalturaRecordingStatus.FAILED };
             }
 
-            List<WebAPI.ConditionalAccess.TstvRecordingStatus> convertedRecordingStatuses = recordingStatuses.Select(x => ConditionalAccessMappings.ConvertKalturaRecordingStatus(x)).ToList();
+            List<TstvRecordingStatus> convertedRecordingStatuses = recordingStatuses.Select(x => ConditionalAccessMappings.ConvertKalturaRecordingStatus(x)).ToList();
 
             // get group configuration
             Group group = GroupsManager.GetGroup(groupID);
@@ -1422,7 +1428,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1438,7 +1444,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            if (response.Recordings != null && response.Recordings.Length > 0)
+            if (response.Recordings != null && response.Recordings.Count > 0)
             {
                 result.TotalCount = response.TotalItems;
                 // convert recordings            
@@ -1450,7 +1456,7 @@ namespace WebAPI.Clients
 
         internal bool RemovePaymentMethodHouseholdPaymentGateway(int payment_gateway_id, int groupId, string userID, long householdId, int paymentMethodId, bool force = false)
         {
-            WebAPI.ConditionalAccess.Status response = null;
+            Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
             try
@@ -1498,7 +1504,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1541,7 +1547,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1581,7 +1587,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1621,7 +1627,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1661,7 +1667,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1701,7 +1707,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1747,7 +1753,7 @@ namespace WebAPI.Clients
                 // fire request
                 response = ConditionalAccess.GetFollowSeries(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, domainID, order);
             }
-            if (response.SeriesRecordings != null && response.SeriesRecordings.Length > 0)
+            if (response.SeriesRecordings != null && response.SeriesRecordings.Count > 0)
             {
                 result.TotalCount = response.TotalItems;
                 // convert recordings            
@@ -1775,7 +1781,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1815,7 +1821,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1834,19 +1840,5 @@ namespace WebAPI.Clients
             return kalturaResponse;
         }        
 
-    }
-}
-
-namespace WebAPI.ConditionalAccess
-{
-    // adding request ID to header
-    public partial class module
-    {
-        protected override WebRequest GetWebRequest(Uri uri)
-        {
-            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
-            return request;
-        }
     }
 }

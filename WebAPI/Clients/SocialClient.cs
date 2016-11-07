@@ -11,12 +11,15 @@ using WebAPI.Managers.Models;
 using WebAPI.Models.Social;
 using WebAPI.ObjectsConvertor;
 using WebAPI.ObjectsConvertor.Mapping;
-using WebAPI.Social;
 using WebAPI.Utils;
 using WebAPI.Models.Users;
 using System.Net;
 using System.ServiceModel;
 using WebAPI.Models.Catalog;
+using ApiObjects;
+using Social;
+using Social.Requests;
+using ObjectsConvertor.Mapping;
 
 namespace WebAPI.Clients
 {
@@ -28,11 +31,11 @@ namespace WebAPI.Clients
         {
         }
 
-        protected WebAPI.Social.module Client
+        protected WS_Social.module Client
         {
             get
             {
-                return (Module as WebAPI.Social.module);
+                return (Module as WS_Social.module);
             }
         }
 
@@ -53,7 +56,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling social service. ws address: {0}, exception: {1}", Client.Url, ex);
+                log.ErrorFormat("Exception received while calling social service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -94,7 +97,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling social service. ws address: {0}, exception: {1}", Client.Url, ex);
+                log.ErrorFormat("Exception received while calling social service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -133,7 +136,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling social service. ws address: {0}, exception: {1}", Client.Url, ex);
+                log.ErrorFormat("Exception received while calling social service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -154,7 +157,7 @@ namespace WebAPI.Clients
             return clientResponse;
         }
 
-        internal KalturaFacebookSocial FBRegister(int groupId, string token, List<WebAPI.Social.KeyValuePair> extraParameters, string ip)
+        internal KalturaFacebookSocial FBRegister(int groupId, string token, List<KeyValuePair> extraParameters, string ip)
         {
             {
                 FacebookResponse wsResponse = null;
@@ -167,12 +170,12 @@ namespace WebAPI.Clients
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
                         // fire request
-                        wsResponse = Client.FBUserRegister(group.SocialCredentials.Username, group.SocialCredentials.Password, token, extraParameters.ToArray(), ip);
+                        wsResponse = Client.FBUserRegister(group.SocialCredentials.Username, group.SocialCredentials.Password, token, extraParameters, ip);
                     }
                 }
                 catch (Exception ex)
                 {
-                    log.ErrorFormat("Exception received while calling social service. ws address: {0}, exception: {1}", Client.Url, ex);
+                    log.ErrorFormat("Exception received while calling social service. exception: {1}", ex);
                     ErrorUtils.HandleWSException(ex);
                 }
 
@@ -196,7 +199,7 @@ namespace WebAPI.Clients
         }
 
         [Obsolete]
-        internal KalturaSocialResponse FBUserRegister(int groupId, string token, List<WebAPI.Social.KeyValuePair> extraParameters, string ip)
+        internal KalturaSocialResponse FBUserRegister(int groupId, string token, List<KeyValuePair> extraParameters, string ip)
         {
             {
                 FacebookResponse wsResponse = null;
@@ -210,12 +213,12 @@ namespace WebAPI.Clients
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
                         // fire request
-                        wsResponse = Client.FBUserRegister(group.SocialCredentials.Username, group.SocialCredentials.Password, token, extraParameters.ToArray(), ip);
+                        wsResponse = Client.FBUserRegister(group.SocialCredentials.Username, group.SocialCredentials.Password, token, extraParameters, ip);
                     }
                 }
                 catch (Exception ex)
                 {
-                    log.ErrorFormat("Exception received while calling social service. ws address: {0}, exception: {1}", Client.Url, ex);
+                    log.ErrorFormat("Exception received while calling social service. exception: {1}", ex);
                     ErrorUtils.HandleWSException(ex);
                 }
 
@@ -257,7 +260,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling social service. ws address: {0}, exception: {1}", Client.Url, ex);
+                log.ErrorFormat("Exception received while calling social service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -296,7 +299,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling social service. ws address: {0}, exception: {1}", Client.Url, ex);
+                log.ErrorFormat("Exception received while calling social service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -337,7 +340,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling social service. ws address: {0}, exception: {1}", Client.Url, ex);
+                log.ErrorFormat("Exception received while calling social service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -376,7 +379,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling social service. ws address: {0}, exception: {1}", Client.Url, ex);
+                log.ErrorFormat("Exception received while calling social service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -413,7 +416,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling social service. ws address: {0}, exception: {1}", Client.Url, ex);
+                log.ErrorFormat("Exception received while calling social service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -447,7 +450,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling social service. ws address: {0}, exception: {1}", Client.Url, ex);
+                log.ErrorFormat("Exception received while calling social service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -476,7 +479,7 @@ namespace WebAPI.Clients
             {
                 m_eAssetType = eAssetType.MEDIA,
                 m_eSocialPlatform = SocialPlatform.FACEBOOK,
-                m_lAssetIDs = assetId > 0 ? new int[] { (int)assetId } : null,
+                m_lAssetIDs = assetId > 0 ? new List<int> { (int)assetId } : null,
                 m_nNumOfRecords = pageSize,
                 m_nStartIndex = pageIndex, // make sure its right
                 m_sSiteGuid = userId,
@@ -490,11 +493,11 @@ namespace WebAPI.Clients
                     wsAction = SocialMappings.ConvertSocialAction(action);
                     userActions.Add(wsAction);
                 }
-                request.UserActions = userActions.ToArray();
+                request.UserActions = userActions;
             }
             else
             {
-                request.UserActions = new eUserAction[3] { eUserAction.LIKE, eUserAction.RATES, eUserAction.WATCHES };
+                request.UserActions = new List<eUserAction>() { eUserAction.LIKE, eUserAction.RATES, eUserAction.WATCHES };
             }
 
             try
@@ -506,7 +509,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling social service. ws address: {0}, exception: {1}", Client.Url, ex);
+                log.ErrorFormat("Exception received while calling social service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -524,20 +527,6 @@ namespace WebAPI.Clients
             friendsActivity.TotalCount = response.TotalCount;
 
             return friendsActivity;
-        }
-    }
-}
-
-namespace WebAPI.Social
-{
-    // adding request ID to header
-    public partial class module
-    {
-        protected override WebRequest GetWebRequest(Uri uri)
-        {
-            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
-            return request;
         }
     }
 }
