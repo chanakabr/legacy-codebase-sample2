@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using TvinciImporter;
 using TVinciShared;
 
 public partial class adm_system_announcements : System.Web.UI.Page
@@ -98,8 +93,26 @@ public partial class adm_system_announcements : System.Web.UI.Page
         string sGroupLang = GetMainLang();
         theTable.SetConnectionKey("notifications_connection");
 
+        // GetAllMessageAnnouncements - return DataTable with column format manipulation (start_time)        
         DataTable dt = GetAllMessageAnnouncements(nGroupID);
-        theTable.FillDataTable(dt);
+        if (dt != null)
+        {
+            theTable.FillDataTable(dt);
+        }
+        else
+        {
+            // in case Data Table return null ( no rows found) 
+            // add Select query for empty grid layout
+            theTable += "select a.ID, a.recipients as 'recipientsCode', a.status, a.is_active, a.name, a.message, a.start_time, a.sent, a.updater_id, a.update_date,a.create_date, ";
+            theTable += " a.group_id, a.timezone , ";
+            theTable += " CASE  WHEN a.recipients = 0 THEN  'All'  WHEN a.recipients = 1 THEN 'LoggedIn'  when a.recipients = 2 then 'Guests' ";
+            theTable += " when a.recipients = 3 then 'Other' end as 'recipients' , ";
+            theTable += " CASE WHEN a.sent = 0 THEN  'Not Sent'  WHEN a.sent = 1 THEN 'Sending' when a.sent = 2 then 'Sent' when a.sent = 3 then 'Aborted' end as 'message status' ";
+            theTable += "  from message_announcements a   ";
+            theTable += "  where a.status <> 2  And a.recipients <> 3 And";
+            theTable += ODBCWrapper.Parameter.NEW_PARAM("a.group_id", "=", nGroupID);
+            theTable += " order by id desc ";
+        }
       
         theTable.AddHiddenField("ID");
         theTable.AddHiddenField("group_id");

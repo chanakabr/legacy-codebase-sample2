@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
 using TvinciImporter;
 using TVinciShared;
 
@@ -98,21 +94,33 @@ public partial class adm_topics : System.Web.UI.Page
         string sGroupLang = GetMainLang();
         theTable.SetConnectionKey("notifications_connection");
 
+        // GetAllAnnouncements - return DataTable with column format manipulation (subscribers)        
         DataTable dt = GetAllAnnouncements(nGroupID);
-
-        if (!string.IsNullOrEmpty(sOrderBy))
+        if (dt != null)
         {
-            theTable += " order by ";
-            theTable += sOrderBy;
+            if (!string.IsNullOrEmpty(sOrderBy))
+            {
+                theTable += " order by ";
+                theTable += sOrderBy;
+                dt.DefaultView.Sort = sOrderBy;
+                dt = dt.DefaultView.ToTable();
+            }
 
-            dt.DefaultView.Sort = sOrderBy;
-            dt = dt.DefaultView.ToTable();
-            
+            theTable.FillDataTable(dt);
+        }
+        else
+        {
+            // in case Data Table return null ( no rows found) 
+            // add Select query for empty grid layout
+            theTable += "select ID, name , group_id, status, last_message_sent_date_sec as 'last sent date sec' ";
+            theTable += ",CASE WHEN automatic_sending is null THEN  'Inherit' WHEN automatic_sending = 1 THEN  'Yes' WHEN automatic_sending = 0 THEN  'No'  end as 'automatic sending'";
+            theTable += ",  name as  subscribers"; // add column subscribers only for page empty layout
+            theTable += "  from announcements  ";
+            theTable += "  where status <> 2  And recipient_type = 3 And";
+            theTable += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
         }
 
-        theTable.FillDataTable(dt);
-
-        theTable.AddOrderByColumn("ID","ID");
+        theTable.AddOrderByColumn("ID", "ID");
         theTable.AddHiddenField("group_id");
         theTable.AddHiddenField("status");
         theTable.AddHiddenField("announcementId");
@@ -181,7 +189,7 @@ public partial class adm_topics : System.Web.UI.Page
         selectQuery += ",CASE WHEN automatic_sending is null THEN  'Inherit' WHEN automatic_sending = 1 THEN  'Yes' WHEN automatic_sending = 0 THEN  'No'  end as 'automatic sending'";
         selectQuery += "  from announcements  ";
         selectQuery += "  where status <> 2  And recipient_type = 3 And";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupId);        
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupId);
 
         if (selectQuery.Execute("query", true) != null)
         {
@@ -194,30 +202,33 @@ public partial class adm_topics : System.Web.UI.Page
         selectQuery.Finish();
         selectQuery = null;
 
-        dt.Columns.Add("subscribers", typeof(int)); // amountOfSubscribers
-
-        var dictAmountOfSubscribersPerAnnouncement = ImporterImpl.GetAmountOfSubscribersPerAnnouncement(groupId);
-        if (dictAmountOfSubscribersPerAnnouncement != null && dictAmountOfSubscribersPerAnnouncement.Count > 0)
+        if (dt != null)
         {
-            string announcementId = string.Empty; // dictAmountOfSubscribersPerAnnouncement key
-            int amountOfSubscribers = 0; // dictAmountOfSubscribersPerAnnouncement value
-
-            //going over result rows. 
-            foreach (DataRow row in dt.Rows)
+            var dictAmountOfSubscribersPerAnnouncement = ImporterImpl.GetAmountOfSubscribersPerAnnouncement(groupId);
+            if (dictAmountOfSubscribersPerAnnouncement != null && dictAmountOfSubscribersPerAnnouncement.Count > 0)
             {
-                announcementId = row["ID"].ToString();
-                //in case announcementId exist at Dic, add the subscribers amount
-                if (dictAmountOfSubscribersPerAnnouncement.ContainsKey(announcementId))
+                string announcementId = string.Empty; // dictAmountOfSubscribersPerAnnouncement key
+                int amountOfSubscribers = 0; // dictAmountOfSubscribersPerAnnouncement value
+
+                dt.Columns.Add("subscribers", typeof(int)); // amountOfSubscribers
+
+                //going over result rows. 
+                foreach (DataRow row in dt.Rows)
                 {
-                    dictAmountOfSubscribersPerAnnouncement.TryGetValue(announcementId, out amountOfSubscribers);
-                    row["subscribers"] = amountOfSubscribers;
+                    announcementId = row["ID"].ToString();
+                    //in case announcementId exist at Dic, add the subscribers amount
+                    if (dictAmountOfSubscribersPerAnnouncement.ContainsKey(announcementId))
+                    {
+                        dictAmountOfSubscribersPerAnnouncement.TryGetValue(announcementId, out amountOfSubscribers);
+                        row["subscribers"] = amountOfSubscribers;
+                    }
                 }
             }
         }
         return dt;
     }
 
-   
+
     public string GetPageContent(string sOrderBy, string sPageNum)
     {
         string sOldOrderBy = "";
