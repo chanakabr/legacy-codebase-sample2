@@ -62,11 +62,8 @@ namespace Catalog
             }
 
             // Initialize web service
-            using (ws_cas.module cas = new ws_cas.module())
+            using (WS_ConditionalAccess.module cas = new WS_ConditionalAccess.module())
             {
-                string url = Utils.GetWSURL("ws_cas");
-                cas.Url = url;
-
                 var userBundles = cas.GetUserBundles(userName, password, domainId, fileTypeIds);
 
                 if (userBundles == null || userBundles.status == null)
@@ -135,11 +132,8 @@ namespace Catalog
             }
 
             // Initialize web service
-            using (ws_cas.module cas = new ws_cas.module())
+            using (WS_ConditionalAccess.module cas = new WS_ConditionalAccess.module())
             {
-                string url = Utils.GetWSURL("ws_cas");
-                cas.Url = url;
-
                 log.DebugFormat("username {0} pass {1} domain {2} filetypes {3}",
                     userName, password, domainId, string.Join(",", fileTypes));
 
@@ -212,20 +206,6 @@ namespace Catalog
             }
 
             return result;
-        }
-    }
-}
-
-namespace Catalog.ws_cas
-{
-    // adding request ID to header
-    public partial class module
-    {
-        protected override WebRequest GetWebRequest(Uri uri)
-        {
-            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
-            return request;
         }
     }
 }
