@@ -660,33 +660,33 @@ namespace Tvinci.Core.DAL
 
             MediaMarkLog umm = new MediaMarkLog();
 
-            if (mediaHitData != null)
+            bool wasFinishedBefore = false;
+            bool isFinishedNow = false;
+
+            if (finishedPercent > 0)
             {
-                if (finishedPercent > 0)
+                if (mediaHitData != null)
                 {
                     umm = JsonConvert.DeserializeObject<MediaMarkLog>(mediaHitData);
 
                     previousLocation = umm.LastMark.Location;
                     int duration = umm.LastMark.FileDuration;
 
-                    bool wasFinishedBefore = false;
-                    bool isFinishedNow = false;
-
                     if ((duration != 0) && (((float)previousLocation / (float)duration * 100) >= finishedPercent))
                     {
                         wasFinishedBefore = true;
                     }
+                }
 
-                    if ((userMediaMark.FileDuration != 0) && (((float)userMediaMark.Location / (float)userMediaMark.FileDuration * 100) >= finishedPercent))
-                    {
-                        isFinishedNow = true;
-                    }
+                if ((userMediaMark.FileDuration != 0) && (((float)userMediaMark.Location / (float)userMediaMark.FileDuration * 100) >= finishedPercent))
+                {
+                    isFinishedNow = true;
+                }
 
-                    // if there is a difference in the location statuses (wasn't finished but now it is, or vice versa) - mark it
-                    if (wasFinishedBefore != isFinishedNow)
-                    {
-                        locationStatusChanged = true;
-                    }
+                // if there is a difference in the location statuses (wasn't finished but now it is, or vice versa) - mark it
+                if (wasFinishedBefore != isFinishedNow)
+                {
+                    locationStatusChanged = true;
                 }
             }
 
@@ -2348,20 +2348,22 @@ namespace Tvinci.Core.DAL
 
             limitRetries = RETRY_LIMIT;
 
-            bool success = false;
+            bool hitSuccess = false;
             bool finishedWatchingChanged = false;
 
-            success = false;
-            while (limitRetries >= 0 && !success)
+            hitSuccess = false;
+            while (limitRetries >= 0 && !hitSuccess)
             {
-                finishedWatchingChanged = UpdateOrInsert_UsersMediaMarkOrHit(mediaHitManager, sUDID, ref limitRetries, r, mmKey, ref success, userMediaMark);
+                finishedWatchingChanged = UpdateOrInsert_UsersMediaMarkOrHit(mediaHitManager, sUDID, ref limitRetries, r, mmKey, ref hitSuccess, userMediaMark);
             }
+
+            bool markSuccess = false;
 
             if (isFirstPlay || finishedWatchingChanged)
             {
-                while (limitRetries >= 0 && !success)
+                while (limitRetries >= 0 && !markSuccess)
                 {
-                    UpdateOrInsert_UsersMediaMarkOrHit(mediaMarkManager, sUDID, ref limitRetries, r, mmKey, ref success, userMediaMark);
+                    UpdateOrInsert_UsersMediaMarkOrHit(mediaMarkManager, sUDID, ref limitRetries, r, mmKey, ref markSuccess, userMediaMark);
                 }
             }
         }
