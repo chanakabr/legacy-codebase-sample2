@@ -1,6 +1,7 @@
-﻿using Ingest.Clients.ClientManager;
+﻿using ApiObjects;
+using ApiObjects.IngestBusinessModules;
+using Ingest.Clients.ClientManager;
 using Ingest.Models;
-using Ingest.Pricing;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -41,7 +42,7 @@ namespace Ingest.Importers
         private static object lockObject = new object();
         private static string reportLogPath = TCMClient.Settings.Instance.GetValue<string>("business_modules_report_log_path"); 
 
-        private delegate Ingest.Pricing.BusinessModuleResponse CallPricingIngest<T>(int groupId, T module) where T : IngestModule;
+        private delegate BusinessModuleResponse CallPricingIngest<T>(int groupId, T module) where T : IngestModule;
 
         public static BusinessModuleIngestResponse Ingest(int groupId, string xml)
         {
@@ -196,7 +197,7 @@ namespace Ingest.Importers
             string logMessage = string.Empty;
             bool success = false;
 
-            Ingest.Pricing.BusinessModuleResponse ingestResponse = null;
+            BusinessModuleResponse ingestResponse = null;
 
             try
             {
@@ -262,9 +263,9 @@ namespace Ingest.Importers
             }
         }
 
-        private static Ingest.Pricing.BusinessModuleResponse CallPricingPricePlanIngest<T>(int groupId, IngestPricePlan module)
+        private static BusinessModuleResponse CallPricingPricePlanIngest<T>(int groupId, IngestPricePlan module)
         {
-            Ingest.Pricing.BusinessModuleResponse response = null;
+            BusinessModuleResponse response = null;
 
             switch (module.Action)
             {
@@ -284,9 +285,9 @@ namespace Ingest.Importers
             return response;
         }
 
-        private static Ingest.Pricing.BusinessModuleResponse CallPricingMultiPricePlanIngest<T>(int groupId, IngestMultiPricePlan module)
+        private static BusinessModuleResponse CallPricingMultiPricePlanIngest<T>(int groupId, IngestMultiPricePlan module)
         {
-            Ingest.Pricing.BusinessModuleResponse response = null;
+            BusinessModuleResponse response = null;
 
             switch (module.Action)
             {
@@ -306,9 +307,9 @@ namespace Ingest.Importers
             return response;
         }
 
-        private static Ingest.Pricing.BusinessModuleResponse CallPricingPPVIngest<T>(int groupId, IngestPPV module)
+        private static BusinessModuleResponse CallPricingPPVIngest<T>(int groupId, IngestPPV module)
         {
-            Ingest.Pricing.BusinessModuleResponse response = null;
+            BusinessModuleResponse response = null;
 
             switch (module.Action)
             {
@@ -511,13 +512,13 @@ namespace Ingest.Importers
                        
                         // title
                         if (GetNodeKeyValuePairsArrayValue(node, "titles/title", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, multiPricePlan.Action.ToString().ToLower(), out keyValArr))
-                            multiPricePlan.Titles = keyValArr;
+                            multiPricePlan.Titles = keyValArr.ToList();
                         else
                             continue;
 
                         // description
                         if (GetNodeKeyValuePairsArrayValue(node, "descriptions/description", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, multiPricePlan.Action.ToString().ToLower(), out keyValArr))
-                            multiPricePlan.Descriptions = keyValArr;
+                            multiPricePlan.Descriptions = keyValArr.ToList();
                         else
                             continue;
 
@@ -559,12 +560,12 @@ namespace Ingest.Importers
                             continue;
 
                         // price plans
-                        multiPricePlan.PricePlansCodes = GetNodeStringArray(node, "price_plan_codes/price_plan_code");
+                        multiPricePlan.PricePlansCodes = GetNodeStringList(node, "price_plan_codes/price_plan_code");
 
                         // channels - mandatory
-                        multiPricePlan.Channels = GetNodeStringArray(node, "channels/channel");
+                        multiPricePlan.Channels = GetNodeStringList(node, "channels/channel");
 
-                        if (multiPricePlan.Action == eIngestAction.Insert && (multiPricePlan.Channels == null || multiPricePlan.Channels.Length == 0))
+                        if (multiPricePlan.Action == eIngestAction.Insert && (multiPricePlan.Channels == null || multiPricePlan.Channels.Count == 0))
                         {
                             log.ErrorFormat(LOG_MANDATORY_ERROR_FORMAT, MULTI_PRICE_PLAN, multiPricePlan.Code, "channels", reportId, multiPricePlan.Action.ToString().ToLower());
                             reportBuilder.AppendFormat(MANDATORY_ERROR_FORMAT, MULTI_PRICE_PLAN, multiPricePlan.Code, "channels", multiPricePlan.Action.ToString().ToLower());
@@ -572,7 +573,7 @@ namespace Ingest.Importers
                         }
 
                         // file types
-                        multiPricePlan.FileTypes= GetNodeStringArray(node, "file_types/file_type");
+                        multiPricePlan.FileTypes= GetNodeStringList(node, "file_types/file_type");
 
                         // coupon group - not supported
                         nodeList = node.SelectNodes("coupon_group");
@@ -680,7 +681,7 @@ namespace Ingest.Importers
 
                         // title
                         if (GetNodeKeyValuePairsArrayValue(node, "descriptions/description", PPV, ppv.Code, ref reportBuilder, reportId, ppv.Action.ToString().ToLower(), out keyValArr))
-                            ppv.Descriptions = keyValArr;
+                            ppv.Descriptions = keyValArr.ToList();
                         else
                             continue;
 
@@ -731,7 +732,7 @@ namespace Ingest.Importers
                             ppv.Discount = null;
 
                         // file types
-                        ppv.FileTypes = GetNodeStringArray(node, "file_types/file_type");
+                        ppv.FileTypes = GetNodeStringList(node, "file_types/file_type");
 
                         // add ppv to response list
                         ppvs.Add(ppv);
@@ -1037,21 +1038,21 @@ namespace Ingest.Importers
             return true;
         }
 
-        private static string[] GetNodeStringArray(XmlNode node, string nodeName)
+        private static List<string> GetNodeStringList(XmlNode node, string nodeName)
         {
-            string[] response = null;
+            List<string> response = null;
 
             var nodeList = node.SelectNodes(nodeName);
             if (nodeList != null)
             {
-                response = new string[nodeList.Count];
+                response = new List<string>();
                 for (int i = 0; i < nodeList.Count; i++)
                 {
                     if (!string.IsNullOrEmpty(nodeList[i].InnerText))
                         response[i] = nodeList[i].InnerText;
                 }
 
-                response = response.Where(r => r != null).ToArray();
+                response = response.Where(r => r != null).ToList();
             }
 
             return response;
