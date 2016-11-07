@@ -30,12 +30,12 @@ namespace WebAPI.Models.Social
         public KalturaAssetType AssetTypeEqual { get; set; }
 
         /// <summary>
-        /// Comma separated list of social platforms to filter by
+        /// Comma separated list of social actions to filter by
         /// </summary>
-        [DataMember(Name = "socialPlatfomIn")]
-        [JsonProperty("socialPlatfomIn")]
-        [XmlElement(ElementName = "socialPlatfomIn")]
-        public string SocialPlatfomIn { get; set; }
+        [DataMember(Name = "socialPlatformEqual")]
+        [JsonProperty("socialPlatformEqual")]
+        [XmlElement(ElementName = "socialPlatformEqual")]
+        public KalturaSocialPlatform SocialPlatformEqual { get; set; }
 
         /// <summary>
         /// The create date from which to get the comments 
@@ -45,42 +45,9 @@ namespace WebAPI.Models.Social
         [XmlElement(ElementName = "createDateGreaterThan")]
         public long CreateDateGreaterThan { get; set; }
 
-        private List<KalturaSocialPlatform> socialPlatfomIn;
-
-        public List<KalturaSocialPlatform> GetSocialPlatfomIn()
-        {
-            if (socialPlatfomIn != null)
-            {
-                return socialPlatfomIn;
-            }
-
-            List<KalturaSocialPlatform> socialPlatforms = new List<KalturaSocialPlatform>();
-            if (!string.IsNullOrEmpty(SocialPlatfomIn))
-            {
-                string[] splitPlatforms = SocialPlatfomIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string platform in splitPlatforms)
-                {
-                    KalturaSocialPlatform parsedPlatform;
-                    if (Enum.TryParse(platform, true, out parsedPlatform))
-                    {
-                        socialPlatforms.Add(parsedPlatform);
-                    }
-                    else
-                    {
-                        throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, "KalturaSocialCommentFilter.socialPlatfomIn", platform);
-                    }
-                }
-            }
-
-            socialPlatfomIn = socialPlatforms;
-            return socialPlatforms;
-
-        }
 
         internal void validate()
         {
-            GetSocialPlatfomIn();
-
             if (AssetIdEqual == 0)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaSocialCommentFilter.assetIdEqual");
@@ -89,9 +56,9 @@ namespace WebAPI.Models.Social
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, "KalturaSocialCommentFilter.assetTypeEqual");
             }
-            if (AssetTypeEqual == KalturaAssetType.epg && (socialPlatfomIn.Count > 1 || (socialPlatfomIn.Count > 0 && socialPlatfomIn[0] != KalturaSocialPlatform.IN_APP)))
+            if (AssetTypeEqual == KalturaAssetType.epg && SocialPlatformEqual != KalturaSocialPlatform.IN_APP)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSocialCommentFilter.assetTypeEqual, KalturaSocialCommentFilter.socialPlatfomIn");
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSocialCommentFilter.assetTypeEqual, KalturaSocialCommentFilter.socialPlatformEqual");
             }
         }
 

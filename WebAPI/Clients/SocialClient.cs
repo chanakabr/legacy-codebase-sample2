@@ -526,37 +526,22 @@ namespace WebAPI.Clients
             return friendsActivity;
         }
 
-        internal KalturaSocialCommentListResponse GetSocialFeed(int groupId, string userId, long assetId, KalturaAssetType assetType, List<KalturaSocialPlatform> socialPlatforms,
+        internal KalturaSocialCommentListResponse GetSocialFeed(int groupId, string userId, long assetId, KalturaAssetType assetType, KalturaSocialPlatform socialPlatform,
             int pageSize, int pageIndex, long createDateSince, KalturaSocialCommentOrderBy orderBy)
         {
             KalturaSocialCommentListResponse friendsActivity = new KalturaSocialCommentListResponse();
             SocialFeedResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
-            eSocialPlatform wsPlatform;
-            List<eSocialPlatform> platforms;
-            if (socialPlatforms != null && socialPlatforms.Count > 0)
-            {
-                platforms = new List<eSocialPlatform>();
-                foreach (var platform in socialPlatforms)
-                {
-                    wsPlatform = eSocialPlatform.Twitter;//SocialMappings.ConvertSocialPlatform(platform);
-                    platforms.Add(wsPlatform);
-                }
-            }
-            else
-            {
-                platforms = new List<eSocialPlatform> { eSocialPlatform.Facebook, eSocialPlatform.InApp, eSocialPlatform.Twitter };
-            }
-
-            eAssetType wsAssetType = eAssetType.MEDIA; //SocialMappings.ConvertAssetType(assetType);
-            SocialFeedOrderBy wsOrderBy = SocialFeedOrderBy.CreateDateAsc; // SocialMappings.ConvertSocialFeedOrderBy(orderBy);
+            eSocialPlatform wsPlatform = SocialMappings.ConvertSocialPlatform(socialPlatform);
+            eAssetType wsAssetType = SocialMappings.ConvertAssetType(assetType);
+            SocialFeedOrderBy wsOrderBy = SocialMappings.ConvertSocialFeedOrderBy(orderBy);
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Client.GetSocialFeed(group.SocialCredentials.Username, group.SocialCredentials.Password, userId, (int)assetId, wsAssetType, platforms.ToArray(),
+                    response = Client.GetSocialFeed(group.SocialCredentials.Username, group.SocialCredentials.Password, userId, (int)assetId, wsAssetType, wsPlatform,
                         pageSize, pageIndex, createDateSince, wsOrderBy);
                 }
             }

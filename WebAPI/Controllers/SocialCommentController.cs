@@ -43,7 +43,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.SocialClient().GetSocialFeed(groupId, KS.GetFromRequest().UserId, filter.AssetIdEqual, filter.AssetTypeEqual, filter.GetSocialPlatfomIn(),
+                response = ClientsManager.SocialClient().GetSocialFeed(groupId, KS.GetFromRequest().UserId, filter.AssetIdEqual, filter.AssetTypeEqual, filter.SocialPlatformEqual,
                     pager.getPageSize(), pager.getPageIndex(), filter.CreateDateGreaterThan, filter.OrderBy);
             }
             catch (ClientException ex)

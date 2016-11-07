@@ -7623,9 +7623,9 @@
             Asset type to filter by, currently only VOD (media)
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Social.KalturaSocialCommentFilter.SocialPlatfomIn">
+        <member name="P:WebAPI.Models.Social.KalturaSocialCommentFilter.SocialPlatformEqual">
             <summary>
-            Comma separated list of social platforms to filter by
+            Comma separated list of social actions to filter by
             </summary>
         </member>
         <member name="P:WebAPI.Models.Social.KalturaSocialCommentFilter.CreateDateGreaterThan">
@@ -10707,13 +10707,13 @@
         <member name="M:WebAPI.Social.module.MergeFriendsActivityFeedAsync(System.String,System.String,System.Int32,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Social.module.GetSocialFeed(System.String,System.String,System.String,System.Int32,WebAPI.Social.eAssetType,WebAPI.Social.eSocialPlatform[],System.Int32,System.Int32,System.Int64,WebAPI.Social.SocialFeedOrderBy)">
+        <member name="M:WebAPI.Social.module.GetSocialFeed(System.String,System.String,System.String,System.Int32,WebAPI.Social.eAssetType,WebAPI.Social.eSocialPlatform,System.Int32,System.Int32,System.Int64,WebAPI.Social.SocialFeedOrderBy)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Social.module.GetSocialFeedAsync(System.String,System.String,System.String,System.Int32,WebAPI.Social.eAssetType,WebAPI.Social.eSocialPlatform[],System.Int32,System.Int32,System.Int64,WebAPI.Social.SocialFeedOrderBy)">
+        <member name="M:WebAPI.Social.module.GetSocialFeedAsync(System.String,System.String,System.String,System.Int32,WebAPI.Social.eAssetType,WebAPI.Social.eSocialPlatform,System.Int32,System.Int32,System.Int64,WebAPI.Social.SocialFeedOrderBy)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Social.module.GetSocialFeedAsync(System.String,System.String,System.String,System.Int32,WebAPI.Social.eAssetType,WebAPI.Social.eSocialPlatform[],System.Int32,System.Int32,System.Int64,WebAPI.Social.SocialFeedOrderBy,System.Object)">
+        <member name="M:WebAPI.Social.module.GetSocialFeedAsync(System.String,System.String,System.String,System.Int32,WebAPI.Social.eAssetType,WebAPI.Social.eSocialPlatform,System.Int32,System.Int32,System.Int64,WebAPI.Social.SocialFeedOrderBy,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Social.module.CancelAsync(System.Object)">
@@ -14493,22 +14493,7 @@
         <member name="P:WebAPI.Social.SocialFeedItemComment.PopularityCounter">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Social.SocialFeedItem">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialFeedItem.Comments">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialFeedItem.FeedItemLink">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Social.SocialPlatformFeedList">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialPlatformFeedList.SocialFeed">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Social.SocialPlatformFeedList.SocialPlatform">
+        <member name="P:WebAPI.Social.SocialFeedItemComment.SocialPlatform">
             <remarks/>
         </member>
         <member name="T:WebAPI.Social.eSocialPlatform">
@@ -14524,6 +14509,15 @@
             <remarks/>
         </member>
         <member name="F:WebAPI.Social.eSocialPlatform.Twitter">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Social.SocialFeedItem">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialFeedItem.Comments">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Social.SocialFeedItem.FeedItemLink">
             <remarks/>
         </member>
         <member name="T:WebAPI.Social.SocialFeedResponse">
