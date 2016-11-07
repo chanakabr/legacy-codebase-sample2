@@ -1,43 +1,105 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Implementations" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Implementations" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd7" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" />
-  <xs:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd12" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" />
-  <xs:complexType name="SlidingWindowItem">
-    <xs:complexContent mixed="false">
-      <xs:extension xmlns:q1="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" base="q1:BaseCrowdsourceItem">
-        <xs:sequence>
-          <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="Action" type="q2:OrderBy" />
-          <xs:element minOccurs="0" name="ActionDescription" nillable="true" type="xs:string" />
-          <xs:element minOccurs="0" name="ActionVal" type="xs:double" />
-          <xs:element minOccurs="0" name="Period" type="xs:int" />
-          <xs:element minOccurs="0" name="PeriodDescription" nillable="true" type="xs:string" />
-          <xs:element minOccurs="0" name="TypeDescription" nillable="true" type="xs:string" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/Users" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/Users" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd12" namespace="http://schemas.datacontract.org/2004/07/DAL" />
+  <xs:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:complexType name="User">
+    <xs:sequence>
+      <xs:element name="IsActivationGracePeriod" type="xs:boolean" />
+      <xs:element name="m_domianID" type="xs:int" />
+      <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/DAL" name="m_eSuspendState" type="q1:DomainSuspentionStatus" />
+      <xs:element name="m_eUserState" type="tns:UserState" />
+      <xs:element name="m_isDomainMaster" type="xs:boolean" />
+      <xs:element name="m_nSSOOperatorID" type="xs:int" />
+      <xs:element name="m_oBasicData" nillable="true" type="tns:UserBasicData" />
+      <xs:element name="m_oDynamicData" nillable="true" type="tns:UserDynamicData" />
+      <xs:element name="m_sSiteGUID" nillable="true" type="xs:string" />
+    </xs:sequence>
   </xs:complexType>
-  <xs:element name="SlidingWindowItem" nillable="true" type="tns:SlidingWindowItem" />
-  <xs:complexType name="OrcaItem">
-    <xs:complexContent mixed="false">
-      <xs:extension xmlns:q3="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" base="q3:BaseCrowdsourceItem">
-        <xs:sequence />
-      </xs:extension>
-    </xs:complexContent>
+  <xs:element name="User" nillable="true" type="tns:User" />
+  <xs:simpleType name="UserState">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Unknown" />
+      <xs:enumeration value="Activated" />
+      <xs:enumeration value="SingleSignIn" />
+      <xs:enumeration value="DoubleSignIn" />
+      <xs:enumeration value="LoggedOut" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="UserState" nillable="true" type="tns:UserState" />
+  <xs:complexType name="UserBasicData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="m_CoGuid" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_Country" nillable="true" type="tns:Country" />
+      <xs:element minOccurs="0" name="m_ExternalToken" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_State" nillable="true" type="tns:State" />
+      <xs:element minOccurs="0" name="m_UserType" type="tns:UserType" />
+      <xs:element minOccurs="0" name="m_bIsFacebookImagePermitted" type="xs:boolean" />
+      <xs:element minOccurs="0" name="m_sAddress" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sAffiliateCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sCity" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sEmail" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sFacebookID" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sFacebookImage" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sFacebookToken" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sFirstName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sLastName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sPassword" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sPhone" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sSalt" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sTwitterToken" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sTwitterTokenSecret" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sUserName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sZip" nillable="true" type="xs:string" />
+    </xs:sequence>
   </xs:complexType>
-  <xs:element name="OrcaItem" nillable="true" type="tns:OrcaItem" />
-  <xs:complexType name="RealTimeViewsItem">
-    <xs:complexContent mixed="false">
-      <xs:extension xmlns:q4="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" base="q4:BaseCrowdsourceItem">
-        <xs:sequence>
-          <xs:element minOccurs="0" name="EpgStartTime" type="xs:long" />
-          <xs:element minOccurs="0" name="ProgramId" type="xs:long" />
-          <xs:element minOccurs="0" name="ProgramImage" nillable="true" type="xs:string" />
-          <xs:element minOccurs="0" name="ProgramName" nillable="true" type="xs:string" />
-          <xs:element minOccurs="0" name="TypeDescription" nillable="true" type="xs:string" />
-          <xs:element minOccurs="0" name="Views" type="xs:int" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
+  <xs:element name="UserBasicData" nillable="true" type="tns:UserBasicData" />
+  <xs:complexType name="Country">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="m_nObjecrtID" type="xs:int" />
+      <xs:element minOccurs="0" name="m_sCountryCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sCountryName" nillable="true" type="xs:string" />
+    </xs:sequence>
   </xs:complexType>
-  <xs:element name="RealTimeViewsItem" nillable="true" type="tns:RealTimeViewsItem" />
+  <xs:element name="Country" nillable="true" type="tns:Country" />
+  <xs:complexType name="State">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="m_Country" nillable="true" type="tns:Country" />
+      <xs:element minOccurs="0" name="m_nObjecrtID" type="xs:int" />
+      <xs:element minOccurs="0" name="m_sStateCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sStateName" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="State" nillable="true" type="tns:State" />
+  <xs:complexType name="UserType">
+    <xs:annotation>
+      <xs:appinfo>
+        <IsValueType xmlns="http://schemas.microsoft.com/2003/10/Serialization/">true</IsValueType>
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Description" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ID" nillable="true" type="xs:int" />
+      <xs:element minOccurs="0" name="IsDefault" type="xs:boolean" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="UserType" nillable="true" type="tns:UserType" />
+  <xs:complexType name="UserDynamicData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="m_sUserData" nillable="true" type="tns:ArrayOfUserDynamicDataContainer" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="UserDynamicData" nillable="true" type="tns:UserDynamicData" />
+  <xs:complexType name="ArrayOfUserDynamicDataContainer">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="UserDynamicDataContainer" nillable="true" type="tns:UserDynamicDataContainer" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfUserDynamicDataContainer" nillable="true" type="tns:ArrayOfUserDynamicDataContainer" />
+  <xs:complexType name="UserDynamicDataContainer">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="m_sDataType" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sValue" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="UserDynamicDataContainer" nillable="true" type="tns:UserDynamicDataContainer" />
 </xs:schema>
