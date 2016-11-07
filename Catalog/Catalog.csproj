@@ -290,11 +290,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.map</DependentUpon>
     </Compile>
-    <Compile Include="Web References\ws_cas\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -342,110 +337,6 @@
     <None Include="Web References\Lucene_WCF\Service3.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Web References\ws_cas\AssetItemPriceResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\BillingResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\BillingStatusResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\BillingTransactions.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\CampaignActionInfo.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\ChangeSubscriptionStatus.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\CollectionsPricesContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\DomainsBillingTransactionsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\DomainServicesResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\DomainTransactionsHistoryResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\EntitlementResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\Entitlements.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\LicensedLinkResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\MediaFileItemPricesContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\MediaFileItemPricesContainerResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\module.wsdl" />
-    <None Include="Web References\ws_cas\NPVRResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\PermittedCollectionContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\PermittedMediaContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\PermittedMediaContainerResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\PermittedSubscriptionContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\PrePaidHistoryResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\PrePaidPricesContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\PrePaidResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\PurchaseSessionIdResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <None Include="Web References\ws_cas\Status.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\SubscriptionsPricesContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\SubscriptionsPricesResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\TransactionResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\UserBillingTransactionsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\UserBundlesResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\UserCAStatus.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\UserPrePaidContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\ws_cas\UserPurhcasedAssetsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
@@ -454,17 +345,6 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://localhost:82/ws_cas/module.asmx">
-      <UrlBehavior>Dynamic</UrlBehavior>
-      <RelPath>Web References\ws_cas\</RelPath>
-      <UpdateFromURL>http://localhost/WS_ConditionalAccess/module.asmx</UpdateFromURL>
-      <ServiceLocationURL>
-      </ServiceLocationURL>
-      <CachedDynamicPropName>
-      </CachedDynamicPropName>
-      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
-      <CachedSettingsPropName>Catalog_ws_cas_module</CachedSettingsPropName>
-    </WebReferenceUrl>
     <WebReferenceUrl Include="http://localhost/LuceneWCF2.0/service.svc">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\Lucene_WCF\</RelPath>
@@ -481,6 +361,10 @@
     <ProjectReference Include="..\..\ws_api\WS_API.csproj">
       <Project>{bef1df84-21c1-47da-bb2d-bb607ee1978e}</Project>
       <Name>WS_API</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ws_conditionalaccess\WS_ConditionalAccess.csproj">
+      <Project>{5368db6d-5ac3-432c-b1b6-43276d42a869}</Project>
+      <Name>WS_ConditionalAccess</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\ws_domains\WS_Domains.csproj">
       <Project>{359cfa7e-bee9-4bc8-b1f7-e53e64f28aa7}</Project>
@@ -581,9 +465,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Adapter\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Web References\ws_cas\module.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
