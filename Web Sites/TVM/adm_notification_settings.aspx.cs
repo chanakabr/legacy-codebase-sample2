@@ -133,6 +133,11 @@ public partial class adm_notification_settings : System.Web.UI.Page
             drTopicCeanup.Initialize("Topic cleanup expiration(days)", "adm_table_header_nbg", "FormInput", "topic_cleanup_expiration_days", false);
             theRecord.AddRecord(drTopicCeanup);
 
+            DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
+            dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
+            dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
+            theRecord.AddRecord(dr_groups);
+
             sTable = theRecord.GetTableHTML("adm_notification_settings.aspx?submited=1");
         }
         return sTable;
