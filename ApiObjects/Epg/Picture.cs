@@ -11,6 +11,8 @@ namespace ApiObjects.Epg
     [DataContract]
     public class EpgPicture
     {
+       
+
         [DataMember]
         public Int32 PicWidth { set; get; }
         [DataMember]
@@ -27,6 +29,11 @@ namespace ApiObjects.Epg
         [XmlIgnore]
         public int RatioId { set; get; }
 
+        [DataMember]
+        public string Id { set; get; }
+
+        [DataMember]
+        public Int32 Version { set; get; }
 
         public EpgPicture()
         {

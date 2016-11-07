@@ -763,6 +763,8 @@ namespace EpgBL
                                         pictureItem.Ratio = pict.Ratio;
                                         pictureItem.PicHeight = ratioItem.PicHeight;
                                         pictureItem.PicWidth = ratioItem.PicWidth;
+                                        pictureItem.Version = 0;
+                                        pictureItem.Id = picBaseName;
 
                                         // build image URL. 
                                         // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>/width/<image_width>/height/<image_height>/quality/<image_quality>

@@ -32,15 +32,5 @@ namespace ConditionalAccess.Properties {
                 return ((string)(this["ConditionalAccess_tikle_Service"]));
             }
         }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://54.72.1.39:8030/notification_v3_7/NotificationService.svc")]
-        public string ConditionalAccess_NotificationService_NotificationService {
-            get {
-                return ((string)(this["ConditionalAccess_NotificationService_NotificationService"]));
-            }
-        }
     }
 }

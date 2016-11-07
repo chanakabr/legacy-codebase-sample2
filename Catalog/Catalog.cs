@@ -1994,7 +1994,7 @@ namespace Catalog
                 for (int i = 1; i < 11; i++)
                 {
                     sFieldName = "META" + i.ToString() + "_BOOL_NAME";
-                    sFieldVal = "META" + i.ToString() + "BOOL";
+                    sFieldVal = "META" + i.ToString() + "_BOOL";
                     sFieldRelated = "IS_META" + i.ToString() + "_BOOL_RELATED";
                     if (dtMeta.Rows[0][sFieldName] != DBNull.Value)
                     {
@@ -4393,11 +4393,8 @@ namespace Catalog
                         domainId, groupId));
                 }
 
-                using (ws_cas.module cas = new ws_cas.module())
+                using (WS_ConditionalAccess.module cas = new WS_ConditionalAccess.module())
                 {
-                    string url = Utils.GetWSURL("ws_cas");
-                    cas.Url = url;
-
                     var recording = cas.GetRecordingByID(userName, password, domainId, domainRecordingId);
                     
                     // Validate recording
