@@ -1904,6 +1904,7 @@ namespace DAL
         public static bool ChangeSuspendDomainStatus(int nDomainID, int nGroupID, DomainSuspentionStatus nStatus)
         {
             StoredProcedure sp = new StoredProcedure("Update_DomainSuspendStatus");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@domainID", nDomainID);
             sp.AddParameter("@groupID", nGroupID);
             sp.AddParameter("@IsSuspended", nStatus);           
