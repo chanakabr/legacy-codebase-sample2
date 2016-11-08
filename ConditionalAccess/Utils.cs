@@ -51,7 +51,7 @@ namespace ConditionalAccess
 
         static public void GetBaseConditionalAccessImpl(ref ConditionalAccess.BaseConditionalAccess t, Int32 nGroupID)
         {
-            GetBaseConditionalAccessImpl(ref t, nGroupID, "");
+            GetBaseConditionalAccessImpl(ref t, nGroupID, "CA_CONNECTION_STRING");
         }
 
         static public void GetBaseConditionalAccessImpl(ref ConditionalAccess.BaseConditionalAccess oConditionalAccess, Int32 nGroupID, string sConnKey)
