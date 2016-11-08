@@ -529,7 +529,8 @@ namespace TVPApiServices
                             string socialFeedStr = streamReader.ReadToEnd();
                             try
                             {
-                                Dictionary<string, List<SocialFeedItem>> respFeed = new JavaScriptSerializer().Deserialize<SerializableDictionary<string, List<SocialFeedItem>>>(socialFeedStr).ToDictionary(item => item.Key, item => item.Value);
+                                Dictionary<string, List<SocialFeedItem>> respFeed = new JavaScriptSerializer().Deserialize<SerializableDictionary<string, List<SocialFeedItem>>>(socialFeedStr)
+                                    .ToDictionary(item => item.Key, item => item.Value);
 
                                 foreach (KeyValuePair<string, List<SocialFeedItem>> item in respFeed)
                                 {
