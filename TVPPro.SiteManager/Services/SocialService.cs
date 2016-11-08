@@ -109,7 +109,9 @@ namespace TVPPro.SiteManager.Services
                         m_nStartIndex = startIndex,
                         m_sSiteGuid = siteGuid
                     };
-                    res = m_Module.GetFriendsActions(wsUserName, wsPassword, friendActionRequest);
+                    var response = m_Module.GetFriendsActions(wsUserName, wsPassword, friendActionRequest);
+                    if (response != null)
+                        res = response.SocialActivity;
                 }
                 else
                 {
