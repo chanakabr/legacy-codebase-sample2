@@ -38,7 +38,7 @@ namespace DAL
         {
             ODBCWrapper.StoredProcedure spFBFriendsGuid = new ODBCWrapper.StoredProcedure("GetFBFriends");
             spFBFriendsGuid.SetConnectionKey("users_connection");
-            spFBFriendsGuid.AddIDListParameter<long>("@FBFriendList", lFBFriendsList, "Id");
+            spFBFriendsGuid.AddIDListParameter<string>("@FBFriendList", lFBFriendsList.Select(f => f.ToString()).ToList(), "STR");
             spFBFriendsGuid.AddParameter("@GroupID", m_nGroupID);
 
             DataSet ds = spFBFriendsGuid.ExecuteDataSet();
