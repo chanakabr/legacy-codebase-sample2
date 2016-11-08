@@ -369,6 +369,12 @@ namespace EpgBL
                 }
                 List<EpgCB> cbEpgs = m_oEpgCouchbase.GetProgram(docIDs);
                 result = ConvertEpgCBtoEpgProgramm(cbEpgs);
+
+                // get picture sizes from DB
+                List<Ratio> epgRatios = new List<Ratio>();
+                Dictionary<int, List<EpgPicture>> pictures = Tvinci.Core.DAL.CatalogDAL.GetGroupTreeMultiPicEpgUrl(m_nGroupID, ref epgRatios);
+
+                MutateFullEpgPicURL(result, pictures, m_nGroupID);
             }
             catch (Exception)
             {
