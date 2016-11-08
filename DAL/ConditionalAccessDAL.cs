@@ -406,7 +406,7 @@ namespace DAL
             if (usersIds.Count > 0 || domainID > 0)
             {
                 ODBCWrapper.StoredProcedure spGet_All_Users_PPV_modules = new ODBCWrapper.StoredProcedure("Get_UsersPermittedItems");
-                spGet_All_Users_PPV_modules.SetConnectionKey("CONNECTION_STRING");
+                spGet_All_Users_PPV_modules.SetConnectionKey("CA_CONNECTION_STRING");
                 if (usersIds.Count > 0)
                 {
                     spGet_All_Users_PPV_modules.AddIDListParameter<string>("@UserIDs", usersIds.Select(x => x.ToString()).ToList(), "Id");
@@ -431,7 +431,7 @@ namespace DAL
         public static DataTable Get_UsersPermittedSubscriptions(List<int> usersIds, bool isExpired, int domainID, int orderBy = 0)
         {
             ODBCWrapper.StoredProcedure spGet_All_Users_Permitted_Subscriptions = new ODBCWrapper.StoredProcedure("Get_UsersPermittedSubscriptions");
-            spGet_All_Users_Permitted_Subscriptions.SetConnectionKey("CONNECTION_STRING");
+            spGet_All_Users_Permitted_Subscriptions.SetConnectionKey("CA_CONNECTION_STRING");
             spGet_All_Users_Permitted_Subscriptions.AddIDListParameter<int>("@UserIDs", usersIds, "Id");
             spGet_All_Users_Permitted_Subscriptions.AddParameter("@isExpired", isExpired);
             spGet_All_Users_Permitted_Subscriptions.AddParameter("@DomainID", domainID);
@@ -447,7 +447,7 @@ namespace DAL
         public static DataTable Get_UsersPermittedCollections(List<int> usersIds, bool isExpired, int domainID, int orderBy = 0)
         {
             ODBCWrapper.StoredProcedure spGet_UsersPermittedCollections = new ODBCWrapper.StoredProcedure("Get_UsersPermittedCollections");
-            spGet_UsersPermittedCollections.SetConnectionKey("CONNECTION_STRING");
+            spGet_UsersPermittedCollections.SetConnectionKey("CA_CONNECTION_STRING");
             spGet_UsersPermittedCollections.AddIDListParameter<int>("@UserIDs", usersIds, "Id");
             spGet_UsersPermittedCollections.AddParameter("@isExpired", isExpired);
             spGet_UsersPermittedCollections.AddParameter("@DomainID", domainID);
@@ -500,7 +500,7 @@ namespace DAL
         public static DataTable Get_PreviewModuleIDsForEntitlementCalc(int nGroupID, string sSiteGUID, string sSubCode, DateTime dtStartLookFromThisDate)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PreviewModuleIDsForEntitlementCalc");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@GroupID", nGroupID);
             sp.AddParameter("@SiteGuid", sSiteGUID);
             sp.AddParameter("@SubscriptionCode", sSubCode);
@@ -516,7 +516,7 @@ namespace DAL
         public static bool Update_BusinessModulePurchaseIsActive(long lAdyenTransactionsID, bool bIsActive, int nPurchaseType, string sConnKey)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_BusinessModulePurchaseIsActive");
-            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CA_CONNECTION_STRING");
             sp.AddParameter("@IDInAdyenTransactions", lAdyenTransactionsID);
             sp.AddParameter("@IsActive", bIsActive ? 1 : 0);
             sp.AddParameter("@UpdateDate", DateTime.UtcNow);
@@ -528,7 +528,7 @@ namespace DAL
         public static DataTable Get_allDomainsPPVUsesUsingCollection(List<int> usersList, int groupID, int MediaFileID, int nBoxsetID)
         {
             ODBCWrapper.StoredProcedure spGet_allDomainsPPVUsesUsingCollection = new ODBCWrapper.StoredProcedure("Get_allDomainsPPVUsesUsingCollection");
-            spGet_allDomainsPPVUsesUsingCollection.SetConnectionKey("CONNECTION_STRING");
+            spGet_allDomainsPPVUsesUsingCollection.SetConnectionKey("CA_CONNECTION_STRING");
             spGet_allDomainsPPVUsesUsingCollection.AddIDListParameter<int>("@usersList", usersList, "Id");
             spGet_allDomainsPPVUsesUsingCollection.AddParameter("@groupID", groupID);
             spGet_allDomainsPPVUsesUsingCollection.AddParameter("@MediaFileID", MediaFileID);
@@ -544,7 +544,7 @@ namespace DAL
         public static DataTable Get_AllUsersPurchases(List<int> UserIDs, List<int> FileIds, int fileID)
         {
             ODBCWrapper.StoredProcedure spGet_AllUsersPurchases = new ODBCWrapper.StoredProcedure("Get_AllUsersPurchases");
-            spGet_AllUsersPurchases.SetConnectionKey("CONNECTION_STRING");
+            spGet_AllUsersPurchases.SetConnectionKey("CA_CONNECTION_STRING");
             spGet_AllUsersPurchases.AddIDListParameter<int>("@UserIDs", UserIDs, "Id");
             spGet_AllUsersPurchases.AddIDListParameter<int>("@FileIDs", FileIds, "Id");
             spGet_AllUsersPurchases.AddParameter("@nMediaFileID", fileID);
@@ -561,7 +561,7 @@ namespace DAL
         {
             bool res = false;
             ODBCWrapper.StoredProcedure spGet_AllUsersPurchases = new ODBCWrapper.StoredProcedure("Get_AllUsersPurchases");
-            spGet_AllUsersPurchases.SetConnectionKey("CONNECTION_STRING");
+            spGet_AllUsersPurchases.SetConnectionKey("CA_CONNECTION_STRING");
             spGet_AllUsersPurchases.AddIDListParameter<int>("@UserIDs", p_lstUserIDs, "Id");
             spGet_AllUsersPurchases.AddIDListParameter<int>("@FileIDs", p_lstFileIds, "Id");
             spGet_AllUsersPurchases.AddParameter("@nMediaFileID", p_nFileID);
@@ -605,7 +605,7 @@ namespace DAL
         public static DataTable Get_AllSubscriptionInfoByUsersIDs(List<int> UserIDs, List<int> nFileTypes)
         {
             ODBCWrapper.StoredProcedure spGet_AllSubscriptionInfoByUsersIDs = new ODBCWrapper.StoredProcedure("Get_AllSubscriptionInfoByUsersIDs");
-            spGet_AllSubscriptionInfoByUsersIDs.SetConnectionKey("CONNECTION_STRING");
+            spGet_AllSubscriptionInfoByUsersIDs.SetConnectionKey("CA_CONNECTION_STRING");
             spGet_AllSubscriptionInfoByUsersIDs.AddIDListParameter<int>("@usersList", UserIDs, "Id");
             spGet_AllSubscriptionInfoByUsersIDs.AddIDListParameter<int>("@fileTypesList", nFileTypes, "Id");
 
@@ -620,7 +620,7 @@ namespace DAL
         public static DataTable Get_AllCollectionInfoByUsersIDs(List<int> UserIDs)
         {
             ODBCWrapper.StoredProcedure spGet_AllCollectionInfoByUsersIDs = new ODBCWrapper.StoredProcedure("Get_AllCollectionInfoByUsersIDs");
-            spGet_AllCollectionInfoByUsersIDs.SetConnectionKey("CONNECTION_STRING");
+            spGet_AllCollectionInfoByUsersIDs.SetConnectionKey("CA_CONNECTION_STRING");
             spGet_AllCollectionInfoByUsersIDs.AddIDListParameter<int>("@usersList", UserIDs, "Id");
 
 
@@ -634,7 +634,7 @@ namespace DAL
         public static DataTable Get_AllSubscriptionInfoByUsersIDs(List<int> UserIDs)
         {
             ODBCWrapper.StoredProcedure spGet_AllSubscriptionInfoByUsersIDs = new ODBCWrapper.StoredProcedure("Get_AllSubscriptionInfoByUsersIDs");
-            spGet_AllSubscriptionInfoByUsersIDs.SetConnectionKey("CONNECTION_STRING");
+            spGet_AllSubscriptionInfoByUsersIDs.SetConnectionKey("CA_CONNECTION_STRING");
             spGet_AllSubscriptionInfoByUsersIDs.AddIDListParameter<int>("@usersList", UserIDs, "Id");
 
             DataSet ds = spGet_AllSubscriptionInfoByUsersIDs.ExecuteDataSet();
@@ -647,7 +647,7 @@ namespace DAL
         public static DataTable Get_SubscriptionBySubscriptionCodeAndUserIDs(List<int> UserIDs, string subscriptionCode, int domainID = 0)
         {
             ODBCWrapper.StoredProcedure spGet_SubscriptionBySubscriptionCodeAndUserIDs = new ODBCWrapper.StoredProcedure("Get_SubscriptionBySubscriptionCodeAndUserIDs");
-            spGet_SubscriptionBySubscriptionCodeAndUserIDs.SetConnectionKey("CONNECTION_STRING");
+            spGet_SubscriptionBySubscriptionCodeAndUserIDs.SetConnectionKey("CA_CONNECTION_STRING");
             spGet_SubscriptionBySubscriptionCodeAndUserIDs.AddIDListParameter<int>("@usersList", UserIDs, "Id");
             spGet_SubscriptionBySubscriptionCodeAndUserIDs.AddParameter("@subscriptionCode", subscriptionCode);
             spGet_SubscriptionBySubscriptionCodeAndUserIDs.AddParameter("@DomainID", domainID);
@@ -662,7 +662,7 @@ namespace DAL
         public static DataTable Get_CollectionByCollectionCodeAndUserIDs(List<int> UserIDs, string collectionCode, int domainID = 0)
         {
             ODBCWrapper.StoredProcedure spGet_CollectionByCollectionCodeAndUserIDs = new ODBCWrapper.StoredProcedure("Get_CollectionByCollectionCodeAndUserIDs");
-            spGet_CollectionByCollectionCodeAndUserIDs.SetConnectionKey("CONNECTION_STRING");
+            spGet_CollectionByCollectionCodeAndUserIDs.SetConnectionKey("CA_CONNECTION_STRING");
             spGet_CollectionByCollectionCodeAndUserIDs.AddIDListParameter<int>("@usersList", UserIDs, "Id");
             spGet_CollectionByCollectionCodeAndUserIDs.AddParameter("@collectionCode", collectionCode);
             spGet_CollectionByCollectionCodeAndUserIDs.AddParameter("@DomainID", domainID);
@@ -681,7 +681,7 @@ namespace DAL
                 UserIDs = new List<int>();
             }
             ODBCWrapper.StoredProcedure spGet_AllPPVPurchasesByUserIDsAndMediaFileID = new ODBCWrapper.StoredProcedure("Get_AllPPVPurchasesByUserIDsAndMediaFileID");
-            spGet_AllPPVPurchasesByUserIDsAndMediaFileID.SetConnectionKey("CONNECTION_STRING");
+            spGet_AllPPVPurchasesByUserIDsAndMediaFileID.SetConnectionKey("CA_CONNECTION_STRING");
             spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddParameter("@nMediaFileID", nMediaFileID);
             spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddIDListParameter<int>("@UserIDs", UserIDs, "Id");
             spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddParameter("@groupID", nGroupID);
@@ -698,7 +698,7 @@ namespace DAL
         public static DataTable Get_SubUsesByUserListFileIDAndSubCode(List<int> UserIDs, string subCode, int nMediaFileID, int nGroupID)
         {
             ODBCWrapper.StoredProcedure spGet_PPVUsesByUserListFileIDAndSubCode = new ODBCWrapper.StoredProcedure("Get_SubUsesByUserListFileIDAndSubCode");
-            spGet_PPVUsesByUserListFileIDAndSubCode.SetConnectionKey("CONNECTION_STRING");
+            spGet_PPVUsesByUserListFileIDAndSubCode.SetConnectionKey("CA_CONNECTION_STRING");
             spGet_PPVUsesByUserListFileIDAndSubCode.AddIDListParameter<int>("@usersList", UserIDs, "Id");
             spGet_PPVUsesByUserListFileIDAndSubCode.AddParameter("@subscriptionCode", subCode);
             spGet_PPVUsesByUserListFileIDAndSubCode.AddParameter("@mediaFileID", nMediaFileID);
@@ -715,7 +715,7 @@ namespace DAL
         public static DataTable Get_PreviewModuleDataForEntitlementCalc(int nGroupID, string sSiteGuid, string sSubCode, int domainID = 0)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PreviewModuleDataForEntitlementCalc");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@GroupID", nGroupID);
             sp.AddParameter("@SiteGuid", sSiteGuid);
             sp.AddParameter("@SubscriptionCode", sSubCode);
@@ -779,7 +779,7 @@ namespace DAL
             DateTime dtCreateAndUpdateDate, string sConnKey, int domainID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewMPPPurchase");
-            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CA_CONNECTION_STRING");
             sp.AddParameter("@GroupID", lGroupID);
             sp.AddParameter("@SubscriptionCode", sSubscriptionCode);
             sp.AddParameter("@SiteGuid", sSiteGuid);
@@ -818,7 +818,7 @@ namespace DAL
         public static DataTable Get_MPPsToRenew(DateTime dtMPPEndDateLessThanThis, long lGroupID, int nFailCount, string sConnKey)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MPPsToRenew");
-            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CA_CONNECTION_STRING");
             sp.AddParameter("@EndDate", dtMPPEndDateLessThanThis);
             sp.AddParameter("@GroupID", lGroupID);
             sp.AddParameter("@FailCount", nFailCount);
@@ -832,7 +832,7 @@ namespace DAL
         public static int Get_GroupFailCount(long lGroupID, string sConnKey)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_GroupFailCount");
-            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CA_CONNECTION_STRING");
             sp.AddParameter("@GroupID", lGroupID);
 
             return sp.ExecuteReturnValue<int>();
@@ -846,7 +846,7 @@ namespace DAL
         public static void Update_MPPRenewalData(long lPurchaseID, bool bIsRecurringStatus, DateTime dtNewEndDate, long lNumOfUses, string sConnKey, string siteGuid = null)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_MPPRenewalData");
-            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CA_CONNECTION_STRING");
             sp.AddParameter("@PurchaseID", lPurchaseID);
             sp.AddParameter("@IsRecurringStatus", bIsRecurringStatus ? 1 : 0);
             sp.AddParameter("@EndDate", dtNewEndDate);
@@ -860,7 +860,7 @@ namespace DAL
         public static void Update_SubscriptionPurchaseRenewalSiteGuid(int nGroupID, string billingGuid, int nPurchaseID, string siteGuid, string sConnKey)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_SubscriptionPurchaseRenewalSiteGuid");
-            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CA_CONNECTION_STRING");
             sp.AddParameter("@GroupID", nGroupID);
             sp.AddParameter("@BillingGuid", billingGuid);
             sp.AddParameter("@PurchaseID", nPurchaseID);
@@ -872,7 +872,7 @@ namespace DAL
         public static void Update_MPPFailCountByPurchaseID(long lPurchaseID, bool bTrueForIncrementingByOneFalseForSettingNewValue, int nNewValue, string sConnKey)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_MPPFailCountByPurchaseID");
-            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CA_CONNECTION_STRING");
             sp.AddParameter("@PurchaseID", lPurchaseID);
             if (bTrueForIncrementingByOneFalseForSettingNewValue)
             {
@@ -898,7 +898,7 @@ namespace DAL
             string result = string.Empty;
             numofRowsReturned = 0;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_FirstDeviceUsedByPPVModule");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@MediaFileID", nMediaFileID);
             sp.AddParameter("@PPVModuleCode", sPPVModuleCode);
             sp.AddIDListParameter("@UsersList", usersList, "id");
@@ -916,7 +916,7 @@ namespace DAL
         public static DataTable GetSubscriptionPurchaseID(int nSubscriptionsPurchasesID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_SubscriptionPurchaseID");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@nSubPurchaseID", nSubscriptionsPurchasesID);
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
@@ -927,7 +927,7 @@ namespace DAL
         public static long CancelSubscription(int nSubscriptionsPurchasesID, int nGroupID, string sSiteGUID, string nSubscriptionCode)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelSubscription");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@nID", nSubscriptionsPurchasesID);
             sp.AddParameter("@SiteGUID", sSiteGUID);
             sp.AddParameter("@GroupID", nGroupID);
@@ -941,7 +941,7 @@ namespace DAL
             string sSiteGuid, string sConnKey)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_MPPIsRecurringStatus");
-            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CA_CONNECTION_STRING");
             sp.AddParameter("@IsRecurringStatus", bIsSwitchOnRecurringStatus ? 1 : 0);
             sp.AddParameter("@UpdateDate", DateTime.UtcNow);
             sp.AddParameter("@GroupID", lGroupID);
@@ -966,7 +966,7 @@ namespace DAL
         public static bool Update_SubscriptionPurchaseEndDate(int? nID, string sSiteGuid, int? nBillingTransID, DateTime endDate)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_SubscriptionPurchaseEndDate");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             if (nID.HasValue)
                 sp.AddParameter("@SubscriptionPurchaseID", nID);
             if (nBillingTransID.HasValue)
@@ -984,7 +984,7 @@ namespace DAL
             DateTime dtCreateAndUpdateDate, string sConnKey, long domainID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewColPurchase");
-            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CA_CONNECTION_STRING");
             sp.AddParameter("@GroupID", lGroupID);
             sp.AddParameter("@CollectionCode", sCollectionCode);
             sp.AddParameter("@SiteGuid", sSiteGuid);
@@ -1027,7 +1027,7 @@ namespace DAL
         public static bool CancelPPVPurchaseTransaction(string sSiteGuid, int nAssetID, int domainID = 0)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelPPVPurchaseTransaction");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@CancellationDate", DateTime.UtcNow);
             sp.AddParameter("@SiteGuid", sSiteGuid);
             sp.AddParameter("@AssetID", nAssetID);
@@ -1039,7 +1039,7 @@ namespace DAL
         public static bool CancelSubscriptionPurchaseTransaction(string sSiteGuid, int nAssetID, int domainID = 0)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelSubscriptionPurchaseTransaction");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@CancellationDate", DateTime.UtcNow);
             sp.AddParameter("@SiteGuid", sSiteGuid);
             sp.AddParameter("@AssetID", nAssetID);
@@ -1051,7 +1051,7 @@ namespace DAL
         public static bool CancelCollectionPurchaseTransaction(string sSiteGuid, int nAssetID, int domainID = 0)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelCollectionPurchaseTransaction");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@CancellationDate", DateTime.UtcNow);
             sp.AddParameter("@SiteGuid", sSiteGuid);
             sp.AddParameter("@AssetID", nAssetID);
@@ -1063,7 +1063,7 @@ namespace DAL
         public static bool WaiverPPVPurchaseTransaction(string sSiteGuid, int nAssetID, int domainID = 0)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("WaiverPPVPurchaseTransaction");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@WaiverDate", DateTime.UtcNow);
             sp.AddParameter("@SiteGuid", sSiteGuid);
             sp.AddParameter("@AssetID", nAssetID);
@@ -1075,7 +1075,7 @@ namespace DAL
         public static bool WaiverSubscriptionPurchaseTransaction(string sSiteGuid, int nAssetID, int domainID = 0)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("WaiverSubscriptionPurchaseTransaction");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@WaiverDate", DateTime.UtcNow);
             sp.AddParameter("@SiteGuid", sSiteGuid);
             sp.AddParameter("@AssetID", nAssetID);
@@ -1087,7 +1087,7 @@ namespace DAL
         public static bool WaiverCollectionPurchaseTransaction(string sSiteGuid, int nAssetID, int domainID = 0)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("WaiverCollectionPurchaseTransaction");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@WaiverDate", DateTime.UtcNow);
             sp.AddParameter("@SiteGuid", sSiteGuid);
             sp.AddParameter("@AssetID", nAssetID);
@@ -1138,7 +1138,7 @@ namespace DAL
         public static int Get_SubscriptionUseCount(string sSiteGuid, string sSubCode, int nGroupID)
         {
             StoredProcedure sp = new StoredProcedure("Get_SubscriptionUseCount");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@SiteGuid", sSiteGuid);
             sp.AddParameter("@SubCode", sSubCode);
             sp.AddParameter("@GroupID", nGroupID);
@@ -1149,7 +1149,7 @@ namespace DAL
         public static int Get_PPVPurchaseCount(int nGroupID, string sSiteGuid, string sSubCode, long lMediaFileID)
         {
             StoredProcedure sp = new StoredProcedure("Get_PPVPurchaseCount");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@GroupID", nGroupID);
             sp.AddParameter("@SiteGuid", sSiteGuid);
             if (!string.IsNullOrEmpty(sSubCode))
@@ -1170,7 +1170,7 @@ namespace DAL
         {
             bool res = false;
             StoredProcedure sp = new StoredProcedure("Get_LatestCreateDateOfBundleUses");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@BundleCode", sBundleCode);
             sp.AddParameter("@GroupID", nGroupID);
             sp.AddIDListParameter<string>("@UsersInDomain", userIDs.Select(item => item.ToString()).ToList<string>(), "Id");
@@ -1195,7 +1195,7 @@ namespace DAL
         public static DataSet Get_AllBundlesInfoByUserIDs(List<int> lstUsers, List<int> lstFileTypes, int nGroupID, int domainID = 0)
         {
             StoredProcedure sp = new StoredProcedure("Get_AllBundlesInfoByUserIDs");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddIDListParameter("@Users", lstUsers, "ID");
             sp.AddIDListParameter("@FileTypes", lstFileTypes, "ID");
             sp.AddParameter("@Group_id", nGroupID);
@@ -1210,7 +1210,7 @@ namespace DAL
         {
             bool res = false;
             StoredProcedure sp = new StoredProcedure("Get_LatestCreateDateOfBundlesUses");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddIDListParameter("@Subscriptions", subscriptionsIDs, "ID");
             sp.AddIDListParameter("@Collections", collectionsIDs, "ID");
             sp.AddIDListParameter("@DomainUserIDs", domainUserIDs, "ID");
@@ -1265,7 +1265,7 @@ namespace DAL
         {
             bool res = false;
             StoredProcedure sp = new StoredProcedure("Get_AllDomainsPPVUsesUsingCollections");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddIDListParameter("@Users", lstDomainUsers, "ID");
             sp.AddParameter("@GroupID", nGroupID);
             sp.AddParameter("@MediaFileID", nMediaFileID);
@@ -1315,7 +1315,7 @@ namespace DAL
                 }
             }
             StoredProcedure sp = new StoredProcedure("Get_MultipleWSCredentials");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@GroupID", groupID);
             sp.AddIDListParameter("@Services", services, "ID");
 
@@ -1347,7 +1347,7 @@ namespace DAL
                 UserIDs = new List<int>();
             }
             ODBCWrapper.StoredProcedure spGet_AllPPVPurchasesByUserIDsAndMediaFileID = new ODBCWrapper.StoredProcedure("Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode");
-            spGet_AllPPVPurchasesByUserIDsAndMediaFileID.SetConnectionKey("CONNECTION_STRING");
+            spGet_AllPPVPurchasesByUserIDsAndMediaFileID.SetConnectionKey("CA_CONNECTION_STRING");
             spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddParameter("@SubscriptionCode", nSubscriptionCode);
             spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddIDListParameter<int>("@UserIDs", UserIDs, "Id");
             spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddParameter("@groupID", nGroupID);
@@ -1368,7 +1368,7 @@ namespace DAL
                 UserIDs = new List<int>();
             }
             ODBCWrapper.StoredProcedure spGet_AllPPVPurchasesByUserIDsAndMediaFileID = new ODBCWrapper.StoredProcedure("Get_AllCollectionPurchasesByUserIDsAndCollectionCode");
-            spGet_AllPPVPurchasesByUserIDsAndMediaFileID.SetConnectionKey("CONNECTION_STRING");
+            spGet_AllPPVPurchasesByUserIDsAndMediaFileID.SetConnectionKey("CA_CONNECTION_STRING");
             spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddParameter("@CollectionCode", nCollectionCode);
             spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddIDListParameter<int>("@UserIDs", UserIDs, "Id");
             spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddParameter("@groupID", nGroupID);
@@ -1385,7 +1385,7 @@ namespace DAL
         public static string Get_LicensedLinkSecretCode(long groupID)
         {
             StoredProcedure sp = new StoredProcedure("Get_LicensedLinkSecretCode");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@GroupID", groupID);
 
             DataSet ds = sp.ExecuteDataSet();
@@ -1468,7 +1468,7 @@ namespace DAL
         {
             bool res = false;
             StoredProcedure sp = new StoredProcedure("Get_IsLastViewData");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@PPVPurchaseID", ppvPurchaseID);
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
@@ -1489,7 +1489,7 @@ namespace DAL
         public static bool Update_PPVNumOfUses(long ppvPurchaseID, DateTime? newEndDate)
         {
             StoredProcedure sp = new StoredProcedure("Update_PPVNumOfUses");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@PPVPurchaseID", ppvPurchaseID);
             if (newEndDate == null)
             {
@@ -1507,7 +1507,7 @@ namespace DAL
             List<int> userIDs, int domainID = 0)
         {
             StoredProcedure sp = new StoredProcedure("Get_AllPPVPurchasesByUserIDsAndMediaFileIDs");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddIDListParameter<int>("@RelatedMediaFileIDs", relatedMediaFileIDs, "Id");
             sp.AddIDListParameter<int>("@UserIDs", userIDs, "Id");
             sp.AddParameter("@GroupID", groupID);
@@ -1522,7 +1522,7 @@ namespace DAL
         public static DataTable Get_AllDomainPPVUsesByMediaFiles(long groupID, List<int> usersInDomain, List<int> relatedMediaFileIDs, string sPPVMCd)
         {
             StoredProcedure sp = new StoredProcedure("Get_AllDomainPPVUsesByMediaFiles");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddIDListParameter<int>("@UsersInDomain", usersInDomain, "Id");
             sp.AddIDListParameter<int>("@RelatedMediaFileIDs", relatedMediaFileIDs, "Id");
             sp.AddParameter("@GroupID", groupID);
@@ -1541,7 +1541,7 @@ namespace DAL
         {
             bool res = false;
             StoredProcedure sp = new StoredProcedure("Get_LatestMediaFilesUse");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddIDListParameter<int>("@UsersList", usersList, "Id");
             sp.AddIDListParameter<int>("@MediaFileIDs", mediaFileIDs, "Id");
 
@@ -1566,7 +1566,7 @@ namespace DAL
             string countryCode, string langCode, string deviceName, int relPp, int relBoxSet)
         {
             StoredProcedure sp = new StoredProcedure("Insert_NewPPVUse");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@GroupID", groupID);
             sp.AddParameter("@MediaFileID", mediaFileID);
             sp.AddParameter("@PPVModuleCode", ppvModuleCode);
@@ -1608,7 +1608,7 @@ namespace DAL
             string countryCode, string langCode, string deviceName, int relPP)
         {
             StoredProcedure sp = new StoredProcedure("Insert_NewSubscriptionUse");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@GroupID", groupID);
             sp.AddParameter("@SubCode", subCode);
             sp.AddParameter("@MediaFileID", mediaFileID);
@@ -1648,7 +1648,7 @@ namespace DAL
         public static bool Update_SubPurchaseNumOfUses(long groupID, string siteGuid, string subCode)
         {
             StoredProcedure sp = new StoredProcedure("Update_SubPurchaseNumOfUses");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@GroupID", groupID);
             sp.AddParameter("@SiteGuid", siteGuid);
             sp.AddParameter("@SubCode", subCode);
@@ -1660,7 +1660,7 @@ namespace DAL
             string countryCode, string langCode, string deviceName)
         {
             StoredProcedure sp = new StoredProcedure("Insert_NewCollectionUse");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@GroupID", groupID);
             sp.AddParameter("@CollectionCode", collCode);
             sp.AddParameter("@MediaFileID", mediaFileID);
@@ -1688,7 +1688,7 @@ namespace DAL
         public static bool Update_ColPurchaseNumOfUses(string colCode, string siteGuid, long groupID)
         {
             StoredProcedure sp = new StoredProcedure("Update_ColPurchaseNumOfUses");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@ColCode", colCode);
             sp.AddParameter("@SiteGuid", siteGuid);
             sp.AddParameter("@GroupID", groupID);
@@ -1784,7 +1784,7 @@ namespace DAL
         {
             DataTable dtUserPurchases = null;
             StoredProcedure spStoredProcedure = new StoredProcedure("Get_UsersSubscriptionPurchases");
-            spStoredProcedure.SetConnectionKey("CONNECTION_STRING");
+            spStoredProcedure.SetConnectionKey("CA_CONNECTION_STRING");
             spStoredProcedure.AddIDListParameter<int>("@UserIDs", p_lstUsers, "Id");
             spStoredProcedure.AddParameter("@SubscriptionCode", p_sSubscriptionCode);
             spStoredProcedure.AddParameter("@DomainID", domainID);
@@ -1805,7 +1805,7 @@ namespace DAL
             long dlmID = 0;
 
             StoredProcedure sp = new StoredProcedure("Get_LastDomainDLM");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@GroupID", groupID);
             sp.AddParameter("@DomainID", domainID);
 
@@ -1848,7 +1848,7 @@ namespace DAL
             bool isRecurring, long billingTransactionID, long previewModuleID, DateTime subscriptionStartDate, DateTime subscriptionEndDate, DateTime createAndUpdateDate, long householdId, string billingGuid)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewMPPPurchase");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
 
             sp.AddParameter("@GroupID", groupID);
             sp.AddParameter("@SubscriptionCode", subscriptionCode);
@@ -1881,7 +1881,7 @@ namespace DAL
                                                   string billingGuid)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewColPurchase");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@GroupID", groupID);
             sp.AddParameter("@CollectionCode", collectionCode);
             sp.AddParameter("@SiteGuid", siteGUID);
@@ -1907,7 +1907,7 @@ namespace DAL
         public static bool UpdatePPVPurchaseActiveStatus(string billingGuid, int isActive)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_PPVPurchaseActiveStatus");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@is_active", isActive);
             sp.AddParameter("@billing_guid", billingGuid);
 
@@ -1917,7 +1917,7 @@ namespace DAL
         public static bool UpdateSubscriptionPurchaseActiveStatus(string billingGuid, int isActive, int isRecurringStatus)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_PPVPurchaseActiveStatus");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@is_active", isActive);
             sp.AddParameter("@billing_guid", billingGuid);
             sp.AddParameter("@is_recurring_status", isRecurringStatus);
@@ -1928,7 +1928,7 @@ namespace DAL
         public static bool UpdateCollectionPurchaseActiveStatus(string billingGuid, int isActive)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_PPVPurchaseActiveStatus");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@is_active", isActive);
             sp.AddParameter("@billing_guid", billingGuid);
 
@@ -1959,7 +1959,7 @@ namespace DAL
         public static DataRow Get_SubscriptionPurchaseForRenewal(int groupId, long subscriptionPurchaseId, string billingGuid)
         {
             ODBCWrapper.StoredProcedure spLastBillingTransactions = new ODBCWrapper.StoredProcedure("Get_SubscriptionPurchaseForRenewal");
-            spLastBillingTransactions.SetConnectionKey("CONNECTION_STRING");
+            spLastBillingTransactions.SetConnectionKey("CA_CONNECTION_STRING");
             spLastBillingTransactions.AddParameter("@GroupID", groupId);
             spLastBillingTransactions.AddParameter("@PurchaseId", subscriptionPurchaseId);
             spLastBillingTransactions.AddParameter("@BillingGuid", billingGuid);
@@ -1980,7 +1980,7 @@ namespace DAL
         public static bool Update_SubscriptionPurchaseRenewalActiveStatus(int groupId, long subscriptionPurchaseId, string billingGuid, int isActive)
         {
             ODBCWrapper.StoredProcedure spLastBillingTransactions = new ODBCWrapper.StoredProcedure("Update_SubscriptionPurchaseRenewalActiveStatus");
-            spLastBillingTransactions.SetConnectionKey("CONNECTION_STRING");
+            spLastBillingTransactions.SetConnectionKey("CA_CONNECTION_STRING");
             spLastBillingTransactions.AddParameter("@GroupID", groupId);
             spLastBillingTransactions.AddParameter("@PurchaseId", subscriptionPurchaseId);
             spLastBillingTransactions.AddParameter("@BillingGuid", billingGuid);
@@ -2052,7 +2052,7 @@ namespace DAL
         public static DataSet Get_AllBundlesInfoByUserIDsOrDomainID(int domainID, List<int> lstUsers, int nGroupID)
         {
             StoredProcedure spGet_AllBundlesInfoByUserIDsOrDomainID = new StoredProcedure("Get_AllBundlesInfoByUserIDsOrDomainID");
-            spGet_AllBundlesInfoByUserIDsOrDomainID.SetConnectionKey("CONNECTION_STRING");
+            spGet_AllBundlesInfoByUserIDsOrDomainID.SetConnectionKey("CA_CONNECTION_STRING");
             spGet_AllBundlesInfoByUserIDsOrDomainID.AddIDListParameter("@Users", lstUsers, "ID");
             spGet_AllBundlesInfoByUserIDsOrDomainID.AddParameter("@DomainID", domainID);
             spGet_AllBundlesInfoByUserIDsOrDomainID.AddParameter("@Group_id", nGroupID);
@@ -2063,7 +2063,7 @@ namespace DAL
         public static DataTable Get_AllSubscriptionsPurchasesByUsersIDsOrDomainID(int domainID, List<int> lstUsers, int nGroupID)
         {
             StoredProcedure sp= new StoredProcedure("Get_AllSubscriptionsPurchasesByUsersIDsOrDomainID");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddIDListParameter("@usersList", lstUsers, "ID");
             sp.AddParameter("@DomainID", domainID);
             sp.AddParameter("@Group_id", nGroupID);
@@ -2074,7 +2074,7 @@ namespace DAL
         public static bool Delete_PPVPurchases(List<int> ppvIds)
         {
             StoredProcedure sp = new StoredProcedure("Delete_PPVPurchases");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddIDListParameter("@ppv_purchase_ids", ppvIds, "ID");
             return sp.ExecuteReturnValue<int>() > 0;
         }
@@ -2082,7 +2082,7 @@ namespace DAL
         public static bool Update_PPVPurchaseDates(long ppvPurchaseId, DateTime startDate, DateTime endDate)
         {
             StoredProcedure sp = new StoredProcedure("Update_PPVPurchaseDates");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@ppv_purchase_id", ppvPurchaseId);
             sp.AddParameter("@start_date", startDate);
             sp.AddParameter("@end_date", endDate); 
@@ -2093,7 +2093,7 @@ namespace DAL
         public static bool Update_SubscriptionPurchaseDates(long subscriptionPurchaseId, DateTime startDate, DateTime endDate)
         {
             StoredProcedure sp = new StoredProcedure("Update_SubscriptionPurchaseDates");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@subscription_purchase_id", subscriptionPurchaseId);
             sp.AddParameter("@start_date", startDate);
             sp.AddParameter("@end_date", endDate);
@@ -2104,7 +2104,7 @@ namespace DAL
         public static bool Delete_SubscriptionPurchases(List<int> subscriptionIds)
         {
             StoredProcedure sp = new StoredProcedure("Delete_SubscriptionPurchases");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddIDListParameter("@subscription_purchase_ids", subscriptionIds, "ID");
             return sp.ExecuteReturnValue<int>() > 0;
         }
@@ -2112,7 +2112,7 @@ namespace DAL
         public static DataSet Get_RecurringSubscriptiosAndPendingPurchasesByPaymentMethod(int groupId, int domainId, int paymentMethodId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_RecurringSubscriptiosAndPendingPurchasesByPaymentMethod");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@GroupID", groupId);
             sp.AddParameter("@DomainID", domainId);
             sp.AddParameter("@PaymentMethodID", paymentMethodId);
@@ -2219,7 +2219,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_CDVRAdapter");
-                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.SetConnectionKey("CA_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@name", adapter.Name);
                 sp.AddParameter("@adapter_url", adapter.AdapterUrl);
@@ -2251,7 +2251,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CDVRAdpterByExternalD");
-                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.SetConnectionKey("CA_CONNECTION_STRING");
                 sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@external_identifier", externalIdentifier);
 
@@ -2273,7 +2273,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CDVRAdapter");
-                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.SetConnectionKey("CA_CONNECTION_STRING");
                 sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@id", adapterId);
                 sp.AddParameter("@status", status);
@@ -2300,7 +2300,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CDVRAdapters");
-                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.SetConnectionKey("CA_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@status", status);
                 if (isActive.HasValue)
@@ -2369,7 +2369,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_CDVRAdapterSharedSecret");
-                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.SetConnectionKey("CA_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupID);
                 sp.AddParameter("@id", adapterId);
                 sp.AddParameter("@sharedSecret", sharedSecret);
@@ -2391,7 +2391,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_CDVRAdapter");
-                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.SetConnectionKey("CA_CONNECTION_STRING");
                 sp.AddParameter("@ID", adapterId);
                 bool isDelete = sp.ExecuteReturnValue<bool>();
                 return isDelete;
@@ -2408,7 +2408,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_CDVRAdapter");
-                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.SetConnectionKey("CA_CONNECTION_STRING");
                 sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@ID", adapter.ID);
                 sp.AddParameter("@name", adapter.Name);
@@ -2499,7 +2499,7 @@ namespace DAL
         {
             DataTable dt = null;
             StoredProcedure spGetRenewSubscriptionsToRecover = new StoredProcedure("GetRenewSubscriptionsToRecover");
-            spGetRenewSubscriptionsToRecover.SetConnectionKey("CONNECTION_STRING");
+            spGetRenewSubscriptionsToRecover.SetConnectionKey("CA_CONNECTION_STRING");
             spGetRenewSubscriptionsToRecover.AddParameter("@GroupId", groupId);
             spGetRenewSubscriptionsToRecover.AddParameter("@EndDateStartRange", endDateStartRange);
             spGetRenewSubscriptionsToRecover.AddParameter("@EndDateEndRange", endDateEndRange);
