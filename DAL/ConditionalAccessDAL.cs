@@ -1994,6 +1994,7 @@ namespace DAL
             Dictionary<string, EntitlementObject> allEntitlments = new Dictionary<string, EntitlementObject>();
             DataTable dt = null;
             StoredProcedure spGet_AllUsersEntitlements = new ODBCWrapper.StoredProcedure("Get_AllUsersEntitlements");
+            spGet_AllUsersEntitlements.SetConnectionKey("CA_CONNECTION_STRING");
             spGet_AllUsersEntitlements.AddIDListParameter<int>("@UserIDs", lstUserIds, "Id");
             spGet_AllUsersEntitlements.AddParameter("@DomainID", domainID);
             dt = spGet_AllUsersEntitlements.Execute();
