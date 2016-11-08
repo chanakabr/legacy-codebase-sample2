@@ -7304,16 +7304,27 @@ namespace Catalog
                             defaultStartDate = true,
                             shouldUseFinalEndDate = true,
                             shouldUseStartDate = true,
-                            shouldAddActive = true,
-                            shouldSearchMedia = true,
+                            shouldAddActive = true
                         };
 
-                        searchDefinitions.specificAssets.Add(eAssetTypes.MEDIA, unFilteredresult.Where(x => x.AssetTypeId != (int)eAssetTypes.EPG &&
-                                                                                             x.AssetTypeId != (int)eAssetTypes.NPVR)
-                                                                                             .Select(x => x.AssetId).ToList());
+                        var listOfMedia = unFilteredresult.Where(
+                            x => x.AssetTypeId != (int)eAssetTypes.EPG && x.AssetTypeId != (int)eAssetTypes.NPVR)
+                                .Select(x => x.AssetId).ToList();
 
-                        searchDefinitions.specificAssets.Add(eAssetTypes.NPVR, unFilteredresult.Where(x => x.AssetTypeId == (int)eAssetTypes.NPVR)
-                                                                                             .Select(x => x.RecordingId.ToString()).ToList());
+                        if (listOfMedia.Count > 0)
+                        {
+                            searchDefinitions.specificAssets.Add(eAssetTypes.MEDIA, listOfMedia);
+                            searchDefinitions.shouldSearchMedia = true;
+                        }
+
+                        var listofRecordings = unFilteredresult.Where(x => x.AssetTypeId == (int)eAssetTypes.NPVR)
+                            .Select(x => x.RecordingId.ToString()).ToList();
+
+                        if (listofRecordings.Count > 0)
+                        {
+                            searchDefinitions.specificAssets.Add(eAssetTypes.NPVR, listofRecordings);
+                            searchDefinitions.shouldSearchRecordings = true;
+                        }
 
                         ElasticsearchWrapper esWrapper = new ElasticsearchWrapper();
                         int esTotalItems = 0, to = 0;
