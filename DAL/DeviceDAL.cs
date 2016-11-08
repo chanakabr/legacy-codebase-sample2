@@ -170,18 +170,13 @@ namespace DAL
             return res;
         }
 
-        public static long Get_IDInDevicesByDeviceUDID(string sDeviceUDID, int nGroupID, string sConnKey)
+        public static long Get_IDInDevicesByDeviceUDID(string sDeviceUDID, int nGroupID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_IDInDevicesByDeviceUDID");
-            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "USERS_CONNECTION_STRING");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@DeviceUDID", sDeviceUDID);
             sp.AddParameter("@GroupID", nGroupID);
             return sp.ExecuteReturnValue<long>();
-        }
-
-        public static long Get_IDInDevicesByDeviceUDID(string sDeviceUDID, int nGroupID)
-        {
-            return Get_IDInDevicesByDeviceUDID(sDeviceUDID, nGroupID, string.Empty);
         }
 
         public static DataTable Get_DeviceInfo(string sID, bool isUDID, int nGroupID)
