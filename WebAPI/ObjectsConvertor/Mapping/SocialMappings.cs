@@ -117,8 +117,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // SocialActivityDoc to KalturaSocialFriendActivity
             Mapper.CreateMap<SocialActivityDoc, KalturaSocialFriendActivity>()
-                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.ActivityObject.AssetID))
-                .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertToKalturaAssetType(src.ActivityObject.AssetType)))
                 .ForMember(dest => dest.SocialAction, opt => opt.MapFrom(src => src))
                 .ForMember(dest => dest.UserFullName, opt => opt.MapFrom(src => src.ActivitySubject.ActorTvinciUsername))
                 .ForMember(dest => dest.UserPictureUrl, opt => opt.MapFrom(src => src.ActivitySubject.ActorPicUrl));
@@ -147,11 +145,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 result = new KalturaSocialAction()
                 {
-                    ActionType = actionType
+                    Type = actionType
                 };
             }
 
-            result.ActionTime = action.LastUpdate;
+            result.Time = action.LastUpdate;
+            result.AssetId = action.ActivityObject.AssetID;
+            result.AssetType = ConvertToKalturaAssetType(action.ActivityObject.AssetType);
 
             return result;
         }

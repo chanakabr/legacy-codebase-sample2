@@ -29,22 +29,6 @@ namespace WebAPI.Models.Social
         public string UserPictureUrl { get; set; }
 
         /// <summary>
-        /// ID of the asset that was acted upon
-        /// </summary>
-        [DataMember(Name = "assetId")]
-        [JsonProperty("assetId")]
-        [XmlElement(ElementName = "assetId")]
-        public long? AssetId { get; set; }
-
-        /// <summary>
-        /// Type of the asset that was acted upon, currently only VOD (media)
-        /// </summary>
-        [DataMember(Name = "assetType")]
-        [JsonProperty("assetType")]
-        [XmlElement(ElementName = "assetType")]
-        public KalturaAssetType AssetType { get; set; }
-
-        /// <summary>
         /// The social action
         /// </summary>
         [DataMember(Name = "socialAction")]

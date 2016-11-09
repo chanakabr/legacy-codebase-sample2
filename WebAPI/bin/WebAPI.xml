@@ -7675,14 +7675,24 @@
             Profile picture URL
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Social.KalturaSocialAction.ActionType">
+        <member name="P:WebAPI.Models.Social.KalturaSocialAction.Type">
             <summary>
             Action type
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Social.KalturaSocialAction.ActionTime">
+        <member name="P:WebAPI.Models.Social.KalturaSocialAction.Time">
             <summary>
             EPOC based timestamp for when the action occurred
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialAction.AssetId">
+            <summary>
+            ID of the asset that was acted upon
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialAction.AssetType">
+            <summary>
+            Type of the asset that was acted upon, currently only VOD (media)
             </summary>
         </member>
         <member name="P:WebAPI.Models.Social.KalturaSocialActionRate.Rate">
@@ -7718,16 +7728,6 @@
         <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivity.UserPictureUrl">
             <summary>
             The URL of the profile picture of the user who did the social action
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivity.AssetId">
-            <summary>
-            ID of the asset that was acted upon
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivity.AssetType">
-            <summary>
-            Type of the asset that was acted upon, currently only VOD (media)
             </summary>
         </member>
         <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivity.SocialAction">

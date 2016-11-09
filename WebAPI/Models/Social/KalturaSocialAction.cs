@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
+using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Social
@@ -18,7 +19,7 @@ namespace WebAPI.Models.Social
         [DataMember(Name = "actionType")]
         [JsonProperty("actionType")]
         [XmlElement(ElementName = "actionType")]
-        public KalturaSocialActionType ActionType { get; set; }
+        public KalturaSocialActionType Type { get; set; }
 
         /// <summary>
         /// EPOC based timestamp for when the action occurred
@@ -26,7 +27,23 @@ namespace WebAPI.Models.Social
         [DataMember(Name = "actionTime")]
         [JsonProperty("actionTime")]
         [XmlElement(ElementName = "actionTime")]
-        public long? ActionTime { get; set; }
+        public long? Time { get; set; }
+
+        /// <summary>
+        /// ID of the asset that was acted upon
+        /// </summary>
+        [DataMember(Name = "assetId")]
+        [JsonProperty("assetId")]
+        [XmlElement(ElementName = "assetId")]
+        public long? AssetId { get; set; }
+
+        /// <summary>
+        /// Type of the asset that was acted upon, currently only VOD (media)
+        /// </summary>
+        [DataMember(Name = "assetType")]
+        [JsonProperty("assetType")]
+        [XmlElement(ElementName = "assetType")]
+        public KalturaAssetType AssetType { get; set; }
     }
 
     public class KalturaSocialActionRate : KalturaSocialAction
@@ -41,7 +58,7 @@ namespace WebAPI.Models.Social
 
         public KalturaSocialActionRate(int value)
         {
-            ActionType = KalturaSocialActionType.RATE;
+            Type = KalturaSocialActionType.RATE;
             Rate = value;
         }
     }
