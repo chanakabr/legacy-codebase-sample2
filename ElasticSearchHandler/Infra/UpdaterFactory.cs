@@ -22,7 +22,7 @@ namespace ElasticSearchHandler.Updaters
                     {
                         if (!string.IsNullOrEmpty(urlV1))
                         {
-                            result = new DualMediaUpdater(nGroupID, urlV1, urlV2);
+                            result = new DualChannelUpdater(nGroupID, urlV1, urlV2);
                         }
                         else
                         {
