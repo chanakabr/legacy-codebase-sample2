@@ -131,6 +131,7 @@ public partial class adm_notification_settings : System.Web.UI.Page
 
             DataRecordShortIntField drTopicCeanup = new DataRecordShortIntField(true, 6, 6, 0, 365);
             drTopicCeanup.Initialize("Topic cleanup expiration(days)", "adm_table_header_nbg", "FormInput", "topic_cleanup_expiration_days", false);
+            drTopicCeanup.SetDefault(365);
             theRecord.AddRecord(drTopicCeanup);
 
             DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
