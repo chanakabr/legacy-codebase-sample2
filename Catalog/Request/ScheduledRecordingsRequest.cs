@@ -1,6 +1,8 @@
-﻿using ApiObjects.Response;
+﻿using ApiObjects;
+using ApiObjects.Response;
+using ApiObjects.SearchObjects;
+using ApiObjects.TimeShiftedTv;
 using Catalog.Response;
-using Catalog.ws_cas;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -69,24 +71,14 @@ namespace Catalog.Request
                 // should we get the followed series
                 if (!isSingle)
                 {
-                    using (ws_cas.module cas = new ws_cas.module())
+                    using (WS_ConditionalAccess.module cas = new WS_ConditionalAccess.module())
                     {
-                        string url = Utils.GetWSURL("ws_cas");
-                        if (!string.IsNullOrEmpty(url))
-                        {
-                            cas.Url = url;
-                        }
-                        else
-                        {
-                            throw new Exception("CAS url is null or empty");
-                        }
-
                         SeriesResponse seriesResponse = cas.GetFollowSeries(wsUserName, wsPassword, m_sSiteGuid, domainId, new SeriesRecordingOrderObj());
                         if (seriesResponse != null && seriesResponse.Status != null && (seriesResponse.Status.Code == (int)eResponseStatus.OK || seriesResponse.Status.Code == (int)eResponseStatus.SeriesRecordingNotFound))
                         {
                             if (channelIds != null && channelIds.Count > 0)
                             {
-                                seriesResponse.SeriesRecordings = seriesResponse.SeriesRecordings.Where(x => channelIds.Contains(x.EpgChannelId)).ToArray();
+                                seriesResponse.SeriesRecordings = seriesResponse.SeriesRecordings.Where(x => channelIds.Contains(x.EpgChannelId)).ToList();
                             }
 
                             series = seriesResponse.SeriesRecordings.ToArray();
@@ -107,7 +99,7 @@ namespace Catalog.Request
                     {
                         if (channelIds != null && channelIds.Count > 0)
                         {
-                            domainRecordings.Recordings = domainRecordings.Recordings.Where(x => channelIds.Contains(x.ChannelId)).Select(x => x).ToArray();
+                            domainRecordings.Recordings = domainRecordings.Recordings.Where(x => channelIds.Contains(x.ChannelId)).Select(x => x).ToList();
                         }
                         
                         // get crids to exclude
@@ -120,15 +112,15 @@ namespace Catalog.Request
                         // get SINGLE scheduled recordings assets
                         if (scheduledRecordingAssetType != ApiObjects.ScheduledRecordingAssetType.SERIES)
                         {
-                            domainRecordings.Recordings = domainRecordings.Recordings.Where(x => x.Type == RecordingType.Single && x.RecordingStatus == TstvRecordingStatus.Scheduled).Select(x => x).ToArray();
+                            domainRecordings.Recordings = domainRecordings.Recordings.Where(x => x.Type == RecordingType.Single && x.RecordingStatus == TstvRecordingStatus.Scheduled).Select(x => x).ToList();
                             if (startDate.HasValue)
                             {
-                                domainRecordings.Recordings = domainRecordings.Recordings.Where(x => x.EpgStartDate > startDate.Value).Select(x => x).ToArray();
+                                domainRecordings.Recordings = domainRecordings.Recordings.Where(x => x.EpgStartDate > startDate.Value).Select(x => x).ToList();
                             }
 
                             if (endDate.HasValue)
                             {
-                                domainRecordings.Recordings = domainRecordings.Recordings.Where(x => x.EpgEndDate < endDate.Value).Select(x => x).ToArray();
+                                domainRecordings.Recordings = domainRecordings.Recordings.Where(x => x.EpgEndDate < endDate.Value).Select(x => x).ToList();
                             }
 
                             epgIdsToOrderAndPage = domainRecordings.Recordings.Select(x => x.EpgId).ToList();                            
@@ -179,18 +171,8 @@ namespace Catalog.Request
                                                                                     TstvRecordingStatus.Recorded, TstvRecordingStatus.Recording });
                 }
 
-                using (ws_cas.module cas = new ws_cas.module())
+                using (WS_ConditionalAccess.module cas = new WS_ConditionalAccess.module())
                 {
-                    string url = Utils.GetWSURL("ws_cas");
-                    if (!string.IsNullOrEmpty(url))
-                    {
-                        cas.Url = url;
-                    }
-                    else
-                    {
-                        throw new Exception("CAS url is null or empty");
-                    }
-
                     result = cas.SearchDomainRecordings(wsUserName, wsPassword, m_sSiteGuid, domainId, statusesToSearch.ToArray(), string.Empty, 0, 0,
                                                         new OrderObj() { m_eOrderBy = OrderBy.ID, m_eOrderDir = OrderDir.ASC }, true);
                 }
@@ -243,7 +225,7 @@ namespace Catalog.Request
                 {
                     season = (serie.SeasonNumber > 0 && !string.IsNullOrEmpty(seasonNumber)) ? string.Format("{0} = '{1}' ", seasonNumber, serie.SeasonNumber) : string.Empty;
                     seasonsToExclude = new StringBuilder();
-                    if (serie.ExcludedSeasons != null && serie.ExcludedSeasons.Length > 0)
+                    if (serie.ExcludedSeasons != null && serie.ExcludedSeasons.Count > 0)
                     {
                         foreach (int seasonNumberToExclude in serie.ExcludedSeasons)
                         {

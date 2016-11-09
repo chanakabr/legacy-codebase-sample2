@@ -54,6 +54,7 @@ namespace DAL
                         else if (nActive == 1)
                         {
                             selectQuery1 = new ODBCWrapper.DataSetSelectQuery();
+                            selectQuery1.SetConnectionKey("USERS_CONNECTION_STRING");
                             selectQuery1 += " select * from domains_devices WITH (nolock) where status=1 and";
                             selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", nDeviceID);
                             selectQuery1 += " and ";
@@ -170,18 +171,13 @@ namespace DAL
             return res;
         }
 
-        public static long Get_IDInDevicesByDeviceUDID(string sDeviceUDID, int nGroupID, string sConnKey)
+        public static long Get_IDInDevicesByDeviceUDID(string sDeviceUDID, int nGroupID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_IDInDevicesByDeviceUDID");
-            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "USERS_CONNECTION_STRING");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@DeviceUDID", sDeviceUDID);
             sp.AddParameter("@GroupID", nGroupID);
             return sp.ExecuteReturnValue<long>();
-        }
-
-        public static long Get_IDInDevicesByDeviceUDID(string sDeviceUDID, int nGroupID)
-        {
-            return Get_IDInDevicesByDeviceUDID(sDeviceUDID, nGroupID, string.Empty);
         }
 
         public static DataTable Get_DeviceInfo(string sID, bool isUDID, int nGroupID)
@@ -205,6 +201,7 @@ namespace DAL
             try
             {
                 selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 selectQuery += "select id from devices with (nolock) where ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", sDeviceUDID);
 

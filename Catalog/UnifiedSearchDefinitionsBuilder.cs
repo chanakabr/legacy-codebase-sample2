@@ -327,11 +327,8 @@ namespace Catalog
             }
 
             // Initialize web service
-            using (ws_cas.module cas = new ws_cas.module())
+            using (WS_ConditionalAccess.module cas = new WS_ConditionalAccess.module())
             {
-                string url = Utils.GetWSURL("ws_cas");
-                cas.Url = url;
-
                 var casResponse = cas.GetDomainSearchableRecordings(userName, password, domainId);
 
                 if (casResponse == null)

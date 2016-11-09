@@ -349,34 +349,38 @@ namespace ElasticSearch.Searcher
             {
                 foreach (var item in this.SearchDefinitions.specificAssets)
                 {
-                    ESTerms idsTerm = new ESTerms(true)
+                    // only if it has more than one value
+                    if (item.Value != null && item.Value.Count > 0)
                     {
-                        Key = "_id"
-                    };
+                        ESTerms idsTerm = new ESTerms(true)
+                        {
+                            Key = "_id"
+                        };
 
-                    idsTerm.Value.AddRange(item.Value);
+                        idsTerm.Value.AddRange(item.Value);
 
-                    switch (item.Key)
-                    {
-                        case ApiObjects.eAssetTypes.UNKNOWN:
-                        break;
-                        case ApiObjects.eAssetTypes.EPG:
+                        switch (item.Key)
                         {
-                            epgFilter.AddChild(idsTerm);
+                            case ApiObjects.eAssetTypes.UNKNOWN:
+                            break;
+                            case ApiObjects.eAssetTypes.EPG:
+                            {
+                                epgFilter.AddChild(idsTerm);
+                                break;
+                            }
+                            case ApiObjects.eAssetTypes.NPVR:
+                            {
+                                recordingFilter.AddChild(idsTerm);
+                                break;
+                            }
+                            case ApiObjects.eAssetTypes.MEDIA:
+                            {
+                                mediaFilter.AddChild(idsTerm);
+                                break;
+                            }
+                            default:
                             break;
                         }
-                        case ApiObjects.eAssetTypes.NPVR:
-                        {
-                            recordingFilter.AddChild(idsTerm);
-                            break;
-                        }
-                        case ApiObjects.eAssetTypes.MEDIA:
-                        {
-                            mediaFilter.AddChild(idsTerm);
-                            break;
-                        }
-                        default:
-                        break;
                     }
                 }
             }

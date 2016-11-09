@@ -32,15 +32,5 @@ namespace Catalog.Properties {
                 return ((string)(this["Catalog_Lucene_WCF_Service"]));
             }
         }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost:82/ws_cas/module.asmx")]
-        public string Catalog_ws_cas_module {
-            get {
-                return ((string)(this["Catalog_ws_cas_module"]));
-            }
-        }
     }
 }

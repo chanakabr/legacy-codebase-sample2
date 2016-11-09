@@ -112,6 +112,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WS_Users", "..\ws_users\WS_
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WS_Domains", "..\ws_domains\WS_Domains.csproj", "{359CFA7E-BEE9-4BC8-B1F7-E53E64F28AA7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WS_ConditionalAccess", "..\ws_conditionalaccess\WS_ConditionalAccess.csproj", "{5368DB6D-5AC3-432C-B1B6-43276D42A869}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -756,6 +758,18 @@ Global
 		{359CFA7E-BEE9-4BC8-B1F7-E53E64F28AA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{359CFA7E-BEE9-4BC8-B1F7-E53E64F28AA7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{359CFA7E-BEE9-4BC8-B1F7-E53E64F28AA7}.Release|x86.ActiveCfg = Release|Any CPU
+		{5368DB6D-5AC3-432C-B1B6-43276D42A869}.Basic|Any CPU.ActiveCfg = Local|Any CPU
+		{5368DB6D-5AC3-432C-B1B6-43276D42A869}.Basic|Any CPU.Build.0 = Local|Any CPU
+		{5368DB6D-5AC3-432C-B1B6-43276D42A869}.Basic|x86.ActiveCfg = Local|Any CPU
+		{5368DB6D-5AC3-432C-B1B6-43276D42A869}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5368DB6D-5AC3-432C-B1B6-43276D42A869}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5368DB6D-5AC3-432C-B1B6-43276D42A869}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5368DB6D-5AC3-432C-B1B6-43276D42A869}.Local|Any CPU.ActiveCfg = Local|Any CPU
+		{5368DB6D-5AC3-432C-B1B6-43276D42A869}.Local|Any CPU.Build.0 = Local|Any CPU
+		{5368DB6D-5AC3-432C-B1B6-43276D42A869}.Local|x86.ActiveCfg = Local|Any CPU
+		{5368DB6D-5AC3-432C-B1B6-43276D42A869}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5368DB6D-5AC3-432C-B1B6-43276D42A869}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5368DB6D-5AC3-432C-B1B6-43276D42A869}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

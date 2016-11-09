@@ -187,6 +187,7 @@ namespace Users
             try
             {
                 selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 selectQuery += "select id from devices with (nolock) where status=1";
                 selectQuery += "and";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", sDeviceUDID);
@@ -358,6 +359,7 @@ namespace Users
 
                     //Search for new PIN in devices table - if found, regenerate, else, return new PIN
                     selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                    selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                     selectQuery += "select * from devices with (nolock) where status=1 and";
                     selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_groupID);
                     selectQuery += "and";
@@ -408,7 +410,7 @@ namespace Users
 
         public static int GetDeviceIDByUDID(string sUDID, int nGroupID)
         {
-            return (int)DeviceDal.Get_IDInDevicesByDeviceUDID(sUDID, nGroupID, "CONNECTION_STRING");
+            return (int)DeviceDal.Get_IDInDevicesByDeviceUDID(sUDID, nGroupID);
         }
 
         private bool InitDeviceInfo(string sID, bool isUDID)
@@ -461,6 +463,7 @@ namespace Users
 
 
                 selectQuery1 = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery1.SetConnectionKey("USERS_CONNECTION_STRING");
                 selectQuery1 += "select domain_id, last_activation_date, is_active from domains_devices with (nolock) where status=1 and";
                 selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", nDeviceID);
                 if (selectQuery1.Execute("query", true) != null)

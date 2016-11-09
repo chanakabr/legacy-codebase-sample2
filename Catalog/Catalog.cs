@@ -1994,7 +1994,7 @@ namespace Catalog
                 for (int i = 1; i < 11; i++)
                 {
                     sFieldName = "META" + i.ToString() + "_BOOL_NAME";
-                    sFieldVal = "META" + i.ToString() + "BOOL";
+                    sFieldVal = "META" + i.ToString() + "_BOOL";
                     sFieldRelated = "IS_META" + i.ToString() + "_BOOL_RELATED";
                     if (dtMeta.Rows[0][sFieldName] != DBNull.Value)
                     {
@@ -4393,11 +4393,8 @@ namespace Catalog
                         domainId, groupId));
                 }
 
-                using (ws_cas.module cas = new ws_cas.module())
+                using (WS_ConditionalAccess.module cas = new WS_ConditionalAccess.module())
                 {
-                    string url = Utils.GetWSURL("ws_cas");
-                    cas.Url = url;
-
                     var recording = cas.GetRecordingByID(userName, password, domainId, domainRecordingId);
                     
                     // Validate recording
@@ -7307,16 +7304,27 @@ namespace Catalog
                             defaultStartDate = true,
                             shouldUseFinalEndDate = true,
                             shouldUseStartDate = true,
-                            shouldAddActive = true,
-                            shouldSearchMedia = true,
+                            shouldAddActive = true
                         };
 
-                        searchDefinitions.specificAssets.Add(eAssetTypes.MEDIA, unFilteredresult.Where(x => x.AssetTypeId != (int)eAssetTypes.EPG &&
-                                                                                             x.AssetTypeId != (int)eAssetTypes.NPVR)
-                                                                                             .Select(x => x.AssetId).ToList());
+                        var listOfMedia = unFilteredresult.Where(
+                            x => x.AssetTypeId != (int)eAssetTypes.EPG && x.AssetTypeId != (int)eAssetTypes.NPVR)
+                                .Select(x => x.AssetId).ToList();
 
-                        searchDefinitions.specificAssets.Add(eAssetTypes.NPVR, unFilteredresult.Where(x => x.AssetTypeId == (int)eAssetTypes.NPVR)
-                                                                                             .Select(x => x.RecordingId.ToString()).ToList());
+                        if (listOfMedia.Count > 0)
+                        {
+                            searchDefinitions.specificAssets.Add(eAssetTypes.MEDIA, listOfMedia);
+                            searchDefinitions.shouldSearchMedia = true;
+                        }
+
+                        var listofRecordings = unFilteredresult.Where(x => x.AssetTypeId == (int)eAssetTypes.NPVR)
+                            .Select(x => x.RecordingId.ToString()).ToList();
+
+                        if (listofRecordings.Count > 0)
+                        {
+                            searchDefinitions.specificAssets.Add(eAssetTypes.NPVR, listofRecordings);
+                            searchDefinitions.shouldSearchRecordings = true;
+                        }
 
                         ElasticsearchWrapper esWrapper = new ElasticsearchWrapper();
                         int esTotalItems = 0, to = 0;

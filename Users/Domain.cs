@@ -778,7 +778,10 @@ namespace Users
                         }
                     }
 
-                    return true;
+                    if (!bContinue)
+                    {
+                        return true;
+                    }
                 }
 
                 // if the values are  (isActive  = -1;nDeviceID = -1;) domain not exsits in cache - go get data from DB

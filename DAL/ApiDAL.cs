@@ -2248,31 +2248,50 @@ namespace DAL
 
         private static OSSAdapter CreateOSSAdapter(DataSet ds)
         {
-            OSSAdapter ossAdapterRes = null;
-
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
             {
-                ossAdapterRes = new OSSAdapter();
-                ossAdapterRes.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
-                ossAdapterRes.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "external_identifier");
-                ossAdapterRes.ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
-                int is_Active = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
-                ossAdapterRes.IsActive = is_Active == 1 ? true : false;
-                ossAdapterRes.Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "name");
-                ossAdapterRes.SharedSecret = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "shared_secret");
+                DataRow adapterRow = ds.Tables[0].Rows[0];
+                DataTable settingsTable = null;
 
                 if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
                 {
-                    foreach (DataRow dr in ds.Tables[1].Rows)
+                    settingsTable = ds.Tables[1];
+                }
+
+                return CreateOSSAdapter(adapterRow, settingsTable);
+            }
+
+            return null;
+        }
+
+        private static OSSAdapter CreateOSSAdapter(DataRow adapterRow, DataTable settingsTable)
+        {
+            OSSAdapter ossAdapterRes = null;
+
+            ossAdapterRes = new OSSAdapter();
+            ossAdapterRes.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(adapterRow, "adapter_url");
+            ossAdapterRes.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(adapterRow, "external_identifier");
+            ossAdapterRes.ID = ODBCWrapper.Utils.GetIntSafeVal(adapterRow, "ID");
+            int is_Active = ODBCWrapper.Utils.GetIntSafeVal(adapterRow, "is_active");
+            ossAdapterRes.IsActive = is_Active == 1 ? true : false;
+            ossAdapterRes.Name = ODBCWrapper.Utils.GetSafeStr(adapterRow, "name");
+            ossAdapterRes.SharedSecret = ODBCWrapper.Utils.GetSafeStr(adapterRow, "shared_secret");
+
+            if (settingsTable != null)
+            {
+                foreach (DataRow dr in settingsTable.Rows)
+                {
+                    int ossAdapterId = ODBCWrapper.Utils.GetIntSafeVal(dr, "OSS_Adapter_id");
+                    if (ossAdapterId != ossAdapterRes.ID)
+                        continue;
+
+                    string key = ODBCWrapper.Utils.GetSafeStr(dr, "key");
+                    string value = ODBCWrapper.Utils.GetSafeStr(dr, "value");
+                    if (ossAdapterRes.Settings == null)
                     {
-                        string key = ODBCWrapper.Utils.GetSafeStr(dr, "key");
-                        string value = ODBCWrapper.Utils.GetSafeStr(dr, "value");
-                        if (ossAdapterRes.Settings == null)
-                        {
-                            ossAdapterRes.Settings = new List<OSSAdapterSettings>();
-                        }
-                        ossAdapterRes.Settings.Add(new OSSAdapterSettings(key, value));
+                        ossAdapterRes.Settings = new List<OSSAdapterSettings>();
                     }
+                    ossAdapterRes.Settings.Add(new OSSAdapterSettings(key, value));
                 }
             }
 
@@ -2374,9 +2393,9 @@ namespace DAL
         }
 
 
-        public static List<OSSAdapterBase> GetOSSAdapterList(int groupID, int status = 1, int isActive = 1)
+        public static List<OSSAdapter> GetOSSAdapterList(int groupID, int status = 1, int isActive = 1)
         {
-            List<OSSAdapterBase> res = new List<OSSAdapterBase>();
+            List<OSSAdapter> res = new List<OSSAdapter>();
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_OSSAdapterList");
@@ -2387,14 +2406,19 @@ namespace DAL
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
                     DataTable dtResult = ds.Tables[0];
+                    DataTable settingsTable = null;
+
+                    if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
+                    {
+                        settingsTable = ds.Tables[1];
+                    }
+
                     if (dtResult != null && dtResult.Rows != null && dtResult.Rows.Count > 0)
                     {
-                        OSSAdapterBase ossAdapter = null;
+                        OSSAdapter ossAdapter = null;
                         foreach (DataRow dr in dtResult.Rows)
                         {
-                            ossAdapter = new OSSAdapterBase();
-                            ossAdapter.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
-                            ossAdapter.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                            ossAdapter = CreateOSSAdapter(dr, settingsTable);
                             res.Add(ossAdapter);
                         }
                     }
@@ -2403,7 +2427,7 @@ namespace DAL
             catch (Exception ex)
             {
                 log.Error(string.Empty, ex);
-                res = new List<OSSAdapterBase>();
+                res = new List<OSSAdapter>();
             }
             return res;
         }

@@ -370,6 +370,12 @@ namespace EpgBL
                 }
                 List<EpgCB> cbEpgs = m_oEpgCouchbase.GetProgram(docIDs);
                 result = ConvertEpgCBtoEpgProgramm(cbEpgs);
+
+                // get picture sizes from DB
+                List<Ratio> epgRatios = new List<Ratio>();
+                Dictionary<int, List<EpgPicture>> pictures = Tvinci.Core.DAL.CatalogDAL.GetGroupTreeMultiPicEpgUrl(m_nGroupID, ref epgRatios);
+
+                MutateFullEpgPicURL(result, pictures, m_nGroupID);
             }
             catch (Exception)
             {
@@ -763,6 +769,8 @@ namespace EpgBL
                                         pictureItem.Ratio = pict.Ratio;
                                         pictureItem.PicHeight = ratioItem.PicHeight;
                                         pictureItem.PicWidth = ratioItem.PicWidth;
+                                        pictureItem.Version = 0;
+                                        pictureItem.Id = picBaseName;
 
                                         // build image URL. 
                                         // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>/width/<image_width>/height/<image_height>/quality/<image_quality>

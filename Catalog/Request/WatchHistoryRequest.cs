@@ -75,8 +75,8 @@ namespace Catalog.Request
 
                 List<int> excludedAssetTypes = new List<int>() { (int)eAssetTypes.EPG };
 
-                // If asset types contains NPVR explicitly, don't exlcude it.
-                if (!AssetTypes.Contains((int)eAssetTypes.NPVR))
+                // If asset types contains NPVR explicitly, don't exclude it.
+                if (AssetTypes == null || !AssetTypes.Contains((int)eAssetTypes.NPVR))
                 {
                     excludedAssetTypes.Add((int)eAssetTypes.NPVR);
                 }
