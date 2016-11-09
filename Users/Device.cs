@@ -267,6 +267,7 @@ namespace Users
                 try
                 {
                     updateQuery = new ODBCWrapper.UpdateQuery("devices");
+                    updateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Name", "=", m_deviceName);
 
                     if (nIsActive != -1)

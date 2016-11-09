@@ -237,6 +237,21 @@ namespace ApiObjects.Response
         // social 7000 - 7999
         Conflict = 7000,
         MinFriendsLimitation = 7001,
+        NoUserSocialSettingsFound = 7002,
+        AssetAlreadyLiked = 7003,
+        SocialActionPrivacyDontAllow = 7004,
+        EmptyFacebookObjectId = 7005,
+        UnknownAction = 7006,
+        InvalidAccessToken = 7007,
+        InvalidPlatformRequest = 7008,
+        AssetDoseNotExists = 7009,
+        InvalidParameters = 7010,
+        UserDoseNotExists = 7011,
+        NoFacebookAction = 7012,
+        NotAllowed = 7013,
+                   
+       /* MEDIA_ALEADY_FOLLOWED = 12,
+        MEDIA_ALREADY_RATED = 14,*/
 
         // notification 8000-8999
         NoNotificationSettingsSent = 8000,

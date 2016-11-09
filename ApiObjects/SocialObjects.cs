@@ -8,6 +8,7 @@ using System.Text;
 using System.Xml.Serialization;
 using System.Web.Script.Serialization;
 using ApiObjects.Response;
+using ApiObjects.Social;
 
 namespace ApiObjects
 {
@@ -60,6 +61,12 @@ namespace ApiObjects
         RATES = 128,
         FOLLOWS = 256,
         UNFOLLOW = 512
+    }
+
+    public enum SocialActionShare
+    {
+        Internal = 0,
+        External = 1
     }
 
     public enum SocialAction
@@ -275,7 +282,7 @@ namespace ApiObjects
         }
     }
 
-    public class FacebookConfig
+    public class FacebookConfig : PlatformConfig
     {
         public string sFBKey;
         public string sFBSecret;
