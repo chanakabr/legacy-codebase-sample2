@@ -209,7 +209,7 @@ namespace ElasticSearchHandler.IndexBuilders
                                     UnifiedSearchDefinitions definitions = ElasticsearchTasksCommon.Utils.BuildSearchDefinitions(currentChannel, true);
 
                                     unifiedQueryBuilder.SearchDefinitions = definitions;
-                                    channelQuery = unifiedQueryBuilder.BuildSearchQueryString();
+                                    channelQuery = unifiedQueryBuilder.BuildSearchQueryString(true);
                                 }
                             }
                             catch (KalturaException ex)

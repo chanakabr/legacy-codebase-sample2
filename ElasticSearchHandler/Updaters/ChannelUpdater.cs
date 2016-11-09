@@ -173,7 +173,7 @@ namespace ElasticSearchHandler.Updaters
                             isEpg = definitions.shouldSearchEpg;
 
                             var unifiedQueryBuilder = new ESUnifiedQueryBuilder(definitions);
-                            channelQuery = unifiedQueryBuilder.BuildSearchQueryString();
+                            channelQuery = unifiedQueryBuilder.BuildSearchQueryString(true);
                         }
                         else
                         {
