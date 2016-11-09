@@ -3170,12 +3170,19 @@
             <param name="type">Social network type</param>
             <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.SocialController.GetConfiguration(System.Int32,WebAPI.Models.Social.KalturaSocialNetwork)">
+        <member name="M:WebAPI.Controllers.SocialController.GetConfiguration(System.Nullable{WebAPI.Models.Social.KalturaSocialNetwork},System.Nullable{System.Int32})">
             <summary>
             Retrieve the social network’s configuration information 
             </summary>        
             <param name="type">Social network type</param>
             <param name="partnerId">Partner identifier</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.SocialController.UpdateConfiguration(WebAPI.Models.Social.KalturaSocialConfig)">
+            <summary>
+            Set the user social network’s configuration information 
+            </summary>      
+            <param name="configuration">The social action settings</param>
             <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.TransactionController.Purchase(WebAPI.Models.ConditionalAccess.KalturaPurchase)">
@@ -7633,6 +7640,42 @@
             The create date from which to get the comments 
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialNetworkComment.LikeCounter">
+            <summary>
+            Number of likes
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialNetworkComment.WriterImageUrl">
+            <summary>
+            The URL of the profile picture of the writer
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaFacebookPost.Comments">
+            <summary>
+            List of comments on the post
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaFacebookPost.Link">
+            <summary>
+            A link associated to the post
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialCommentListResponse.Objects">
+            <summary>
+            Social comments list
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "P:WebAPI.Models.Social.KalturaActionPermissionItem.Network" -->
+        <member name="P:WebAPI.Models.Social.KalturaActionPermissionItem.ActionPrivacy">
+            <summary>
+            ActionPrivacy 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaActionPermissionItem.Privacy">
+            <summary>
+            Privacy
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Social.KalturaSocial.ID">
             <summary>
             Facebook identifier
@@ -7684,14 +7727,24 @@
             Profile picture URL
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Social.KalturaSocialAction.ActionType">
+        <member name="P:WebAPI.Models.Social.KalturaSocialAction.Type">
             <summary>
             Action type
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Social.KalturaSocialAction.ActionTime">
+        <member name="P:WebAPI.Models.Social.KalturaSocialAction.Time">
             <summary>
             EPOC based timestamp for when the action occurred
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialAction.AssetId">
+            <summary>
+            ID of the asset that was acted upon
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialAction.AssetType">
+            <summary>
+            Type of the asset that was acted upon, currently only VOD (media)
             </summary>
         </member>
         <member name="P:WebAPI.Models.Social.KalturaSocialActionRate.Rate">
@@ -7699,42 +7752,22 @@
             The value of the rating
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Social.KalturaSocialNetworkComment.LikeCounter">
-            <summary>
-            Number of likes
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Social.KalturaSocialNetworkComment.WriterImageUrl">
-            <summary>
-            The URL of the profile picture of the writer
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Social.KalturaFacebookPost.Comments">
-            <summary>
-            List of comments on the post
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Social.KalturaFacebookPost.Link">
-            <summary>
-            A link associated to the post
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Social.KalturaSocialCommentListResponse.Objects">
-            <summary>
-            Social comments list
-            </summary>
-        </member>
         <member name="T:WebAPI.Models.Social.KalturaSocialConfig">
+            <summary>
+            Returns social configuration for the partner 
+            </summary>  
+        </member>
+        <member name="T:WebAPI.Models.Social.KalturaSocialFacebookConfig">
             <summary>
             Returns social configuration for the partner 
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Social.KalturaSocialConfig.AppId">
+        <member name="P:WebAPI.Models.Social.KalturaSocialFacebookConfig.AppId">
              <summary>
             The application identifier
              </summary>
         </member>
-        <member name="P:WebAPI.Models.Social.KalturaSocialConfig.Permissions">
+        <member name="P:WebAPI.Models.Social.KalturaSocialFacebookConfig.Permissions">
             <summary>
             List of application permissions
             </summary>
@@ -7747,16 +7780,6 @@
         <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivity.UserPictureUrl">
             <summary>
             The URL of the profile picture of the user who did the social action
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivity.AssetId">
-            <summary>
-            ID of the asset that was acted upon
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivity.AssetType">
-            <summary>
-            Type of the asset that was acted upon, currently only VOD (media)
             </summary>
         </member>
         <member name="P:WebAPI.Models.Social.KalturaSocialFriendActivity.SocialAction">
@@ -7963,6 +7986,11 @@
         <member name="P:WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings.NonExistingChannelPlaybackEnabled">
             <summary>
              Is recording playback for non-existing channel enables 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialUserConfig.PermissionItems">
+            <summary>
+            List of action permission items
             </summary>
         </member>
         <member name="T:WebAPI.Models.Users.KalturaFavoriteFilter">

@@ -1,0 +1,2806 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://social.tvinci.com/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://social.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://social.tvinci.com/">
+      <s:element name="GetUsersLikedMedia">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nSiteGUID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="nMediaID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="nPlatform" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="bOnlyFriends" type="s:boolean" />
+            <s:element minOccurs="1" maxOccurs="1" name="nStartIndex" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="nNumberOfItems" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUsersLikedMediaResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUsersLikedMediaResult" type="tns:ArrayOfString" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfString">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="string" nillable="true" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetAllFriendsWatched">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nSiteGUID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="nMaxResults" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetAllFriendsWatchedResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetAllFriendsWatchedResult" type="tns:ArrayOfFriendWatchedObject" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfFriendWatchedObject">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="FriendWatchedObject" nillable="true" type="tns:FriendWatchedObject" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="FriendWatchedObject">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="SiteGuid" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="MediaID" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="UpdateDate" type="s:dateTime" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetFriendsWatchedByMedia">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nSiteGUID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="nMediaID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetFriendsWatchedByMediaResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetFriendsWatchedByMediaResult" type="tns:ArrayOfFriendWatchedObject" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserSocialPrivacy">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nSiteGUID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="eSocialPlatform" type="tns:SocialPlatform" />
+            <s:element minOccurs="1" maxOccurs="1" name="eAction" type="tns:eUserAction" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:simpleType name="SocialPlatform">
+        <s:restriction base="s:string">
+          <s:enumeration value="UNKNOWN" />
+          <s:enumeration value="FACEBOOK" />
+          <s:enumeration value="GOOGLE" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="eUserAction">
+        <s:list>
+          <s:simpleType>
+            <s:restriction base="s:string">
+              <s:enumeration value="UNKNOWN" />
+              <s:enumeration value="LIKE" />
+              <s:enumeration value="UNLIKE" />
+              <s:enumeration value="SHARE" />
+              <s:enumeration value="POST" />
+              <s:enumeration value="WATCHES" />
+              <s:enumeration value="WANTS_TO_WATCH" />
+              <s:enumeration value="RATES" />
+              <s:enumeration value="FOLLOWS" />
+              <s:enumeration value="UNFOLLOW" />
+            </s:restriction>
+          </s:simpleType>
+        </s:list>
+      </s:simpleType>
+      <s:element name="GetUserSocialPrivacyResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetUserSocialPrivacyResult" type="tns:eSocialPrivacy" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:simpleType name="eSocialPrivacy">
+        <s:restriction base="s:string">
+          <s:enumeration value="UNKNOWN" />
+          <s:enumeration value="EVERYONE" />
+          <s:enumeration value="ALL_FRIENDS" />
+          <s:enumeration value="FRIENDS_OF_FRIENDS" />
+          <s:enumeration value="SELF" />
+          <s:enumeration value="CUSTOM" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="GetUserAllowedSocialPrivacyList">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nSiteGUID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserAllowedSocialPrivacyListResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserAllowedSocialPrivacyListResult" type="tns:ArrayOfESocialPrivacy" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfESocialPrivacy">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="eSocialPrivacy" type="tns:eSocialPrivacy" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="SetUserSocialPrivacy">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nSiteGUID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="eSocialPlatform" type="tns:SocialPlatform" />
+            <s:element minOccurs="1" maxOccurs="1" name="eAction" type="tns:eUserAction" />
+            <s:element minOccurs="1" maxOccurs="1" name="ePrivacy" type="tns:eSocialPrivacy" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetUserSocialPrivacyResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="SetUserSocialPrivacyResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserFriends">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nSiteGUID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserFriendsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserFriendsResult" type="tns:ArrayOfString" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserActions">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="oUserActionRequest" type="tns:UserSocialActionQueryRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UserSocialActionQueryRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:SocialBaseRequestWrapper">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="m_eUserActions" type="tns:eUserAction" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGuid" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_lAssetIDs" type="tns:ArrayOfInt" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_nStartIndex" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_nNumOfRecords" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_eAssetType" type="tns:eAssetType" />
+              <s:element minOccurs="0" maxOccurs="1" name="UserActions" type="tns:ArrayOfEUserAction" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="SocialBaseRequestWrapper" abstract="true">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="m_eSocialPlatform" type="tns:SocialPlatform" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sFunctionName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oKeyValue" type="tns:ArrayOfKeyValuePair" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfKeyValuePair">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="KeyValuePair" nillable="true" type="tns:KeyValuePair" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="KeyValuePair">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="FacebookObjectRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:SocialBaseRequestWrapper">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="m_eAssetType" type="tns:eAssetType" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_eType" type="tns:eRequestType" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_nAssetID" type="s:int" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:simpleType name="eAssetType">
+        <s:list>
+          <s:simpleType>
+            <s:restriction base="s:string">
+              <s:enumeration value="UNKNOWN" />
+              <s:enumeration value="MEDIA" />
+              <s:enumeration value="PROGRAM" />
+            </s:restriction>
+          </s:simpleType>
+        </s:list>
+      </s:simpleType>
+      <s:simpleType name="eRequestType">
+        <s:restriction base="s:string">
+          <s:enumeration value="GET" />
+          <s:enumeration value="SET" />
+          <s:enumeration value="DELETE" />
+        </s:restriction>
+      </s:simpleType>
+      <s:complexType name="BaseDoUserActionRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:SocialBaseRequestWrapper">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="m_eAssetType" type="tns:eAssetType" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sDeviceUDID" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGuid" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_nAssetID" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_eAction" type="tns:eUserAction" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ArrayOfInt">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="int" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfEUserAction">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="eUserAction" type="tns:eUserAction" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="GetFriendsActionsRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:UserSocialActionQueryRequest" />
+        </s:complexContent>
+      </s:complexType>
+      <s:element name="GetUserActionsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserActionsResult" type="tns:ArrayOfSocialActivityDoc" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfSocialActivityDoc">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="SocialActivityDoc" nillable="true" type="tns:SocialActivityDoc" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="SocialActivityDoc">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="id" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="DocOwnerSiteGuid" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="SocialPlatform" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="DocType" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="CreateDate" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="LastUpdate" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsActive" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="PermitSharing" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="ActivityObject" type="tns:SocialActivityObject" />
+          <s:element minOccurs="0" maxOccurs="1" name="ActivitySubject" type="tns:SocialActivitySubject" />
+          <s:element minOccurs="0" maxOccurs="1" name="ActivityVerb" type="tns:SocialActivityVerb" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="SocialActivityObject">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="AssetID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="ObjectID" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="AssetType" type="tns:eAssetType" />
+          <s:element minOccurs="0" maxOccurs="1" name="AssetName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="PicUrl" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="SocialActivitySubject">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ActorSiteGuid" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="ActorPicUrl" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="ActorTvinciUsername" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="GroupID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="DeviceUdid" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="SocialActivityVerb">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="SocialActionID" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="ActionType" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="ActionName" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="RateValue" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="ActionProperties" type="tns:ArrayOfActionProperties" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfActionProperties">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="ActionProperties" nillable="true" type="tns:ActionProperties" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ActionProperties">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="PropertyName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="PropertyValue" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetFriendsActions">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="oFriendActionRequest" type="tns:GetFriendsActionsRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetFriendsActionsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetFriendsActionsResult" type="tns:SocialActivityResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="SocialActivityResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="SocialActivity" type="tns:ArrayOfSocialActivityDoc" />
+          <s:element minOccurs="1" maxOccurs="1" name="TotalCount" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Status">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DoUserAction">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="oActionRequest" type="tns:BaseDoUserActionRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DoUserActionResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DoUserActionResult" type="tns:DoSocialActionResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DoSocialActionResponse">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseSocialResponse">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="m_eActionResponseStatusIntern" type="tns:SocialActionResponseStatus" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_eActionResponseStatusExtern" type="tns:SocialActionResponseStatus" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="BaseSocialResponse">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="m_nStatus" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sResponseID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sError" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="SocialObjectReponse">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseSocialResponse">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="sID" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:simpleType name="SocialActionResponseStatus">
+        <s:restriction base="s:string">
+          <s:enumeration value="UNKNOWN" />
+          <s:enumeration value="OK" />
+          <s:enumeration value="ERROR" />
+          <s:enumeration value="UNKNOWN_ACTION" />
+          <s:enumeration value="INVALID_ACCESS_TOKEN" />
+          <s:enumeration value="INVALID_PLATFORM_REQUEST" />
+          <s:enumeration value="MEDIA_DOESNT_EXISTS" />
+          <s:enumeration value="MEDIA_ALREADY_LIKED" />
+          <s:enumeration value="INVALID_PARAMETERS" />
+          <s:enumeration value="USER_DOES_NOT_EXIST" />
+          <s:enumeration value="NO_FB_ACTION" />
+          <s:enumeration value="EMPTY_FB_OBJECT_ID" />
+          <s:enumeration value="MEDIA_ALEADY_FOLLOWED" />
+          <s:enumeration value="CONFIG_ERROR" />
+          <s:enumeration value="MEDIA_ALREADY_RATED" />
+          <s:enumeration value="NOT_ALLOWED" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="FBConfig">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="FBConfigResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="FBConfigResult" type="tns:FacebookConfigResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="FacebookConfigResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="FacebookConfig" type="tns:FacebookConfig" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="FacebookConfig">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PlatformConfig">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="sFBKey" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="sFBSecret" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="sFBCallback" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="nFBMinFriends" type="s:int" />
+              <s:element minOccurs="0" maxOccurs="1" name="sFBPermissions" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="sFBRedirect" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="PlatformConfig" />
+      <s:element name="FBUserData">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="token" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="FBUserDataResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="FBUserDataResult" type="tns:FacebookResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="FacebookResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ResponseData" type="tns:FacebookResponseObject" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="FacebookResponseObject">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="status" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="tvinciName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="facebookName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="pic" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="data" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="minFriends" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="fbUser" type="tns:FBUser" />
+          <s:element minOccurs="0" maxOccurs="1" name="token" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="FBUser">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGuid" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Birthday" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Location" type="tns:FBLoaction" />
+          <s:element minOccurs="0" maxOccurs="1" name="interests" type="tns:FBInterest" />
+          <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="id" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="uid" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="first_name" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="last_name" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="email" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="gender" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="FBLoaction">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="id" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="FBInterest">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="data" type="tns:ArrayOfFBInterestData" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfFBInterestData">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="FBInterestData" nillable="true" type="tns:FBInterestData" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="FBInterestData">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="category" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="id" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="created_time" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="FBUserDataByUserId">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="FBUserDataByUserIdResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="FBUserDataByUserIdResult" type="tns:FacebookResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="FBUserRegister">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="token" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="extra" type="tns:ArrayOfKeyValuePair" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserIP" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="FBUserRegisterResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="FBUserRegisterResult" type="tns:FacebookResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="FBUserMerge">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="token" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="fbid" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sPass" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="FBUserMergeResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="FBUserMergeResult" type="tns:FacebookResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="FBUserMergeByUserId">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="token" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="FBUserMergeByUserIdResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="FBUserMergeByUserIdResult" type="tns:FacebookResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="FBObjectRequest">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="objRequest" type="tns:FacebookObjectRequest" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="FBObjectRequestResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="FBObjectRequestResult" type="tns:SocialObjectReponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetUserExternalActionShare">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nSiteGUID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="eSocialPlatform" type="tns:SocialPlatform" />
+            <s:element minOccurs="1" maxOccurs="1" name="eAction" type="tns:eUserAction" />
+            <s:element minOccurs="1" maxOccurs="1" name="eActionPrivacy" type="tns:eSocialActionPrivacy" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:simpleType name="eSocialActionPrivacy">
+        <s:restriction base="s:string">
+          <s:enumeration value="UNKNOWN" />
+          <s:enumeration value="ALLOW" />
+          <s:enumeration value="DONT_ALLOW" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="SetUserExternalActionShareResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="SetUserExternalActionShareResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetUserInternalActionPrivacy">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nSiteGUID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="eSocialPlatform" type="tns:SocialPlatform" />
+            <s:element minOccurs="1" maxOccurs="1" name="eAction" type="tns:eUserAction" />
+            <s:element minOccurs="1" maxOccurs="1" name="eActionPrivacy" type="tns:eSocialActionPrivacy" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetUserInternalActionPrivacyResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="SetUserInternalActionPrivacyResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserExternalActionShare">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nSiteGUID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="eSocialPlatform" type="tns:SocialPlatform" />
+            <s:element minOccurs="1" maxOccurs="1" name="eAction" type="tns:eUserAction" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserExternalActionShareResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetUserExternalActionShareResult" type="tns:eSocialActionPrivacy" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserInternalActionPrivacy">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nSiteGUID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="eSocialPlatform" type="tns:SocialPlatform" />
+            <s:element minOccurs="1" maxOccurs="1" name="eAction" type="tns:eUserAction" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserInternalActionPrivacyResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetUserInternalActionPrivacyResult" type="tns:eSocialActionPrivacy" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetAssetLikeCounter">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nAssetID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="assetType" type="tns:eAssetType" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetAssetLikeCounterResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetAssetLikeCounterResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Share">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSiteGuid" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDeviceUdid" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sFBActionID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nMediaID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="nAssetID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="eAssetType" type="tns:eAssetType" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ShareResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="ShareResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserActivityFeed">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sSiteGuid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nPageSize" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="nPageIndex" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="sPicDimension" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserActivityFeedResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserActivityFeedResult" type="tns:ArrayOfSocialActivityDoc" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="FBUserUnmerge">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sToken" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUsername" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="FBUserUnmergeResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="FBUserUnmergeResult" type="tns:FacebookResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="FBUserUnmergeByUserId">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserId" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="FBUserUnmergeByUserIdResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="FBUserUnmergeByUserIdResult" type="tns:FacebookResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="FBTokenValidation">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sToken" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="FBTokenValidationResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="FBTokenValidationResult" type="tns:FacebookTokenResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="FacebookTokenResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="status" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="message" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="FBUserSignin">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="token" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sIP" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="deviceID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="bPreventDoubleLogins" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="FBUserSigninResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="FBUserSigninResult" type="tns:FBSignin" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="FBSignin">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="user" type="tns:UserResponseObject" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="UserResponseObject">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="m_RespStatus" type="tns:ResponseStatus" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_user" type="tns:User" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_userInstanceID" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="ResponseStatus">
+        <s:restriction base="s:string">
+          <s:enumeration value="OK" />
+          <s:enumeration value="UserExists" />
+          <s:enumeration value="UserDoesNotExist" />
+          <s:enumeration value="WrongPasswordOrUserName" />
+          <s:enumeration value="InsideLockTime" />
+          <s:enumeration value="NotImplementedYet" />
+          <s:enumeration value="UserNotActivated" />
+          <s:enumeration value="UserAllreadyLoggedIn" />
+          <s:enumeration value="UserDoubleLogIn" />
+          <s:enumeration value="SessionLoggedOut" />
+          <s:enumeration value="DeviceNotRegistered" />
+          <s:enumeration value="ErrorOnSendingMail" />
+          <s:enumeration value="UserEmailAlreadyExists" />
+          <s:enumeration value="ErrorOnUpdatingUserType" />
+          <s:enumeration value="UserTypeNotExist" />
+          <s:enumeration value="UserNotMasterApproved" />
+          <s:enumeration value="ErrorOnInitUser" />
+          <s:enumeration value="ErrorOnSaveUser" />
+          <s:enumeration value="UserNotIndDomain" />
+          <s:enumeration value="TokenNotFound" />
+          <s:enumeration value="UserAlreadyMasterApproved" />
+          <s:enumeration value="UserWithNoDomain" />
+          <s:enumeration value="InternalError" />
+          <s:enumeration value="LoginServerDown" />
+          <s:enumeration value="UserSuspended" />
+          <s:enumeration value="UserCreatedWithNoRole" />
+        </s:restriction>
+      </s:simpleType>
+      <s:complexType name="User">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="m_oBasicData" type="tns:UserBasicData" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oDynamicData" type="tns:UserDynamicData" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_eUserState" type="tns:UserState" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_eSuspendState" type="tns:DomainSuspentionStatus" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGUID" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_domianID" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_isDomainMaster" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_nSSOOperatorID" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsActivationGracePeriod" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="UserBasicData">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="m_sUserName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sFirstName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sLastName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sEmail" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sAddress" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sCity" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_State" type="tns:State" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_Country" type="tns:Country" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sZip" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sPhone" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sFacebookID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sFacebookImage" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_bIsFacebookImagePermitted" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sAffiliateCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_CoGuid" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_ExternalToken" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sFacebookToken" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sTwitterToken" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sTwitterTokenSecret" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_UserType" type="tns:UserType" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="State">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="m_nObjecrtID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sStateName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sStateCode" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_Country" type="tns:Country" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Country">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="m_nObjecrtID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sCountryName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sCountryCode" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="UserType">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="ID" nillable="true" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Description" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsDefault" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="UserDynamicData">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="m_sUserData" type="tns:ArrayOfUserDynamicDataContainer" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfUserDynamicDataContainer">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="UserDynamicDataContainer" nillable="true" type="tns:UserDynamicDataContainer" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="UserDynamicDataContainer">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="m_sDataType" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sValue" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="UserState">
+        <s:restriction base="s:string">
+          <s:enumeration value="Unknown" />
+          <s:enumeration value="Activated" />
+          <s:enumeration value="SingleSignIn" />
+          <s:enumeration value="DoubleSignIn" />
+          <s:enumeration value="LoggedOut" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="DomainSuspentionStatus">
+        <s:restriction base="s:string">
+          <s:enumeration value="OK" />
+          <s:enumeration value="Suspended" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="UpdateFriendsActivityFeed">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="siteGuid" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="dbActionId" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateFriendsActivityFeedResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateFriendsActivityFeedResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteFriendsFeed">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="siteGuid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteFriendsFeedResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="DeleteUserFeed">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="siteGuid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteUserFeedResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="MergeFriendsActivityFeed">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="siteGuid" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="MergeFriendsActivityFeedResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetSocialConfiguration">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGUID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="socialPlatform" nillable="true" type="tns:SocialPlatform" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSocialConfigurationResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetSocialConfigurationResult" type="tns:SocialConfig" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="SocialConfig">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="PlatformConfig" type="tns:PlatformConfig" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="SetUserSocialPrivacySettings">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGUID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="settings" type="tns:SocialPrivacySettings" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="SocialPrivacySettings">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="SocialNetworks" type="tns:ArrayOfSocialNetwork" />
+          <s:element minOccurs="1" maxOccurs="1" name="InternalPrivacy" type="tns:eSocialActionPrivacy" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfSocialNetwork">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="SocialNetwork" nillable="true" type="tns:SocialNetwork" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="SocialNetwork">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Network" type="tns:SocialPlatform" />
+          <s:element minOccurs="1" maxOccurs="1" name="Privacy" type="tns:eSocialActionPrivacy" />
+          <s:element minOccurs="1" maxOccurs="1" name="SocialPrivacy" type="tns:eSocialPrivacy" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="SetUserSocialPrivacySettingsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SetUserSocialPrivacySettingsResult" type="tns:SocialPrivacySettingsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="SocialPrivacySettingsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="settings" type="tns:SocialPrivacySettings" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetUserSocialPrivacySettings">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGUID" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserSocialPrivacySettingsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserSocialPrivacySettingsResult" type="tns:SocialPrivacySettingsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="testSetUserSocialPrivacySettings">
+        <s:complexType />
+      </s:element>
+      <s:element name="testSetUserSocialPrivacySettingsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="testSetUserSocialPrivacySettingsResult" type="tns:SocialPrivacySettingsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ArrayOfString" nillable="true" type="tns:ArrayOfString" />
+      <s:element name="ArrayOfFriendWatchedObject" nillable="true" type="tns:ArrayOfFriendWatchedObject" />
+      <s:element name="eSocialPrivacy" type="tns:eSocialPrivacy" />
+      <s:element name="ArrayOfESocialPrivacy" nillable="true" type="tns:ArrayOfESocialPrivacy" />
+      <s:element name="boolean" type="s:boolean" />
+      <s:element name="FacebookConfigResponse" nillable="true" type="tns:FacebookConfigResponse" />
+      <s:element name="FacebookResponse" nillable="true" type="tns:FacebookResponse" />
+      <s:element name="eSocialActionPrivacy" type="tns:eSocialActionPrivacy" />
+      <s:element name="int" type="s:int" />
+      <s:element name="ArrayOfSocialActivityDoc" nillable="true" type="tns:ArrayOfSocialActivityDoc" />
+      <s:element name="FacebookTokenResponse" nillable="true" type="tns:FacebookTokenResponse" />
+      <s:element name="FBSignin" nillable="true" type="tns:FBSignin" />
+      <s:element name="SocialPrivacySettingsResponse" nillable="true" type="tns:SocialPrivacySettingsResponse" />
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="GetUsersLikedMediaSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUsersLikedMedia" />
+  </wsdl:message>
+  <wsdl:message name="GetUsersLikedMediaSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUsersLikedMediaResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetAllFriendsWatchedSoapIn">
+    <wsdl:part name="parameters" element="tns:GetAllFriendsWatched" />
+  </wsdl:message>
+  <wsdl:message name="GetAllFriendsWatchedSoapOut">
+    <wsdl:part name="parameters" element="tns:GetAllFriendsWatchedResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetFriendsWatchedByMediaSoapIn">
+    <wsdl:part name="parameters" element="tns:GetFriendsWatchedByMedia" />
+  </wsdl:message>
+  <wsdl:message name="GetFriendsWatchedByMediaSoapOut">
+    <wsdl:part name="parameters" element="tns:GetFriendsWatchedByMediaResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserSocialPrivacySoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserSocialPrivacy" />
+  </wsdl:message>
+  <wsdl:message name="GetUserSocialPrivacySoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserSocialPrivacyResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserAllowedSocialPrivacyListSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserAllowedSocialPrivacyList" />
+  </wsdl:message>
+  <wsdl:message name="GetUserAllowedSocialPrivacyListSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserAllowedSocialPrivacyListResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetUserSocialPrivacySoapIn">
+    <wsdl:part name="parameters" element="tns:SetUserSocialPrivacy" />
+  </wsdl:message>
+  <wsdl:message name="SetUserSocialPrivacySoapOut">
+    <wsdl:part name="parameters" element="tns:SetUserSocialPrivacyResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserFriendsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserFriends" />
+  </wsdl:message>
+  <wsdl:message name="GetUserFriendsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserFriendsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserActionsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserActions" />
+  </wsdl:message>
+  <wsdl:message name="GetUserActionsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserActionsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetFriendsActionsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetFriendsActions" />
+  </wsdl:message>
+  <wsdl:message name="GetFriendsActionsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetFriendsActionsResponse" />
+  </wsdl:message>
+  <wsdl:message name="DoUserActionSoapIn">
+    <wsdl:part name="parameters" element="tns:DoUserAction" />
+  </wsdl:message>
+  <wsdl:message name="DoUserActionSoapOut">
+    <wsdl:part name="parameters" element="tns:DoUserActionResponse" />
+  </wsdl:message>
+  <wsdl:message name="FBConfigSoapIn">
+    <wsdl:part name="parameters" element="tns:FBConfig" />
+  </wsdl:message>
+  <wsdl:message name="FBConfigSoapOut">
+    <wsdl:part name="parameters" element="tns:FBConfigResponse" />
+  </wsdl:message>
+  <wsdl:message name="FBUserDataSoapIn">
+    <wsdl:part name="parameters" element="tns:FBUserData" />
+  </wsdl:message>
+  <wsdl:message name="FBUserDataSoapOut">
+    <wsdl:part name="parameters" element="tns:FBUserDataResponse" />
+  </wsdl:message>
+  <wsdl:message name="FBUserDataByUserIdSoapIn">
+    <wsdl:part name="parameters" element="tns:FBUserDataByUserId" />
+  </wsdl:message>
+  <wsdl:message name="FBUserDataByUserIdSoapOut">
+    <wsdl:part name="parameters" element="tns:FBUserDataByUserIdResponse" />
+  </wsdl:message>
+  <wsdl:message name="FBUserRegisterSoapIn">
+    <wsdl:part name="parameters" element="tns:FBUserRegister" />
+  </wsdl:message>
+  <wsdl:message name="FBUserRegisterSoapOut">
+    <wsdl:part name="parameters" element="tns:FBUserRegisterResponse" />
+  </wsdl:message>
+  <wsdl:message name="FBUserMergeSoapIn">
+    <wsdl:part name="parameters" element="tns:FBUserMerge" />
+  </wsdl:message>
+  <wsdl:message name="FBUserMergeSoapOut">
+    <wsdl:part name="parameters" element="tns:FBUserMergeResponse" />
+  </wsdl:message>
+  <wsdl:message name="FBUserMergeByUserIdSoapIn">
+    <wsdl:part name="parameters" element="tns:FBUserMergeByUserId" />
+  </wsdl:message>
+  <wsdl:message name="FBUserMergeByUserIdSoapOut">
+    <wsdl:part name="parameters" element="tns:FBUserMergeByUserIdResponse" />
+  </wsdl:message>
+  <wsdl:message name="FBObjectRequestSoapIn">
+    <wsdl:part name="parameters" element="tns:FBObjectRequest" />
+  </wsdl:message>
+  <wsdl:message name="FBObjectRequestSoapOut">
+    <wsdl:part name="parameters" element="tns:FBObjectRequestResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetUserExternalActionShareSoapIn">
+    <wsdl:part name="parameters" element="tns:SetUserExternalActionShare" />
+  </wsdl:message>
+  <wsdl:message name="SetUserExternalActionShareSoapOut">
+    <wsdl:part name="parameters" element="tns:SetUserExternalActionShareResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetUserInternalActionPrivacySoapIn">
+    <wsdl:part name="parameters" element="tns:SetUserInternalActionPrivacy" />
+  </wsdl:message>
+  <wsdl:message name="SetUserInternalActionPrivacySoapOut">
+    <wsdl:part name="parameters" element="tns:SetUserInternalActionPrivacyResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserExternalActionShareSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserExternalActionShare" />
+  </wsdl:message>
+  <wsdl:message name="GetUserExternalActionShareSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserExternalActionShareResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserInternalActionPrivacySoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserInternalActionPrivacy" />
+  </wsdl:message>
+  <wsdl:message name="GetUserInternalActionPrivacySoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserInternalActionPrivacyResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetAssetLikeCounterSoapIn">
+    <wsdl:part name="parameters" element="tns:GetAssetLikeCounter" />
+  </wsdl:message>
+  <wsdl:message name="GetAssetLikeCounterSoapOut">
+    <wsdl:part name="parameters" element="tns:GetAssetLikeCounterResponse" />
+  </wsdl:message>
+  <wsdl:message name="ShareSoapIn">
+    <wsdl:part name="parameters" element="tns:Share" />
+  </wsdl:message>
+  <wsdl:message name="ShareSoapOut">
+    <wsdl:part name="parameters" element="tns:ShareResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserActivityFeedSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserActivityFeed" />
+  </wsdl:message>
+  <wsdl:message name="GetUserActivityFeedSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserActivityFeedResponse" />
+  </wsdl:message>
+  <wsdl:message name="FBUserUnmergeSoapIn">
+    <wsdl:part name="parameters" element="tns:FBUserUnmerge" />
+  </wsdl:message>
+  <wsdl:message name="FBUserUnmergeSoapOut">
+    <wsdl:part name="parameters" element="tns:FBUserUnmergeResponse" />
+  </wsdl:message>
+  <wsdl:message name="FBUserUnmergeByUserIdSoapIn">
+    <wsdl:part name="parameters" element="tns:FBUserUnmergeByUserId" />
+  </wsdl:message>
+  <wsdl:message name="FBUserUnmergeByUserIdSoapOut">
+    <wsdl:part name="parameters" element="tns:FBUserUnmergeByUserIdResponse" />
+  </wsdl:message>
+  <wsdl:message name="FBTokenValidationSoapIn">
+    <wsdl:part name="parameters" element="tns:FBTokenValidation" />
+  </wsdl:message>
+  <wsdl:message name="FBTokenValidationSoapOut">
+    <wsdl:part name="parameters" element="tns:FBTokenValidationResponse" />
+  </wsdl:message>
+  <wsdl:message name="FBUserSigninSoapIn">
+    <wsdl:part name="parameters" element="tns:FBUserSignin" />
+  </wsdl:message>
+  <wsdl:message name="FBUserSigninSoapOut">
+    <wsdl:part name="parameters" element="tns:FBUserSigninResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateFriendsActivityFeedSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateFriendsActivityFeed" />
+  </wsdl:message>
+  <wsdl:message name="UpdateFriendsActivityFeedSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateFriendsActivityFeedResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteFriendsFeedSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteFriendsFeed" />
+  </wsdl:message>
+  <wsdl:message name="DeleteFriendsFeedSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteFriendsFeedResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteUserFeedSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteUserFeed" />
+  </wsdl:message>
+  <wsdl:message name="DeleteUserFeedSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteUserFeedResponse" />
+  </wsdl:message>
+  <wsdl:message name="MergeFriendsActivityFeedSoapIn">
+    <wsdl:part name="parameters" element="tns:MergeFriendsActivityFeed" />
+  </wsdl:message>
+  <wsdl:message name="MergeFriendsActivityFeedSoapOut">
+    <wsdl:part name="parameters" element="tns:MergeFriendsActivityFeedResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetSocialConfigurationSoapIn">
+    <wsdl:part name="parameters" element="tns:GetSocialConfiguration" />
+  </wsdl:message>
+  <wsdl:message name="GetSocialConfigurationSoapOut">
+    <wsdl:part name="parameters" element="tns:GetSocialConfigurationResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetUserSocialPrivacySettingsSoapIn">
+    <wsdl:part name="parameters" element="tns:SetUserSocialPrivacySettings" />
+  </wsdl:message>
+  <wsdl:message name="SetUserSocialPrivacySettingsSoapOut">
+    <wsdl:part name="parameters" element="tns:SetUserSocialPrivacySettingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserSocialPrivacySettingsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserSocialPrivacySettings" />
+  </wsdl:message>
+  <wsdl:message name="GetUserSocialPrivacySettingsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserSocialPrivacySettingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="testSetUserSocialPrivacySettingsSoapIn">
+    <wsdl:part name="parameters" element="tns:testSetUserSocialPrivacySettings" />
+  </wsdl:message>
+  <wsdl:message name="testSetUserSocialPrivacySettingsSoapOut">
+    <wsdl:part name="parameters" element="tns:testSetUserSocialPrivacySettingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUsersLikedMediaHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nSiteGUID" type="s:string" />
+    <wsdl:part name="nMediaID" type="s:string" />
+    <wsdl:part name="nPlatform" type="s:string" />
+    <wsdl:part name="bOnlyFriends" type="s:string" />
+    <wsdl:part name="nStartIndex" type="s:string" />
+    <wsdl:part name="nNumberOfItems" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUsersLikedMediaHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfString" />
+  </wsdl:message>
+  <wsdl:message name="GetAllFriendsWatchedHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nSiteGUID" type="s:string" />
+    <wsdl:part name="nMaxResults" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetAllFriendsWatchedHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfFriendWatchedObject" />
+  </wsdl:message>
+  <wsdl:message name="GetFriendsWatchedByMediaHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nSiteGUID" type="s:string" />
+    <wsdl:part name="nMediaID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetFriendsWatchedByMediaHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfFriendWatchedObject" />
+  </wsdl:message>
+  <wsdl:message name="GetUserSocialPrivacyHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nSiteGUID" type="s:string" />
+    <wsdl:part name="eSocialPlatform" type="s:string" />
+    <wsdl:part name="eAction" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserSocialPrivacyHttpPostOut">
+    <wsdl:part name="Body" element="tns:eSocialPrivacy" />
+  </wsdl:message>
+  <wsdl:message name="GetUserAllowedSocialPrivacyListHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nSiteGUID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserAllowedSocialPrivacyListHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfESocialPrivacy" />
+  </wsdl:message>
+  <wsdl:message name="SetUserSocialPrivacyHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nSiteGUID" type="s:string" />
+    <wsdl:part name="eSocialPlatform" type="s:string" />
+    <wsdl:part name="eAction" type="s:string" />
+    <wsdl:part name="ePrivacy" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetUserSocialPrivacyHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetUserFriendsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nSiteGUID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserFriendsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfString" />
+  </wsdl:message>
+  <wsdl:message name="FBConfigHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="FBConfigHttpPostOut">
+    <wsdl:part name="Body" element="tns:FacebookConfigResponse" />
+  </wsdl:message>
+  <wsdl:message name="FBUserDataHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="token" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="FBUserDataHttpPostOut">
+    <wsdl:part name="Body" element="tns:FacebookResponse" />
+  </wsdl:message>
+  <wsdl:message name="FBUserDataByUserIdHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="FBUserDataByUserIdHttpPostOut">
+    <wsdl:part name="Body" element="tns:FacebookResponse" />
+  </wsdl:message>
+  <wsdl:message name="FBUserMergeHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="token" type="s:string" />
+    <wsdl:part name="fbid" type="s:string" />
+    <wsdl:part name="sUserName" type="s:string" />
+    <wsdl:part name="sPass" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="FBUserMergeHttpPostOut">
+    <wsdl:part name="Body" element="tns:FacebookResponse" />
+  </wsdl:message>
+  <wsdl:message name="FBUserMergeByUserIdHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+    <wsdl:part name="token" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="FBUserMergeByUserIdHttpPostOut">
+    <wsdl:part name="Body" element="tns:FacebookResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetUserExternalActionShareHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nSiteGUID" type="s:string" />
+    <wsdl:part name="eSocialPlatform" type="s:string" />
+    <wsdl:part name="eAction" type="s:string" />
+    <wsdl:part name="eActionPrivacy" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetUserExternalActionShareHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="SetUserInternalActionPrivacyHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nSiteGUID" type="s:string" />
+    <wsdl:part name="eSocialPlatform" type="s:string" />
+    <wsdl:part name="eAction" type="s:string" />
+    <wsdl:part name="eActionPrivacy" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetUserInternalActionPrivacyHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetUserExternalActionShareHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nSiteGUID" type="s:string" />
+    <wsdl:part name="eSocialPlatform" type="s:string" />
+    <wsdl:part name="eAction" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserExternalActionShareHttpPostOut">
+    <wsdl:part name="Body" element="tns:eSocialActionPrivacy" />
+  </wsdl:message>
+  <wsdl:message name="GetUserInternalActionPrivacyHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nSiteGUID" type="s:string" />
+    <wsdl:part name="eSocialPlatform" type="s:string" />
+    <wsdl:part name="eAction" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserInternalActionPrivacyHttpPostOut">
+    <wsdl:part name="Body" element="tns:eSocialActionPrivacy" />
+  </wsdl:message>
+  <wsdl:message name="GetAssetLikeCounterHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nAssetID" type="s:string" />
+    <wsdl:part name="assetType" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetAssetLikeCounterHttpPostOut">
+    <wsdl:part name="Body" element="tns:int" />
+  </wsdl:message>
+  <wsdl:message name="ShareHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGuid" type="s:string" />
+    <wsdl:part name="sDeviceUdid" type="s:string" />
+    <wsdl:part name="sFBActionID" type="s:string" />
+    <wsdl:part name="nMediaID" type="s:string" />
+    <wsdl:part name="nAssetID" type="s:string" />
+    <wsdl:part name="eAssetType" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ShareHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetUserActivityFeedHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sSiteGuid" type="s:string" />
+    <wsdl:part name="nPageSize" type="s:string" />
+    <wsdl:part name="nPageIndex" type="s:string" />
+    <wsdl:part name="sPicDimension" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserActivityFeedHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfSocialActivityDoc" />
+  </wsdl:message>
+  <wsdl:message name="FBUserUnmergeHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sToken" type="s:string" />
+    <wsdl:part name="sUsername" type="s:string" />
+    <wsdl:part name="sPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="FBUserUnmergeHttpPostOut">
+    <wsdl:part name="Body" element="tns:FacebookResponse" />
+  </wsdl:message>
+  <wsdl:message name="FBUserUnmergeByUserIdHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sUserId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="FBUserUnmergeByUserIdHttpPostOut">
+    <wsdl:part name="Body" element="tns:FacebookResponse" />
+  </wsdl:message>
+  <wsdl:message name="FBTokenValidationHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sToken" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="FBTokenValidationHttpPostOut">
+    <wsdl:part name="Body" element="tns:FacebookTokenResponse" />
+  </wsdl:message>
+  <wsdl:message name="FBUserSigninHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="token" type="s:string" />
+    <wsdl:part name="sIP" type="s:string" />
+    <wsdl:part name="deviceID" type="s:string" />
+    <wsdl:part name="bPreventDoubleLogins" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="FBUserSigninHttpPostOut">
+    <wsdl:part name="Body" element="tns:FBSignin" />
+  </wsdl:message>
+  <wsdl:message name="UpdateFriendsActivityFeedHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="dbActionId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="UpdateFriendsActivityFeedHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="DeleteFriendsFeedHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DeleteFriendsFeedHttpPostOut" />
+  <wsdl:message name="DeleteUserFeedHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DeleteUserFeedHttpPostOut" />
+  <wsdl:message name="MergeFriendsActivityFeedHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="MergeFriendsActivityFeedHttpPostOut" />
+  <wsdl:message name="GetUserSocialPrivacySettingsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="siteGUID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserSocialPrivacySettingsHttpPostOut">
+    <wsdl:part name="Body" element="tns:SocialPrivacySettingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="testSetUserSocialPrivacySettingsHttpPostIn" />
+  <wsdl:message name="testSetUserSocialPrivacySettingsHttpPostOut">
+    <wsdl:part name="Body" element="tns:SocialPrivacySettingsResponse" />
+  </wsdl:message>
+  <wsdl:portType name="moduleSoap">
+    <wsdl:operation name="GetUsersLikedMedia">
+      <wsdl:input message="tns:GetUsersLikedMediaSoapIn" />
+      <wsdl:output message="tns:GetUsersLikedMediaSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllFriendsWatched">
+      <wsdl:input message="tns:GetAllFriendsWatchedSoapIn" />
+      <wsdl:output message="tns:GetAllFriendsWatchedSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetFriendsWatchedByMedia">
+      <wsdl:input message="tns:GetFriendsWatchedByMediaSoapIn" />
+      <wsdl:output message="tns:GetFriendsWatchedByMediaSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserSocialPrivacy">
+      <wsdl:input message="tns:GetUserSocialPrivacySoapIn" />
+      <wsdl:output message="tns:GetUserSocialPrivacySoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserAllowedSocialPrivacyList">
+      <wsdl:input message="tns:GetUserAllowedSocialPrivacyListSoapIn" />
+      <wsdl:output message="tns:GetUserAllowedSocialPrivacyListSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetUserSocialPrivacy">
+      <wsdl:input message="tns:SetUserSocialPrivacySoapIn" />
+      <wsdl:output message="tns:SetUserSocialPrivacySoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserFriends">
+      <wsdl:input message="tns:GetUserFriendsSoapIn" />
+      <wsdl:output message="tns:GetUserFriendsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserActions">
+      <wsdl:input message="tns:GetUserActionsSoapIn" />
+      <wsdl:output message="tns:GetUserActionsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetFriendsActions">
+      <wsdl:input message="tns:GetFriendsActionsSoapIn" />
+      <wsdl:output message="tns:GetFriendsActionsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DoUserAction">
+      <wsdl:input message="tns:DoUserActionSoapIn" />
+      <wsdl:output message="tns:DoUserActionSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FBConfig">
+      <wsdl:input message="tns:FBConfigSoapIn" />
+      <wsdl:output message="tns:FBConfigSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FBUserData">
+      <wsdl:input message="tns:FBUserDataSoapIn" />
+      <wsdl:output message="tns:FBUserDataSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FBUserDataByUserId">
+      <wsdl:input message="tns:FBUserDataByUserIdSoapIn" />
+      <wsdl:output message="tns:FBUserDataByUserIdSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FBUserRegister">
+      <wsdl:input message="tns:FBUserRegisterSoapIn" />
+      <wsdl:output message="tns:FBUserRegisterSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FBUserMerge">
+      <wsdl:input message="tns:FBUserMergeSoapIn" />
+      <wsdl:output message="tns:FBUserMergeSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FBUserMergeByUserId">
+      <wsdl:input message="tns:FBUserMergeByUserIdSoapIn" />
+      <wsdl:output message="tns:FBUserMergeByUserIdSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FBObjectRequest">
+      <wsdl:input message="tns:FBObjectRequestSoapIn" />
+      <wsdl:output message="tns:FBObjectRequestSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetUserExternalActionShare">
+      <wsdl:input message="tns:SetUserExternalActionShareSoapIn" />
+      <wsdl:output message="tns:SetUserExternalActionShareSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetUserInternalActionPrivacy">
+      <wsdl:input message="tns:SetUserInternalActionPrivacySoapIn" />
+      <wsdl:output message="tns:SetUserInternalActionPrivacySoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserExternalActionShare">
+      <wsdl:input message="tns:GetUserExternalActionShareSoapIn" />
+      <wsdl:output message="tns:GetUserExternalActionShareSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserInternalActionPrivacy">
+      <wsdl:input message="tns:GetUserInternalActionPrivacySoapIn" />
+      <wsdl:output message="tns:GetUserInternalActionPrivacySoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAssetLikeCounter">
+      <wsdl:input message="tns:GetAssetLikeCounterSoapIn" />
+      <wsdl:output message="tns:GetAssetLikeCounterSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Share">
+      <wsdl:input message="tns:ShareSoapIn" />
+      <wsdl:output message="tns:ShareSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserActivityFeed">
+      <wsdl:input message="tns:GetUserActivityFeedSoapIn" />
+      <wsdl:output message="tns:GetUserActivityFeedSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FBUserUnmerge">
+      <wsdl:input message="tns:FBUserUnmergeSoapIn" />
+      <wsdl:output message="tns:FBUserUnmergeSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FBUserUnmergeByUserId">
+      <wsdl:input message="tns:FBUserUnmergeByUserIdSoapIn" />
+      <wsdl:output message="tns:FBUserUnmergeByUserIdSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FBTokenValidation">
+      <wsdl:input message="tns:FBTokenValidationSoapIn" />
+      <wsdl:output message="tns:FBTokenValidationSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FBUserSignin">
+      <wsdl:input message="tns:FBUserSigninSoapIn" />
+      <wsdl:output message="tns:FBUserSigninSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateFriendsActivityFeed">
+      <wsdl:input message="tns:UpdateFriendsActivityFeedSoapIn" />
+      <wsdl:output message="tns:UpdateFriendsActivityFeedSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteFriendsFeed">
+      <wsdl:input message="tns:DeleteFriendsFeedSoapIn" />
+      <wsdl:output message="tns:DeleteFriendsFeedSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteUserFeed">
+      <wsdl:input message="tns:DeleteUserFeedSoapIn" />
+      <wsdl:output message="tns:DeleteUserFeedSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="MergeFriendsActivityFeed">
+      <wsdl:input message="tns:MergeFriendsActivityFeedSoapIn" />
+      <wsdl:output message="tns:MergeFriendsActivityFeedSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSocialConfiguration">
+      <wsdl:input message="tns:GetSocialConfigurationSoapIn" />
+      <wsdl:output message="tns:GetSocialConfigurationSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetUserSocialPrivacySettings">
+      <wsdl:input message="tns:SetUserSocialPrivacySettingsSoapIn" />
+      <wsdl:output message="tns:SetUserSocialPrivacySettingsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserSocialPrivacySettings">
+      <wsdl:input message="tns:GetUserSocialPrivacySettingsSoapIn" />
+      <wsdl:output message="tns:GetUserSocialPrivacySettingsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="testSetUserSocialPrivacySettings">
+      <wsdl:input message="tns:testSetUserSocialPrivacySettingsSoapIn" />
+      <wsdl:output message="tns:testSetUserSocialPrivacySettingsSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="moduleHttpPost">
+    <wsdl:operation name="GetUsersLikedMedia">
+      <wsdl:input message="tns:GetUsersLikedMediaHttpPostIn" />
+      <wsdl:output message="tns:GetUsersLikedMediaHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllFriendsWatched">
+      <wsdl:input message="tns:GetAllFriendsWatchedHttpPostIn" />
+      <wsdl:output message="tns:GetAllFriendsWatchedHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetFriendsWatchedByMedia">
+      <wsdl:input message="tns:GetFriendsWatchedByMediaHttpPostIn" />
+      <wsdl:output message="tns:GetFriendsWatchedByMediaHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserSocialPrivacy">
+      <wsdl:input message="tns:GetUserSocialPrivacyHttpPostIn" />
+      <wsdl:output message="tns:GetUserSocialPrivacyHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserAllowedSocialPrivacyList">
+      <wsdl:input message="tns:GetUserAllowedSocialPrivacyListHttpPostIn" />
+      <wsdl:output message="tns:GetUserAllowedSocialPrivacyListHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetUserSocialPrivacy">
+      <wsdl:input message="tns:SetUserSocialPrivacyHttpPostIn" />
+      <wsdl:output message="tns:SetUserSocialPrivacyHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserFriends">
+      <wsdl:input message="tns:GetUserFriendsHttpPostIn" />
+      <wsdl:output message="tns:GetUserFriendsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FBConfig">
+      <wsdl:input message="tns:FBConfigHttpPostIn" />
+      <wsdl:output message="tns:FBConfigHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FBUserData">
+      <wsdl:input message="tns:FBUserDataHttpPostIn" />
+      <wsdl:output message="tns:FBUserDataHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FBUserDataByUserId">
+      <wsdl:input message="tns:FBUserDataByUserIdHttpPostIn" />
+      <wsdl:output message="tns:FBUserDataByUserIdHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FBUserMerge">
+      <wsdl:input message="tns:FBUserMergeHttpPostIn" />
+      <wsdl:output message="tns:FBUserMergeHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FBUserMergeByUserId">
+      <wsdl:input message="tns:FBUserMergeByUserIdHttpPostIn" />
+      <wsdl:output message="tns:FBUserMergeByUserIdHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetUserExternalActionShare">
+      <wsdl:input message="tns:SetUserExternalActionShareHttpPostIn" />
+      <wsdl:output message="tns:SetUserExternalActionShareHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetUserInternalActionPrivacy">
+      <wsdl:input message="tns:SetUserInternalActionPrivacyHttpPostIn" />
+      <wsdl:output message="tns:SetUserInternalActionPrivacyHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserExternalActionShare">
+      <wsdl:input message="tns:GetUserExternalActionShareHttpPostIn" />
+      <wsdl:output message="tns:GetUserExternalActionShareHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserInternalActionPrivacy">
+      <wsdl:input message="tns:GetUserInternalActionPrivacyHttpPostIn" />
+      <wsdl:output message="tns:GetUserInternalActionPrivacyHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAssetLikeCounter">
+      <wsdl:input message="tns:GetAssetLikeCounterHttpPostIn" />
+      <wsdl:output message="tns:GetAssetLikeCounterHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Share">
+      <wsdl:input message="tns:ShareHttpPostIn" />
+      <wsdl:output message="tns:ShareHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserActivityFeed">
+      <wsdl:input message="tns:GetUserActivityFeedHttpPostIn" />
+      <wsdl:output message="tns:GetUserActivityFeedHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FBUserUnmerge">
+      <wsdl:input message="tns:FBUserUnmergeHttpPostIn" />
+      <wsdl:output message="tns:FBUserUnmergeHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FBUserUnmergeByUserId">
+      <wsdl:input message="tns:FBUserUnmergeByUserIdHttpPostIn" />
+      <wsdl:output message="tns:FBUserUnmergeByUserIdHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FBTokenValidation">
+      <wsdl:input message="tns:FBTokenValidationHttpPostIn" />
+      <wsdl:output message="tns:FBTokenValidationHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FBUserSignin">
+      <wsdl:input message="tns:FBUserSigninHttpPostIn" />
+      <wsdl:output message="tns:FBUserSigninHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateFriendsActivityFeed">
+      <wsdl:input message="tns:UpdateFriendsActivityFeedHttpPostIn" />
+      <wsdl:output message="tns:UpdateFriendsActivityFeedHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteFriendsFeed">
+      <wsdl:input message="tns:DeleteFriendsFeedHttpPostIn" />
+      <wsdl:output message="tns:DeleteFriendsFeedHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteUserFeed">
+      <wsdl:input message="tns:DeleteUserFeedHttpPostIn" />
+      <wsdl:output message="tns:DeleteUserFeedHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="MergeFriendsActivityFeed">
+      <wsdl:input message="tns:MergeFriendsActivityFeedHttpPostIn" />
+      <wsdl:output message="tns:MergeFriendsActivityFeedHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserSocialPrivacySettings">
+      <wsdl:input message="tns:GetUserSocialPrivacySettingsHttpPostIn" />
+      <wsdl:output message="tns:GetUserSocialPrivacySettingsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="testSetUserSocialPrivacySettings">
+      <wsdl:input message="tns:testSetUserSocialPrivacySettingsHttpPostIn" />
+      <wsdl:output message="tns:testSetUserSocialPrivacySettingsHttpPostOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="moduleSoap" type="tns:moduleSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetUsersLikedMedia">
+      <soap:operation soapAction="http://social.tvinci.com/GetUsersLikedMedia" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllFriendsWatched">
+      <soap:operation soapAction="http://social.tvinci.com/GetAllFriendsWatched" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetFriendsWatchedByMedia">
+      <soap:operation soapAction="http://social.tvinci.com/GetFriendsWatchedByMedia" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserSocialPrivacy">
+      <soap:operation soapAction="http://social.tvinci.com/GetUserSocialPrivacy" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserAllowedSocialPrivacyList">
+      <soap:operation soapAction="http://social.tvinci.com/GetUserAllowedSocialPrivacyList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetUserSocialPrivacy">
+      <soap:operation soapAction="http://social.tvinci.com/SetUserSocialPrivacy" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserFriends">
+      <soap:operation soapAction="http://social.tvinci.com/GetUserFriends" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserActions">
+      <soap:operation soapAction="http://social.tvinci.com/GetUserActions" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetFriendsActions">
+      <soap:operation soapAction="http://social.tvinci.com/GetFriendsActions" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DoUserAction">
+      <soap:operation soapAction="http://social.tvinci.com/DoUserAction" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBConfig">
+      <soap:operation soapAction="http://social.tvinci.com/FBConfig" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBUserData">
+      <soap:operation soapAction="http://social.tvinci.com/FBUserData" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBUserDataByUserId">
+      <soap:operation soapAction="http://social.tvinci.com/FBUserDataByUserId" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBUserRegister">
+      <soap:operation soapAction="http://social.tvinci.com/FBUserRegister" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBUserMerge">
+      <soap:operation soapAction="http://social.tvinci.com/FBUserMerge" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBUserMergeByUserId">
+      <soap:operation soapAction="http://social.tvinci.com/FBUserMergeByUserId" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBObjectRequest">
+      <soap:operation soapAction="http://social.tvinci.com/FBObjectRequest" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetUserExternalActionShare">
+      <soap:operation soapAction="http://social.tvinci.com/SetUserExternalActionShare" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetUserInternalActionPrivacy">
+      <soap:operation soapAction="http://social.tvinci.com/SetUserInternalActionPrivacy" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserExternalActionShare">
+      <soap:operation soapAction="http://social.tvinci.com/GetUserExternalActionShare" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserInternalActionPrivacy">
+      <soap:operation soapAction="http://social.tvinci.com/GetUserInternalActionPrivacy" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAssetLikeCounter">
+      <soap:operation soapAction="http://social.tvinci.com/GetAssetLikeCounter" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Share">
+      <soap:operation soapAction="http://social.tvinci.com/Share" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserActivityFeed">
+      <soap:operation soapAction="http://social.tvinci.com/GetUserActivityFeed" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBUserUnmerge">
+      <soap:operation soapAction="http://social.tvinci.com/FBUserUnmerge" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBUserUnmergeByUserId">
+      <soap:operation soapAction="http://social.tvinci.com/FBUserUnmergeByUserId" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBTokenValidation">
+      <soap:operation soapAction="http://social.tvinci.com/FBTokenValidation" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBUserSignin">
+      <soap:operation soapAction="http://social.tvinci.com/FBUserSignin" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateFriendsActivityFeed">
+      <soap:operation soapAction="http://social.tvinci.com/UpdateFriendsActivityFeed" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteFriendsFeed">
+      <soap:operation soapAction="http://social.tvinci.com/DeleteFriendsFeed" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteUserFeed">
+      <soap:operation soapAction="http://social.tvinci.com/DeleteUserFeed" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="MergeFriendsActivityFeed">
+      <soap:operation soapAction="http://social.tvinci.com/MergeFriendsActivityFeed" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSocialConfiguration">
+      <soap:operation soapAction="http://social.tvinci.com/GetSocialConfiguration" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetUserSocialPrivacySettings">
+      <soap:operation soapAction="http://social.tvinci.com/SetUserSocialPrivacySettings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserSocialPrivacySettings">
+      <soap:operation soapAction="http://social.tvinci.com/GetUserSocialPrivacySettings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="testSetUserSocialPrivacySettings">
+      <soap:operation soapAction="http://social.tvinci.com/testSetUserSocialPrivacySettings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="moduleSoap12" type="tns:moduleSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetUsersLikedMedia">
+      <soap12:operation soapAction="http://social.tvinci.com/GetUsersLikedMedia" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllFriendsWatched">
+      <soap12:operation soapAction="http://social.tvinci.com/GetAllFriendsWatched" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetFriendsWatchedByMedia">
+      <soap12:operation soapAction="http://social.tvinci.com/GetFriendsWatchedByMedia" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserSocialPrivacy">
+      <soap12:operation soapAction="http://social.tvinci.com/GetUserSocialPrivacy" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserAllowedSocialPrivacyList">
+      <soap12:operation soapAction="http://social.tvinci.com/GetUserAllowedSocialPrivacyList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetUserSocialPrivacy">
+      <soap12:operation soapAction="http://social.tvinci.com/SetUserSocialPrivacy" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserFriends">
+      <soap12:operation soapAction="http://social.tvinci.com/GetUserFriends" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserActions">
+      <soap12:operation soapAction="http://social.tvinci.com/GetUserActions" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetFriendsActions">
+      <soap12:operation soapAction="http://social.tvinci.com/GetFriendsActions" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DoUserAction">
+      <soap12:operation soapAction="http://social.tvinci.com/DoUserAction" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBConfig">
+      <soap12:operation soapAction="http://social.tvinci.com/FBConfig" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBUserData">
+      <soap12:operation soapAction="http://social.tvinci.com/FBUserData" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBUserDataByUserId">
+      <soap12:operation soapAction="http://social.tvinci.com/FBUserDataByUserId" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBUserRegister">
+      <soap12:operation soapAction="http://social.tvinci.com/FBUserRegister" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBUserMerge">
+      <soap12:operation soapAction="http://social.tvinci.com/FBUserMerge" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBUserMergeByUserId">
+      <soap12:operation soapAction="http://social.tvinci.com/FBUserMergeByUserId" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBObjectRequest">
+      <soap12:operation soapAction="http://social.tvinci.com/FBObjectRequest" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetUserExternalActionShare">
+      <soap12:operation soapAction="http://social.tvinci.com/SetUserExternalActionShare" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetUserInternalActionPrivacy">
+      <soap12:operation soapAction="http://social.tvinci.com/SetUserInternalActionPrivacy" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserExternalActionShare">
+      <soap12:operation soapAction="http://social.tvinci.com/GetUserExternalActionShare" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserInternalActionPrivacy">
+      <soap12:operation soapAction="http://social.tvinci.com/GetUserInternalActionPrivacy" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAssetLikeCounter">
+      <soap12:operation soapAction="http://social.tvinci.com/GetAssetLikeCounter" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Share">
+      <soap12:operation soapAction="http://social.tvinci.com/Share" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserActivityFeed">
+      <soap12:operation soapAction="http://social.tvinci.com/GetUserActivityFeed" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBUserUnmerge">
+      <soap12:operation soapAction="http://social.tvinci.com/FBUserUnmerge" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBUserUnmergeByUserId">
+      <soap12:operation soapAction="http://social.tvinci.com/FBUserUnmergeByUserId" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBTokenValidation">
+      <soap12:operation soapAction="http://social.tvinci.com/FBTokenValidation" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBUserSignin">
+      <soap12:operation soapAction="http://social.tvinci.com/FBUserSignin" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateFriendsActivityFeed">
+      <soap12:operation soapAction="http://social.tvinci.com/UpdateFriendsActivityFeed" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteFriendsFeed">
+      <soap12:operation soapAction="http://social.tvinci.com/DeleteFriendsFeed" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteUserFeed">
+      <soap12:operation soapAction="http://social.tvinci.com/DeleteUserFeed" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="MergeFriendsActivityFeed">
+      <soap12:operation soapAction="http://social.tvinci.com/MergeFriendsActivityFeed" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSocialConfiguration">
+      <soap12:operation soapAction="http://social.tvinci.com/GetSocialConfiguration" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetUserSocialPrivacySettings">
+      <soap12:operation soapAction="http://social.tvinci.com/SetUserSocialPrivacySettings" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserSocialPrivacySettings">
+      <soap12:operation soapAction="http://social.tvinci.com/GetUserSocialPrivacySettings" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="testSetUserSocialPrivacySettings">
+      <soap12:operation soapAction="http://social.tvinci.com/testSetUserSocialPrivacySettings" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="moduleHttpPost" type="tns:moduleHttpPost">
+    <http:binding verb="POST" />
+    <wsdl:operation name="GetUsersLikedMedia">
+      <http:operation location="/GetUsersLikedMedia" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllFriendsWatched">
+      <http:operation location="/GetAllFriendsWatched" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetFriendsWatchedByMedia">
+      <http:operation location="/GetFriendsWatchedByMedia" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserSocialPrivacy">
+      <http:operation location="/GetUserSocialPrivacy" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserAllowedSocialPrivacyList">
+      <http:operation location="/GetUserAllowedSocialPrivacyList" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetUserSocialPrivacy">
+      <http:operation location="/SetUserSocialPrivacy" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserFriends">
+      <http:operation location="/GetUserFriends" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBConfig">
+      <http:operation location="/FBConfig" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBUserData">
+      <http:operation location="/FBUserData" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBUserDataByUserId">
+      <http:operation location="/FBUserDataByUserId" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBUserMerge">
+      <http:operation location="/FBUserMerge" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBUserMergeByUserId">
+      <http:operation location="/FBUserMergeByUserId" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetUserExternalActionShare">
+      <http:operation location="/SetUserExternalActionShare" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetUserInternalActionPrivacy">
+      <http:operation location="/SetUserInternalActionPrivacy" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserExternalActionShare">
+      <http:operation location="/GetUserExternalActionShare" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserInternalActionPrivacy">
+      <http:operation location="/GetUserInternalActionPrivacy" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAssetLikeCounter">
+      <http:operation location="/GetAssetLikeCounter" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Share">
+      <http:operation location="/Share" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserActivityFeed">
+      <http:operation location="/GetUserActivityFeed" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBUserUnmerge">
+      <http:operation location="/FBUserUnmerge" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBUserUnmergeByUserId">
+      <http:operation location="/FBUserUnmergeByUserId" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBTokenValidation">
+      <http:operation location="/FBTokenValidation" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FBUserSignin">
+      <http:operation location="/FBUserSignin" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateFriendsActivityFeed">
+      <http:operation location="/UpdateFriendsActivityFeed" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteFriendsFeed">
+      <http:operation location="/DeleteFriendsFeed" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteUserFeed">
+      <http:operation location="/DeleteUserFeed" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
+    <wsdl:operation name="MergeFriendsActivityFeed">
+      <http:operation location="/MergeFriendsActivityFeed" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserSocialPrivacySettings">
+      <http:operation location="/GetUserSocialPrivacySettings" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="testSetUserSocialPrivacySettings">
+      <http:operation location="/testSetUserSocialPrivacySettings" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="module">
+    <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
+      <soap:address location="http://localhost/ws_social/module.asmx" />
+    </wsdl:port>
+    <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
+      <soap12:address location="http://localhost/ws_social/module.asmx" />
+    </wsdl:port>
+    <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
+      <http:address location="http://localhost/ws_social/module.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

@@ -1,5 +1,16 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)">
   <Profiles />
+<<<<<<< HEAD
+  <Settings>
+    <Setting Name="WebAPI_Social_module" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://localhost/ws_social/module.asmx</Value>
+    </Setting>
+    <Setting Name="WebAPI_ConditionalAccess_module" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://localhost/WS_ConditionalAccess/module.asmx</Value>
+    </Setting>
+  </Settings>
+=======
   <Settings />
+>>>>>>> Refactoring
 </SettingsFile>

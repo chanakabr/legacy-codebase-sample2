@@ -12,24 +12,9 @@ namespace WebAPI.Models.Social
 {
     /// <summary>
     /// Returns social configuration for the partner 
-    /// </summary>
-    [OldStandard("appId", "app_id")]
+    /// </summary>  
     public class KalturaSocialConfig : KalturaOTTObject
     {
-        /// <summary>
-        ///The application identifier
-        /// </summary>
-        [DataMember(Name = "appId")]
-        [JsonProperty("appId")]
-        [XmlElement(ElementName = "appId")]
-        public string AppId { get; set; }
-
-        /// <summary>
-        /// List of application permissions
-        /// </summary>
-        [DataMember(Name = "permissions")]
-        [JsonProperty("permissions")]
-        [XmlElement(ElementName = "permissions")]
-        public string Permissions { get; set; }
+       
     }
 }

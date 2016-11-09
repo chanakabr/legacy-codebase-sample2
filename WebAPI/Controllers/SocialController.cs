@@ -438,18 +438,60 @@ namespace WebAPI.Controllers
         [Route("getConfiguration"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public KalturaSocialConfig GetConfiguration(int partnerId, KalturaSocialNetwork type)
+        public KalturaSocialConfig GetConfiguration( KalturaSocialNetwork? type, int? partnerId = null)
         {
-            KalturaSocialConfig response = null;            
+            KalturaSocialConfig response = null;
 
             try
             {
-                // call client               
-                switch (type)
+                int groupId = KS.GetFromRequest().GroupId;
+                string userID = KS.GetFromRequest().UserId;
+
+                // call client      
+                if (type == null)
                 {
-                    case KalturaSocialNetwork.facebook:
-                        response = ClientsManager.SocialClient().GetFacebookConfig(partnerId);
-                        break;
+                    // to do return KalturaSocialUserConfig
+                    response = ClientsManager.SocialClient().GetUserSocialPrivacySettings(userID, groupId);
+                }
+                else
+                {
+                    switch (type)
+                    {
+                        case KalturaSocialNetwork.facebook:
+                            response = ClientsManager.SocialClient().GetFacebookConfig(groupId);
+                            break;
+                    }
+                }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Set the user social network’s configuration information 
+        /// </summary>      
+        /// <param name="configuration">The social action settings</param>
+        /// <returns></returns>
+        [Route("UpdateConfiguration"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public KalturaSocialConfig UpdateConfiguration(KalturaSocialConfig configuration)
+        {
+            KalturaSocialConfig response = null;
+
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                string userID = KS.GetFromRequest().UserId;
+                
+                if (configuration is KalturaSocialUserConfig)
+                {
+                    KalturaSocialUserConfig socialActionConfig = (KalturaSocialUserConfig)configuration;
+                    response = ClientsManager.SocialClient().SetUserActionShareAndPrivacy(groupId, userID, socialActionConfig);
                 }
             }
             catch (ClientException ex)
