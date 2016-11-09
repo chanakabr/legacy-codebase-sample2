@@ -138,7 +138,7 @@ namespace DAL
             return moduleName;
         }
 
-        public static DataRow GetEncrypterData(int nGroupID, string connectionKey = "MAIN_CONNECTION_STRING")
+        public static DataRow GetEncrypterData(int nGroupID, string connectionKey)
         {
             DataRow ret = null;
 
