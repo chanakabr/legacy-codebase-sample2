@@ -407,11 +407,14 @@
     <None Include="Service References\Catalog\Service78.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\Catalog\Service79.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\Catalog\Service9.wsdl" />
     <None Include="Service References\Catalog\Service2.disco" />
     <None Include="Service References\Catalog\Service5.disco" />
     <None Include="Service References\Catalog\Service1.disco" />
-    <None Include="Service References\Catalog\Service.disco" />
+    <None Include="Service References\Catalog\Service11.disco" />
     <Content Include="Service References\Catalog\WebAPI.Catalog.BaseResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
@@ -584,177 +587,6 @@
     <Content Include="Service References\Notifications\WebAPI.Notifications.Status.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
-    <Content Include="Web References\ConditionalAccess\AssetItemPriceResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\BillingResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\BillingStatusResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\BillingTransactions.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\CampaignActionInfo.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\CDVRAdapterResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\CDVRAdapterResponseList.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\ChangeSubscriptionStatus.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\CollectionsPricesContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\DomainQuotaResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\DomainsBillingTransactionsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\DomainServicesResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\DomainTransactionsHistoryResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\EntitlementResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\Entitlements.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\LicensedLinkResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\MediaFileItemPricesContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\MediaFileItemPricesContainerResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\KeyValuePair.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <None Include="Web References\ConditionalAccess\module.disco" />
-    <None Include="Web References\ConditionalAccess\module.wsdl" />
-    <Content Include="Web References\ConditionalAccess\NPVRResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\PermittedCollectionContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\PermittedMediaContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\PermittedMediaContainerResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\PermittedSubscriptionContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\PrePaidHistoryResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\PrePaidPricesContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\PrePaidResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\PurchaseSessionIdResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\Recording.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\RecordingResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <None Include="Web References\ConditionalAccess\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <Content Include="Web References\ConditionalAccess\Status.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\SubscriptionsPricesContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\SubscriptionsPricesResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\TransactionResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\UserBillingTransactionsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\UserBundlesResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\UserCAStatus.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\UserPrePaidContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\UserPurhcasedAssetsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\SeriesRecording.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\SeriesResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\SearchableRecording.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Social\DoSocialActionResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Social\eSocialActionPrivacy.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Social\eSocialPrivacy.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Social\FacebookTokenResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Social\FBSignin.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Social\FriendWatchedObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Social\FacebookResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Social\FacebookConfigResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <None Include="Web References\Social\module.disco" />
-    <None Include="Web References\Social\module.wsdl" />
-    <None Include="Web References\Social\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <Content Include="Web References\Social\SocialActivityDoc.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Social\SocialObjectReponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Social\SocialActivityResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\CustomResponseFormatter.cs" />
@@ -797,6 +629,7 @@
     <Compile Include="Models\API\KalturaCountryListResponse.cs" />
     <Compile Include="Models\API\KalturaCountryOrderBy.cs" />
     <Compile Include="Models\API\KalturaMetaType.cs" />
+    <Compile Include="Models\API\KalturaOSSAdapterProfileListResponse.cs" />
     <Compile Include="Models\DMS\KalturaConfigurations.cs" />
     <Compile Include="Models\DMS\KalturaConfigurationsFilter.cs" />
     <Compile Include="Models\DMS\KalturaConfigurationsListResponse.cs" />
@@ -1310,16 +1143,6 @@
     <Compile Include="Utils\JilFormatter.cs" />
     <Compile Include="Utils\SerializationUtils.cs" />
     <Compile Include="Utils\Utils.cs" />
-    <Compile Include="Web References\ConditionalAccess\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>
-    <Compile Include="Web References\Social\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
 
@@ -1352,30 +1175,6 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://localhost/WS_ConditionalAccess/module.asmx">
-      <UrlBehavior>Dynamic</UrlBehavior>
-      <RelPath>Web References\ConditionalAccess\</RelPath>
-      <UpdateFromURL>http://localhost/WS_ConditionalAccess/module.asmx</UpdateFromURL>
-      <ServiceLocationURL>
-      </ServiceLocationURL>
-      <CachedDynamicPropName>
-      </CachedDynamicPropName>
-      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
-      <CachedSettingsPropName>WebAPI_ConditionalAccess_module</CachedSettingsPropName>
-    </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/ws_social/module.asmx">
-      <UrlBehavior>Dynamic</UrlBehavior>
-      <RelPath>Web References\Social\</RelPath>
-      <UpdateFromURL>http://localhost/ws_social/module.asmx</UpdateFromURL>
-      <ServiceLocationURL>
-      </ServiceLocationURL>
-      <CachedDynamicPropName>
-      </CachedDynamicPropName>
-      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
-      <CachedSettingsPropName>WebAPI_Social_module</CachedSettingsPropName>
-    </WebReferenceUrl>
-  </ItemGroup>
-  <ItemGroup>
     <WCFMetadataStorage Include="Service References\Catalog\" />
     <WCFMetadataStorage Include="Service References\Notifications\" />
   </ItemGroup>
@@ -1383,6 +1182,10 @@
     <ProjectReference Include="..\..\tvmcore\ApiObjects\ApiObjects.csproj">
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\ConditionalAccess\ConditionalAccess.csproj">
+      <Project>{d36bc548-5359-4db0-8692-ed3d1e9c38e7}</Project>
+      <Name>ConditionalAccess</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\DAL\DAL.csproj">
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
@@ -1408,6 +1211,10 @@
       <Project>{944128c1-804a-4444-a697-37e019af5850}</Project>
       <Name>WS_Billing</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\ws_conditionalaccess\WS_ConditionalAccess.csproj">
+      <Project>{5368db6d-5ac3-432c-b1b6-43276d42a869}</Project>
+      <Name>WS_ConditionalAccess</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\ws_domains\WS_Domains.csproj">
       <Project>{359cfa7e-bee9-4bc8-b1f7-e53e64f28aa7}</Project>
       <Name>WS_Domains</Name>
@@ -1419,6 +1226,14 @@
     <ProjectReference Include="..\..\ws_pricing\WS_Pricing.csproj">
       <Project>{2c08f19b-40e0-4ef1-9f7d-5132c795a184}</Project>
       <Name>WS_Pricing</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ws_social\Social\Social.csproj">
+      <Project>{9b08c03b-c3db-4850-8809-44f0059ed338}</Project>
+      <Name>Social</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ws_social\WS_Social.csproj">
+      <Project>{2f2a7c8d-bde1-43bc-acaf-86df0bc86815}</Project>
+      <Name>WS_Social</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\ws_users\WS_Users.csproj">
       <Project>{7a491492-fd8e-47da-ad3e-7fdc5fdf5e03}</Project>

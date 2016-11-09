@@ -83,7 +83,7 @@ namespace WebAPI.Controllers
 
 
                             response = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
-                                0, 0, ids, with.Select(x => x.type).ToList());
+                                pager.getPageIndex(), pager.PageSize, ids, with.Select(x => x.type).ToList());
 
                             // if no response - return not found status 
                             if (response == null || response.Objects == null || response.Objects.Count == 0)
@@ -102,7 +102,7 @@ namespace WebAPI.Controllers
                             }
 
                             response = ClientsManager.CatalogClient().GetEPGByInternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
-                               0, 0, ids, with.Select(x => x.type).ToList());
+                               pager.getPageIndex(), pager.PageSize, ids, with.Select(x => x.type).ToList());
 
                             // if no response - return not found status 
                             if (response == null || response.Objects == null || response.Objects.Count == 0)
@@ -115,7 +115,7 @@ namespace WebAPI.Controllers
                     case KalturaCatalogReferenceBy.EPG_EXTERNAL:
                         {
                             response = ClientsManager.CatalogClient().GetEPGByExternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
-                                  0, 1, filter.IDs.Select(id => id.value).ToList(), with.Select(x => x.type).ToList());
+                                  pager.getPageIndex(), pager.PageSize, filter.IDs.Select(id => id.value).ToList(), with.Select(x => x.type).ToList());
 
                             // if no response - return not found status 
                             if (response == null || response.Objects == null || response.Objects.Count == 0)

@@ -1,4 +1,5 @@
-﻿using ApiObjects.Response;
+﻿using ApiObjects;
+using ApiObjects.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,6 @@ using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Social;
 using WebAPI.Models.Users;
-using WebAPI.Social;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers

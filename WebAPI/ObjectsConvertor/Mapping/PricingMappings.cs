@@ -3,17 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using AutoMapper;
-using WebAPI.Exceptions;
-using WebAPI.Models.General;
-using WebAPI.Managers.Models;
-using WebAPI.Utils;
-using WebAPI.Models.ConditionalAccess;
-using WebAPI.Models.Pricing;
 using Pricing;
 using ApiObjects;
+using ConditionalAccess;
+using WebAPI.Utils;
+using WebAPI.Managers.Models;
+using WebAPI.Exceptions;
+using WebAPI.Models.Pricing;
+using WebAPI.Models.General;
+using WebAPI.Models.ConditionalAccess;
+using WebAPI.Models.Users;
+using WebAPI.Models.Catalog;
 
 
-namespace WebAPI.Mapping.ObjectsConvertor
+namespace WebAPI.ObjectsConvertor.Mapping
 {
     public class PricingMappings
     {
@@ -61,7 +64,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.WaiverPeriod, opt => opt.MapFrom(src => src.m_nWaiverPeriod));
 
             // UserType
-            Mapper.CreateMap<UserType, Models.Users.KalturaOTTUserType>()
+            Mapper.CreateMap<UserType, KalturaOTTUserType>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
@@ -73,27 +76,27 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.NonRenewablePeriod, opt => opt.MapFrom(src => src.m_tsNonRenewPeriod));
 
             // ServiceObject to PremiumService
-            Mapper.CreateMap<ServiceObject, Models.ConditionalAccess.KalturaPremiumService>()
+            Mapper.CreateMap<ServiceObject, KalturaPremiumService>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
             // LanguageContainer to TranslationContainer
-            Mapper.CreateMap<LanguageContainer, Models.General.KalturaTranslationToken>()
+            Mapper.CreateMap<LanguageContainer, KalturaTranslationToken>()
                .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.m_sLanguageCode3))
                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.m_sValue));
 
             // LanguageContainer to TranslationContainer
-            Mapper.CreateMap<ConditionalAccess.LanguageContainer, Models.General.KalturaTranslationToken>()
+            Mapper.CreateMap<LanguageContainer, KalturaTranslationToken>()
                .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.m_sLanguageCode3))
                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.m_sValue));
 
             // BundleCodeContainer to SlimChannel
-            Mapper.CreateMap<BundleCodeContainer, Models.Catalog.KalturaBaseChannel>()
+            Mapper.CreateMap<BundleCodeContainer, KalturaBaseChannel>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_sCode))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName));
 
             // BundleCodeContainer to SlimChannel
-            Mapper.CreateMap<ConditionalAccess.SubscriptionsPricesContainer, KalturaSubscriptionPrice>()
+            Mapper.CreateMap<SubscriptionsPricesContainer, KalturaSubscriptionPrice>()
                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.m_sSubscriptionCode))
                .ForMember(dest => dest.PurchaseStatus, opt => opt.MapFrom(src => ConvertPriceReasonToPurchaseStatus(src.m_PriceReason)))
                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oPrice))
@@ -147,7 +150,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.DiscountId, opt => opt.MapFrom(src => src.m_ext_discount_id));
 
             // ItemPriceContainer to PPVItemPriceDetails
-            Mapper.CreateMap<ConditionalAccess.ItemPriceContainer, KalturaPPVItemPriceDetails>()
+            Mapper.CreateMap<ItemPriceContainer, KalturaPPVItemPriceDetails>()
                .ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.m_relevantCol))
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.m_dtEndDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(src.m_dtEndDate.Value) : 0))
                .ForMember(dest => dest.DiscountEndDate, opt => opt.MapFrom(src => src.m_dtDiscountEndDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(src.m_dtDiscountEndDate.Value) : 0))
@@ -168,7 +171,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.m_sProductCode));
 
             // ItemPriceContainer to PPVItemPriceDetails
-            Mapper.CreateMap<ConditionalAccess.MediaFileItemPricesContainer, KalturaItemPrice>()
+            Mapper.CreateMap<MediaFileItemPricesContainer, KalturaItemPrice>()
                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.m_sProductCode))
                .ForMember(dest => dest.FileId, opt => opt.MapFrom(src => src.m_nMediaFileID))
                .ForMember(dest => dest.PPVPriceDetails, opt => opt.MapFrom(src => src.m_oItemPrices));
@@ -193,7 +196,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.FirstDeviceLimitation, opt => opt.MapFrom(src => src.m_bFirstDeviceLimitation));
 
              //KalturaPpvPrice
-            Mapper.CreateMap<ConditionalAccess.ItemPriceContainer, KalturaPpvPrice>()
+            Mapper.CreateMap<ItemPriceContainer, KalturaPpvPrice>()
                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.m_sProductCode))
                .ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.m_relevantCol))
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.m_dtEndDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(src.m_dtEndDate.Value) : 0))
@@ -226,48 +229,48 @@ namespace WebAPI.Mapping.ObjectsConvertor
             return result;
         }
 
-        private static KalturaPurchaseStatus ConvertPriceReasonToPurchaseStatus(ConditionalAccess.PriceReason priceReason)
+        private static KalturaPurchaseStatus ConvertPriceReasonToPurchaseStatus(PriceReason priceReason)
         {
             KalturaPurchaseStatus result;
             switch (priceReason)
             {
-                case WebAPI.ConditionalAccess.PriceReason.PPVPurchased:
+                case PriceReason.PPVPurchased:
                     result = KalturaPurchaseStatus.ppv_purchased;
                     break;
-                case WebAPI.ConditionalAccess.PriceReason.Free:
+                case PriceReason.Free:
                     result = KalturaPurchaseStatus.free;
                     break;
-                case WebAPI.ConditionalAccess.PriceReason.ForPurchaseSubscriptionOnly:
+                case PriceReason.ForPurchaseSubscriptionOnly:
                     result = KalturaPurchaseStatus.for_purchase_subscription_only;
                     break;
-                case WebAPI.ConditionalAccess.PriceReason.SubscriptionPurchased:
+                case PriceReason.SubscriptionPurchased:
                     result = KalturaPurchaseStatus.subscription_purchased;
                     break;
-                case WebAPI.ConditionalAccess.PriceReason.ForPurchase:
+                case PriceReason.ForPurchase:
                     result = KalturaPurchaseStatus.for_purchase;
                     break;
-                case WebAPI.ConditionalAccess.PriceReason.SubscriptionPurchasedWrongCurrency:
+                case PriceReason.SubscriptionPurchasedWrongCurrency:
                     result = KalturaPurchaseStatus.subscription_purchased_wrong_currency;
                     break;
-                case WebAPI.ConditionalAccess.PriceReason.PrePaidPurchased:
+                case PriceReason.PrePaidPurchased:
                     result = KalturaPurchaseStatus.pre_paid_purchased;
                     break;
-                case WebAPI.ConditionalAccess.PriceReason.GeoCommerceBlocked:
+                case PriceReason.GeoCommerceBlocked:
                     result = KalturaPurchaseStatus.geo_commerce_blocked;
                     break;
-                case WebAPI.ConditionalAccess.PriceReason.EntitledToPreviewModule:
+                case PriceReason.EntitledToPreviewModule:
                     result = KalturaPurchaseStatus.entitled_to_preview_module;
                     break;
-                case WebAPI.ConditionalAccess.PriceReason.FirstDeviceLimitation:
+                case PriceReason.FirstDeviceLimitation:
                     result = KalturaPurchaseStatus.first_device_limitation;
                     break;
-                case WebAPI.ConditionalAccess.PriceReason.CollectionPurchased:
+                case PriceReason.CollectionPurchased:
                     result = KalturaPurchaseStatus.collection_purchased;
                     break;
-                case WebAPI.ConditionalAccess.PriceReason.UserSuspended:
+                case PriceReason.UserSuspended:
                     result = KalturaPurchaseStatus.user_suspended;
                     break;
-                case WebAPI.ConditionalAccess.PriceReason.NotForPurchase:
+                case PriceReason.NotForPurchase:
                     result = KalturaPurchaseStatus.not_for_purchase;
                     break;
                 default:
@@ -324,7 +327,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
             return result;
         }
 
-        public static List<KalturaPpvPrice> ConvertPpvPrice(WebAPI.ConditionalAccess.MediaFileItemPricesContainer[] itemPrices)
+        public static List<KalturaPpvPrice> ConvertPpvPrice(MediaFileItemPricesContainer[] itemPrices)
         {
             List<KalturaPpvPrice> prices = null;
             if (itemPrices != null)

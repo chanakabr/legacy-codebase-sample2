@@ -20,7 +20,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "idEqual")]
         [JsonProperty("idEqual")]
-        [XmlElement(ElementName = "idEqual", IsNullable = true)]
+        [XmlElement(ElementName = "idEqual")]
         [SchemeProperty(MinInteger = 1)]
         public int IdEqual { get; set; }
 
@@ -35,7 +35,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "orderBy")]
         [JsonProperty("orderBy")]
-        [XmlElement(ElementName = "orderBy", IsNullable = true)]
+        [XmlElement(ElementName = "orderBy")]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public KalturaAssetOrderBy OrderBy
         {

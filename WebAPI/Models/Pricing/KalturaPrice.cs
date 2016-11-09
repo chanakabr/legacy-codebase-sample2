@@ -22,7 +22,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "amount")]
         [JsonProperty("amount")]
-        [XmlElement(ElementName = "amount")]
+        [XmlElement(ElementName = "amount", IsNullable = true)]
         public double? Amount { get; set; }
 
         /// <summary>

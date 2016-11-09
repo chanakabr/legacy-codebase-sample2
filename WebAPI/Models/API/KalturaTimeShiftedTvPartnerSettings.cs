@@ -159,7 +159,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "nonEntitledChannelPlaybackEnabled")]
         [JsonProperty("nonEntitledChannelPlaybackEnabled")]
-        [XmlElement(ElementName = "nonEntitledChannelPlaybackEnabled", IsNullable = false)]
+        [XmlElement(ElementName = "nonEntitledChannelPlaybackEnabled", IsNullable = true)]
         public bool? NonEntitledChannelPlaybackEnabled { get; set; }
 
         /// <summary>
@@ -167,7 +167,7 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "nonExistingChannelPlaybackEnabled")]
         [JsonProperty("nonExistingChannelPlaybackEnabled")]
-        [XmlElement(ElementName = "nonExistingChannelPlaybackEnabled", IsNullable = false)]
+        [XmlElement(ElementName = "nonExistingChannelPlaybackEnabled", IsNullable = true)]
         public bool? NonExistingChannelPlaybackEnabled { get; set; }
         
 

@@ -2,16 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using WebAPI.Catalog;
-using WebAPI.Models;
-using WebAPI.Utils;
-using WebAPI.Models.Catalog;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
-using WebAPI.ClientManagers;
+using WebAPI.Utils;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -34,7 +31,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
                  .ForMember(dest => dest.Height, opt => opt.MapFrom(src => src.PicHeight))
                  .ForMember(dest => dest.Width, opt => opt.MapFrom(src => src.PicWidth))
-                 .ForMember(dest => dest.Ratio, opt => opt.MapFrom(src => src.Ratio));
+                 .ForMember(dest => dest.Ratio, opt => opt.MapFrom(src => src.Ratio))
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                 .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version));
 
             //File 
             Mapper.CreateMap<FileMedia, KalturaMediaFile>()
@@ -165,10 +164,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             //User to KalturaBaseOTTUser
             Mapper.CreateMap<User, WebAPI.Models.Users.KalturaBaseOTTUser>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_sSiteGUIDField))
-                .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.m_oBasicDataField.m_sUserNameField))
-                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.m_oBasicDataField.m_sFirstNameField))
-                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.m_oBasicDataField.m_sLastNameField));
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_sSiteGUID))
+                .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.m_oBasicData.m_sUserName))
+                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.m_oBasicData.m_sFirstName))
+                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.m_oBasicData.m_sLastName));
 
             //UnifiedSearchResuannounclt to KalturaSlimAsset
             Mapper.CreateMap<UnifiedSearchResult, WebAPI.Models.Catalog.KalturaSlimAsset>()
@@ -177,9 +176,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // Country
             Mapper.CreateMap<Catalog.Country, WebAPI.Models.Users.KalturaCountry>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nObjecrtIDField))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sCountryNameField))
-                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.m_sCountryCodeField));
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nObjecrtID))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sCountryName))
+                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.m_sCountryCode));
 
             //BaseObject to KalturaAsset
             Mapper.CreateMap<BaseObject, KalturaAsset>()
@@ -294,10 +293,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dCreateDate)))
                 .ForMember(dest => dest.Header, opt => opt.MapFrom(src => src.m_sHeader))
                 .ForMember(dest => dest.SubHeader, opt => opt.MapFrom(src => src.m_sSubHeader))
-                .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.m_sContentText))               
+                .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.m_sContentText))
                 .ForMember(dest => dest.Writer, opt => opt.MapFrom(src => src.m_sWriter));
         }
-        
+
         //eAssetTypes to KalturaAssetType
         public static KalturaAssetType ConvertAssetType(eAssetTypes assetType)
         {
@@ -333,7 +332,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case eAssetType.MEDIA:
                     result = KalturaAssetType.media;
                     break;
-                case eAssetType.UNKNOWN:                    
+                case eAssetType.UNKNOWN:
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown Asset Type");
             }
@@ -395,7 +394,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     result = eWatchStatus.All;
                     break;
                 default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown watch status");                    
+                    throw new ClientException((int)StatusCode.Error, "Unknown watch status");
             }
             return result;
         }
@@ -512,7 +511,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             extraParams.Add("enable_recording_playback_non_entitled_channel", new KalturaStringValue() { value = media.EnableRecordingPlaybackNonEntitledChannel.ToString() });
             extraParams.Add("enable_recording_playback_non_existing_channel", new KalturaStringValue() { value = media.EnableRecordingPlaybackNonExistingChannel.ToString() });
-            
+
 
             return extraParams;
         }
@@ -581,7 +580,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 Position = catalogBookmark.Location,
                 PositionOwner = ConvertPositionOwner(catalogBookmark.UserType),
                 Type = ConvertAssetType(assetBookmark.AssetType),
-                UserId = catalogBookmark.User.m_sSiteGUIDField,
+                UserId = catalogBookmark.User.m_sSiteGUID,
                 User = Mapper.Map<WebAPI.Models.Users.KalturaBaseOTTUser>(catalogBookmark.User)
             };
         }
@@ -720,7 +719,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     result = KalturaScheduledRecordingAssetType.all;
                     break;
                 default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown ScheduledRecordingAssetType");                    
+                    throw new ClientException((int)StatusCode.Error, "Unknown ScheduledRecordingAssetType");
             }
 
             return result;
@@ -741,11 +740,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     result = ScheduledRecordingAssetType.ALL;
                     break;
                 default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown KalturaScheduledRecordingAssetType");                    
+                    throw new ClientException((int)StatusCode.Error, "Unknown KalturaScheduledRecordingAssetType");
             }
 
             return result;
         }
-      
+
     }
 }

@@ -3,12 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using AutoMapper;
-using WebAPI.Models.Users;
+using Users;
+using Users;
+using DAL;
+using ApiObjects;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Models.Social;
+using WebAPI.Models.Catalog;
+using WebAPI.Models.Users;
 using WebAPI.Models.General;
-using WebAPI.Social;
+using Social;
+using WebAPI.Models.Social;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -17,7 +22,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
         public static void RegisterMappings()
         {
             // FacebookResponse to ClientFacebookResponse
-            Mapper.CreateMap<WebAPI.Social.FacebookResponseObject, WebAPI.Models.Social.KalturaFacebookSocial>()
+            Mapper.CreateMap<FacebookResponseObject, KalturaFacebookSocial>()
                 .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.fbUser.id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.fbUser.name))
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.fbUser.first_name))
@@ -29,7 +34,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.status))
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid));
 
-            Mapper.CreateMap<WebAPI.Social.FacebookResponseObject, WebAPI.Models.Social.KalturaSocialResponse>()
+            Mapper.CreateMap<FacebookResponseObject, KalturaSocialResponse>()
                 .ForMember(dest => dest.Data, opt => opt.MapFrom(src => src.data))
                 .ForMember(dest => dest.SocialNetworkUsername, opt => opt.MapFrom(src => src.facebookName))
                 .ForMember(dest => dest.SocialUser, opt => opt.MapFrom(src => src.fbUser))
@@ -41,7 +46,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid));
 
             // FBUser to FacebookUser
-            Mapper.CreateMap<WebAPI.Social.FBUser, WebAPI.Models.Social.KalturaSocialUser>()
+            Mapper.CreateMap<FBUser, KalturaSocialUser>()
                 .ForMember(dest => dest.Birthday, opt => opt.MapFrom(src => src.Birthday))
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.email))
                 .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.id))
@@ -52,18 +57,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.m_sSiteGuid));
 
             // UserType
-            Mapper.CreateMap<Social.UserType, KalturaOTTUserType>()
+            Mapper.CreateMap<Users.UserType, KalturaOTTUserType>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
             // Country
-            Mapper.CreateMap<Social.Country, KalturaCountry>()
+            Mapper.CreateMap<Users.Country, KalturaCountry>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nObjecrtID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sCountryName))
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.m_sCountryCode));
 
             //// UserBasicData
-            //Mapper.CreateMap<Social.UserBasicData, KalturaUserBasicData>()
+            //Mapper.CreateMap<UserBasicData, KalturaUserBasicData>()
             //    .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.m_sAddress))
             //    .ForMember(dest => dest.AffiliateCode, opt => opt.MapFrom(src => src.m_sAffiliateCode))
             //    .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.m_sCity))
@@ -81,7 +86,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //    .ForMember(dest => dest.Zip, opt => opt.MapFrom(src => src.m_sZip));
 
             // User - TODO: Unifiy with UsersMapping
-            Mapper.CreateMap<Social.UserResponseObject, KalturaOTTUser>()
+            Mapper.CreateMap<UserResponseObject, KalturaOTTUser>()
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sFirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sLastName))
                 .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sUserName))
@@ -106,12 +111,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UserState, opt => opt.MapFrom(src => ConvertResponseStatusToUserState(src.m_RespStatus)));
 
             // FacebookConfig to KalturaFacebookConfig
-            Mapper.CreateMap<Social.FacebookConfig, KalturaSocialFacebookConfig>()
+            Mapper.CreateMap<FacebookConfig, KalturaSocialFacebookConfig>()
                 .ForMember(dest => dest.AppId, opt => opt.MapFrom(src => src.sFBKey))
                 .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src => src.sFBPermissions));
 
             // SocialActivityDoc to KalturaSocialFriendActivity
-            Mapper.CreateMap<Social.SocialActivityDoc, KalturaSocialFriendActivity>()
+            Mapper.CreateMap<SocialActivityDoc, KalturaSocialFriendActivity>()
                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.ActivityObject.AssetID))
                 .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertToKalturaAssetType(src.ActivityObject.AssetType)))
                 .ForMember(dest => dest.SocialAction, opt => opt.MapFrom(src => src))
@@ -119,18 +124,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UserPictureUrl, opt => opt.MapFrom(src => src.ActivitySubject.ActorPicUrl));
 
             // ActivityVerb to KalturaSocialAction
-            Mapper.CreateMap<Social.SocialActivityDoc, KalturaSocialAction>().ConstructUsing(ConvertToKalturaSocialAction);
 
-            Mapper.CreateMap<KalturaSocialUserConfig, Social.SocialNetwork[]>().ConstructUsing(ConvertSocialNetwork);
+            Mapper.CreateMap<KalturaSocialUserConfig, ApiObjects.Social.SocialNetwork[]>().ConstructUsing(ConvertSocialNetwork);
 
-            Mapper.CreateMap<Social.SocialPrivacySettings, KalturaSocialConfig>().ConstructUsing(ConvertSocialNetwork);
+            Mapper.CreateMap<ApiObjects.Social.SocialPrivacySettings, KalturaSocialConfig>().ConstructUsing(ConvertSocialNetwork);
+
+            Mapper.CreateMap<SocialActivityDoc, KalturaSocialAction>().ConstructUsing(ConvertToKalturaSocialAction);
 
         }
 
         private static KalturaSocialAction ConvertToKalturaSocialAction(ResolutionContext context)
         {
             KalturaSocialAction result;
-            var action = (Social.SocialActivityDoc)context.SourceValue;
+            var action = (SocialActivityDoc)context.SourceValue;
             var actionType = ConvertToKalturaSocialActionType(action.ActivityVerb.ActionType);
 
             if (actionType == KalturaSocialActionType.RATE)
@@ -150,15 +156,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        public static WebAPI.Social.KeyValuePair[] ConvertDictionaryToKeyValue(Dictionary<string, string> dictionary)
+        public static KeyValuePair[] ConvertDictionaryToKeyValue(Dictionary<string, string> dictionary)
         {
             if (dictionary != null && dictionary.Count > 0)
             {
-                WebAPI.Social.KeyValuePair[] keyValuePair = new Social.KeyValuePair[dictionary.Count];
+                KeyValuePair[] keyValuePair = new KeyValuePair[dictionary.Count];
 
                 for (int i = 0; i < dictionary.Count; i++)
                 {
-                    keyValuePair[i] = new Social.KeyValuePair()
+                    keyValuePair[i] = new KeyValuePair()
                     {
                         key = dictionary.ElementAt(i).Key,
                         value = dictionary.ElementAt(i).Value
@@ -171,7 +177,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return null;
         }
 
-        public static SerializableDictionary<string, KalturaStringValue> ConvertDynamicData(Social.UserDynamicData userDynamicData)
+        public static SerializableDictionary<string, KalturaStringValue> ConvertDynamicData(UserDynamicData userDynamicData)
         {
             SerializableDictionary<string, KalturaStringValue> result = null;
 
@@ -190,15 +196,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static KalturaHouseholdSuspentionState ConvertDomainSuspentionStatus(WebAPI.Social.DomainSuspentionStatus type)
+        private static KalturaHouseholdSuspentionState ConvertDomainSuspentionStatus(DomainSuspentionStatus type)
         {
             KalturaHouseholdSuspentionState result;
             switch (type)
             {
-                case WebAPI.Social.DomainSuspentionStatus.OK:
+                case DomainSuspentionStatus.OK:
                     result = KalturaHouseholdSuspentionState.not_suspended;
                     break;
-                case WebAPI.Social.DomainSuspentionStatus.Suspended:
+                case DomainSuspentionStatus.Suspended:
                     result = KalturaHouseholdSuspentionState.suspended;
                     break;
                 default:
@@ -207,15 +213,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static KalturaUserState ConvertResponseStatusToUserState(WebAPI.Social.ResponseStatus type)
+        private static KalturaUserState ConvertResponseStatusToUserState(ResponseStatus type)
         {
             KalturaUserState result;
             switch (type)
             {
-                case WebAPI.Social.ResponseStatus.OK:
+                case ResponseStatus.OK:
                     result = KalturaUserState.ok;
                     break;
-                case WebAPI.Social.ResponseStatus.UserWithNoDomain:
+                case ResponseStatus.UserWithNoDomain:
                     result = KalturaUserState.user_with_no_household;
                     break;
                 default:
@@ -224,20 +230,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        internal static Social.eUserAction ConvertSocialAction(KalturaSocialActionType action)
+        internal static eUserAction ConvertSocialAction(KalturaSocialActionType action)
         {
-            Social.eUserAction result;
+            eUserAction result;
 
             switch (action)
             {
                 case KalturaSocialActionType.LIKE:
-                    result = Social.eUserAction.LIKE;
+                    result = eUserAction.LIKE;
                     break;
                 case KalturaSocialActionType.WATCH:
-                    result = Social.eUserAction.WATCHES;
+                    result = eUserAction.WATCHES;
                     break;
                 case KalturaSocialActionType.RATE:
-                    result = Social.eUserAction.RATES;
+                    result = eUserAction.RATES;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown social action");
@@ -248,18 +254,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
         }
 
         //eAssetType to KalturaAssetType
-        public static WebAPI.Models.Catalog.KalturaAssetType ConvertToKalturaAssetType(WebAPI.Social.eAssetType assetType)
+        public static KalturaAssetType ConvertToKalturaAssetType(eAssetType assetType)
         {
-            WebAPI.Models.Catalog.KalturaAssetType result;
+            KalturaAssetType result;
             switch (assetType)
             {
-                case WebAPI.Social.eAssetType.PROGRAM:
-                    result = WebAPI.Models.Catalog.KalturaAssetType.epg;
+                case eAssetType.PROGRAM:
+                    result = KalturaAssetType.epg;
                     break;
-                case WebAPI.Social.eAssetType.MEDIA:
-                    result = WebAPI.Models.Catalog.KalturaAssetType.media;
+                case eAssetType.MEDIA:
+                    result = KalturaAssetType.media;
                     break;
-                case WebAPI.Social.eAssetType.UNKNOWN:
+                case eAssetType.UNKNOWN:
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown Asset Type");
             }
@@ -289,16 +295,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static Social.SocialNetwork[] ConvertSocialNetwork(KalturaSocialUserConfig config)
+        private static ApiObjects.Social.SocialNetwork[] ConvertSocialNetwork(KalturaSocialUserConfig config)
         {
-            List<Social.SocialNetwork> socialNetworkList = new List<Social.SocialNetwork>();
-            WebAPI.Social.SocialNetwork socialnetwork;
+            List<ApiObjects.Social.SocialNetwork> socialNetworkList = new List<ApiObjects.Social.SocialNetwork>();
+            ApiObjects.Social.SocialNetwork socialnetwork;
 
-            WebAPI.Social.SocialPrivacySettings settings = new Social.SocialPrivacySettings();
+            ApiObjects.Social.SocialPrivacySettings settings = new ApiObjects.Social.SocialPrivacySettings();
 
             foreach (KalturaActionPermissionItem permissionItem in config.PermissionItems)
             {
-                socialnetwork = new Social.SocialNetwork();
+                socialnetwork = new ApiObjects.Social.SocialNetwork();
                 if (permissionItem.Network == null) // internal seetings
                 {
                     switch (permissionItem.ActionPrivacy)
@@ -366,7 +372,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return socialNetworkList.ToArray();
         }
 
-        private static KalturaSocialConfig ConvertSocialNetwork(Social.SocialPrivacySettings socialPrivacySettings)
+        private static KalturaSocialConfig ConvertSocialNetwork(ApiObjects.Social.SocialPrivacySettings socialPrivacySettings)
         {
             KalturaSocialUserConfig ksc = new KalturaSocialUserConfig();
             KalturaActionPermissionItem kapi = new KalturaActionPermissionItem();
@@ -375,10 +381,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 ksc.PermissionItems = new List<KalturaActionPermissionItem>();
                 switch (socialPrivacySettings.InternalPrivacy)
                 {
-                    case WebAPI.Social.eSocialActionPrivacy.ALLOW:
+                    case ApiObjects.eSocialActionPrivacy.ALLOW:
                         kapi.ActionPrivacy = KalturaSocialActionPrivacy.ALLOW;
                         break;
-                    case WebAPI.Social.eSocialActionPrivacy.DONT_ALLOW:
+                    case ApiObjects.eSocialActionPrivacy.DONT_ALLOW:
                         kapi.ActionPrivacy = KalturaSocialActionPrivacy.DONT_ALLOW;
                         break;
                     default:
@@ -394,28 +400,28 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     kapi = new KalturaActionPermissionItem();
                     switch (item.Network)
                     {
-                        case WebAPI.Social.SocialPlatform.FACEBOOK:
+                        case ApiObjects.SocialPlatform.FACEBOOK:
                             kapi.Network = KalturaSocialNetwork.facebook;
                             break;
                     }
                     switch (item.SocialPrivacy)
                     {
-                        case WebAPI.Social.eSocialPrivacy.UNKNOWN:
+                        case ApiObjects.eSocialPrivacy.UNKNOWN:
                             kapi.Privacy = KalturaSocialPrivacy.UNKNOWN;
                             break;
-                        case WebAPI.Social.eSocialPrivacy.EVERYONE:
+                        case ApiObjects.eSocialPrivacy.EVERYONE:
                             kapi.Privacy = KalturaSocialPrivacy.EVERYONE;
                             break;
-                        case WebAPI.Social.eSocialPrivacy.ALL_FRIENDS:
+                        case ApiObjects.eSocialPrivacy.ALL_FRIENDS:
                             kapi.Privacy = KalturaSocialPrivacy.ALL_FRIENDS;
                             break;
-                        case WebAPI.Social.eSocialPrivacy.FRIENDS_OF_FRIENDS:
+                        case ApiObjects.eSocialPrivacy.FRIENDS_OF_FRIENDS:
                             kapi.Privacy = KalturaSocialPrivacy.FRIENDS_OF_FRIENDS;
                             break;
-                        case WebAPI.Social.eSocialPrivacy.SELF:
+                        case ApiObjects.eSocialPrivacy.SELF:
                             kapi.Privacy = KalturaSocialPrivacy.SELF;
                             break;
-                        case WebAPI.Social.eSocialPrivacy.CUSTOM:
+                        case ApiObjects.eSocialPrivacy.CUSTOM:
                             kapi.Privacy = KalturaSocialPrivacy.CUSTOM;
                             break;
                         default:
@@ -423,10 +429,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     }
                     switch (item.Privacy)
                     {
-                        case WebAPI.Social.eSocialActionPrivacy.ALLOW:
+                        case ApiObjects.eSocialActionPrivacy.ALLOW:
                             kapi.ActionPrivacy = KalturaSocialActionPrivacy.ALLOW;
                             break;
-                        case WebAPI.Social.eSocialActionPrivacy.DONT_ALLOW:
+                        case ApiObjects.eSocialActionPrivacy.DONT_ALLOW:
                             kapi.ActionPrivacy = KalturaSocialActionPrivacy.DONT_ALLOW;
                             break;
                         default:

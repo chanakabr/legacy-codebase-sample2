@@ -17,7 +17,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "idEqual")]
         [JsonProperty("idEqual")]
-        [XmlElement(ElementName = "idEqual", IsNullable = true)]
+        [XmlElement(ElementName = "idEqual")]
         [SchemeProperty(MinInteger = 1)]
         public int IdEqual { get; set; }
 
@@ -37,7 +37,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "bundleTypeEqual")]
         [JsonProperty("bundleTypeEqual")]
-        [XmlElement(ElementName = "bundleTypeEqual", IsNullable = true)]
+        [XmlElement(ElementName = "bundleTypeEqual")]
         public KalturaBundleType BundleTypeEqual { get; set; }
 
         internal List<int> getTypeIn()
