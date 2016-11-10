@@ -846,6 +846,30 @@ namespace ElasticSearch.Common
             return bResult;
         }
 
+        public bool AddQueryToPercolatorV2(string index, string queryId, ref string queryBody)
+        {
+            bool result = false;
+
+            if (string.IsNullOrEmpty(index) || string.IsNullOrEmpty(queryId) || string.IsNullOrEmpty(queryBody))
+                return result;
+
+            string sUrl = string.Format("{0}/{1}/.percolator/{2} ", baseUrl, index, queryId);
+            int nStatus = 0;
+
+            string httpResult = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, queryBody, true);
+
+            if (nStatus == 200)
+            {
+                result = true;
+            }
+            else
+            {
+                log.Error("Error - " + string.Format("Adding Query to Percolator failed. url={0};query={1}; Explanation={2}", sUrl, queryBody, httpResult));
+            }
+
+            return result;
+        }
+
         #endregion
 
         #region Get methods
